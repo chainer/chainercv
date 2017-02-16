@@ -90,3 +90,7 @@ class FCN32s(chainer.Chain):
         }, self)
 
         return self.loss
+
+    def extract(self, x, t):
+        self.__call__(x, t)
+        return self.score

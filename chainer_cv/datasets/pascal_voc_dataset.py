@@ -89,17 +89,17 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
         """
         if i >= len(self):
             raise IndexError('index is too large')
+        img, label = self.get_raw_img(i)
+        img = vgg.prepare(img, size=None)
+        return img, label[None]
+
+    def get_raw_img(self, i):
+        """Returns the i-th example's images in HWC format.
+        """
         img_file = osp.join(self.base_dir, 'JPEGImages', self.ids[i] + '.jpg')
         img = imread(img_file, mode='RGB')
-        img = vgg.prepare(img, size=None)
         label = self._load_label(self.base_dir, self.ids[i])
         return img, label
-
-    def get_vis_img(self, i):
-        """Returns the i-th example's image in HWC format.
-        """
-        return imread(
-            osp.join(self.base_dir, 'JPEGImages', self.ids[i] + '.jpg'), mode='RGB')
 
     def _load_label(self, base_dir, id_):
         label_rgb_file = osp.join(
@@ -107,7 +107,7 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
         im = Image.open(label_rgb_file)
         label = np.array(im, dtype=np.uint8).astype(np.int32)
         label[label == 255] = -1
-        return label[None]
+        return label
 
 
 if __name__ == '__main__':

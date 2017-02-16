@@ -8,7 +8,7 @@ from chainer.training import extensions
 from chainer_cv.training.test_mode_evaluator import TestModeEvaluator
 from chainer_cv.datasets.pascal_voc_dataset import PascalVOCDataset
 from chainer_cv.wrappers.pad_wrapper import PadWrapper
-from chainer_cv.extensions.semantic_segmentation.make_img import extension_make_img
+from chainer_cv.extensions.semantic_segmentation.vis_out import SemanticSegmentationVisOut
 
 from fcn32s import FCN32s
 
@@ -41,10 +41,9 @@ if __name__ == '__main__':
     # optimizer = O.Adam(alpha=1e-9)
     optimizer = chainer.optimizers.MomentumSGD(lr=1e-10, momentum=0.99)
     optimizer.setup(model)
+    #optimizer.add_hook(chainer.optimizer.GradientClipping(10.))
 
     optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
-    # this slows down training a lot  (x2)
-    optimizer.add_hook(chainer.optimizer.GradientClipping(1.))
 
     train_iter = chainer.iterators.MultiprocessIterator(
         train_data, batch_size=batch_size, n_processes=2,
@@ -100,12 +99,13 @@ if __name__ == '__main__':
             ['main/fwavacc', 'validation/main/fwavacc'],
             trigger=log_interval, file_name='fwavacc.png')
     )
-
     trainer.extend(
-        extension_make_img(
+        SemanticSegmentationVisOut(
             range(10),
             n_class=n_class,
-            filename_base='result/semantic_seg_train'),
+            filename_base='result/semantic_seg_train',
+            forward_func=model.extract
+        ),
         trigger=val_interval, invoke_before_training=True)
 
     trainer.extend(extensions.dump_graph('main/loss'))
