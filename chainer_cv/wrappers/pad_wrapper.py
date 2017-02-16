@@ -6,6 +6,14 @@ from chainer_cv.wrappers.dataset_wrapper import DatasetWrapper
 
 class PadWrapper(DatasetWrapper):
 
+    """Pads image to fill given image size
+
+    Args:
+        dataset: a chainer.dataset.DatasetMixin to be wrapped
+        max_size: the size of output image after padding
+
+    """
+
     def __init__(self, dataset, max_size=(512, 512)):
         super(PadWrapper, self).__init__(dataset)
         self.max_size = max_size
@@ -31,11 +39,6 @@ class PadWrapper(DatasetWrapper):
         return out, out_label
 
     def _get_pad_slices(self, img, max_size=(500, 500)):
-        """
-        Args:
-            img (3, H, W)
-            max_size (max in y, max in x)
-        """
         _, H, W = img.shape
         
         if H < max_size[0]:

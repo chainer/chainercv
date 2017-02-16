@@ -8,7 +8,7 @@ from chainer_cv.wrappers.dataset_wrapper import DatasetWrapper
 class CacheDatasetWrapper(DatasetWrapper):
     """This caches outputs from wrapped dataset and reuse them.
 
-    Note that it converts output from wrapped dataset into numpy.ndarray.
+    Note that it converts outputs from wrapped dataset into numpy.ndarray.
     """
 
     def __init__(self, dataset):
@@ -19,6 +19,15 @@ class CacheDatasetWrapper(DatasetWrapper):
         self.n_arrays = None
 
     def get_example(self, i):
+        """Returns the i-th example.
+
+        Args:
+            i (int): The index of the example.
+
+        Returns:
+            i-th example.
+
+        """
         if not self.initialized:
             self._initialize(i)
             self.initialized = True
