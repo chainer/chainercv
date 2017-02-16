@@ -1,0 +1,1 @@
+from semantic_segmentation.semantic_segmentation_vis_out import SemanticSegmentationVisOut  # NOQA

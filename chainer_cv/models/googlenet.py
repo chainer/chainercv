@@ -8,7 +8,6 @@ from chainer.functions.pooling.max_pooling_2d import max_pooling_2d
 from chainer.functions.pooling.average_pooling_2d import average_pooling_2d
 from chainer.functions.normalization.local_response_normalization\
     import local_response_normalization
-from chainer.initializers import constant
 from chainer import link
 from chainer.links.connection.convolution_2d import Convolution2D
 from chainer.links.connection.inception import Inception

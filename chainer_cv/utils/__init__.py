@@ -1,1 +1,1 @@
-from download import cached_download
+from download import cached_download  # NOQA

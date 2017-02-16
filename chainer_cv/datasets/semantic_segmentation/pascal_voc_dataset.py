@@ -5,14 +5,14 @@ from skimage.io import imread
 import tarfile
 
 import chainer
-from chainer.links.model.vision import vgg
 from chainer.dataset import download
 
 from chainer_cv import utils
 
 
 root = 'pfnet/chainer_cv/pascal_voc'
-url = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar'
+url = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/' \
+    'VOCtrainval_11-May-2012.tar'
 
 
 def _get_pascal_voc():
@@ -60,9 +60,10 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
         'tv/monitor',
     ])
 
-    def __init__(self, base_dir='auto', mode='train'):
+    def __init__(self, base_dir='auto', mode='train', bgr=True):
         if mode not in ['train', 'trainval', 'val']:
-            raise ValueError('please pick mode from \'train\', \'trainval\', \'val\'')
+            raise ValueError(
+                'please pick mode from \'train\', \'trainval\', \'val\'')
 
         if base_dir == 'auto':
             base_dir = _get_pascal_voc()
@@ -72,6 +73,7 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
         self.ids = [id_.strip() for id_ in open(id_list_file)]
 
         self.base_dir = base_dir
+        self.bgr = bgr
 
     def __len__(self):
         return len(self.ids)
@@ -79,27 +81,39 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
     def get_example(self, i):
         """Returns the i-th example.
 
+        Returns a color image and a label image. Both of them are in CHW
+        format.
+
         Args:
             i (int): The index of the example.
 
         Returns:
-            tuple of image and label whose shapes are (3, H, W) and (1, H, W) \
-                respectively. H and W are height and width of the images.
+            tuple of color image and label whose shapes are (3, H, W) and \
+                (1, H, W) respectively. H and W are height and width of the \
+                images. The dtype of the color image is ``numpy.float32`` and \
+                the dtype of the label image is ``numpy.int32``. The color \
+                channel of the color image is determined by the paramter \
+                ``self.bgr``.
 
         """
         if i >= len(self):
             raise IndexError('index is too large')
-        img_file = osp.join(self.base_dir, 'JPEGImages', self.ids[i] + '.jpg')
-        img = imread(img_file, mode='RGB')
-        img = vgg.prepare(img, size=None)
-        label = self._load_label(self.base_dir, self.ids[i])
+        img, label = self.get_raw_data(i)
+        if self.bgr:
+            img = img[:, :, ::-1]
+        img = img.transpose(2, 0, 1).astype(np.float32)
+        label = label[None]
         return img, label
 
-    def get_vis_img(self, i):
-        """Returns the i-th example's image in HWC format.
+    def get_raw_data(self, i):
+        """Returns the i-th example's images in HWC format.
+
+        The color image that is returned is RGB.
         """
-        return imread(
-            osp.join(self.base_dir, 'JPEGImages', self.ids[i] + '.jpg'), mode='RGB')
+        img_file = osp.join(self.base_dir, 'JPEGImages', self.ids[i] + '.jpg')
+        img = imread(img_file, mode='RGB')
+        label = self._load_label(self.base_dir, self.ids[i])
+        return img, label
 
     def _load_label(self, base_dir, id_):
         label_rgb_file = osp.join(
@@ -107,7 +121,7 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
         im = Image.open(label_rgb_file)
         label = np.array(im, dtype=np.uint8).astype(np.int32)
         label[label == 255] = -1
-        return label[None]
+        return label
 
 
 if __name__ == '__main__':

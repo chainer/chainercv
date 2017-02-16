@@ -2,17 +2,19 @@
 
 from distutils.core import setup
 from setuptools import find_packages
-from distutils.extension import Extension
+
+description = """
+Collection of Deep Learning Computer Vision Algorithms implemented in Chainer
+"""
 
 
 setup(
     name='chainer_cv',
-    version='0.0.1',
+    version='0.1',
     packages=find_packages(),
-    url='http://github.com/yuyu2172/corresp',
     author='Yusuke Niitani',
     author_email='yuyuniitani@gmail.com',
     license='MIT',
-    description='Collection of Deep Learning Computer Vision Algorithms implemented in Chainer',
+    description=description,
     install_requires=open('requirements.txt').readlines(),
 )

@@ -1,2 +1,1 @@
-from sintel_dataset import SintelDataset
-from pascal_voc_dataset import PascalVOCDataset
+from semantic_segmentation.pascal_voc_dataset import PascalVOCDataset  # NOQA

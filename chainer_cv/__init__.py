@@ -1,5 +1,9 @@
-from datasets import pascal_voc_dataset
-from datasets import sintel_dataset
-
-from datasets.pascal_voc_dataset import PascalVOCDataset
-from datasets.sintel_dataset import SintelDataset
+import datasets  # NOQA
+import evaluations  # NOQA
+import extensions  # NOQA
+import functions  # NOQA
+import models  # NOQA
+import training  # NOQA
+import utils  # NOQA
+import wrappers  # NOQA
+import testing  # NOQA
