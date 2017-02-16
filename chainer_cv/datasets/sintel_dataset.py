@@ -1,11 +1,11 @@
+import numpy as np
 import os
 import os.path as osp
+from skimage.io import imread
 import zipfile
 
 import chainer
 from chainer.dataset import download
-import numpy as np
-from skimage.io import imread
 
 from chainer_cv import utils
 import corresp
