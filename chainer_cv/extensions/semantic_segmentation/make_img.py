@@ -9,8 +9,6 @@ from chainer import training
 from chainer.training import extensions
 import chainer.optimizers as O
 
-from chainer_cv.extensions.semantic_segmentation.draw_label import draw_label
-
 
 def bitget(byteval, idx):
     return ((byteval & (1 << idx)) != 0)
