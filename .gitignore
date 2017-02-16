@@ -1,0 +1,7 @@
+chainer_cv.egg-info/
+*.pyc
+build/
+.cache/
+examples/semantic_segmentation/result/
+examples/semantic_segmentation/result
+dist/
