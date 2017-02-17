@@ -9,14 +9,21 @@ class CacheDatasetWrapper(DatasetWrapper):
     """This caches outputs from wrapped dataset and reuse them.
 
     Note that it converts outputs from wrapped dataset into numpy.ndarray.
+
+    Args:
+        dataset: a chainer.dataset.DatasetMixin to be wrapped
+        copy (bool): If `copy` is True, this self.get_example returns a copy of
+            cached array.
+
     """
 
-    def __init__(self, dataset):
+    def __init__(self, dataset, copy=True):
         super(CacheDatasetWrapper, self).__init__(dataset)
         self.initialized = False
         self.cache = None
         self.has_cache = [False] * len(self.dataset)
         self.n_arrays = None
+        self.copy = copy
 
     def get_example(self, i):
         """Returns the i-th example.
@@ -37,7 +44,11 @@ class CacheDatasetWrapper(DatasetWrapper):
             for arr_i, a in enumerate(arrays):
                 self.cache[arr_i][i] = np.array(a)
             self.has_cache[i] = True
-        return tuple([a_cache[i] for a_cache in self.cache])
+        if self.copy:
+            out = tuple([a_cache[i].copy() for a_cache in self.cache])
+        else:
+            out = tuple([a_cache[i] for a_cache in self.cache])
+        return out
 
     def _initialize(self, i):
         arrays = self.dataset[i]
