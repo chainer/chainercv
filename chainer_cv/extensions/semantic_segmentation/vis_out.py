@@ -32,7 +32,8 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
     """
     invoke_before_training = False
 
-    def __init__(self, indices, n_class, filename_base, forward_func=None):
+    def __init__(self, indices, n_class, filename_base='semantic_seg_train',
+                 forward_func=None):
         if not isinstance(indices, collections.Iterable):
             indices = list(indices)
         self.indices = indices
@@ -67,7 +68,7 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
         model = trainer.updater.get_optimizer('main').target
         dataset = trainer.updater.get_iterator('main').dataset
         for idx in self.indices:
-            formated_filename_base = self.filename_base.format(trainer)
+            formated_filename_base = osp.join(trainer.out, self.filename_base)
             out_file = (formated_filename_base +
                         'idx=_{}'.format(idx) +
                         'iter={}'.format(trainer.updater.iteration) + '.jpg')

@@ -21,12 +21,14 @@ if __name__ == '__main__':
                         help='Resume the training from snapshot')
     parser.add_argument('-ne', '--epochs', type=int, default=20000)
     parser.add_argument('-ba', '--batch-size', type=int, default=3)
+    parser.add_argument('-o', '--outdir', type=str, default='result')
 
     args = parser.parse_args()
     gpu = args.gpu
     batch_size = args.batch_size
     epochs = args.epochs
     resume = args.resume
+    outdir = args.outdir
 
     train_data = PadWrapper(PascalVOCDataset(mode='train'))
     test_data = PadWrapper(PascalVOCDataset(mode='val'))
@@ -53,7 +55,7 @@ if __name__ == '__main__':
         test_data, batch_size=1, repeat=False, shuffle=False)
 
     updater = training.StandardUpdater(train_iter, optimizer, device=gpu)
-    trainer = training.Trainer(updater, (epochs, 'epoch'), out='result')
+    trainer = training.Trainer(updater, (epochs, 'epoch'), out=outdir)
 
     val_interval = 3000, 'iteration'
     log_interval = 100, 'iteration'
@@ -103,7 +105,6 @@ if __name__ == '__main__':
         SemanticSegmentationVisOut(
             range(10),
             n_class=n_class,
-            filename_base='result/semantic_seg_train',
             forward_func=model.extract
         ),
         trigger=val_interval, invoke_before_training=True)
