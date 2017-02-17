@@ -34,9 +34,9 @@ def forward(model, inputs, expand_dim=True, forward_func=None):
     output_vars = forward_func(*input_vars)
     if not isinstance(output_vars, tuple):
         output_vars = (output_vars,)
-    for a_var in output_vars:
-        out = a_var.data
-        if xp != np:
-            out = chainer.cuda.to_cpu(out)
+    for out in output_vars:
+        if isinstance(out, chainer.Variable):
+            out = out.data
+        out = chainer.cuda.to_cpu(out)
         outputs.append(out)
     return outputs
