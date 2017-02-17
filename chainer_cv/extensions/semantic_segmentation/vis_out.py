@@ -1,5 +1,6 @@
 import collections
 import numpy as np
+import os
 import os.path as osp
 from skimage.color import label2rgb
 
