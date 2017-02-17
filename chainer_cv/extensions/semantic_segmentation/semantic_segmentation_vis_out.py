@@ -18,7 +18,8 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
     model = trainer.updater.get_optimizer('main').target
 
     Args:
-        indices (list of int): List of indices for data to be visualized
+        indices (list of ints or int): List of indices for data to be
+            visualized
         n_class (int): number of classes
         filename_base (int): basename for saved image
         forward_func (callable): Callable that is used to forward data input.
