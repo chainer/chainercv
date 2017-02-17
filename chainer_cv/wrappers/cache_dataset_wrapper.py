@@ -27,7 +27,7 @@ class CacheDatasetWrapper(DatasetWrapper):
 
     def _initialize(self):
         filename = osp.join(tempfile.mkdtemp(), 'cache.db')
-        self.cache = shelve.open(filename)
+        self.cache = shelve.open(filename, protocol=2)
 
     def get_example(self, i):
         """Returns the i-th example.
