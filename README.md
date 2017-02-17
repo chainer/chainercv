@@ -15,3 +15,16 @@ ChainerCV does the dirty work when training a neural network for a computer visi
 ```
 pip install -e .
 ```
+
+
+# Automatic Download
+ChainerCV supports automatic download of datasets. It uses Chainer's default download scheme for automatic download.
+Therefore, the downloaded data is stored under a directory `$CHAINER_DATASET_ROOT/chainer_cv`.
+
+The default value of `$CHAINER_DATASET_ROOT` is `~/.chainer/dataset/`.
+If you want to change the directory where you download and look up datasets, please change the value of the global value `$CHAINER_DATASET_ROOT` by a command like below.
+
+```
+export CHAINER_DATASET_ROOT=/CLOUD/dataset/  # this is an exmaple
+```
+
