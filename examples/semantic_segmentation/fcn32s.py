@@ -69,14 +69,6 @@ class FCN32s(chainer.Chain):
         label_preds = chainer.cuda.to_cpu(self.score.data).argmax(axis=1)
         results = []
         for i in xrange(x.shape[0]):
-            # import matplotlib.pyplot as plt
-            # plt.subplot(3, 1, 1)
-            # plt.imshow((x.data[i].transpose(1, 2, 0).get()[:, :, ::-1] + [103, 116, 123]).astype(np.uint8))
-            # plt.subplot(3, 1, 2)
-            # plt.imshow(labels[i][0])
-            # plt.subplot(3, 1, 3)
-            # plt.imshow(label_preds[i])
-            # plt.show()
             acc, acc_cls, iu, fwavacc = label_accuracy_score(
                 labels[i][0], label_preds[i], self.n_class)
             results.append((acc, acc_cls, iu, fwavacc))

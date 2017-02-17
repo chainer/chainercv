@@ -19,7 +19,7 @@ class DatasetWrapper(chainer.dataset.DatasetMixin):
 
     def __getattr__(self, attr):
         if attr != 'get_example':
-            orig_attr = self.dataset.__getattribute__(attr)
+            orig_attr = getattr(self.dataset, attr)
             return orig_attr
         return self.get_example
 

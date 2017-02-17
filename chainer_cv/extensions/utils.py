@@ -37,5 +37,6 @@ def forward(model, inputs, expand_dim=True, forward_func=None):
     for a_var in output_vars:
         out = a_var.data
         if xp != np:
-            outputs.append(chainer.cuda.to_cpu(out))
+            out = chainer.cuda.to_cpu(out)
+        outputs.append(out)
     return outputs

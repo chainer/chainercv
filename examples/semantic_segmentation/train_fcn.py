@@ -6,7 +6,7 @@ from chainer import training
 from chainer.training import extensions
 
 from chainer_cv.training.test_mode_evaluator import TestModeEvaluator
-from chainer_cv.datasets.pascal_voc_dataset import PascalVOCDataset
+from chainer_cv.datasets import PascalVOCDataset
 from chainer_cv.wrappers import PadWrapper
 from chainer_cv.wrappers import SubtractWrapper
 from chainer_cv.extensions.semantic_segmentation.vis_out import SemanticSegmentationVisOut
