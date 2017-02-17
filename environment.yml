@@ -1,0 +1,10 @@
+name: chainer_cv
+dependencies:
+  - matplotlib
+  - numpy
+  - scikit-learn
+  - scikit-image
+  - scipy
+  - pip:
+    - chainer
+    - corresp
