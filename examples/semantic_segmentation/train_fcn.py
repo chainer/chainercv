@@ -21,6 +21,7 @@ if __name__ == '__main__':
                         help='Resume the training from snapshot')
     parser.add_argument('-ne', '--epochs', type=int, default=20000)
     parser.add_argument('-ba', '--batch-size', type=int, default=3)
+    parser.add_argument('-l', '--lr', type=float, default=1e-10)
     parser.add_argument('-o', '--outdir', type=str, default='result')
 
     args = parser.parse_args()
@@ -28,6 +29,7 @@ if __name__ == '__main__':
     batch_size = args.batch_size
     epochs = args.epochs
     resume = args.resume
+    lr = args.lr
     outdir = args.outdir
 
     train_data = PadWrapper(PascalVOCDataset(mode='train'))
@@ -41,7 +43,7 @@ if __name__ == '__main__':
         chainer.cuda.get_device(gpu).use()
 
     # optimizer = O.Adam(alpha=1e-9)
-    optimizer = chainer.optimizers.MomentumSGD(lr=1e-10, momentum=0.99)
+    optimizer = chainer.optimizers.MomentumSGD(lr=lr, momentum=0.99)
     optimizer.setup(model)
     #optimizer.add_hook(chainer.optimizer.GradientClipping(10.))
 
