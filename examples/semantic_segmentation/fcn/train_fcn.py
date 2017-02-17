@@ -9,7 +9,7 @@ from chainer_cv.training.test_mode_evaluator import TestModeEvaluator
 from chainer_cv.datasets import PascalVOCDataset
 from chainer_cv.wrappers import PadWrapper
 from chainer_cv.wrappers import SubtractWrapper
-from chainer_cv.extensions.semantic_segmentation.vis_out import SemanticSegmentationVisOut
+from chainer_cv.extensions import SemanticSegmentationVisOut
 
 from fcn32s import FCN32s
 
