@@ -1,6 +1,7 @@
 import numpy as np
 import os.path as osp
 import tempfile
+import shelve
 
 from chainer_cv.wrappers.dataset_wrapper import DatasetWrapper
 
@@ -9,6 +10,8 @@ class CacheDatasetWrapper(DatasetWrapper):
     """This caches outputs from wrapped dataset and reuse them.
 
     Note that it converts outputs from wrapped dataset into numpy.ndarray.
+    Unlike `CacheArrayDatasetWrapper`, this works even in the case when
+    the wrapped dataset returns arrays whose shapes are not same.
 
     Args:
         dataset: a chainer.dataset.DatasetMixin to be wrapped
@@ -19,51 +22,35 @@ class CacheDatasetWrapper(DatasetWrapper):
 
     def __init__(self, dataset, copy=True):
         super(CacheDatasetWrapper, self).__init__(dataset)
-        self.initialized = False
         self.cache = None
-        self.has_cache = [False] * len(self.dataset)
-        self.n_arrays = None
-        self.copy = copy
+        self._initialize()
+
+    def _initialize(self):
+        filename = osp.join(tempfile.mkdtemp(), 'cache.db')
+        self.cache = shelve.open(filename)
 
     def get_example(self, i):
         """Returns the i-th example.
+
+        This caches the requested example if it has not been already cached.
+        Once cached, the __getitem__ method of the wrapped dataset will not be
+        called. Instead, the cached data will be loaded.
 
         Args:
             i (int): The index of the example.
 
         Returns:
-            i-th example.
+            i-th example
 
         """
-        if not self.initialized:
-            self._initialize(i)
-            self.initialized = True
+        key = str(i)
+        if key not in self.cache:
+            self.cache[key] = self.dataset[i]
+        return self.cache[key]
 
-        if not self.has_cache[i]:
-            arrays = self.dataset[i]
-            for arr_i, a in enumerate(arrays):
-                self.cache[arr_i][i] = np.array(a)
-            self.has_cache[i] = True
-        if self.copy:
-            out = tuple([a_cache[i].copy() for a_cache in self.cache])
-        else:
-            out = tuple([a_cache[i] for a_cache in self.cache])
-        return out
-
-    def _initialize(self, i):
-        arrays = self.dataset[i]
-        self.n_arrays = len(arrays)
-        self.cache = [None] * self.n_arrays
-        for arr_i, a in enumerate(arrays):
-            if not isinstance(np.array(a), np.ndarray):
-                raise ValueError(
-                    'The dataset wrapped by CacheDatasetWrapper needs to '
-                    'return tuple of numpy.ndarray')
-            shape = (len(self),) + a.shape
-            filename = osp.join(
-                tempfile.mkdtemp(), 'cache_{}.data'.format(arr_i))
-            self.cache[arr_i] = np.memmap(
-                filename, dtype=a.dtype, mode='w+', shape=shape)
+    def __del__(self):
+        if self.cache is not None:
+            self.cache.close()
 
 
 if __name__ == '__main__':
