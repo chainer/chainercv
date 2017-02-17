@@ -14,6 +14,7 @@ import corresp
 root = 'pfnet/chainer_cv/sintel'
 url = 'http://files.is.tue.mpg.de/sintel/MPI-Sintel-complete.zip'
 
+
 def _get_sintel():
     data_root = download.get_dataset_directory(root)
     if osp.exists(osp.join(data_root, 'training')):
@@ -21,7 +22,7 @@ def _get_sintel():
         return data_root
 
     download_file_path = utils.cached_download(url)
- 
+
     with zipfile.ZipFile(download_file_path, 'r') as z:
         z.extractall(data_root)
     return data_root

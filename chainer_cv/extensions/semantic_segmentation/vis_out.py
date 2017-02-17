@@ -1,12 +1,9 @@
 import collections
 import numpy as np
-import os
 import os.path as osp
 from skimage.color import label2rgb
 
 import chainer
-from chainer.training import extensions
-from chainer.utils import type_check
 
 from chainer_cv.extensions.utils import forward
 
@@ -26,7 +23,7 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
         filename_base (int): basename for saved image
         forward_func (callable): Callable that is used to forward data input.
             This callable takes all the arrays returned by the dataset as
-            input. Also, this callable returns an prediction of labels. 
+            input. Also, this callable returns an prediction of labels.
             If `forward_func = None`, then the model's `__call__` method will
             be called.
 
@@ -41,7 +38,7 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
         self.n_class = n_class
         self.filename_base = filename_base
         self.forward_func = forward_func
-    
+
     def _typecheck_dataset(self, args):
         assert(args[0].ndim == args[1].ndim == 3)
         assert(args[0].shape[0] == 3 and args[1].shape[0] == 1)
@@ -87,7 +84,7 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
 
             # mask
             label[gt[0] == -1] = -1
-            
+
             # prepare label
             x_slices, y_slices = _get_pad_slices(gt[0], unknown_val=-1)
             label = _process_label(label, self.n_class)

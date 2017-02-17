@@ -1,17 +1,17 @@
 import numpy as np
 
-import chainer
 from chainer_cv.wrappers.dataset_wrapper import DatasetWrapper
 
 
 vgg_subtract_bgr = np.array([103.939, 116.779, 123.68], np.float32)
+
 
 class SubtractWrapper(DatasetWrapper):
 
     """Subtract images by constants
 
     Subtract values from the first array returned by the wrapped dataset.
-    
+
     Args:
         dataset: a chainer.dataset.DatasetMixin to be wrapped
         value (float or array-like): constant to subtract data from. This is

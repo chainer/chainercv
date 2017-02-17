@@ -1,6 +1,5 @@
 import numpy as np
 
-import chainer
 from chainer_cv.wrappers.dataset_wrapper import DatasetWrapper
 
 
@@ -40,7 +39,7 @@ class PadWrapper(DatasetWrapper):
 
     def _get_pad_slices(self, img, max_size=(500, 500)):
         _, H, W = img.shape
-        
+
         if H < max_size[0]:
             diff_y = max_size[0] - H
             margin_y = diff_y / 2
