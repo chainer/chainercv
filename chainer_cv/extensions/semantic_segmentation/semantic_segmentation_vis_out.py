@@ -30,7 +30,7 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
     """
     invoke_before_training = False
 
-    def __init__(self, indices, n_class, filename_base='semantic_seg_train',
+    def __init__(self, indices, n_class, filename_base='semantic_seg',
                  forward_func=None):
         if not isinstance(indices, collections.Iterable):
             indices = list(indices)
