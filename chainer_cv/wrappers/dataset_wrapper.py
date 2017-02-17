@@ -18,13 +18,15 @@ class DatasetWrapper(chainer.dataset.DatasetMixin):
         return len(self.dataset)
 
     def __getattr__(self, attr):
-        if attr != 'get_example':
-            orig_attr = getattr(self.dataset, attr)
-            return orig_attr
-        return self.get_example
+        if attr == 'get_example':
+            return self.get_example
+        elif attr == '__getitem__':
+            return self.__getitem__
+        orig_attr = getattr(self.dataset, attr)
+        return orig_attr
 
     def get_example(self, i):
-        return self.dataset.get_example(i)
+        return self.dataset[i]
 
     def __str__(self):
         return '<{}{}>'.format(type(self).__name__, self.dataset)
