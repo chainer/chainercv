@@ -53,7 +53,7 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
         assert(args[0].shape[0] == 1)
         assert(args[0].shape[1] == self.n_class)
 
-    def _typecheck_get_raw_img(self, args):
+    def _typecheck_get_raw_data(self, args):
         assert(args[0].ndim == 3)
         assert(args[1].ndim == 2)
         assert(args[0].shape[2] == 3)
@@ -75,12 +75,12 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
             self._typecheck_model(out)
             label = np.argmax(out[0][0], axis=0)
 
-            if not hasattr(dataset, 'get_raw_img'):
+            if not hasattr(dataset, 'get_raw_data'):
                 raise ValueError(
                     'the dataset class needs to have a method '
-                    '``get_raw_img`` for a visualization extension')
-            raw_inputs = dataset.get_raw_img(idx)
-            self._typecheck_get_raw_img(raw_inputs)
+                    '``get_raw_data`` for a visualization extension')
+            raw_inputs = dataset.get_raw_data(idx)
+            self._typecheck_get_raw_data(raw_inputs)
             vis_img = raw_inputs[0]
 
             # mask

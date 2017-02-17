@@ -96,14 +96,14 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
         """
         if i >= len(self):
             raise IndexError('index is too large')
-        img, label = self.get_raw_img(i)
+        img, label = self.get_raw_data(i)
         if self.bgr:
             img = img[:, :, ::-1]
         img = img.transpose(2, 0, 1).astype(np.float32)
         label = label[None]
         return img, label
 
-    def get_raw_img(self, i):
+    def get_raw_data(self, i):
         """Returns the i-th example's images in HWC format.
 
         The color image that is returned is RGB.
