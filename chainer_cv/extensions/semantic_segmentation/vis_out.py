@@ -42,10 +42,6 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
         self.filename_base = filename_base
         self.forward_func = forward_func
     
-        out_folder = osp.split(filename_base)[0]
-        if not osp.exists(out_folder):
-            os.makedirs(out_folder)
-
     def _typecheck_dataset(self, args):
         assert(args[0].ndim == args[1].ndim == 3)
         assert(args[0].shape[0] == 3 and args[1].shape[0] == 1)
