@@ -8,7 +8,6 @@ setup(
     name='chainer_cv',
     version='0.0.1',
     packages=find_packages(),
-    url='http://github.com/yuyu2172/corresp',
     author='Yusuke Niitani',
     author_email='yuyuniitani@gmail.com',
     license='MIT',
