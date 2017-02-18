@@ -4,6 +4,7 @@ import os.path as osp
 from skimage.color import label2rgb
 
 import chainer
+from chainer.utils import type_check
 
 from chainer_cv.extensions.utils import forward
 
@@ -40,23 +41,43 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
         self.filename_base = filename_base
         self.forward_func = forward_func
 
-    def _typecheck_dataset(self, args):
-        assert(args[0].ndim == args[1].ndim == 3)
-        assert(args[0].shape[0] == 3 and args[1].shape[0] == 1)
-        assert(args[0].shape[1] == args[1].shape[1])
-        assert(args[0].shape[2] == args[1].shape[2])
-        assert(np.issubdtype(args[0].dtype, np.float))
-        assert(np.issubdtype(args[1].dtype, np.int))
+    def _check_type_dataset(self, in_data):
+        in_types = type_check.get_types(
+            in_data, 'in_types', False)
+        img_type = in_types[0]
+        label_type = in_types[1]
 
-    def _typecheck_model(self, args):
-        assert(args[0].ndim == 4)
-        assert(args[0].shape[0] == 1)
-        assert(args[0].shape[1] == self.n_class)
+        type_check.expect(
+            img_type.dtype.kind == 'f',
+            label_type.dtype.kind == 'i',
+            img_type.shape[0] == 3,
+            label_type.shape[0] == 1,
+            img_type.shape[1] == label_type.shape[1],
+            img_type.shape[2] == label_type.shape[2],
+            img_type.ndim == 3,
+            label_type.ndim == 3
+        )
 
-    def _typecheck_get_raw_data(self, args):
-        assert(args[0].ndim == 3)
-        assert(args[1].ndim == 2)
-        assert(args[0].shape[2] == 3)
+    def _check_type_model(self, in_data):
+        in_types = type_check.get_types(
+            in_data, 'in_types', False)
+        predict_type = in_types[0]
+        type_check.expect(
+            predict_type.ndim == 4,
+            predict_type.shape[0] == 1,
+            predict_type.shape[1] == self.n_class
+        )
+
+    def _check_type_get_raw_data(self, in_data):
+        in_types = type_check.get_types(
+            in_data, 'in_types', False)
+        img_type = in_types[0]
+        label_type = in_types[1]
+        type_check.expect(
+            img_type.ndim == 3,
+            label_type.ndim == 2,
+            img_type.shape[2] == 3
+        )
 
     def __call__(self, trainer):
         import matplotlib.pyplot as plt
@@ -70,9 +91,9 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
 
             inputs = dataset[idx]
             gt = inputs[1]
-            self._typecheck_dataset(inputs)
+            self._check_type_dataset(inputs)
             out = forward(model, inputs, forward_func=self.forward_func)
-            self._typecheck_model(out)
+            self._check_type_model(out)
             label = np.argmax(out[0][0], axis=0)
 
             if not hasattr(dataset, 'get_raw_data'):
@@ -80,7 +101,7 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
                     'the dataset class needs to have a method '
                     '``get_raw_data`` for a visualization extension')
             raw_inputs = dataset.get_raw_data(idx)
-            self._typecheck_get_raw_data(raw_inputs)
+            self._check_type_get_raw_data(raw_inputs)
             vis_img = raw_inputs[0]
 
             # mask

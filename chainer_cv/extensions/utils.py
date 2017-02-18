@@ -39,4 +39,4 @@ def forward(model, inputs, expand_dim=True, forward_func=None):
             out = out.data
         out = chainer.cuda.to_cpu(out)
         outputs.append(out)
-    return outputs
+    return tuple(outputs)

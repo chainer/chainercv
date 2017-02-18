@@ -1,6 +1,6 @@
 import datasets  # NOQA
 import evaluations  # NOQA
-import exceptions  # NOQA
+import extensions  # NOQA
 import functions  # NOQA
 import models  # NOQA
 import training  # NOQA
