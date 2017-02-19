@@ -6,7 +6,7 @@ from skimage.color import label2rgb
 import chainer
 from chainer.utils import type_check
 
-from chainer_cv.extensions.utils import forward
+from chainer_cv.extensions.utils import forward, check_type
 
 
 class SemanticSegmentationVisOut(chainer.training.extension.Extension):
@@ -41,9 +41,8 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
         self.filename_base = filename_base
         self.forward_func = forward_func
 
-    def _check_type_dataset(self, in_data):
-        in_types = type_check.get_types(
-            in_data, 'in_types', False)
+    @check_type
+    def _check_type_dataset(self, in_types):
         img_type = in_types[0]
         label_type = in_types[1]
 
@@ -58,9 +57,8 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
             label_type.ndim == 3
         )
 
-    def _check_type_model(self, in_data):
-        in_types = type_check.get_types(
-            in_data, 'in_types', False)
+    @check_type
+    def _check_type_model(self, in_types):
         predict_type = in_types[0]
         type_check.expect(
             predict_type.ndim == 4,
@@ -68,9 +66,8 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
             predict_type.shape[1] == self.n_class
         )
 
-    def _check_type_get_raw_data(self, in_data):
-        in_types = type_check.get_types(
-            in_data, 'in_types', False)
+    @check_type
+    def _check_type_get_raw_data(self, in_types):
         img_type = in_types[0]
         label_type = in_types[1]
         type_check.expect(
