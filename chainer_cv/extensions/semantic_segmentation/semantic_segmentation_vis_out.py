@@ -8,6 +8,21 @@ from chainer.utils import type_check
 
 from chainer_cv.extensions.utils import forward, check_type
 
+try:
+    from matplotlib import pyplot as plt
+    _available = True
+
+except ImportError:
+    _available = False
+
+
+def _check_available():
+    if not _available:
+        warnings.warn('matplotlib is not installed on your environment, '
+                      'so nothing will be plotted at this time. '
+                      'Please install matplotlib to plot figures.\n\n'
+                      '  $ pip install matplotlib\n')
+
 
 class SemanticSegmentationVisOut(chainer.training.extension.Extension):
     """An extension that visualizes input and output of semantic segmentation
@@ -21,6 +36,8 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
     Args:
         indices (list of ints or int): List of indices for data to be
             visualized
+        target: Link object used for visualization
+        dataset: Dataset class that produces inputs to ``target``.
         n_class (int): number of classes
         filename_base (int): basename for saved image
         forward_func (callable): Callable that is used to forward data input.
@@ -32,10 +49,16 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
     """
     invoke_before_training = False
 
-    def __init__(self, indices, n_class, filename_base='semantic_seg',
-                 forward_func=None):
+    def __init__(self, indices, dataset, target, n_class,
+                 filename_base='semantic_seg', forward_func=None):
+        _check_available()
+        if not _available:
+            return
+
         if not isinstance(indices, collections.Iterable):
             indices = list(indices)
+        self.dataset = dataset
+        self.target = target
         self.indices = indices
         self.n_class = n_class
         self.filename_base = filename_base
@@ -77,27 +100,24 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
         )
 
     def __call__(self, trainer):
-        import matplotlib.pyplot as plt
-        model = trainer.updater.get_optimizer('main').target
-        dataset = trainer.updater.get_iterator('main').dataset
         for idx in self.indices:
             formated_filename_base = osp.join(trainer.out, self.filename_base)
             out_file = (formated_filename_base +
                         'idx=_{}'.format(idx) +
                         'iter={}'.format(trainer.updater.iteration) + '.jpg')
 
-            inputs = dataset[idx]
+            inputs = self.dataset[idx]
             gt = inputs[1]
             self._check_type_dataset(inputs)
-            out = forward(model, inputs, forward_func=self.forward_func)
+            out = forward(self.target, inputs, forward_func=self.forward_func)
             self._check_type_model(out)
             label = np.argmax(out[0][0], axis=0)
 
-            if not hasattr(dataset, 'get_raw_data'):
+            if not hasattr(self.dataset, 'get_raw_data'):
                 raise ValueError(
                     'the dataset class needs to have a method '
                     '``get_raw_data`` for a visualization extension')
-            raw_inputs = dataset.get_raw_data(idx)
+            raw_inputs = self.dataset.get_raw_data(idx)
             self._check_type_get_raw_data(raw_inputs)
             vis_img = raw_inputs[0]
 
