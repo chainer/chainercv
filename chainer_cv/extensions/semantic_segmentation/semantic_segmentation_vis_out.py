@@ -2,6 +2,7 @@ import collections
 import numpy as np
 import os.path as osp
 from skimage.color import label2rgb
+import warnings
 
 import chainer
 from chainer.utils import type_check
@@ -103,8 +104,8 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
         for idx in self.indices:
             formated_filename_base = osp.join(trainer.out, self.filename_base)
             out_file = (formated_filename_base +
-                        'idx=_{}'.format(idx) +
-                        'iter={}'.format(trainer.updater.iteration) + '.jpg')
+                        '_idx={}'.format(idx) +
+                        '_iter={}'.format(trainer.updater.iteration) + '.jpg')
 
             inputs = self.dataset[idx]
             gt = inputs[1]

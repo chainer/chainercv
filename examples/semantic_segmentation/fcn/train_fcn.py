@@ -107,6 +107,8 @@ if __name__ == '__main__':
     trainer.extend(
         SemanticSegmentationVisOut(
             range(10),
+            test_data,
+            model,
             n_class=n_class,
             forward_func=model.extract
         ),
