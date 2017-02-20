@@ -14,7 +14,8 @@ class ResizeWrapper(DatasetWrapper):
     Args:
         dataset: a chainer.dataset.DatasetMixin to be wrapped.
         preprocess_idx (int or list of ints): this wrapper will preprocess k-th
-            output of wrapped dataset's get_example if k is in `preprocess_idx`.
+            output of wrapped dataset's get_example if k is in
+            `preprocess_idx`.
         output_shape: the size of output image after padding. This needs to be
             in HWC format.
 
@@ -52,7 +53,7 @@ class ResizeWrapper(DatasetWrapper):
             img = np.transpose(img, (1, 2, 0))
             scale = np.max(np.abs(img))
             out_img = skimage.transform.resize(
-                img / scale, self.output_shape)
+                img / scale, self.output_shape).astype(img.dtype)
             out_data[idx] = out_img.transpose(2, 0, 1) * scale
         return tuple(out_data)
 

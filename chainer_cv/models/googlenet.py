@@ -92,7 +92,7 @@ class GoogLeNet(link.Chain):
             ('conv2_reduce', [self.conv2_reduce, relu]),
             ('conv2', [self.conv2, relu]),
             ('pool2', [lambda x: local_response_normalization(x, n=5),
-                       lambda x: max_pooling_2d(ksize=3, stride=2)]),
+                       lambda x: max_pooling_2d(x, ksize=3, stride=2)]),
             ('inc3a', [self.inc3a]),
             ('inc3b', [self.inc3b]),
             ('pool3', [lambda x: max_pooling_2d(x, ksize=3, stride=2)]),

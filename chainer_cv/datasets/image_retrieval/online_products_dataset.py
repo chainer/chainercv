@@ -55,7 +55,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         self.class_ids = [np.array(int(id_[1])) for id_ in ids_tmp]
         self.super_class_ids = [np.array(int(id_[2])) for id_ in ids_tmp]
         self.paths = [osp.join(base_dir, id_[3]) for id_ in ids_tmp]
-    
+
     def __len__(self):
         return len(self.paths)
 
@@ -75,7 +75,6 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
         class_id = self.class_ids[i]
         super_class_id = self.super_class_ids[i]
-        print 'class_id ', class_id
         return img, class_id, super_class_id
 
     def get_raw_data(self, i):
