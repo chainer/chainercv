@@ -27,7 +27,7 @@ class PadWrapper(DatasetWrapper):
             i-th example.
 
         """
-        img, label = self.dataset.get_example(i)
+        img, label = self.dataset[i]
 
         x_slices, y_slices = self._get_pad_slices(img, max_size=self.max_size)
         out = np.zeros((3,) + self.max_size, dtype=np.float32)
