@@ -31,9 +31,14 @@ def _get_pascal_voc():
 
 class PascalVOCDataset(chainer.dataset.DatasetMixin):
 
-    """
-    bg : 0
-    unknown: -1
+    """Simple class to load data from Pascal VOC2011 for semantic segmentation
+
+    Args:
+        data_dir (string): Path to the root of the training data. If this is
+            'auto', this class will automatically download data for you
+            under ``$CHAINER_DATASET_ROOT/pfnet/chainer_cv/pascal_voc``.
+        bgr (bool): If true, method `get_example` will return an image in BGR
+            format.
     """
 
     target_names = np.array([
@@ -109,6 +114,13 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
         """Returns the i-th example's images in HWC format.
 
         The color image that is returned is RGB.
+
+        Args:
+            i (int): The index of the example.
+
+        Returns:
+            i-th example (image, label image)
+
         """
         img_file = osp.join(self.base_dir, 'JPEGImages', self.ids[i] + '.jpg')
         img = imread(img_file, mode='RGB')

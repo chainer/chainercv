@@ -5,15 +5,17 @@ import chainer
 
 class DummyDataset(chainer.dataset.DatasetMixin):
 
-    def __init__(self, shapes, length=100,
-                 constant=None, dtypes=None):
+    def __init__(self, shapes, length=100, constants=None, dtypes=None):
         self.length = length
-        self.constant = constant
 
         if not all(isinstance(elem, tuple) for elem in shapes):
             raise ValueError('`shapes` needs to be a list of tuples')
         self.shapes = shapes
         self.n_arrays = len(self.shapes)
+
+        if constants is None:
+            constants = [None] * self.n_arrays
+        self.constants = constants
 
         if dtypes is None:
             dtypes = self.n_arrays * [np.float64]
@@ -26,16 +28,16 @@ class DummyDataset(chainer.dataset.DatasetMixin):
         return self.length
 
     def get_example(self, i):
-        return self._get_example(i, self.shapes, self.dtypes)
+        return self._get_example(i, self.shapes, self.dtypes, self.constants)
 
-    def _get_example(self, i, shapes, dtypes):
+    def _get_example(self, i, shapes, dtypes, constants):
         out = []
-        for shape, dtype in zip(shapes, dtypes):
-            if self.constant is None:
+        for shape, dtype, constant in zip(shapes, dtypes, constants):
+            if constant is None:
                 a = np.random.uniform(size=(shape))
             else:
-                a = np.ones(shape=shape)
-                a *= self.constant
+                a = constant.copy()
+                a = np.broadcast_to(a, shape)
             a = a.astype(dtype)
             out.append(a)
         return tuple(out)
@@ -44,9 +46,9 @@ class DummyDataset(chainer.dataset.DatasetMixin):
 class DummyDatasetGetRawData(DummyDataset):
 
     def __init__(self, shapes, get_raw_data_shapes, length=100,
-                 constant=None, dtypes=None, get_raw_data_dtypes=None):
+                 constants=None, dtypes=None, get_raw_data_dtypes=None):
         super(DummyDatasetGetRawData, self).__init__(
-            shapes, length, constant, dtypes)
+            shapes, length, constants, dtypes)
 
         if len(get_raw_data_shapes) != self.n_arrays:
             raise ValueError('get_raw_data_shapes is either None or iterable '
@@ -60,8 +62,20 @@ class DummyDatasetGetRawData(DummyDataset):
         self.get_raw_data_dtypes = get_raw_data_dtypes
 
     def get_raw_data(self, i):
-        return self._get_example(
-            i, self.get_raw_data_shapes, self.get_raw_data_dtypes)
+        return self._get_example(i, self.get_raw_data_shapes,
+                                 self.get_raw_data_dtypes, self.constants)
+
+
+class SimpleDataset(chainer.dataset.DatasetMixin):
+
+    def __init__(self, input_array):
+        self.input_array = input_array
+
+    def __len__(self):
+        return len(self.input_array)
+
+    def get_example(self, i):
+        return self.input_array[i]
 
 
 class ConstantReturnModel(chainer.Chain):

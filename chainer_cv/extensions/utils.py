@@ -5,7 +5,7 @@ from chainer.utils import type_check
 import chainer
 
 
-def forward(model, inputs, expand_dim=True, forward_func=None):
+def forward(model, inputs, forward_func=None, expand_dim=False):
     """Forward model with given inputs
 
     Args:
@@ -14,8 +14,9 @@ def forward(model, inputs, expand_dim=True, forward_func=None):
             for forwarding.
         inputs: tuple of numpy.ndarray to be used as input. If `expand_dim`
             is True, the first axis will be added.
-        expand_dim (bool)
         forward_func (callable): called to forward
+        expand_dim (bool)
+
     """
 
     if forward_func is None:
@@ -51,7 +52,19 @@ def check_type(check_type_func, name=None):
     """
 
     def wrapper(self, in_data):
-        in_types = type_check.get_types(in_data, 'in_types', False)
+        if any([not isinstance(in_data_i, np.ndarray) and
+                not isinstance(in_data_i, chainer.cuda.ndarray) for
+                in_data_i in in_data]):
+            in_data_tmp = list(in_data)
+            for i, in_data_i in enumerate(in_data):
+                if (not isinstance(in_data_i, np.ndarray) and
+                        not isinstance(in_data_i, chainer.cuda.ndarray)):
+                    in_data_tmp[i] = np.array(in_data_i)
+            in_data_tmp = tuple(in_data_tmp)
+        else:
+            in_data_tmp = in_data
+
+        in_types = type_check.get_types(in_data_tmp, 'in_types', False)
         try:
             check_type_func(self, in_types)
         except type_check.InvalidType as e:

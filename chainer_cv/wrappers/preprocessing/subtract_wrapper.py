@@ -35,9 +35,7 @@ class SubtractWrapper(DatasetWrapper):
 
         self.value = value
 
-    def get_example(self, i):
-        xs = self.dataset.get_example(i)
-
-        x = xs[0]
+    def _get_example(self, in_data):
+        x = in_data[0]
         x -= self.value
-        return (x,) + xs[1:]
+        return (x,) + in_data[1:]

@@ -17,7 +17,7 @@ class PadWrapper(DatasetWrapper):
         super(PadWrapper, self).__init__(dataset)
         self.max_size = max_size
 
-    def get_example(self, i):
+    def _get_example(self, in_data):
         """Returns the i-th example.
 
         Args:
@@ -27,7 +27,7 @@ class PadWrapper(DatasetWrapper):
             i-th example.
 
         """
-        img, label = self.dataset.get_example(i)
+        img, label = in_data
 
         x_slices, y_slices = self._get_pad_slices(img, max_size=self.max_size)
         out = np.zeros((3,) + self.max_size, dtype=np.float32)
