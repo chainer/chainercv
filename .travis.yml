@@ -27,8 +27,8 @@ script:
   - pip install flake8
   - pip install autopep8
   - pip install mock
-  - pip install nosetests
+  - pip install nose
   - flake8 .
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
-  - nosetests tests
+  - MPLBACKEND="agg" nosetests tests

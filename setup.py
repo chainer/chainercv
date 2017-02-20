@@ -3,6 +3,10 @@
 from distutils.core import setup
 from setuptools import find_packages
 
+description = """
+Collection of Deep Learning Computer Vision Algorithms implemented in Chainer
+"""
+
 
 setup(
     name='chainer_cv',
@@ -11,6 +15,6 @@ setup(
     author='Yusuke Niitani',
     author_email='yuyuniitani@gmail.com',
     license='MIT',
-    description='Collection of Deep Learning Computer Vision Algorithms implemented in Chainer',
+    description=description,
     install_requires=open('requirements.txt').readlines(),
 )

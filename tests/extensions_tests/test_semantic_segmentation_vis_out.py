@@ -37,8 +37,9 @@ class TestSemanticSegmentationVisOut(unittest.TestCase):
     def test_call(self):
         self.extension(self.trainer)
         for idx in self.indices:
-            self.assertTrue(osp.exists(
-                osp.join(self.out_dir, 'semantic_seg_idx={}_iter=0.jpg'.format(idx))))
+            file_name = osp.join(
+                self.out_dir, 'semantic_seg_idx={}_iter=0.jpg'.format(idx))
+            self.assertTrue(osp.exists(file_name))
 
 
 testing.run_module(__name__, __file__)

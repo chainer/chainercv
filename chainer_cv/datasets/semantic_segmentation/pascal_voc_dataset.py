@@ -11,7 +11,8 @@ from chainer_cv import utils
 
 
 root = 'pfnet/chainer_cv/pascal_voc'
-url = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar'
+url = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/' \
+    'VOCtrainval_11-May-2012.tar'
 
 
 def _get_pascal_voc():

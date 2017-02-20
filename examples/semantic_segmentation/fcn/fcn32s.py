@@ -5,7 +5,8 @@ import chainer.functions as F
 import chainer.links as L
 from chainer.links.model.vision.vgg import VGG16Layers
 
-from chainer_cv.evaluations.eval_semantic_segmentation import label_accuracy_score
+from chainer_cv.evaluations.eval_semantic_segmentation import \
+    label_accuracy_score
 
 
 def upsample_filt(size):
