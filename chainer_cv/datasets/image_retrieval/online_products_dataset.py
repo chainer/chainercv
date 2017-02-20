@@ -1,6 +1,7 @@
 import numpy as np
 import os.path as osp
 from skimage.io import imread
+from skimage.color import gray2rgb
 import zipfile
 
 import chainer
@@ -52,9 +53,22 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
         id_list_file = osp.join(base_dir, 'Ebay_{}.txt'.format(mode))
         ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
-        self.class_ids = [np.array(int(id_[1])) for id_ in ids_tmp]
-        self.super_class_ids = [np.array(int(id_[2])) for id_ in ids_tmp]
+        self.class_ids = [int(id_[1]) for id_ in ids_tmp]
+        self.super_class_ids = [int(id_[2]) for id_ in ids_tmp]
         self.paths = [osp.join(base_dir, id_[3]) for id_ in ids_tmp]
+
+        self.class_ids_dict = self._list_to_dict(self.class_ids)
+        self.super_class_ids_dict = self._list_to_dict(self.super_class_ids)
+
+        self.n_classes = len(self.class_ids_dict.keys())
+
+    def _list_to_dict(self, l):
+        dict_ = {}
+        for i, v in enumerate(l):
+            if v not in dict_:
+                dict_[v] = []
+            dict_[v].append(i)
+        return dict_
 
     def __len__(self):
         return len(self.paths)
@@ -70,11 +84,15 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         Returns:
             i-th example
         """
-        img = imread(self.paths[i])
-        img = img.transpose(2, 0, 1).astype(np.float32)
 
-        class_id = self.class_ids[i]
-        super_class_id = self.super_class_ids[i]
+        class_id = np.array(self.class_ids[i], np.int32)
+        super_class_id = np.array(self.super_class_ids[i], np.int32)
+
+        img = imread(self.paths[i])
+
+        if img.ndim == 2:
+            img = gray2rgb(img)
+        img = img.transpose(2, 0, 1).astype(np.float32)
         return img, class_id, super_class_id
 
     def get_raw_data(self, i):
@@ -93,6 +111,18 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         class_id = self.class_ids[i]
         super_class_id = self.super_class_ids[i]
         return img, class_id, super_class_id
+
+    def get_ids(self, class_id):
+        """Get indices of examples in the given class.
+
+        Args:
+            class_id (int): the class id.
+
+        Returns:
+            list of indices of examples whose class ids are `class_id`.
+
+        """
+        return self.class_ids_dict[class_id]
 
 
 def get_online_products(base_dir='auto'):
