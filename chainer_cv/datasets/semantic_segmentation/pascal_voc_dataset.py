@@ -114,6 +114,13 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
         """Returns the i-th example's images in HWC format.
 
         The color image that is returned is RGB.
+
+        Args:
+            i (int): The index of the example.
+
+        Returns:
+            i-th example (image, label image)
+
         """
         img_file = osp.join(self.base_dir, 'JPEGImages', self.ids[i] + '.jpg')
         img = imread(img_file, mode='RGB')
