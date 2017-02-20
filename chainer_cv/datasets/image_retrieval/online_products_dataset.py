@@ -34,6 +34,8 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     .. [1] Stanford Online Products dataset
         http://cvgl.stanford.edu/projects/lifted_struct
 
+    All returned images are in RGB format.
+
     Args:
         data_dir (string): Path to the root of the training data. If this is
             'auto', this class will automatically download data for you
@@ -50,9 +52,12 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
         id_list_file = osp.join(base_dir, 'Ebay_{}.txt'.format(mode))
         ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
-        self.class_ids = [int(id_[1]) for id_ in ids_tmp]
-        self.super_class_ids = [int(id_[2]) for id_ in ids_tmp]
+        self.class_ids = [np.array(int(id_[1])) for id_ in ids_tmp]
+        self.super_class_ids = [np.array(int(id_[2])) for id_ in ids_tmp]
         self.paths = [osp.join(base_dir, id_[3]) for id_ in ids_tmp]
+    
+    def __len__(self):
+        return len(self.paths)
 
     def get_example(self, i):
         """Returns the i-th example.
@@ -70,6 +75,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
         class_id = self.class_ids[i]
         super_class_id = self.super_class_ids[i]
+        print 'class_id ', class_id
         return img, class_id, super_class_id
 
     def get_raw_data(self, i):

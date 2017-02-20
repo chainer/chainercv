@@ -1,5 +1,7 @@
 import six
 
+import numpy as np
+
 import chainer
 from chainer.utils import type_check
 
@@ -56,6 +58,7 @@ class DatasetWrapper(chainer.dataset.DatasetMixin):
         raise NotImplementedError
 
     def _check_data_type_get_example(self, in_data):
+        in_data = tuple([np.array(v) for v in in_data])
         in_type = type_check.get_types(in_data, 'in_types', False)
         try:
             self.check_type_get_example(in_type)
