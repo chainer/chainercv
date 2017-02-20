@@ -1,3 +1,5 @@
+[![travis](https://img.shields.io/travis/pfnet/chainer/master.svg)](https://travis-ci.org/pfnet/chainer)
+
 # ChainerCV
 
 ChainerCV does the dirty work when training a neural network for a computer vision task. In particular, this is a colletion of tools that do following
