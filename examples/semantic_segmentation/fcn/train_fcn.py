@@ -23,7 +23,7 @@ if __name__ == '__main__':
     parser.add_argument('-ne', '--epochs', type=int, default=20000)
     parser.add_argument('-ba', '--batch-size', type=int, default=3)
     parser.add_argument('-l', '--lr', type=float, default=1e-10)
-    parser.add_argument('-o', '--outdir', type=str, default='result')
+    parser.add_argument('-o', '--out', type=str, default='result')
 
     args = parser.parse_args()
     gpu = args.gpu
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     epochs = args.epochs
     resume = args.resume
     lr = args.lr
-    outdir = args.outdir
+    out = args.out
 
     train_data = PadWrapper(SubtractWrapper(PascalVOCDataset(mode='train')))
     test_data = PadWrapper(SubtractWrapper(PascalVOCDataset(mode='val')))
@@ -58,7 +58,7 @@ if __name__ == '__main__':
         test_data, batch_size=1, repeat=False, shuffle=False)
 
     updater = training.StandardUpdater(train_iter, optimizer, device=gpu)
-    trainer = training.Trainer(updater, (epochs, 'epoch'), out=outdir)
+    trainer = training.Trainer(updater, (epochs, 'epoch'), out=out)
 
     val_interval = 3000, 'iteration'
     log_interval = 100, 'iteration'
