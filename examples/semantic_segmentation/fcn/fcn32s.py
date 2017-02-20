@@ -26,7 +26,8 @@ class FCN32s(chainer.Chain):
     def __init__(self, n_class=21):
         self.n_class = n_class
         deconv_filter = upsample_filt(64)
-        deconv_filter = np.broadcast_to(deconv_filter, (self.n_class, self.n_class, 64, 64))
+        deconv_filter = np.broadcast_to(
+            deconv_filter, (self.n_class, self.n_class, 64, 64))
         super(self.__class__, self).__init__(
             vgg=VGG16Layers(),
             fc6=L.Convolution2D(512, 4096, 7, stride=1, pad=0),
@@ -51,7 +52,7 @@ class FCN32s(chainer.Chain):
 
         h = self.score_fr(h)
         h = self.upscore(h)
-        self.score = h[:, :, 19:19+x.data.shape[2], 19:19+x.data.shape[3]]
+        self.score = h[:, :, 19:19 + x.data.shape[2], 19:19 + x.data.shape[3]]
 
         if t is None:
             return self.score

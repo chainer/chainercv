@@ -155,9 +155,9 @@ def labelcolormap(N=256):
         id = i
         r, g, b = 0, 0, 0
         for j in xrange(0, 8):
-            r = np.bitwise_or(r, (bitget(id, 0) << 7-j))
-            g = np.bitwise_or(g, (bitget(id, 1) << 7-j))
-            b = np.bitwise_or(b, (bitget(id, 2) << 7-j))
+            r = np.bitwise_or(r, (bitget(id, 0) << 7 - j))
+            g = np.bitwise_or(g, (bitget(id, 1) << 7 - j))
+            b = np.bitwise_or(b, (bitget(id, 2) << 7 - j))
             id = (id >> 3)
         cmap[i, 0] = r
         cmap[i, 1] = g
@@ -168,7 +168,8 @@ def labelcolormap(N=256):
 
 def _process_label(label, n_class, bg_label=0):
     colors = labelcolormap(n_class)
-    label_viz = label2rgb(label, image=None, colors=colors[1:], bg_label=bg_label)
+    label_viz = label2rgb(
+        label, image=None, colors=colors[1:], bg_label=bg_label)
     # label 0 color: (0, 0, 0, 0) -> (0, 0, 0, 255)
     label_viz[label == 0] = 0
     return label_viz

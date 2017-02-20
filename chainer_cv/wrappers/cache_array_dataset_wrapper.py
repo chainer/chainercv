@@ -73,4 +73,4 @@ class CacheArrayDatasetWrapper(DatasetWrapper):
 if __name__ == '__main__':
     import chainer
     train, test = chainer.datasets.get_mnist()
-    cached_dataset = CacheDatasetWrapper(train)
+    cached_dataset = CacheArrayDatasetWrapper(train)

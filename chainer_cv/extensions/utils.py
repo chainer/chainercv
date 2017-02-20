@@ -17,6 +17,7 @@ def forward(model, inputs, expand_dim=True, forward_func=None):
         expand_dim (bool)
         forward_func (callable): called to forward
     """
+
     if forward_func is None:
         forward_func = model
     input_vars = []
@@ -48,6 +49,7 @@ def check_type(check_type_func, name=None):
     """
     This is a decorator for a class method.
     """
+
     def wrapper(self, in_data):
         in_types = type_check.get_types(in_data, 'in_types', False)
         try:

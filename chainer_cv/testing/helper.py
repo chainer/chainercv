@@ -71,6 +71,7 @@ class ConstantReturnModel(chainer.Chain):
     a method `__call__` is called.
 
     """
+
     def __init__(self, return_value):
         super(ConstantReturnModel, self).__init__()
         self.return_value = return_value

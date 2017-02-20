@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # optimizer = O.Adam(alpha=1e-9)
     optimizer = chainer.optimizers.MomentumSGD(lr=lr, momentum=0.99)
     optimizer.setup(model)
-    #optimizer.add_hook(chainer.optimizer.GradientClipping(10.))
+    # optimizer.add_hook(chainer.optimizer.GradientClipping(10.))
 
     optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 

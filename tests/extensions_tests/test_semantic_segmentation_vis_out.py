@@ -5,6 +5,8 @@ import numpy as np
 import os.path as osp
 import tempfile
 
+from chainer import testing
+
 from chainer_cv.testing import DummyDatasetGetRawData, ConstantReturnModel
 from chainer_cv.extensions import SemanticSegmentationVisOut
 
@@ -37,3 +39,6 @@ class TestSemanticSegmentationVisOut(unittest.TestCase):
         for idx in self.indices:
             self.assertTrue(osp.exists(
                 osp.join(self.out_dir, 'semantic_seg_idx={}_iter=0.jpg'.format(idx))))
+
+
+testing.run_module(__name__, __file__)

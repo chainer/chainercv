@@ -61,7 +61,8 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
 
     def __init__(self, base_dir='auto', mode='train', bgr=True):
         if mode not in ['train', 'trainval', 'val']:
-            raise ValueError('please pick mode from \'train\', \'trainval\', \'val\'')
+            raise ValueError(
+                'please pick mode from \'train\', \'trainval\', \'val\'')
 
         if base_dir == 'auto':
             base_dir = _get_pascal_voc()

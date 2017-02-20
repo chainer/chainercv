@@ -6,3 +6,4 @@ examples/semantic_segmentation/result/
 examples/semantic_segmentation/fcn/result/
 examples/semantic_segmentation/result
 dist/
+check_autopep8
