@@ -1,6 +1,6 @@
 <!--[![travis](https://travis-ci.org/yuyu2172/chainer-cv.svg?branch=master)](https://travis-ci.org/yuyu2172/chainer-cv)-->
 
-[![pypi](https://img.shields.io/pypi/v/chainer-cv.svg)](https://pypi.python.org/pypi/chainer-cv)
+<!--[![pypi](https://img.shields.io/pypi/v/chainer-cv.svg)](https://pypi.python.org/pypi/chainer-cv)-->
 
 # ChainerCV
 

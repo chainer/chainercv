@@ -7,3 +7,5 @@ examples/semantic_segmentation/fcn/result/
 examples/semantic_segmentation/result
 dist/
 check_autopep8
+
+tests/bin/
