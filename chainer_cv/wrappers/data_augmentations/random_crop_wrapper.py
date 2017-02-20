@@ -52,4 +52,4 @@ class RandomCropWrapper(DatasetWrapper):
                                      'values in cropped_shape')
                 slices.append(slice(start_idx, start_idx + cropped_width))
             out_data[idx] = img[tuple(slices)]
-        return out_data
+        return tuple(out_data)

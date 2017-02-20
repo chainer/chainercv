@@ -16,7 +16,7 @@ class TestRandomMirrorWrapper(unittest.TestCase):
             shapes=[(3, 10, 10), (3, 10, 10)], constant=constant)
         dataset = chainer_cv.wrappers.RandomMirrorWrapper(
             dataset, [0], orientation='h')
-        img0, img1 = dataset.get_example(0)
+        img0, img1 = dataset[0]
         np.testing.assert_equal(img1, constant)
 
 

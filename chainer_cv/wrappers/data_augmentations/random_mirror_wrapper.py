@@ -1,6 +1,8 @@
 import collections
 import random
 
+from chainer.utils import type_check
+
 from chainer_cv.wrappers.dataset_wrapper import DatasetWrapper
 
 
@@ -18,7 +20,7 @@ class RandomMirrorWrapper(DatasetWrapper):
     def __init__(self, dataset, augment_idx, orientation='h'):
         super(RandomMirrorWrapper, self).__init__(dataset)
 
-        if not orientation in ['h', 'v', 'both']:
+        if orientation not in ['h', 'v', 'both']:
             raise ValueError('orientation has to be either \'h\', \'v\' or '
                              '\'both\'')
         if orientation == 'both':
@@ -37,7 +39,6 @@ class RandomMirrorWrapper(DatasetWrapper):
             type_check.expect(
                 in_type.ndim == 3
             )
-
 
     def get_example(self, i):
         """Returns the i-th example.
@@ -61,7 +62,7 @@ class RandomMirrorWrapper(DatasetWrapper):
                 if h_mirror:
                     img = img[:, :, ::-1]
             if 'v' in self.orientation:
-                if v_mirro:
+                if v_mirror:
                     img = img[:, ::-1, :]
             out_data[idx] = img
-        return out_data
+        return tuple(out_data)
