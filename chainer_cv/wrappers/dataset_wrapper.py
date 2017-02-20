@@ -28,30 +28,32 @@ class DatasetWrapper(chainer.dataset.DatasetMixin):
         orig_attr = getattr(self.dataset, attr)
         return orig_attr
 
-    def __getitem__(self, index):
-        """Returns an example or a sequence of examples.
+    def get_example(self, i):
+        """Returns the i-th example.
 
-        It implements the standard Python indexing. It uses the
-        :meth:`get_example` method by default, but it may be overridden by the
-        implementation to, for example, improve the slicing performance.
+        Args:
+            i (int): The index of the example.
+
+        Returns:
+            The i-th example.
 
         """
-        if isinstance(index, slice):
-            current, stop, step = index.indices(len(self))
-            ret = []
-            while current < stop and step > 0 or current > stop and step < 0:
-                in_data = self.get_example(current)
-                self._check_data_type_get_example(in_data)
-                ret.append(in_data)
-                current += step
-            return ret
-        else:
-            in_data = self.get_example(index)
-            self._check_data_type_get_example(in_data)
-            return in_data
+        # this can be overridden
+        in_data = self.dataset[i]
+        self._check_data_type_get_example(in_data)
+        return self._get_example(in_data)
 
-    def get_example(self, i):
-        return self.dataset[i]
+    def _get_example(self, in_data):
+        """Returns the i-th example given values from the wrapped dataset.
+
+        Args:
+            in_data: The i-th example of the wrapped dataset.
+
+        Returns:
+            The i-th example.
+
+        """
+        raise NotImplementedError
 
     def _check_data_type_get_example(self, in_data):
         in_type = type_check.get_types(in_data, 'in_types', False)

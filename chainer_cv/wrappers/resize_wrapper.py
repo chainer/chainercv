@@ -37,19 +37,15 @@ class ResizeWrapper(DatasetWrapper):
                 in_type.ndim == 3
             )
 
-    def get_example(self, i):
+    def _get_example(self, in_data):
         """Returns the i-th example.
 
         All returned images are in CHW format.
-
-        Args:
-            i (int): The index of the example.
 
         Returns:
             i-th example.
 
         """
-        in_data = self.dataset[i]
         out_data = list(in_data)
         for idx in self.resize_idx:
             img = in_data[idx]

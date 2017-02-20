@@ -1,4 +1,4 @@
-import data_augmentations
+import data_augmentations  # NOQA
 
 from dataset_wrapper import DatasetWrapper  # NOQA
 from cache_dataset_wrapper import CacheDatasetWrapper  # NOQA

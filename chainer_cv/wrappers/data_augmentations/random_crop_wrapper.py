@@ -24,7 +24,7 @@ class RandomCropWrapper(DatasetWrapper):
             augment_idx = (augment_idx,)
         self.augment_idx = augment_idx
 
-    def get_example(self, i):
+    def _get_example(self, in_data):
         """Returns the i-th example.
 
         All returned images are in CHW format.
@@ -36,7 +36,6 @@ class RandomCropWrapper(DatasetWrapper):
             i-th example.
 
         """
-        in_data = self.dataset[i]
         out_data = list(in_data)
         for idx in self.augment_idx:
             img = in_data[idx]

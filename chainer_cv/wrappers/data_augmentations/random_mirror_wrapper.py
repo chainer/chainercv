@@ -13,8 +13,8 @@ class RandomMirrorWrapper(DatasetWrapper):
         dataset: a chainer.dataset.DatasetMixin to be wrapped.
         augment_idx (int or list of ints): this wrapper will augment k-th
             output of wrapped dataset's get_example if k is in `augment_idx`.
-        orientation ({'h', 'v', 'both'}): chooses whether to horizontally mirror
-            or vertically mirror.
+        orientation ({'h', 'v', 'both'}): chooses whether to mirror
+            horizontally or vertically.
     """
 
     def __init__(self, dataset, augment_idx, orientation='h'):
@@ -40,7 +40,7 @@ class RandomMirrorWrapper(DatasetWrapper):
                 in_type.ndim == 3
             )
 
-    def get_example(self, i):
+    def _get_example(self, in_data):
         """Returns the i-th example.
 
         All returned images are in CHW format.
@@ -52,7 +52,6 @@ class RandomMirrorWrapper(DatasetWrapper):
             i-th example.
 
         """
-        in_data = self.dataset[i]
         out_data = list(in_data)
         h_mirror = random.choice([True, False])
         v_mirror = random.choice([True, False])
