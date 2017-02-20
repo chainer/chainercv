@@ -34,8 +34,7 @@ class DummyDataset(chainer.dataset.DatasetMixin):
             if self.constant is None:
                 a = np.random.uniform(size=(shape))
             else:
-                a = np.ones(shape=shape)
-                a *= self.constant
+                a = self.constant.copy()
             a = a.astype(dtype)
             out.append(a)
         return tuple(out)

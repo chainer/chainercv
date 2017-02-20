@@ -7,3 +7,4 @@ from pad_wrapper import PadWrapper  # NOQA
 from subtract_wrapper import SubtractWrapper  # NOQA
 
 from data_augmentations.random_crop_wrapper import RandomCropWrapper  # NOQA
+from data_augmentations.random_mirror_wrapper import RandomMirrorWrapper  # NOQA

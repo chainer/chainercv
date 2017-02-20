@@ -95,10 +95,10 @@ def get_online_products(base_dir='auto'):
 
     This method returns train and test split of Online Products Dataset as
     done in [1].
-    
+
     .. [1] Deep Metric Learning via Lifted Structured Feature Embedding
         https://arxiv.org/abs/1511.06452
-    
+
     Args:
         data_dir (string): Path to the root of the training data. If this is
             'auto', this class will automatically download data for you
