@@ -15,8 +15,8 @@ class ResizeWrapper(DatasetWrapper):
         dataset: a chainer.dataset.DatasetMixin to be wrapped.
         output_shape: the size of output image after padding. This needs to be
             in HWC format.
-        resize_idx (int or list of ints): this wrapper will resize output of
-            wrapped dataset's get_example whose index is in `resize_idx`.
+        resize_idx (int or list of ints): this wrapper will resize k-th
+            output of wrapped dataset's get_example if k is in `resize_idx`.
 
     """
 
