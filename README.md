@@ -1,5 +1,7 @@
 <!--[![travis](https://travis-ci.org/yuyu2172/chainer-cv.svg?branch=master)](https://travis-ci.org/yuyu2172/chainer-cv)-->
 
+[![pypi](https://img.shields.io/pypi/v/chainer-cv.svg)](https://pypi.python.org/pypi/chainer-cv)
+
 # ChainerCV
 
 ChainerCV does the dirty work when training a neural network for a computer vision task. In particular, this is a colletion of tools that do following
@@ -15,7 +17,7 @@ ChainerCV does the dirty work when training a neural network for a computer visi
 
 
 ```
-pip install -e .
+pip install chainer-cv
 ```
 
 
