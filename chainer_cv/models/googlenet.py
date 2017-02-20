@@ -16,7 +16,7 @@ from chainer.serializers import npz
 
 
 class GoogLeNet(link.Chain):
-    """A pre-trained CNN model of GoogLeNet [1] .
+    """A pre-trained CNN model of GoogLeNet [1].
 
     During initialization, this chain model automatically downloads
     the pre-trained caffemodel, convert to another chainer model,
