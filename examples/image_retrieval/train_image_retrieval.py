@@ -44,6 +44,7 @@ if __name__ == '__main__':
                 lambda d: RandomCropWrapper(d, [0], (3, 224, 224))]
     for wrapper in wrappers:
         train_data = wrapper(train_data)
+        test_data = wrapper(test_data)
 
     model = TripletLossEmbedding(embed_size=128)
 
@@ -61,8 +62,6 @@ if __name__ == '__main__':
                                      repeat=True)
     test_iter = chainer.iterators.SerialIterator(
         test_data, batch_size, repeat=False, shuffle=False)
-    test_iter = TripletLossIterator(test_data, batch_size,
-                                    repeat=True)
 
     updater = TripletLossUpdater(train_iter, optimizer, device=gpu)
     trainer = training.Trainer(updater, (epochs, 'epoch'), out=out)
@@ -78,11 +77,12 @@ if __name__ == '__main__':
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
     trainer.extend(
-        EmbedImages(test_iter, model, 'embed.npy'), trigger=val_interval)
+        EmbedImages(test_iter, model, filename='embed.npy'),
+        trigger=val_interval, invoke_before_training=True)
     trainer.extend(
         MeasureKRetrieval(test_iter, features_file='embed.npy',
                           ks=[1, 10, 100]),
-        trigger=val_interval)
+        trigger=val_interval, invoke_before_training=True)
 
     # training visualization
     trainer.extend(
