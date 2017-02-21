@@ -1,27 +1,43 @@
-import collections
 import numpy as np
 import os.path as osp
-from skimage.color import label2rgb
-import warnings
 
 import chainer
-from chainer.utils import type_check
 from chainer.dataset import convert
+from chainer.utils import type_check
 
-from chainer_cv.extensions.utils import forward, check_type
+from chainer_cv.extensions.utils import check_type
+from chainer_cv.extensions.utils import forward
 
 
 class EmbedImages(chainer.training.extension.Extension):
-    """
+    """An extension that embeds images collected through an iterator.
 
-    The tuple returned by iterator should have an image as its first index
+    Through iterating an iterator, images will be embedded into some low
+    dimensional space given a model.
+
+    The tuple returned by the iterator should have an image as its first index
     element. The embedded feature of the image will be saved.
+
+    This extension will be executed in higher priority than any other default
+    extensions.
+
+    Args:
+        iterator (chainer.iterators.Iterator): Dataset iterator for the
+            images to be embedded. The element in the first index of the
+            returned tuple will be image.
+        target (chainer.Chain): model that embeds images to a feature space.
+        embed_func (callable): This function will be called to embed batch
+            of images.
+        filename (string): NumPy array of embedded features will be saved as a
+            file with this name.
+
     """
 
     invoke_before_training = False
+    priority = 400  # higher than any other default priorities
 
-    def __init__(self, iterator, target,
-                 embed_func=None, filename='embed.npy'):
+    def __init__(self, iterator, target, embed_func=None,
+                 filename='embed.npy'):
         self.iterator = iterator
         self.target = target
         if embed_func is None:
@@ -29,10 +45,18 @@ class EmbedImages(chainer.training.extension.Extension):
         self.embed_func = embed_func
         self.filename = filename
 
+    @check_type
+    def _check_type_dataset(self, in_types):
+        img_type = in_types[0]
+        type_check.expect(
+            img_type.dtype.kind == 'f',
+            img_type.ndim == 3
+        )
+
     def __call__(self, trainer):
-        x = []
         embedded_feats = []
         for v in self.iterator:
+            self._check_type_dataset(v[0])
             arrays = convert.concat_examples(
                 v, device=chainer.cuda.get_device(self.target))
             h = forward(
