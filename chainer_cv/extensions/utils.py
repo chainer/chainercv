@@ -5,7 +5,7 @@ from chainer.utils import type_check
 import chainer
 
 
-def forward(model, inputs, expand_dim=True, forward_func=None):
+def forward(model, inputs, forward_func=None, expand_dim=False):
     """Forward model with given inputs
 
     Args:

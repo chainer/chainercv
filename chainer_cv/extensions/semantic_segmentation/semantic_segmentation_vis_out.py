@@ -110,7 +110,8 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
             inputs = self.dataset[idx]
             gt = inputs[1]
             self._check_type_dataset(inputs)
-            out = forward(self.target, inputs, forward_func=self.forward_func)
+            out = forward(self.target, inputs,
+                          forward_func=self.forward_func, expand_dim=True)
             self._check_type_model(out)
             label = np.argmax(out[0][0], axis=0)
 
