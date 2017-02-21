@@ -9,25 +9,25 @@ from chainer.utils import type_check
 class DatasetWrapper(chainer.dataset.DatasetMixin):
 
     def __init__(self, dataset):
-        self.dataset = dataset
+        self._dataset = dataset
         self._update_wrapper_stack()
 
     def _update_wrapper_stack(self):
         """
         Keep a list of all the wrappers that have been appended to the stack.
         """
-        self._wrapper_stack = getattr(self.dataset, '_wrapper_stack', [])
+        self._wrapper_stack = getattr(self._dataset, '_wrapper_stack', [])
         self._wrapper_stack.append(self)
 
     def __len__(self):
-        return len(self.dataset)
+        return len(self._dataset)
 
-    def __getattr__(self, attr):
-        if attr == 'get_example':
+    def __getattr__(self, name):
+        if name == 'get_example':
             return self.get_example
-        elif attr == '__getitem__':
+        elif name == '__getitem__':
             return self.__getitem__
-        orig_attr = getattr(self.dataset, attr)
+        orig_attr = getattr(self._dataset, name)
         return orig_attr
 
     def get_example(self, i):
@@ -41,7 +41,7 @@ class DatasetWrapper(chainer.dataset.DatasetMixin):
 
         """
         # this can be overridden
-        in_data = self.dataset[i]
+        in_data = self._dataset[i]
         self._check_data_type_get_example(in_data)
         return self._get_example(in_data)
 
@@ -55,7 +55,7 @@ class DatasetWrapper(chainer.dataset.DatasetMixin):
             The i-th example.
 
         """
-        raise NotImplementedError
+        return in_data
 
     def _check_data_type_get_example(self, in_data):
         in_data = tuple([np.array(v) for v in in_data])
@@ -84,7 +84,7 @@ Invalid operation is performed in: {0} (get_example)
         pass
 
     def __str__(self):
-        return '<{}{}>'.format(type(self).__name__, self.dataset)
+        return '<{}{}>'.format(type(self).__name__, self._dataset)
 
     def __repr__(self):
         return str(self)

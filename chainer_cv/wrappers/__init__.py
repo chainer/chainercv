@@ -10,3 +10,4 @@ from preprocessing.subtract_wrapper import SubtractWrapper  # NOQA
 from preprocessing.resize_wrapper import ResizeWrapper  # NOQA
 from data_augmentation.random_crop_wrapper import RandomCropWrapper  # NOQA
 from data_augmentation.random_mirror_wrapper import RandomMirrorWrapper  # NOQA
+from split_dataset.keep_subset_wrapper import KeepSubsetWrapper

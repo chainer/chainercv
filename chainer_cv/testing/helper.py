@@ -66,6 +66,18 @@ class DummyDatasetGetRawData(DummyDataset):
                                  self.get_raw_data_dtypes, self.constants)
 
 
+class SimpleDataset(chainer.dataset.DatasetMixin):
+
+    def __init__(self, input_array):
+        self.input_array = input_array
+
+    def __len__(self):
+        return len(self.input_array)
+
+    def get_example(self, i):
+        return self.input_array[i]
+
+
 class ConstantReturnModel(chainer.Chain):
     """A chainer.Chain that returns constant values
 
