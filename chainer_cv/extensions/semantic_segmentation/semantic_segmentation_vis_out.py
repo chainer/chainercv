@@ -7,7 +7,8 @@ import warnings
 import chainer
 from chainer.utils import type_check
 
-from chainer_cv.extensions.utils import forward, check_type
+from chainer_cv.extensions.utils import check_type
+from chainer_cv.extensions.utils import forward
 
 try:
     from matplotlib import pyplot as plt
@@ -101,6 +102,9 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
         )
 
     def __call__(self, trainer):
+        if not _available:
+            return
+
         for idx in self.indices:
             formated_filename_base = osp.join(trainer.out, self.filename_base)
             out_file = (formated_filename_base +

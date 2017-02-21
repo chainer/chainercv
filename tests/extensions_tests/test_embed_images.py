@@ -19,7 +19,6 @@ class TestEmbedImages(unittest.TestCase):
         self.trainer = mock.MagicMock()
         self.out_dir = tempfile.mkdtemp()
         self.trainer.out = self.out_dir
-        self.trainer.updater.iteration = 0
         self.filename = 'embed.npy'
 
         length = 100
