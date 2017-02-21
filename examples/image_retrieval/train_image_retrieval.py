@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--resume', '-res', default='',
                         help='Resume the training from snapshot')
     parser.add_argument('-ne', '--epochs', type=int, default=20000)
-    parser.add_argument('-ba', '--batch-size', type=int, default=12)
+    parser.add_argument('-ba', '--batch-size', type=int, default=120)
     parser.add_argument('-l', '--lr', type=float, default=1e-10)
     parser.add_argument('-o', '--out', type=str, default='result')
 

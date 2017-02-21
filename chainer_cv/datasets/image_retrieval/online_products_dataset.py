@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import os.path as osp
 from skimage.io import imread
@@ -122,7 +123,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
             list of indices of examples whose class ids are `class_id`.
 
         """
-        return self.class_ids_dict[class_id]
+        return copy.copy(self.class_ids_dict[class_id])
 
 
 def get_online_products(base_dir='auto'):
