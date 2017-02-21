@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import warnings
 
@@ -61,10 +62,11 @@ class MeasureKRetrieval(chainer.training.extension.Extension):
         if not _available:
             return
 
+        iterator = copy.copy(self.iterator)
         features = np.load(self.features_file)
 
         classes = []
-        for v in self.iterator:
+        for v in iterator:
             arrays = convert.concat_examples(v)
             classes.append(arrays[1])
         classes = np.concatenate(classes, axis=0)

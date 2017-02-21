@@ -11,6 +11,8 @@ from chainer_cv.datasets import get_online_products
 from chainer_cv.wrappers import ResizeWrapper
 from chainer_cv.wrappers import RandomCropWrapper
 from chainer_cv.wrappers import SubtractWrapper
+from chainer_cv.extensions import EmbedImages
+from chainer_cv.extensions import MeasureKRetrieval
 
 from deep_metric_triplet_loss import TripletLossEmbedding
 from deep_metric_triplet_loss import TripletLossIterator
@@ -57,17 +59,16 @@ if __name__ == '__main__':
 
     train_iter = TripletLossIterator(train_data, batch_size,
                                      repeat=True)
+    test_iter = chainer.iterators.SerialIterator(
+        test_data, batch_size, repeat=False, shuffle=False)
     test_iter = TripletLossIterator(test_data, batch_size,
                                     repeat=True)
 
     updater = TripletLossUpdater(train_iter, optimizer, device=gpu)
     trainer = training.Trainer(updater, (epochs, 'epoch'), out=out)
 
-    val_interval = 3000, 'iteration'
+    val_interval = 1, 'epoch'
     log_interval = 100, 'iteration'
-
-    trainer.extend(
-        TestModeEvaluator(test_iter, model, device=gpu), trigger=val_interval)
 
     # reporter related
     trainer.extend(extensions.LogReport(trigger=log_interval))
@@ -76,11 +77,18 @@ if __name__ == '__main__':
          'main/loss', 'validation/main/loss']),
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
+    trainer.extend(
+        EmbedImages(test_iter, model, 'embed.npy'), trigger=val_interval)
+    trainer.extend(
+        MeasureKRetrieval(test_iter, features_file='embed.npy',
+                          ks=[1, 10, 100]),
+        trigger=val_interval)
 
     # training visualization
     trainer.extend(
         extensions.PlotReport(
-            ['main/loss', 'validation/main/loss'],
+            ['main/loss', 'validation/main/loss', 'main/recall@1',
+             'main/recall@10', 'main/recall@100'],
             trigger=log_interval, file_name='loss.png')
     )
     trainer.extend(extensions.dump_graph('main/loss'))

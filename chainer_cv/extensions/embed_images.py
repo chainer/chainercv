@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import os.path as osp
 
@@ -54,8 +55,9 @@ class EmbedImages(chainer.training.extension.Extension):
         )
 
     def __call__(self, trainer):
+        iterator = copy.copy(self.iterator)
         embedded_feats = []
-        for v in self.iterator:
+        for v in iterator:
             self._check_type_dataset(v[0])
             arrays = convert.concat_examples(
                 v, device=chainer.cuda.get_device(self.target))
