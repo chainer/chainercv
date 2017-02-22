@@ -7,6 +7,19 @@ from chainer.utils import type_check
 
 
 class DatasetWrapper(chainer.dataset.DatasetMixin):
+    """Wrap dataset class to add functionalities.
+
+    This class is wrapped around a dataset class or another wrapper to add a
+    functionality.
+
+    The method `_get_example` should contain codes that are necessary to add
+    functionality.
+
+    If an output of the wrapped dataset is not tuple, the wrapper class forces
+    it to be a tuple when passed to `_get_example`. In that case, the final
+    value that is returned by `get_example` is forced back to non-tuple.
+
+    """
 
     def __init__(self, dataset):
         self._dataset = dataset
@@ -42,14 +55,27 @@ class DatasetWrapper(chainer.dataset.DatasetMixin):
         """
         # this can be overridden
         in_data = self._dataset[i]
+
+        # check if input is tuple
+        converted_tuple = False
+        if not isinstance(in_data, tuple):
+            in_data = (in_data,)
+            converted_tuple = True
+
+        # check type
         self._check_data_type_get_example(in_data)
-        return self._get_example(in_data)
+
+        # convert back to non tuple if necessary
+        out = self._get_example(in_data)
+        if converted_tuple:
+            out = out[0]
+        return out
 
     def _get_example(self, in_data):
         """Returns the i-th example given values from the wrapped dataset.
 
         Args:
-            in_data: The i-th example of the wrapped dataset.
+            in_data (tuple): The i-th example from the wrapped dataset.
 
         Returns:
             The i-th example.

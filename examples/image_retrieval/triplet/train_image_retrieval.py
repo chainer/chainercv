@@ -9,7 +9,7 @@ from chainer_cv.training.test_mode_evaluator import TestModeEvaluator
 
 from chainer_cv.datasets import get_online_products
 from chainer_cv.wrappers import ResizeWrapper
-from chainer_cv.wrappers import RandomCropWrapper
+from chainer_cv.wrappers import CropWrapper
 from chainer_cv.wrappers import SubtractWrapper
 from chainer_cv.extensions import EmbedImages
 from chainer_cv.extensions import MeasureKRetrieval
@@ -40,11 +40,13 @@ if __name__ == '__main__':
 
     train_data, test_data = get_online_products()
     wrappers = [lambda d: SubtractWrapper(d, value=122.5),
-                lambda d: ResizeWrapper(d, [0], (256, 256, 3)),
-                lambda d: RandomCropWrapper(d, [0], (3, 224, 224))]
+                lambda d: ResizeWrapper(d, [0], (256, 256, 3))]
     for wrapper in wrappers:
         train_data = wrapper(train_data)
         test_data = wrapper(test_data)
+
+    train_data = CropWrapper(train_data, [0], (3, 224, 224))
+    test_data = CropWrapper(test_data, [0], (3, 224, 224), (0, 16, 16))
 
     model = TripletLossEmbedding(embed_size=128)
 
