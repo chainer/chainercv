@@ -66,7 +66,7 @@ class MeasureKRetrieval(chainer.training.extension.Extension):
 
         iterator = copy.copy(self.iterator)
         features = np.load(features_file)
-        optimizer =trainer.updater.get_optimizer('main')
+        optimizer = trainer.updater.get_optimizer('main')
 
         classes = []
         for v in iterator:
