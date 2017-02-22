@@ -61,7 +61,6 @@ class EmbedImages(chainer.training.extension.Extension):
             self._check_type_dataset(v[0])
             arrays = convert.concat_examples(
                 v, device=chainer.cuda.get_device(self.target))
-            print arrays[0].shape
             h = forward(
                 self.target, arrays[0:1], forward_func=self.embed_func)[0]
             embedded_feats.append(h)

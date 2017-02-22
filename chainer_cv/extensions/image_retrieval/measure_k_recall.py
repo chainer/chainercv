@@ -66,6 +66,7 @@ class MeasureKRetrieval(chainer.training.extension.Extension):
 
         iterator = copy.copy(self.iterator)
         features = np.load(features_file)
+        optimizer =trainer.updater.get_optimizer('main')
 
         classes = []
         for v in iterator:
@@ -103,4 +104,4 @@ class MeasureKRetrieval(chainer.training.extension.Extension):
             n_match[k] = np.concatenate(n_match[k])
 
             reporter.report({'recall@{}'.format(k): np.mean(n_match[k])},
-                            trainer.updater.target)
+                            optimizer.target)
