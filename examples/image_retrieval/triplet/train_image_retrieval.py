@@ -5,14 +5,12 @@ import chainer
 from chainer import training
 from chainer.training import extensions
 
-from chainer_cv.training.test_mode_evaluator import TestModeEvaluator
-
 from chainer_cv.datasets import get_online_products
-from chainer_cv.wrappers import ResizeWrapper
-from chainer_cv.wrappers import CropWrapper
-from chainer_cv.wrappers import SubtractWrapper
 from chainer_cv.extensions import EmbedImages
 from chainer_cv.extensions import MeasureKRetrieval
+from chainer_cv.wrappers import CropWrapper
+from chainer_cv.wrappers import ResizeWrapper
+from chainer_cv.wrappers import SubtractWrapper
 
 from deep_metric_triplet_loss import TripletLossEmbedding
 from deep_metric_triplet_loss import TripletLossIterator
@@ -38,7 +36,8 @@ if __name__ == '__main__':
     lr = args.lr
     out = args.out
 
-    train_data, test_data = get_online_products(test_classes=range(20000, 21000))
+    train_data, test_data = get_online_products(
+        test_classes=range(20000, 21000))
     wrappers = [lambda d: SubtractWrapper(d, value=122.5),
                 lambda d: ResizeWrapper(d, [0], (256, 256, 3))]
     for wrapper in wrappers:

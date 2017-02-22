@@ -26,9 +26,10 @@ class DatasetWrapper(chainer.dataset.DatasetMixin):
         self._update_wrapper_stack()
 
     def _update_wrapper_stack(self):
+        """Keep a list of all the wrappers that have been appended to the stack.
+
         """
-        Keep a list of all the wrappers that have been appended to the stack.
-        """
+
         self._wrapper_stack = getattr(self._dataset, '_wrapper_stack', [])
         self._wrapper_stack.append(self)
 

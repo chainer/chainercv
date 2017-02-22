@@ -126,7 +126,8 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         return copy.copy(self.class_ids_dict[class_id])
 
 
-def get_online_products(base_dir='auto', train_classes=None, test_classes=None):
+def get_online_products(base_dir='auto',
+                        train_classes=None, test_classes=None):
     """Gets the Online Products Dataset.
 
     This method returns train and test split of Online Products Dataset as

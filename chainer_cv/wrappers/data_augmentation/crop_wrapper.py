@@ -50,8 +50,8 @@ class CropWrapper(DatasetWrapper):
             img = in_data[idx]
             shape = img.shape
             slices = []
-            for i, (width, cropped_width) in enumerate(zip(shape,
-                                                         self.cropped_shape)):
+            for i, (width, cropped_width) in enumerate(
+                    zip(shape, self.cropped_shape)):
                 if self.start_idx is None:
                     if width > cropped_width:
                         start_idx = random.choice(range(width - cropped_width))

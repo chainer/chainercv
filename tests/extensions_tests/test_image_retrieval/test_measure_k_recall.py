@@ -9,7 +9,6 @@ import chainer
 from chainer import testing
 
 from chainer_cv.extensions import MeasureKRetrieval
-from chainer_cv.testing import ConstantReturnModel
 from chainer_cv.testing import DummyDataset
 
 
@@ -38,7 +37,6 @@ class TestMeasureKRetrieval(unittest.TestCase):
 
     def test_call(self):
         self.extension(self.trainer)
-        print self.trainer.observation
 
 
 testing.run_module(__name__, __file__)

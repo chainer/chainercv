@@ -1,8 +1,4 @@
-import collections
 import numpy as np
-import skimage.transform
-
-from chainer.utils import type_check
 
 from chainer_cv.wrappers.dataset_wrapper import DatasetWrapper
 
@@ -15,7 +11,7 @@ def keep_subset(func, indices):
     return wrapped
 
 
-class KeepSubsetWrapper(DatasetWrapper): 
+class KeepSubsetWrapper(DatasetWrapper):
 
     """Keep subset of dataset.
 
