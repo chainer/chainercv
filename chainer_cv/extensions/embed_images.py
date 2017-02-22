@@ -14,7 +14,7 @@ class EmbedImages(chainer.training.extension.Extension):
     """An extension that embeds images collected through an iterator.
 
     Through iterating an iterator, images will be embedded into some low
-    dimensional space given a model.
+    dimensional space.
 
     The tuple returned by the iterator should have an image as its first index
     element. The embedded feature of the image will be saved.
