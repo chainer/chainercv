@@ -1,31 +1,47 @@
 import six
 
+import numpy as np
+
 import chainer
 from chainer.utils import type_check
 
 
 class DatasetWrapper(chainer.dataset.DatasetMixin):
+    """Wrap dataset class to add functionalities.
+
+    This class is wrapped around a dataset class or another wrapper to add a
+    functionality.
+
+    The method `_get_example` should contain codes that are necessary to add
+    functionality.
+
+    If an output of the wrapped dataset is not tuple, the wrapper class forces
+    it to be a tuple when passed to `_get_example`. In that case, the final
+    value that is returned by `get_example` is forced back to non-tuple.
+
+    """
 
     def __init__(self, dataset):
-        self.dataset = dataset
+        self._dataset = dataset
         self._update_wrapper_stack()
 
     def _update_wrapper_stack(self):
+        """Keep a list of all the wrappers that have been appended to the stack.
+
         """
-        Keep a list of all the wrappers that have been appended to the stack.
-        """
-        self._wrapper_stack = getattr(self.dataset, '_wrapper_stack', [])
+
+        self._wrapper_stack = getattr(self._dataset, '_wrapper_stack', [])
         self._wrapper_stack.append(self)
 
     def __len__(self):
-        return len(self.dataset)
+        return len(self._dataset)
 
-    def __getattr__(self, attr):
-        if attr == 'get_example':
+    def __getattr__(self, name):
+        if name == 'get_example':
             return self.get_example
-        elif attr == '__getitem__':
+        elif name == '__getitem__':
             return self.__getitem__
-        orig_attr = getattr(self.dataset, attr)
+        orig_attr = getattr(self._dataset, name)
         return orig_attr
 
     def get_example(self, i):
@@ -39,23 +55,37 @@ class DatasetWrapper(chainer.dataset.DatasetMixin):
 
         """
         # this can be overridden
-        in_data = self.dataset[i]
+        in_data = self._dataset[i]
+
+        # check if input is tuple
+        converted_tuple = False
+        if not isinstance(in_data, tuple):
+            in_data = (in_data,)
+            converted_tuple = True
+
+        # check type
         self._check_data_type_get_example(in_data)
-        return self._get_example(in_data)
+
+        # convert back to non tuple if necessary
+        out = self._get_example(in_data)
+        if converted_tuple:
+            out = out[0]
+        return out
 
     def _get_example(self, in_data):
         """Returns the i-th example given values from the wrapped dataset.
 
         Args:
-            in_data: The i-th example of the wrapped dataset.
+            in_data (tuple): The i-th example from the wrapped dataset.
 
         Returns:
             The i-th example.
 
         """
-        raise NotImplementedError
+        return in_data
 
     def _check_data_type_get_example(self, in_data):
+        in_data = tuple([np.array(v) for v in in_data])
         in_type = type_check.get_types(in_data, 'in_types', False)
         try:
             self.check_type_get_example(in_type)
@@ -81,7 +111,7 @@ Invalid operation is performed in: {0} (get_example)
         pass
 
     def __str__(self):
-        return '<{}{}>'.format(type(self).__name__, self.dataset)
+        return '<{}{}>'.format(type(self).__name__, self._dataset)
 
     def __repr__(self):
         return str(self)

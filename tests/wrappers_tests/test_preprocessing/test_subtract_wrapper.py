@@ -14,11 +14,12 @@ class TestSubtractWrapper(unittest.TestCase):
         constant = np.ones((3, 10, 10))
         dataset = chainer_cv.wrappers.SubtractWrapper(
             helper.DummyDataset(
-                shapes=[(3, 10, 10), (3, 10, 10)], constant=constant)
+                shapes=[(3, 10, 10), (3, 10, 10)],
+                constants=[constant, constant])
         )
 
         img0, img1 = dataset.get_example(0)
-        img0_inside, img1_inside = dataset.dataset.get_example(0)
+        img0_inside, img1_inside = dataset._dataset.get_example(0)
 
         img0_add = dataset.value + img0
 

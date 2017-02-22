@@ -44,7 +44,7 @@ class CacheDatasetWrapper(DatasetWrapper):
         """
         key = str(i)
         if key not in self.cache:
-            self.cache[key] = self.dataset[i]
+            self.cache[key] = self._dataset[i]
         return self.cache[key]
 
     def __del__(self):

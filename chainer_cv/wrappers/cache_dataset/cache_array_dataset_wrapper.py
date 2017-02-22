@@ -23,7 +23,7 @@ class CacheArrayDatasetWrapper(DatasetWrapper):
         super(CacheArrayDatasetWrapper, self).__init__(dataset)
         self.initialized = False
         self.cache = None
-        self.has_cache = [False] * len(self.dataset)
+        self.has_cache = [False] * len(self._dataset)
         self.copy = copy
 
     def get_example(self, i):
@@ -45,7 +45,7 @@ class CacheArrayDatasetWrapper(DatasetWrapper):
             self.initialized = True
 
         if not self.has_cache[i]:
-            arrays = self.dataset[i]
+            arrays = self._dataset[i]
             for arr_i, a in enumerate(arrays):
                 self.cache[arr_i][i] = np.array(a)
             self.has_cache[i] = True
@@ -56,7 +56,7 @@ class CacheArrayDatasetWrapper(DatasetWrapper):
         return out
 
     def _initialize(self, i):
-        arrays = self.dataset[i]
+        arrays = self._dataset[i]
         self.cache = [None] * len(arrays)
         for arr_i, a in enumerate(arrays):
             if not isinstance(np.array(a), np.ndarray):

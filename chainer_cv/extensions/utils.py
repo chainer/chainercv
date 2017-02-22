@@ -5,7 +5,7 @@ from chainer.utils import type_check
 import chainer
 
 
-def forward(model, inputs, expand_dim=True, forward_func=None):
+def forward(model, inputs, forward_func=None, expand_dim=False):
     """Forward model with given inputs
 
     Args:
@@ -14,8 +14,9 @@ def forward(model, inputs, expand_dim=True, forward_func=None):
             for forwarding.
         inputs: tuple of numpy.ndarray to be used as input. If `expand_dim`
             is True, the first axis will be added.
-        expand_dim (bool)
         forward_func (callable): called to forward
+        expand_dim (bool)
+
     """
 
     if forward_func is None:
