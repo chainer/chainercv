@@ -52,7 +52,19 @@ def check_type(check_type_func, name=None):
     """
 
     def wrapper(self, in_data):
-        in_types = type_check.get_types(in_data, 'in_types', False)
+        if any([not isinstance(in_data_i, np.ndarray) and
+                not isinstance(in_data_i, chainer.cuda.ndarray) for
+                in_data_i in in_data]):
+            in_data_tmp = list(in_data)
+            for i, in_data_i in enumerate(in_data):
+                if (not isinstance(in_data_i, np.ndarray) and
+                        not isinstance(in_data_i, chainer.cuda.ndarray)):
+                    in_data_tmp[i] = np.array(in_data_i)
+            in_data_tmp = tuple(in_data_tmp)
+        else:
+            in_data_tmp = in_data
+
+        in_types = type_check.get_types(in_data_tmp, 'in_types', False)
         try:
             check_type_func(self, in_types)
         except type_check.InvalidType as e:

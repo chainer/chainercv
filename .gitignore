@@ -7,6 +7,9 @@ examples/semantic_segmentation/fcn/result/
 examples/semantic_segmentation/result
 
 examples/image_retrieval/triplet/result/
+
+examples/image_classification/tensorboard/result/
+
 dist/
 check_autopep8
 

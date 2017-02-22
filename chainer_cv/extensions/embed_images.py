@@ -51,7 +51,6 @@ class EmbedImages(chainer.training.extension.Extension):
         img_type = in_types[0]
         type_check.expect(
             img_type.dtype.kind == 'f',
-            img_type.ndim == 3
         )
 
     def __call__(self, trainer):
