@@ -12,7 +12,7 @@ from chainer_cv import utils
 from chainer_cv.wrappers import KeepSubsetWrapper
 
 
-root = 'pfnet/chainer_cv/online_products'
+root = 'yuyu2172/chainer-cv/online_products'
 url = 'ftp://cs.stanford.edu/cs/cvgl/Stanford_Online_Products.zip'
 
 
@@ -42,7 +42,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     Args:
         data_dir (string): Path to the root of the training data. If this is
             'auto', this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/pfnet/chainer_cv/pascal_voc``.
+            under ``$CHAINER_DATASET_ROOT/yuyu2172/chainer-cv/pascal_voc``.
     """
 
     def __init__(self, base_dir='auto'):
@@ -141,7 +141,7 @@ def get_online_products(base_dir='auto',
     Args:
         data_dir (string): Path to the root of the training data. If this is
             'auto', this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/pfnet/chainer_cv/pascal_voc``.
+            under ``$CHAINER_DATASET_ROOT/yuyu2172/chainer-cv/pascal_voc``.
         train_classes (list of int): The train dataset will contain images
             whose class ids are included in `train_classes`. If this is
             `None`, the first 11318 classes are used as done in [1].
