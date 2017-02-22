@@ -32,3 +32,8 @@ If you want to change the directory where you download and look up datasets, ple
 export CHAINER_DATASET_ROOT=/CLOUD/dataset/  # this is an exmaple
 ```
 
+
+# Versions
+**0.2 (February 22nd, 2017)** TensorBoard visualization of embedded space [#4](https://github.com/yuyu2172/chainer-cv/pull/4).
+
+**0.1 (February 20th, 2017)** Semantic Segmentation example. Initial release.
