@@ -38,7 +38,7 @@ if __name__ == '__main__':
     lr = args.lr
     out = args.out
 
-    train_data, test_data = get_online_products()
+    train_data, test_data = get_online_products(test_classes=range(20000, 21000))
     wrappers = [lambda d: SubtractWrapper(d, value=122.5),
                 lambda d: ResizeWrapper(d, [0], (256, 256, 3)),
                 lambda d: RandomCropWrapper(d, [0], (3, 224, 224))]

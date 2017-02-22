@@ -1,5 +1,6 @@
 import copy
 import numpy as np
+import os.path as osp
 import warnings
 
 import chainer
@@ -61,9 +62,10 @@ class MeasureKRetrieval(chainer.training.extension.Extension):
     def __call__(self, trainer):
         if not _available:
             return
+        features_file = osp.join(trainer.out, self.features_file)
 
         iterator = copy.copy(self.iterator)
-        features = np.load(self.features_file)
+        features = np.load(features_file)
 
         classes = []
         for v in iterator:
