@@ -49,10 +49,14 @@ class TripletLossIterator(chainer.iterators.SerialIterator):
             ids.remove(i)
             pos_batch.append(self.dataset[random.choice(ids)])
 
-            offset = random.choice(range(len(self.dataset)))
-            neg_class_id = (class_id + offset) % self.dataset.n_classes
-            ids = self.dataset.get_ids(neg_class_id)
-            neg_batch.append(self.dataset[random.choice(ids)])
+            for k in range(100):
+                if k == 99:
+                    raise ValueError('failed to find a neg pair')
+                neg_id = random.choice(range(len(self.dataset)))
+                neg = self.dataset[neg_id]
+                if class_id != neg[1]:
+                    neg_batch.append(neg)
+                    break
 
         batch = anchor_batch + pos_batch + neg_batch
 
