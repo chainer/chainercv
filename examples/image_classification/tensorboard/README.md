@@ -14,3 +14,7 @@ You can start the example with following commands.
 python train_mnist_tb_embedding.py  # set GPUs if you have one
 tensorboard --logdir=/tmp/chainer_cv/
 ```
+
+# Walkthrough
+
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/FjSBDjiS3Gw/0.jpg)](https://www.youtube.com/watch?v=FjSBDjiS3Gw)
