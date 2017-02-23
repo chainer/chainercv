@@ -1,0 +1,8 @@
+build/
+*.so
+*.c
+tests/tests/
+.ipynb_checkpoints/
+004545.jpg
+VGG16_faster_rcnn_final.model
+result/

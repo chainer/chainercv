@@ -1,22 +1,23 @@
-import argparse
+import fire
 import os.path as osp
 
 import chainer
 from chainer import training
 from chainer.training import extensions
 
-from chainer_cv.datasets import get_online_products
-from chainer_cv.extensions import EmbedImages
-from chainer_cv.extensions import MeasureKRetrieval
-from chainer_cv.wrappers import CropWrapper
-from chainer_cv.wrappers import ResizeWrapper
-from chainer_cv.wrappers import SubtractWrapper
+from chainercv.datasets import get_online_products
+from chainercv.extensions import EmbedImages
+from chainercv.extensions import MeasureKRetrieval
+from chainercv.wrappers import CropWrapper
+from chainercv.wrappers import ResizeWrapper
+from chainercv.wrappers import SubtractWrapper
 
 from deep_metric_triplet_loss import TripletLossEmbedding
 from deep_metric_triplet_loss import TripletLossIterator
 from deep_metric_triplet_loss import TripletLossUpdater
 
 
+<<<<<<< HEAD
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
@@ -37,6 +38,10 @@ if __name__ == '__main__':
     out = args.out
 
 <<<<<<< HEAD
+=======
+def main(gpu=-1, batch_size=120, epochs=20000, resume='',
+         lr=1e-10, out='result'):
+>>>>>>> 7c4738c... version update: 0.3.0
     train_data, test_data = get_online_products(
         test_classes=range(20000, 21000))
 =======
@@ -102,3 +107,7 @@ if __name__ == '__main__':
         chainer.serializers.load_npz(osp.expanduser(resume), trainer)
 
     trainer.run()
+
+
+if __name__ == '__main__':
+    fire.Fire(main)
