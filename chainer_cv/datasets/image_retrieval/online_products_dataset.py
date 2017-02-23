@@ -45,20 +45,20 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
             under ``$CHAINER_DATASET_ROOT/yuyu2172/chainer-cv/pascal_voc``.
     """
 
-    def __init__(self, base_dir='auto'):
-        if base_dir == 'auto':
-            base_dir = _get_online_products()
-        self.base_dir = base_dir
+    def __init__(self, data_dir='auto'):
+        if data_dir == 'auto':
+            data_dir = _get_online_products()
+        self.data_dir = data_dir
 
         self.class_ids = []
         self.super_class_ids = []
         self.paths = []
         for mode in ['train', 'test']:
-            id_list_file = osp.join(base_dir, 'Ebay_{}.txt'.format(mode))
+            id_list_file = osp.join(data_dir, 'Ebay_{}.txt'.format(mode))
             ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
             self.class_ids += [int(id_[1]) for id_ in ids_tmp]
             self.super_class_ids += [int(id_[2]) for id_ in ids_tmp]
-            self.paths += [osp.join(base_dir, id_[3]) for id_ in ids_tmp]
+            self.paths += [osp.join(data_dir, id_[3]) for id_ in ids_tmp]
 
         self.class_ids_dict = self._list_to_dict(self.class_ids)
         self.super_class_ids_dict = self._list_to_dict(self.super_class_ids)
@@ -126,7 +126,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         return copy.copy(self.class_ids_dict[class_id])
 
 
-def get_online_products(base_dir='auto',
+def get_online_products(data_dir='auto',
                         train_classes=None, test_classes=None):
     """Gets the Online Products Dataset.
 
@@ -160,7 +160,7 @@ def get_online_products(base_dir='auto',
         train_classes = range(1, 11319)
     if test_classes is None:
         test_classes = range(11319, 22634 + 1)
-    dataset = OnlineProductsDataset(base_dir)
+    dataset = OnlineProductsDataset(data_dir)
 
     train_ids = []
     for i in train_classes:

@@ -65,19 +65,19 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
         'tv/monitor',
     ])
 
-    def __init__(self, base_dir='auto', mode='train', bgr=True):
+    def __init__(self, data_dir='auto', mode='train', bgr=True):
         if mode not in ['train', 'trainval', 'val']:
             raise ValueError(
                 'please pick mode from \'train\', \'trainval\', \'val\'')
 
-        if base_dir == 'auto':
-            base_dir = _get_pascal_voc()
+        if data_dir == 'auto':
+            data_dir = _get_pascal_voc()
 
         id_list_file = osp.join(
-            base_dir, 'ImageSets/Segmentation/{0}.txt'.format(mode))
+            data_dir, 'ImageSets/Segmentation/{0}.txt'.format(mode))
         self.ids = [id_.strip() for id_ in open(id_list_file)]
 
-        self.base_dir = base_dir
+        self.data_dir = data_dir
         self.bgr = bgr
 
     def __len__(self):
@@ -122,14 +122,14 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
             i-th example (image, label image)
 
         """
-        img_file = osp.join(self.base_dir, 'JPEGImages', self.ids[i] + '.jpg')
+        img_file = osp.join(self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
         img = imread(img_file, mode='RGB')
-        label = self._load_label(self.base_dir, self.ids[i])
+        label = self._load_label(self.data_dir, self.ids[i])
         return img, label
 
-    def _load_label(self, base_dir, id_):
+    def _load_label(self, data_dir, id_):
         label_rgb_file = osp.join(
-            base_dir, 'SegmentationClass', id_ + '.png')
+            data_dir, 'SegmentationClass', id_ + '.png')
         im = Image.open(label_rgb_file)
         label = np.array(im, dtype=np.uint8).astype(np.int32)
         label[label == 255] = -1
