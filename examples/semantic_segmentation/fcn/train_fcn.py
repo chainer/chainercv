@@ -5,11 +5,11 @@ import chainer
 from chainer import training
 from chainer.training import extensions
 
-from chainer_cv.training.test_mode_evaluator import TestModeEvaluator
 from chainer_cv.datasets import PascalVOCDataset
+from chainer_cv.extensions import SemanticSegmentationVisOut
+from chainer_cv.training.test_mode_evaluator import TestModeEvaluator
 from chainer_cv.wrappers import PadWrapper
 from chainer_cv.wrappers import SubtractWrapper
-from chainer_cv.extensions import SemanticSegmentationVisOut
 
 from fcn32s import FCN32s
 
@@ -20,15 +20,15 @@ if __name__ == '__main__':
     parser.add_argument('-g', '--gpu', type=int, default=-1)
     parser.add_argument('--resume', '-res', default='',
                         help='Resume the training from snapshot')
-    parser.add_argument('-ne', '--epochs', type=int, default=20000)
-    parser.add_argument('-ba', '--batch-size', type=int, default=2)
+    parser.add_argument('-it', '--iterations', type=int, default=100000)
+    parser.add_argument('-ba', '--batch-size', type=int, default=1)
     parser.add_argument('-l', '--lr', type=float, default=1e-10)
     parser.add_argument('-o', '--out', type=str, default='result')
 
     args = parser.parse_args()
     gpu = args.gpu
     batch_size = args.batch_size
-    epochs = args.epochs
+    iterations = args.iterations
     resume = args.resume
     lr = args.lr
     out = args.out
@@ -50,15 +50,17 @@ if __name__ == '__main__':
 
     optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
-    train_iter = chainer.iterators.MultiprocessIterator(
-        train_data, batch_size=batch_size, n_processes=2,
-        shared_mem=10000000
-    )
+    # train_iter = chainer.iterators.MultiprocessIterator(
+    #     train_data, batch_size=batch_size, n_processes=2,
+    #     shared_mem=10000000
+    # )
+    train_iter = chainer.iterators.SerialIterator(
+        train_data, batch_size=batch_size)
     test_iter = chainer.iterators.SerialIterator(
         test_data, batch_size=1, repeat=False, shuffle=False)
 
     updater = training.StandardUpdater(train_iter, optimizer, device=gpu)
-    trainer = training.Trainer(updater, (epochs, 'epoch'), out=out)
+    trainer = training.Trainer(updater, (iterations, 'iteration'), out=out)
 
     val_interval = 3000, 'iteration'
     log_interval = 100, 'iteration'
@@ -69,7 +71,7 @@ if __name__ == '__main__':
     # reporter related
     trainer.extend(extensions.LogReport(trigger=log_interval))
     trainer.extend(extensions.PrintReport(
-        ['epoch', 'main/time',
+        ['iteration', 'main/time',
          'main/loss', 'validation/main/loss',
          'main/accuracy', 'validation/main/accuracy',
          'main/accuracy_cls', 'validation/main/accuracy_cls',
