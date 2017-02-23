@@ -5,7 +5,7 @@ import chainer
 from chainer import training
 from chainer.training import extensions
 
-from chainer_cv.datasets import PascalVOCDataset
+from chainer_cv.datasets import VOCSemanticSegmentationDataset
 from chainer_cv.extensions import SemanticSegmentationVisOut
 from chainer_cv.training.test_mode_evaluator import TestModeEvaluator
 from chainer_cv.wrappers import PadWrapper
@@ -34,8 +34,13 @@ if __name__ == '__main__':
     out = args.out
 
     # prepare datasets
-    train_data = PadWrapper(SubtractWrapper(PascalVOCDataset(mode='train')))
-    test_data = PadWrapper(SubtractWrapper(PascalVOCDataset(mode='val')))
+    wrappers = [lambda d: SubtractWrapper(d),
+                lambda d: PadWrapper(d, max_size=(512, 512))]
+    train_data = VOCSemanticSegmentationDataset(mode='train')
+    test_data = VOCSemanticSegmentationDataset(mode='val')
+    for wrapper in wrappers:
+        train_data = wrapper(train_data)
+        test_data = wrapper(test_data)
 
     # set up FCN32s
     n_class = 21

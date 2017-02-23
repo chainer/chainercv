@@ -2,36 +2,15 @@ import numpy as np
 import os.path as osp
 from PIL import Image
 from skimage.io import imread
-import tarfile
 
 import chainer
-from chainer.dataset import download
 
-from chainer_cv import utils
-
-
-root = 'yuyu2172/chainer-cv/pascal_voc'
-url = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/' \
-    'VOCtrainval_11-May-2012.tar'
+import voc_utils
 
 
-def _get_pascal_voc():
-    data_root = download.get_dataset_directory(root)
-    base_path = osp.join(data_root, 'VOCdevkit/VOC2012')
-    if osp.exists(base_path):
-        # skip downloading
-        return base_path
+class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
 
-    download_file_path = utils.cached_download(url)
-
-    with tarfile.TarFile(download_file_path, 'r') as t:
-        t.extractall(data_root)
-    return base_path
-
-
-class PascalVOCDataset(chainer.dataset.DatasetMixin):
-
-    """Simple class to load data from Pascal VOC2011 for semantic segmentation
+    """Dataset class for the semantic segmantion task of Pascal VOC2012.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -41,29 +20,7 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
             format.
     """
 
-    target_names = np.array([
-        'background',
-        'aeroplane',
-        'bicycle',
-        'bird',
-        'boat',
-        'bottle',
-        'bus',
-        'car',
-        'cat',
-        'chair',
-        'cow',
-        'diningtable',
-        'dog',
-        'horse',
-        'motorbike',
-        'person',
-        'potted plant',
-        'sheep',
-        'sofa',
-        'train',
-        'tv/monitor',
-    ])
+    labels = voc_utils.pascal_voc_labels
 
     def __init__(self, data_dir='auto', mode='train', bgr=True):
         if mode not in ['train', 'trainval', 'val']:
@@ -71,7 +28,7 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
                 'please pick mode from \'train\', \'trainval\', \'val\'')
 
         if data_dir == 'auto':
-            data_dir = _get_pascal_voc()
+            data_dir = voc_utils.get_pascal_voc()
 
         id_list_file = osp.join(
             data_dir, 'ImageSets/Segmentation/{0}.txt'.format(mode))
@@ -113,7 +70,7 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
     def get_raw_data(self, i):
         """Returns the i-th example's images in HWC format.
 
-        The color image that is returned is RGB.
+        The color image that is returned is in RGB.
 
         Args:
             i (int): The index of the example.
@@ -137,6 +94,6 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
 
 
 if __name__ == '__main__':
-    dataset = PascalVOCDataset()
+    dataset = VOCSemanticSegmentationDataset()
     for i in range(100):
         dataset.get_example(i)
