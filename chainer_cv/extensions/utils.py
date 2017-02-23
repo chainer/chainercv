@@ -1,8 +1,8 @@
 import numpy as np
 import six
 
-from chainer.utils import type_check
 import chainer
+from chainer.utils import type_check
 
 
 def forward(model, inputs, forward_func=None, expand_dim=False):
@@ -47,24 +47,37 @@ def forward(model, inputs, forward_func=None, expand_dim=False):
 
 
 def check_type(check_type_func, name=None):
-    """
-    This is a decorator for a class method.
+    """Decorator around a function that checks type of the `in_data`.
+
+    The wrapped function takes two arguments `self` and `in_data`.
+    `self` is an Extension class that is being called. `in_data` is a
+    tuple or an array-like object whose types are checked.
+
     """
 
     def wrapper(self, in_data):
+        # force input to be a tuple
+        if not isinstance(in_data, tuple):
+            _in_data = (in_data,)
+        else:
+            _in_data = in_data
+
+        # turn input to arrays if they are not
         if any([not isinstance(in_data_i, np.ndarray) and
                 not isinstance(in_data_i, chainer.cuda.ndarray) for
                 in_data_i in in_data]):
-            in_data_tmp = list(in_data)
-            for i, in_data_i in enumerate(in_data):
+            _in_data = list(_in_data)
+            for i, in_data_i in enumerate(_in_data):
                 if (not isinstance(in_data_i, np.ndarray) and
                         not isinstance(in_data_i, chainer.cuda.ndarray)):
-                    in_data_tmp[i] = np.array(in_data_i)
-            in_data_tmp = tuple(in_data_tmp)
+                    _in_data[i] = np.array(in_data_i)
+            _in_data = tuple(_in_data)
         else:
-            in_data_tmp = in_data
+            _in_data = _in_data
 
-        in_types = type_check.get_types(in_data_tmp, 'in_types', False)
+        # get types of in_data
+        in_types = type_check.get_types(_in_data, 'in_types', False)
+        # check types
         try:
             check_type_func(self, in_types)
         except type_check.InvalidType as e:
