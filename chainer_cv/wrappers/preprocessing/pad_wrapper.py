@@ -13,7 +13,7 @@ class PadWrapper(DatasetWrapper):
 
     """
 
-    def __init__(self, dataset, max_size=(512, 512)):
+    def __init__(self, dataset, max_size):
         super(PadWrapper, self).__init__(dataset)
         self.max_size = max_size
 
@@ -37,7 +37,7 @@ class PadWrapper(DatasetWrapper):
         out_label[:, y_slices, x_slices] = label
         return out, out_label
 
-    def _get_pad_slices(self, img, max_size=(500, 500)):
+    def _get_pad_slices(self, img):
         _, H, W = img.shape
 
         if H < max_size[0]:

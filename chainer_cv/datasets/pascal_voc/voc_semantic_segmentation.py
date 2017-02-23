@@ -29,7 +29,7 @@ def _get_pascal_voc():
     return base_path
 
 
-class PascalVOCDataset(chainer.dataset.DatasetMixin):
+class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
 
     """Simple class to load data from Pascal VOC2011 for semantic segmentation
 
@@ -137,6 +137,6 @@ class PascalVOCDataset(chainer.dataset.DatasetMixin):
 
 
 if __name__ == '__main__':
-    dataset = PascalVOCDataset()
+    dataset = VOCSemanticSegmentationDataset()
     for i in range(100):
         dataset.get_example(i)
