@@ -4,22 +4,6 @@ import warnings
 
 from skimage.io import imsave
 
-try:
-    import tensorflow as tf
-    from tensorflow.contrib.tensorboard.plugins import projector
-    _available = True
-
-except ImportError:
-    _available = False
-
-
-def _check_available():
-    if not _available:
-        warnings.warn('Tensorflow is not installed on your environment, '
-                      'so a function embedding_tensorboard can not be used.'
-                      'Please install tensorflow.\n\n'
-                      '  $ pip install tensorflow\n')
-
 
 def embedding_tensorboard(features, images=None, labels=None,
                           log_dir='/tmp/chainer_cv/',
@@ -48,7 +32,17 @@ def embedding_tensorboard(features, images=None, labels=None,
         https://www.tensorflow.org/get_started/embedding_viz
 
     """
-    _check_available()
+    try:
+        import tensorflow as tf
+        from tensorflow.contrib.tensorboard.plugins import projector
+
+    except ImportError:
+        warnings.warn('Tensorflow is not installed on your environment, '
+                      'so a function embedding_tensorboard can not be used.'
+                      'Please install tensorflow.\n\n'
+                      '  $ pip install tensorflow\n')
+        return
+
     sess = tf.Session()
 
     # The embedding variable, which needs to be stored
