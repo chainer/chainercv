@@ -46,10 +46,11 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         self.objects = self._collect_objects(
             self.data_dir, self.ids, self.use_difficult)
+        self.keys = objects.keys()
         self.bgr = bgr
 
     def _collect_objects(self, data_dir, ids, use_difficult):
-        objects = []
+        objects = {}
         anno_dir = osp.join(data_dir, 'Annotations')
         for fn in glob.glob('{}/*.xml'.format(anno_dir)):
             tree = ET.parse(fn)
@@ -59,6 +60,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             if img_id not in ids:
                 continue
 
+            datums = []
             for obj in tree.findall('object'):
                 # when in not using difficult mode, and the object is
                 # difficult, skipt it.
@@ -70,6 +72,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
                         int(bbox_.find('ymin').text),
                         int(bbox_.find('xmax').text),
                         int(bbox_.find('ymax').text)]
+                # make pixel indexes 0-based
                 bbox = [float(b - 1) for b in bbox]
 
                 datum = {
@@ -80,42 +83,51 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
                     'difficult': int(obj.find('difficult').text),
                     'bbox': bbox,
                 }
-                objects.append(datum)
+                datums.append(datum)
+            objects[img_id] = datums
         return objects
 
     def __len__(self):
-        return len(self.ids)
+        return len(self.objects)
 
     def get_example(self, i):
         """Returns the i-th example.
 
-        Returns a color image and a bounding box. The image is in CHW format.
+        Returns a color image and bounding boxes. The image is in CHW format.
         If `self.bgr` is True, the image is in BGR. If not, it is in RGB.
 
-        The boundig box is an array of length 5. It is
-        (x_min, y_min, x_max, y_max, label_id).
+        The boundig boxes are a
+        collection of length 5 arrays. Each array contains values
+        organized as (x_min, y_min, x_max, y_max, label_id).
+        The number of bounding box is equal to the number of objects
+        int the image.
 
         Args:
             i (int): The index of the example.
 
         Returns:
-            tuple of an image
+            tuple of an image and bounding boxes
         """
         if i >= len(self):
             raise IndexError('index is too large')
-        img, bbox = self.get_raw_data(i)
+        img, bboxes = self.get_raw_data(i)
 
         if self.bgr:
             img = img[:, :, ::-1]
         img = img.transpose(2, 0, 1).astype(np.float32)
-        return img, bbox
+        return img, bboxes
 
     def get_raw_data(self, i):
-        """Returns the i-th example's images in HWC format.
+        """Returns the i-th example
 
-        The color image that is returned is in RGB.
-        Boundig box is an array of length 5. It is
-        (x_min, y_min, x_max, y_max, label_id).
+        This returns a color image and bounding boxes.
+        The color image has shape (H, W, 3).
+
+        The color image that is returned is in RGB. The boundig boxes are a
+        collection of length 5 arrays. Each array contains values
+        organized as (x_min, y_min, x_max, y_max, label_id).
+        The number of bounding box is equal to the number of objects
+        int the image.
 
         Args:
             i (int): The index of the example.
@@ -125,18 +137,23 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         """
         # Load a bbox and its category
-        obj = self.objects[i]
-        bbox = obj['bbox']
-        name = obj['name']
-        label_id = self.labels.index(name)
-        bbox = np.asarray([bbox[0], bbox[1], bbox[2], bbox[3], label_id],
-                          dtype=np.float32)
+        objects = self.objects[self.keys[i]]
+        bboxes = []
+        for obj in objects:
+            bbox = obj['bbox']
+            name = obj['name']
+            label_id = self.labels.index(name)
+            bbox = np.asarray([bbox[0], bbox[1], bbox[2], bbox[3], label_id],
+                              dtype=np.float32)
+            bboxes.append(bbox)
+        bboxes = np.stack(bboxes)
 
         # Load a image
         img_file = osp.join(self.data_dir, 'JPEGImages', obj['filename'])
         img = imread(img_file)  # RGB
-        return img, bbox
+        return img, bboxes
 
 
 if __name__ == '__main__':
     dataset = VOCDetectionDataset()
+    img, bboxes = dataset.get_example(0)
