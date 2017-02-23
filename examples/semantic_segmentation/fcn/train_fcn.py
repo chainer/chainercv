@@ -33,21 +33,23 @@ if __name__ == '__main__':
     lr = args.lr
     out = args.out
 
+    # prepare datasets
     train_data = PadWrapper(SubtractWrapper(PascalVOCDataset(mode='train')))
     test_data = PadWrapper(SubtractWrapper(PascalVOCDataset(mode='val')))
 
+    # set up FCN32s
     n_class = 21
     model = FCN32s(n_class=n_class)
-
     if gpu != -1:
         model.to_gpu(gpu)
         chainer.cuda.get_device(gpu).use()
 
+    # prepare an optimizer
     optimizer = chainer.optimizers.MomentumSGD(lr=lr, momentum=0.99)
     optimizer.setup(model)
-
     optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
+    # prepare iterators
     train_iter = chainer.iterators.SerialIterator(
         train_data, batch_size=batch_size)
     test_iter = chainer.iterators.SerialIterator(
@@ -74,7 +76,7 @@ if __name__ == '__main__':
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
-    # training visualization
+    # visualize training
     trainer.extend(
         extensions.PlotReport(
             ['main/loss', 'validation/main/loss'],
@@ -102,11 +104,11 @@ if __name__ == '__main__':
     )
     trainer.extend(
         SemanticSegmentationVisOut(
-            range(10),
+            range(10),  # visualize outputs for the first 10 data of test_data
             test_data,
             model,
             n_class=n_class,
-            forward_func=model.extract
+            forward_func=model.extract  # use FCN32s.extract to get a score map
         ),
         trigger=val_interval, invoke_before_training=True)
 
