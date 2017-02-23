@@ -1,6 +1,6 @@
 import os.path as osp
-import tempfile
 import shelve
+import tempfile
 
 from chainer_cv.wrappers.dataset_wrapper import DatasetWrapper
 
