@@ -5,10 +5,10 @@ from chainer_cv.wrappers.dataset_wrapper import DatasetWrapper
 
 class PadWrapper(DatasetWrapper):
 
-    """Pads image to fill given image size
+    """Pads image to fill given image size.
 
     Args:
-        dataset: a chainer.dataset.DatasetMixin to be wrapped
+        dataset: a dataset or a wrapper that this wraps.
         max_size: the size of output image after padding
 
     """

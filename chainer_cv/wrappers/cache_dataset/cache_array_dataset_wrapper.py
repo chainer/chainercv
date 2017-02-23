@@ -13,7 +13,7 @@ class CacheArrayDatasetWrapper(DatasetWrapper):
     same.
 
     Args:
-        dataset: a chainer.dataset.DatasetMixin to be wrapped
+        dataset: a dataset or a wrapper that this wraps.
         copy (bool): If `copy` is True, this self.get_example returns a copy of
             cached array.
 

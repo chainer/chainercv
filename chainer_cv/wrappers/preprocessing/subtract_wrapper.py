@@ -13,7 +13,7 @@ class SubtractWrapper(DatasetWrapper):
     Subtract values from the first array returned by the wrapped dataset.
 
     Args:
-        dataset: a chainer.dataset.DatasetMixin to be wrapped
+        dataset: a dataset or a wrapper that this wraps.
         value (float or array-like): constant to subtract data from. This is
             either 0 or 1 dimensional array. The value is subtracted along
             channel axis. Default is the constant value used to subtract

@@ -13,7 +13,7 @@ class CropWrapper(DatasetWrapper):
     `image[start_idx[0]:start_idx[0] + cropped_shape[0], ...]`.
 
     Args:
-        dataset: a chainer.dataset.DatasetMixin to be wrapped.
+        dataset: a dataset or a wrapper that this wraps.
         augment_idx (int or list of ints): this wrapper will augment k-th
             output of wrapped dataset's get_example if k is in `augment_idx`.
         cropped_shape (tuple of ints): shape of data after cropping.

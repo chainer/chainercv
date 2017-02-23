@@ -16,7 +16,7 @@ class KeepSubsetWrapper(DatasetWrapper):
     """Keep subset of dataset.
 
     Args:
-        dataset: a chainer.dataset.DatasetMixin to be wrapped
+        dataset: a dataset or a wrapper that this wraps.
         indices (list of int): inices of the examples that are used after
             wrapping the dataset. The order of examples from the wrapped
             dataset corresponds to the ordering of ints in `indices`.

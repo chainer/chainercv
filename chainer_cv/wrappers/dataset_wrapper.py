@@ -9,15 +9,19 @@ from chainer.utils import type_check
 class DatasetWrapper(chainer.dataset.DatasetMixin):
     """Wrap dataset class to add functionalities.
 
-    This class is wrapped around a dataset class or another wrapper to add a
+    This class is wrapped around a dataset or another wrapper to add a
     functionality.
 
-    The method `_get_example` should contain codes that are necessary to add
-    functionality.
+    The method `_get_example` should contain a code that are necessary to add
+    a functionality.
 
-    If an output of the wrapped dataset is not tuple, the wrapper class forces
-    it to be a tuple when passed to `_get_example`. In that case, the final
-    value that is returned by `get_example` is forced back to non-tuple.
+    If an output of the wrapped dataset is not a tuple, the wrapper class
+    forces it to be a tuple when passed to `_get_example`. In that case, the
+    final value that is returned by `get_example` is forced back to a
+    non-tuple.
+
+    Args:
+        dataset: a dataset or a wrapper that this wraps.
 
     """
 
@@ -29,7 +33,6 @@ class DatasetWrapper(chainer.dataset.DatasetMixin):
         """Keep a list of all the wrappers that have been appended to the stack.
 
         """
-
         self._wrapper_stack = getattr(self._dataset, '_wrapper_stack', [])
         self._wrapper_stack.append(self)
 
@@ -85,6 +88,11 @@ class DatasetWrapper(chainer.dataset.DatasetMixin):
         return in_data
 
     def _check_data_type_get_example(self, in_data):
+        """Internal function called before checking types.
+
+        Args:
+            in_data (tuple)
+        """
         in_data = tuple([np.array(v) for v in in_data])
         in_type = type_check.get_types(in_data, 'in_types', False)
         try:
@@ -98,15 +106,15 @@ Invalid operation is performed in: {0} (get_example)
                 type_check.InvalidType(e.expect, e.actual, msg=msg), None)
 
     def check_type_get_example(self, in_types):
-        """Checks types of input data before forward propagation.
+        """Checks types of input data before calling `_get_example`.
 
-        Before :meth:`get_example` is called, this function is called.
+        Before :meth:`_get_example` is called, this function is called.
         You need to validate types of input data in this function
         using :ref:`the type checking utilities <type-check-utils>`.
 
         Args:
             in_types (~chainer.utils.type_check.TypeInfoTuple): The type
-                information of input data for :meth:`get_example`.
+                information of input data for :meth:`_get_example`.
         """
         pass
 
