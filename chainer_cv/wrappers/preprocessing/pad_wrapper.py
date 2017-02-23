@@ -37,7 +37,7 @@ class PadWrapper(DatasetWrapper):
         out_label[:, y_slices, x_slices] = label
         return out, out_label
 
-    def _get_pad_slices(self, img):
+    def _get_pad_slices(self, img, max_size):
         _, H, W = img.shape
 
         if H < max_size[0]:
