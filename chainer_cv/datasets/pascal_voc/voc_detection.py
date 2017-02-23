@@ -26,8 +26,6 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     """
 
     labels = voc_utils.pascal_voc_labels
-    IMG_TARGET_SIZE = 600
-    IMG_MAX_SIZE = 1000
 
     def __init__(self, data_dir='auto', mode='train', use_difficult=False,
                  bgr=True):
