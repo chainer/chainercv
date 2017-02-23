@@ -43,17 +43,11 @@ if __name__ == '__main__':
         model.to_gpu(gpu)
         chainer.cuda.get_device(gpu).use()
 
-    # optimizer = O.Adam(alpha=1e-9)
     optimizer = chainer.optimizers.MomentumSGD(lr=lr, momentum=0.99)
     optimizer.setup(model)
-    # optimizer.add_hook(chainer.optimizer.GradientClipping(10.))
 
     optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
-    # train_iter = chainer.iterators.MultiprocessIterator(
-    #     train_data, batch_size=batch_size, n_processes=2,
-    #     shared_mem=10000000
-    # )
     train_iter = chainer.iterators.SerialIterator(
         train_data, batch_size=batch_size)
     test_iter = chainer.iterators.SerialIterator(
