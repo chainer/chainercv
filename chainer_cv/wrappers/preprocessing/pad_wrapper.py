@@ -22,8 +22,9 @@ class PadWrapper(DatasetWrapper):
             values for those outputs.
         hooks (dict {int: callable}): The key corresponds to the index of the
             output of `get_example`. For the keys included in `hooks`, the
-            callables are called upon each corresponding `get_example`
-            outputs. If this is `None`, no hook functions will be called.
+            callables takes corresponding output of the `get_example`,
+            x_slices and y_slices as arguments.
+            If this is `None`, no hook functions will be called.
 
     """
 
@@ -75,7 +76,7 @@ class PadWrapper(DatasetWrapper):
         # hooks
         if self.hooks is not None:
             for idx, hook in self.hooks.items():
-                out_data[idx] = hook(out_data[idx])
+                out_data[idx] = hook(out_data[idx], x_slices, y_slices)
         return tuple(out_data)
 
     def _get_pad_slices(self, img, max_size):
