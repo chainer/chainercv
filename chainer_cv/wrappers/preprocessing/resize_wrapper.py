@@ -37,7 +37,6 @@ class ResizeWrapper(DatasetWrapper):
         for idx in self.preprocess_idx:
             in_type = in_types[idx]
             type_check.expect(
-                in_type.dtype.kind == 'f',
                 in_type.ndim == 3
             )
 

@@ -17,16 +17,18 @@ class TestAnchorTargetLayer(unittest.TestCase):
         self.x = np.arange(1 * self.n_channels *
                            self.height * self.width, dtype=np.float32)
         self.x = self.x.reshape(1, self.n_channels, self.height, self.width)
-        self.im_info = np.array([[224, 224, 0.85]])
+        img_H, img_W = 224, 224
+        self.im_info = np.array([[img_H, img_W, 0.85]])
         self.anchor_target_layer = AnchorTargetLayer(
             self.feat_stride, 2 ** np.arange(1, 6))
         self.height, self.width = self.x.shape[2:]
-        self.shifts = self.anchor_target_layer.generate_shifts(
+        self.shifts = self.anchor_target_layer._generate_shifts(
             self.width, self.height)
         self.all_anchors, self.total_anchors = \
-            self.anchor_target_layer.generate_proposals(self.shifts)
-        self.inds_inside, self.anchors = self.anchor_target_layer.keep_inside(
-            self.all_anchors, self.im_info)
+            self.anchor_target_layer._generate_proposals(self.shifts)
+
+        self.inds_inside, self.anchors = self.anchor_target_layer._keep_inside(
+            self.all_anchors, img_H, img_W)
 
         self.gt_boxes = np.array([
             [10, 10, 60, 200, 0],
@@ -39,11 +41,11 @@ class TestAnchorTargetLayer(unittest.TestCase):
         cv.imwrite('tests/gt_boxes.png', gt_canvas)
 
         self.argmax_overlaps, self.max_overlaps, self.gt_max_overlaps, \
-            self.gt_argmax_overlaps = self.anchor_target_layer.calc_overlaps(
+            self.gt_argmax_overlaps = self.anchor_target_layer._calc_overlaps(
                 self.anchors, self.gt_boxes, self.inds_inside)
 
         self.argmax_overlaps, self.labels = \
-            self.anchor_target_layer.create_labels(
+            self.anchor_target_layer._create_labels(
                 self.inds_inside, self.anchors, self.gt_boxes)
 
     def test_generate_anchors(self):
@@ -188,7 +190,7 @@ class TestAnchorTargetLayer(unittest.TestCase):
 
     def test_calc_inside_weights(self):
         bbox_inside_weights = \
-            self.anchor_target_layer.calc_inside_weights(
+            self.anchor_target_layer._calc_inside_weights(
                 self.inds_inside, self.labels)
         neg_ids = np.where(self.labels == 0)[0]
         pos_ids = np.where(self.labels == 1)[0]
@@ -200,7 +202,7 @@ class TestAnchorTargetLayer(unittest.TestCase):
     def test_calc_outside_weights(self):
         self.anchor_target_layer.RPN_POSITIVE_WEIGHT = -1
         bbox_outside_weights = \
-            self.anchor_target_layer.calc_outside_weights(
+            self.anchor_target_layer._calc_outside_weights(
                 self.inds_inside, self.labels)
         neg_ids = np.where(self.labels == 0)[0]
         pos_ids = np.where(self.labels == 1)[0]
@@ -217,7 +219,7 @@ class TestAnchorTargetLayer(unittest.TestCase):
 
         self.anchor_target_layer.RPN_POSITIVE_WEIGHT = 0.8
         bbox_outside_weights = \
-            self.anchor_target_layer.calc_outside_weights(
+            self.anchor_target_layer._calc_outside_weights(
                 self.inds_inside, self.labels)
         np.testing.assert_array_equal(
             bbox_outside_weights[pos_ids], 0.8 / np.sum(self.labels == 1))
@@ -226,16 +228,16 @@ class TestAnchorTargetLayer(unittest.TestCase):
 
     def test_mapup_to_anchors(self):
         bbox_inside_weights = \
-            self.anchor_target_layer.calc_inside_weights(
+            self.anchor_target_layer._calc_inside_weights(
                 self.inds_inside, self.labels)
         bbox_outside_weights = \
-            self.anchor_target_layer.calc_outside_weights(
+            self.anchor_target_layer._calc_outside_weights(
                 self.inds_inside, self.labels)
         bbox_targets = np.zeros((len(self.inds_inside), 4), dtype=np.float32)
         bbox_targets = self.anchor_target_layer._compute_targets(
             self.anchors, self.gt_boxes[self.argmax_overlaps, :])
         labels, bbox_targets, bbox_inside_weights, bbox_outside_weights = \
-            self.anchor_target_layer.mapup_to_anchors(
+            self.anchor_target_layer._mapup_to_anchors(
                 self.labels, self.total_anchors, self.inds_inside,
                 bbox_targets, bbox_inside_weights, bbox_outside_weights)
 
@@ -249,8 +251,11 @@ class TestAnchorTargetLayer(unittest.TestCase):
         x = chainer.Variable(xp.asarray(self.x, dtype=xp.float32))
         gt_boxes = self.gt_boxes
         im_info = self.im_info
+        H, W = x.shape[2:]
+        print im_info
+        img_H, img_W = im_info[0, :2]
         labels, bbox_targets, bbox_inside_weights, bbox_outside_weights = \
-            self.anchor_target_layer(x, gt_boxes, im_info)
+            self.anchor_target_layer(gt_boxes, (H, W), (img_H, img_W))
 
         n_anchors = self.anchor_target_layer.n_anchors
         self.assertEqual(labels.shape,

@@ -1,3 +1,5 @@
 build/
 *.so
 *.c
+tests/tests/
+.ipynb_checkpoints/
