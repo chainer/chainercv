@@ -46,7 +46,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         self.objects = self._collect_objects(
             self.data_dir, self.ids, self.use_difficult)
-        self.keys = objects.keys()
+        self.keys = self.objects.keys()
         self.bgr = bgr
 
     def _collect_objects(self, data_dir, ids, use_difficult):
