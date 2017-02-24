@@ -15,9 +15,18 @@ class RandomMirrorWrapper(DatasetWrapper):
             output of wrapped dataset's get_example if k is in `augment_idx`.
         orientation ({'h', 'v', 'both'}): chooses whether to mirror
             horizontally or vertically.
+        hooks (dict {int: callable}): The key corresponds to the index of the
+            output of `get_example`. For the keys included in `hooks`, the
+            callables takes corresponding output of the `get_example`,
+            `h_mirror` and `v_mirror`. `h_mirror` is a bool that indicates
+            whether a horizontal mirroring is carried out or not.
+            `v_mirror` is a bool that indicates whether a vertical
+            mirroring is carried out or not.
+            If this is `None`, no hook functions will be called.
+
     """
 
-    def __init__(self, dataset, augment_idx, orientation='h'):
+    def __init__(self, dataset, augment_idx, orientation='h', hooks=None):
         super(RandomMirrorWrapper, self).__init__(dataset)
 
         if orientation not in ['h', 'v', 'both']:
@@ -32,6 +41,8 @@ class RandomMirrorWrapper(DatasetWrapper):
         if not isinstance(augment_idx, collections.Iterable):
             augment_idx = (augment_idx,)
         self.augment_idx = augment_idx
+
+        self.hooks = hooks
 
     def check_type_get_example(self, in_types):
         for idx in self.augment_idx:
@@ -64,4 +75,7 @@ class RandomMirrorWrapper(DatasetWrapper):
                 if v_mirror:
                     img = img[:, ::-1, :]
             out_data[idx] = img
+        if self.hooks is not None:
+            for idx, hook in self.hooks.items():
+                out_data[idx] = hook(out_data[idx], h_mirror, v_mirror)
         return tuple(out_data)
