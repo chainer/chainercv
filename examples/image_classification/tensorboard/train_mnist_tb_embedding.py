@@ -11,7 +11,7 @@ from chainer import training
 from chainer.training import extensions
 
 from chainer_cv.extensions import EmbedImages
-from chainer_cv.external import embedding_tensorboard
+from chainer_cv.visualizations import embedding_tensorboard
 
 
 # Network definition
