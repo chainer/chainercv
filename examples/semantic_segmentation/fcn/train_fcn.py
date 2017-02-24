@@ -35,7 +35,9 @@ if __name__ == '__main__':
 
     # prepare datasets
     wrappers = [lambda d: SubtractWrapper(d),
-                lambda d: PadWrapper(d, max_size=(512, 512))]
+                lambda d: PadWrapper(
+                    d, max_size=(512, 512), preprocess_idx=[0, 1],
+                    bg_values={0: 0, 1: -1})]
     train_data = VOCSemanticSegmentationDataset(mode='train')
     test_data = VOCSemanticSegmentationDataset(mode='val')
     for wrapper in wrappers:
