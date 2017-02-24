@@ -32,14 +32,15 @@ class ProposalLayer(object):
     TRAIN_RPN_POST_NMS_TOP_N = 2000
     TEST_RPN_PRE_NMS_TOP_N = 6000
     TEST_RPN_POST_NMS_TOP_N = 300
-    RPN_MIN_SIZE = 16
+    # this was originally 16 * image scale, heuristically 16 * 1.6 = 26
+    RPN_MIN_SIZE = 26
 
     def __init__(self, feat_stride=16, anchor_scales=[4, 8, 16, 32]):
         self._feat_stride = feat_stride
         self._anchors = generate_anchors(scales=np.array(anchor_scales))
         self._num_anchors = self._anchors.shape[0]
 
-    def __call__(self, rpn_cls_prob, rpn_bbox_pred, im_info, train):
+    def __call__(self, rpn_cls_prob, rpn_bbox_pred, img_shape, train):
         """
         Args:
             rpn_cls_prob:
@@ -69,7 +70,6 @@ class ProposalLayer(object):
         # the second set are the fg probs, which we want
         scores = to_cpu(rpn_cls_prob.data[:, self._num_anchors:, :, :])
         bbox_deltas = to_cpu(rpn_bbox_pred.data)
-        im_info = im_info[0, :]
 
         # 1. Generate proposals from bbox deltas and shifted anchors
         height, width = scores.shape[-2:]
@@ -113,11 +113,10 @@ class ProposalLayer(object):
         proposals = bbox_transform_inv(anchors, bbox_deltas, -1)
 
         # 2. clip predicted boxes to image
-        proposals = clip_boxes(proposals, im_info[:2])
+        proposals = clip_boxes(proposals, img_shape)
 
         # 3. remove predicted boxes with either height or width < threshold
-        # (NOTE: convert min_size to input image scale stored in im_info[2])
-        keep = _filter_boxes(proposals, min_size * im_info[2])
+        keep = _filter_boxes(proposals, min_size)
         proposals = proposals[keep, :]
         scores = scores[keep]
 

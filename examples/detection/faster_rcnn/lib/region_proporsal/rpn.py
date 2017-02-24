@@ -1,8 +1,11 @@
 from chainer import Variable
 from chainer.cuda import to_gpu
-from lib.faster_rcnn.anchor_target_layer import AnchorTargetLayer
-from lib.faster_rcnn.proposal_layer import ProposalLayer
-from lib.faster_rcnn.smooth_l1_loss import smooth_l1_loss
+
+import sys
+sys.path.append('../../')
+from lib.region_proporsal.anchor_target_layer import AnchorTargetLayer
+from lib.region_proporsal.proposal_layer import ProposalLayer
+from lib.functions.smooth_l1_loss import smooth_l1_loss
 
 import chainer
 import chainer.functions as F
@@ -23,11 +26,13 @@ class RPN(chainer.Chain):
         self.proposal_layer = ProposalLayer(feat_stride, anchor_scales)
         self.rpn_sigma = rpn_sigma
 
-    def __call__(self, x, img_shape, gpu=-1, gt_boxes=None):
+    def __call__(self, x, img_shape, bboxes=None, gpu=-1):
         """
         x:  (N, C, H, W)
         img_shape (img_H, img_W)
+        bboxes (numpy.ndarry)
         """
+        train = bboxes is not None
         n = x.data.shape[0]
         assert n == 1
         h = F.relu(self.rpn_conv_3x3(x))
@@ -41,22 +46,24 @@ class RPN(chainer.Chain):
         rpn_bbox_pred = self.rpn_bbox_pred(h)
 
         rois = self.proposal_layer(
-            rpn_cls_prob, rpn_bbox_pred, im_info, gt_boxes is not None)
-        if gt_boxes is None:
+            rpn_cls_prob, rpn_bbox_pred, img_shape, train)
+
+        if not train:
             return rois
 
         rpn_labels, rpn_bbox_targets, rpn_bbox_inside_weights, \
             rpn_bbox_outside_weights = self.anchor_target_layer(
-                gt_boxes, (hh, ww), img_shape)
+                bboxes, (hh, ww), img_shape)
         rpn_labels = rpn_labels.reshape((n, -1))
 
-        # make it into Variable
+        # put into gpu
         if gpu >= 0:
             tg = lambda x: to_gpu(x, device=gpu)
             rpn_labels = tg(rpn_labels)
             rpn_bbox_targets = tg(rpn_bbox_targets)
             rpn_bbox_inside_weights = tg(rpn_bbox_inside_weights)
             rpn_bbox_outside_weights = tg(rpn_bbox_outside_weights)
+
         rpn_labels = Variable(rpn_labels, volatile='auto')
         rpn_cls_loss = F.softmax_cross_entropy(rpn_cls_score, rpn_labels)
 

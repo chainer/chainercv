@@ -100,15 +100,15 @@ def output_shape_hard_max_soft_min(soft_min, hard_max):
         max_length = np.max(lengths)
         if max_length > hard_max:
             lengths *= float(hard_max) / max_length
-        out_shape = (np.asscalar(lengths[0]),
-                     np.asscalar(lengths[1]),
+        out_shape = (int(np.asscalar(lengths[0])),
+                     int(np.asscalar(lengths[1])),
                      img_shape[2])
         return out_shape
 
     return output_shape
 
 
-def bbox_resize_hook(idx):
+def bbox_resize_hook(idx=1):
     def _bbox_resize_hook(out_data, input_shape, output_shape):
         """A hook that resizes bounding boxes according to resizing
 
@@ -118,14 +118,15 @@ def bbox_resize_hook(idx):
             output_shape: shape of an array in HWC format.
 
         """
-        bbox = out_data[idx]
-        assert bbox.ndim == 2
-        assert bbox.shape[1] == 5
+        bboxes = out_data[idx]
+        assert bboxes.ndim == 2
+        assert bboxes.shape[1] == 5
 
         scale = float(output_shape[0]) / input_shape[0]
-        if scale != (float(output_shape[1]) / input_shape[1]):
+        if abs(scale - (float(output_shape[1]) / input_shape[1])) > 0.05:
             raise ValueError('resizing has to preserve the aspect ratio.')
 
-        out_data[idx] = (scale * bbox).astype(bbox.dtype)
+        bboxes[:, :4] = (scale * bboxes[:, :4]).astype(bboxes.dtype)
+        out_data[idx] = bboxes
         return out_data
     return _bbox_resize_hook

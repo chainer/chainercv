@@ -2,6 +2,7 @@ import glob
 import numpy as np
 import os.path as osp
 from skimage.io import imread
+import warnings
 import xml.etree.ElementTree as ET
 
 import chainer
@@ -33,7 +34,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             data_dir = voc_utils.get_pascal_voc()
 
         if mode not in ['train', 'trainval', 'val']:
-            raise ValueError(
+            warnings.warn(
                 'please pick mode from \'train\', \'trainval\', \'val\'')
 
         id_list_file = osp.join(

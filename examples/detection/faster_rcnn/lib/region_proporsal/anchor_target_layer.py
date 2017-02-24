@@ -54,6 +54,10 @@ class AnchorTargetLayer(object):
 
         # map of shape (..., H, W)
         #height, width = x.data.shape[-2:]
+        assert gt_boxes.ndim == 3
+        assert gt_boxes.shape[0] == 1
+        gt_boxes = gt_boxes[0]
+
         height, width = feature_shape
         img_H, img_W = img_shape
 

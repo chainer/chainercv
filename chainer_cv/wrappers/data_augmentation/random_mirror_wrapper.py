@@ -62,8 +62,12 @@ class RandomMirrorWrapper(DatasetWrapper):
 
         """
         out_data = list(in_data)
-        h_mirror = random.choice([True, False])
-        v_mirror = random.choice([True, False])
+        h_mirror, v_mirror = False, False
+        if 'h' in self.orientation:
+            h_mirror = random.choice([True, False])
+        if 'v' in self.orientation:
+            v_mirror = random.choice([True, False])
+
         for idx in self.augment_idx:
             img = in_data[idx]
             if 'h' in self.orientation:
@@ -79,7 +83,7 @@ class RandomMirrorWrapper(DatasetWrapper):
         return tuple(out_data)
 
 
-def bbox_mirror_hook(img_idx, bboxes_idx):
+def bbox_mirror_hook(img_idx=0, bboxes_idx=1):
     def _bbox_mirror_hook(out_data, h_mirror, v_mirror):
         img = out_data[img_idx]
         bboxes = out_data[bboxes_idx]
