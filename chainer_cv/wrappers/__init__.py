@@ -10,4 +10,5 @@ from dataset_wrapper import DatasetWrapper  # NOQA
 from preprocessing.pad_wrapper import PadWrapper  # NOQA
 from preprocessing.subtract_wrapper import SubtractWrapper  # NOQA
 from preprocessing.resize_wrapper import ResizeWrapper  # NOQA
+from preprocessing.resize_wrapper import output_shape_hard_max_soft_min  # NOQA
 from split_dataset.keep_subset_wrapper import KeepSubsetWrapper  # NOQA

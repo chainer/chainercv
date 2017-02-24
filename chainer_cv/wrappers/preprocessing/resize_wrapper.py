@@ -16,14 +16,17 @@ class ResizeWrapper(DatasetWrapper):
         preprocess_idx (int or list of ints): this wrapper will preprocess k-th
             output of wrapped dataset's get_example if k is in
             `preprocess_idx`.
-        output_shape: the size of output image after padding. This needs to be
-            in HWC format.
+        output_shape (tuple or callable): When this is a tuple, itis the size
+            of output image after padding. This needs to be in HWC format.
+            In the case when this is a callable, this function should take
+            input image's shape as an argument and returns the output shape.
+            The image shape is organized as (height, width, channels).
 
     """
 
-    def __init__(self, dataset, preprocess_idx, output_shape):
+    def __init__(self, dataset, preprocess_idx, output_shape=None):
         super(ResizeWrapper, self).__init__(dataset)
-        if len(output_shape) != 3:
+        if not callable(output_shape) and len(output_shape) != 3:
             raise ValueError('output_shape needs to be of length 3')
         self.output_shape = output_shape
         if not isinstance(preprocess_idx, collections.Iterable):
@@ -51,17 +54,31 @@ class ResizeWrapper(DatasetWrapper):
         for idx in self.preprocess_idx:
             img = in_data[idx]
             img = np.transpose(img, (1, 2, 0))
+            if callable(self.output_shape):
+                output_shape = self.output_shape(img.shape)
+            else:
+                output_shape = self.output_shape
+
             scale = np.max(np.abs(img))
             out_img = skimage.transform.resize(
-                img / scale, self.output_shape).astype(img.dtype)
+                img / scale, output_shape).astype(img.dtype)
             out_data[idx] = out_img.transpose(2, 0, 1) * scale
         return tuple(out_data)
 
 
-if __name__ == '__main__':
-    from chainer_cv.datasets import get_online_products
-    train, test = get_online_products()
-    dataset = ResizeWrapper(train, 0, (128, 128, 3))
-    img = dataset.get_example(0)[0]
-    img = img.transpose(1, 2, 0).astype(np.uint8)
-    # you can visualize img with matplotlib
+def output_shape_hard_max_soft_min(soft_min, hard_max):
+    def output_shape(img_shape):
+        lengths = np.array(img_shape[:2]).astype(np.float)
+        min_length = np.min(lengths)
+        scale = float(soft_min) / min_length
+        lengths *= scale
+
+        max_length = np.max(lengths)
+        if max_length > hard_max:
+            lengths *= float(hard_max) / max_length
+        out_shape = (np.asscalar(lengths[0]),
+                     np.asscalar(lengths[1]),
+                     img_shape[2])
+        return out_shape
+
+    return output_shape
