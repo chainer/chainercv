@@ -15,18 +15,16 @@ class RandomMirrorWrapper(DatasetWrapper):
             output of wrapped dataset's get_example if k is in `augment_idx`.
         orientation ({'h', 'v', 'both'}): chooses whether to mirror
             horizontally or vertically.
-        hooks (dict {int: callable}): The key corresponds to the index of the
-            output of `get_example`. For the keys included in `hooks`, the
-            callables takes corresponding output of the `get_example`,
-            `h_mirror` and `v_mirror`. `h_mirror` is a bool that indicates
-            whether a horizontal mirroring is carried out or not.
-            `v_mirror` is a bool that indicates whether a vertical
+        hook (callable or `None`): The callable takes `out_data`,
+            `h_mirror` and `v_mirror` as arguments. `h_mirror` is a bool
+            that indicates whether a horizontal mirroring is carried out or
+            not. `v_mirror` is a bool that indicates whether a vertical
             mirroring is carried out or not.
-            If this is `None`, no hook functions will be called.
+            If this is `None`, hook function is not called.
 
     """
 
-    def __init__(self, dataset, augment_idx, orientation='h', hooks=None):
+    def __init__(self, dataset, augment_idx, orientation='h', hook=None):
         super(RandomMirrorWrapper, self).__init__(dataset)
 
         if orientation not in ['h', 'v', 'both']:
@@ -42,7 +40,7 @@ class RandomMirrorWrapper(DatasetWrapper):
             augment_idx = (augment_idx,)
         self.augment_idx = augment_idx
 
-        self.hooks = hooks
+        self.hook = hook
 
     def check_type_get_example(self, in_types):
         for idx in self.augment_idx:
@@ -75,7 +73,29 @@ class RandomMirrorWrapper(DatasetWrapper):
                 if v_mirror:
                     img = img[:, ::-1, :]
             out_data[idx] = img
-        if self.hooks is not None:
-            for idx, hook in self.hooks.items():
-                out_data[idx] = hook(out_data[idx], h_mirror, v_mirror)
+
+        if self.hook is not None:
+            out_data = self.hook(out_data, h_mirror, v_mirror)
         return tuple(out_data)
+
+
+def bbox_mirror_hook(img_idx, bboxes_idx):
+    def _bbox_mirror_hook(out_data, h_mirror, v_mirror):
+        img = out_data[img_idx]
+        bboxes = out_data[bboxes_idx]
+
+        _, H, W = img.shape
+        if h_mirror:
+            x_max = W - 1 - bboxes[:, 0]
+            x_min = W - 1 - bboxes[:, 2]
+            bboxes[:, 0] = x_min
+            bboxes[:, 2] = x_max
+        if v_mirror:
+            y_max = H - 1 - bboxes[:, 1]
+            y_min = H - 1 - bboxes[:, 3]
+            bboxes[:, 1] = y_min
+            bboxes[:, 3] = y_max
+
+        out_data[bboxes_idx] = bboxes
+        return out_data
+    return _bbox_mirror_hook
