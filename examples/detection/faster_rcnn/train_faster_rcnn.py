@@ -33,8 +33,8 @@ if __name__ == '__main__':
     out = args.out
     ########################Command Line Arguments############################
 
-    train_data = VOCDetectionDataset(mode='train')
-    test_data = VOCDetectionDataset(mode='val')
+    train_data = VOCDetectionDataset(mode='train', use_cache=True, year='2007')
+    test_data = VOCDetectionDataset(mode='val', use_cache=True, year='2007')
 
     wrappers = [
         lambda d: SubtractWrapper(
