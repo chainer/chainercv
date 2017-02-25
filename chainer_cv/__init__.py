@@ -7,4 +7,3 @@ import training  # NOQA
 import utils  # NOQA
 import wrappers  # NOQA
 import testing  # NOQA
-import external  # NOQA

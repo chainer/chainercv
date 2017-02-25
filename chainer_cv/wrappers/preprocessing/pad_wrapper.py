@@ -20,21 +20,15 @@ class PadWrapper(DatasetWrapper):
         bg_values (dict {int: int}): The key corresponds to the index of the
             output of `get_example`. The value determines the background
             values for those outputs.
-        hooks (dict {int: callable}): The key corresponds to the index of the
-            output of `get_example`. For the keys included in `hooks`, the
-            callables are called upon each corresponding `get_example`
-            outputs. If this is `None`, no hook functions will be called.
 
     """
 
-    def __init__(self, dataset, max_size, preprocess_idx, bg_values=0,
-                 hooks=None):
+    def __init__(self, dataset, max_size, preprocess_idx, bg_values=0):
         super(PadWrapper, self).__init__(dataset)
         self.max_size = max_size
         if not isinstance(preprocess_idx, collections.Iterable):
             preprocess_idx = (preprocess_idx,)
         self.preprocess_idx = preprocess_idx
-        self.hooks = hooks
         if not isinstance(bg_values, dict):
             bg_values = {key: bg_values for key in preprocess_idx}
         self.bg_values = bg_values
@@ -72,10 +66,6 @@ class PadWrapper(DatasetWrapper):
             out_data[idx] = self.bg_values[idx] * ones
             out_data[idx][:, y_slices, x_slices] = img
 
-        # hooks
-        if self.hooks is not None:
-            for idx, hook in self.hooks.items():
-                out_data[idx] = hook(out_data[idx])
         return tuple(out_data)
 
     def _get_pad_slices(self, img, max_size):

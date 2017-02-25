@@ -29,14 +29,3 @@ class TestPadWrapper(unittest.TestCase):
         self.assertEqual(img1.shape, (2, 5, 5))
         np.testing.assert_equal(img0[0, 0], -1)
         np.testing.assert_equal(img1[0, 0], -2)
-
-    def test_pad_wrapper3(self):
-        wrapped = chainer_cv.wrappers.PadWrapper(
-            self.dataset, (5, 5), [0, 1], bg_values={0: -1, 1: -2},
-            hooks={1: lambda x: x * 2}
-        )
-        img0, img1 = wrapped.get_example(0)
-        self.assertEqual(img0.shape, (2, 5, 5))
-        self.assertEqual(img1.shape, (2, 5, 5))
-        np.testing.assert_equal(img0[0, 0], -1)
-        np.testing.assert_equal(img1[0, 0], -4)
