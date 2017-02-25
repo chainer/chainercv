@@ -12,11 +12,9 @@
 
 import numpy as np
 
-import sys
-sys.path.insert(1, '../../')
-from bbox import bbox_overlaps  # NOQA
-from bbox_transform import bbox_transform  # NOQA
-from generate_anchors import generate_anchors  # NOQA
+from bbox import bbox_overlaps
+from bbox_transform import bbox_transform
+from generate_anchors import generate_anchors
 
 
 class AnchorTargetLayer(object):

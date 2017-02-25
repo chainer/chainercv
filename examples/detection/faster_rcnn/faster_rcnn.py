@@ -21,12 +21,12 @@ import chainer.links as L
 import chainer.functions as F
 from chainer.links.model.vision.vgg import VGG16Layers
 
-from lib.region_proporsal.rpn import RPN
-from lib.functions.roi_pooling_2d import roi_pooling_2d
-from lib.functions.smooth_l1_loss import smooth_l1_loss
-from lib.region_proporsal.bbox_transform import bbox_transform_inv
-from lib.region_proporsal.bbox_transform import clip_boxes
-from lib.region_proporsal.proposal_target_layer import ProposalTargetLayer
+from lib.rpn import RPN
+from lib.roi_pooling_2d import roi_pooling_2d
+from lib.smooth_l1_loss import smooth_l1_loss
+from lib.bbox_transform import bbox_transform_inv
+from lib.bbox_transform import clip_boxes
+from lib.proposal_target_layer import ProposalTargetLayer
 
 
 class FasterRCNN(chainer.Chain):

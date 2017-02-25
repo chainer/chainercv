@@ -5,11 +5,9 @@ import chainer
 import chainer.functions as F
 import chainer.links as L
 
-import sys
-sys.path.append('../../')
-from lib.region_proporsal.anchor_target_layer import AnchorTargetLayer  # NOQA
-from lib.region_proporsal.proposal_layer import ProposalLayer  # NOQA
-from lib.functions.smooth_l1_loss import smooth_l1_loss  # NOQA
+from anchor_target_layer import AnchorTargetLayer
+from proposal_layer import ProposalLayer
+from smooth_l1_loss import smooth_l1_loss
 
 
 class RPN(chainer.Chain):

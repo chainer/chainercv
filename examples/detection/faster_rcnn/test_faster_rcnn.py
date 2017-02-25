@@ -5,7 +5,7 @@ from skimage.transform import rescale
 import chainer
 
 from faster_rcnn import FasterRCNN
-from nms_cpu import nms_cpu as nms
+from lib.nms_cpu import nms_cpu as nms
 
 from chainer_cv.datasets.pascal_voc.voc_utils import pascal_voc_labels
 from chainer_cv.visualizations import vis_img_bbox
