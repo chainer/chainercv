@@ -8,7 +8,7 @@ from chainer.training import extensions
 from chainer_cv.datasets import VOCDetectionDataset
 from chainer_cv.wrappers import ResizeWrapper
 from chainer_cv.wrappers import RandomMirrorWrapper
-from chainer_cv.wrappers import output_shape_hard_max_soft_min
+from chainer_cv.wrappers import output_shape_soft_min_hard_max
 from chainer_cv.wrappers import bbox_resize_hook
 from chainer_cv.wrappers import bbox_mirror_hook
 from chainer_cv.wrappers import SubtractWrapper
@@ -40,7 +40,7 @@ if __name__ == '__main__':
             d, value=np.array([103.939, 116.779, 123.68])),
         lambda d: ResizeWrapper(
             d, preprocess_idx=0,
-            output_shape=output_shape_hard_max_soft_min(600, 1200),
+            output_shape=output_shape_soft_min_hard_max(600, 1200),
             hook=bbox_resize_hook(1)),
         lambda d: RandomMirrorWrapper(d, augment_idx=0, orientation='h',
                                       hook=bbox_mirror_hook())

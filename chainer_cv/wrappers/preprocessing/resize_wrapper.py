@@ -82,7 +82,7 @@ class ResizeWrapper(DatasetWrapper):
         return tuple(out_data)
 
 
-def output_shape_hard_max_soft_min(soft_min, hard_max):
+def output_shape_soft_min_hard_max(soft_min, hard_max):
     """Callable output shape
 
     This returns an output shape whose maximum axis is always smaller than
