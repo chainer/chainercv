@@ -49,7 +49,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         self.use_difficult = use_difficult
         self.bgr = bgr
 
-        # cache objects depending on arguments
+        # cache objects
         data_root = download.get_dataset_directory(voc_utils.root)
         pkl_file = osp.join(
             data_root, 'detection_objects_{}_{}.pkl'.format(year, mode))
