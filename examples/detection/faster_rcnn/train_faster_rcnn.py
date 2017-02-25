@@ -14,6 +14,7 @@ from chainer_cv.wrappers import bbox_mirror_hook
 from chainer_cv.wrappers import SubtractWrapper
 
 from faster_rcnn import FasterRCNN
+from updater import ParallelUpdater
 
 
 if __name__ == '__main__':
@@ -57,8 +58,9 @@ if __name__ == '__main__':
     optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
     train_iter = chainer.iterators.SerialIterator(test_data, batch_size=1)
+    updater = ParallelUpdater(train_iter, optimizer, devices={'main': gpu})
 
-    updater = chainer.training.updater.StandardUpdater(train_iter, optimizer)
+    # updater = chainer.training.updater.StandardUpdater(train_iter, optimizer)
     trainer = training.Trainer(updater, (epoch, 'epoch'), out=out)
 
     log_interval = 1, 'iteration'

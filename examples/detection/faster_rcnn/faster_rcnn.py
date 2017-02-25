@@ -17,8 +17,8 @@
 # from lib.models.vgg16 import VGG16
 
 import chainer
-import chainer.links as L
 import chainer.functions as F
+import chainer.links as L
 from chainer.links.model.vision.vgg import VGG16Layers
 
 from lib.rpn import RPN
@@ -59,6 +59,7 @@ class FasterRCNN(chainer.Chain):
         self.spatial_scale = spatial_scale
 
     def __call__(self, x, bboxes=None):
+        bboxes = bboxes[:1]  # TODO fix
         img_H, img_W = x.shape[2:]
         img_shape = (img_H, img_W)
         h = self.trunk(x, layers=['conv5_3'])['conv5_3']
@@ -126,4 +127,5 @@ class FasterRCNN(chainer.Chain):
                                  'loss': loss},
                                 self)
 
-        return loss
+        return rpn_cls_loss, rpn_loss_bbox, loss_bbox, loss_cls
+        # return loss
