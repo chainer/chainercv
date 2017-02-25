@@ -31,7 +31,8 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     labels = voc_utils.pascal_voc_labels
 
-    def __init__(self, data_dir='auto', mode='train', year='2012', use_difficult=False,
+    def __init__(self, data_dir='auto', mode='train', year='2012',
+                 use_difficult=False,
                  bgr=True, use_cache=False, delete_cache=False):
         if data_dir == 'auto' and year in voc_utils.urls:
             data_dir = voc_utils.get_pascal_voc(year)

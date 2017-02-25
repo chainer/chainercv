@@ -13,13 +13,13 @@
 from chainer.cuda import to_cpu
 import numpy as np
 
-import sys
-sys.path.insert(1, '../../')
-from nms_cpu import nms_cpu as nms
-
 from bbox_transform import bbox_transform_inv
 from bbox_transform import clip_boxes
 from generate_anchors import generate_anchors
+
+import sys
+sys.path.insert(1, '../../')
+from nms_cpu import nms_cpu as nms  # NOQA
 
 
 class ProposalLayer(object):

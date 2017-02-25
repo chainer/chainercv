@@ -14,10 +14,9 @@ import numpy as np
 
 import sys
 sys.path.insert(1, '../../')
-from bbox import bbox_overlaps
-from chainer import Variable
-from bbox_transform import bbox_transform
-from generate_anchors import generate_anchors
+from bbox import bbox_overlaps  # NOQA
+from bbox_transform import bbox_transform  # NOQA
+from generate_anchors import generate_anchors  # NOQA
 
 
 class AnchorTargetLayer(object):
@@ -49,11 +48,11 @@ class AnchorTargetLayer(object):
         # measure GT overlap
         # gt_boxes (x1, y1, x2, y2, label)
         # im_info: (height, width, scale)
-        #assert x.data.shape[0] == 1, \
+        # assert x.data.shape[0] == 1, \
         #    'Only single item batches are supported'
 
         # map of shape (..., H, W)
-        #height, width = x.data.shape[-2:]
+        # height, width = x.data.shape[-2:]
         assert gt_boxes.ndim == 3
         assert gt_boxes.shape[0] == 1
         gt_boxes = gt_boxes[0]

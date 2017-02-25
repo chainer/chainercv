@@ -28,7 +28,7 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
                 'please pick mode from \'train\', \'trainval\', \'val\'')
 
         if data_dir == 'auto':
-            data_dir = voc_utils.get_pascal_voc()
+            data_dir = voc_utils.get_pascal_voc('2012')
 
         id_list_file = osp.join(
             data_dir, 'ImageSets/Segmentation/{0}.txt'.format(mode))

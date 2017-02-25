@@ -75,8 +75,8 @@ class FasterRCNN(chainer.Chain):
 
         if self.train:
             rois, labels, bbox_targets, bbox_inside_weights, \
-                 bbox_outside_weights = self.proposal_target_layer(
-                     rois, bboxes)
+                bbox_outside_weights = self.proposal_target_layer(
+                    rois, bboxes)
 
         # Convert rois
         if self.gpu >= 0:
@@ -105,7 +105,8 @@ class FasterRCNN(chainer.Chain):
             return cls_prob[None].data, pred_boxes[None]
 
         if self.gpu >= 0:
-            tg = lambda x: chainer.cuda.to_gpu(x, device=self.gpu)
+            def tg(x):
+                return chainer.cuda.to_gpu(x, device=self.gpu)
             labels = tg(labels)
             bbox_targets = tg(bbox_targets)
             bbox_inside_weights = tg(bbox_inside_weights)
@@ -117,13 +118,12 @@ class FasterRCNN(chainer.Chain):
             bbox_pred, bbox_targets, bbox_inside_weights,
             bbox_outside_weights, self.sigma)
 
-        loss = rpn_cls_loss + rpn_loss_bbox + loss_bbox + loss_cls 
+        loss = rpn_cls_loss + rpn_loss_bbox + loss_bbox + loss_cls
         chainer.reporter.report({'rpn_loss_cls': rpn_cls_loss,
                                  'rpn_loss_bbox': rpn_loss_bbox,
                                  'loss_bbox': loss_bbox,
                                  'loss_cls': loss_cls,
                                  'loss': loss},
                                 self)
-
 
         return loss

@@ -10,13 +10,13 @@
 # --------------------------------------------------------
 
 
-import sys
-sys.path.append('../../')
-from bbox import bbox_overlaps
-from bbox_transform import bbox_transform
-
 import numpy as np
 import numpy.random as npr
+from bbox_transform import bbox_transform
+
+import sys
+sys.path.append('../../')
+from bbox import bbox_overlaps  # NOQA
 
 
 class ProposalTargetLayer(object):

@@ -1,12 +1,12 @@
-import sys
-sys.path.append('..')
-from lib.region_proporsal.anchor_target_layer import AnchorTargetLayer
-
 import chainer
 import cv2 as cv
 import numpy as np
 import six
 import unittest
+
+import sys
+sys.path.append('..')
+from lib.region_proporsal.anchor_target_layer import AnchorTargetLayer  # NOQA
 
 
 class TestAnchorTargetLayer(unittest.TestCase):
@@ -136,7 +136,7 @@ class TestAnchorTargetLayer(unittest.TestCase):
         cv.imwrite('tests/all_anchors.png', canvas)
 
     def test_keep_inside(self):
-        inds_inside, anchors = self.inds_inside, self.anchors
+        anchors = self.inds_inside
 
         min_x = anchors[:, 0].min()
         min_y = anchors[:, 1].min()
@@ -175,7 +175,6 @@ class TestAnchorTargetLayer(unittest.TestCase):
         self.assertEqual(len(self.labels), len(self.anchors))
         neg_ids = np.where(self.labels == 0)[0]
         pos_ids = np.where(self.labels == 1)[0]
-        ignore_ids = np.where(self.labels == -1)[0]
         canvas = np.zeros((int(self.im_info[0, 0]), int(self.im_info[0, 1])))
         for bbox in self.anchors[pos_ids]:
             x1, y1, x2, y2 = list(map(int, bbox))
@@ -206,7 +205,6 @@ class TestAnchorTargetLayer(unittest.TestCase):
                 self.inds_inside, self.labels)
         neg_ids = np.where(self.labels == 0)[0]
         pos_ids = np.where(self.labels == 1)[0]
-        ignore_ids = np.where(self.labels == -1)[0]
 
         self.assertEqual(len(np.unique(bbox_outside_weights[pos_ids])), 1)
         self.assertEqual(len(np.unique(bbox_outside_weights[neg_ids])), 1)
@@ -252,7 +250,6 @@ class TestAnchorTargetLayer(unittest.TestCase):
         gt_boxes = self.gt_boxes
         im_info = self.im_info
         H, W = x.shape[2:]
-        print im_info
         img_H, img_W = im_info[0, :2]
         labels, bbox_targets, bbox_inside_weights, bbox_outside_weights = \
             self.anchor_target_layer(gt_boxes, (H, W), (img_H, img_W))

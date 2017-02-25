@@ -31,7 +31,6 @@ if __name__ == '__main__':
     batch_size = args.batch_size
     lr = args.lr
     out = args.out
-    ########################Command Line Arguments############################
 
     train_data = VOCDetectionDataset(mode='train', use_cache=True, year='2007')
     test_data = VOCDetectionDataset(mode='val', use_cache=True, year='2007')
@@ -41,7 +40,7 @@ if __name__ == '__main__':
             d, value=np.array([103.939, 116.779, 123.68])),
         lambda d: ResizeWrapper(
             d, preprocess_idx=0,
-            output_shape=output_shape_hard_max_soft_min(600, 1200), 
+            output_shape=output_shape_hard_max_soft_min(600, 1200),
             hook=bbox_resize_hook(1)),
         lambda d: RandomMirrorWrapper(d, augment_idx=0, orientation='h',
                                       hook=bbox_mirror_hook())
@@ -51,11 +50,14 @@ if __name__ == '__main__':
         test_data = wrapper(test_data)
 
     model = FasterRCNN()
-    optimizer = chainer.optimizers.MomentumSGD(lr=lr)
+    # optimizer = chainer.optimizers.MomentumSGD(lr=lr)
+    optimizer = chainer.optimizers.Adam(
+        alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8)
     optimizer.setup(model)
+    optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
     train_iter = chainer.iterators.SerialIterator(test_data, batch_size=1)
-    
+
     updater = chainer.training.updater.StandardUpdater(train_iter, optimizer)
     trainer = training.Trainer(updater, (epoch, 'epoch'), out=out)
 

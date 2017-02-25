@@ -1,15 +1,15 @@
 from chainer import Variable
 from chainer.cuda import to_gpu
 
-import sys
-sys.path.append('../../')
-from lib.region_proporsal.anchor_target_layer import AnchorTargetLayer
-from lib.region_proporsal.proposal_layer import ProposalLayer
-from lib.functions.smooth_l1_loss import smooth_l1_loss
-
 import chainer
 import chainer.functions as F
 import chainer.links as L
+
+import sys
+sys.path.append('../../')
+from lib.region_proporsal.anchor_target_layer import AnchorTargetLayer  # NOQA
+from lib.region_proporsal.proposal_layer import ProposalLayer  # NOQA
+from lib.functions.smooth_l1_loss import smooth_l1_loss  # NOQA
 
 
 class RPN(chainer.Chain):
@@ -58,7 +58,8 @@ class RPN(chainer.Chain):
 
         # put into gpu
         if gpu >= 0:
-            tg = lambda x: to_gpu(x, device=gpu)
+            def tg(x):
+                return to_gpu(x, device=gpu)
             rpn_labels = tg(rpn_labels)
             rpn_bbox_targets = tg(rpn_bbox_targets)
             rpn_bbox_inside_weights = tg(rpn_bbox_inside_weights)
