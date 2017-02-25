@@ -14,7 +14,7 @@ class TestResizeWrapper(unittest.TestCase):
             np.random.uniform(size=(100, 3, 32, 64)))
         wrapped = chainer_cv.wrappers.ResizeWrapper(
             dataset, [0],
-            output_shape=chainer_cv.wrappers.output_shape_hard_max_soft_min(
+            output_shape=chainer_cv.wrappers.output_shape_soft_min_hard_max(
                 48, 120))
 
         img0 = wrapped.get_example(0)
@@ -26,7 +26,7 @@ class TestResizeWrapper(unittest.TestCase):
             np.random.uniform(size=(100, 3, 32, 64)))
         wrapped = chainer_cv.wrappers.ResizeWrapper(
             dataset, [0],
-            output_shape=chainer_cv.wrappers.output_shape_hard_max_soft_min(
+            output_shape=chainer_cv.wrappers.output_shape_soft_min_hard_max(
                 32, 32))
 
         img0 = wrapped.get_example(0)
@@ -38,7 +38,7 @@ class TestResizeWrapper(unittest.TestCase):
             np.random.uniform(size=(100, 3, 32, 64)))
         wrapped = chainer_cv.wrappers.ResizeWrapper(
             dataset, [0],
-            output_shape=chainer_cv.wrappers.output_shape_hard_max_soft_min(
+            output_shape=chainer_cv.wrappers.output_shape_soft_min_hard_max(
                 32, 96))
 
         img0 = wrapped.get_example(0)
