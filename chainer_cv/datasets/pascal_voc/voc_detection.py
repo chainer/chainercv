@@ -1,11 +1,14 @@
 import glob
 import numpy as np
+import os
 import os.path as osp
+import pickle
 from skimage.io import imread
 import warnings
 import xml.etree.ElementTree as ET
 
 import chainer
+from chainer.dataset import download
 
 import voc_utils
 
@@ -29,7 +32,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     labels = voc_utils.pascal_voc_labels
 
     def __init__(self, data_dir='auto', mode='train', use_difficult=False,
-                 bgr=True):
+                 bgr=True, use_cache=True, delete_cache=False):
         if data_dir == 'auto':
             data_dir = voc_utils.get_pascal_voc()
 
@@ -44,11 +47,23 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         self.data_dir = data_dir
         self.use_difficult = use_difficult
-
-        self.objects = self._collect_objects(
-            self.data_dir, self.ids, self.use_difficult)
-        self.keys = self.objects.keys()
         self.bgr = bgr
+
+        # cache objects depending on arguments
+        data_root = download.get_dataset_directory(voc_utils.root)
+        pkl_file = osp.join(data_root, 'detection_objects_{}.pkl'.format(mode))
+        if delete_cache and osp.exists(pkl_file):
+            os.remove(pkl_file)
+        if use_cache and osp.exists(pkl_file):
+            with open(pkl_file, 'rb') as f:
+                self.objects = pickle.load(f)
+        else:
+            self.objects = self._collect_objects(
+                self.data_dir, self.ids, self.use_difficult)
+            if use_cache:
+                with open(pkl_file, 'wb') as f:
+                    pickle.dump(self.objects, f, protocol=2)
+        self.keys = self.objects.keys()
 
     def _collect_objects(self, data_dir, ids, use_difficult):
         objects = {}
