@@ -17,7 +17,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     """Dataset class for the detection task of Pascal VOC2012.
 
-    The index corresponds to each bounding box
+    The index corresponds to each image.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -31,10 +31,10 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     labels = voc_utils.pascal_voc_labels
 
-    def __init__(self, data_dir='auto', mode='train', use_difficult=False,
-                 bgr=True, use_cache=True, delete_cache=False):
-        if data_dir == 'auto':
-            data_dir = voc_utils.get_pascal_voc()
+    def __init__(self, data_dir='auto', mode='train', year='2012', use_difficult=False,
+                 bgr=True, use_cache=False, delete_cache=False):
+        if data_dir == 'auto' and year in voc_utils.urls:
+            data_dir = voc_utils.get_pascal_voc(year)
 
         if mode not in ['train', 'trainval', 'val']:
             warnings.warn(
@@ -51,7 +51,8 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         # cache objects depending on arguments
         data_root = download.get_dataset_directory(voc_utils.root)
-        pkl_file = osp.join(data_root, 'detection_objects_{}.pkl'.format(mode))
+        pkl_file = osp.join(
+            data_root, 'detection_objects_{}_{}.pkl'.format(year, mode))
         if delete_cache and osp.exists(pkl_file):
             os.remove(pkl_file)
         if use_cache and osp.exists(pkl_file):
