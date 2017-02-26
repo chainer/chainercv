@@ -55,7 +55,7 @@ if __name__ == '__main__':
     optimizer = chainer.optimizers.Adam(
         alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8)
     optimizer.setup(model)
-    optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
+    # optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
     train_iter = chainer.iterators.SerialIterator(test_data, batch_size=1)
     updater = ParallelUpdater(train_iter, optimizer, devices={'main': gpu})
@@ -69,8 +69,8 @@ if __name__ == '__main__':
         ['iteration', 'main/time',
          'main/rpn_loss_cls',
          'main/rpn_loss_bbox',
-         'main/loss_bbox',
-         'main/loss_cls']),
+         'main/loss_cls',
+         'main/loss_bbox'],
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
