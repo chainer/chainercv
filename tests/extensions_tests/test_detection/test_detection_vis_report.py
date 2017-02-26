@@ -7,10 +7,15 @@ import tempfile
 
 from chainer import testing
 
-from chainer_cv.testing import DummyDatasetGetRawData, ConstantReturnModel
+from chainer_cv.testing import DummyDatasetGetRawData
+from chainer_cv.testing import ConstantReturnModel
 from chainer_cv.extensions import DetectionVisReport
 
 
+@testing.parameterize(
+    {'shape': (3, 5)},
+    {'shape': (0, 5)},
+)
 class TestDetectionVisReport(unittest.TestCase):
 
     indices = [0, 1]
@@ -21,11 +26,10 @@ class TestDetectionVisReport(unittest.TestCase):
         self.trainer.out = self.out_dir
         self.trainer.updater.iteration = 0
 
-        n_class = 2
-        model = ConstantReturnModel(np.random.uniform(size=(3, 5)))
+        model = ConstantReturnModel(np.random.uniform(size=(1,) + self.shape))
         dataset = DummyDatasetGetRawData(
-            shapes=[(3, 10, 10), (3, 5)],
-            get_raw_data_shapes=[(10, 10, 3), (3, 5)],
+            shapes=[(3, 10, 10), self.shape],
+            get_raw_data_shapes=[(10, 10, 3), self.shape],
             dtypes=[np.float32, np.float32],
             get_raw_data_dtypes=[np.uint8, np.float32])
 

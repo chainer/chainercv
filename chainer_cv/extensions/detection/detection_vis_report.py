@@ -105,11 +105,13 @@ class DetectionVisReport(chainer.training.extension.Extension):
             self._check_type_dataset(inputs)
             input_img = inputs[0]
 
-            original = self.target.train
-            self.target.train = False
+            if hasattr(self.target, 'train'):
+                original = self.target.train
+                self.target.train = False
             out = forward(self.target, inputs,
                           forward_func=self.forward_func, expand_dim=True)
-            self.target.train = original
+            if hasattr(self.target, 'train'):
+                self.target.train = original
             self._check_type_model(out)
             bboxes = out[0][0]  # (R, 5)
 

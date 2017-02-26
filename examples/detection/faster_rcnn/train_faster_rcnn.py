@@ -12,6 +12,7 @@ from chainer_cv.wrappers import output_shape_soft_min_hard_max
 from chainer_cv.wrappers import bbox_resize_hook
 from chainer_cv.wrappers import bbox_mirror_hook
 from chainer_cv.wrappers import SubtractWrapper
+from chainer_cv.extensions import DetectionVisReport
 
 from faster_rcnn import FasterRCNN
 from updater import ParallelUpdater
@@ -63,16 +64,63 @@ if __name__ == '__main__':
     # updater = chainer.training.updater.StandardUpdater(train_iter, optimizer)
     trainer = training.Trainer(updater, (epoch, 'epoch'), out=out)
 
-    log_interval = 1, 'iteration'
+    log_interval = 20, 'iteration'
+    val_interval = 3000, 'iteration'
     trainer.extend(extensions.LogReport(trigger=log_interval))
     trainer.extend(extensions.PrintReport(
         ['iteration', 'main/time',
          'main/rpn_loss_cls',
          'main/rpn_loss_bbox',
          'main/loss_cls',
-         'main/loss_bbox'],
-        trigger=log_interval)
+         'main/loss_bbox']), trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
+
+    # visualize training
+    trainer.extend(
+        extensions.PlotReport(
+            ['main/rpn_loss_cls'],
+            file_name='rpn_loss_cls.png'
+        ),
+        trigger=log_interval
+    )
+    trainer.extend(
+        extensions.PlotReport(
+            ['main/rpn_loss_bbox'],
+            file_name='rpn_loss_bbox.png'
+        ),
+        trigger=log_interval
+    )
+    trainer.extend(
+        extensions.PlotReport(
+            ['main/loss_cls'],
+            file_name='loss_cls.png'
+        ),
+        trigger=log_interval
+    )
+    trainer.extend(
+        extensions.PlotReport(
+            ['main/loss_bbox'],
+            file_name='loss_bbox.png'
+        ),
+        trigger=log_interval
+    )
+    trainer.extend(
+        DetectionVisReport(
+            range(10),  # visualize outputs for the first 10 data of test_data
+            train_data,
+            model,
+            filename_base='detection_train',
+            forward_func=model.predict_bboxes
+        ),
+        trigger=val_interval, invoke_before_training=True)
+    trainer.extend(
+        DetectionVisReport(
+            range(10),  # visualize outputs for the first 10 data of test_data
+            test_data,
+            model,
+            forward_func=model.predict_bboxes
+        ),
+        trigger=val_interval, invoke_before_training=True)
 
     trainer.extend(extensions.dump_graph('main/loss'))
 

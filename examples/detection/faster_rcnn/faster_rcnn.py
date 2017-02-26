@@ -166,5 +166,8 @@ def _predict_to_bboxes(cls_prob, pred_bboxes, nms_thresh, confidence):
                     (selected[:, :4], np.ones((len(selected), 1)) * cls_id),
                     axis=1)
             )
-    final_bboxes = np.concatenate(final_bboxes, axis=0)
+    if len(final_bboxes) != 0:
+        final_bboxes = np.concatenate(final_bboxes, axis=0)
+    else:
+        final_bboxes = np.zeros((0, 5), dtype=np.float32)
     return final_bboxes
