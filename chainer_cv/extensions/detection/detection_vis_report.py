@@ -105,8 +105,11 @@ class DetectionVisReport(chainer.training.extension.Extension):
             self._check_type_dataset(inputs)
             input_img = inputs[0]
 
+            original = self.target.train
+            self.target.train = False
             out = forward(self.target, inputs,
                           forward_func=self.forward_func, expand_dim=True)
+            self.target.train = original
             self._check_type_model(out)
             bboxes = out[0][0]  # (R, 5)
 
@@ -123,7 +126,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
             raw_H, raw_W = vis_img.shape[:2]
             scale = float(H) / raw_H
             assert abs(scale - (float(W) / raw_W)) < 0.02
-            bboxes = bboxes / scale
+            bboxes[:, :4] = bboxes[:, :4] / scale
 
             plt.close()
             fig = plt.figure()

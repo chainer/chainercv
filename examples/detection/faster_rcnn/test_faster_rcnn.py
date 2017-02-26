@@ -14,7 +14,8 @@ from faster_rcnn import FasterRCNN
 
 
 if __name__ == '__main__':
-    test_data = VOCDetectionDataset(mode='train', use_cache=True, year='2007', bgr=True)
+    test_data = VOCDetectionDataset(mode='train', use_cache=True, year='2007',
+                                    bgr=True)
     wrappers = [
         lambda d: SubtractWrapper(
             d, value=np.array([103.939, 116.779, 123.68])),
@@ -28,11 +29,11 @@ if __name__ == '__main__':
 
     model = FasterRCNN()
     chainer.serializers.load_npz('VGG16_faster_rcnn_final.model', model)
-    model.train = False
     trainer = mock.MagicMock()
     trainer.out = 'result'
     trainer.updater.iteration = 0
 
     extension = DetectionVisReport(
-        [3, 4, 5, 6, 7, 8], test_data, model, forward_func=model.predict_bboxes)
+        [3, 4, 5, 6, 7, 8],
+        test_data, model, forward_func=model.predict_bboxes)
     extension(trainer)
