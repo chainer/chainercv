@@ -1,7 +1,5 @@
 import collections
-import numpy as np
 import os.path as osp
-from skimage.color import label2rgb
 import warnings
 
 import chainer
@@ -29,6 +27,21 @@ def _check_available():
 
 class DetectionVisReport(chainer.training.extension.Extension):
     """An extension that visualizes output of a detection model.
+
+    This extension visualizes the predicted bounding boxes together with the
+    ground truth bounding boxes.
+
+    Args:
+        indices (list of ints or int): List of indices for data to be
+            visualized
+        target: Link object used for visualization
+        dataset: Dataset class that produces inputs to ``target``.
+        filename_base (int): basename for saved image
+        forward_func (callable): Callable that is used to forward data input.
+            This callable takes all the arrays returned by the dataset as
+            input. Also, this callable returns an predicted bounding boxes.
+            If `forward_func = None`, then the model's `__call__` method will
+            be called.
 
     """
     invoke_before_training = False
@@ -117,7 +130,8 @@ class DetectionVisReport(chainer.training.extension.Extension):
             ax_gt = fig.add_subplot(2, 1, 1)
             ax_gt.set_title('ground truth')
             label_names = getattr(self.dataset, 'labels', None)
-            vis_img_bbox(vis_img, raw_bboxes, label_names=label_names, ax=ax_gt)
+            vis_img_bbox(
+                vis_img, raw_bboxes, label_names=label_names, ax=ax_gt)
 
             ax_pred = fig.add_subplot(2, 1, 2)
             ax_pred.set_title('prediction')
@@ -135,10 +149,10 @@ if __name__ == '__main__':
     _, bbox = train_data.get_example(3)
 
     model = ConstantReturnModel(bbox)
-    
+
     trainer = mock.MagicMock()
     out_dir = tempfile.mkdtemp()
-    print out_dir
+    print('outdir ', out_dir)
     trainer.out = out_dir
     trainer.updater.iteration = 0
     extension = DetectionVisReport([3], train_data, model)

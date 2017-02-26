@@ -32,9 +32,6 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
     This extension visualizes predicted label, ground truth label and input
     image.
 
-    The model that is used for forwarding is obtained by the command below.
-    model = trainer.updater.get_optimizer('main').target
-
     Args:
         indices (list of ints or int): List of indices for data to be
             visualized
