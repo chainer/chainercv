@@ -75,8 +75,9 @@ class DetectionVisReport(chainer.training.extension.Extension):
     def _check_type_model(self, in_types):
         predict_bboxes_type = in_types[0]
         type_check.expect(
-            predict_bboxes_type.ndim == 2,
-            predict_bboxes_type.shape[1] == 5,
+            predict_bboxes_type.ndim == 3,
+            predict_bboxes_type.shape[0] == 1,
+            predict_bboxes_type.shape[2] == 5,
         )
 
     @check_type
@@ -107,7 +108,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
             out = forward(self.target, inputs,
                           forward_func=self.forward_func, expand_dim=True)
             self._check_type_model(out)
-            bboxes = out[0]
+            bboxes = out[0][0]  # (R, 5)
 
             if not hasattr(self.dataset, 'get_raw_data'):
                 raise ValueError(
