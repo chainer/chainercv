@@ -17,6 +17,9 @@ def forward(model, inputs, forward_func=None, expand_dim=False):
         forward_func (callable): called to forward
         expand_dim (bool)
 
+    Returns:
+        tuple of outputs
+
     """
 
     if forward_func is None:

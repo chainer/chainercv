@@ -27,7 +27,7 @@ def _check_available():
 
 
 class SemanticSegmentationVisReport(chainer.training.extension.Extension):
-    """An extension that visualizes input and output of semantic segmentation
+    """An extension that visualizes input and output of semantic segmentation.
 
     This extension visualizes predicted label, ground truth label and input
     image.
@@ -70,7 +70,6 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
     def _check_type_dataset(self, in_types):
         img_type = in_types[0]
         label_type = in_types[1]
-
         type_check.expect(
             img_type.dtype.kind == 'f',
             label_type.dtype.kind == 'i',
