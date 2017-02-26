@@ -52,6 +52,9 @@ if __name__ == '__main__':
         test_data = wrapper(test_data)
 
     model = FasterRCNN()
+    if gpu != -1:
+        model.to_gpu(gpu)
+        chainer.cuda.get_device(gpu).use()
     # optimizer = chainer.optimizers.MomentumSGD(lr=lr)
     optimizer = chainer.optimizers.Adam(
         alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8)
