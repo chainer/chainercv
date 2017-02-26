@@ -6,7 +6,7 @@ from chainer import training
 from chainer.training import extensions
 
 from chainer_cv.datasets import VOCSemanticSegmentationDataset
-from chainer_cv.extensions import SemanticSegmentationVisOut
+from chainer_cv.extensions import SemanticSegmentationVisReport
 from chainer_cv.training.test_mode_evaluator import TestModeEvaluator
 from chainer_cv.wrappers import PadWrapper
 from chainer_cv.wrappers import SubtractWrapper
@@ -110,7 +110,7 @@ if __name__ == '__main__':
             trigger=log_interval, file_name='fwavacc.png')
     )
     trainer.extend(
-        SemanticSegmentationVisOut(
+        SemanticSegmentationVisReport(
             range(10),  # visualize outputs for the first 10 data of test_data
             test_data,
             model,

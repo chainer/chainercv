@@ -26,7 +26,7 @@ def _check_available():
                       '  $ pip install matplotlib\n')
 
 
-class SemanticSegmentationVisOut(chainer.training.extension.Extension):
+class SemanticSegmentationVisReport(chainer.training.extension.Extension):
     """An extension that visualizes input and output of semantic segmentation
 
     This extension visualizes predicted label, ground truth label and input
