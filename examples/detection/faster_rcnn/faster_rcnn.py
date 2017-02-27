@@ -71,7 +71,7 @@ class FasterRCNN(chainer.Chain):
         h = self.trunk(x, layers=['conv5_3'])['conv5_3']
 
         if self.train:
-            bboxes = bboxes[:1]  # TODO fix
+            bboxes = bboxes[:1]  # TODO(yuyu2172) fix
             bboxes.to_cpu()
             bboxes = bboxes.data
             rpn_cls_loss, rpn_loss_bbox, rois = self.RPN(
@@ -146,7 +146,6 @@ class FasterRCNN(chainer.Chain):
         final_bboxes = _predict_to_bboxes(
             cls_prob[0], pred_bboxes[0], self.nms_thresh, self.confidence)
         return final_bboxes[None]
-
 
 
 def _predict_to_bboxes(cls_prob, pred_bboxes, nms_thresh, confidence):
