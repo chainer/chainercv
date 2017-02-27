@@ -125,6 +125,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         Returns:
             tuple of an image and bounding boxes
+
         """
         if i >= len(self):
             raise IndexError('index is too large')
@@ -136,7 +137,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         return img, bboxes
 
     def get_raw_data(self, i):
-        """Returns the i-th example
+        """Returns the i-th example.
 
         This returns a color image and bounding boxes.
         The color image has shape (H, W, 3).
