@@ -35,5 +35,5 @@ if __name__ == '__main__':
 
     extension = DetectionVisReport(
         [3, 4, 5, 6, 7, 8],
-        test_data, model, forward_func=model.predict_bboxes)
+        test_data, model, predict_func=model.predict_bboxes)
     extension(trainer)

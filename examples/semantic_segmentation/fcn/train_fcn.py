@@ -115,7 +115,7 @@ if __name__ == '__main__':
             test_data,
             model,
             n_class=n_class,
-            forward_func=model.extract  # use FCN32s.extract to get a score map
+            predict_func=model.extract  # use FCN32s.extract to get a score map
         ),
         trigger=val_interval, invoke_before_training=True)
 

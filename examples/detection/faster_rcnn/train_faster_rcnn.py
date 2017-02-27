@@ -110,7 +110,7 @@ if __name__ == '__main__':
             train_data,
             model,
             filename_base='detection_train',
-            forward_func=model.predict_bboxes
+            predict_func=model.predict_bboxes
         ),
         trigger=val_interval, invoke_before_training=True)
     trainer.extend(

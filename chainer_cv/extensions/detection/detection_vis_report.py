@@ -37,17 +37,17 @@ class DetectionVisReport(chainer.training.extension.Extension):
         target: Link object used for visualization
         dataset: Dataset class that produces inputs to ``target``.
         filename_base (int): basename for saved image
-        forward_func (callable): Callable that is used to forward data input.
+        predict_func (callable): Callable that is used to forward data input.
             This callable takes all the arrays returned by the dataset as
             input. Also, this callable returns an predicted bounding boxes.
-            If `forward_func = None`, then the model's `__call__` method will
+            If `predict_func = None`, then the model's `__call__` method will
             be called.
 
     """
     invoke_before_training = False
 
     def __init__(self, indices, dataset, target,
-                 filename_base='detection', forward_func=None):
+                 filename_base='detection', predict_func=None):
         _check_available()
         if not _available:
             return
@@ -58,7 +58,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         self.target = target
         self.indices = indices
         self.filename_base = filename_base
-        self.forward_func = forward_func
+        self.predict_func = predict_func
 
     @check_type
     def _check_type_dataset(self, in_types):
@@ -109,7 +109,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
                 original = self.target.train
                 self.target.train = False
             out = forward(self.target, inputs,
-                          forward_func=self.forward_func, expand_dim=True)
+                          forward_func=self.predict_func, expand_dim=True)
             if hasattr(self.target, 'train'):
                 self.target.train = original
             self._check_type_model(out)

@@ -39,17 +39,17 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         dataset: Dataset class that produces inputs to ``target``.
         n_class (int): number of classes
         filename_base (int): basename for saved image
-        forward_func (callable): Callable that is used to forward data input.
+        predict_func (callable): Callable that is used to forward data input.
             This callable takes all the arrays returned by the dataset as
             input. Also, this callable returns an prediction of labels.
-            If `forward_func = None`, then the model's `__call__` method will
+            If `predict_func = None`, then the model's `__call__` method will
             be called.
 
     """
     invoke_before_training = False
 
     def __init__(self, indices, dataset, target, n_class,
-                 filename_base='semantic_seg', forward_func=None):
+                 filename_base='semantic_seg', predict_func=None):
         _check_available()
         if not _available:
             return
@@ -61,7 +61,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         self.indices = indices
         self.n_class = n_class
         self.filename_base = filename_base
-        self.forward_func = forward_func
+        self.predict_func = predict_func
 
     @check_type
     def _check_type_dataset(self, in_types):
@@ -111,7 +111,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
             gt = inputs[1]
             self._check_type_dataset(inputs)
             out = forward(self.target, inputs,
-                          forward_func=self.forward_func, expand_dim=True)
+                          forward_func=self.predict_func, expand_dim=True)
             self._check_type_model(out)
             label = np.argmax(out[0][0], axis=0)
 
