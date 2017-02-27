@@ -75,7 +75,7 @@ class FasterRCNN(chainer.Chain):
             bboxes.to_cpu()
             bboxes = bboxes.data
             rpn_cls_loss, rpn_loss_bbox, rois = self.RPN(
-                h, img_shape, bboxes=bboxes)
+                h, img_shape, bboxes=bboxes, gpu=self.gpu)
         else:
             # shape (300, 5)
             # the second axis is (batch_id, x_min, y_min, x_max, y_max)
@@ -108,7 +108,7 @@ class FasterRCNN(chainer.Chain):
         if not self.train:
             pred_boxes = bbox_transform_inv(boxes, box_deltas, self.gpu)
             pred_boxes = clip_boxes(pred_boxes, img_shape, self.gpu)
-            # returns NumPy arrays
+            # returns arrays
             # (1, 300, 21) and (1, 300, 84)
             return cls_prob[None].data, pred_boxes[None]
 
@@ -142,6 +142,8 @@ class FasterRCNN(chainer.Chain):
 
         """
         cls_prob, pred_bboxes = self.__call__(x, bboxes=None)
+        cls_prob = chainer.cuda.to_cpu(cls_prob)
+        pred_bboxes = chainer.cuda.to_cpu(pred_bboxes)
 
         final_bboxes = _predict_to_bboxes(
             cls_prob[0], pred_bboxes[0], self.nms_thresh, self.confidence)
