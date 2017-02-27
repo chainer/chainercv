@@ -1,19 +1,6 @@
 import numpy as np
-import warnings
-try:
-    from matplotlib import pyplot as plt
-    _available = True
 
-except ImportError:
-    _available = False
-
-
-def _check_available():
-    if not _available:
-        warnings.warn('matplotlib is not installed on your environment, '
-                      'so nothing will be plotted at this time. '
-                      'Please install matplotlib to plot figures.\n\n'
-                      '  $ pip install matplotlib\n')
+from matplotlib import pyplot as plt
 
 
 def vis_img_bbox(img, bboxes, label_names=None, ax=None):
