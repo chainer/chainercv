@@ -1,6 +1,4 @@
-from chainer import optimizer as optimizer_module
 from chainer import variable
-from chainer.dataset import iterator as iterator_module
 from chainer.dataset import convert
 from chainer.training import StandardUpdater
 
