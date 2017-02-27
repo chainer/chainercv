@@ -1,6 +1,5 @@
 import collections
 import os.path as osp
-import warnings
 
 import chainer
 from chainer.utils import type_check
@@ -9,20 +8,7 @@ from chainer_cv.extensions.utils import check_type
 from chainer_cv.extensions.utils import forward
 from chainer_cv.visualizations import vis_img_bbox
 
-try:
-    from matplotlib import pyplot as plt
-    _available = True
-
-except ImportError:
-    _available = False
-
-
-def _check_available():
-    if not _available:
-        warnings.warn('matplotlib is not installed on your environment, '
-                      'so nothing will be plotted at this time. '
-                      'Please install matplotlib to plot figures.\n\n'
-                      '  $ pip install matplotlib\n')
+from matplotlib import pyplot as plt
 
 
 class DetectionVisReport(chainer.training.extension.Extension):
@@ -48,10 +34,6 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
     def __init__(self, indices, dataset, target,
                  filename_base='detection', predict_func=None):
-        _check_available()
-        if not _available:
-            return
-
         if not isinstance(indices, collections.Iterable):
             indices = list(indices)
         self.dataset = dataset
@@ -92,9 +74,6 @@ class DetectionVisReport(chainer.training.extension.Extension):
         )
 
     def __call__(self, trainer):
-        if not _available:
-            return
-
         for idx in self.indices:
             formated_filename_base = osp.join(trainer.out, self.filename_base)
             out_file = (formated_filename_base +
