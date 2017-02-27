@@ -8,10 +8,10 @@ import tempfile
 from chainer import testing
 
 from chainer_cv.testing import DummyDatasetGetRawData, ConstantReturnModel
-from chainer_cv.extensions import SemanticSegmentationVisOut
+from chainer_cv.extensions import SemanticSegmentationVisReport
 
 
-class TestSemanticSegmentationVisOut(unittest.TestCase):
+class TestSemanticSegmentationVisReport(unittest.TestCase):
 
     indices = [0, 1]
 
@@ -30,7 +30,7 @@ class TestSemanticSegmentationVisOut(unittest.TestCase):
             dtypes=[np.float32, np.int32],
             get_raw_data_dtypes=[np.uint8, np.int32])
 
-        self.extension = SemanticSegmentationVisOut(
+        self.extension = SemanticSegmentationVisReport(
             self.indices, dataset, model, n_class=n_class,
             filename_base='semantic_seg')
 

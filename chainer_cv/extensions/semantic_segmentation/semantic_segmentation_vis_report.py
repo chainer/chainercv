@@ -26,14 +26,11 @@ def _check_available():
                       '  $ pip install matplotlib\n')
 
 
-class SemanticSegmentationVisOut(chainer.training.extension.Extension):
-    """An extension that visualizes input and output of semantic segmentation
+class SemanticSegmentationVisReport(chainer.training.extension.Extension):
+    """An extension that visualizes input and output of semantic segmentation.
 
     This extension visualizes predicted label, ground truth label and input
     image.
-
-    The model that is used for forwarding is obtained by the command below.
-    model = trainer.updater.get_optimizer('main').target
 
     Args:
         indices (list of ints or int): List of indices for data to be
@@ -42,17 +39,17 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
         dataset: Dataset class that produces inputs to ``target``.
         n_class (int): number of classes
         filename_base (int): basename for saved image
-        forward_func (callable): Callable that is used to forward data input.
+        predict_func (callable): Callable that is used to forward data input.
             This callable takes all the arrays returned by the dataset as
             input. Also, this callable returns an prediction of labels.
-            If `forward_func = None`, then the model's `__call__` method will
+            If `predict_func = None`, then the model's `__call__` method will
             be called.
 
     """
     invoke_before_training = False
 
     def __init__(self, indices, dataset, target, n_class,
-                 filename_base='semantic_seg', forward_func=None):
+                 filename_base='semantic_seg', predict_func=None):
         _check_available()
         if not _available:
             return
@@ -64,13 +61,12 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
         self.indices = indices
         self.n_class = n_class
         self.filename_base = filename_base
-        self.forward_func = forward_func
+        self.predict_func = predict_func
 
     @check_type
     def _check_type_dataset(self, in_types):
         img_type = in_types[0]
         label_type = in_types[1]
-
         type_check.expect(
             img_type.dtype.kind == 'f',
             label_type.dtype.kind == 'i',
@@ -115,7 +111,7 @@ class SemanticSegmentationVisOut(chainer.training.extension.Extension):
             gt = inputs[1]
             self._check_type_dataset(inputs)
             out = forward(self.target, inputs,
-                          forward_func=self.forward_func, expand_dim=True)
+                          forward_func=self.predict_func, expand_dim=True)
             self._check_type_model(out)
             label = np.argmax(out[0][0], axis=0)
 

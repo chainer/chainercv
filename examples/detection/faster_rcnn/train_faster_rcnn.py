@@ -12,8 +12,10 @@ from chainer_cv.wrappers import output_shape_soft_min_hard_max
 from chainer_cv.wrappers import bbox_resize_hook
 from chainer_cv.wrappers import bbox_mirror_hook
 from chainer_cv.wrappers import SubtractWrapper
+from chainer_cv.extensions import DetectionVisReport
 
 from faster_rcnn import FasterRCNN
+from updater import ParallelUpdater
 
 
 if __name__ == '__main__':
@@ -49,28 +51,79 @@ if __name__ == '__main__':
         train_data = wrapper(train_data)
         test_data = wrapper(test_data)
 
-    model = FasterRCNN()
+    model = FasterRCNN(gpu=gpu)
+    if gpu != -1:
+        model.to_gpu(gpu)
+        chainer.cuda.get_device(gpu).use()
     # optimizer = chainer.optimizers.MomentumSGD(lr=lr)
     optimizer = chainer.optimizers.Adam(
         alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8)
     optimizer.setup(model)
-    optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
+    # optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
     train_iter = chainer.iterators.SerialIterator(test_data, batch_size=1)
+    updater = ParallelUpdater(train_iter, optimizer, devices={'main': gpu})
 
-    updater = chainer.training.updater.StandardUpdater(train_iter, optimizer)
+    # updater = chainer.training.updater.StandardUpdater(train_iter, optimizer)
     trainer = training.Trainer(updater, (epoch, 'epoch'), out=out)
 
-    log_interval = 1, 'iteration'
+    log_interval = 20, 'iteration'
+    val_interval = 3000, 'iteration'
     trainer.extend(extensions.LogReport(trigger=log_interval))
     trainer.extend(extensions.PrintReport(
         ['iteration', 'main/time',
          'main/rpn_loss_cls',
          'main/rpn_loss_bbox',
-         'main/loss_bbox',
-         'main/loss_cls']),
-        trigger=log_interval)
+         'main/loss_cls',
+         'main/loss_bbox']), trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
+
+    # visualize training
+    trainer.extend(
+        extensions.PlotReport(
+            ['main/rpn_loss_cls'],
+            file_name='rpn_loss_cls.png'
+        ),
+        trigger=log_interval
+    )
+    trainer.extend(
+        extensions.PlotReport(
+            ['main/rpn_loss_bbox'],
+            file_name='rpn_loss_bbox.png'
+        ),
+        trigger=log_interval
+    )
+    trainer.extend(
+        extensions.PlotReport(
+            ['main/loss_cls'],
+            file_name='loss_cls.png'
+        ),
+        trigger=log_interval
+    )
+    trainer.extend(
+        extensions.PlotReport(
+            ['main/loss_bbox'],
+            file_name='loss_bbox.png'
+        ),
+        trigger=log_interval
+    )
+    trainer.extend(
+        DetectionVisReport(
+            range(10),  # visualize outputs for the first 10 data of test_data
+            train_data,
+            model,
+            filename_base='detection_train',
+            predict_func=model.predict_bboxes
+        ),
+        trigger=val_interval, invoke_before_training=True)
+    trainer.extend(
+        DetectionVisReport(
+            range(10),  # visualize outputs for the first 10 data of test_data
+            test_data,
+            model,
+            forward_func=model.predict_bboxes
+        ),
+        trigger=val_interval, invoke_before_training=True)
 
     trainer.extend(extensions.dump_graph('main/loss'))
 
