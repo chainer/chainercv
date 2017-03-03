@@ -7,8 +7,8 @@ import zipfile
 import chainer
 from chainer.dataset import download
 
-from chainer_cv import utils
-import corresp
+from chainer_cv.utils.download import cached_download
+from chainer_cv.tasks.optical_flow import flow2verts
 
 
 root = 'yuyu2172/chainer-cv/sintel'
@@ -21,7 +21,7 @@ def _get_sintel():
         # skip downloading
         return data_root
 
-    download_file_path = utils.cached_download(url)
+    download_file_path = cached_download(url)
 
     with zipfile.ZipFile(download_file_path, 'r') as z:
         z.extractall(data_root)
@@ -108,7 +108,7 @@ class SintelDataset(chainer.dataset.DatasetMixin):
             flow = flow.transpose(2, 0, 1)
             return src, dst, flow
         elif self.mode == 'verts':
-            verts = corresp.flow2verts(flow)
+            verts = flow2verts(flow)
             src_verts = verts[0]
             dst_verts = verts[1]
             return src, dst, src_verts, dst_verts
@@ -120,5 +120,42 @@ class SintelDataset(chainer.dataset.DatasetMixin):
 
         src_img = imread(cur_paths['src_img'])
         dst_img = imread(cur_paths['dst_img'])
-        flow = corresp.read_flow_sintel(cur_paths['flow'])
+        flow = self._read_flow_sintel(cur_paths['flow'])
         return src_img, dst_img, flow
+
+    def _read_flow_sintel(self, path):
+        """Read .flo file in Sintel.
+
+        Returns:
+            Float32 image of shape (H, W, 3). The last dimension contains
+                (vertical_flow, horizontal_flow, valid).
+
+        Note:
+            In the original binary, flows are stored in order of
+                (horizontl_flow, vertical_flow).
+                Here, they are in the opposite order.
+        """
+
+        with open(path, 'rb') as f:
+            magic = np.fromfile(f, np.float32, count=1)
+            if 202021.25 != magic:
+                print('Magic number incorrect. Invalid  .flo file')
+            else:
+                W = np.asscalar(np.fromfile(f, np.int32, count=1))
+                H = np.asscalar(np.fromfile(f, np.int32, count=1))
+
+                data = np.fromfile(f, np.float32, count=2 * W * H)
+                data = data.reshape(H, W, 2)
+
+        ret = np.zeros((H, W, 3), np.float32)
+        # find valid pixels
+        valid = np.max(data, axis=2) < 1e9
+        # last dimension:  (vertical disp, horizontal disp, valid)
+        ret[:, :, 0] = data[:, :, 1]
+        ret[:, :, 1] = data[:, :, 0]
+        ret[:, :, 2] = valid
+        return ret
+
+
+if __name__ == '__main__':
+    dataset = SintelDataset()
