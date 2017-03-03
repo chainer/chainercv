@@ -11,6 +11,7 @@ from chainercv.utils import forward
 
 
 class EmbedImages(chainer.training.extension.Extension):
+
     """An extension that embeds images collected through an iterator.
 
     Through iterating an iterator, images will be embedded into some low

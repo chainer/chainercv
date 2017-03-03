@@ -8,3 +8,4 @@ ChainerCV Reference Manual
    :maxdepth: 2
 
    datasets
+   extensions

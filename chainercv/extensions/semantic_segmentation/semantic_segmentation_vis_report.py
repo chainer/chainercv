@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 
 
 class SemanticSegmentationVisReport(chainer.training.extension.Extension):
+
     """An extension that visualizes input and output of semantic segmentation.
 
     This extension visualizes predicted label, ground truth label and input

@@ -12,6 +12,7 @@ from matplotlib import pyplot as plt
 
 
 class DetectionVisReport(chainer.training.extension.Extension):
+
     """An extension that visualizes output of a detection model.
 
     This extension visualizes the predicted bounding boxes together with the
