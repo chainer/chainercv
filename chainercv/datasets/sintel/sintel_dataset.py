@@ -34,19 +34,20 @@ class SintelDataset(chainer.dataset.DatasetMixin):
 
     .. _`MPI Sintel Flow Dataset`: http://sintel.is.tue.mpg.de/
 
-    The format of correspondence data returned by `get_example` is determined
-    by ``mode``.
-    If ``mode`` is ``flow``, it returns (source, target, flow).
-    `source` is the image of the source image and ``target`` is the image of
-    the target image which are both in CHW format. ``flow`` represents optical
+    The format of correspondence data returned by
+    :meth:`SintelDataset.get_example` is determined by `mode`.
+    If `mode` is `flow`, it returns (source, target, flow).
+    `source` is the image of the source image and `target` is the image of
+    the target image which are both in CHW format. `flow` represents optical
     flow from the source to the target whose shape is :math:`(3, H, W)`.
     :math:`H` and :math:`W` are the height and the width of images.
-    If ``mode`` is ``verts``, it returns
-    :math:`(source, target, source_verts, target_verts)`. ``source_verts`` and
-    ``target_verts`` are an array of shape :math:`(n_verts, 2)`. ``n_verts`` is
+
+    If `mode` is `verts`, it returns
+    (source, target, source_verts, target_verts). `source_verts` and
+    `target_verts` are an array of shape :math:`(N_v, 2)`. :math:`N_v` is
     the number of pixels who appear in both the source and the target. The
     second axis contains the location of the pixel.
-    ``source_verts[i]`` and ``target_verts[i]`` correspond to each other for
+    `source_verts[i]` and `target_verts[i]` correspond to each other for
     arbitrary :math:`i`.
 
     Args:
