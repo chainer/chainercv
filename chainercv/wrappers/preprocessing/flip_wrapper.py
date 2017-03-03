@@ -6,8 +6,8 @@ from chainer.utils import type_check
 from chainercv.wrappers.dataset_wrapper import DatasetWrapper
 
 
-class RandomMirrorWrapper(DatasetWrapper):
-    """Crop array by `crop_width`  along each dimension.
+class FlipWrapper(DatasetWrapper):
+    """Flip images randomly along given orientation.
 
     Args:
         dataset: a dataset or a wrapper that this wraps.
@@ -16,16 +16,16 @@ class RandomMirrorWrapper(DatasetWrapper):
         orientation ({'h', 'v', 'both'}): chooses whether to mirror
             horizontally or vertically.
         hook (callable or `None`): The callable takes `out_data`,
-            `h_mirror` and `v_mirror` as arguments. `h_mirror` is a bool
+            `h_flip` and `v_flip` as arguments. `h_flip` is a bool
             that indicates whether a horizontal mirroring is carried out or
-            not. `v_mirror` is a bool that indicates whether a vertical
+            not. `v_flip` is a bool that indicates whether a vertical
             mirroring is carried out or not.
             If this is `None`, hook function is not called.
 
     """
 
     def __init__(self, dataset, augment_idx, orientation='h', hook=None):
-        super(RandomMirrorWrapper, self).__init__(dataset)
+        super(FlipWrapper, self).__init__(dataset)
 
         if orientation not in ['h', 'v', 'both']:
             raise ValueError('orientation has to be either \'h\', \'v\' or '
@@ -62,39 +62,39 @@ class RandomMirrorWrapper(DatasetWrapper):
 
         """
         out_data = list(in_data)
-        h_mirror, v_mirror = False, False
+        h_flip, v_flip = False, False
         if 'h' in self.orientation:
-            h_mirror = random.choice([True, False])
+            h_flip = random.choice([True, False])
         if 'v' in self.orientation:
-            v_mirror = random.choice([True, False])
+            v_flip = random.choice([True, False])
 
         for idx in self.augment_idx:
             img = in_data[idx]
             if 'h' in self.orientation:
-                if h_mirror:
+                if h_flip:
                     img = img[:, :, ::-1]
             if 'v' in self.orientation:
-                if v_mirror:
+                if v_flip:
                     img = img[:, ::-1, :]
             out_data[idx] = img
 
         if self.hook is not None:
-            out_data = self.hook(out_data, h_mirror, v_mirror)
+            out_data = self.hook(out_data, h_flip, v_flip)
         return tuple(out_data)
 
 
-def bbox_mirror_hook(img_idx=0, bboxes_idx=1):
-    def _bbox_mirror_hook(out_data, h_mirror, v_mirror):
+def bbox_flip_hook(img_idx=0, bboxes_idx=1):
+    def _bbox_flip_hook(out_data, h_flip, v_flip):
         img = out_data[img_idx]
         bboxes = out_data[bboxes_idx]
 
         _, H, W = img.shape
-        if h_mirror:
+        if h_flip:
             x_max = W - 1 - bboxes[:, 0]
             x_min = W - 1 - bboxes[:, 2]
             bboxes[:, 0] = x_min
             bboxes[:, 2] = x_max
-        if v_mirror:
+        if v_flip:
             y_max = H - 1 - bboxes[:, 1]
             y_min = H - 1 - bboxes[:, 3]
             bboxes[:, 1] = y_min
@@ -102,4 +102,4 @@ def bbox_mirror_hook(img_idx=0, bboxes_idx=1):
 
         out_data[bboxes_idx] = bboxes
         return out_data
-    return _bbox_mirror_hook
+    return _bbox_flip_hook

@@ -4,8 +4,8 @@ import preprocessing  # NOQA
 from cache_dataset.cache_array_dataset_wrapper import CacheArrayDatasetWrapper  # NOQA
 from cache_dataset.cache_dataset_wrapper import CacheDatasetWrapper  # NOQA
 from preprocessing.crop_wrapper import CropWrapper  # NOQA
-from preprocessing.random_mirror_wrapper import RandomMirrorWrapper  # NOQA
-from preprocessing.random_mirror_wrapper import bbox_mirror_hook  # NOQA
+from preprocessing.flip_wrapper import FlipWrapper  # NOQA
+from preprocessing.flip_wrapper import bbox_flip_hook  # NOQA
 from dataset_wrapper import DatasetWrapper  # NOQA
 from preprocessing.pad_wrapper import PadWrapper  # NOQA
 from preprocessing.subtract_wrapper import SubtractWrapper  # NOQA
