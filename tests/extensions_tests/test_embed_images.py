@@ -8,9 +8,9 @@ import tempfile
 import chainer
 from chainer import testing
 
-from chainer_cv.extensions import EmbedImages
-from chainer_cv.testing import ConstantReturnModel
-from chainer_cv.testing import DummyDataset
+from chainercv.extensions import EmbedImages
+from chainercv.testing import ConstantReturnModel
+from chainercv.testing import DummyDataset
 
 
 class TestEmbedImages(unittest.TestCase):

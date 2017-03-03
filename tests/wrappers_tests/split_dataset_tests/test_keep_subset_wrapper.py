@@ -4,8 +4,8 @@ import numpy as np
 
 from chainer import testing
 
-import chainer_cv
-from chainer_cv.testing import helper
+import chainercv
+from chainercv.testing import helper
 
 
 class TestKeepSubsetWrapper(unittest.TestCase):
@@ -15,7 +15,7 @@ class TestKeepSubsetWrapper(unittest.TestCase):
         dataset = helper.SimpleDataset(array)
 
         indices = range(10, 0, -1)
-        wrapped_dataset = chainer_cv.wrappers.KeepSubsetWrapper(
+        wrapped_dataset = chainercv.wrappers.KeepSubsetWrapper(
             dataset, indices)
 
         for i, idx in enumerate(indices):
