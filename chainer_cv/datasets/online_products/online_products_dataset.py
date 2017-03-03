@@ -8,7 +8,6 @@ import zipfile
 import chainer
 from chainer.dataset import download
 
-from chainer_cv import utils
 from chainer_cv.wrappers import KeepSubsetWrapper
 
 
@@ -23,7 +22,7 @@ def _get_online_products():
         # skip downloading
         return base_path
 
-    download_file_path = utils.cached_download(url)
+    download_file_path = download.cached_download(url)
 
     with zipfile.ZipFile(download_file_path, 'r') as z:
         z.extractall(data_root)
