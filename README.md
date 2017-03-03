@@ -12,20 +12,14 @@ ChainerCV does the dirty work when training a neural network for a computer visi
 4. Evaluation metrics for various computer vision tasks
 
 
+You can find the documentation [here](http://chainercv.readthedocs.io/en/latest/).
+
+
 
 # Installation
 
-
-  ```
-  pip install chainer-cv
-  ```
-
-Please install by cloning this repository and install it with pip.
-
 ```
-git clone http://github.com/yuyu2172/chainercv
-cd chainercv
-pip install -e .
+pip install chainercv
 ```
 
 
