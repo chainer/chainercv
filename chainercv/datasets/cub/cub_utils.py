@@ -29,6 +29,10 @@ def get_cub():
 
 class CUBDatasetBase(chainer.dataset.DatasetMixin):
 
+    """Base class for CUB dataset.
+
+    """
+
     def __init__(self, data_dir='auto', crop_bbox=True):
         if data_dir == 'auto':
             data_dir = get_cub()
