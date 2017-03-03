@@ -40,7 +40,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
-            'auto', this class will automatically download data for you
+            ``auto``, this class will automatically download data for you
             under ``$CHAINER_DATASET_ROOT/yuyu2172/chainercv/pascal_voc``.
 
     """
@@ -140,14 +140,14 @@ def get_online_products(data_dir='auto',
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
-            'auto', this class will automatically download data for you
+            ``auto``, this class will automatically download data for you
             under ``$CHAINER_DATASET_ROOT/yuyu2172/chainercv/pascal_voc``.
         train_classes (list of int): The train dataset will contain images
-            whose class ids are included in `train_classes`. If this is
-            `None`, the first 11318 classes are used as done in [Song].
+            whose class ids are included in ``train_classes``. If this is
+            ``None``, the first 11318 classes are used as done in [Song].
         test_classes (list of int): The test dataset will contain images
-            whose class ids are included in `test_classes`. If this is
-            `None`, the last 11316 classes are used as done in [Song].
+            whose class ids are included in ``test_classes``. If this is
+            ``None``, the last 11316 classes are used as done in [Song].
 
     .. [Song] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
         Deep Metric Learning via Lifted Structured Feature Embedding.
@@ -155,8 +155,8 @@ def get_online_products(data_dir='auto',
 
     Returns:
         A tuple of two datasets
-        `chainercv.datasets.image_retrieval.OnlineProductsDataset` which
-        are wrapped by `chainercv.wrappers.KeepSubsetWrapper`.
+        :class:`chainercv.datasets.image_retrieval.OnlineProductsDataset` which
+        are wrapped by :class:`chainercv.wrappers.KeepSubsetWrapper`.
         The first dataset is for training and the second is for testing.
 
     """
