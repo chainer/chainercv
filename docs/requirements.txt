@@ -1,2 +1,2 @@
-chainercv
 chainer
+chainercv
