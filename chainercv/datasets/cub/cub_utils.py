@@ -8,7 +8,7 @@ from chainer.dataset import download
 from chainercv import utils
 
 
-root = 'yuyu2172/chainer-cv/cub'
+root = 'yuyu2172/chainercv/cub'
 url = 'http://www.vision.caltech.edu/visipedia-data/CUB-200-2011/'\
     'CUB_200_2011.tgz'
 
@@ -28,6 +28,10 @@ def get_cub():
 
 
 class CUBDatasetBase(chainer.dataset.DatasetMixin):
+
+    """Base class for CUB dataset.
+
+    """
 
     def __init__(self, data_dir='auto', crop_bbox=True):
         if data_dir == 'auto':

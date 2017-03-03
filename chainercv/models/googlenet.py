@@ -39,7 +39,7 @@ class GoogLeNet(link.Chain):
             chainer model serialized as a ``.npz`` file.
             If this argument is specified as ``auto``,
             it automatically loads and converts the caffemodel from
-            ``$CHAINER_DATASET_ROOT/yuyu2172/chainer-cv/models/
+            ``$CHAINER_DATASET_ROOT/yuyu2172/chainercv/models/
             bvlc_googlenet.caffemodel``,
             where ``$CHAINER_DATASET_ROOT`` is set as
             ``$HOME/.chainer/dataset`` unless you specify another value
@@ -207,7 +207,7 @@ def _make_npz(path_npz, url, model):
 
 
 def _retrieve(name, url, model):
-    root = download.get_dataset_directory('yuyu2172/chainer-cv/models/')
+    root = download.get_dataset_directory('yuyu2172/chainercv/models/')
     path = os.path.join(root, name)
     return download.cache_or_load_file(
         path, lambda path: _make_npz(path, url, model),

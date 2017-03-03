@@ -20,11 +20,11 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 import os
-# import pkg_resources
+import pkg_resources
 # import shlex
 # import sys
 
-# __version__ = pkg_resources.get_distribution('chainercv').version
+__version__ = pkg_resources.get_distribution('chainercv').version
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 

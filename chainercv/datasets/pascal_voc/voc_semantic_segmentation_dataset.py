@@ -15,7 +15,7 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
     Args:
         data_dir (string): Path to the root of the training data. If this is
             'auto', this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/yuyu2172/chainer-cv/pascal_voc``.
+            under ``$CHAINER_DATASET_ROOT/yuyu2172/chainercv/pascal_voc``.
         bgr (bool): If true, method `get_example` will return an image in BGR
             format.
     """

@@ -6,7 +6,7 @@ from chainer.dataset import download
 from chainercv import utils
 
 
-root = 'yuyu2172/chainer-cv/pascal_voc'
+root = 'yuyu2172/chainercv/pascal_voc'
 urls = {
     '2012': 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/'
     'VOCtrainval_11-May-2012.tar',
