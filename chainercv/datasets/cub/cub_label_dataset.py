@@ -6,9 +6,11 @@ from chainercv.datasets.cub.cub_utils import CUBDatasetBase
 
 class CUBLabelDataset(CUBDatasetBase):
 
-    """CUB200-2011 dataset that returns an image and a label.
+    """Dataset class for `CUB-200-2011`_ with labels as supervision data.
 
-    There are 200 labels of birds.
+    .. _CUB-200-2011: http://www.vision.caltech.edu/visipedia/CUB-200-2011.html
+
+    There are 200 labels of birds in total.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is

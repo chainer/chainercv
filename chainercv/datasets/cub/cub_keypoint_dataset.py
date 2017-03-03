@@ -8,6 +8,28 @@ from chainercv.datasets.cub.cub_utils import CUBDatasetBase
 
 class CUBKeypointsDataset(CUBDatasetBase):
 
+    """Dataset class for `CUB-200-2011`_ with keypoints as supervision data.
+
+    .. _`CUB-200-2011`:
+        http://www.vision.caltech.edu/visipedia/CUB-200-2011.html
+
+    Args:
+        data_dir (string): Path to the root of the training data. If this is
+            'auto', this class will automatically download data for you
+            under ``$CHAINER_DATASET_ROOT/yuyu2172/chainercv/cub``.
+        mode ({`train`, `test`}): Select train or test split used in
+            [Kanazawa]_.
+        crop_bbox (bool): If true, this class returns an image cropped
+            by the bounding box of the bird inside it.
+        bgr (bool): If true, method `get_example` will return an image in BGR
+            format.
+
+    .. [Kanazawa] Angjoo Kanazawa, David W. Jacobs, \
+       Manmohan Chandraker. WarpNet: Weakly Supervised Matching for \
+       Single-view Reconstruction. https://arxiv.org/abs/1604.05592.
+
+    """
+
     def __init__(self, data_dir='auto', mode='train',
                  crop_bbox=True, bgr=True):
         super(CUBKeypointsDataset, self).__init__(
