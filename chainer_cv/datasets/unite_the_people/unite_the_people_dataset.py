@@ -34,10 +34,15 @@ def get_unite_the_people():
 
 
 class UniteThePeopleDataset(chainer.dataset.DatasetMixin):
-    """
+    """Dataset class to load data from Unite the People dataset [1].
+
+    .. [1] Unite the People: Closing the Loop between 3D and 2D \
+    Human Representations
+        https://arxiv.org/abs/1701.02468
 
     Joint is a (3, 14) numpy.ndarray. The first axis represents
     (x cord, y coord, visible) of joints.
+
     """
 
     def __init__(self, data_dir='auto', mode='trainval'):
