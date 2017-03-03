@@ -34,6 +34,7 @@ def get_unite_the_people():
 
 
 class UniteThePeopleDataset(chainer.dataset.DatasetMixin):
+
     """Dataset class to load data from Unite the People dataset [1].
 
     .. [1] Unite the People: Closing the Loop between 3D and 2D \

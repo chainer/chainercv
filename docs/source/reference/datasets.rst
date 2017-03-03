@@ -19,9 +19,9 @@ CUBKeypointsDataset
 ImageNet
 --------
 
-ImageNetDataset
+ImagenetDataset
 ~~~~~~~~~~~~~~~
-.. autofunction:: ImageNetDataset
+.. autofunction:: ImagenetDataset
 
 
 OnlineProducts

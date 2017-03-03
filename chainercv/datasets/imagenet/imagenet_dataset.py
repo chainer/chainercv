@@ -24,6 +24,7 @@ def _get_imagenet(urls):
 
 
 class ImagenetDataset(chainer.datasets.ImageDataset):
+
     """ImageNet dataset used for ILSVRC2012 [1].
 
     .. [1] ImageNet Large Scale Visual Recognition Challenge
