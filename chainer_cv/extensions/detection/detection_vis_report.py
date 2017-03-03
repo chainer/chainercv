@@ -6,7 +6,7 @@ from chainer.utils import type_check
 
 from chainer_cv.extensions.utils import check_type
 from chainer_cv.extensions.utils import forward
-from chainer_cv.visualizations import vis_img_bbox
+from chainer_cv.tasks.detection import vis_img_bbox
 
 from matplotlib import pyplot as plt
 

@@ -70,7 +70,7 @@ class CUBKeypointsDataset(CUBDatasetBase):
 if __name__ == '__main__':
     dataset = CUBKeypointsDataset()
 
-    from chainer_cv.visualizations import vis_verts_pairs
+    from chainer_cv.tasks.pixel_correspondence import vis_verts_pairs
     import matplotlib.pyplot as plt
 
     for i in range(200, 220):
