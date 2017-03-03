@@ -4,15 +4,15 @@ import numpy as np
 
 from chainer import testing
 
-import chainer_cv
-from chainer_cv.testing import helper
+import chainercv
+from chainercv.testing import helper
 
 
 class TestSubtractWrapper(unittest.TestCase):
 
     def test_subtract_wrapper(self):
         constant = np.ones((3, 10, 10))
-        dataset = chainer_cv.wrappers.SubtractWrapper(
+        dataset = chainercv.wrappers.SubtractWrapper(
             helper.DummyDataset(
                 shapes=[(3, 10, 10), (3, 10, 10)],
                 constants=[constant, constant])

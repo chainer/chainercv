@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-import chainer_cv
-from chainer_cv.testing import helper
+import chainercv
+from chainercv.testing import helper
 
 
 class TestResizeWrapper(unittest.TestCase):
@@ -12,9 +12,9 @@ class TestResizeWrapper(unittest.TestCase):
         # soft_min
         dataset = helper.SimpleDataset(
             np.random.uniform(size=(100, 3, 32, 64)))
-        wrapped = chainer_cv.wrappers.ResizeWrapper(
+        wrapped = chainercv.wrappers.ResizeWrapper(
             dataset, [0],
-            output_shape=chainer_cv.wrappers.output_shape_soft_min_hard_max(
+            output_shape=chainercv.wrappers.output_shape_soft_min_hard_max(
                 48, 120))
 
         img0 = wrapped.get_example(0)
@@ -24,9 +24,9 @@ class TestResizeWrapper(unittest.TestCase):
         # hard_max
         dataset = helper.SimpleDataset(
             np.random.uniform(size=(100, 3, 32, 64)))
-        wrapped = chainer_cv.wrappers.ResizeWrapper(
+        wrapped = chainercv.wrappers.ResizeWrapper(
             dataset, [0],
-            output_shape=chainer_cv.wrappers.output_shape_soft_min_hard_max(
+            output_shape=chainercv.wrappers.output_shape_soft_min_hard_max(
                 32, 32))
 
         img0 = wrapped.get_example(0)
@@ -36,9 +36,9 @@ class TestResizeWrapper(unittest.TestCase):
         # none of hard_max and soft_min
         dataset = helper.SimpleDataset(
             np.random.uniform(size=(100, 3, 32, 64)))
-        wrapped = chainer_cv.wrappers.ResizeWrapper(
+        wrapped = chainercv.wrappers.ResizeWrapper(
             dataset, [0],
-            output_shape=chainer_cv.wrappers.output_shape_soft_min_hard_max(
+            output_shape=chainercv.wrappers.output_shape_soft_min_hard_max(
                 32, 96))
 
         img0 = wrapped.get_example(0)

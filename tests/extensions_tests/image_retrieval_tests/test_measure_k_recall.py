@@ -8,8 +8,8 @@ import tempfile
 import chainer
 from chainer import testing
 
-from chainer_cv.extensions import MeasureKRetrieval
-from chainer_cv.testing import DummyDataset
+from chainercv.extensions import MeasureKRetrieval
+from chainercv.testing import DummyDataset
 
 
 class TestMeasureKRetrieval(unittest.TestCase):
