@@ -16,8 +16,16 @@ ChainerCV does the dirty work when training a neural network for a computer visi
 # Installation
 
 
+  ```
+  pip install chainer-cv
+  ```
+
+Please install by cloning this repository and install it with pip.
+
 ```
-pip install chainer-cv
+git clone http://github.com/yuyu2172/chainercv
+cd chainercv
+pip install -e .
 ```
 
 
