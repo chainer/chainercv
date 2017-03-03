@@ -1,8 +1,8 @@
 import copy
 import numpy as np
 import os.path as osp
-from skimage.io import imread
 from skimage.color import gray2rgb
+from skimage.io import imread
 import zipfile
 
 import chainer
