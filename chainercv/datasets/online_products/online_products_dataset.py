@@ -144,10 +144,14 @@ def get_online_products(data_dir='auto',
             under ``$CHAINER_DATASET_ROOT/yuyu2172/chainercv/pascal_voc``.
         train_classes (list of int): The train dataset will contain images
             whose class ids are included in `train_classes`. If this is
-            `None`, the first 11318 classes are used as done in [1].
+            `None`, the first 11318 classes are used as done in [Song].
         test_classes (list of int): The test dataset will contain images
             whose class ids are included in `test_classes`. If this is
-            `None`, the last 11316 classes are used as done in [1].
+            `None`, the last 11316 classes are used as done in [Song].
+
+    .. [Song] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
+        Deep Metric Learning via Lifted Structured Feature Embedding.
+        https://arxiv.org/abs/1511.06452.
 
     Returns:
         A tuple of two datasets
