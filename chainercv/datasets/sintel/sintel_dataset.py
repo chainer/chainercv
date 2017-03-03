@@ -30,7 +30,9 @@ def _get_sintel():
 
 class SintelDataset(chainer.dataset.DatasetMixin):
 
-    """A dataset for MPI Sintel Dataset with ground truth optical flow.
+    """Dataset class for `MPI Sintel Flow Dataset`_.
+
+    .. _`MPI Sintel Flow Dataset`: http://sintel.is.tue.mpg.de/
 
     The format of correspondence data returned by `get_example` is determined
     by ``mode``.

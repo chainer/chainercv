@@ -10,7 +10,9 @@ import voc_utils
 
 class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
 
-    """Dataset class for the semantic segmantion task of Pascal VOC2012.
+    """Dataset class for the semantic segmantion task of Pascal `VOC2012`_.
+
+    .. _`VOC2012`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
     Args:
         data_dir (string): Path to the root of the training data. If this is

@@ -15,7 +15,9 @@ import voc_utils
 
 class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
-    """Dataset class for the detection task of Pascal VOC2012.
+    """Dataset class for the detection task of Pascal `VOC2012`_.
+
+    .. _`VOC2012`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
     The index corresponds to each image.
 
