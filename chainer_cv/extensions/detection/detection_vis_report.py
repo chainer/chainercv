@@ -4,8 +4,8 @@ import os.path as osp
 import chainer
 from chainer.utils import type_check
 
-from chainer_cv.extensions.utils import check_type
-from chainer_cv.extensions.utils import forward
+from chainer_cv.utils.extension_utils import check_type
+from chainer_cv.utils.extension_utils import forward
 from chainer_cv.tasks.detection import vis_img_bbox
 
 from matplotlib import pyplot as plt
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     train_data = VOCDetectionDataset(mode='train', use_cache=True, year='2007')
     _, bbox = train_data.get_example(3)
 
-    model = ConstantReturnModel(bbox)
+    model = ConstantReturnModel(bbox[None])
 
     trainer = mock.MagicMock()
     out_dir = tempfile.mkdtemp()
