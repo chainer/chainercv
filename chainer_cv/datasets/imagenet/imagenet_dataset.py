@@ -29,10 +29,11 @@ def _get_imagenet(urls):
             t.extractall(d)
 
     # this is an extra step needed for train dataset
-    for val in os.listdir(data_root):
-        if val[-3:] == 'tar':
-            with tarfile.TarFile(osp.join(data_root, val), 'r') as t:
-                t.extractall(osp.join(data_root, 'train'))
+    train_dir = osp.join(data_root, 'train')
+    for tar_fn in os.listdir(train_dir):
+        if tar_fn[-3:] == 'tar':
+            with tarfile.TarFile(osp.join(train_dir, tar_fn), 'r') as t:
+                t.extractall(train_dir)
     return data_root
 
 
@@ -74,17 +75,18 @@ class ImagenetDataset(chainer.datasets.ImageDataset):
         train_fns_pkl = osp.join(
             self.data_dir, 'train_image_files.pkl')
         self.train_fns = cache_load(
-            train_fns_pkl, self._get_train_image_files, delete_cache, use_cache, args=(data_dir,))
+            train_fns_pkl, self._get_train_image_files, delete_cache,
+            use_cache,
+            args=(osp.join(data_dir, 'train'),))
 
-    def _get_train_image_files(self, data_dir):
+    def _get_train_image_files(self, train_dir):
         image_fns = {}
-        for fn in os.listdir(data_dir):
+        for fn in os.listdir(train_dir):
             synset = fn[:9]
             if synset in self.synset_map and fn[-4:] == 'JPEG':
                 if synset not in image_fns:
-                    print synset
                     image_fns[synset] = []
-                image_fns[synset].append(osp.join(data_dir, fn))
+                image_fns[synset].append(osp.join(train_dir, fn))
         return image_fns
 
     def _get_val_test_image_files(self, data_dir, mode):
@@ -99,8 +101,8 @@ class ImagenetDataset(chainer.datasets.ImageDataset):
 
 if __name__ == '__main__':
     urls = {
-        'train': '',
-        'val': '',
-        'test': ''
+        'train': 'http://www.image-net.org/challenges/LSVRC/2012/nnoupb/ILSVRC2012_img_train.tar',
+        'val': 'http://www.image-net.org/challenges/LSVRC/2012/nnoupb/ILSVRC2012_img_val.tar',
+        'test': 'http://www.image-net.org/challenges/LSVRC/2012/nnoupb/ILSVRC2012_img_test.tar',
     }
     dataset = ImagenetDataset(urls=urls)
