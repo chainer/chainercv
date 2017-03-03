@@ -11,6 +11,7 @@ import chainer
 from chainer.dataset import download
 
 import voc_utils
+from chainer_cv.datasets.utils import cache_load
 
 
 class VOCDetectionDataset(chainer.dataset.DatasetMixin):
@@ -52,19 +53,12 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         # cache objects
         data_root = download.get_dataset_directory(voc_utils.root)
+
         pkl_file = osp.join(
             data_root, 'detection_objects_{}_{}.pkl'.format(year, mode))
-        if delete_cache and osp.exists(pkl_file):
-            os.remove(pkl_file)
-        if use_cache and osp.exists(pkl_file):
-            with open(pkl_file, 'rb') as f:
-                self.objects = pickle.load(f)
-        else:
-            self.objects = self._collect_objects(
-                self.data_dir, self.ids, self.use_difficult)
-            if use_cache:
-                with open(pkl_file, 'wb') as f:
-                    pickle.dump(self.objects, f, protocol=2)
+        self.objects = cache_load(
+            pkl_file, self._collect_objects, delete_cache,
+            use_cache, args=(self.data_dir, self.ids, self.use_difficult))
         self.keys = self.objects.keys()
 
     def _collect_objects(self, data_dir, ids, use_difficult):
