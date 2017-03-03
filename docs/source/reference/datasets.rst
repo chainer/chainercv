@@ -10,3 +10,8 @@ CUB
 CUBLabelDataset
 ~~~~~~~~~~~~~~~
 .. autofunction:: CUBLabelDataset
+
+CUBKeypointsDataset
+~~~~~~~~~~~~~~~~~~~
+.. autofunction:: CUBKeypointsDataset
+
