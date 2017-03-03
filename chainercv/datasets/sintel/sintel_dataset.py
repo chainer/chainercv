@@ -11,7 +11,7 @@ from chainercv.utils.download import cached_download
 from chainercv.tasks.optical_flow import flow2verts
 
 
-root = 'yuyu2172/chainer-cv/sintel'
+root = 'yuyu2172/chainercv/sintel'
 url = 'http://files.is.tue.mpg.de/sintel/MPI-Sintel-complete.zip'
 
 
