@@ -20,8 +20,8 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 import os
-import pkg_resources
-import shlex
+# import pkg_resources
+# import shlex
 # import sys
 
 # __version__ = pkg_resources.get_distribution('chainercv').version
@@ -193,4 +193,3 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
     'numpy': ('http://docs.scipy.org/doc/numpy/', None),
 }
-
