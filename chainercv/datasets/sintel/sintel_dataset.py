@@ -7,8 +7,8 @@ import zipfile
 import chainer
 from chainer.dataset import download
 
-from chainercv.utils.download import cached_download
 from chainercv.tasks.optical_flow import flow2verts
+from chainercv.utils.download import cached_download
 
 
 root = 'yuyu2172/chainercv/sintel'
@@ -36,22 +36,22 @@ class SintelDataset(chainer.dataset.DatasetMixin):
 
     The format of correspondence data returned by `get_example` is determined
     by ``mode``.
-    If ``mode`` is `flow`, it returns (source, target, flow).
-    `source` is the image of the source image and `target` is the image of
-    the target image which are both in CHW format. `flow` represents optical
-    flow from the source to the target whose shape is (3, H, W). H and W are
-    the height and the width of images.
-    If `mode` is `verts`, it returns
-    (source, target, source_verts, target_verts). `source_verts` and
-    `target_verts` are an array of shape (n_verts, 2). `n_verts` is the
-    number of pixels who appear in both the source and the target. The
+    If ``mode`` is ``flow``, it returns (source, target, flow).
+    `source` is the image of the source image and ``target`` is the image of
+    the target image which are both in CHW format. ``flow`` represents optical
+    flow from the source to the target whose shape is :math:`(3, H, W)`.
+    :math:`H` and :math:`W` are the height and the width of images.
+    If ``mode`` is ``verts``, it returns
+    :math:`(source, target, source_verts, target_verts)`. ``source_verts`` and
+    ``target_verts`` are an array of shape :math:`(n_verts, 2)`. ``n_verts`` is
+    the number of pixels who appear in both the source and the target. The
     second axis contains the location of the pixel.
-    `source_verts[i]` and `target_verts[i]` correspond to each other for
-    arbitrary `i`.
+    ``source_verts[i]`` and ``target_verts[i]`` correspond to each other for
+    arbitrary :math:`i`.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
-            'auto', this class will automatically download data for you
+            ``auto``, this class will automatically download data for you
             under ``$CHAINER_DATASET_ROOT/yuyu2172/chainercv/sintel``.
         mode (string, {'flow', 'verts'}): Determines the format of
             correspondence data between the source and the destination image.
@@ -129,8 +129,8 @@ class SintelDataset(chainer.dataset.DatasetMixin):
         """Read .flo file in Sintel.
 
         Returns:
-            Float32 image of shape (H, W, 3). The last dimension contains
-                (vertical_flow, horizontal_flow, valid).
+            Float32 image of shape :math:`(H, W, 3)`. The last dimension
+                contains (vertical_flow, horizontal_flow, valid).
 
         Note:
             In the original binary, flows are stored in order of
