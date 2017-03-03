@@ -31,9 +31,9 @@ def _get_online_products():
 
 class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
-    """Simple class to load data from Online Products Dataset [1].
+    """Simple class to load data from `Stanford Online Products Dataset`_.
 
-    .. [1] Stanford Online Products dataset
+    .. _`Stanford Online Products Dataset`:
         http://cvgl.stanford.edu/projects/lifted_struct
 
     All returned images are in RGB format.
@@ -42,6 +42,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         data_dir (string): Path to the root of the training data. If this is
             'auto', this class will automatically download data for you
             under ``$CHAINER_DATASET_ROOT/yuyu2172/chainercv/pascal_voc``.
+
     """
 
     def __init__(self, data_dir='auto'):
@@ -127,15 +128,15 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
 def get_online_products(data_dir='auto',
                         train_classes=None, test_classes=None):
-    """Gets the Online Products Dataset.
 
-    This method returns train and test split of Online Products Dataset as
-    done in [1].
+    """Gets the `Stanford Online Products Dataset`_.
+
+    This method returns train and test split of Online Products Dataset.
     It uses the first 11318 classes for training and remaining 11316 classes
     for testing.
 
-    .. [1] Deep Metric Learning via Lifted Structured Feature Embedding
-        https://arxiv.org/abs/1511.06452
+    .. _`Stanford Online Products Dataset`:
+        http://cvgl.stanford.edu/projects/lifted_struct
 
     Args:
         data_dir (string): Path to the root of the training data. If this is

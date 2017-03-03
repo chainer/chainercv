@@ -31,6 +31,10 @@ OnlineProductsDataset
 ~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: OnlineProductsDataset
 
+get_online_products
+~~~~~~~~~~~~~~~~~~~
+.. autofunction:: get_online_products
+
 
 PASCAL VOC
 ----------

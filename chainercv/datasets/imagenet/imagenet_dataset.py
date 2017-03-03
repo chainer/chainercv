@@ -25,10 +25,10 @@ def _get_imagenet(urls):
 
 class ImagenetDataset(chainer.datasets.ImageDataset):
 
-    """ImageNet dataset used for ILSVRC2012 [1].
+    """ImageNet dataset used for `ILSVRC2012`_.
 
-    .. [1] ImageNet Large Scale Visual Recognition Challenge
-        http://arxiv.org/abs/1409.0575
+    .. _ILSVRC2012: http://www.image-net.org/challenges/LSVRC/2012/
+
 
     If you pass `\'auto\'` as an argument for `base_dir`, this directory
     tries to download from `urls`. If `urls` is `None` in that case, it will

@@ -5,14 +5,14 @@ import chainer
 from chainer import training
 from chainer.training import extensions
 
-from chainer_cv.datasets import VOCDetectionDataset
-from chainer_cv.wrappers import ResizeWrapper
-from chainer_cv.wrappers import RandomMirrorWrapper
-from chainer_cv.wrappers import output_shape_soft_min_hard_max
-from chainer_cv.wrappers import bbox_resize_hook
-from chainer_cv.wrappers import bbox_mirror_hook
-from chainer_cv.wrappers import SubtractWrapper
-from chainer_cv.extensions import DetectionVisReport
+from chainercv.datasets import VOCDetectionDataset
+from chainercv.wrappers import ResizeWrapper
+from chainercv.wrappers import FlipWrapper
+from chainercv.wrappers import output_shape_soft_min_hard_max
+from chainercv.wrappers import bbox_resize_hook
+from chainercv.wrappers import bbox_flip_hook
+from chainercv.wrappers import SubtractWrapper
+from chainercv.extensions import DetectionVisReport
 
 from faster_rcnn import FasterRCNN
 from updater import ParallelUpdater
