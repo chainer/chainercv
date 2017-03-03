@@ -6,8 +6,8 @@ from skimage.color import label2rgb
 import chainer
 from chainer.utils import type_check
 
-from chainer_cv.extensions.utils import check_type
-from chainer_cv.extensions.utils import forward
+from chainer_cv.utils import forward
+from chainer_cv.utils import check_type
 
 from matplotlib import pyplot as plt
 

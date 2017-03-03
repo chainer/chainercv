@@ -6,8 +6,8 @@ import chainer
 from chainer.dataset import convert
 from chainer.utils import type_check
 
-from chainer_cv.extensions.utils import check_type
-from chainer_cv.extensions.utils import forward
+from chainer_cv.utils import check_type
+from chainer_cv.utils import forward
 
 
 class EmbedImages(chainer.training.extension.Extension):
