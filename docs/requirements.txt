@@ -1,1 +1,4 @@
 chainer
+scikit-image
+scikit-learn
+matplotlib
