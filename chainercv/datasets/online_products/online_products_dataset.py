@@ -128,7 +128,6 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
 def get_online_products(data_dir='auto',
                         train_classes=None, test_classes=None):
-
     """Gets the `Stanford Online Products Dataset`_.
 
     This method returns train and test split of Online Products Dataset.

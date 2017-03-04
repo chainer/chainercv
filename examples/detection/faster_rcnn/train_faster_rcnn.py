@@ -44,8 +44,8 @@ if __name__ == '__main__':
             d, preprocess_idx=0,
             output_shape=output_shape_soft_min_hard_max(600, 1200),
             hook=bbox_resize_hook(1)),
-        lambda d: RandomMirrorWrapper(d, augment_idx=0, orientation='h',
-                                      hook=bbox_mirror_hook())
+        lambda d: FlipWrapper(d, augment_idx=0, orientation='h',
+                              hook=bbox_flip_hook())
     ]
     for wrapper in wrappers:
         train_data = wrapper(train_data)
