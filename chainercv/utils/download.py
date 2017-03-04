@@ -1,9 +1,10 @@
-
 from __future__ import print_function
 import hashlib
 import os
 import shutil
+import tarfile
 import tempfile
+import zipfile
 
 import filelock
 from six.moves.urllib import request
@@ -75,3 +76,15 @@ def cached_download(url):
         shutil.rmtree(temp_root)
 
     return cache_path
+
+
+def extractall(file_path, destination, ext):
+    if ext == '.zip':
+        with zipfile.ZipFile(file_path, 'r') as z:
+            z.extractall(destination)
+    elif ext == '.tar':
+        with tarfile.TarFile(file_path, 'r') as t:
+            t.extractall(destination)
+    elif ext == '.gz' or ext == '.tgz':
+        with tarfile.open(file_path, 'r:gz') as t:
+            t.extractall(destination)

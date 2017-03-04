@@ -1,6 +1,5 @@
-import os.path as osp
+import os
 from skimage.io import imread
-import subprocess
 
 import chainer
 from chainer.dataset import download
@@ -15,15 +14,14 @@ url = 'http://www.vision.caltech.edu/visipedia-data/CUB-200-2011/'\
 
 def get_cub():
     data_root = download.get_dataset_directory(root)
-    base_path = osp.join(data_root, 'CUB_200_2011')
-    if osp.exists(base_path):
+    base_path = os.path.join(data_root, 'CUB_200_2011')
+    if os.path.exists(base_path):
         # skip downloading
         return base_path
 
     download_file_path = utils.cached_download(url)
-
-    subprocess.call(
-        ['tar xzf {} -C {}'.format(download_file_path, data_root)], shell=True)
+    ext = os.path.splitext(url)[1]
+    utils.extractall(download_file_path, data_root, ext)
     return base_path
 
 
@@ -38,8 +36,8 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
             data_dir = get_cub()
         self.data_dir = data_dir
 
-        images_file = osp.join(data_dir, 'images.txt')
-        bboxes_file = osp.join(data_dir, 'bounding_boxes.txt')
+        images_file = os.path.join(data_dir, 'images.txt')
+        bboxes_file = os.path.join(data_dir, 'bounding_boxes.txt')
 
         self.fns = [fn.strip().split()[1] for fn in open(images_file)]
         bboxes = [bbox.split()[1:] for bbox in open(bboxes_file)]
@@ -51,7 +49,7 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
         return len(self.fns)
 
     def get_raw_data(self, i):
-        img = imread(osp.join(self.data_dir, 'images', self.fns[i]))  # RGB
+        img = imread(os.path.join(self.data_dir, 'images', self.fns[i]))  # RGB
 
         if self.crop_bbox:
             bbox = self.bboxes[i]  # (x, y, width, height)

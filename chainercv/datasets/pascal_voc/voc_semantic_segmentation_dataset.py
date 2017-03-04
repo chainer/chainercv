@@ -5,7 +5,7 @@ from skimage.io import imread
 
 import chainer
 
-import voc_utils
+from chainercv.datasets.pascal_voc import voc_utils
 
 
 class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
