@@ -174,7 +174,7 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
         Note that the class_id starts from 1.
 
         Args:
-            class_id (int): The id of ILSVRC2012 which will by retrieved.
+            class_id (int): The retrieved images will be in this class.
             i (int): The index of the example in the given class.
 
         Returns:
