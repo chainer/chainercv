@@ -32,15 +32,4 @@ If you want to change the directory where you download and look up datasets, ple
 
 ```
 export CHAINER_DATASET_ROOT=/CLOUD/dataset/  # this is an exmaple
-```
-
-
-# Versions
-
-**0.3 (March 3rd, 2017)** The name of the module is changed to `chainercv` from `chainer-cv`.
-
-**0.2.1 (February 23rd, 2017)** The data is now saved under `$CHAINER_DATASET_ROOT/yuyu2172/chainer-cv`.
-
-**0.2 (February 22nd, 2017)** TensorBoard visualization of embedded space [#4](https://github.com/yuyu2172/chainercv/pull/4).
-
-**0.1 (February 20th, 2017)** Semantic Segmentation example. Initial release.
+``` 
