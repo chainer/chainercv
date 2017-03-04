@@ -8,7 +8,7 @@ from chainer.dataset import download
 from chainercv import utils
 
 
-root = 'yuyu2172/chainercv/cub'
+root = 'pfnet/chainercv/cub'
 url = 'http://www.vision.caltech.edu/visipedia-data/CUB-200-2011/'\
     'CUB_200_2011.tgz'
 

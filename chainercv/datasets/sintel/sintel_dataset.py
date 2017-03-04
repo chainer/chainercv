@@ -11,7 +11,7 @@ from chainercv.tasks.optical_flow import flow2verts
 from chainercv.utils.download import cached_download
 
 
-root = 'yuyu2172/chainercv/sintel'
+root = 'pfnet/chainercv/sintel'
 url = 'http://files.is.tue.mpg.de/sintel/MPI-Sintel-complete.zip'
 
 
@@ -53,7 +53,7 @@ class SintelDataset(chainer.dataset.DatasetMixin):
     Args:
         data_dir (string): Path to the root of the training data. If this is
             ``auto``, this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/yuyu2172/chainercv/sintel``.
+            under ``$CHAINER_DATASET_ROOT/pfnet/chainercv/sintel``.
         mode (string, {'flow', 'verts'}): Determines the format of
             correspondence data between the source and the destination image.
     """

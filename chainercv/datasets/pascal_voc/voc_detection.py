@@ -24,7 +24,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     Args:
         data_dir (string): Path to the root of the training data. If this is
             ``auto``, this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/yuyu2172/chainercv/pascal_voc``.
+            under ``$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc``.
         use_difficult (bool)
         bgr (bool): If true, :meth:`VOCDetectionDataset.get_example` will
             return an image in BGR format.

@@ -25,7 +25,7 @@ pip install chainercv
 
 # Automatic Download
 ChainerCV supports automatic download of datasets. It uses Chainer's default download scheme for automatic download.
-Therefore, the downloaded data is stored under a directory `$CHAINER_DATASET_ROOT/yuyu2172/chainercv`.
+Therefore, the downloaded data is stored under a directory `$CHAINER_DATASET_ROOT/pfnet/chainercv`.
 
 The default value of `$CHAINER_DATASET_ROOT` is `~/.chainer/dataset/`.
 If you want to change the directory where you download and look up datasets, please change the value of the global value `$CHAINER_DATASET_ROOT` by a command like below.

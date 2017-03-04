@@ -10,7 +10,7 @@ from chainer.dataset import download
 from chainercv import utils
 
 
-root = 'yuyu2172/chainercv/unite_the_people'
+root = 'pfnet/chainercv/unite_the_people'
 urls = [
     'http://files.is.tue.mpg.de/classner/up/datasets/up-3d.zip',
     'http://files.is.tue.mpg.de/classner/up/datasets/up-p91.zip',

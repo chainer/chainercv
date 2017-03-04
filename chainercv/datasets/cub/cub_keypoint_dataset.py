@@ -16,7 +16,7 @@ class CUBKeypointsDataset(CUBDatasetBase):
     Args:
         data_dir (string): Path to the root of the training data. If this is
             ``auto``, this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/yuyu2172/chainercv/cub``.
+            under ``$CHAINER_DATASET_ROOT/pfnet/chainercv/cub``.
         mode ({`train`, `test`}): Select train or test split used in
             [Kanazawa]_.
         crop_bbox (bool): If true, this class returns an image cropped
