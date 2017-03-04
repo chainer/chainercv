@@ -61,8 +61,9 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
     def __init__(self, data_dir='auto', urls=None, mode='train',
                  bgr=True,
                  use_cache=False, delete_cache=False):
-        assert set(urls.keys()) == set(
-            ['train', 'test', 'val', 'developers_kit'])
+        if urls is not None:
+            assert set(urls.keys()) == set(
+                ['train', 'test', 'val', 'developers_kit'])
         if data_dir == 'auto':
             data_dir = _get_imagenet(urls)
         self.data_dir = data_dir
