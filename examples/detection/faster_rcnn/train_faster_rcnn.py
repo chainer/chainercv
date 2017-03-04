@@ -29,7 +29,7 @@ def main(gpu=-1, epoch=100, batch_size=1, lr=5e-4, out='result'):
             d, preprocess_idx=0,
             output_shape=output_shape_soft_min_hard_max(600, 1200),
             hook=bbox_resize_hook(1)),
-        lambda d: FlipWrapper(d, augment_idx=0, orientation='h',
+        lambda d: FlipWrapper(d, preprocess_idx=0, orientation='h',
                               hook=bbox_flip_hook())
     ]
     for wrapper in wrappers:

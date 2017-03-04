@@ -11,8 +11,8 @@ class FlipWrapper(DatasetWrapper):
 
     Args:
         dataset: a dataset or a wrapper that this wraps.
-        augment_idx (int or list of ints): this wrapper will augment k-th
-            output of wrapped dataset's get_example if k is in `augment_idx`.
+        preprocess_idx (int or list of ints): this wrapper will augment k-th
+            output of wrapped dataset's get_example if k is in `preprocess_idx`.
         orientation ({'h', 'v', 'both'}): chooses whether to mirror
             horizontally or vertically.
         hook (callable or `None`): The callable takes `out_data`,
@@ -24,7 +24,7 @@ class FlipWrapper(DatasetWrapper):
 
     """
 
-    def __init__(self, dataset, augment_idx, orientation='h', hook=None):
+    def __init__(self, dataset, preprocess_idx, orientation='h', hook=None):
         super(FlipWrapper, self).__init__(dataset)
 
         if orientation not in ['h', 'v', 'both']:
@@ -36,14 +36,14 @@ class FlipWrapper(DatasetWrapper):
             orientation = list(orientation)
         self.orientation = orientation
 
-        if not isinstance(augment_idx, collections.Iterable):
-            augment_idx = (augment_idx,)
-        self.augment_idx = augment_idx
+        if not isinstance(preprocess_idx, collections.Iterable):
+            preprocess_idx = (preprocess_idx,)
+        self.preprocess_idx = preprocess_idx
 
         self.hook = hook
 
     def check_type_get_example(self, in_types):
-        for idx in self.augment_idx:
+        for idx in self.preprocess_idx:
             in_type = in_types[idx]
             type_check.expect(
                 in_type.ndim == 3
@@ -68,7 +68,7 @@ class FlipWrapper(DatasetWrapper):
         if 'v' in self.orientation:
             v_flip = random.choice([True, False])
 
-        for idx in self.augment_idx:
+        for idx in self.preprocess_idx:
             img = in_data[idx]
             if 'h' in self.orientation:
                 if h_flip:

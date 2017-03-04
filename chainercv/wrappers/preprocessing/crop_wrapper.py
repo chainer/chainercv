@@ -14,22 +14,22 @@ class CropWrapper(DatasetWrapper):
 
     Args:
         dataset: a dataset or a wrapper that this wraps.
-        augment_idx (int or list of ints): this wrapper will augment k-th
-            output of wrapped dataset's get_example if k is in `augment_idx`.
+        preprocess_idx (int or list of ints): this wrapper will augment k-th
+            output of wrapped dataset's get_example if k is in `preprocess_idx`.
         cropped_shape (tuple of ints): shape of data after cropping.
         start_idx (tuple of ints): If this is None, this wrapper randomly
             crops images.
 
     """
 
-    def __init__(self, dataset, augment_idx, cropped_shape, start_idx=None):
+    def __init__(self, dataset, preprocess_idx, cropped_shape, start_idx=None):
         super(CropWrapper, self).__init__(dataset)
 
         self.cropped_shape = cropped_shape
 
-        if not isinstance(augment_idx, collections.Iterable):
-            augment_idx = (augment_idx,)
-        self.augment_idx = augment_idx
+        if not isinstance(preprocess_idx, collections.Iterable):
+            preprocess_idx = (preprocess_idx,)
+        self.preprocess_idx = preprocess_idx
 
         self.start_idx = start_idx
 
@@ -46,7 +46,7 @@ class CropWrapper(DatasetWrapper):
 
         """
         out_data = list(in_data)
-        for idx in self.augment_idx:
+        for idx in self.preprocess_idx:
             img = in_data[idx]
             shape = img.shape
             slices = []
