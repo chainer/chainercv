@@ -6,4 +6,5 @@ dependencies:
   - scikit-image
   - scipy
   - pip:
+    - fire
     - chainer
