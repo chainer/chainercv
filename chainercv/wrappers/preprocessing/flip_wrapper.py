@@ -12,7 +12,8 @@ class FlipWrapper(DatasetWrapper):
     Args:
         dataset: a dataset or a wrapper that this wraps.
         preprocess_idx (int or list of ints): this wrapper will augment k-th
-            output of wrapped dataset's get_example if k is in `preprocess_idx`.
+            output of wrapped dataset's get_example if k is in
+            `preprocess_idx`.
         orientation ({'h', 'v', 'both'}): chooses whether to mirror
             horizontally or vertically.
         hook (callable or `None`): The callable takes `out_data`,

@@ -15,7 +15,8 @@ class CropWrapper(DatasetWrapper):
     Args:
         dataset: a dataset or a wrapper that this wraps.
         preprocess_idx (int or list of ints): this wrapper will augment k-th
-            output of wrapped dataset's get_example if k is in `preprocess_idx`.
+            output of wrapped dataset's get_example if k is
+            in `preprocess_idx`.
         cropped_shape (tuple of ints): shape of data after cropping.
         start_idx (tuple of ints): If this is None, this wrapper randomly
             crops images.
