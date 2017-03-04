@@ -1,13 +1,13 @@
 import copy
 import numpy as np
-import os.path as osp
+import os
 from skimage.color import gray2rgb
 from skimage.io import imread
-import zipfile
 
 import chainer
 from chainer.dataset import download
 
+from chainercv import utils
 from chainercv.wrappers import KeepSubsetWrapper
 
 
@@ -17,15 +17,14 @@ url = 'ftp://cs.stanford.edu/cs/cvgl/Stanford_Online_Products.zip'
 
 def _get_online_products():
     data_root = download.get_dataset_directory(root)
-    base_path = osp.join(data_root, 'Stanford_Online_Products')
-    if osp.exists(base_path):
+    base_path = os.path.join(data_root, 'Stanford_Online_Products')
+    if os.path.exists(base_path):
         # skip downloading
         return base_path
 
-    download_file_path = download.cached_download(url)
-
-    with zipfile.ZipFile(download_file_path, 'r') as z:
-        z.extractall(data_root)
+    download_file_path = utils.cached_download(url)
+    ext = os.path.splitext(url)[1]
+    utils.extractall(download_file_path, data_root, ext)
     return base_path
 
 
@@ -54,11 +53,11 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         self.super_class_ids = []
         self.paths = []
         for mode in ['train', 'test']:
-            id_list_file = osp.join(data_dir, 'Ebay_{}.txt'.format(mode))
+            id_list_file = os.path.join(data_dir, 'Ebay_{}.txt'.format(mode))
             ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
             self.class_ids += [int(id_[1]) for id_ in ids_tmp]
             self.super_class_ids += [int(id_[2]) for id_ in ids_tmp]
-            self.paths += [osp.join(data_dir, id_[3]) for id_ in ids_tmp]
+            self.paths += [os.path.join(data_dir, id_[3]) for id_ in ids_tmp]
 
         self.class_ids_dict = self._list_to_dict(self.class_ids)
         self.super_class_ids_dict = self._list_to_dict(self.super_class_ids)
