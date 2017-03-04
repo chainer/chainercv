@@ -1,4 +1,4 @@
-import argparse
+import fire
 import numpy as np
 
 import chainer
@@ -18,22 +18,7 @@ from faster_rcnn import FasterRCNN
 from updater import ParallelUpdater
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('-g', '--gpu', type=int, default=-1)
-    parser.add_argument('-e', '--epoch', type=int, default=100)
-    parser.add_argument('-ba', '--batch-size', type=int, default=1)
-    parser.add_argument('-l', '--lr', type=float, default=5e-4)
-    parser.add_argument('-o', '--out', type=str, default='result')
-
-    args = parser.parse_args()
-    epoch = args.epoch
-    gpu = args.gpu
-    batch_size = args.batch_size
-    lr = args.lr
-    out = args.out
-
+def main(gpu=-1, epoch=100, batch_size=1, lr=5e-4, out='result'):
     train_data = VOCDetectionDataset(mode='train', use_cache=True, year='2007')
     test_data = VOCDetectionDataset(mode='val', use_cache=True, year='2007')
 
@@ -128,3 +113,7 @@ if __name__ == '__main__':
     trainer.extend(extensions.dump_graph('main/loss'))
 
     trainer.run()
+
+
+if __name__ == '__main__':
+    fire.Fire(main)

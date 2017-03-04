@@ -1,4 +1,4 @@
-import argparse
+import fire
 import os.path as osp
 
 import chainer
@@ -14,25 +14,8 @@ from chainercv.wrappers import SubtractWrapper
 from fcn32s import FCN32s
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('-g', '--gpu', type=int, default=-1)
-    parser.add_argument('--resume', '-res', default='',
-                        help='Resume the training from snapshot')
-    parser.add_argument('-it', '--iterations', type=int, default=100000)
-    parser.add_argument('-ba', '--batch-size', type=int, default=1)
-    parser.add_argument('-l', '--lr', type=float, default=1e-10)
-    parser.add_argument('-o', '--out', type=str, default='result')
-
-    args = parser.parse_args()
-    gpu = args.gpu
-    batch_size = args.batch_size
-    iterations = args.iterations
-    resume = args.resume
-    lr = args.lr
-    out = args.out
-
+def main(gpu=-1, batch_size=1, iterations=100000,
+         lr=1e-10, out='result', resume=''):
     # prepare datasets
     wrappers = [lambda d: SubtractWrapper(d),
                 lambda d: PadWrapper(
@@ -125,3 +108,7 @@ if __name__ == '__main__':
         chainer.serializers.load_npz(osp.expanduser(resume), trainer)
 
     trainer.run()
+
+
+if __name__ == '__main__':
+    fire.Fire(main)

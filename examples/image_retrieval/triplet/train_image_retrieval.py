@@ -1,4 +1,4 @@
-import argparse
+import fire
 import os.path as osp
 
 import chainer
@@ -17,25 +17,8 @@ from deep_metric_triplet_loss import TripletLossIterator
 from deep_metric_triplet_loss import TripletLossUpdater
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('-g', '--gpu', type=int, default=-1)
-    parser.add_argument('--resume', '-res', default='',
-                        help='Resume the training from snapshot')
-    parser.add_argument('-ne', '--epochs', type=int, default=20000)
-    parser.add_argument('-ba', '--batch-size', type=int, default=120)
-    parser.add_argument('-l', '--lr', type=float, default=1e-10)
-    parser.add_argument('-o', '--out', type=str, default='result')
-
-    args = parser.parse_args()
-    gpu = args.gpu
-    batch_size = args.batch_size
-    epochs = args.epochs
-    resume = args.resume
-    lr = args.lr
-    out = args.out
-
+def main(gpu=-1, batch_size=120, epochs=20000, resume='',
+         lr=1e-10, out='result'):
     train_data, test_data = get_online_products(
         test_classes=range(20000, 20040))
     wrappers = [lambda d: SubtractWrapper(d, value=122.5),
@@ -98,3 +81,7 @@ if __name__ == '__main__':
         chainer.serializers.load_npz(osp.expanduser(resume), trainer)
 
     trainer.run()
+
+
+if __name__ == '__main__':
+    fire.Fire(main)
