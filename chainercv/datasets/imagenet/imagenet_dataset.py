@@ -190,6 +190,13 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
         img = img.transpose(2, 0, 1).astype(np.float32)
         return img
 
+    def get_raw_data(self, i):
+        img = imread(self.fns[i])
+        if img.ndim == 2:
+            img = gray2rgb(img)
+        label = self.labels[i]
+        return img, label
+
 
 if __name__ == '__main__':
     urls = {
