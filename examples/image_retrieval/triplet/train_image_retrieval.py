@@ -5,12 +5,12 @@ import chainer
 from chainer import training
 from chainer.training import extensions
 
-from chainer_cv.datasets import get_online_products
-from chainer_cv.extensions import EmbedImages
-from chainer_cv.extensions import MeasureKRetrieval
-from chainer_cv.wrappers import CropWrapper
-from chainer_cv.wrappers import ResizeWrapper
-from chainer_cv.wrappers import SubtractWrapper
+from chainercv.datasets import get_online_products
+from chainercv.extensions import EmbedImages
+from chainercv.extensions import MeasureKRetrieval
+from chainercv.wrappers import CropWrapper
+from chainercv.wrappers import ResizeWrapper
+from chainercv.wrappers import SubtractWrapper
 
 from deep_metric_triplet_loss import TripletLossEmbedding
 from deep_metric_triplet_loss import TripletLossIterator

@@ -6,7 +6,7 @@ import chainer.functions as F
 import chainer.links as L
 from chainer import reporter
 
-from chainer_cv.models import GoogLeNet
+from chainercv.models import GoogLeNet
 
 
 class TripletLossEmbedding(chainer.Chain):

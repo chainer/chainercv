@@ -5,11 +5,11 @@ import chainer
 from chainer import training
 from chainer.training import extensions
 
-from chainer_cv.datasets import VOCSemanticSegmentationDataset
-from chainer_cv.extensions import SemanticSegmentationVisReport
-from chainer_cv.training.test_mode_evaluator import TestModeEvaluator
-from chainer_cv.wrappers import PadWrapper
-from chainer_cv.wrappers import SubtractWrapper
+from chainercv.datasets import VOCSemanticSegmentationDataset
+from chainercv.extensions import SemanticSegmentationVisReport
+from chainercv.training.test_mode_evaluator import TestModeEvaluator
+from chainercv.wrappers import PadWrapper
+from chainercv.wrappers import SubtractWrapper
 
 from fcn32s import FCN32s
 

@@ -3,12 +3,12 @@ import numpy as np
 
 import chainer
 
-from chainer_cv.datasets import VOCDetectionDataset
-from chainer_cv.extensions import DetectionVisReport
-from chainer_cv.wrappers import bbox_resize_hook
-from chainer_cv.wrappers import SubtractWrapper
-from chainer_cv.wrappers import ResizeWrapper
-from chainer_cv.wrappers import output_shape_soft_min_hard_max
+from chainercv.datasets import VOCDetectionDataset
+from chainercv.extensions import DetectionVisReport
+from chainercv.wrappers import bbox_resize_hook
+from chainercv.wrappers import SubtractWrapper
+from chainercv.wrappers import ResizeWrapper
+from chainercv.wrappers import output_shape_soft_min_hard_max
 
 from faster_rcnn import FasterRCNN
 

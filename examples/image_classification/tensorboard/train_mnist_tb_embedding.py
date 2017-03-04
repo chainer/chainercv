@@ -10,8 +10,8 @@ import chainer.links as L
 from chainer import training
 from chainer.training import extensions
 
-from chainer_cv.extensions import EmbedImages
-from chainer_cv.external import embedding_tensorboard
+from chainercv.extensions import EmbedImages
+from chainercv.external import embedding_tensorboard
 
 
 # Network definition
