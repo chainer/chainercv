@@ -1,5 +1,4 @@
-import os.path as osp
-import tarfile
+import os
 
 from chainer.dataset import download
 
@@ -20,15 +19,14 @@ def get_pascal_voc(year):
         raise ValueError
 
     data_root = download.get_dataset_directory(root)
-    base_path = osp.join(data_root, 'VOCdevkit/VOC{}'.format(year))
-    if osp.exists(base_path):
+    base_path = os.path.join(data_root, 'VOCdevkit/VOC{}'.format(year))
+    if os.path.exists(base_path):
         # skip downloading
         return base_path
 
     download_file_path = utils.cached_download(urls[year])
-
-    with tarfile.TarFile(download_file_path, 'r') as t:
-        t.extractall(data_root)
+    ext = os.path.splitext(urls[year])[1]
+    utils.extractall(download_file_path, data_root, ext)
     return base_path
 
 

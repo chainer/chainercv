@@ -1,8 +1,7 @@
 import numpy as np
-import os.path as osp
+import os
 import pickle
 from skimage.io import imread
-import zipfile
 
 import chainer
 from chainer.dataset import download
@@ -20,16 +19,15 @@ urls = [
 
 def get_unite_the_people():
     data_root = download.get_dataset_directory(root)
-    base_path = osp.join(data_root, 'up-3d')
-    if osp.exists(base_path):
+    base_path = os.path.join(data_root, 'up-3d')
+    if os.path.exists(base_path):
         # skip downloading
         return base_path
 
     for url in urls:
         download_file_path = utils.cached_download(url)
-
-        with zipfile.ZipFile(download_file_path, 'r') as z:
-            z.extractall(data_root)
+        ext = os.path.splitext(url)[1]
+        utils.extractall(download_file_path, data_root, ext)
     return base_path
 
 
@@ -53,11 +51,11 @@ class UniteThePeopleDataset(chainer.dataset.DatasetMixin):
         if mode not in ['train', 'trainval', 'val', 'test']:
             raise ValueError('invalid mode')
 
-        images_file = osp.join(self.data_dir, mode + '.txt')
+        images_file = os.path.join(self.data_dir, mode + '.txt')
 
         # fn is something like `/00000_image.png`.
         self.ids = [fn.split()[0][1:6] for fn in open(images_file)]
-        files_prefixes = [osp.join(self.data_dir, id_) for id_ in self.ids]
+        files_prefixes = [os.path.join(self.data_dir, id_) for id_ in self.ids]
         self.images = [id_ + '_image.png' for id_ in files_prefixes]
         self.joints = [id_ + '_joints.npy' for id_ in files_prefixes]
         self.render_light_images =\

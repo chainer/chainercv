@@ -1,14 +1,12 @@
 import numpy as np
 import os
-import os.path as osp
 from skimage.io import imread
-import zipfile
 
 import chainer
 from chainer.dataset import download
 
 from chainercv.tasks.optical_flow import flow2verts
-from chainercv.utils.download import cached_download
+from chainercv import utils
 
 
 root = 'pfnet/chainercv/sintel'
@@ -17,14 +15,13 @@ url = 'http://files.is.tue.mpg.de/sintel/MPI-Sintel-complete.zip'
 
 def _get_sintel():
     data_root = download.get_dataset_directory(root)
-    if osp.exists(osp.join(data_root, 'training')):
+    if os.path.exists(os.path.join(data_root, 'training')):
         # skip downloading
         return data_root
 
-    download_file_path = cached_download(url)
-
-    with zipfile.ZipFile(download_file_path, 'r') as z:
-        z.extractall(data_root)
+    download_file_path = utils.cached_download(url)
+    ext = os.path.splitext(download_file_path)[1]
+    utils.extractall(download_file_path, data_root, ext)
     return data_root
 
 
@@ -61,7 +58,7 @@ class SintelDataset(chainer.dataset.DatasetMixin):
     def __init__(self, data_dir='auto', mode='flow'):
         if data_dir == 'auto':
             data_root = _get_sintel()
-            data_dir = osp.join(data_root, 'training')
+            data_dir = os.path.join(data_root, 'training')
         self.data_dir = data_dir
         self.paths = self._collect_data(data_dir)
         self.keys = self.paths.keys()
@@ -73,21 +70,21 @@ class SintelDataset(chainer.dataset.DatasetMixin):
 
     def _collect_data(self, data_dir):
         paths = {}
-        flow_dir = osp.join(data_dir, 'flow')
+        flow_dir = os.path.join(data_dir, 'flow')
         for root, dirs, files in os.walk(flow_dir, topdown=False):
             for file_ in files:
-                if osp.splitext(file_)[1] == '.flo':
-                    dir_name = osp.split(root)[1]
+                if os.path.splitext(file_)[1] == '.flo':
+                    dir_name = os.path.split(root)[1]
                     frame_number = int(file_[-8:-4])
                     frame_string = 'frame_{0:04d}.png'.format(frame_number)
                     next_frame_string =\
                         'frame_{0:04d}.png'.format(frame_number + 1)
                     key = '{0}_frame_{1:04d}'.format(dir_name, frame_number)
                     paths[key] = {
-                        'flow': osp.join(root, file_),
-                        'src_img': osp.join(
+                        'flow': os.path.join(root, file_),
+                        'src_img': os.path.join(
                             data_dir, 'clean', dir_name, frame_string),
-                        'dst_img': osp.join(
+                        'dst_img': os.path.join(
                             data_dir, 'clean', dir_name, next_frame_string)}
         return paths
 

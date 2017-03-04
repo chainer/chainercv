@@ -1,8 +1,6 @@
 import glob
 import numpy as np
 import os
-import os.path as osp
-import pickle
 from skimage.io import imread
 import warnings
 import xml.etree.ElementTree as ET
@@ -44,7 +42,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             warnings.warn(
                 'please pick mode from \'train\', \'trainval\', \'val\'')
 
-        id_list_file = osp.join(
+        id_list_file = os.path.join(
             data_dir, 'ImageSets/Main/{0}.txt'.format(mode))
 
         self.ids = [id_.strip() for id_ in open(id_list_file)]
@@ -56,7 +54,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         # cache objects
         data_root = download.get_dataset_directory(voc_utils.root)
 
-        pkl_file = osp.join(
+        pkl_file = os.path.join(
             data_root, 'detection_objects_{}_{}.pkl'.format(year, mode))
         self.objects = cache_load(
             pkl_file, self._collect_objects, delete_cache,
@@ -65,11 +63,11 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     def _collect_objects(self, data_dir, ids, use_difficult):
         objects = {}
-        anno_dir = osp.join(data_dir, 'Annotations')
+        anno_dir = os.path.join(data_dir, 'Annotations')
         for fn in glob.glob('{}/*.xml'.format(anno_dir)):
             tree = ET.parse(fn)
             filename = tree.find('filename').text
-            img_id = osp.splitext(filename)[0]
+            img_id = os.path.splitext(filename)[0]
             # skip annotation that is not included in ids
             if img_id not in ids:
                 continue
@@ -164,7 +162,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         bboxes = np.stack(bboxes)
 
         # Load a image
-        img_file = osp.join(self.data_dir, 'JPEGImages', obj['filename'])
+        img_file = os.path.join(self.data_dir, 'JPEGImages', obj['filename'])
         img = imread(img_file)  # RGB
         return img, bboxes
 
