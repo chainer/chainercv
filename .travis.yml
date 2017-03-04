@@ -21,7 +21,7 @@ install:
   - conda info -a
 
   - conda env create -f environment.yml
-  - source activate chainer_cv
+  - source activate chainercv
   - pip install -e .
 
 script:
