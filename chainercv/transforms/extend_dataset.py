@@ -3,16 +3,16 @@ import shelve
 import tempfile
 
 
-def extend(dataset, transform, method_name='get_example'):
+def extend(dataset, transform, method_name='__getitem__'):
     method = getattr(dataset, method_name)
 
-    def _extended(*args, **kwargs):
-        in_data = method(*args, **kwargs)
+    def _extended(self, i):
+        in_data = method(self, i)
         return transform(in_data)
     setattr(dataset, method_name, _extended)
 
 
-def extend_cache(dataset, transform, method_name='get_example'):
+def extend_cache(dataset, transform, method_name='__getitem__'):
     filename = os.path.join(tempfile.mkdtemp(), 'cache.db')
     cache = shelve.open(filename, protocol=2)
 

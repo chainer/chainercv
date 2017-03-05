@@ -8,7 +8,6 @@ import chainer
 from chainer.dataset import download
 
 from chainercv import utils
-from chainercv.wrappers import KeepSubsetWrapper
 
 
 root = 'pfnet/chainercv/online_products'
