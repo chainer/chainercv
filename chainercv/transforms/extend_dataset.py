@@ -42,7 +42,7 @@ def extend(dataset, transform, method_name='get_example'):
         >>> dataset = VOCSemanticSegmentationDataset()
         >>> def transform(in_data):
         >>>     img, label = in_data
-        >>>     in_data = random_crop(in_data, (None, 256, 256))
+        >>>     img, label = random_crop((img, label), (None, 256, 256))
         >>>     img -= 122.5
         >>>     return img, label
         >>> extend(dataset, transform, method_name='get_example')
