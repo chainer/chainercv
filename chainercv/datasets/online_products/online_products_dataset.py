@@ -8,7 +8,6 @@ import chainer
 from chainer.dataset import download
 
 from chainercv import utils
-from chainercv.wrappers import KeepSubsetWrapper
 
 
 root = 'pfnet/chainercv/online_products'
@@ -35,16 +34,25 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     .. _`Stanford Online Products Dataset`:
         http://cvgl.stanford.edu/projects/lifted_struct
 
+    The :obj:`mode` selects train and test split of the dataset as done in
+    [Song]. The train split contains the first 11318 classes and the test
+    split contains the remaining 11316 classes.
+
+    .. [Song] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
+        Deep Metric Learning via Lifted Structured Feature Embedding.
+        https://arxiv.org/abs/1511.06452.
+
     All returned images are in RGB format.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
             ``auto``, this class will automatically download data for you
             under ``$CHAINER_DATASET_ROOT/pfnet/chainercv/online_products``.
+        mode ({'train', 'test'}): Mode of the dataset.
 
     """
 
-    def __init__(self, data_dir='auto'):
+    def __init__(self, data_dir='auto', mode='train'):
         if data_dir == 'auto':
             data_dir = _get_online_products()
         self.data_dir = data_dir
@@ -52,12 +60,12 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         self.class_ids = []
         self.super_class_ids = []
         self.paths = []
-        for mode in ['train', 'test']:
-            id_list_file = os.path.join(data_dir, 'Ebay_{}.txt'.format(mode))
-            ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
-            self.class_ids += [int(id_[1]) for id_ in ids_tmp]
-            self.super_class_ids += [int(id_[2]) for id_ in ids_tmp]
-            self.paths += [os.path.join(data_dir, id_[3]) for id_ in ids_tmp]
+        # for mode in ['train', 'test']:
+        id_list_file = os.path.join(data_dir, 'Ebay_{}.txt'.format(mode))
+        ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
+        self.class_ids += [int(id_[1]) for id_ in ids_tmp]
+        self.super_class_ids += [int(id_[2]) for id_ in ids_tmp]
+        self.paths += [os.path.join(data_dir, id_[3]) for id_ in ids_tmp]
 
         self.class_ids_dict = self._list_to_dict(self.class_ids)
         self.super_class_ids_dict = self._list_to_dict(self.super_class_ids)
@@ -125,58 +133,5 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         return copy.copy(self.class_ids_dict[class_id])
 
 
-def get_online_products(data_dir='auto',
-                        train_classes=None, test_classes=None):
-    """Gets the `Stanford Online Products Dataset`_.
-
-    This method returns train and test split of Online Products Dataset.
-    It uses the first 11318 classes for training and remaining 11316 classes
-    for testing.
-
-    .. _`Stanford Online Products Dataset`:
-        http://cvgl.stanford.edu/projects/lifted_struct
-
-    Args:
-        data_dir (string): Path to the root of the training data. If this is
-            ``auto``, this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/pfnet/chainercv/online_products``.
-        train_classes (list of int): The train dataset will contain images
-            whose class ids are included in ``train_classes``. If this is
-            ``None``, the first 11318 classes are used as done in [Song].
-        test_classes (list of int): The test dataset will contain images
-            whose class ids are included in ``test_classes``. If this is
-            ``None``, the last 11316 classes are used as done in [Song].
-
-    .. [Song] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
-        Deep Metric Learning via Lifted Structured Feature Embedding.
-        https://arxiv.org/abs/1511.06452.
-
-    Returns:
-        A tuple of two datasets
-        :class:`chainercv.datasets.image_retrieval.OnlineProductsDataset` which
-        are wrapped by :class:`chainercv.wrappers.KeepSubsetWrapper`.
-        The first dataset is for training and the second is for testing.
-
-    """
-    if train_classes is None:
-        train_classes = range(1, 11319)
-    if test_classes is None:
-        test_classes = range(11319, 22634 + 1)
-    dataset = OnlineProductsDataset(data_dir)
-
-    train_ids = []
-    for i in train_classes:
-        train_ids += dataset.get_ids(i)
-    test_ids = []
-    for i in test_classes:
-        test_ids += dataset.get_ids(i)
-
-    train_dataset = KeepSubsetWrapper(
-        dataset, train_ids, wrapped_func_names=['get_example', 'get_raw_data'])
-    test_dataset = KeepSubsetWrapper(
-        dataset, test_ids, wrapped_func_names=['get_example', 'get_raw_data'])
-    return train_dataset, test_dataset
-
-
 if __name__ == '__main__':
-    train, test = get_online_products()
+    dataset = OnlineProductsDataset(mode='test')

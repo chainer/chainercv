@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 import chainer
 from chainer.dataset import download
 
-import voc_utils
+from chainercv.datasets.pascal_voc import voc_utils
 from chainercv.utils.dataset_utils import cache_load
 
 
