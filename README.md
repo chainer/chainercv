@@ -40,18 +40,20 @@ Also, `extend` is a function that decorates a dataset to transform the output of
 `VOCSemanticSegmentationDataset` is a dataset class that automatically downloads and prepares PASCAL VOC data used for
 semantic segmentation tasks. Note that this example takes some time to download PASCAL VOC before starting.
 
-```
->>> from chainercv.datasets import VOCSemanticSegmentationDataset
->>> from chainercv.transforms import extend
->>> from chainercv.transforms import random_crop
->>> dataset = VOCSemanticSegmentationDataset()
->>> def transform(in_data):
->>>     img, label = in_data
->>>     in_data = random_crop(in_data, (None, 256, 256))
->>>     img -= 122.5
->>>     return img, label
->>> extend(dataset, transform, method_name='get_example')
->>> img, label = dataset.get_example(0)
+```python
+from chainercv.datasets import VOCSemanticSegmentationDataset
+from chainercv.transforms import extend
+from chainercv.transforms import random_crop
+
+dataset = VOCSemanticSegmentationDataset()
+
+def transform(in_data):
+    img, label = in_data
+    in_data = random_crop(in_data, (None, 256, 256))
+    img -= 122.5
+    return img, label
+extend(dataset, transform, method_name='get_example')
+img, label = dataset.get_example(0)
 ```
 
 
