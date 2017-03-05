@@ -14,9 +14,9 @@ def random_crop(xs, output_shape, return_slices=False):
             is included in the tuple, that dimension will not be cropped.
 
     Returns:
-        tuple of arrays or an array: If the input ``xs`` is tuple or list,
-            this is a tuple. If ``xs`` is an numpy.ndarray, numpy.ndarray
-            will be returned.
+        If the input ``xs`` is tuple or list,
+        this is a tuple. If ``xs`` is an numpy.ndarray, numpy.ndarray
+        will be returned.
 
     """
     force_array = False

@@ -1,18 +1,34 @@
 import random
 
 
-def random_flip(xs, orientation='h', return_flip=False):
+def random_flip(xs, horizontal_flip=False, vertical_flip=False,
+                return_flip=False):
+    """Randomly flip images in vertical or horizontal direction.
+
+    Args:
+        xs (tuple or list of arrays or an numpy.ndarray): Arrays that
+            are flipped.
+        horizontal_flip (bool): randomly flip in horizontal direction.
+        vertical_flip (bool): randomly flip in vertical direction.
+        return_flip (bool): returns information of flip.
+
+    Returns:
+        Transformed :obj:`xs` and information about flip.
+        If :obj:`return_flip` is False, information about flip will not be
+        returned. The information is a dictionary with key :obj:`h` and
+        :obj:`v` whose values are boolean. The bools contain whether the
+        images were flipped along the corresponding orientation.
+
+    """
     force_array = False
     if not isinstance(xs, tuple):
         xs = (xs,)
         force_array = True
-    if not isinstance(orientation, list):
-        orientation = [orientation]
 
     h_flip, v_flip = False, False
-    if 'h' in orientation:
+    if horizontal_flip:
         h_flip = random.choice([True, False])
-    if 'v' in orientation:
+    if vertical_flip:
         v_flip = random.choice([True, False])
 
     outs = []
