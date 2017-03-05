@@ -26,19 +26,14 @@ pip install chainercv
 # Transforms
 
 ChainerCV supports functions commonly used to prepare image data before feeding to neural networks.
-We expect users to use these functions together with datasets of `chainer.dataset.DatasetMixin`.
+We expect users to use these functions together with instantiations of `chainer.dataset.DatasetMixin`.
 Many of the datasets prepared in ChainerCV are very thin wrappers around raw datasets in the filesystem, and
-the transforms work best with such thin datasets classes.
+the transforms work best with such thin dataset classes.
 The users can create a custom preprocessing pipeline by defining a function that describes
 procedures to transform data using full functionality of Python language.
 
 Here is an example where the user pad images to the given shape and subtract a constant from one of the images.
 This is a real example that is used to preprocess images before training a neural network for Semantic Segmentation.
-As found in the example, `random_crop` is one of the transforms ChainerCV supports. Like other transforms, this is just a
-function that takes arrays as input.
-Also, `extend` is a function that decorates a dataset to transform the output of the method `get_example`.
-`VOCSemanticSegmentationDataset` is a dataset class that automatically downloads and prepares PASCAL VOC data used for
-semantic segmentation tasks. Note that this example takes some time to download PASCAL VOC before starting.
 
 ```python
 from chainercv.datasets import VOCSemanticSegmentationDataset
@@ -55,6 +50,12 @@ def transform(in_data):
 extend(dataset, transform, method_name='get_example')
 img, label = dataset.get_example(0)
 ```
+
+As found in the example, `random_crop` is one of the transforms ChainerCV supports. Like other transforms, this is just a
+function that takes arrays as input.
+Also, `extend` is a function that decorates a dataset to transform the output of the method `get_example`.
+`VOCSemanticSegmentationDataset` is a dataset class that automatically downloads and prepares PASCAL VOC data used for
+semantic segmentation tasks. Note that this example takes some time to download PASCAL VOC before starting.
 
 
 # Automatic Download
