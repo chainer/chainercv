@@ -19,6 +19,10 @@ extend_cache
 Preprocessing
 -------------
 
+pad
+~~~
+.. autofunction:: pad
+
 random_crop
 ~~~~~~~~~~~
 .. autofunction:: random_crop
@@ -26,10 +30,6 @@ random_crop
 random_flip
 ~~~~~~~~~~~
 .. autofunction:: random_flip
-
-pad
-~~~
-.. autofunction:: pad
 
 resize
 ~~~~~~
