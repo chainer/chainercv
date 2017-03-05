@@ -16,8 +16,8 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
-            ``auto``, this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc``.
+            :obj:`auto`, this class will automatically download data for you
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc`.
         mode ({'train', 'val', 'trainval'}): select from dataset splits used
             in VOC.
         year ({'2007', '2012'}): use a dataset prepared for a challenge

@@ -35,7 +35,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         http://cvgl.stanford.edu/projects/lifted_struct
 
     The :obj:`mode` selects train and test split of the dataset as done in
-    [Song]. The train split contains the first 11318 classes and the test
+    [Song]_. The train split contains the first 11318 classes and the test
     split contains the remaining 11316 classes.
 
     .. [Song] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
@@ -46,8 +46,8 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
-            ``auto``, this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/pfnet/chainercv/online_products``.
+            :obj:`auto`, this class will automatically download data for you
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/online_products`.
         mode ({'train', 'test'}): Mode of the dataset.
 
     """

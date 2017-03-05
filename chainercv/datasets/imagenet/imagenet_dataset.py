@@ -1,8 +1,8 @@
 import numpy as np
 import os
 from scipy.io import loadmat
-from skimage.io import imread
 from skimage.color import gray2rgb
+from skimage.io import imread
 import tarfile
 
 import chainer
