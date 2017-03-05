@@ -1,4 +1,5 @@
 import fire
+import numpy as np
 import os.path as osp
 
 import chainer
@@ -7,8 +8,8 @@ from chainer.training import extensions
 
 from chainercv.datasets import VOCSemanticSegmentationDataset
 from chainercv.extensions import SemanticSegmentationVisReport
-from chainercv.wrappers import PadWrapper
-from chainercv.wrappers import SubtractWrapper
+from chainercv.transforms import pad
+from chainercv.transforms import extend
 
 from fcn32s import FCN32s
 
@@ -26,15 +27,19 @@ class TestModeEvaluator(extensions.Evaluator):
 def main(gpu=-1, batch_size=1, iterations=100000,
          lr=1e-10, out='result', resume=''):
     # prepare datasets
-    wrappers = [lambda d: SubtractWrapper(d),
-                lambda d: PadWrapper(
-                    d, max_size=(512, 512), preprocess_idx=[0, 1],
-                    bg_values={0: 0, 1: -1})]
+    def transform(in_data):
+        img, label = in_data
+        vgg_subtract_bgr = np.array(
+            [103.939, 116.779, 123.68], np.float32)[:, None, None]
+        img -= vgg_subtract_bgr
+        img = pad(img, max_size=(512, 512), bg_value=0)
+        label = pad(label, max_size=(512, 512), bg_value=-1)
+        return img, label
+
     train_data = VOCSemanticSegmentationDataset(mode='train')
     test_data = VOCSemanticSegmentationDataset(mode='val')
-    for wrapper in wrappers:
-        train_data = wrapper(train_data)
-        test_data = wrapper(test_data)
+    extend(train_data, transform)
+    extend(test_data, transform)
 
     # set up FCN32s
     n_class = 21
