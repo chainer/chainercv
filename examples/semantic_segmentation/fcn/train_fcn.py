@@ -7,11 +7,20 @@ from chainer.training import extensions
 
 from chainercv.datasets import VOCSemanticSegmentationDataset
 from chainercv.extensions import SemanticSegmentationVisReport
-from chainercv.training.test_mode_evaluator import TestModeEvaluator
 from chainercv.wrappers import PadWrapper
 from chainercv.wrappers import SubtractWrapper
 
 from fcn32s import FCN32s
+
+
+class TestModeEvaluator(extensions.Evaluator):
+
+    def evaluate(self):
+        model = self.get_target('main')
+        model.train = False
+        ret = super(TestModeEvaluator, self).evaluate()
+        model.train = True
+        return ret
 
 
 def main(gpu=-1, batch_size=1, iterations=100000,
