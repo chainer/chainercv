@@ -18,9 +18,14 @@ You can find the documentation [here](http://chainercv.readthedocs.io/en/latest/
 
 # Installation
 
+ChainerCV is built on top of [Chainer](https://github.com/pfnet/chainer).
+Following command will install ChainerCV as well as some dependencies.
+
 ```
 pip install chainercv
 ```
+
+Please install [Scikit-Image](http://scikit-image.org/) separately if you have not installed it already.
 
 
 # Features
