@@ -23,7 +23,9 @@ pip install chainercv
 ```
 
 
-# Transforms
+# Features
+
+## Transforms
 
 ChainerCV supports functions commonly used to prepare image data before feeding to neural networks.
 We expect users to use these functions together with instantiations of `chainer.dataset.DatasetMixin`.
