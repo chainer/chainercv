@@ -16,8 +16,20 @@ extend_cache
 .. autofunction:: extend_cache
 
 
-Preprocessing
--------------
+Image
+-----
+
+chw_to_pil_image
+~~~~~~~~~~~~~~~~
+.. autofunction:: chw_to_pil_image
+
+chw_to_pil_image_tuple
+~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: chw_to_pil_image_tuple
+
+pad
+~~~
+.. autofunction:: pad
 
 random_crop
 ~~~~~~~~~~~
@@ -27,10 +39,26 @@ random_flip
 ~~~~~~~~~~~
 .. autofunction:: random_flip
 
-pad
-~~~
-.. autofunction:: pad
-
 resize
 ~~~~~~
 .. autofunction:: resize
+
+
+Bounding Box
+------------
+
+flip_bbox
+~~~~~~~~~
+.. autofunction:: flip_bbox
+
+resize_bbox
+~~~~~~~~~~~
+.. autofunction:: resize_bbox
+
+
+Keypoint
+--------
+
+resize_keypoint
+~~~~~~~~~~~~~~~
+.. autofunction:: resize_keypoint

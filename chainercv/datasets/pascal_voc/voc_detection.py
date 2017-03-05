@@ -1,7 +1,6 @@
 import glob
 import numpy as np
 import os
-from skimage.io import imread
 import warnings
 import xml.etree.ElementTree as ET
 
@@ -10,23 +9,37 @@ from chainer.dataset import download
 
 from chainercv.datasets.pascal_voc import voc_utils
 from chainercv.utils.dataset_utils import cache_load
+from chainercv.utils import read_image_as_array
 
 
 class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
-    """Dataset class for the detection task of Pascal `VOC2012`_.
+    """Dataset class for the detection task of PASCAL `VOC`_.
 
-    .. _`VOC2012`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
+    .. _`VOC`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
     The index corresponds to each image.
 
+    The boundig boxes are a
+    collection of length 5 arrays. Each array contains values
+    organized as (x_min, y_min, x_max, y_max, label_id).
+    The number of bounding box is equal to the number of objects
+    in the image.
+
     Args:
         data_dir (string): Path to the root of the training data. If this is
-            ``auto``, this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc``.
-        use_difficult (bool)
-        bgr (bool): If true, :meth:`VOCDetectionDataset.get_example` will
-            return an image in BGR format.
+            :obj:`auto`, this class will automatically download data for you
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc`.
+        mode ({'train', 'val', 'trainval'}): select from dataset splits used
+            in VOC.
+        year ({'2007', '2012'}): use a dataset prepared for a challenge
+            held in :obj:`year`.
+        use_difficult (bool): If true, use images that are labeled as
+            difficult in the original annotation.
+        use_cache (bool): If true, use cache of object annotations. This
+            is useful in the case when parsing annotation takes time.
+            When this is false, the dataset will not write cache.
+        delete_cache (bool): Delete the cache described above.
 
     """
 
@@ -34,7 +47,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     def __init__(self, data_dir='auto', mode='train', year='2012',
                  use_difficult=False,
-                 bgr=True, use_cache=False, delete_cache=False):
+                 use_cache=False, delete_cache=False):
         if data_dir == 'auto' and year in voc_utils.urls:
             data_dir = voc_utils.get_pascal_voc(year)
 
@@ -49,7 +62,6 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         self.data_dir = data_dir
         self.use_difficult = use_difficult
-        self.bgr = bgr
 
         # cache objects
         data_root = download.get_dataset_directory(voc_utils.root)
@@ -106,13 +118,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         """Returns the i-th example.
 
         Returns a color image and bounding boxes. The image is in CHW format.
-        If `self.bgr` is True, the image is in BGR. If not, it is in RGB.
-
-        The boundig boxes are a
-        collection of length 5 arrays. Each array contains values
-        organized as (x_min, y_min, x_max, y_max, label_id).
-        The number of bounding box is equal to the number of objects
-        int the image.
+        The returned image is BGR.
 
         Args:
             i (int): The index of the example.
@@ -125,25 +131,19 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             raise IndexError('index is too large')
         img, bboxes = self.get_raw_data(i)
 
-        if self.bgr:
-            img = img[:, :, ::-1]
+        img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
         return img, bboxes
 
-    def get_raw_data(self, i):
+    def get_raw_data(self, i, rgb=True):
         """Returns the i-th example.
 
         This returns a color image and bounding boxes.
         The color image has shape (H, W, 3).
 
-        The color image that is returned is in RGB. The boundig boxes are a
-        collection of length 5 arrays. Each array contains values
-        organized as (x_min, y_min, x_max, y_max, label_id).
-        The number of bounding box is equal to the number of objects
-        int the image.
-
         Args:
             i (int): The index of the example.
+            rgb (bool): If false, the returned image will be in BGR.
 
         Returns:
             i-th example (image, bbox)
@@ -163,7 +163,9 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         # Load a image
         img_file = os.path.join(self.data_dir, 'JPEGImages', obj['filename'])
-        img = imread(img_file)  # RGB
+        img = read_image_as_array(img_file)  # RGB
+        if not rgb:
+            img = img[:, :, ::-1]
         return img, bboxes
 
 

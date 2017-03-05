@@ -1,7 +1,7 @@
 import os.path as osp
-from skimage.io import imread
 
 from chainercv.datasets.cub.cub_utils import CUBDatasetBase
+from chainercv import utils
 
 
 class CUBLabelDataset(CUBDatasetBase):
@@ -14,16 +14,14 @@ class CUBLabelDataset(CUBDatasetBase):
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
-            ``auto``, this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/pfnet/chainercv/cub``.
+            :obj:`auto`, this class will automatically download data for you
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
         crop_bbox (bool): If true, this class returns an image cropped
             by the bounding box of the bird inside it.
-        bgr (bool): If true, method `get_example` will return an image in BGR
-            format.
 
     """
 
-    def __init__(self, data_dir='auto', crop_bbox=True, bgr=True):
+    def __init__(self, data_dir='auto', crop_bbox=True):
         super(CUBLabelDataset, self).__init__(
             data_dir=data_dir, crop_bbox=crop_bbox)
 
@@ -33,8 +31,6 @@ class CUBLabelDataset(CUBDatasetBase):
         self.labels = [label.split()[1] for label in open(classes_file)]
         self._data_labels = [int(d_label.split()[1]) - 1 for
                              d_label in open(image_class_labels_file)]
-
-        self.bgr = bgr
 
     def get_example(self, i):
         """Returns the i-th example.
@@ -50,25 +46,29 @@ class CUBLabelDataset(CUBDatasetBase):
 
         """
         img, label = self.get_raw_data(i)
-        if self.bgr:
-            img = img[:, :, ::-1]
+        img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1)
         return img, label
 
-    def get_raw_data(self, i):
+    def get_raw_data(self, i, rgb=True):
         """Returns the i-th example.
 
         This returns a color image and its label. The image is in HWC foramt.
-        Also, the image is in RGB.
 
         Args:
             i (int): The index of the example.
+            rgb (bool): If false, the returned image will be in BGR.
 
         Returns:
             i-th example (image, label)
 
         """
-        img = imread(osp.join(self.data_dir, 'images', self.fns[i]))  # RGB
+        img = utils.read_image_as_array(
+            osp.join(self.data_dir, 'images', self.fns[i]))  # RGB
+        if img.ndim == 2:
+            img = utils.gray2rgb(img)
+        if not rgb:
+            img = img[:, :, ::-1]
 
         if self.crop_bbox:
             bbox = self.bboxes[i]  # (x, y, width, height)

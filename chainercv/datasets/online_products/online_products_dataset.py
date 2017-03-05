@@ -1,8 +1,6 @@
 import copy
 import numpy as np
 import os
-from skimage.color import gray2rgb
-from skimage.io import imread
 
 import chainer
 from chainer.dataset import download
@@ -35,7 +33,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         http://cvgl.stanford.edu/projects/lifted_struct
 
     The :obj:`mode` selects train and test split of the dataset as done in
-    [Song]. The train split contains the first 11318 classes and the test
+    [Song]_. The train split contains the first 11318 classes and the test
     split contains the remaining 11316 classes.
 
     .. [Song] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
@@ -46,8 +44,8 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
-            ``auto``, this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/pfnet/chainercv/online_products``.
+            :obj:`auto`, this class will automatically download data for you
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/online_products`.
         mode ({'train', 'test'}): Mode of the dataset.
 
     """
@@ -86,6 +84,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
         Returns a color image, class_id and super_class_id. The image is in CHW
         format.
+        The returned image is BGR.
 
         Args:
             i (int): The index of the example.
@@ -96,26 +95,32 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         class_id = np.array(self.class_ids[i], np.int32)
         super_class_id = np.array(self.super_class_ids[i], np.int32)
 
-        img = imread(self.paths[i])
+        img = utils.read_image_as_array(self.paths[i])
 
         if img.ndim == 2:
-            img = gray2rgb(img)
+            img = utils.gray2rgb(img)
+        img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
         return img, class_id, super_class_id
 
-    def get_raw_data(self, i):
+    def get_raw_data(self, i, rgb=True):
         """Returns the i-th example's image and class data in HWC format.
 
         The color image that is returned is RGB.
 
         Args:
             i (int): The index of the example.
+            rgb (bool): If false, the returned image will be in BGR.
 
         Returns:
             i-th example (image, class_id, super_class_id)
 
         """
-        img = imread(self.paths[i])
+        img = utils.read_image_as_array(self.paths[i])
+        if img.ndim == 2:
+            img = utils.gray2rgb(img)
+        if not rgb:
+            img = img[:, :, ::-1]
         class_id = self.class_ids[i]
         super_class_id = self.super_class_ids[i]
         return img, class_id, super_class_id

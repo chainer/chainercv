@@ -1,6 +1,11 @@
-from random_crop_transform import random_crop  # NOQA
+from bbox.flip_bbox_transform import flip_bbox  # NOQA
+from bbox.resize_bbox_transform import resize_bbox  # NOQA
 from extend_dataset import extend  # NOQA
 from extend_dataset import extend_cache  # NOQA
-from flip_transform import random_flip  # NOQA
-from pad_transform import pad  # NOQA
-from resize_transform import resize  # NOQA
+from image.chw_to_pil_image_transform import chw_to_pil_image  # NOQA
+from image.chw_to_pil_image_transform import chw_to_pil_image_tuple  # NOQA
+from image.pad_transform import pad  # NOQA
+from image.random_crop_transform import random_crop  # NOQA
+from image.random_flip_transform import random_flip  # NOQA
+from image.resize_transform import resize  # NOQA
+from keypoint.resize_keypoint_transform import resize_keypoint  # NOQA

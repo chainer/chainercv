@@ -6,35 +6,52 @@ from chainer import training
 from chainer.training import extensions
 
 from chainercv.datasets import VOCDetectionDataset
-from chainercv.wrappers import ResizeWrapper
-from chainercv.wrappers import FlipWrapper
-from chainercv.wrappers import output_shape_soft_min_hard_max
-from chainercv.wrappers import bbox_resize_hook
-from chainercv.wrappers import bbox_flip_hook
-from chainercv.wrappers import SubtractWrapper
 from chainercv.extensions import DetectionVisReport
+from chainercv import transforms
 
 from faster_rcnn import FasterRCNN
 from updater import ParallelUpdater
+
+
+def _shape_soft_min_hard_max(img_shape, soft_min, hard_max):
+    lengths = np.array(img_shape).astype(np.float)
+    min_length = np.min(lengths)
+    scale = float(soft_min) / min_length
+    lengths *= scale
+
+    max_length = np.max(lengths)
+    if max_length > hard_max:
+        lengths *= float(hard_max) / max_length
+    out_shape = (int(np.asscalar(lengths[0])),
+                 int(np.asscalar(lengths[1])),
+                 img_shape[2])
+    return out_shape
 
 
 def main(gpu=-1, epoch=100, batch_size=1, lr=5e-4, out='result'):
     train_data = VOCDetectionDataset(mode='train', use_cache=True, year='2007')
     test_data = VOCDetectionDataset(mode='val', use_cache=True, year='2007')
 
-    wrappers = [
-        lambda d: SubtractWrapper(
-            d, value=np.array([103.939, 116.779, 123.68])),
-        lambda d: ResizeWrapper(
-            d, preprocess_idx=0,
-            output_shape=output_shape_soft_min_hard_max(600, 1200),
-            hook=bbox_resize_hook(1)),
-        lambda d: FlipWrapper(d, preprocess_idx=0, orientation='h',
-                              hook=bbox_flip_hook())
-    ]
-    for wrapper in wrappers:
-        train_data = wrapper(train_data)
-        test_data = wrapper(test_data)
+    def transform(in_data):
+        img, bbox = in_data
+        img -= np.array([103.939, 116.779, 123.68])[:, None, None]
+
+        # Resize bounding box to a shape
+        # with the smaller edge at least at length 600
+        input_shape = img.shape[1:]
+        output_shape = _shape_soft_min_hard_max(input_shape, 600, 1200)
+        img = transforms.resize(img, output_shape)
+        bbox = transforms.resize_bbox(bbox, input_shape, output_shape)
+
+        # horizontally flip
+        img, flips = transforms.random_flip(
+            img, horizontal_flip=True, return_flip=True)
+        h_flip = flips['h']
+        bbox = transforms.flip_bbox(bbox, output_shape, h_flip)
+        return img, bbox
+
+    transforms.extend(train_data, transform)
+    transforms.extend(test_data, transform)
 
     model = FasterRCNN(gpu=gpu)
     if gpu != -1:
@@ -92,23 +109,33 @@ def main(gpu=-1, epoch=100, batch_size=1, lr=5e-4, out='result'):
         ),
         trigger=log_interval
     )
+
+    def vis_transform(in_data):
+        img, bbox = in_data
+        img += np.array([103.939, 116.779, 123.68])[:, None, None]
+        img, bbox = transforms.chw_to_pil_image_tuple((img, bbox))
+        return img, bbox
     trainer.extend(
         DetectionVisReport(
-            range(10),  # visualize outputs for the first 10 data of test_data
+            range(10),  # visualize outputs for the first 10 data of train_data
             train_data,
             model,
             filename_base='detection_train',
-            predict_func=model.predict_bboxes
+            predict_func=model.predict_bboxes,
+            vis_transform=vis_transform
         ),
-        trigger=val_interval, invoke_before_training=True)
+        trigger=val_interval, invoke_before_training=True
+    )
     trainer.extend(
         DetectionVisReport(
             range(10),  # visualize outputs for the first 10 data of test_data
             test_data,
             model,
-            forward_func=model.predict_bboxes
+            forward_func=model.predict_bboxes,
+            vis_transform=vis_transform
         ),
-        trigger=val_interval, invoke_before_training=True)
+        trigger=val_interval, invoke_before_training=True
+    )
 
     trainer.extend(extensions.dump_graph('main/loss'))
 

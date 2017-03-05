@@ -1,8 +1,7 @@
 import numpy as np
 import os.path as osp
+from PIL import Image
 import warnings
-
-from skimage.io import imsave
 
 
 def embedding_tensorboard(features, images=None, labels=None,
@@ -63,7 +62,8 @@ def embedding_tensorboard(features, images=None, labels=None,
         H, W = images.shape[1], images.shape[2]
         embedding.sprite.single_image_dim.extend([H, W])
         sprite = _images_to_sprite(images)
-        imsave(embedding.sprite.image_path, sprite)
+        pil_img = Image.fromarray(sprite.astype(np.uint8))
+        pil_img.save(embedding.sprite.image_path)
 
     projector.visualize_embeddings(summary_writer, config)
     saver = tf.train.Saver([embedding_var])

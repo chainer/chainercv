@@ -11,7 +11,8 @@ class TestRandomFlipTransform(unittest.TestCase):
     def test_random_flip(self):
         x = np.random.uniform(size=(3, 24, 24))
 
-        out, flips = random_flip(x, orientation=['h', 'v'], return_flip=True)
+        out, flips = random_flip(x, horizontal_flip=True, vertical_flip=True,
+                                 return_flip=True)
 
         expected = x
         if flips['h']:
