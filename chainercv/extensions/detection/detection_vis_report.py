@@ -4,9 +4,9 @@ import os.path as osp
 import chainer
 from chainer.utils import type_check
 
+from chainercv.tasks.detection import vis_img_bbox
 from chainercv.utils.extension_utils import check_type
 from chainercv.utils.extension_utils import forward
-from chainercv.tasks.detection import vis_img_bbox
 
 from matplotlib import pyplot as plt
 
