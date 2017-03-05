@@ -18,9 +18,19 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
         data_dir (string): Path to the root of the training data. If this is
             ``auto``, this class will automatically download data for you
             under ``$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc``.
-        bgr (bool): If true, method
-            :meth:`VOCSemanticSegmentationDataset.get_example` will return
-            an image in BGR format.
+        mode ({'train', 'val', 'trainval'}): select from dataset splits used
+            in VOC.
+        year ({'2007', '2012'}): use a dataset prepared for a challenge
+            held in :obj:`year`.
+        use_difficult (bool): If true, use images that are labeled as
+            difficult in the original annotation.
+        bgr (bool): If true, :meth:`VOCDetectionDataset.get_example` will
+            return an image in BGR format.
+        use_cache (bool): If true, use cache of object annotations. This
+            is useful in the case when parsing annotation takes time.
+            When this is false, the dataset will not write cache.
+        delete_cache (bool): Delete the cache described above.
+
     """
 
     labels = voc_utils.pascal_voc_labels
@@ -53,12 +63,12 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
             i (int): The index of the example.
 
         Returns:
-            tuple of color image and label whose shapes are (3, H, W) and \
-                (1, H, W) respectively. H and W are height and width of the \
-                images. The dtype of the color image is ``numpy.float32`` and \
-                the dtype of the label image is ``numpy.int32``. The color \
-                channel of the color image is determined by the paramter \
-                ``self.bgr``.
+            tuple of color image and label whose shapes are (3, H, W) and
+            (1, H, W) respectively. H and W are height and width of the
+            images. The dtype of the color image is :obj:`numpy.float32` and
+            the dtype of the label image is :obj:`numpy.int32`. The color
+            channel of the color image is determined by the paramter
+            :obj:`self.bgr`.
 
         """
         if i >= len(self):

@@ -14,19 +14,34 @@ from chainercv.utils.dataset_utils import cache_load
 
 class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
-    """Dataset class for the detection task of Pascal `VOC2012`_.
+    """Dataset class for the detection task of PASCAL `VOC`_.
 
-    .. _`VOC2012`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
+    .. _`VOC`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
     The index corresponds to each image.
+
+    The boundig boxes are a
+    collection of length 5 arrays. Each array contains values
+    organized as (x_min, y_min, x_max, y_max, label_id).
+    The number of bounding box is equal to the number of objects
+    int the image.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
             ``auto``, this class will automatically download data for you
             under ``$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc``.
-        use_difficult (bool)
+        mode ({'train', 'val', 'trainval'}): select from dataset splits used
+            in VOC.
+        year ({'2007', '2012'}): use a dataset prepared for a challenge
+            held in :obj:`year`.
+        use_difficult (bool): If true, use images that are labeled as
+            difficult in the original annotation.
         bgr (bool): If true, :meth:`VOCDetectionDataset.get_example` will
             return an image in BGR format.
+        use_cache (bool): If true, use cache of object annotations. This
+            is useful in the case when parsing annotation takes time.
+            When this is false, the dataset will not write cache.
+        delete_cache (bool): Delete the cache described above.
 
     """
 
@@ -108,11 +123,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         Returns a color image and bounding boxes. The image is in CHW format.
         If `self.bgr` is True, the image is in BGR. If not, it is in RGB.
 
-        The boundig boxes are a
-        collection of length 5 arrays. Each array contains values
-        organized as (x_min, y_min, x_max, y_max, label_id).
-        The number of bounding box is equal to the number of objects
-        int the image.
+
 
         Args:
             i (int): The index of the example.
@@ -135,12 +146,6 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         This returns a color image and bounding boxes.
         The color image has shape (H, W, 3).
-
-        The color image that is returned is in RGB. The boundig boxes are a
-        collection of length 5 arrays. Each array contains values
-        organized as (x_min, y_min, x_max, y_max, label_id).
-        The number of bounding box is equal to the number of objects
-        int the image.
 
         Args:
             i (int): The index of the example.
