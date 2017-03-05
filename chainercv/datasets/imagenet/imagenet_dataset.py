@@ -50,8 +50,8 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
-            'auto', this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/pfnet/chainer_cv/imagenet``.
+            :obj:`auto`, this class will automatically download data for you
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainer_cv/imagenet`.
         urls (list of strings): the list contains four urls of
             `[{Train images Tasks 1 & 2}, {Train images Task 3},
             {Validation Images}, {Test Images}]`.

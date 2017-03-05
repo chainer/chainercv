@@ -5,7 +5,6 @@ from skimage.io import imread
 import chainer
 from chainer.dataset import download
 
-from chainercv.tasks.optical_flow import flow2verts
 from chainercv import utils
 
 
@@ -20,7 +19,7 @@ def _get_sintel():
         return data_root
 
     download_file_path = utils.cached_download(url)
-    ext = os.path.splitext(download_file_path)[1]
+    ext = os.path.splitext(url)[1]
     utils.extractall(download_file_path, data_root, ext)
     return data_root
 
@@ -31,39 +30,26 @@ class SintelDataset(chainer.dataset.DatasetMixin):
 
     .. _`MPI Sintel Flow Dataset`: http://sintel.is.tue.mpg.de/
 
-    The format of correspondence data returned by
-    :meth:`SintelDataset.get_example` is determined by `mode`.
-    If `mode` is `flow`, it returns (source, target, flow).
+    This class returns tuple of (source, target, flow) as :meth:`get_example`
+    is called.
     `source` is the image of the source image and `target` is the image of
     the target image which are both in CHW format. `flow` represents optical
     flow from the source to the target whose shape is :math:`(3, H, W)`.
     :math:`H` and :math:`W` are the height and the width of images.
 
-    If `mode` is `verts`, it returns
-    (source, target, source_verts, target_verts). `source_verts` and
-    `target_verts` are an array of shape :math:`(N_v, 2)`. :math:`N_v` is
-    the number of pixels who appear in both the source and the target. The
-    second axis contains the location of the pixel.
-    `source_verts[i]` and `target_verts[i]` correspond to each other for
-    arbitrary :math:`i`.
-
     Args:
         data_dir (string): Path to the root of the training data. If this is
-            ``auto``, this class will automatically download data for you
-            under ``$CHAINER_DATASET_ROOT/pfnet/chainercv/sintel``.
-        mode (string, {'flow', 'verts'}): Determines the format of
-            correspondence data between the source and the destination image.
+            :obj:`auto`, this class will automatically download data for you
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/sintel`.
     """
 
-    def __init__(self, data_dir='auto', mode='flow'):
+    def __init__(self, data_dir='auto'):
         if data_dir == 'auto':
             data_root = _get_sintel()
             data_dir = os.path.join(data_root, 'training')
         self.data_dir = data_dir
         self.paths = self._collect_data(data_dir)
         self.keys = self.paths.keys()
-
-        self.mode = mode
 
     def __len__(self):
         return len(self.paths)
@@ -104,16 +90,8 @@ class SintelDataset(chainer.dataset.DatasetMixin):
         src, dst, flow = self.get_raw_data(i)
         src = np.transpose(src, axes=(2, 0, 1)).astype(np.float32)
         dst = np.transpose(dst, axes=(2, 0, 1)).astype(np.float32)
-        if self.mode == 'flow':
-            flow = flow.transpose(2, 0, 1)
-            return src, dst, flow
-        elif self.mode == 'verts':
-            verts = flow2verts(flow)
-            src_verts = verts[0]
-            dst_verts = verts[1]
-            return src, dst, src_verts, dst_verts
-        else:
-            raise ValueError('mode is either \'flow\' or \'verts\'')
+        flow = flow.transpose(2, 0, 1)
+        return src, dst, flow
 
     def get_raw_data(self, i):
         cur_paths = self.paths[self.keys[i]]
