@@ -52,9 +52,12 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainer_cv/imagenet`.
-        urls (list of strings): the list contains four urls of
-            `[{Train images Tasks 1 & 2}, {Train images Task 3},
-            {Validation Images}, {Test Images}]`.
+        urls (dict): Dict of urls. Keys correspond to type of dataset to
+            download and values correspond to urls. Keys should be
+            :obj:`(train, val, test, developers_kit)`.
+        mode ({'train', 'val'}): select from dataset split used in ILSVRC2012.
+        bgr (bool): If true, :meth:`ImagenetDataset.get_example` will
+            return an image in BGR format.
 
     """
 

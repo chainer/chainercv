@@ -24,12 +24,8 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
             held in :obj:`year`.
         use_difficult (bool): If true, use images that are labeled as
             difficult in the original annotation.
-        bgr (bool): If true, :meth:`VOCDetectionDataset.get_example` will
-            return an image in BGR format.
-        use_cache (bool): If true, use cache of object annotations. This
-            is useful in the case when parsing annotation takes time.
-            When this is false, the dataset will not write cache.
-        delete_cache (bool): Delete the cache described above.
+        bgr (bool): If true, :meth:`VOCSemanticSegmentationDataset.get_example`
+            will return an image in BGR format.
 
     """
 
