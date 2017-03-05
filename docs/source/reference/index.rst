@@ -9,4 +9,4 @@ ChainerCV Reference Manual
 
    datasets
    extensions
-   wrappers
+   transforms

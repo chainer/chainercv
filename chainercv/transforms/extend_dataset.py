@@ -13,7 +13,7 @@ def extend(dataset, transform, method_name='__getitem__'):
 
 
 def extend_cache(dataset, transform, method_name='__getitem__'):
-    filename = os.path.join(tempfile.mkdtemp(), 'cache.db')
+    filename = os.path.join(tempfile.mkdtemp(), 'chainercv.db')
     cache = shelve.open(filename, protocol=2)
 
     method = getattr(dataset, method_name)
