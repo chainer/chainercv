@@ -51,10 +51,3 @@ SintelDataset
 ~~~~~~~~~~~~~
 .. autofunction:: SintelDataset
 
-
-Unite The People
-----------------
-
-UniteThePeopleDataset
-~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: UniteThePeopleDataset
