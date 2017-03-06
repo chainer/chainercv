@@ -56,12 +56,13 @@ from chainercv.transforms import random_crop
 dataset = VOCSemanticSegmentationDataset()
 
 def transform(in_data):
+    # in_data is the returned values of VOCSemanticSegmentationDataset.get_example
     img, label = in_data
-    img, label = random_crop((img, label), (None, 256, 256))  # pad to (256, 256)
+    img, label = random_crop((img, label), (None, 256, 256))  # pad to (H, W) = (256, 256)
     img -= 122.5
     return img, label
-extend(dataset, transform, method_name='get_example')
-img, label = dataset.get_example(0)
+extend(dataset, transform)
+img, label = dataset[0]
 ```
 
 As found in the example, `random_crop` is one of the transforms ChainerCV supports. Like other transforms, this is just a
