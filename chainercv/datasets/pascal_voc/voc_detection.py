@@ -24,7 +24,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     collection of length 5 arrays. Each array contains values
     organized as (x_min, y_min, x_max, y_max, label_id).
     The number of bounding box is equal to the number of objects
-    int the image.
+    in the image.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
