@@ -18,9 +18,6 @@ You can find the documentation [here](http://chainercv.readthedocs.io/en/latest/
 
 # Installation
 
-ChainerCV is built on top of [Chainer](https://github.com/pfnet/chainer).
-Following command will install ChainerCV as well as some dependencies.
-
 ```
 pip install chainercv
 ```
@@ -28,6 +25,7 @@ pip install chainercv
 
 ### Requirements
 
++ [Chainer](https://github.com/pfnet/chainer) and its dependencies
 + Pillow
 + Matplotlib
 
