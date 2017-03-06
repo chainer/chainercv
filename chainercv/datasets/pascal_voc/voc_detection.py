@@ -123,8 +123,6 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         Returns a color image and bounding boxes. The image is in CHW format.
         If `self.bgr` is True, the image is in BGR. If not, it is in RGB.
 
-
-
         Args:
             i (int): The index of the example.
 

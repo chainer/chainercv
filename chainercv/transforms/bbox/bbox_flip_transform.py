@@ -1,4 +1,25 @@
 def bbox_flip(bboxes, h_flip, v_flip, img_shape):
+    """Flip bounding boxes accordingly.
+
+    The boundig boxes are a
+    collection of length 5 arrays. Each array contains values
+    organized as (x_min, y_min, x_max, y_max, label_id).
+
+    Args:
+        bboxes (~numpy.ndarray): shape is :math:`(R, 5)`. :math:`R` is
+            the number of bounding boxes.
+        h_flip (bool): Flip bounding box according to a horizontal flip of
+            an image.
+        v_flip (bool): Flip bounding box according to a vertical flip of
+            an image.
+        img_shape (tuple): A tuple of length 2. The height and the width
+            of the image before resized.
+
+    Returns:
+        ~numpy.ndarray:
+        Bounding boxes flipped according to the given flips.
+
+    """
     H, W = img_shape
     if h_flip:
         x_max = W - 1 - bboxes[:, 0]

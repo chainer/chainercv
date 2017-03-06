@@ -16,8 +16,8 @@ extend_cache
 .. autofunction:: extend_cache
 
 
-Preprocessing
--------------
+Image
+-----
 
 pad
 ~~~
@@ -34,3 +34,16 @@ random_flip
 resize
 ~~~~~~
 .. autofunction:: resize
+
+
+Bounding Box
+------------
+
+bbox_flip
+~~~~~~~~~
+.. autofunction:: bbox_flip
+
+bbox_resize
+~~~~~~~~~~~
+.. autofunction:: bbox_resize
+
