@@ -17,7 +17,7 @@ def resize(x, output_shape):
             ordered as (height, width).
 
     """
-    if _available:
+    if not _available:
         raise ValueError('scikit-image is not installed on your environment, '
                          'so a function resize can not be '
                          ' used. Please install scikit-image.\n\n'
