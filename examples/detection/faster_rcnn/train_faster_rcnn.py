@@ -36,10 +36,14 @@ def main(gpu=-1, epoch=100, batch_size=1, lr=5e-4, out='result'):
         img, bbox = in_data
         img -= np.array([103.939, 116.779, 123.68])[:, None, None]
 
+        # Resize bounding box to a shape
+        # with the smaller edge at least at length 600
         input_shape = img.shape[1:]
-        output_shape = _shape_soft_min_hard_max(input_shape)
+        output_shape = _shape_soft_min_hard_max(input_shape, 600, 1200)
         img = transforms.resize(img, output_shape)
         bbox = transforms.bbox_resize(bbox, input_shape, output_shape)
+
+        # horizontally flip
         img, flips = transforms.random_flip(
             img, horizontal_flip=True, return_flip=True)
         h_flip = flips['h']
