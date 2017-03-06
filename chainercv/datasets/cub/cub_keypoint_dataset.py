@@ -1,9 +1,9 @@
 import collections
 import numpy as np
 import os.path as osp
-from skimage.io import imread
 
 from chainercv.datasets.cub.cub_utils import CUBDatasetBase
+from chainercv.utils import read_image_as_array
 
 
 class CUBKeypointsDataset(CUBDatasetBase):
@@ -76,7 +76,7 @@ class CUBKeypointsDataset(CUBDatasetBase):
     def get_raw_data(self, i):
         # this i is transformed to id for the entire dataset
         original_idx = self.selected_ids[i]
-        img = imread(osp.join(
+        img = read_image_as_array(osp.join(
             self.data_dir, 'images', self.fns[original_idx]))  # RGB
         keypoints = self.keypoints_dict[original_idx]
         keypoints = np.array(keypoints, dtype=np.float32)

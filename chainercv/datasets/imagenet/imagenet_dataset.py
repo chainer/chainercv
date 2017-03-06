@@ -1,8 +1,6 @@
 import numpy as np
 import os
 from scipy.io import loadmat
-from skimage.color import gray2rgb
-from skimage.io import imread
 import tarfile
 
 import chainer
@@ -10,6 +8,7 @@ from chainer.dataset import download
 
 from chainercv import utils
 from chainercv.utils.dataset_utils import cache_load
+from chainercv.utils import read_image_as_array
 
 
 root = 'pfnet/chainercv/imagenet'
@@ -162,9 +161,9 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
             i-th example
 
         """
-        img = imread(self.fns[i])
+        img = read_image_as_array(self.fns[i])
         if img.ndim == 2:
-            img = gray2rgb(img)
+            img = img[:, :, np.newaxis]
         if self.bgr:
             img = img[:, :, ::-1]
         img = img.transpose(2, 0, 1).astype(np.float32)
@@ -185,9 +184,9 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
             i-th example from the given class.
 
         """
-        img = imread(self.fns_dict[class_id][i])
+        img = read_image_as_array(self.fns_dict[class_id][i])
         if img.ndim == 2:
-            img = gray2rgb(img)
+            img = img[:, :, np.newaxis]
         if self.bgr:
             img = img[:, :, ::-1]
 
@@ -195,9 +194,9 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
         return img
 
     def get_raw_data(self, i):
-        img = imread(self.fns[i])
+        img = read_image_as_array(self.fns[i])
         if img.ndim == 2:
-            img = gray2rgb(img)
+            img = img[:, :, np.newaxis]
         label = self.labels[i]
         return img, label
 

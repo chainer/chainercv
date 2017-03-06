@@ -1,11 +1,11 @@
 import numpy as np
 import os.path as osp
 from PIL import Image
-from skimage.io import imread
 
 import chainer
 
 from chainercv.datasets.pascal_voc import voc_utils
+from chainercv.utils import read_image_as_array
 
 
 class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
@@ -89,7 +89,7 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
 
         """
         img_file = osp.join(self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
-        img = imread(img_file, mode='RGB')
+        img = read_image_as_array(img_file)
         label = self._load_label(self.data_dir, self.ids[i])
         return img, label
 

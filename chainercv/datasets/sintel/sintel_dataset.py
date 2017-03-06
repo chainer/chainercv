@@ -1,11 +1,11 @@
 import numpy as np
 import os
-from skimage.io import imread
 
 import chainer
 from chainer.dataset import download
 
 from chainercv import utils
+from chainercv.utils import read_image_as_array
 
 
 root = 'pfnet/chainercv/sintel'
@@ -96,8 +96,8 @@ class SintelDataset(chainer.dataset.DatasetMixin):
     def get_raw_data(self, i):
         cur_paths = self.paths[self.keys[i]]
 
-        src_img = imread(cur_paths['src_img'])
-        dst_img = imread(cur_paths['dst_img'])
+        src_img = read_image_as_array(cur_paths['src_img'])
+        dst_img = read_image_as_array(cur_paths['dst_img'])
         flow = self._read_flow_sintel(cur_paths['flow'])
         return src_img, dst_img, flow
 

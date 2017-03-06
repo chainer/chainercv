@@ -1,7 +1,7 @@
 import os.path as osp
-from skimage.io import imread
 
 from chainercv.datasets.cub.cub_utils import CUBDatasetBase
+from chainercv.utils import read_image_as_array
 
 
 class CUBLabelDataset(CUBDatasetBase):
@@ -68,7 +68,8 @@ class CUBLabelDataset(CUBDatasetBase):
             i-th example (image, label)
 
         """
-        img = imread(osp.join(self.data_dir, 'images', self.fns[i]))  # RGB
+        img = read_image_as_array(
+            osp.join(self.data_dir, 'images', self.fns[i]))  # RGB
 
         if self.crop_bbox:
             bbox = self.bboxes[i]  # (x, y, width, height)

@@ -1,7 +1,6 @@
 import glob
 import numpy as np
 import os
-from skimage.io import imread
 import warnings
 import xml.etree.ElementTree as ET
 
@@ -10,6 +9,7 @@ from chainer.dataset import download
 
 from chainercv.datasets.pascal_voc import voc_utils
 from chainercv.utils.dataset_utils import cache_load
+from chainercv.utils import read_image_as_array
 
 
 class VOCDetectionDataset(chainer.dataset.DatasetMixin):
@@ -168,7 +168,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         # Load a image
         img_file = os.path.join(self.data_dir, 'JPEGImages', obj['filename'])
-        img = imread(img_file)  # RGB
+        img = read_image_as_array(img_file)  # RGB
         return img, bboxes
 
 

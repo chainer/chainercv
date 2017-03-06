@@ -1,7 +1,7 @@
 import collections
 import numpy as np
 import os.path as osp
-from skimage.color import label2rgb
+import warnings
 
 import chainer
 from chainer.utils import type_check
@@ -10,6 +10,13 @@ from chainercv.utils import check_type
 from chainercv.utils import forward
 
 from matplotlib import pyplot as plt
+
+try:
+    from skimage.color import label2rgb
+    _available = True
+
+except ImportError:
+    _available = False
 
 
 class SemanticSegmentationVisReport(chainer.training.extension.Extension):
@@ -81,6 +88,13 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         )
 
     def __call__(self, trainer):
+        if not _available:
+            warnings.warn('scikit-image is not installed on your environment, '
+                          'so a function embedding_tensorboard can not be '
+                          ' used. Please install scikit-image.\n\n'
+                          '  $ pip install scikit-image\n')
+            return
+
         for idx in self.indices:
             formated_filename_base = osp.join(trainer.out, self.filename_base)
             out_file = (formated_filename_base +

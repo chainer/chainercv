@@ -1,8 +1,6 @@
 import copy
 import numpy as np
 import os
-from skimage.color import gray2rgb
-from skimage.io import imread
 
 import chainer
 from chainer.dataset import download
@@ -96,7 +94,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         class_id = np.array(self.class_ids[i], np.int32)
         super_class_id = np.array(self.super_class_ids[i], np.int32)
 
-        img = imread(self.paths[i])
+        img = utils.read_image_as_array(self.paths[i])
 
         if img.ndim == 2:
             img = gray2rgb(img)
@@ -115,7 +113,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
             i-th example (image, class_id, super_class_id)
 
         """
-        img = imread(self.paths[i])
+        img = utils.read_image_as_array(self.paths[i])
         class_id = self.class_ids[i]
         super_class_id = self.super_class_ids[i]
         return img, class_id, super_class_id

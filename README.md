@@ -25,7 +25,15 @@ Following command will install ChainerCV as well as some dependencies.
 pip install chainercv
 ```
 
-Please install [Scikit-Image](http://scikit-image.org/) separately if you have not installed it already.
+
+### Requirements
+
++ Pillow
++ Matplotlib
+
+For additional features
+
++ Scikit-Image
 
 
 # Features

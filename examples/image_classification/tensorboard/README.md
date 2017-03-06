@@ -12,7 +12,7 @@ You can start the example with following commands.
 
 ```
 python train_mnist_tb_embedding.py  # set GPUs if you have one
-tensorboard --logdir=/tmp/chainer_cv/
+tensorboard --logdir=/tmp/chainercv/
 ```
 
 ### Walkthrough

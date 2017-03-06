@@ -1,5 +1,11 @@
 import numpy as np
-import skimage.transform
+
+try:
+    import skimage.transform
+    _available = True
+
+except ImportError:
+    _available = False
 
 
 def resize(x, output_shape):
@@ -11,6 +17,12 @@ def resize(x, output_shape):
             ordered as (height, width).
 
     """
+    if _available:
+        raise ValueError('scikit-image is not installed on your environment, '
+                         'so a function resize can not be '
+                         ' used. Please install scikit-image.\n\n'
+                         '  $ pip install scikit-image\n')
+
     if len(output_shape) != 2:
         raise ValueError('length of the output_shape needs to be 2')
     x = x.transpose(1, 2, 0)

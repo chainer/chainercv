@@ -1,5 +1,4 @@
 import os
-from skimage.io import imread
 
 import chainer
 from chainer.dataset import download
@@ -47,11 +46,3 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
 
     def __len__(self):
         return len(self.fns)
-
-    def get_raw_data(self, i):
-        img = imread(os.path.join(self.data_dir, 'images', self.fns[i]))  # RGB
-
-        if self.crop_bbox:
-            bbox = self.bboxes[i]  # (x, y, width, height)
-            img = img[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
-        return img
