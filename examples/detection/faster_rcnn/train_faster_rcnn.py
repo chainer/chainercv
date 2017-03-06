@@ -6,35 +6,48 @@ from chainer import training
 from chainer.training import extensions
 
 from chainercv.datasets import VOCDetectionDataset
-from chainercv.wrappers import ResizeWrapper
-from chainercv.wrappers import FlipWrapper
-from chainercv.wrappers import output_shape_soft_min_hard_max
-from chainercv.wrappers import bbox_resize_hook
-from chainercv.wrappers import bbox_flip_hook
-from chainercv.wrappers import SubtractWrapper
 from chainercv.extensions import DetectionVisReport
+from chainercv import transforms
 
 from faster_rcnn import FasterRCNN
 from updater import ParallelUpdater
+
+
+def _shape_soft_min_hard_max(img_shape, soft_min, hard_max):
+    lengths = np.array(img_shape).astype(np.float)
+    min_length = np.min(lengths)
+    scale = float(soft_min) / min_length
+    lengths *= scale
+
+    max_length = np.max(lengths)
+    if max_length > hard_max:
+        lengths *= float(hard_max) / max_length
+    out_shape = (int(np.asscalar(lengths[0])),
+                 int(np.asscalar(lengths[1])),
+                 img_shape[2])
+    return out_shape
 
 
 def main(gpu=-1, epoch=100, batch_size=1, lr=5e-4, out='result'):
     train_data = VOCDetectionDataset(mode='train', use_cache=True, year='2007')
     test_data = VOCDetectionDataset(mode='val', use_cache=True, year='2007')
 
-    wrappers = [
-        lambda d: SubtractWrapper(
-            d, value=np.array([103.939, 116.779, 123.68])),
-        lambda d: ResizeWrapper(
-            d, preprocess_idx=0,
-            output_shape=output_shape_soft_min_hard_max(600, 1200),
-            hook=bbox_resize_hook(1)),
-        lambda d: FlipWrapper(d, preprocess_idx=0, orientation='h',
-                              hook=bbox_flip_hook())
-    ]
-    for wrapper in wrappers:
-        train_data = wrapper(train_data)
-        test_data = wrapper(test_data)
+    def transform(in_data):
+        img, bbox = in_data
+        img -= np.array([103.939, 116.779, 123.68])[:, None, None]
+
+        input_shape = img.shape[1:]
+        output_shape = _shape_soft_min_hard_max(input_shape)
+        img = transforms.resize(img, output_shape)
+        bbox = transforms.bbox_resize(bbox, input_shape, output_shape)
+        img, flips = transforms.random_flip(
+            img, horizontal_flip=True, return_flip=True)
+        h_flip = flips['h']
+        bbox = transforms.bbox_flip(bbox, output_shape, h_flip)
+        return img, bbox
+
+    transforms.extend(train_data, transform)
+    transforms.extend(test_data, transform)
 
     model = FasterRCNN(gpu=gpu)
     if gpu != -1:
