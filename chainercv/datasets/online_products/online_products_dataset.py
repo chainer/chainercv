@@ -97,7 +97,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         img = utils.read_image_as_array(self.paths[i])
 
         if img.ndim == 2:
-            img = gray2rgb(img)
+            img = img[:, :, np.newaxis]
         img = img.transpose(2, 0, 1).astype(np.float32)
         return img, class_id, super_class_id
 
@@ -114,6 +114,8 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
         """
         img = utils.read_image_as_array(self.paths[i])
+        if img.ndim == 2:
+            img = img[:, :, np.newaxis]
         class_id = self.class_ids[i]
         super_class_id = self.super_class_ids[i]
         return img, class_id, super_class_id
