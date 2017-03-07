@@ -38,14 +38,15 @@ def extend(dataset, transform, method_name='get_example'):
 
         >>> from chainercv.datasets import VOCSemanticSegmentationDataset
         >>> from chainercv.transforms import extend
-        >>> from chainercv.transforms import random_crop
+        >>> from chainercv.transforms import pad
         >>> dataset = VOCSemanticSegmentationDataset()
         >>> def transform(in_data):
         >>>     img, label = in_data
-        >>>     img, label = random_crop((img, label), (None, 256, 256))
+        >>>     img = pad(img, (512, 512), bg_value=0)
+        >>>     label = pad(label, (512, 512), bg_value=-1)
         >>>     img -= 122.5
         >>>     return img, label
-        >>> extend(dataset, transform, method_name='get_example')
+        >>> extend(dataset, transform)
         >>> img, label = dataset.get_example(0)
 
     """

@@ -51,21 +51,22 @@ This is a real example that is used to preprocess images before training a neura
 ```python
 from chainercv.datasets import VOCSemanticSegmentationDataset
 from chainercv.transforms import extend
-from chainercv.transforms import random_crop
+from chainercv.transforms import pad
 
 dataset = VOCSemanticSegmentationDataset()
 
 def transform(in_data):
     # in_data is the returned values of VOCSemanticSegmentationDataset.get_example
     img, label = in_data
-    img, label = random_crop((img, label), (None, 256, 256))  # pad to (H, W) = (256, 256)
+    img = pad(img, max_size=(512, 512), bg_value=0)  # pad to (H, W) = (512, 512)
+    label = pad(img, max_size=(512, 512), bg_value=-1)
     img -= 122.5
     return img, label
 extend(dataset, transform)
 img, label = dataset[0]
 ```
 
-As found in the example, `random_crop` is one of the transforms ChainerCV supports. Like other transforms, this is just a
+As found in the example, `pad` is one of the transforms ChainerCV supports. Like other transforms, this is just a
 function that takes arrays as input.
 Also, `extend` is a function that decorates a dataset to transform the output of the method `get_example`.
 `VOCSemanticSegmentationDataset` is a dataset class that automatically downloads and prepares PASCAL VOC data used for
