@@ -70,7 +70,7 @@ class CUBKeypointsDataset(CUBDatasetBase):
         img, keypoints = self.get_raw_data(i)
         if self.bgr:
             img = img[:, :, ::-1]
-        img = img.transpose(2, 0, 1)
+        img = img.transpose(2, 0, 1).astype(np.float32)
         return img, keypoints
 
     def get_raw_data(self, i):
