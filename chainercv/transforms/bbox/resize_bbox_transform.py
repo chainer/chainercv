@@ -1,4 +1,4 @@
-def bbox_resize(bboxes, input_shape, output_shape):
+def resize_bbox(bboxes, input_shape, output_shape):
     """Resize bounding boxes according to image resize.
 
     The boundig boxes are a
@@ -15,7 +15,7 @@ def bbox_resize(bboxes, input_shape, output_shape):
 
     Returns:
         ~numpy.ndarray:
-        Bounding boxes rescaled according to given the image shapes
+        Bounding boxes rescaled according to the given image shapes.
 
     """
     bboxes = bboxes.copy()

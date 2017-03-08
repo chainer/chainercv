@@ -41,13 +41,13 @@ def main(gpu=-1, epoch=100, batch_size=1, lr=5e-4, out='result'):
         input_shape = img.shape[1:]
         output_shape = _shape_soft_min_hard_max(input_shape, 600, 1200)
         img = transforms.resize(img, output_shape)
-        bbox = transforms.bbox_resize(bbox, input_shape, output_shape)
+        bbox = transforms.resize_bbox(bbox, input_shape, output_shape)
 
         # horizontally flip
         img, flips = transforms.random_flip(
             img, horizontal_flip=True, return_flip=True)
         h_flip = flips['h']
-        bbox = transforms.bbox_flip(bbox, output_shape, h_flip)
+        bbox = transforms.flip_bbox(bbox, output_shape, h_flip)
         return img, bbox
 
     transforms.extend(train_data, transform)

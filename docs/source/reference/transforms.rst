@@ -39,11 +39,18 @@ resize
 Bounding Box
 ------------
 
-bbox_flip
+flip_bbox
 ~~~~~~~~~
-.. autofunction:: bbox_flip
+.. autofunction:: flip_bbox
 
-bbox_resize
+resize_bbox
 ~~~~~~~~~~~
-.. autofunction:: bbox_resize
+.. autofunction:: resize_bbox
 
+
+Keypoint
+--------
+
+resize_keypoint
+~~~~~~~~~~~~~~~
+.. autofunction:: resize_keypoint
