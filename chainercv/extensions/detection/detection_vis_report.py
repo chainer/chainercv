@@ -23,7 +23,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
     This extension wraps three steps of operations needed to visualize output
     of the model. :obj:`dataset`,
-    :obj:`predict_func` and :obj:`vis_converter` are used at each step.
+    :obj:`predict_func` and :obj:`vis_transformer` are used at each step.
 
     1. Getting an example.
         :meth:`dataset.__getitem__` returns tuple of arrays that are used as
@@ -49,12 +49,12 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
     3. Converting input arrays for visualization.
         Given the inputs from :meth:`dataset.__getitem__`, a method
-        :meth:`vis_converter` should convert them into visualizable forms.
-        The values returned by :meth:`vis_converter` should be
+        :meth:`vis_transformer` should convert them into visualizable forms.
+        The values returned by :meth:`vis_transformer` should be
 
         .. code:: python
 
-            img, bbox = vis_converter(inputs)
+            img, bbox = vis_transformer(inputs)
 
         :obj:`img` should be an image which is in HWC format, RGB and
         :obj:`dtype==numpy.uint8`.
@@ -66,7 +66,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         img, bbox = dataset[i]
         pred_bbox, = predict_func((img[None], bbox[None])  # add batch axis
         pred_bbox = pred_bbox[0]  # remove batch axis
-        vis_img, vis_bbox = vis_converter(inputs)
+        vis_img, vis_bbox = vis_transformer(inputs)
 
         # Visualization code
         # Uses (vis_img, vis_bbox) as the ground truth output
@@ -83,14 +83,14 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
     .. note::
         All datasets prepared in :mod:`chainercv.datasets` should work
-        out of the box with the default value of :obj:`vis_converter`,
+        out of the box with the default value of :obj:`vis_transformer`,
         which is :obj:`chainercv.transforms.chw_to_pil_image_tuple`.
 
         However, if the dataset has been extended by transformers,
-        :obj:`vis_converter` needs to offset some transformations
+        :obj:`vis_transformer` needs to offset some transformations
         that are applied in order to achive a visual quality.
         For example, when the mean value is subtracted from input images,
-        the mean value needs to be added back inside of :obj:`vis_converter`.
+        the mean value needs to be added back inside of :obj:`vis_transformer`.
 
     Args:
         indices (list of ints or int): List of indices for data to be
@@ -103,7 +103,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
             input. Also, this callable returns an predicted bounding boxes.
             If :obj:`predict_func = None`, then :meth:`model.__call__`
             method will be called.
-        vis_converter (callable): A callable that is used to convert tuple of
+        vis_transformer (callable): A callable that is used to convert tuple of
             arrays returned by :obj:`dataset.__getitem__`. This function
             should return tuple of arrays which can be used for visualization.
 
@@ -112,7 +112,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
     def __init__(self, indices, dataset, target,
                  filename_base='detection', predict_func=None,
-                 vis_converter=chw_to_pil_image_tuple):
+                 vis_transform=chw_to_pil_image_tuple):
         if not isinstance(indices, collections.Iterable):
             indices = list(indices)
         self.dataset = dataset
@@ -120,7 +120,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         self.indices = indices
         self.filename_base = filename_base
         self.predict_func = predict_func
-        self.vis_converter = vis_converter
+        self.vis_transform = vis_transform
 
     @check_type
     def _check_type_dataset(self, in_types):
@@ -143,7 +143,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         )
 
     @check_type
-    def _check_type_vis_converted(self, in_types):
+    def _check_type_vis_transformed(self, in_types):
         img_type = in_types[0]
         bboxes_type = in_types[1]
         type_check.expect(
@@ -174,10 +174,10 @@ class DetectionVisReport(chainer.training.extension.Extension):
             self._check_type_model(out)
             bboxes = out[0][0]  # (R, 5)
 
-            vis_converted = self.vis_converter(inputs)
-            self._check_type_vis_converted(vis_converted)
-            vis_img = vis_converted[0]
-            raw_bboxes = vis_converted[1]
+            vis_transformed = self.vis_transform(inputs)
+            self._check_type_vis_transformed(vis_transformed)
+            vis_img = vis_transformed[0]
+            raw_bboxes = vis_transformed[1]
 
             # start visualizing using matplotlib
             plt.close()

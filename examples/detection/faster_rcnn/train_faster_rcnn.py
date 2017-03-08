@@ -111,9 +111,9 @@ def main(gpu=-1, epoch=100, batch_size=1, lr=5e-4, out='result'):
     )
 
     def vis_transform(in_data):
-        out_data = transforms.chw_to_pil_image_tuple(in_data)
-        img, bbox = out_data
+        img, bbox = in_data
         img += np.array([103.939, 116.779, 123.68])[:, None, None]
+        img, bbox = transforms.chw_to_pil_image_tuple((img, bbox))
         return img, bbox
     trainer.extend(
         DetectionVisReport(
@@ -122,7 +122,7 @@ def main(gpu=-1, epoch=100, batch_size=1, lr=5e-4, out='result'):
             model,
             filename_base='detection_train',
             predict_func=model.predict_bboxes,
-            vis_converter=vis_transform
+            vis_transform=vis_transform
         ),
         trigger=val_interval, invoke_before_training=True
     )
@@ -132,7 +132,7 @@ def main(gpu=-1, epoch=100, batch_size=1, lr=5e-4, out='result'):
             test_data,
             model,
             forward_func=model.predict_bboxes,
-            vis_converter=vis_transform
+            vis_transform=vis_transform
         ),
         trigger=val_interval, invoke_before_training=True
     )
