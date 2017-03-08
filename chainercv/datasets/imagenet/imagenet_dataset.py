@@ -55,13 +55,10 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
             download and values correspond to urls. Keys should be
             :obj:`(train, val, test, developers_kit)`.
         mode ({'train', 'val'}): select from dataset split used in ILSVRC2012.
-        bgr (bool): If true, :meth:`ImagenetDataset.get_example` will
-            return an image in BGR format.
 
     """
 
     def __init__(self, data_dir='auto', urls=None, mode='train',
-                 bgr=True,
                  use_cache=False, delete_cache=False):
         if urls is not None:
             assert set(urls.keys()) == set(
@@ -92,8 +89,6 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
         for key, val in self.fns_dict.items():
             self.fns += val
             self.labels += [key] * len(val)
-
-        self.bgr = bgr
 
     def __len__(self):
         return len(self.fns)
@@ -153,7 +148,7 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
         """Returns the i-th example.
 
         Returns a color image, class_id. The image is in CHW format.
-        Images with one channel are transformed to rgb format.
+        The returned image is BGR.
 
         Args:
             i (int): The index of the example.
@@ -164,8 +159,7 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
         img = read_image_as_array(self.fns[i])
         if img.ndim == 2:
             img = img[:, :, np.newaxis]
-        if self.bgr:
-            img = img[:, :, ::-1]
+        img = img[:, :, ::-1]  # BGR to RGB
         img = img.transpose(2, 0, 1).astype(np.float32)
 
         label = self.labels[i]
@@ -175,6 +169,7 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
         """Returns the i-th example from the given class
 
         Note that the class_id starts from 1.
+        The returned image is BGR.
 
         Args:
             class_id (int): The retrieved images will be in this class.
@@ -187,16 +182,30 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
         img = read_image_as_array(self.fns_dict[class_id][i])
         if img.ndim == 2:
             img = img[:, :, np.newaxis]
-        if self.bgr:
-            img = img[:, :, ::-1]
+        img = img[:, :, ::-1]  # BGR to RGB
 
         img = img.transpose(2, 0, 1).astype(np.float32)
         return img
 
-    def get_raw_data(self, i):
+    def get_raw_data(self, i, rgb=True):
+        """Returns the i-th example.
+
+        This returns a color image and its label. The image is in HWC foramt.
+
+        Args:
+            i (int): The index of the example.
+            rgb (bool): If false, the returned image will be in BGR.
+
+        Returns:
+            i-th example (image, label)
+
+        """
         img = read_image_as_array(self.fns[i])
         if img.ndim == 2:
             img = img[:, :, np.newaxis]
+        if not rgb:
+            img = img[:, :, ::-1]
+
         label = self.labels[i]
         return img, label
 
@@ -209,9 +218,9 @@ if __name__ == '__main__':
         'developers_kit': ''
     }
     train_dataset = ImagenetDataset(
-        urls=urls, use_cache=True, delete_cache=False, mode='train', bgr=False)
+        urls=urls, use_cache=True, delete_cache=False, mode='train')
     val_dataset = ImagenetDataset(
-        urls=urls, use_cache=True, delete_cache=False, mode='val', bgr=False)
+        urls=urls, use_cache=True, delete_cache=False, mode='val')
 
     import matplotlib.pyplot as plt
 

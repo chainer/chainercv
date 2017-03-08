@@ -24,14 +24,12 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
             held in :obj:`year`.
         use_difficult (bool): If true, use images that are labeled as
             difficult in the original annotation.
-        bgr (bool): If true, :meth:`VOCSemanticSegmentationDataset.get_example`
-            will return an image in BGR format.
 
     """
 
     labels = voc_utils.pascal_voc_labels
 
-    def __init__(self, data_dir='auto', mode='train', bgr=True):
+    def __init__(self, data_dir='auto', mode='train'):
         if mode not in ['train', 'trainval', 'val']:
             raise ValueError(
                 'please pick mode from \'train\', \'trainval\', \'val\'')
@@ -44,7 +42,6 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
         self.ids = [id_.strip() for id_ in open(id_list_file)]
 
         self.data_dir = data_dir
-        self.bgr = bgr
 
     def __len__(self):
         return len(self.ids)
@@ -62,27 +59,25 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
             tuple of color image and label whose shapes are (3, H, W) and
             (1, H, W) respectively. H and W are height and width of the
             images. The dtype of the color image is :obj:`numpy.float32` and
-            the dtype of the label image is :obj:`numpy.int32`. The color
-            channel of the color image is determined by the paramter
-            :obj:`self.bgr`.
+            the dtype of the label image is :obj:`numpy.int32`.
 
         """
         if i >= len(self):
             raise IndexError('index is too large')
         img, label = self.get_raw_data(i)
-        if self.bgr:
-            img = img[:, :, ::-1]
+        img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
         label = label[None]
         return img, label
 
-    def get_raw_data(self, i):
+    def get_raw_data(self, i, rgb=True):
         """Returns the i-th example's images in HWC format.
 
-        The color image that is returned is in RGB.
+        This returns a color image and its label. The image is in HWC foramt.
 
         Args:
             i (int): The index of the example.
+            rgb (bool): If false, the returned image will be in BGR.
 
         Returns:
             i-th example (image, label image)
@@ -90,6 +85,8 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
         """
         img_file = osp.join(self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
         img = read_image_as_array(img_file)
+        if not rgb:
+            img = img[:, :, ::-1]
         label = self._load_label(self.data_dir, self.ids[i])
         return img, label
 

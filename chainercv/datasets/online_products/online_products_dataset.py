@@ -84,6 +84,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
         Returns a color image, class_id and super_class_id. The image is in CHW
         format.
+        The returned image is BGR.
 
         Args:
             i (int): The index of the example.
@@ -98,16 +99,18 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
         if img.ndim == 2:
             img = img[:, :, np.newaxis]
+        img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
         return img, class_id, super_class_id
 
-    def get_raw_data(self, i):
+    def get_raw_data(self, i, rgb=True):
         """Returns the i-th example's image and class data in HWC format.
 
         The color image that is returned is RGB.
 
         Args:
             i (int): The index of the example.
+            rgb (bool): If false, the returned image will be in BGR.
 
         Returns:
             i-th example (image, class_id, super_class_id)
@@ -116,6 +119,8 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         img = utils.read_image_as_array(self.paths[i])
         if img.ndim == 2:
             img = img[:, :, np.newaxis]
+        if not rgb:
+            img = img[:, :, ::-1]
         class_id = self.class_ids[i]
         super_class_id = self.super_class_ids[i]
         return img, class_id, super_class_id

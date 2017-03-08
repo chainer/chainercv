@@ -79,6 +79,7 @@ class SintelDataset(chainer.dataset.DatasetMixin):
 
         Returns a color image and a label image. Both of them are in CHW
         format.
+        The returned image is BGR.
 
         Args:
             i (int): The index of the example.
@@ -88,18 +89,24 @@ class SintelDataset(chainer.dataset.DatasetMixin):
 
         """
         src, dst, flow = self.get_raw_data(i)
+        src = src[:, :, ::-1]  # RGB to BGR
+        dst = dst[:, :, ::-1]  # RGB to BGR
         src = np.transpose(src, axes=(2, 0, 1)).astype(np.float32)
         dst = np.transpose(dst, axes=(2, 0, 1)).astype(np.float32)
         flow = flow.transpose(2, 0, 1)
         return src, dst, flow
 
-    def get_raw_data(self, i):
+    def get_raw_data(self, i, rgb=True):
         cur_paths = self.paths[self.keys[i]]
 
-        src_img = read_image_as_array(cur_paths['src_img'])
-        dst_img = read_image_as_array(cur_paths['dst_img'])
+        src = read_image_as_array(cur_paths['src_img'])
+        dst = read_image_as_array(cur_paths['dst_img'])
         flow = self._read_flow_sintel(cur_paths['flow'])
-        return src_img, dst_img, flow
+
+        if not rgb:
+            src = src[:, :, ::-1]
+            dst = dst[:, :, ::-1]
+        return src, dst, flow
 
     def _read_flow_sintel(self, path):
         """Read .flo file in Sintel.

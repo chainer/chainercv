@@ -36,8 +36,6 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             held in :obj:`year`.
         use_difficult (bool): If true, use images that are labeled as
             difficult in the original annotation.
-        bgr (bool): If true, :meth:`VOCDetectionDataset.get_example` will
-            return an image in BGR format.
         use_cache (bool): If true, use cache of object annotations. This
             is useful in the case when parsing annotation takes time.
             When this is false, the dataset will not write cache.
@@ -49,7 +47,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     def __init__(self, data_dir='auto', mode='train', year='2012',
                  use_difficult=False,
-                 bgr=True, use_cache=False, delete_cache=False):
+                 use_cache=False, delete_cache=False):
         if data_dir == 'auto' and year in voc_utils.urls:
             data_dir = voc_utils.get_pascal_voc(year)
 
@@ -64,7 +62,6 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         self.data_dir = data_dir
         self.use_difficult = use_difficult
-        self.bgr = bgr
 
         # cache objects
         data_root = download.get_dataset_directory(voc_utils.root)
@@ -121,7 +118,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         """Returns the i-th example.
 
         Returns a color image and bounding boxes. The image is in CHW format.
-        If `self.bgr` is True, the image is in BGR. If not, it is in RGB.
+        The returned image is BGR.
 
         Args:
             i (int): The index of the example.
@@ -134,12 +131,11 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             raise IndexError('index is too large')
         img, bboxes = self.get_raw_data(i)
 
-        if self.bgr:
-            img = img[:, :, ::-1]
+        img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
         return img, bboxes
 
-    def get_raw_data(self, i):
+    def get_raw_data(self, i, rgb=True):
         """Returns the i-th example.
 
         This returns a color image and bounding boxes.
@@ -147,6 +143,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         Args:
             i (int): The index of the example.
+            rgb (bool): If false, the returned image will be in BGR.
 
         Returns:
             i-th example (image, bbox)
@@ -167,6 +164,8 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         # Load a image
         img_file = os.path.join(self.data_dir, 'JPEGImages', obj['filename'])
         img = read_image_as_array(img_file)  # RGB
+        if not rgb:
+            img = img[:, :, ::-1]
         return img, bboxes
 
 

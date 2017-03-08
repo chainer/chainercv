@@ -21,8 +21,6 @@ class CUBKeypointsDataset(CUBDatasetBase):
             [Kanazawa]_.
         crop_bbox (bool): If true, this class returns an image cropped
             by the bounding box of the bird inside it.
-        bgr (bool): If true, method `get_example` will return an image in BGR
-            format.
 
     .. [Kanazawa] Angjoo Kanazawa, David W. Jacobs, \
        Manmohan Chandraker. WarpNet: Weakly Supervised Matching for \
@@ -31,7 +29,7 @@ class CUBKeypointsDataset(CUBDatasetBase):
     """
 
     def __init__(self, data_dir='auto', mode='train',
-                 crop_bbox=True, bgr=True):
+                 crop_bbox=True):
         super(CUBKeypointsDataset, self).__init__(
             data_dir=data_dir, crop_bbox=crop_bbox)
 
@@ -61,19 +59,16 @@ class CUBKeypointsDataset(CUBDatasetBase):
             keypoints_dict[id_].append(keypoints)
         self.keypoints_dict = keypoints_dict
 
-        self.bgr = bgr
-
     def __len__(self):
         return len(self.selected_ids)
 
     def get_example(self, i):
         img, keypoints = self.get_raw_data(i)
-        if self.bgr:
-            img = img[:, :, ::-1]
+        img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
         return img, keypoints
 
-    def get_raw_data(self, i):
+    def get_raw_data(self, i, rgb=True):
         # this i is transformed to id for the entire dataset
         original_idx = self.selected_ids[i]
         img = read_image_as_array(osp.join(
@@ -86,6 +81,8 @@ class CUBKeypointsDataset(CUBDatasetBase):
             img = img[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
             keypoints[:, :2] = keypoints[:, :2] - np.array([bbox[0], bbox[1]])
 
+        if not rgb:
+            img = img[:, :, ::-1]
         return img, keypoints
 
 
@@ -98,6 +95,6 @@ if __name__ == '__main__':
     for i in range(200, 220):
         src_img, src_keys = dataset.get_raw_data(2 * i)
         dst_img, dst_keys = dataset.get_raw_data(2 * i + 1)
-        keys = np.stack([src_keys, dst_keys])
+        keys = np.stack([src_keys, dst_keys], axis=1)
         vis_verts_pairs(src_img, dst_img, keys)
         plt.show()
