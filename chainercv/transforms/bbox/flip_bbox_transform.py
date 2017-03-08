@@ -1,4 +1,4 @@
-def bbox_flip(bboxes, img_shape, h_flip=False, v_flip=False):
+def flip_bbox(bboxes, img_shape, h_flip=False, v_flip=False):
     """Flip bounding boxes accordingly.
 
     The boundig boxes are a

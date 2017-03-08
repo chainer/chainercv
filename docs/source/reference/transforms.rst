@@ -19,6 +19,14 @@ extend_cache
 Image
 -----
 
+chw_to_pil_image
+~~~~~~~~~~~~~~~~
+.. autofunction:: chw_to_pil_image
+
+chw_to_pil_image_tuple
+~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: chw_to_pil_image_tuple
+
 pad
 ~~~
 .. autofunction:: pad
@@ -39,11 +47,18 @@ resize
 Bounding Box
 ------------
 
-bbox_flip
+flip_bbox
 ~~~~~~~~~
-.. autofunction:: bbox_flip
+.. autofunction:: flip_bbox
 
-bbox_resize
+resize_bbox
 ~~~~~~~~~~~
-.. autofunction:: bbox_resize
+.. autofunction:: resize_bbox
 
+
+Keypoint
+--------
+
+resize_keypoint
+~~~~~~~~~~~~~~~
+.. autofunction:: resize_keypoint
