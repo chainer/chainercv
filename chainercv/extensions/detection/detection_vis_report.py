@@ -105,7 +105,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
             method will be called.
         vis_converter (callable): A callable that is used to convert tuple of
             arrays returned by :obj:`dataset.__getitem__`. This function
-            should return tuple of arrays which can be visualized.
+            should return tuple of arrays which can be used for visualization.
 
     """
     invoke_before_training = False
