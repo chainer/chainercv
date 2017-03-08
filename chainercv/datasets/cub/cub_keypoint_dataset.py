@@ -3,7 +3,7 @@ import numpy as np
 import os.path as osp
 
 from chainercv.datasets.cub.cub_utils import CUBDatasetBase
-from chainercv.utils import read_image_as_array
+from chainercv import utils
 
 
 class CUBKeypointsDataset(CUBDatasetBase):
@@ -72,6 +72,8 @@ class CUBKeypointsDataset(CUBDatasetBase):
 
     def get_example(self, i):
         img, keypoints = self.get_raw_data(i)
+        if img.ndim == 2:
+            img = utils.gray2rgb(img)
         img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
         return img, keypoints
@@ -79,7 +81,7 @@ class CUBKeypointsDataset(CUBDatasetBase):
     def get_raw_data(self, i, rgb=True):
         # this i is transformed to id for the entire dataset
         original_idx = self.selected_ids[i]
-        img = read_image_as_array(osp.join(
+        img = utils.read_image_as_array(osp.join(
             self.data_dir, 'images', self.fns[original_idx]))  # RGB
         keypoints = self.keypoints_dict[original_idx]
         keypoints = np.array(keypoints, dtype=np.float32)
@@ -89,6 +91,8 @@ class CUBKeypointsDataset(CUBDatasetBase):
             img = img[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
             keypoints[:, :2] = keypoints[:, :2] - np.array([bbox[0], bbox[1]])
 
+        if img.ndim == 2:
+            img = utils.gray2rgb(img)
         if not rgb:
             img = img[:, :, ::-1]
         return img, keypoints

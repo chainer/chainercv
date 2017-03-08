@@ -1,7 +1,7 @@
 import os.path as osp
 
 from chainercv.datasets.cub.cub_utils import CUBDatasetBase
-from chainercv.utils import read_image_as_array
+from chainercv import utils
 
 
 class CUBLabelDataset(CUBDatasetBase):
@@ -63,8 +63,10 @@ class CUBLabelDataset(CUBDatasetBase):
             i-th example (image, label)
 
         """
-        img = read_image_as_array(
+        img = utils.read_image_as_array(
             osp.join(self.data_dir, 'images', self.fns[i]))  # RGB
+        if img.ndim == 2:
+            img = utils.gray2rgb(img)
         if not rgb:
             img = img[:, :, ::-1]
 

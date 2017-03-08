@@ -98,7 +98,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         img = utils.read_image_as_array(self.paths[i])
 
         if img.ndim == 2:
-            img = img[:, :, np.newaxis]
+            img = utils.gray2rgb(img)
         img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
         return img, class_id, super_class_id
@@ -118,7 +118,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         """
         img = utils.read_image_as_array(self.paths[i])
         if img.ndim == 2:
-            img = img[:, :, np.newaxis]
+            img = utils.gray2rgb(img)
         if not rgb:
             img = img[:, :, ::-1]
         class_id = self.class_ids[i]

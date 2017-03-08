@@ -158,7 +158,7 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
         """
         img = read_image_as_array(self.fns[i])
         if img.ndim == 2:
-            img = img[:, :, np.newaxis]
+            img = utils.gray2rgb(img)
         img = img[:, :, ::-1]  # BGR to RGB
         img = img.transpose(2, 0, 1).astype(np.float32)
 
@@ -181,7 +181,7 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
         """
         img = read_image_as_array(self.fns_dict[class_id][i])
         if img.ndim == 2:
-            img = img[:, :, np.newaxis]
+            img = utils.gray2rgb(img)
         img = img[:, :, ::-1]  # BGR to RGB
 
         img = img.transpose(2, 0, 1).astype(np.float32)
@@ -202,7 +202,7 @@ class ImagenetDataset(chainer.dataset.DatasetMixin):
         """
         img = read_image_as_array(self.fns[i])
         if img.ndim == 2:
-            img = img[:, :, np.newaxis]
+            img = utils.gray2rgb(img)
         if not rgb:
             img = img[:, :, ::-1]
 
