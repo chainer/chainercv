@@ -109,23 +109,33 @@ def main(gpu=-1, epoch=100, batch_size=1, lr=5e-4, out='result'):
         ),
         trigger=log_interval
     )
+
+    def vis_transform(in_data):
+        out_data = transforms.chw_to_pil_image_tuple(in_data)
+        img, bbox = out_data
+        img += np.array([103.939, 116.779, 123.68])[:, None, None]
+        return img, bbox
     trainer.extend(
         DetectionVisReport(
-            range(10),  # visualize outputs for the first 10 data of test_data
+            range(10),  # visualize outputs for the first 10 data of train_data
             train_data,
             model,
             filename_base='detection_train',
-            predict_func=model.predict_bboxes
+            predict_func=model.predict_bboxes,
+            vis_converter=vis_transform
         ),
-        trigger=val_interval, invoke_before_training=True)
+        trigger=val_interval, invoke_before_training=True
+    )
     trainer.extend(
         DetectionVisReport(
             range(10),  # visualize outputs for the first 10 data of test_data
             test_data,
             model,
-            forward_func=model.predict_bboxes
+            forward_func=model.predict_bboxes,
+            vis_converter=vis_transform
         ),
-        trigger=val_interval, invoke_before_training=True)
+        trigger=val_interval, invoke_before_training=True
+    )
 
     trainer.extend(extensions.dump_graph('main/loss'))
 
