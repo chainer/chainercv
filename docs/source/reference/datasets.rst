@@ -16,14 +16,6 @@ CUBKeypointsDataset
 .. autofunction:: CUBKeypointsDataset
 
 
-ImageNet
---------
-
-ImagenetDataset
-~~~~~~~~~~~~~~~
-.. autofunction:: ImagenetDataset
-
-
 OnlineProducts
 --------------
 
@@ -42,12 +34,3 @@ VOCDetectionDataset
 VOCSemanticSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: VOCSemanticSegmentationDataset
-
-
-Sintel
-------
-
-SintelDataset
-~~~~~~~~~~~~~
-.. autofunction:: SintelDataset
-
