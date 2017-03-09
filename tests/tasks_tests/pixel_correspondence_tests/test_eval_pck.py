@@ -2,6 +2,8 @@ import unittest
 
 import numpy as np
 
+from chainer import testing
+
 from chainercv.tasks import eval_pck
 
 
@@ -16,3 +18,6 @@ class TestEvalPCK(unittest.TestCase):
 
         pck_pred = eval_pck(pred, expected, alpha=0.25, L=2.)
         self.assertAlmostEqual(pck_pred, 0.5)
+
+
+testing.run_module(__name__, __file__)
