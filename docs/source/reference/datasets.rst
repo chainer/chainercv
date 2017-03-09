@@ -42,12 +42,3 @@ VOCDetectionDataset
 VOCSemanticSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: VOCSemanticSegmentationDataset
-
-
-Sintel
-------
-
-SintelDataset
-~~~~~~~~~~~~~
-.. autofunction:: SintelDataset
-
