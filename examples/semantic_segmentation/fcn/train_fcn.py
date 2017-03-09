@@ -8,8 +8,7 @@ from chainer.training import extensions
 
 from chainercv.datasets import VOCSemanticSegmentationDataset
 from chainercv.extensions import SemanticSegmentationVisReport
-from chainercv.transforms import pad
-from chainercv.transforms import extend
+from chainercv import transforms
 
 from fcn32s import FCN32s
 
@@ -32,14 +31,14 @@ def main(gpu=-1, batch_size=1, iterations=100000,
         vgg_subtract_bgr = np.array(
             [103.939, 116.779, 123.68], np.float32)[:, None, None]
         img -= vgg_subtract_bgr
-        img = pad(img, max_size=(512, 512), bg_value=0)
-        label = pad(label, max_size=(512, 512), bg_value=-1)
+        img = transforms.pad(img, max_size=(512, 512), bg_value=0)
+        label = transforms.pad(label, max_size=(512, 512), bg_value=-1)
         return img, label
 
     train_data = VOCSemanticSegmentationDataset(mode='train')
     test_data = VOCSemanticSegmentationDataset(mode='val')
-    extend(train_data, transform)
-    extend(test_data, transform)
+    transforms.extend(train_data, transform)
+    transforms.extend(test_data, transform)
 
     # set up FCN32s
     n_class = 21
@@ -106,13 +105,24 @@ def main(gpu=-1, batch_size=1, iterations=100000,
             ['main/fwavacc', 'validation/main/fwavacc'],
             trigger=log_interval, file_name='fwavacc.png')
     )
+
+    def vis_transform(in_data):
+        vgg_subtract_bgr = np.array(
+            [103.939, 116.779, 123.68], np.float32)[:, None, None]
+        img, label = in_data
+        img += vgg_subtract_bgr
+        img, label = transforms.chw_to_pil_image_tuple(
+            (img, label), indices=[0, 1])
+        return img, label
+
     trainer.extend(
         SemanticSegmentationVisReport(
             range(10),  # visualize outputs for the first 10 data of test_data
             test_data,
             model,
             n_class=n_class,
-            predict_func=model.extract  # use FCN32s.extract to get a score map
+            predict_func=model.extract,  # use FCN32s.extract to get a scoremap
+            vis_transform=vis_transform
         ),
         trigger=val_interval, invoke_before_training=True)
 

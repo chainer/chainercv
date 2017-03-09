@@ -3,7 +3,8 @@ import numpy as np
 
 
 def _fast_hist(label_true, label_pred, n_class):
-    """
+    """Construct histogram for label evaluation.
+
     Returns
         numpy.ndarray of shape (n_class, n_class)
     """

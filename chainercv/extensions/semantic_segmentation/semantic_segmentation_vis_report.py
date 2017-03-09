@@ -6,6 +6,7 @@ import warnings
 import chainer
 from chainer.utils import type_check
 
+from chainercv.transforms import chw_to_pil_image_tuple
 from chainercv.utils import check_type
 from chainercv.utils import forward
 
@@ -19,31 +20,114 @@ except ImportError:
     _available = False
 
 
+def chw_to_pil_image_tuple_img_label(xs):
+    return chw_to_pil_image_tuple(xs, indices=[0, 1])
+
+
 class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
-    """An extension that visualizes input and output of semantic segmentation.
+    """An extension that visualizes output for semantic segmentation task.
 
-    This extension visualizes predicted label, ground truth label and input
-    image.
+    This extension visualizes the predicted bounding boxes together with the
+    ground truth bounding boxes.
+    The examples used in visualization are selected by ids included in
+    :obj:`indices`.
+
+    This extension wraps three steps of operations needed to visualize output
+    of the model. :obj:`dataset`,
+    :obj:`predict_func` and :obj:`vis_transformer` are used at each step.
+
+    1. Getting an example.
+        :meth:`dataset.__getitem__` returns tuple of arrays that are used as
+        the arguments for :obj:`predict_func`.
+
+        .. code:: python
+
+            inputs = dataset[i]
+            img, label = inputs
+
+        :obj:`i` corresponds to an id included in :obj:`indices`.
+
+    2. Predicting the output.
+        Given the inputs, :meth:`predict_func` returns the tuple of arrays as
+        outputs. :meth:`predict_func` should accept inputs with a batch axis
+        and returns outputs with a batch axis. The function should be used
+        like below.
+
+        .. code:: python
+
+            img, label = inputs
+            pred_label, = predict_func((img[None], label[None]))
+
+    3. Converting input arrays for visualization.
+        Given the inputs from :meth:`dataset.__getitem__`, a method
+        :meth:`vis_transformer` should convert them into visualizable forms.
+        The values returned by :meth:`vis_transformer` should be
+
+        .. code:: python
+
+            img, label = vis_transformer(inputs)
+
+        :obj:`img` should be an image which is in HWC format, RGB and
+        :obj:`dtype==numpy.uint8`.
+
+    The process can be illustrated in the following code.
+
+    .. code:: python
+
+        img, label = dataset[i]
+        pred_label, = predict_func((img[None], label[None])  # add batch axis
+        pred_label = pred_label[0]  # remove batch axis
+        vis_img, vis_label = vis_transformer(inputs)
+
+        # Visualization code
+        # Uses (vis_img, vis_label) as the ground truth output
+        # Uses (vis_img, pred_label) as the predicted output
+
+    .. note::
+        All images and labels that are obtained from the dataset should be
+        in CHW format. This means that :obj:`img` and :obj:`label` are of
+        shape :math:`(3, H, W)` and :math:`(1, H, W)`.
+
+        The output of the model should be in BCHW format. More concretely,
+        :obj:`pred_label` should be of shape :math:`(1, L, H, W)`. Note that
+        :math:`L` is number of categories including the background.
+
+        The output of :obj:`vis_transformer` should be in HWC format.
+        This means that :obj:`vis_img` and :obj:`vis_label` should be in
+        shape :math:`(H, W, 3)` and :math:`(H, W, 1)`.
+
+    .. note::
+        All datasets prepared in :mod:`chainercv.datasets` should work
+        out of the box with the default value of :obj:`vis_transformer`.
+
+        However, if the dataset has been extended by transformers,
+        :obj:`vis_transformer` needs to offset some transformations
+        that are applied in order to achive a visual quality.
+        For example, when the mean value is subtracted from input images,
+        the mean value needs to be added back inside of :obj:`vis_transformer`.
 
     Args:
         indices (list of ints or int): List of indices for data to be
             visualized
         target: Link object used for visualization
-        dataset: Dataset class that produces inputs to ``target``.
-        n_class (int): number of classes
+        dataset: Dataset class that produces inputs to :obj:`target`.
         filename_base (int): basename for saved image
         predict_func (callable): Callable that is used to forward data input.
             This callable takes all the arrays returned by the dataset as
-            input. Also, this callable returns an prediction of labels.
-            If `predict_func = None`, then the model's `__call__` method will
-            be called.
+            input. Also, this callable returns an predicted bounding boxes.
+            If :obj:`predict_func = None`, then :meth:`model.__call__`
+            method will be called.
+        vis_transformer (callable): A callable that is used to convert tuple of
+            arrays returned by :obj:`dataset.__getitem__`. This function
+            should return tuple of arrays which can be used for visualization.
 
     """
     invoke_before_training = False
 
     def __init__(self, indices, dataset, target, n_class,
-                 filename_base='semantic_seg', predict_func=None):
+                 filename_base='semantic_seg', predict_func=None,
+                 vis_transform=chw_to_pil_image_tuple_img_label):
         if not isinstance(indices, collections.Iterable):
             indices = list(indices)
         self.dataset = dataset
@@ -52,6 +136,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         self.n_class = n_class
         self.filename_base = filename_base
         self.predict_func = predict_func
+        self.vis_transform = vis_transform
 
     @check_type
     def _check_type_dataset(self, in_types):
@@ -78,13 +163,14 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         )
 
     @check_type
-    def _check_type_get_raw_data(self, in_types):
+    def _check_type_vis_transformed(self, in_types):
         img_type = in_types[0]
         label_type = in_types[1]
         type_check.expect(
             img_type.ndim == 3,
-            label_type.ndim == 2,
-            img_type.shape[2] == 3
+            label_type.ndim == 3,
+            img_type.shape[2] == 3,
+            label_type.shape[2] == 1,
         )
 
     def __call__(self, trainer):
@@ -109,25 +195,17 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
             self._check_type_model(out)
             label = np.argmax(out[0][0], axis=0)
 
-            if not hasattr(self.dataset, 'get_raw_data'):
-                raise ValueError(
-                    'the dataset class needs to have a method '
-                    '``get_raw_data`` for a visualization extension')
-            raw_inputs = self.dataset.get_raw_data(idx)
-            self._check_type_get_raw_data(raw_inputs)
-            vis_img = raw_inputs[0]
+            vis_transformed = self.vis_transform(inputs)
+            self._check_type_vis_transformed(vis_transformed)
+            vis_img = vis_transformed[0]
 
             # mask
             label[gt[0] == -1] = -1
 
             # prepare label
-            x_slices, y_slices = _get_pad_slices(gt[0], unknown_val=-1)
             label = _process_label(label, self.n_class)
             gt_label = _process_label(gt[0], self.n_class)
-            label = label[y_slices, x_slices]
-            gt_label = gt_label[y_slices, x_slices]
 
-            plt.close()
             plt.subplot(2, 2, 1)
             plt.imshow(vis_img)
             plt.axis('off')
@@ -138,6 +216,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
             plt.imshow(gt_label, vmin=-1, vmax=21)
             plt.axis('off')
             plt.savefig(out_file)
+            plt.close()
 
 
 def bitget(byteval, idx):
@@ -168,12 +247,3 @@ def _process_label(label, n_class, bg_label=0):
     # label 0 color: (0, 0, 0, 0) -> (0, 0, 0, 255)
     label_viz[label == 0] = 0
     return label_viz
-
-
-def _get_pad_slices(label, unknown_val=-1):
-    where_val = np.where(label != -1)
-    y = where_val[0]
-    x = where_val[1]
-    y_slices = slice(np.min(y), np.max(y) + 1, None)
-    x_slices = slice(np.min(x), np.max(x) + 1, None)
-    return x_slices, y_slices
