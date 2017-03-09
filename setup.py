@@ -17,4 +17,6 @@ setup(
     license='MIT',
     description=description,
     install_requires=open('requirements.txt').readlines(),
+    include_package_data=True,
+    data_files=[('chainercv/datasets/cub/configs/', ['chainercv/datasets/cub/configs/test_images.npy'])]
 )
