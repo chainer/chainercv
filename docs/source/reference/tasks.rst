@@ -4,12 +4,9 @@ Tasks
 .. module:: chainercv.tasks
 
 
-Pixel Correspondenc
--------------------
+Pixel Correspondence
+--------------------
 
 eval_pck
 ~~~~~~~~
 .. autofunction:: eval_pck
-
-
-
