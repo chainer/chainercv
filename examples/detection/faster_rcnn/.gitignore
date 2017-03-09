@@ -1,0 +1,4 @@
+*.npz
+*.caffemodel
+demo/
+test_data/
