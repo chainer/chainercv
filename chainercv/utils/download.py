@@ -9,8 +9,8 @@ import zipfile
 import filelock
 from six.moves.urllib import request
 
-import time
 import sys
+import time
 
 
 _dataset_root = os.environ.get('CHAINER_DATASET_ROOT',

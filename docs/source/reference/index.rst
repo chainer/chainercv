@@ -10,3 +10,9 @@ ChainerCV Reference Manual
    datasets
    extensions
    transforms
+
+
+.. toctree::
+   :maxdepth: 1
+
+   tasks
