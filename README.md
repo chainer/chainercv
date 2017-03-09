@@ -15,7 +15,6 @@ ChainerCV does the dirty work when training a neural network for a computer visi
 You can find the documentation [here](http://chainercv.readthedocs.io/en/latest/).
 
 
-
 # Installation
 
 ```
