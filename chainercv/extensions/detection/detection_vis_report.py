@@ -180,7 +180,6 @@ class DetectionVisReport(chainer.training.extension.Extension):
             raw_bboxes = vis_transformed[1]
 
             # start visualizing using matplotlib
-            plt.close()
             fig = plt.figure()
 
             ax_gt = fig.add_subplot(2, 1, 1)
@@ -194,6 +193,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
             vis_img_bbox(vis_img, bboxes, label_names=label_names, ax=ax_pred)
 
             plt.savefig(out_file)
+            plt.close()
 
 
 if __name__ == '__main__':
