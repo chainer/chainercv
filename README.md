@@ -2,6 +2,7 @@
 
 <!--[![pypi](https://img.shields.io/pypi/v/chainercv.svg)](https://pypi.python.org/pypi/chainercv)-->
 
+
 # ChainerCV
 
 ChainerCV does the dirty work when training a neural network for a computer vision task. In particular, this is a colletion of tools that do following
