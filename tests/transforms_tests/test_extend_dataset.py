@@ -3,8 +3,8 @@ import unittest
 import numpy as np
 
 from chainer import testing
-from chainercv.testing import SimpleDataset
 from chainercv.transforms import extend
+from chainercv.utils import SimpleDataset
 
 
 class TestExtend(unittest.TestCase):
