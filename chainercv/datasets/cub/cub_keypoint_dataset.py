@@ -43,8 +43,8 @@ class CUBKeypointsDataset(CUBDatasetBase):
 
         # set mode
         test_images = np.load(
-            osp.join(osp.split(osp.abspath(__file__))[0],
-                     'configs/test_images.npy'))
+            osp.join(osp.split(osp.split(osp.abspath(__file__))[0])[0],
+                     'data/cub_keypoint_dataset_test_image_ids.npy'))
         # the original one has ids starting from 1
         test_images = test_images - 1
         train_images = np.setdiff1d(np.arange(len(self.fns)), test_images)
