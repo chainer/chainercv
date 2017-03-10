@@ -1,7 +1,5 @@
 import numpy as np
 
-import matplotlib.pyplot as plt
-
 
 def vis_verts_pairs(src_img, dst_img, verts, axes=None):
     """Visualize vertex pairs
@@ -14,14 +12,15 @@ def vis_verts_pairs(src_img, dst_img, verts, axes=None):
         axes (length two list of matplotlib.axes.Axes)
 
     """
+    import matplotlib.pyplot as plot
 
     if axes is None:
-        fig = plt.figure()
+        fig = plot.figure()
         axes = [fig.add_subplot(1, 2, 1), fig.add_subplot(1, 2, 2)]
     assert len(axes) == 2
 
     n_colors = 15
-    cm = plt.get_cmap('gist_rainbow')
+    cm = plot.get_cmap('gist_rainbow')
 
     colors = [cm(1. * i / n_colors) for i in range(n_colors)]
     if verts.shape[2] == 3:

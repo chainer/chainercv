@@ -21,11 +21,11 @@ pip install chainercv
 
 + [Chainer](https://github.com/pfnet/chainer) and its dependencies
 + Pillow
-+ Matplotlib
 
 For additional features
 
-+ Scikit-Image
++ Matplotlib
++ OpenCV
 + Scikit-Learn
 
 
