@@ -9,7 +9,7 @@ ChainerCV is a collection of tools to train neural networks for computer vision 
 
 You can find the documentation [here](http://chainercv.readthedocs.io/en/latest/).
 
-This project is still work in progress.
+This project is under development, and some API may change in the future.
 
 
 # Installation
