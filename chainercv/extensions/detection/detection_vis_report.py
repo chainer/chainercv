@@ -1,5 +1,6 @@
 import collections
 import os.path as osp
+import warnings
 
 import chainer
 from chainer.utils import type_check
@@ -9,7 +10,21 @@ from chainercv.transforms import chw_to_pil_image_tuple
 from chainercv.utils.extension_utils import check_type
 from chainercv.utils.extension_utils import forward
 
-from matplotlib import pyplot as plt
+try:
+    from matplotlib import pyplot as plot
+
+    _available = True
+
+except ImportError:
+    _available = False
+
+
+def _check_available():
+    if not _available:
+        warnings.warn('matplotlib is not installed on your environment, '
+                      'so nothing will be plotted at this time. '
+                      'Please install matplotlib to plot figures.\n\n'
+                      '  $ pip install matplotlib\n')
 
 
 class DetectionVisReport(chainer.training.extension.Extension):
@@ -113,6 +128,8 @@ class DetectionVisReport(chainer.training.extension.Extension):
     def __init__(self, indices, dataset, target,
                  filename_base='detection', predict_func=None,
                  vis_transform=chw_to_pil_image_tuple):
+        _check_available()
+
         if not isinstance(indices, collections.Iterable):
             indices = list(indices)
         self.dataset = dataset
@@ -154,7 +171,15 @@ class DetectionVisReport(chainer.training.extension.Extension):
             bboxes_type.shape[1] == 5
         )
 
+    @staticmethod
+    def available():
+        _check_available()
+        return _available
+
     def __call__(self, trainer):
+        if not _available:
+            return
+
         for idx in self.indices:
             formated_filename_base = osp.join(trainer.out, self.filename_base)
             out_file = (formated_filename_base +
@@ -180,7 +205,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
             raw_bboxes = vis_transformed[1]
 
             # start visualizing using matplotlib
-            fig = plt.figure()
+            fig = plot.figure()
 
             ax_gt = fig.add_subplot(2, 1, 1)
             ax_gt.set_title('ground truth')
@@ -192,8 +217,8 @@ class DetectionVisReport(chainer.training.extension.Extension):
             ax_pred.set_title('prediction')
             vis_img_bbox(vis_img, bboxes, label_names=label_names, ax=ax_pred)
 
-            plt.savefig(out_file)
-            plt.close()
+            plot.savefig(out_file)
+            plot.close()
 
 
 if __name__ == '__main__':
