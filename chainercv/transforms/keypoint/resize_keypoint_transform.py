@@ -9,8 +9,9 @@ def resize_keypoint(keypoints, input_shape, output_shape):
     is whether the keypoint is visible in the image or not.
 
     Args:
-        keypoints (~numpy.ndarray): keypoints in the image. see description
-            above.
+        keypoints (~numpy.ndarray): keypoints in the image. This can be
+            either a float or integer array. Please see description
+            above for more detail.
         input_shape (tuple): A tuple of length 2. The height and the width
             of the image before resized.
         output_shape (tuple): A tuple of length 2. The height and the width

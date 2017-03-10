@@ -27,7 +27,8 @@ def resize(x, output_shape):
                          ' environment, you can install it by '
                          '$ conda install -c menpo opencv=2.4.11\n')
 
+    H, W = output_shape
     x = x.transpose(1, 2, 0)
-    x = cv2.resize(x, dsize=output_shape)
+    x = cv2.resize(x, dsize=(W, H))
     x = x.transpose(2, 0, 1)
     return x

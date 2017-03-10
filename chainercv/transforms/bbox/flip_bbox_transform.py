@@ -25,6 +25,7 @@ def flip_bbox(bboxes, img_shape, h_flip=False, v_flip=False):
 
     """
     H, W = img_shape
+    bboxes = bboxes.copy()
     if h_flip:
         x_max = W - 1 - bboxes[:, 0]
         x_min = W - 1 - bboxes[:, 2]
