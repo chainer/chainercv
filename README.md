@@ -53,9 +53,9 @@ dataset = VOCSemanticSegmentationDataset()
 def transform(in_data):
     # in_data is the returned values of VOCSemanticSegmentationDataset.get_example
     img, label = in_data
+    img -= 122.5
     img = pad(img, max_size=(512, 512), bg_value=0)  # pad to (H, W) = (512, 512)
     label = pad(img, max_size=(512, 512), bg_value=-1)
-    img -= 122.5
     return img, label
 extend(dataset, transform)
 img, label = dataset[0]
