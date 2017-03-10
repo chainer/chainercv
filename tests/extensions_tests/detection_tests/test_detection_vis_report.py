@@ -7,9 +7,9 @@ import tempfile
 
 from chainer import testing
 
-from chainercv.testing import DummyDatasetGetRawData
-from chainercv.testing import ConstantReturnModel
 from chainercv.extensions import DetectionVisReport
+from chainercv.testing import ConstantReturnModel
+from chainercv.testing import DummyDatasetGetRawData
 
 
 @testing.parameterize(

@@ -7,8 +7,9 @@ import tempfile
 
 from chainer import testing
 
-from chainercv.testing import DummyDatasetGetRawData, ConstantReturnModel
 from chainercv.extensions import SemanticSegmentationVisReport
+from chainercv.testing import ConstantReturnModel
+from chainercv.testing import DummyDatasetGetRawData
 
 
 class TestSemanticSegmentationVisReport(unittest.TestCase):
