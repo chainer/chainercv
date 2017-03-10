@@ -1,7 +1,7 @@
 import numpy as np
 
 try:
-    import skimage.transform
+    import cv2
     _available = True
 
 except ImportError:
@@ -11,33 +11,25 @@ except ImportError:
 def resize(x, output_shape):
     """Resize image to match the given shape.
 
+    A bilinear interpolation is used for resizing.
+
     Args:
         x (~numpy.ndarray): array to be transformed. This is in CHW format.
         output_shape (tuple): this is a tuple of length 2. Its elements are
             ordered as (height, width).
 
+    Returns:
+        ~numpy.ndarray
+
     """
     if not _available:
-        raise ValueError('scikit-image is not installed on your environment, '
-                         'so a function resize can not be '
-                         ' used. Please install scikit-image.\n\n'
-                         '  $ pip install scikit-image\n')
+        raise ValueError('cv2 is not installed on your environment, '
+                         'so nothing will be plotted at this time. '
+                         'Please install OpenCV.\n\n Under Anaconda '
+                         ' environment, you can install it by '
+                         '$ conda install -c menpo opencv=2.4.11\n')
 
-    if len(output_shape) != 2:
-        raise ValueError('length of the output_shape needs to be 2')
     x = x.transpose(1, 2, 0)
-    scale = np.max(np.abs(x))
-    x = skimage.transform.resize(
-        x / scale, output_shape).astype(x.dtype)
-    x = x.transpose(2, 0, 1) * scale
+    x = cv2.resize(x, dsize=output_shape)
+    x = x.transpose(2, 0, 1)
     return x
-
-
-if __name__ == '__main__':
-    from skimage.data import astronaut
-    data = astronaut().astype(np.float32)
-    data = data.transpose(2, 0, 1)
-    out = resize(data, (256, 128))
-    import matplotlib.pyplot as plt
-    plt.imshow(out.transpose(1, 2, 0).astype(np.uint8))
-    plt.show()
