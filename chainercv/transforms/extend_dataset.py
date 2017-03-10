@@ -42,9 +42,9 @@ def extend(dataset, transform, method_name='get_example'):
         >>> dataset = VOCSemanticSegmentationDataset()
         >>> def transform(in_data):
         >>>     img, label = in_data
+        >>>     img -= 122.5
         >>>     img = pad(img, (512, 512), bg_value=0)
         >>>     label = pad(label, (512, 512), bg_value=-1)
-        >>>     img -= 122.5
         >>>     return img, label
         >>> extend(dataset, transform)
         >>> img, label = dataset.get_example(0)
