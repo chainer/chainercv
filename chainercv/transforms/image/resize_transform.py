@@ -17,7 +17,7 @@ def resize(x, output_shape):
             ordered as (height, width).
 
     Returns:
-        ~numpy.ndarray
+        ~numpy.ndarray: a resize array
 
     """
     if not _available:

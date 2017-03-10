@@ -10,6 +10,9 @@ def pad(x, max_size, bg_value):
             padding (max_H, max_W).
         bg_value (scalar): value of the padded regions
 
+    Returns:
+        ~numpy.ndarray: a padded array
+
     """
     x_slices, y_slices = _get_pad_slices(x, max_size=max_size)
     out = bg_value * np.ones((x.shape[0],) + max_size, dtype=x.dtype)
