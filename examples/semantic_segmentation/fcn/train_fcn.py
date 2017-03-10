@@ -121,7 +121,7 @@ def main(gpu=-1, batch_size=1, iterations=100000,
             test_data,
             model,
             n_class=n_class,
-            predict_func=model.extract,  # use FCN32s.extract to get a scoremap
+            predict_func=model.predict,  # a function to predict output
             vis_transform=vis_transform
         ),
         trigger=val_interval, invoke_before_training=True)
