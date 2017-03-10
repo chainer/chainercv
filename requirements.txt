@@ -1,4 +1,3 @@
 chainer >= 1.21
 fire
-matplotlib
 pillow
