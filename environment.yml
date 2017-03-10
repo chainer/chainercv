@@ -1,9 +1,9 @@
 name: chainercv
 dependencies:
+  - opencv=2.4.10
   - matplotlib
   - numpy
   - scikit-learn
-  - scikit-image
   - scipy
   - pip:
     - fire
