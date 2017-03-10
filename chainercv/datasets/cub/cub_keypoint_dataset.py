@@ -17,7 +17,7 @@ class CUBKeypointsDataset(CUBDatasetBase):
     Note that not all keypoints are visible in an image. In that case,
     :obj:`valid` value is :math:`0`.
     The shape of keypoints is :math:`(15, 3)`. The last dimension is
-    composed of :obj:`(x, y, valid)` in this order. :obj;`x` and
+    composed of :obj:`(x, y, valid)` in this order. :obj:`x` and
     :obj:`y` are coordinates of a keypoint. :obj:`valid` is whether the
     keypoint is visible in the image or not.
 

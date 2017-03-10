@@ -1,9 +1,13 @@
 def resize_bbox(bboxes, input_shape, output_shape):
     """Resize bounding boxes according to image resize.
 
-    The boundig boxes are a
-    collection of length 5 arrays. Each array contains values
-    organized as (x_min, y_min, x_max, y_max, label_id).
+    The bounding box is expected to be a two dimensional tensor of shape
+    :math:`(R, 5)`, where :math:`R` is the number of bounding boxes in
+    the image. The second axis represents attributes of the bounding box.
+    They are :obj:`(x_min, y_min, x_max, y_max, label_id)`, where first
+    four attributes are coordinates of the bottom left and the top right
+    vertices. The last attribute is the label id, which points to the
+    category of the object in the bounding box.
 
     Args:
         bboxes (~numpy.ndarray): shape is :math:`(R, 5)`. :math:`R` is
