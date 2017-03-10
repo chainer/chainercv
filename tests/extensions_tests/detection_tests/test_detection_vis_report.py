@@ -9,7 +9,7 @@ from chainer import testing
 
 from chainercv.extensions import DetectionVisReport
 from chainercv.testing import ConstantReturnModel
-from chainercv.testing import DummyDatasetGetRawData
+from chainercv.testing import DummyDataset
 
 
 @testing.parameterize(
@@ -27,11 +27,9 @@ class TestDetectionVisReport(unittest.TestCase):
         self.trainer.updater.iteration = 0
 
         model = ConstantReturnModel(np.random.uniform(size=(1,) + self.shape))
-        dataset = DummyDatasetGetRawData(
+        dataset = DummyDataset(
             shapes=[(3, 10, 10), self.shape],
-            get_raw_data_shapes=[(10, 10, 3), self.shape],
-            dtypes=[np.float32, np.float32],
-            get_raw_data_dtypes=[np.uint8, np.float32])
+            dtypes=[np.float32, np.float32])
 
         self.extension = DetectionVisReport(
             self.indices, dataset, model,
