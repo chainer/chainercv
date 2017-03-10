@@ -5,7 +5,7 @@ import warnings
 import chainer
 from chainer.utils import type_check
 
-from chainercv.tasks.detection import vis_img_bbox
+from chainercv.tasks import vis_img_bbox
 from chainercv.transforms import chw_to_pil_image_tuple
 from chainercv.utils.extension_utils import check_type
 from chainercv.utils.extension_utils import forward
