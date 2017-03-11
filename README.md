@@ -1,4 +1,4 @@
-[![travis](https://travis-ci.org/yuyu2172/chainercv.svg?branch=master)](https://travis-ci.org/yuyu2172/chainercv)
+<!--[![travis](https://travis-ci.org/pfnet/chainercv.svg?branch=master)](https://travis-ci.org/pfnet/chainercv)-->
 
 <!--[![pypi](https://img.shields.io/pypi/v/chainercv.svg)](https://pypi.python.org/pypi/chainercv)-->
 
@@ -8,6 +8,8 @@
 ChainerCV is a collection of tools to train neural networks for computer vision tasks using [Chainer](https://github.com/pfnet/chainer).
 
 You can find the documentation [here](http://chainercv.readthedocs.io/en/latest/).
+
+This project is under development, and some API may change in the future.
 
 
 # Installation
@@ -21,12 +23,15 @@ pip install chainercv
 
 + [Chainer](https://github.com/pfnet/chainer) and its dependencies
 + Pillow
-+ Matplotlib
 
 For additional features
 
-+ Scikit-Image
++ Matplotlib
++ OpenCV
 + Scikit-Learn
+
+
+Environments under Python 2.7.12 and 3.6.0 are tested.
 
 
 # Features
@@ -53,9 +58,9 @@ dataset = VOCSemanticSegmentationDataset()
 def transform(in_data):
     # in_data is the returned values of VOCSemanticSegmentationDataset.get_example
     img, label = in_data
+    img -= 122.5
     img = pad(img, max_size=(512, 512), bg_value=0)  # pad to (H, W) = (512, 512)
     label = pad(img, max_size=(512, 512), bg_value=-1)
-    img -= 122.5
     return img, label
 extend(dataset, transform)
 img, label = dataset[0]

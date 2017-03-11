@@ -1,4 +1,4 @@
-import fire
+import argparse
 import numpy as np
 import os.path as osp
 
@@ -23,8 +23,34 @@ class TestModeEvaluator(extensions.Evaluator):
         return ret
 
 
-def main(gpu=-1, batch_size=1, iterations=100000,
-         lr=1e-10, out='result', resume=''):
+def main():
+    parser = argparse.ArgumentParser(
+        description='ChainerCV Semantic Segmentation example with FCN')
+    parser.add_argument('--batch_size', '-b', type=int, default=1,
+                        help='Number of images in each mini-batch')
+    parser.add_argument('--iteration', '-i', type=int, default=50000,
+                        help='Number of iteration to carry out')
+    parser.add_argument('--gpu', '-g', type=int, default=-1,
+                        help='GPU ID (negative value indicates CPU)')
+    parser.add_argument('--lr', '-l', type=float, default=1e-10,
+                        help='Learning rate of the optimizer')
+    parser.add_argument('--out', '-o', default='result',
+                        help='Directory to output the result')
+    parser.add_argument('--resume', '-r', default='',
+                        help='Resume the training from snapshot')
+    args = parser.parse_args()
+
+    print('GPU: {}'.format(args.gpu))
+    print('# Minibatch-size: {}'.format(args.batch_size))
+    print('# iteration: {}'.format(args.iteration))
+    print('')
+    batch_size = args.batch_size
+    iteration = args.iteration
+    gpu = args.gpu
+    lr = args.lr
+    out = args.out
+    resume = args.resume
+
     # prepare datasets
     def transform(in_data):
         img, label = in_data
@@ -59,7 +85,7 @@ def main(gpu=-1, batch_size=1, iterations=100000,
         test_data, batch_size=1, repeat=False, shuffle=False)
 
     updater = training.StandardUpdater(train_iter, optimizer, device=gpu)
-    trainer = training.Trainer(updater, (iterations, 'iteration'), out=out)
+    trainer = training.Trainer(updater, (iteration, 'iteration'), out=out)
 
     val_interval = 3000, 'iteration'
     log_interval = 100, 'iteration'
@@ -121,7 +147,7 @@ def main(gpu=-1, batch_size=1, iterations=100000,
             test_data,
             model,
             n_class=n_class,
-            predict_func=model.extract,  # use FCN32s.extract to get a scoremap
+            predict_func=model.predict,  # a function to predict output
             vis_transform=vis_transform
         ),
         trigger=val_interval, invoke_before_training=True)
@@ -135,4 +161,4 @@ def main(gpu=-1, batch_size=1, iterations=100000,
 
 
 if __name__ == '__main__':
-    fire.Fire(main)
+    main()

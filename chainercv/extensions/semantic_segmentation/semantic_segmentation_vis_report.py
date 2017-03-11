@@ -1,6 +1,7 @@
 import collections
 import numpy as np
 import os.path as osp
+import six
 import warnings
 
 import chainer
@@ -10,14 +11,21 @@ from chainercv.transforms import chw_to_pil_image_tuple
 from chainercv.utils import check_type
 from chainercv.utils import forward
 
-from matplotlib import pyplot as plt
-
 try:
-    from skimage.color import label2rgb
+    from matplotlib import pyplot as plot
+
     _available = True
 
 except ImportError:
     _available = False
+
+
+def _check_available():
+    if not _available:
+        warnings.warn('matplotlib is not installed on your environment, '
+                      'so nothing will be plotted at this time. '
+                      'Please install matplotlib to plot figures.\n\n'
+                      '  $ pip install matplotlib\n')
 
 
 def chw_to_pil_image_tuple_img_label(xs):
@@ -110,8 +118,10 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
     Args:
         indices (list of ints or int): List of indices for data to be
             visualized
-        target: Link object used for visualization
         dataset: Dataset class that produces inputs to :obj:`target`.
+        target: Link object used for visualization
+        n_class (int): number of labels including background, but excluding
+            unknowns.
         filename_base (int): basename for saved image
         predict_func (callable): Callable that is used to forward data input.
             This callable takes all the arrays returned by the dataset as
@@ -157,9 +167,10 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
     def _check_type_model(self, in_types):
         predict_type = in_types[0]
         type_check.expect(
+            predict_type.dtype.kind == 'i',
             predict_type.ndim == 4,
             predict_type.shape[0] == 1,
-            predict_type.shape[1] == self.n_class
+            predict_type.shape[1] == 1,
         )
 
     @check_type
@@ -193,7 +204,8 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
             out = forward(self.target, inputs,
                           forward_func=self.predict_func, expand_dim=True)
             self._check_type_model(out)
-            label = np.argmax(out[0][0], axis=0)
+            label = out[0]  # (1, 1, H, W)
+            label = label[0][0]  # (H, W)
 
             vis_transformed = self.vis_transform(inputs)
             self._check_type_vis_transformed(vis_transformed)
@@ -206,17 +218,17 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
             label = _process_label(label, self.n_class)
             gt_label = _process_label(gt[0], self.n_class)
 
-            plt.subplot(2, 2, 1)
-            plt.imshow(vis_img)
-            plt.axis('off')
-            plt.subplot(2, 2, 3)
-            plt.imshow(label, vmin=-1, vmax=21)
-            plt.axis('off')
-            plt.subplot(2, 2, 4)
-            plt.imshow(gt_label, vmin=-1, vmax=21)
-            plt.axis('off')
-            plt.savefig(out_file)
-            plt.close()
+            plot.subplot(2, 2, 1)
+            plot.imshow(vis_img)
+            plot.axis('off')
+            plot.subplot(2, 2, 3)
+            plot.imshow(label, vmin=-1, vmax=21)
+            plot.axis('off')
+            plot.subplot(2, 2, 4)
+            plot.imshow(gt_label, vmin=-1, vmax=21)
+            plot.axis('off')
+            plot.savefig(out_file)
+            plot.close()
 
 
 def bitget(byteval, idx):
@@ -225,10 +237,10 @@ def bitget(byteval, idx):
 
 def labelcolormap(N=256):
     cmap = np.zeros((N, 3))
-    for i in xrange(0, N):
+    for i in six.moves.range(0, N):
         id = i
         r, g, b = 0, 0, 0
-        for j in xrange(0, 8):
+        for j in six.moves.range(0, 8):
             r = np.bitwise_or(r, (bitget(id, 0) << 7 - j))
             g = np.bitwise_or(g, (bitget(id, 1) << 7 - j))
             b = np.bitwise_or(b, (bitget(id, 2) << 7 - j))
@@ -240,10 +252,31 @@ def labelcolormap(N=256):
     return cmap
 
 
-def _process_label(label, n_class, bg_label=0):
+def _process_label(label, n_class, bg_label=-1):
     colors = labelcolormap(n_class)
-    label_viz = label2rgb(
-        label, image=None, colors=colors[1:], bg_label=bg_label)
+    label_viz = colors[label]
     # label 0 color: (0, 0, 0, 0) -> (0, 0, 0, 255)
     label_viz[label == 0] = 0
+    # background label will be colored as (122, 122, 122)
+    label_viz[label == bg_label] = np.array([122, 122, 122])
     return label_viz
+
+
+if __name__ == '__main__':
+    from chainercv.datasets import VOCSemanticSegmentationDataset
+    from chainercv.testing import ConstantReturnModel
+    import mock
+    import tempfile
+
+    dataset = VOCSemanticSegmentationDataset()
+    _, label = dataset[0]
+
+    model = ConstantReturnModel(label[None])
+
+    trainer = mock.MagicMock()
+    out_dir = tempfile.mkdtemp()
+    print('outdir ', out_dir)
+    trainer.out = out_dir
+    trainer.updater.iteration = 0
+    extension = SemanticSegmentationVisReport([0], dataset, model, 21)
+    extension(trainer)

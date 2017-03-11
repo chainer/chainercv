@@ -1,4 +1,5 @@
 import random
+import six
 
 
 def random_crop(xs, output_shape, return_slices=False):
@@ -35,7 +36,7 @@ def random_crop(xs, output_shape, return_slices=False):
         if x.shape[i] == dim:
             start = 0
         elif x.shape[i] > dim:
-            start = random.choice(range(x.shape[i] - dim))
+            start = random.choice(six.moves.range(x.shape[i] - dim))
         else:
             raise ValueError('shape of image is larger than output_shape')
         slices.append(slice(start, start + dim))

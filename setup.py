@@ -3,6 +3,9 @@
 from distutils.core import setup
 from setuptools import find_packages
 
+import os
+
+
 description = """
 Collection of Deep Learning Computer Vision Algorithms implemented in Chainer
 """
@@ -10,7 +13,7 @@ Collection of Deep Learning Computer Vision Algorithms implemented in Chainer
 
 setup(
     name='chainercv',
-    version='0.4.2',
+    version='0.4.3',
     packages=find_packages(),
     author='Yusuke Niitani',
     author_email='yuyuniitani@gmail.com',
@@ -18,5 +21,8 @@ setup(
     description=description,
     install_requires=open('requirements.txt').readlines(),
     include_package_data=True,
-    data_files=[('chainercv/datasets/cub/configs/', ['chainercv/datasets/cub/configs/test_images.npy'])]
+    data_files=[
+        ('chainercv/datasets/data',
+         [os.path.join('chainercv/datasets/data', fn) for fn
+          in os.listdir('chainercv/datasets/data')])],
 )

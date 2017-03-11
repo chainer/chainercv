@@ -7,8 +7,9 @@ import tempfile
 
 from chainer import testing
 
-from chainercv.testing import DummyDatasetGetRawData, ConstantReturnModel
 from chainercv.extensions import SemanticSegmentationVisReport
+from chainercv.utils import ConstantReturnModel
+from chainercv.utils import DummyDataset
 
 
 class TestSemanticSegmentationVisReport(unittest.TestCase):
@@ -23,12 +24,10 @@ class TestSemanticSegmentationVisReport(unittest.TestCase):
 
         n_class = 2
         model = ConstantReturnModel(
-            np.random.uniform(size=(1, n_class, 10, 10)).astype(np.int32))
-        dataset = DummyDatasetGetRawData(
+            np.random.uniform(size=(1, 1, 10, 10)).astype(np.int32))
+        dataset = DummyDataset(
             shapes=[(3, 10, 10), (1, 10, 10)],
-            get_raw_data_shapes=[(10, 10, 3), (10, 10)],
-            dtypes=[np.float32, np.int32],
-            get_raw_data_dtypes=[np.uint8, np.int32])
+            dtypes=[np.float32, np.int32])
 
         self.extension = SemanticSegmentationVisReport(
             self.indices, dataset, model, n_class=n_class,

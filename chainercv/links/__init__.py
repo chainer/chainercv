@@ -1,1 +1,1 @@
-from googlenet import GoogLeNet  # NOQA
+from chainercv.links.googlenet import GoogLeNet  # NOQA

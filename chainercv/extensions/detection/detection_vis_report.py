@@ -1,33 +1,30 @@
 import collections
 import os.path as osp
+import warnings
 
 import chainer
 from chainer.utils import type_check
 
-<<<<<<< HEAD
-<<<<<<< HEAD:chainer_cv/extensions/detection/detection_vis_report.py
-<<<<<<< HEAD
-from chainer_cv.extensions.utils import check_type
-from chainer_cv.extensions.utils import forward
-from chainer_cv.tasks.detection import vis_img_bbox
-=======
-from chainer_cv.utils.extension_utils import check_type
-from chainer_cv.utils.extension_utils import forward
-from chainer_cv.visualizations import vis_img_bbox
->>>>>>> ab287ab... move extensions_utils to utils/
-=======
-from chainercv.utils.extension_utils import check_type
-from chainercv.utils.extension_utils import forward
-from chainercv.tasks.detection import vis_img_bbox
->>>>>>> 2740569... change to chainercv:chainercv/extensions/detection/detection_vis_report.py
-=======
-from chainercv.tasks.detection import vis_img_bbox
+from chainercv.tasks import vis_img_bbox
 from chainercv.transforms import chw_to_pil_image_tuple
 from chainercv.utils.extension_utils import check_type
 from chainercv.utils.extension_utils import forward
->>>>>>> 896dc93... update version: 0.4.1
 
-from matplotlib import pyplot as plt
+try:
+    from matplotlib import pyplot as plot
+
+    _available = True
+
+except ImportError:
+    _available = False
+
+
+def _check_available():
+    if not _available:
+        warnings.warn('matplotlib is not installed on your environment, '
+                      'so nothing will be plotted at this time. '
+                      'Please install matplotlib to plot figures.\n\n'
+                      '  $ pip install matplotlib\n')
 
 
 class DetectionVisReport(chainer.training.extension.Extension):
@@ -38,7 +35,6 @@ class DetectionVisReport(chainer.training.extension.Extension):
     ground truth bounding boxes.
     The examples used in visualization are selected by ids included in
     :obj:`indices`.
-
     This extension wraps three steps of operations needed to visualize output
     of the model. :obj:`dataset`,
     :obj:`predict_func` and :obj:`vis_transformer` are used at each step.
@@ -85,7 +81,6 @@ class DetectionVisReport(chainer.training.extension.Extension):
         pred_bbox, = predict_func((img[None], bbox[None])  # add batch axis
         pred_bbox = pred_bbox[0]  # remove batch axis
         vis_img, vis_bbox = vis_transformer(inputs)
-
         # Visualization code
         # Uses (vis_img, vis_bbox) as the ground truth output
         # Uses (vis_img, pred_bbox) as the predicted output
@@ -103,7 +98,6 @@ class DetectionVisReport(chainer.training.extension.Extension):
         All datasets prepared in :mod:`chainercv.datasets` should work
         out of the box with the default value of :obj:`vis_transformer`,
         which is :obj:`chainercv.transforms.chw_to_pil_image_tuple`.
-
         However, if the dataset has been extended by transformers,
         :obj:`vis_transformer` needs to offset some transformations
         that are applied in order to achive a visual quality.
@@ -126,11 +120,14 @@ class DetectionVisReport(chainer.training.extension.Extension):
             should return tuple of arrays which can be used for visualization.
 
     """
+
     invoke_before_training = False
 
     def __init__(self, indices, dataset, target,
                  filename_base='detection', predict_func=None,
                  vis_transform=chw_to_pil_image_tuple):
+        _check_available()
+
         if not isinstance(indices, collections.Iterable):
             indices = list(indices)
         self.dataset = dataset
@@ -172,7 +169,15 @@ class DetectionVisReport(chainer.training.extension.Extension):
             bboxes_type.shape[1] == 5
         )
 
+    @staticmethod
+    def available():
+        _check_available()
+        return _available
+
     def __call__(self, trainer):
+        if not _available:
+            return
+
         for idx in self.indices:
             formated_filename_base = osp.join(trainer.out, self.filename_base)
             out_file = (formated_filename_base +
@@ -198,7 +203,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
             raw_bboxes = vis_transformed[1]
 
             # start visualizing using matplotlib
-            fig = plt.figure()
+            fig = plot.figure()
 
             ax_gt = fig.add_subplot(2, 1, 1)
             ax_gt.set_title('ground truth')
@@ -210,8 +215,8 @@ class DetectionVisReport(chainer.training.extension.Extension):
             ax_pred.set_title('prediction')
             vis_img_bbox(vis_img, bboxes, label_names=label_names, ax=ax_pred)
 
-            plt.savefig(out_file)
-            plt.close()
+            plot.savefig(out_file)
+            plot.close()
 
 
 if __name__ == '__main__':
@@ -222,7 +227,7 @@ if __name__ == '__main__':
     train_data = VOCDetectionDataset(mode='train', use_cache=True, year='2007')
     _, bbox = train_data.get_example(3)
 
-    model = ConstantReturnModel(bbox)
+    model = ConstantReturnModel(bbox[None])
 
     trainer = mock.MagicMock()
     out_dir = tempfile.mkdtemp()

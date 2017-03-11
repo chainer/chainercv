@@ -1,11 +1,12 @@
 import numpy as np
+import six
 
 import chainer
 import chainer.functions as F
 import chainer.links as L
 from chainer.links.model.vision.vgg import VGG16Layers
 
-from chainercv.tasks.semantic_segmentation import label_accuracy_score
+from chainercv.tasks import label_accuracy_score
 
 
 def upsample_filt(size):
@@ -93,7 +94,7 @@ class FCN32s(chainer.Chain):
         labels = chainer.cuda.to_cpu(t.data)
         label_preds = chainer.cuda.to_cpu(self.score.data).argmax(axis=1)
         results = []
-        for i in xrange(x.shape[0]):
+        for i in six.moves.range(x.shape[0]):
             acc, acc_cls, iu, fwavacc = label_accuracy_score(
                 labels[i][0], label_preds[i], self.n_class)
             results.append((acc, acc_cls, iu, fwavacc))
@@ -108,6 +109,15 @@ class FCN32s(chainer.Chain):
 
         return self.loss
 
-    def extract(self, x, t):
+    def predict(self, x, t=None):
+        """Computes the semantic segmentation of the given image.
+
+        Returns:
+            An array of shape (B, 1, H, W)
+
+        """
+        xp = chainer.cuda.get_array_module(x)
         self.__call__(x, t)
-        return self.score
+        pred_label = xp.argmax(self.score.data, axis=1)
+        pred_label = xp.expand_dims(pred_label, axis=1)
+        return pred_label

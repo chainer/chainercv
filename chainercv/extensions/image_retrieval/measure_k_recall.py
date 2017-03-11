@@ -1,6 +1,7 @@
 import copy
 import numpy as np
 import os.path as osp
+import six
 import warnings
 
 import chainer
@@ -82,7 +83,7 @@ class MeasureKRetrieval(chainer.training.extension.Extension):
         n_match = {k: [] for k in self.ks}
 
         self.nbrs.fit(features)
-        for i in range(0, n, self.window_size):
+        for i in six.moves.range(0, n, self.window_size):
             the_slice = slice(
                 i * self.window_size, (i + 1) * self.window_size)
             src_features = features[the_slice]

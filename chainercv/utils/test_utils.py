@@ -43,29 +43,6 @@ class DummyDataset(chainer.dataset.DatasetMixin):
         return tuple(out)
 
 
-class DummyDatasetGetRawData(DummyDataset):
-
-    def __init__(self, shapes, get_raw_data_shapes, length=100,
-                 constants=None, dtypes=None, get_raw_data_dtypes=None):
-        super(DummyDatasetGetRawData, self).__init__(
-            shapes, length, constants, dtypes)
-
-        if len(get_raw_data_shapes) != self.n_arrays:
-            raise ValueError('get_raw_data_shapes is either None or iterable '
-                             'whose length is equal to shapes')
-        self.get_raw_data_shapes = get_raw_data_shapes
-        self.n_get_raw_data = len(get_raw_data_shapes)
-
-        if len(get_raw_data_dtypes) != self.n_get_raw_data:
-            raise ValueError('dtypes is either None or iterable whose length '
-                             'is equal to shapes')
-        self.get_raw_data_dtypes = get_raw_data_dtypes
-
-    def get_raw_data(self, i):
-        return self._get_example(i, self.get_raw_data_shapes,
-                                 self.get_raw_data_dtypes, self.constants)
-
-
 class SimpleDataset(chainer.dataset.DatasetMixin):
 
     def __init__(self, input_array):

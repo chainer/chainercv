@@ -9,7 +9,7 @@ import chainer
 from chainer import testing
 
 from chainercv.extensions import MeasureKRetrieval
-from chainercv.testing import DummyDataset
+from chainercv.utils import DummyDataset
 
 
 class TestMeasureKRetrieval(unittest.TestCase):

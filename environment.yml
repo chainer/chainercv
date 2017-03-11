@@ -1,10 +1,13 @@
 name: chainercv
+channels:
+- !!python/unicode
+  'menpo'
+- !!python/unicode
+  'defaults'
 dependencies:
+  - opencv3=3.2.0
   - matplotlib
   - numpy
   - scikit-learn
-  - scikit-image
-  - scipy
   - pip:
-    - fire
     - chainer

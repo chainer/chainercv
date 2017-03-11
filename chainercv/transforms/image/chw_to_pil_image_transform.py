@@ -14,7 +14,7 @@ def chw_to_pil_image(x, reverse_color_channel=True):
                 x = x[:, :, ::-1]
 
     Returns:
-        ~numpy.ndarray:
+        ~numpy.ndarray: a uint8 image array
 
     """
     x = x.transpose(1, 2, 0)

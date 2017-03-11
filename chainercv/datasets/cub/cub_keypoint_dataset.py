@@ -17,7 +17,7 @@ class CUBKeypointsDataset(CUBDatasetBase):
     Note that not all keypoints are visible in an image. In that case,
     :obj:`valid` value is :math:`0`.
     The shape of keypoints is :math:`(15, 3)`. The last dimension is
-    composed of :obj:`(x, y, valid)` in this order. :obj;`x` and
+    composed of :obj:`(x, y, valid)` in this order. :obj:`x` and
     :obj:`y` are coordinates of a keypoint. :obj:`valid` is whether the
     keypoint is visible in the image or not.
 
@@ -43,8 +43,8 @@ class CUBKeypointsDataset(CUBDatasetBase):
 
         # set mode
         test_images = np.load(
-            osp.join(osp.split(osp.abspath(__file__))[0],
-                     'configs/test_images.npy'))
+            osp.join(osp.split(osp.split(osp.abspath(__file__))[0])[0],
+                     'data/cub_keypoint_dataset_test_image_ids.npy'))
         # the original one has ids starting from 1
         test_images = test_images - 1
         train_images = np.setdiff1d(np.arange(len(self.fns)), test_images)
