@@ -12,8 +12,8 @@ vis_img_bbox
 .. autofunction:: vis_img_bbox
 
 
-Pixel Correspondence
---------------------
+Keypoint Matching
+-----------------
 
 eval_pck
 ~~~~~~~~
