@@ -7,9 +7,9 @@ from chainercv.transforms import chw_to_pil_image
 from chainercv.transforms import chw_to_pil_image_tuple
 
 
-class TestCHWToPILImageTransform(unittest.TestCase):
+class TestCHWToPILImage(unittest.TestCase):
 
-    def test_chw_to_pil_image_transform(self):
+    def test_chw_to_pil_image(self):
         img_uint8 = np.random.uniform(size=(3, 24, 24)).astype(np.uint8)
         img = img_uint8.astype(np.float32)
 
@@ -19,7 +19,7 @@ class TestCHWToPILImageTransform(unittest.TestCase):
         np.testing.assert_equal(
             img_obtained.transpose(2, 0, 1), img_uint8[::-1, :, :])
 
-    def test_chw_to_pil_image_tuple_transform(self):
+    def test_chw_to_pil_image_tuple(self):
         img_uint8 = np.random.uniform(size=(3, 24, 24)).astype(np.uint8)
         img = img_uint8.astype(np.float32)
         y_uint8 = np.random.uniform(size=(3, 24, 24)).astype(np.uint8)

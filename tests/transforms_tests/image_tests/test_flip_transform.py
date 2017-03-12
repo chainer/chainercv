@@ -6,7 +6,7 @@ from chainer import testing
 from chainercv.transforms import flip
 
 
-class TestRandomFlipTransform(unittest.TestCase):
+class TestRandomFlip(unittest.TestCase):
 
     def test_random_flip(self):
         img = np.random.uniform(size=(3, 24, 24))

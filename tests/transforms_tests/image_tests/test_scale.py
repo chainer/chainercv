@@ -6,15 +6,15 @@ from chainer import testing
 from chainercv.transforms import scale
 
 
-class TestScalTransform(unittest.TestCase):
+class TestScale(unittest.TestCase):
 
-    def test_scale_transform(self):
+    def test_scale_1(self):
         img = np.random.uniform(size=(3, 24, 16))
 
         out = scale(img, 8)
         self.assertEqual(out.shape, (3, 12, 8))
 
-    def test_scale_transform(self):
+    def test_scale_2(self):
         img = np.random.uniform(size=(3, 16, 24))
 
         out = scale(img, 8)

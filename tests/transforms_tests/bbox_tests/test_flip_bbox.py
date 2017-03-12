@@ -6,7 +6,7 @@ from chainer import testing
 from chainercv.transforms import flip_bbox
 
 
-class TestFlipBboxTransform(unittest.TestCase):
+class TestFlipBbox(unittest.TestCase):
 
     def test_flip_bbox(self):
         bboxes = np.random.uniform(

@@ -6,9 +6,9 @@ from chainer import testing
 from chainercv.transforms import resize
 
 
-class TestResizeTransform(unittest.TestCase):
+class TestResize(unittest.TestCase):
 
-    def test_resize_transform(self):
+    def test_resize(self):
         img = np.random.uniform(size=(3, 24, 32))
 
         out = resize(img, output_shape=(32, 64))

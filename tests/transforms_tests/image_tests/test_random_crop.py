@@ -6,9 +6,9 @@ from chainer import testing
 from chainercv.transforms import random_crop
 
 
-class TestRandomCropTransform(unittest.TestCase):
+class TestRandomCrop(unittest.TestCase):
 
-    def test_random_crop_transform(self):
+    def test_random_crop(self):
         img = np.random.uniform(size=(3, 48, 32))
 
         out, slices = random_crop(img, (48, 32), return_slices=True)

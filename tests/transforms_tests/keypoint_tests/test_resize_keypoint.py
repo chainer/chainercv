@@ -6,7 +6,7 @@ from chainer import testing
 from chainercv.transforms import resize_keypoint
 
 
-class TestRandomCropTransform(unittest.TestCase):
+class TestRandomCrop(unittest.TestCase):
 
     def test_random_crop(self):
         keypoint = np.random.uniform(

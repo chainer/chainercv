@@ -6,7 +6,7 @@ from chainer import testing
 from chainercv.transforms import random_rotate
 
 
-class TestRandomRotateTransform(unittest.TestCase):
+class TestRandomRotate(unittest.TestCase):
 
     def test_random_rotate(self):
         img = np.random.uniform(size=(3, 24, 24))
