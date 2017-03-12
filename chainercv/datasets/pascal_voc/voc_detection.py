@@ -137,7 +137,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             name = obj['name']
             label_id = self.labels.index(name)
             bbox_elem = np.asarray([_bb[0], _bb[1], _bb[2], _bb[3], label_id],
-                              dtype=np.float32)
+                                   dtype=np.float32)
             bbox.append(bbox_elem)
 
         bbox = np.stack(bbox)

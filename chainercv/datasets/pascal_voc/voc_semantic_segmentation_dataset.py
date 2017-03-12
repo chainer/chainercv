@@ -64,30 +64,13 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
         """
         if i >= len(self):
             raise IndexError('index is too large')
-        img, label = self.get_raw_data(i)
+        img_file = osp.join(self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
+        img = read_image_as_array(img_file)
+        label = self._load_label(self.data_dir, self.ids[i])
+
         img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
         label = label[None]
-        return img, label
-
-    def get_raw_data(self, i, rgb=True):
-        """Returns the i-th example's images in HWC format.
-
-        This returns a color image and its label. The image is in HWC foramt.
-
-        Args:
-            i (int): The index of the example.
-            rgb (bool): If false, the returned image will be in BGR.
-
-        Returns:
-            i-th example (image, label image)
-
-        """
-        img_file = osp.join(self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
-        img = read_image_as_array(img_file)
-        if not rgb:
-            img = img[:, :, ::-1]
-        label = self._load_label(self.data_dir, self.ids[i])
         return img, label
 
     def _load_label(self, data_dir, id_):
@@ -97,9 +80,3 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
         label = np.array(im, dtype=np.uint8).astype(np.int32)
         label[label == 255] = -1
         return label
-
-
-if __name__ == '__main__':
-    dataset = VOCSemanticSegmentationDataset()
-    for i in range(100):
-        dataset.get_example(i)

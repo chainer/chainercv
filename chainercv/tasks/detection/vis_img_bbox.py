@@ -41,6 +41,7 @@ def vis_img_bbox(img, bbox, label_names=None, ax=None):
         ax.add_patch(plot.Rectangle(
             xy, width, height, fill=False, edgecolor='red', linewidth=3))
         if label_names is not None:
-            ax.text(bbox_elem[0], bbox_elem[1], label_names[bbox_elem[4].astype(np.int)],
+            ax.text(bbox_elem[0], bbox_elem[1],
+                    label_names[bbox_elem[4].astype(np.int)],
                     style='italic',
                     bbox={'facecolor': 'white', 'alpha': 0.7, 'pad': 10})

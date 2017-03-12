@@ -1,4 +1,3 @@
-import copy
 import numpy as np
 import os
 
@@ -102,41 +101,3 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
         return img, class_id, super_class_id
-
-    def get_raw_data(self, i, rgb=True):
-        """Returns the i-th example's image and class data in HWC format.
-
-        The color image that is returned is RGB.
-
-        Args:
-            i (int): The index of the example.
-            rgb (bool): If false, the returned image will be in BGR.
-
-        Returns:
-            i-th example (image, class_id, super_class_id)
-
-        """
-        img = utils.read_image_as_array(self.paths[i])
-        if img.ndim == 2:
-            img = utils.gray2rgb(img)
-        if not rgb:
-            img = img[:, :, ::-1]
-        class_id = self.class_ids[i]
-        super_class_id = self.super_class_ids[i]
-        return img, class_id, super_class_id
-
-    def get_ids(self, class_id):
-        """Get indices of examples in the given class.
-
-        Args:
-            class_id (int): the class id.
-
-        Returns:
-            list of indices of examples whose class ids are `class_id`.
-
-        """
-        return copy.copy(self.class_ids_dict[class_id])
-
-
-if __name__ == '__main__':
-    dataset = OnlineProductsDataset(mode='test')

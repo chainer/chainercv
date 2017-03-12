@@ -213,7 +213,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
             ax_pred = fig.add_subplot(2, 1, 2)
             ax_pred.set_title('prediction')
- 
+
             vis_img_bbox(vis_img, bbox, label_names=label_names, ax=ax_pred)
 
             plot.savefig(out_file)
