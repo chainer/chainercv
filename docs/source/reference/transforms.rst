@@ -31,6 +31,10 @@ random_flip
 ~~~~~~~~~~~
 .. autofunction:: random_flip
 
+random_rotate
+~~~~~~~~~~~~~
+.. autofunction:: random_rotate
+
 resize
 ~~~~~~
 .. autofunction:: resize
