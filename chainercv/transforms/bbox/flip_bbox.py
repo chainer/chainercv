@@ -1,4 +1,4 @@
-def flip_bbox(bboxes, img_shape, h_flip=False, v_flip=False):
+def flip_bbox(bbox, img_shape, h_flip=False, v_flip=False):
     """Flip bounding boxes accordingly.
 
     The bounding box is expected to be a two dimensional tensor of shape
@@ -10,7 +10,7 @@ def flip_bbox(bboxes, img_shape, h_flip=False, v_flip=False):
     category of the object in the bounding box.
 
     Args:
-        bboxes (~numpy.ndarray): shape is :math:`(R, 5)`. :math:`R` is
+        bbox (~numpy.ndarray): shape is :math:`(R, 5)`. :math:`R` is
             the number of bounding boxes.
         img_shape (tuple): A tuple of length 2. The height and the width
             of the image before resized.
@@ -25,15 +25,15 @@ def flip_bbox(bboxes, img_shape, h_flip=False, v_flip=False):
 
     """
     H, W = img_shape
-    bboxes = bboxes.copy()
+    bbox = bbox.copy()
     if h_flip:
-        x_max = W - 1 - bboxes[:, 0]
-        x_min = W - 1 - bboxes[:, 2]
-        bboxes[:, 0] = x_min
-        bboxes[:, 2] = x_max
+        x_max = W - 1 - bbox[:, 0]
+        x_min = W - 1 - bbox[:, 2]
+        bbox[:, 0] = x_min
+        bbox[:, 2] = x_max
     if v_flip:
-        y_max = H - 1 - bboxes[:, 1]
-        y_min = H - 1 - bboxes[:, 3]
-        bboxes[:, 1] = y_min
-        bboxes[:, 3] = y_max
-    return bboxes
+        y_max = H - 1 - bbox[:, 1]
+        y_min = H - 1 - bbox[:, 3]
+        bbox[:, 1] = y_min
+        bbox[:, 3] = y_max
+    return bbox

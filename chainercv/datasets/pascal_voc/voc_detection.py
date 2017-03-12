@@ -129,48 +129,23 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             tuple of an image and bounding boxes
 
         """
-        if i >= len(self):
-            raise IndexError('index is too large')
-        img, bboxes = self.get_raw_data(i)
-
-        img = img[:, :, ::-1]  # RGB to BGR
-        img = img.transpose(2, 0, 1).astype(np.float32)
-        return img, bboxes
-
-    def get_raw_data(self, i, rgb=True):
-        """Returns the i-th example.
-
-        This returns a color image and bounding boxes.
-        The color image has shape (H, W, 3).
-
-        Args:
-            i (int): The index of the example.
-            rgb (bool): If false, the returned image will be in BGR.
-
-        Returns:
-            i-th example (image, bbox)
-
-        """
         # Load a bbox and its category
         objects = self.objects[self.keys[i]]
-        bboxes = []
+        bbox = []
         for obj in objects:
-            bbox = obj['bbox']
+            _bb = obj['bbox']
             name = obj['name']
             label_id = self.labels.index(name)
-            bbox = np.asarray([bbox[0], bbox[1], bbox[2], bbox[3], label_id],
+            bbox_elem = np.asarray([_bb[0], _bb[1], _bb[2], _bb[3], label_id],
                               dtype=np.float32)
-            bboxes.append(bbox)
-        bboxes = np.stack(bboxes)
+            bbox.append(bbox_elem)
+
+        bbox = np.stack(bbox)
 
         # Load a image
         img_file = os.path.join(self.data_dir, 'JPEGImages', obj['filename'])
         img = read_image_as_array(img_file)  # RGB
-        if not rgb:
-            img = img[:, :, ::-1]
-        return img, bboxes
 
-
-if __name__ == '__main__':
-    dataset = VOCDetectionDataset()
-    img, bboxes = dataset.get_example(0)
+        img = img[:, :, ::-1]  # RGB to BGR
+        img = img.transpose(2, 0, 1).astype(np.float32)
+        return img, bbox
