@@ -6,6 +6,7 @@ import chainer
 from chainer import training
 from chainer.training import extensions
 
+from chainercv.datasets import TransformDataset
 from chainercv.datasets import VOCSemanticSegmentationDataset
 from chainercv.extensions import SemanticSegmentationVisReport
 from chainercv import transforms
@@ -63,8 +64,8 @@ def main():
 
     train_data = VOCSemanticSegmentationDataset(mode='train')
     test_data = VOCSemanticSegmentationDataset(mode='val')
-    transforms.extend(train_data, transform)
-    transforms.extend(test_data, transform)
+    train_data = TransformDataset(train_data, transform)
+    test_data = TransformDataset(test_data, transform)
 
     # set up FCN32s
     n_class = 21

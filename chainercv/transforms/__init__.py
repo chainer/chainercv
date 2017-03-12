@@ -1,7 +1,5 @@
 from chainercv.transforms.bbox.flip_bbox_transform import flip_bbox  # NOQA
 from chainercv.transforms.bbox.resize_bbox_transform import resize_bbox  # NOQA
-from chainercv.transforms.extend_dataset import extend  # NOQA
-from chainercv.transforms.extend_dataset import extend_cache  # NOQA
 from chainercv.transforms.image.chw_to_pil_image_transform import chw_to_pil_image  # NOQA
 from chainercv.transforms.image.chw_to_pil_image_transform import chw_to_pil_image_tuple  # NOQA
 from chainercv.transforms.image.pad_transform import pad  # NOQA
