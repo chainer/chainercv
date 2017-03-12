@@ -1,50 +1,41 @@
 import random
 
 
-def random_flip(xs, horizontal_flip=False, vertical_flip=False,
-                return_flip=False):
-    """Randomly flip images in vertical or horizontal direction.
+def random_flip(x, random_h=False, random_v=False,
+                return_flip=False, copy=False):
+    """Randomly flip an image in vertical or horizontal direction.
 
     Args:
-        xs (tuple or list of arrays or an numpy.ndarray): Arrays that
-            are flipped.
-        horizontal_flip (bool): randomly flip in horizontal direction.
-        vertical_flip (bool): randomly flip in vertical direction.
+        x (numpy.ndarray): an array that gets flipped.
+        random_h (bool): randomly flip in horizontal direction.
+        random_v (bool): randomly flip in vertical direction.
         return_flip (bool): returns information of flip.
+        copy (bool): If False, a view of :obj:`x` will be returned.
 
     Returns:
-        Transformed :obj:`xs` and information about flip.
-        If :obj:`return_flip` is False, information about flip will not be
+        Tuple of transformed :obj:`x` and information of flip if
+        :obj:`return_flip = True`.
+        If :obj:`return_flip = False`, information about flip will not be
         returned. The information is a dictionary with key :obj:`h` and
         :obj:`v` whose values are boolean. The bools contain whether the
         images were flipped along the corresponding orientation.
 
     """
-    force_array = False
-    if not isinstance(xs, tuple):
-        xs = (xs,)
-        force_array = True
+    flip_h, flip_v = False, False
+    if random_h:
+        flip_h = random.choice([True, False])
+    if random_v:
+        flip_v = random.choice([True, False])
 
-    h_flip, v_flip = False, False
-    if horizontal_flip:
-        h_flip = random.choice([True, False])
-    if vertical_flip:
-        v_flip = random.choice([True, False])
+    if flip_h:
+        x = x[:, :, ::-1]
+    if flip_v:
+        x = x[:, ::-1, :]
 
-    outs = []
-    for x in xs:
-        if h_flip:
-            x = x[:, :, ::-1]
-        if v_flip:
-            x = x[:, ::-1, :]
-        outs.append(x)
-
-    if force_array:
-        outs = outs[0]
-    else:
-        outs = tuple(outs)
+    if copy:
+        x = x.copy()
 
     if return_flip:
-        return outs, {'h': h_flip, 'v': v_flip}
+        return x, {'h': flip_h, 'v': flip_v}
     else:
-        return outs
+        return x

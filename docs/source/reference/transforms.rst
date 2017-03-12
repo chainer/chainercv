@@ -4,18 +4,6 @@ Transforms
 .. module:: chainercv.transforms
 
 
-Extend Dataset
---------------
-
-extend
-~~~~~~
-.. autofunction:: extend
-
-extend_cache
-~~~~~~~~~~~~
-.. autofunction:: extend_cache
-
-
 Image
 -----
 
@@ -26,6 +14,10 @@ chw_to_pil_image
 chw_to_pil_image_tuple
 ~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: chw_to_pil_image_tuple
+
+flip
+~~~~
+.. autofunction:: flip
 
 pad
 ~~~
