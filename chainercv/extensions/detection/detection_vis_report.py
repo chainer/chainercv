@@ -140,33 +140,33 @@ class DetectionVisReport(chainer.training.extension.Extension):
     @check_type
     def _check_type_dataset(self, in_types):
         img_type = in_types[0]
-        bboxes_type = in_types[1]
+        bbox_type = in_types[1]
         type_check.expect(
             img_type.shape[0] == 3,
-            bboxes_type.shape[1] == 5,
+            bbox_type.shape[1] == 5,
             img_type.ndim == 3,
-            bboxes_type.ndim == 2
+            bbox_type.ndim == 2
         )
 
     @check_type
     def _check_type_model(self, in_types):
-        predict_bboxes_type = in_types[0]
+        predict_bbox_type = in_types[0]
         type_check.expect(
-            predict_bboxes_type.ndim == 3,
-            predict_bboxes_type.shape[0] == 1,
-            predict_bboxes_type.shape[2] == 5,
+            predict_bbox_type.ndim == 3,
+            predict_bbox_type.shape[0] == 1,
+            predict_bbox_type.shape[2] == 5,
         )
 
     @check_type
     def _check_type_vis_transformed(self, in_types):
         img_type = in_types[0]
-        bboxes_type = in_types[1]
+        bbox_type = in_types[1]
         type_check.expect(
             img_type.dtype.kind == 'u',
             img_type.ndim == 3,
             img_type.shape[2] == 3,
-            bboxes_type.ndim == 2,
-            bboxes_type.shape[1] == 5
+            bbox_type.ndim == 2,
+            bbox_type.shape[1] == 5
         )
 
     @staticmethod
@@ -195,12 +195,12 @@ class DetectionVisReport(chainer.training.extension.Extension):
             if hasattr(self.target, 'train'):
                 self.target.train = original
             self._check_type_model(out)
-            bboxes = out[0][0]  # (R, 5)
+            bbox = out[0][0]  # (R, 5)
 
             vis_transformed = self.vis_transform(inputs)
             self._check_type_vis_transformed(vis_transformed)
             vis_img = vis_transformed[0]
-            raw_bboxes = vis_transformed[1]
+            raw_bbox = vis_transformed[1]
 
             # start visualizing using matplotlib
             fig = plot.figure()
@@ -209,11 +209,12 @@ class DetectionVisReport(chainer.training.extension.Extension):
             ax_gt.set_title('ground truth')
             label_names = getattr(self.dataset, 'labels', None)
             vis_img_bbox(
-                vis_img, raw_bboxes, label_names=label_names, ax=ax_gt)
+                vis_img, raw_bbox, label_names=label_names, ax=ax_gt)
 
             ax_pred = fig.add_subplot(2, 1, 2)
             ax_pred.set_title('prediction')
-            vis_img_bbox(vis_img, bboxes, label_names=label_names, ax=ax_pred)
+
+            vis_img_bbox(vis_img, bbox, label_names=label_names, ax=ax_pred)
 
             plot.savefig(out_file)
             plot.close()

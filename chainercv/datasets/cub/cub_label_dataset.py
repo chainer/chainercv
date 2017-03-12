@@ -45,35 +45,18 @@ class CUBLabelDataset(CUBDatasetBase):
             tuple of an image and its label.
 
         """
-        img, label = self.get_raw_data(i)
-        img = img[:, :, ::-1]  # RGB to BGR
-        img = img.transpose(2, 0, 1)
-        return img, label
-
-    def get_raw_data(self, i, rgb=True):
-        """Returns the i-th example.
-
-        This returns a color image and its label. The image is in HWC foramt.
-
-        Args:
-            i (int): The index of the example.
-            rgb (bool): If false, the returned image will be in BGR.
-
-        Returns:
-            i-th example (image, label)
-
-        """
         img = utils.read_image_as_array(
             osp.join(self.data_dir, 'images', self.fns[i]))  # RGB
         if img.ndim == 2:
             img = utils.gray2rgb(img)
-        if not rgb:
-            img = img[:, :, ::-1]
 
         if self.crop_bbox:
             bbox = self.bboxes[i]  # (x, y, width, height)
             img = img[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
         label = self._data_labels[i]
+
+        img = img[:, :, ::-1]  # RGB to BGR
+        img = img.transpose(2, 0, 1)
         return img, label
 
 
@@ -82,9 +65,11 @@ if __name__ == '__main__':
     for i in range(1000, 1020):
         plt.figure()
         dataset = CUBLabelDataset(crop_bbox=False)
-        img, label = dataset.get_raw_data(i)
+        img, label = dataset[i]
+        img = img.transpose(1, 2, 0)[:, :, ::-1]
         dataset = CUBLabelDataset(crop_bbox=True)
-        cropped, label = dataset.get_raw_data(i)
+        cropped, label = dataset[i]
+        cropped = cropped.transpose(1, 2, 0)[:, :, ::-1]
         plt.subplot(2, 1, 1)
         plt.imshow(img)
         plt.subplot(2, 1, 2)
