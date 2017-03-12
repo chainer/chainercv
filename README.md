@@ -39,38 +39,34 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 ## Transforms
 
 ChainerCV supports functions commonly used to prepare image data before feeding to neural networks.
-We expect users to use these functions together with instantiations of `chainer.dataset.DatasetMixin`.
+We expect users to use these functions together with a dataset object (e.g. `chainer.dataset.DatasetMixin`).
 Many of the datasets prepared in ChainerCV are very thin wrappers around raw datasets in the filesystem, and
 the transforms work best with such thin dataset classes.
 The users can create a custom preprocessing pipeline by defining a function that describes
 procedures to transform data.
 
-Here is an example where the user pad images to a given shape and subtract a constant from one of the images.
-This is a real example that is used to preprocess images before training a neural network for Semantic Segmentation.
+Here is an example where the user rescales input image and data augments it by randomly rotation.
 
 ```python
-from chainercv.datasets import VOCSemanticSegmentationDataset
-from chainercv.transforms import extend
-from chainercv.transforms import pad
+from chainer.datasets import get_mnist
+from chainercv.datasets import TransformDataset
+from chainercv.transforms import random_rotate
 
-dataset = VOCSemanticSegmentationDataset()
+dataset, _ = get_mnist(ndim=3)
 
 def transform(in_data):
     # in_data is the returned values of VOCSemanticSegmentationDataset.get_example
     img, label = in_data
-    img -= 122.5
-    img = pad(img, max_size=(512, 512), bg_value=0)  # pad to (H, W) = (512, 512)
-    label = pad(img, max_size=(512, 512), bg_value=-1)
+    img -= 0.5  # rescale to [-0.5, 0.5]
+    img = random_rotate(img)
     return img, label
-extend(dataset, transform)
+dataset = TransformDataset(dataset, transform)
 img, label = dataset[0]
 ```
 
-As found in the example, `pad` is one of the transforms ChainerCV supports. Like other transforms, this is just a
-function that takes arrays as input.
-Also, `extend` is a function that decorates a dataset to transform the output of the method `get_example`.
-`VOCSemanticSegmentationDataset` is a dataset class that automatically downloads and prepares PASCAL VOC data used for
-the semantic segmentation task. Note that this example takes some time to download PASCAL VOC before starting.
+As found in the example, `random_rotate` is one of the transforms ChainerCV supports. Like other transforms, this is just a
+function that takes an array as input.
+Also, `TransformDataset` is a new dataset class added in ChainerCV that overrides the underlying dataset's `__getitem__` by calling `transform` as post processing.
 
 
 # Automatic Download

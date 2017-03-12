@@ -4,6 +4,14 @@ Datasets
 .. module:: chainercv.datasets
 
 
+TransformDataset
+----------------
+
+TransformDataset
+~~~~~~~~~~~~~~~~
+.. autofunction:: TransformDataset
+
+
 CUB
 ---
 

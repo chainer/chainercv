@@ -2,63 +2,48 @@ import random
 import six
 
 
-def random_crop(xs, output_shape, return_slices=False):
+def random_crop(x, output_shape, return_slices=False, copy=False):
     """Crop array randomly into `output_shape`.
 
     All arrays will be cropped by the same region randomly selected. The
     output will all be in shape ``output_shape``.
 
     Args:
-        xs (tuple or list of arrays or an numpy.ndarray): These arrays shoule
-            have same shape if this is list or tuple.
-        output_shape (tuple): Shape of the array after cropping. If ``None``
-            is included in the tuple, that dimension will not be cropped.
+        x (numpy.ndarray): An image array to be cropped.
+        output_shape (tuple): the size of output image after cropping.
+            This value is :math:`(heihgt, width)`.
+        copy (bool): If False, a view of :obj:`x` is returned.
 
     Returns:
-        If the input ``xs`` is tuple or list,
-        this is a tuple. If ``xs`` is an numpy.ndarray, numpy.ndarray
-        will be returned.
+        If :obj:`return_slices = True`, a tuple of a cropped array and
+        tuple of slices used to crop the input image is returned.
+        If :obj:`return_slices = False`, the cropped array is returned.
 
     """
-    force_array = False
-    if not isinstance(xs, tuple):
-        xs = (xs,)
-        force_array = True
-    if len(output_shape) != xs[0].ndim:
-        raise ValueError
+    H, W = output_shape
 
-    x = xs[0]
-    slices = []
-    for i, dim in enumerate(output_shape):
-        if dim is None:
-            slices.append(slice(None))
-            continue
-        if x.shape[i] == dim:
-            start = 0
-        elif x.shape[i] > dim:
-            start = random.choice(six.moves.range(x.shape[i] - dim))
-        else:
-            raise ValueError('shape of image is larger than output_shape')
-        slices.append(slice(start, start + dim))
-    slices = tuple(slices)
-
-    outs = []
-    for x in xs:
-        outs.append(x[slices])
-
-    if force_array:
-        outs = outs[0]
+    if x.shape[1] == H:
+        start_H = 0
+    elif x.shape[1] > H:
+        start_H = random.choice(six.moves.range(x.shape[1] - H))
     else:
-        outs = tuple(outs)
+        raise ValueError('shape of image is larger than output shape')
+    slice_H = slice(start_H, start_H + H)
+
+    if x.shape[2] == W:
+        start_W = 0
+    elif x.shape[2] > W:
+        start_W = random.choice(six.moves.range(x.shape[2] - W))
+    else:
+        raise ValueError('shape of image is larger than output shape')
+    slice_W = slice(start_W, start_W + W)
+
+    x = x[:, slice_H, slice_W]
+
+    if copy:
+        x = x.copy()
 
     if return_slices:
-        return outs, slices
+        return x, (slice_H, slice_W)
     else:
-        return outs
-
-
-if __name__ == '__main__':
-    from chainercv.datasets import VOCSemanticSegmentationDataset
-    dataset = VOCSemanticSegmentationDataset()
-    img, label = dataset.get_example(0)
-    img, label = random_crop((img, label), (None, 256, 256))
+        return x
