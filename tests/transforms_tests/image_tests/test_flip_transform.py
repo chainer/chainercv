@@ -9,11 +9,11 @@ from chainercv.transforms import flip
 class TestRandomFlipTransform(unittest.TestCase):
 
     def test_random_flip(self):
-        x = np.random.uniform(size=(3, 24, 24))
+        img = np.random.uniform(size=(3, 24, 24))
 
-        out = flip(x, horizontal=True, vertical=True)
+        out = flip(img, horizontal=True, vertical=True)
 
-        expected = x
+        expected = img
         expected = expected[:, :, ::-1]
         expected = expected[:, ::-1, :]
         np.testing.assert_equal(out, expected)

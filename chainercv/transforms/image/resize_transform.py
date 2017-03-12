@@ -6,13 +6,13 @@ except ImportError:
     _available = False
 
 
-def resize(x, output_shape):
+def resize(img, output_shape):
     """Resize image to match the given shape.
 
     A bilinear interpolation is used for resizing.
 
     Args:
-        x (~numpy.ndarray): array to be transformed. This is in CHW format.
+        img (~numpy.ndarray): array to be transformed. This is in CHW format.
         output_shape (tuple): this is a tuple of length 2. Its elements are
             ordered as (height, width).
 
@@ -28,7 +28,7 @@ def resize(x, output_shape):
                          '$ conda install -c menpo opencv=2.4.11\n')
 
     H, W = output_shape
-    x = x.transpose(1, 2, 0)
-    x = cv2.resize(x, dsize=(W, H))
-    x = x.transpose(2, 0, 1)
-    return x
+    img = img.transpose(1, 2, 0)
+    img = cv2.resize(img, dsize=(W, H))
+    img = img.transpose(2, 0, 1)
+    return img
