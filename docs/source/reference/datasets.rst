@@ -12,6 +12,14 @@ TransformDataset
 .. autofunction:: TransformDataset
 
 
+Cache Datase
+------------
+
+cache_or_load_dataset
+~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: cache_or_load_dataset
+
+
 CUB
 ---
 
