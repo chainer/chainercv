@@ -6,14 +6,14 @@ from chainer import testing
 from chainercv.transforms import random_rotate
 
 
-class TestRandomRotateTransform(unittest.TestCase):
+class TestRandomRotate(unittest.TestCase):
 
     def test_random_rotate(self):
-        x = np.random.uniform(size=(3, 24, 24))
+        img = np.random.uniform(size=(3, 24, 24))
 
-        out, rotation = random_rotate(x, return_rotation=True)
+        out, rotation = random_rotate(img, return_rotation=True)
 
-        expected = np.transpose(x, axes=(1, 2, 0))
+        expected = np.transpose(img, axes=(1, 2, 0))
         expected = np.rot90(expected, rotation)
         expected = np.transpose(expected, axes=(2, 0, 1))
 

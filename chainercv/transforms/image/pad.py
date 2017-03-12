@@ -1,11 +1,11 @@
 import numpy as np
 
 
-def pad(x, max_size, bg_value):
+def pad(img, max_size, bg_value):
     """Pad image to match given size.
 
     Args:
-        x (~numpy.ndarray): array to be transformed
+        img (~numpy.ndarray): array to be transformed
         max_size (tuple of two ints): the size of output image after
             padding (max_H, max_W).
         bg_value (scalar): value of the padded regions
@@ -14,9 +14,9 @@ def pad(x, max_size, bg_value):
         ~numpy.ndarray: a padded array
 
     """
-    x_slices, y_slices = _get_pad_slices(x, max_size=max_size)
-    out = bg_value * np.ones((x.shape[0],) + max_size, dtype=x.dtype)
-    out[:, y_slices, x_slices] = x
+    x_slices, y_slices = _get_pad_slices(img, max_size=max_size)
+    out = bg_value * np.ones((img.shape[0],) + max_size, dtype=img.dtype)
+    out[:, y_slices, x_slices] = img
     return out
 
 

@@ -51,6 +51,10 @@ resize_bbox
 ~~~~~~~~~~~
 .. autofunction:: resize_bbox
 
+scale
+~~~~~
+.. autofunction:: scale
+
 
 Keypoint
 --------

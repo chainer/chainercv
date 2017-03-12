@@ -6,7 +6,7 @@ from chainer import testing
 from chainercv.transforms import resize_bbox
 
 
-class TestResizeBboxTransform(unittest.TestCase):
+class TestResizeBbox(unittest.TestCase):
 
     def test_resize_bbox(self):
         bboxes = np.random.uniform(

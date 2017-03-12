@@ -1,11 +1,11 @@
 import numpy as np
 
 
-def random_rotate(x, return_rotation=False):
+def random_rotate(img, return_rotation=False):
     """Randomly rotate images by 90, 180, 270 or 360 degrees.
 
     Args:
-        x (numpy.ndarray): Arrays that
+        img (numpy.ndarray): Arrays that
             are flipped.
         return_rotation (bool): returns information of rotation.
 
@@ -18,10 +18,10 @@ def random_rotate(x, return_rotation=False):
 
     """
     k = np.random.randint(4)
-    x = np.transpose(x, axes=(1, 2, 0))
-    x = np.rot90(x, k)
-    x = np.transpose(x, axes=(2, 0, 1))
+    img = np.transpose(img, axes=(1, 2, 0))
+    img = np.rot90(img, k)
+    img = np.transpose(img, axes=(2, 0, 1))
     if return_rotation:
-        return x, k
+        return img, k
     else:
-        return x
+        return img

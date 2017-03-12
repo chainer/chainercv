@@ -1,19 +1,19 @@
 import random
 
 
-def random_flip(x, random_h=False, random_v=False,
+def random_flip(img, random_h=False, random_v=False,
                 return_flip=False, copy=False):
     """Randomly flip an image in vertical or horizontal direction.
 
     Args:
-        x (numpy.ndarray): an array that gets flipped.
+        img (numpy.ndarray): an array that gets flipped.
         random_h (bool): randomly flip in horizontal direction.
         random_v (bool): randomly flip in vertical direction.
         return_flip (bool): returns information of flip.
-        copy (bool): If False, a view of :obj:`x` will be returned.
+        copy (bool): If False, a view of :obj:`img` will be returned.
 
     Returns:
-        Tuple of transformed :obj:`x` and information of flip if
+        Tuple of transformed :obj:`img` and information of flip if
         :obj:`return_flip = True`.
         If :obj:`return_flip = False`, information about flip will not be
         returned. The information is a dictionary with key :obj:`h` and
@@ -28,14 +28,14 @@ def random_flip(x, random_h=False, random_v=False,
         flip_v = random.choice([True, False])
 
     if flip_h:
-        x = x[:, :, ::-1]
+        img = img[:, :, ::-1]
     if flip_v:
-        x = x[:, ::-1, :]
+        img = img[:, ::-1, :]
 
     if copy:
-        x = x.copy()
+        img = img.copy()
 
     if return_flip:
-        return x, {'h': flip_h, 'v': flip_v}
+        return img, {'h': flip_h, 'v': flip_v}
     else:
-        return x
+        return img
