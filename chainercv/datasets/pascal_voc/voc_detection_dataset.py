@@ -29,8 +29,8 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc`.
-        mode ({'train', 'val', 'trainval'}): select from dataset splits used
-            in VOC.
+        mode ({'train', 'val', 'trainval', 'test'}): select from dataset splits
+            used in VOC. :obj:`test` mode is only available for 2007 dataset.
         year ({'2007', '2012'}): use a dataset prepared for a challenge
             held in :obj:`year`.
         use_difficult (bool): If true, use images that are labeled as
@@ -42,12 +42,16 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     def __init__(self, data_dir='auto', mode='train', year='2012',
                  use_difficult=False):
-        if data_dir == 'auto' and year in voc_utils.urls:
-            data_dir = voc_utils.get_pascal_voc(year)
+        if data_dir == 'auto' and year in ['2007', '2012']:
+            data_dir = voc_utils.get_pascal_voc(year, mode)
 
         if mode not in ['train', 'trainval', 'val']:
-            warnings.warn(
-                'please pick mode from \'train\', \'trainval\', \'val\'')
+            if not (mode == 'test' and year == '2007'):
+                warnings.warn(
+                    'please pick mode from \'train\', \'trainval\', \'val\''
+                    'for 2012 dataset. For 2007 dataset, you can pick \'test\''
+                    ' in addition to the above mentioned modes.'
+                )
 
         id_list_file = os.path.join(
             data_dir, 'ImageSets/Main/{0}.txt'.format(mode))
