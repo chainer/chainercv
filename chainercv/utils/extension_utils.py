@@ -12,8 +12,8 @@ def forward(model, inputs, forward_func=None, expand_dim=False):
         model (chainer.Chain):
             If model stores its paramters in a GPU, the GPU will be used
             for forwarding.
-        inputs: tuple of numpy.ndarray to be used as input. If `expand_dim`
-            is True, the first axis will be added.
+        inputs: an array or tuple of numpy.ndarray to be used as input.
+            If `expand_dim` is True, the first axis will be added.
         forward_func (callable): called to forward
         expand_dim (bool)
 
@@ -21,6 +21,8 @@ def forward(model, inputs, forward_func=None, expand_dim=False):
         tuple of outputs
 
     """
+    if not isinstance(inputs, tuple):
+        inputs = inputs,
 
     if forward_func is None:
         forward_func = model
@@ -38,7 +40,7 @@ def forward(model, inputs, forward_func=None, expand_dim=False):
         input_vars.append(a_var)
 
     # forward pass while setting train attribute to False if there is one
-    # TODO: make this more general
+    # TODO(yuyu2172): make this more general
     if hasattr(model, 'train'):
         original = model.train
         model.train = False
@@ -47,6 +49,9 @@ def forward(model, inputs, forward_func=None, expand_dim=False):
         model.train = original
 
     is_tuple = isinstance(output_vars, tuple)
+    if not is_tuple:
+        # force output_vars to be an iterable
+        output_vars = output_vars,
     outputs = []
     for out in output_vars:
         if isinstance(out, chainer.Variable):

@@ -62,7 +62,7 @@ class EmbedImages(chainer.training.extension.Extension):
             arrays = convert.concat_examples(
                 v, device=chainer.cuda.get_device(self.target).id)
             h = forward(
-                self.target, arrays[0:1], forward_func=self.embed_func)[0]
+                self.target, arrays[0:1], forward_func=self.embed_func)
             embedded_feats.append(h)
         embedded_feats = np.concatenate(embedded_feats, axis=0)
 
