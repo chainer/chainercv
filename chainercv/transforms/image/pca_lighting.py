@@ -2,10 +2,10 @@ import numpy
 
 
 def pca_lighting(image, sigma, eigen_value=None, eigen_vector=None):
-    """
-    Alter the intensities of input image using PCA.
-    This is used in "ImageNet Classification with Deep Convolutional
-    Neural Networks" [NIPS 2012].
+    """Alter the intensities of input image using PCA.
+
+    This is used in "ImageNet Classification with Deep Convolutional Neural
+    Networks" [NIPS 2012].
 
     Args:
         image (numpy.ndarray): An image array to be augmented. This is in
