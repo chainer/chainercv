@@ -24,7 +24,7 @@ pad
 .. autofunction:: pad
 
 pca_lighting
-~~~
+~~~~~~~~~~~~
 .. autofunction:: pca_lighting
 
 random_crop
