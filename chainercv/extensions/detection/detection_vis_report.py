@@ -51,15 +51,17 @@ class DetectionVisReport(chainer.training.extension.Extension):
         :obj:`i` corresponds to an id included in :obj:`indices`.
 
     2. Predicting the output.
-        Given the inputs, :meth:`predict_func` returns the tuple of arrays as
-        outputs. :meth:`predict_func` should accept inputs with a batch axis
-        and returns outputs with a batch axis. The function should be used
-        like below.
+        Given the inputs, :meth:`predict_func` returns a prediction.
+        :meth:`predict_func` should accept the first element of the tuple
+        returned by the dataset, and returns a prediction.
+        A batch axis is added to the input image when fed into the function
+        as an argument. The prediction returned by the function can be with
+        or without batch axis. The code below illustrates this step.
 
         .. code:: python
 
-            img, bbox = inputs
-            pred_bbox, = predict_func((img[None], bbox[None]))
+            img = inputs[0]  # first element of the tuple
+            pred_bbox = predict_func(img[None])
 
     3. Converting input arrays for visualization.
         Given the inputs from :meth:`dataset.__getitem__`, a method
@@ -110,14 +112,21 @@ class DetectionVisReport(chainer.training.extension.Extension):
         target: Link object used for visualization
         dataset: Dataset class that produces inputs to :obj:`target`.
         filename_base (int): basename for saved image
-        predict_func (callable): Callable that is used to forward data input.
-            This callable takes all the arrays returned by the dataset as
-            input. Also, this callable returns an predicted bounding boxes.
+        predict_func (callable): Callable that is used to predict the
+            bounding boxes of the image. This function takes the first
+            element of the tuple returned by the dataset with batch dimension
+            added. As an output, this function returns bounding boxes, which is
+            of shape :math:`(1, R, 5)`. :math:`R` is the number of bounding
+            boxes. Also, the first axis, which is a batch axis, can be removed.
+            Please see description on the step 2 of internal mechanics found
+            above for more detail.
             If :obj:`predict_func = None`, then :meth:`model.__call__`
             method will be called.
         vis_transformer (callable): A callable that is used to convert tuple of
             arrays returned by :obj:`dataset.__getitem__`. This function
             should return tuple of arrays which can be used for visualization.
+            More detail can be found at the description on the step 3 of
+            internal mechanics found above.
 
     """
 
@@ -190,12 +199,16 @@ class DetectionVisReport(chainer.training.extension.Extension):
             if hasattr(self.target, 'train'):
                 original = self.target.train
                 self.target.train = False
-            out = forward(self.target, inputs,
-                          forward_func=self.predict_func, expand_dim=True)
+            pred_bbox = forward(self.target, inputs[0],
+                                forward_func=self.predict_func,
+                                expand_dim=True)
             if hasattr(self.target, 'train'):
                 self.target.train = original
-            self._check_type_model(out)
-            bbox = out[0][0]  # (R, 5)
+            if pred_bbox.ndim == 2:
+                # force output to have batch axis
+                pred_bbox = pred_bbox[None]
+            self._check_type_model(pred_bbox)
+            pred_bbox = pred_bbox[0]  # (B, R, 5) -> (R, 5)
 
             vis_transformed = self.vis_transform(inputs)
             self._check_type_vis_transformed(vis_transformed)
@@ -214,7 +227,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
             ax_pred = fig.add_subplot(2, 1, 2)
             ax_pred.set_title('prediction')
 
-            vis_bbox(vis_img, bbox, label_names=label_names, ax=ax_pred)
+            vis_bbox(vis_img, pred_bbox, label_names=label_names, ax=ax_pred)
 
             plot.savefig(out_file)
             plot.close()

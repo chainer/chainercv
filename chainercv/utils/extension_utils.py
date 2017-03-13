@@ -25,7 +25,6 @@ def forward(model, inputs, forward_func=None, expand_dim=False):
     if forward_func is None:
         forward_func = model
     input_vars = []
-    outputs = []
     xp = model.xp
     for a in inputs:
         if not isinstance(a, np.ndarray):
@@ -39,14 +38,19 @@ def forward(model, inputs, forward_func=None, expand_dim=False):
         input_vars.append(a_var)
 
     output_vars = forward_func(*input_vars)
-    if not isinstance(output_vars, tuple):
-        output_vars = (output_vars,)
+
+    is_tuple = isinstance(output_vars, tuple)
+    outputs = []
     for out in output_vars:
         if isinstance(out, chainer.Variable):
             out = out.data
         out = chainer.cuda.to_cpu(out)
         outputs.append(out)
-    return tuple(outputs)
+    outputs = tuple(outputs)
+
+    if not is_tuple:
+        outputs = outputs[0]
+    return outputs
 
 
 def check_type(check_type_func, name=None):
