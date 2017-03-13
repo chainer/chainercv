@@ -19,6 +19,7 @@ import chainer
 import chainer.functions as F
 
 from chainercv.datasets import VOCDetectionDataset
+from chainercv.datasets.pascal_voc.voc_utils import pascal_voc_labels
 from chainercv.datasets import TransformDataset
 from chainercv.extensions import DetectionVisReport
 import chainercv.transforms as T
@@ -56,7 +57,7 @@ if __name__ == '__main__':
         return img, bbox
 
     test_data = TransformDataset(test_data, transform)
-    n_classes = len(test_data.labels) - 1 # remove background
+    n_classes = len(pascal_voc_labels) - 1 # remove background
     n_boxes = 5
     iou_threshold = 0.5
     detection_threshold = 0.5
