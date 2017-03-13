@@ -4,17 +4,17 @@ import numpy
 def pca_lighting(img, sigma, eigen_value=None, eigen_vector=None):
     """Alter the intensities of input image using PCA.
 
-    This is used in training of AlexNet [Krizhevsky]_.
+    This is used in training of AlexNet [1].
 
-    .. [Krizhevsky] Alex Krizhevsky, Ilya Sutskever, Geoffrey E. Hinton. \
+    .. [1] Alex Krizhevsky, Ilya Sutskever, Geoffrey E. Hinton. \
     ImageNet Classification with Deep Convolutional Neural Networks. \
     NIPS 2012.
 
     Args:
         image (numpy.ndarray): An image array to be augmented. This is in
             CHW format.
-        sigma (float): Standard deviation of the Gaussian. In AlexNet
-            [Krizhevsky]_, this value is 10% of the range of intensity
+        sigma (float): Standard deviation of the Gaussian. In the original
+            paper, this value is 10% of the range of intensity
             (25.5 if the range is [0, 255]).
         eigen_value: (numpy.ndarray): An array of eigen values. The shape
             have to be (3,). If it is not specified, the values computed from
