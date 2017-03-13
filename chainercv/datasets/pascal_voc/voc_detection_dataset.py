@@ -74,7 +74,8 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         """
         id_ = self.ids[i]
-        anno = ET.parse(os.path.join(self.data_dir, 'Annotations', id_ + '.xml'))
+        anno = ET.parse(
+            os.path.join(self.data_dir, 'Annotations', id_ + '.xml'))
         bbox = []
         for obj in anno.findall('object'):
             # when in not using difficult mode, and the object is
@@ -82,7 +83,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             if not self.use_difficult and int(obj.find('difficult').text) == 1:
                 continue
 
-            bndbox_anno = obj.find('bndbox')  # bndbox is the key used by raw VOC
+            bndbox_anno = obj.find('bndbox')
             bbox_elem = [int(bndbox_anno.find('xmin').text),
                          int(bndbox_anno.find('ymin').text),
                          int(bndbox_anno.find('xmax').text),
