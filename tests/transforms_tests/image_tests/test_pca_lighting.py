@@ -15,5 +15,10 @@ class TestPCALighting(unittest.TestCase):
         self.assertEqual(img.shape, out.shape)
         self.assertEqual(img.dtype, out.dtype)
 
+        out = pca_lighting(img, 0)
+        self.assertEqual(img.shape, out.shape)
+        self.assertEqual(img.dtype, out.dtype)
+        np.testing.assert_equal(out, img)
+
 
 testing.run_module(__name__, __file__)
