@@ -1,7 +1,7 @@
 import numpy
 
 
-def pca_lighting(image, sigma, eigen_value=None, eigen_vector=None):
+def pca_lighting(img, sigma, eigen_value=None, eigen_vector=None):
     """Alter the intensities of input image using PCA.
 
     This is used in "ImageNet Classification with Deep Convolutional Neural
@@ -33,7 +33,7 @@ def pca_lighting(image, sigma, eigen_value=None, eigen_vector=None):
 
     alpha = numpy.random.normal(0, sigma, size=3)
 
-    image = image.copy()
-    image += eigen_vector.dot(eigen_value * alpha).reshape(-1, 1, 1)
+    img = img.copy()
+    img += eigen_vector.dot(eigen_value * alpha).reshape(-1, 1, 1)
 
-    return image
+    return img
