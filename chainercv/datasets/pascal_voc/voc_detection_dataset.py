@@ -1,14 +1,11 @@
-import glob
 import numpy as np
 import os
 import warnings
 import xml.etree.ElementTree as ET
 
 import chainer
-from chainer.dataset import download
 
 from chainercv.datasets.pascal_voc import voc_utils
-from chainercv.utils.dataset_utils import cache_load
 from chainercv.utils import read_image_as_array
 
 
@@ -38,18 +35,13 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             held in :obj:`year`.
         use_difficult (bool): If true, use images that are labeled as
             difficult in the original annotation.
-        use_cache (bool): If true, use cache of object annotations. This
-            is useful in the case when parsing annotation takes time.
-            When this is false, the dataset will not write cache.
-        delete_cache (bool): Delete the cache described above.
 
     """
 
     labels = voc_utils.pascal_voc_labels
 
     def __init__(self, data_dir='auto', mode='train', year='2012',
-                 use_difficult=False,
-                 use_cache=False, delete_cache=False):
+                 use_difficult=False):
         if data_dir == 'auto' and year in voc_utils.urls:
             data_dir = voc_utils.get_pascal_voc(year)
 
@@ -65,56 +57,8 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         self.data_dir = data_dir
         self.use_difficult = use_difficult
 
-        # cache objects
-        data_root = download.get_dataset_directory(voc_utils.root)
-
-        pkl_file = os.path.join(
-            data_root, 'detection_objects_{}_{}.pkl'.format(year, mode))
-        self.objects = cache_load(
-            pkl_file, self._collect_objects, delete_cache,
-            use_cache, args=(self.data_dir, self.ids, self.use_difficult))
-        self.keys = self.objects.keys()
-
-    def _collect_objects(self, data_dir, ids, use_difficult):
-        objects = {}
-        anno_dir = os.path.join(data_dir, 'Annotations')
-        for fn in glob.glob('{}/*.xml'.format(anno_dir)):
-            tree = ET.parse(fn)
-            filename = tree.find('filename').text
-            img_id = os.path.splitext(filename)[0]
-            # skip annotation that is not included in ids
-            if img_id not in ids:
-                continue
-
-            datums = []
-            for obj in tree.findall('object'):
-                # when in not using difficult mode, and the object is
-                # difficult, skipt it.
-                if not use_difficult and int(obj.find('difficult').text) == 1:
-                    continue
-
-                bbox_ = obj.find('bndbox')  # bndbox is the key used by raw VOC
-                bbox = [int(bbox_.find('xmin').text),
-                        int(bbox_.find('ymin').text),
-                        int(bbox_.find('xmax').text),
-                        int(bbox_.find('ymax').text)]
-                # make pixel indexes 0-based
-                bbox = [float(b - 1) for b in bbox]
-
-                datum = {
-                    'filename': filename,
-                    'name': obj.find('name').text.lower().strip(),
-                    'pose': obj.find('pose').text.lower().strip(),
-                    'truncated': int(obj.find('truncated').text),
-                    'difficult': int(obj.find('difficult').text),
-                    'bbox': bbox,
-                }
-                datums.append(datum)
-            objects[img_id] = datums
-        return objects
-
     def __len__(self):
-        return len(self.objects)
+        return len(self.ids)
 
     def get_example(self, i):
         """Returns the i-th example.
@@ -129,21 +73,29 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             tuple of an image and bounding boxes
 
         """
-        # Load a bbox and its category
-        objects = self.objects[self.keys[i]]
+        id_ = self.ids[i]
+        anno = ET.parse(os.path.join(self.data_dir, 'Annotations', id_ + '.xml'))
         bbox = []
-        for obj in objects:
-            _bb = obj['bbox']
-            name = obj['name']
-            label_id = self.labels.index(name)
-            bbox_elem = np.asarray([_bb[0], _bb[1], _bb[2], _bb[3], label_id],
-                                   dtype=np.float32)
-            bbox.append(bbox_elem)
+        for obj in anno.findall('object'):
+            # when in not using difficult mode, and the object is
+            # difficult, skipt it.
+            if not self.use_difficult and int(obj.find('difficult').text) == 1:
+                continue
 
-        bbox = np.stack(bbox)
+            bndbox_anno = obj.find('bndbox')  # bndbox is the key used by raw VOC
+            bbox_elem = [int(bndbox_anno.find('xmin').text),
+                         int(bndbox_anno.find('ymin').text),
+                         int(bndbox_anno.find('xmax').text),
+                         int(bndbox_anno.find('ymax').text)]
+            # make pixel indexes 0-based
+            bbox_elem = [float(b - 1) for b in bbox_elem]
+            name = obj.find('name').text.lower().strip()
+            bbox_elem += [self.labels.index(name)]
+            bbox.append(bbox_elem)
+        bbox = np.stack(bbox).astype(np.float32)
 
         # Load a image
-        img_file = os.path.join(self.data_dir, 'JPEGImages', obj['filename'])
+        img_file = os.path.join(self.data_dir, 'JPEGImages', id_ + '.jpg')
         img = read_image_as_array(img_file)  # RGB
 
         img = img[:, :, ::-1]  # RGB to BGR
