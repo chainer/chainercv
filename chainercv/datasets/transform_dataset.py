@@ -38,6 +38,9 @@ class TransformDataset(object):
         self._dataset = dataset
         self._transform = transform
 
+    def __getattr__(self, key):
+        return getattr(self._dataset, key)
+
     def __getitem__(self, index):
         in_data = self._dataset[index]
         if isinstance(index, slice):
