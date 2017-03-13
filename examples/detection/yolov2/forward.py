@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
 # Author: Yuki Furuta <furushchev@jsk.imi.i.u-tokyo.ac.jp>
+#
+# Original work by:
+# --------------------------------------------------------
+# YOLOv2
+# Copyright (c) 2017 leetenki
+# Licensed under The MIT License [see LICENSE for details]
+# https://github.com/leetenki/YOLOv2
+# --------------------------------------------------------
 
 import os
 import mock
