@@ -196,14 +196,9 @@ class DetectionVisReport(chainer.training.extension.Extension):
             inputs = self.dataset[idx]
             self._check_type_dataset(inputs)
 
-            if hasattr(self.target, 'train'):
-                original = self.target.train
-                self.target.train = False
             pred_bbox = forward(self.target, inputs[0],
                                 forward_func=self.predict_func,
                                 expand_dim=True)
-            if hasattr(self.target, 'train'):
-                self.target.train = original
             if pred_bbox.ndim == 2:
                 # force output to have batch axis
                 pred_bbox = pred_bbox[None]

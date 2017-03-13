@@ -37,7 +37,14 @@ def forward(model, inputs, forward_func=None, expand_dim=False):
             a_var.to_gpu()
         input_vars.append(a_var)
 
+    # forward pass while setting train attribute to False if there is one
+    # TODO: make this more general
+    if hasattr(model, 'train'):
+        original = model.train
+        model.train = False
     output_vars = forward_func(*input_vars)
+    if hasattr(model, 'train'):
+        model.train = original
 
     is_tuple = isinstance(output_vars, tuple)
     outputs = []
