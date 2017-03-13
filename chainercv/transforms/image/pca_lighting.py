@@ -28,6 +28,9 @@ def pca_lighting(img, sigma, eigen_value=None, eigen_vector=None):
         An image in CHW format.
     """
 
+    if sigma <= 0:
+        return img
+
     # these values are copied from facebook/fb.resnet.torch
     if eigen_value is None:
         eigen_value = numpy.array((0.2175, 0.0188, 0.0045))
