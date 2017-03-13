@@ -19,9 +19,9 @@ CUBLabelDataset
 ~~~~~~~~~~~~~~~
 .. autofunction:: CUBLabelDataset
 
-CUBKeypointsDataset
+CUBKeypointDataset
 ~~~~~~~~~~~~~~~~~~~
-.. autofunction:: CUBKeypointsDataset
+.. autofunction:: CUBKeypointDataset
 
 
 OnlineProducts
