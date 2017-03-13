@@ -5,13 +5,14 @@ def pad(img, max_size, bg_value):
     """Pad image to match given size.
 
     Args:
-        img (~numpy.ndarray): array to be transformed
+        img (~numpy.ndarray): An array to be transformed. This is in
+            CHW format.
         max_size (tuple of two ints): the size of output image after
             padding (max_H, max_W).
         bg_value (scalar): value of the padded regions
 
     Returns:
-        ~numpy.ndarray: a padded array
+        ~numpy.ndarray: a padded array in CHW format.
 
     """
     x_slices, y_slices = _get_pad_slices(img, max_size=max_size)

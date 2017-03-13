@@ -6,7 +6,8 @@ def random_flip(img, random_h=False, random_v=False,
     """Randomly flip an image in vertical or horizontal direction.
 
     Args:
-        img (numpy.ndarray): an array that gets flipped.
+        img (numpy.ndarray): An array that gets flipped. This is in
+            CHW format.
         random_h (bool): randomly flip in horizontal direction.
         random_v (bool): randomly flip in vertical direction.
         return_flip (bool): returns information of flip.
@@ -19,6 +20,7 @@ def random_flip(img, random_h=False, random_v=False,
         returned. The information is a dictionary with key :obj:`h` and
         :obj:`v` whose values are boolean. The bools contain whether the
         images were flipped along the corresponding orientation.
+        The image is in CHW format.
 
     """
     flip_h, flip_v = False, False

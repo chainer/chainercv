@@ -12,12 +12,13 @@ def resize(img, output_shape):
     A bilinear interpolation is used for resizing.
 
     Args:
-        img (~numpy.ndarray): array to be transformed. This is in CHW format.
+        img (~numpy.ndarray): An array to be transformed.
+            This is in CHW format.
         output_shape (tuple): this is a tuple of length 2. Its elements are
             ordered as (height, width).
 
     Returns:
-        ~numpy.ndarray: a resize array
+        ~numpy.ndarray: A resize array in CHW format.
 
     """
     if not _available:
