@@ -2,30 +2,29 @@ import numpy as np
 
 
 def vis_bbox(img, bbox, label_names=None, ax=None):
-    """Visualize bounding boxes inside image
-
-    For notation, `H` and `W` are height and width of a image respectively.
-    `R` is the number of bounding boxes in a image.
+    """Visualize bounding boxes inside image.
 
     Example:
 
         >>> import chainercv
         >>> import matplotlib.pyplot as plot
         >>> dataset = chainercv.datasets.VOCDetectionDataset()
-        >>> img, bbox = dataset[10]
+        >>> img, bbox = dataset[60]
         >>> img = chainercv.transforms.chw_to_pil_image(img)
         >>> chainercv.tasks.vis_bbox(img, bbox, dataset.labels)
         >>> plot.show()
 
 
     Args:
-        img (numpy.ndarray): array of shape (H, W, 3). This is in RGB format.
-        bbox (numpy.ndarray): array of shape (R, 5). Elements are organized
-            by (x_min, y_min, x_max, y_max, label_id).
+        img (numpy.ndarray): array of shape :math:`(height, width, 3)`.
+            This is in RGB format.
+        bbox (numpy.ndarray): array of shape :math:`(R, 5)`, where :math:`R` is
+            the number of bounding boxes in the image.. Elements are organized
+            by (x_min, y_min, x_max, y_max, label_id) in the second axis.
         label_names (iterable of strings): name of labels ordered according
-            to label_ids. If this is `None`, labels will be skipped.
+            to label_ids. If this is :obj:`None`, labels will be skipped.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
-            axis. If this is None, new axis is created.
+            axis. If this is :obj:`None` (default), new axis is created.
 
     """
     from matplotlib import pyplot as plot
