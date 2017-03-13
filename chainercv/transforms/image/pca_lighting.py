@@ -4,7 +4,11 @@ import numpy
 def pca_lighting(img, sigma, eigen_value=None, eigen_vector=None):
     """Alter the intensities of input image using PCA.
 
-    This is used in "ImageNet Classification with Deep Convolutional Neural
+    This is used in training of AlexNet [Krizhevsky]_.
+
+    .. [Krizhevsky] Alex Krizhevsky, Ilya Sutskever, Geoffrey E. Hinton. \
+    ImageNet Classification with Deep Convolutional Neural Networks. \
+    NIPS 2012."ImageNet Classification with Deep Convolutional Neural
     Networks" [NIPS 2012].
 
     Args:
