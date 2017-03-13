@@ -57,15 +57,17 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         :obj:`i` corresponds to an id included in :obj:`indices`.
 
     2. Predicting the output.
-        Given the inputs, :meth:`predict_func` returns the tuple of arrays as
-        outputs. :meth:`predict_func` should accept inputs with a batch axis
-        and returns outputs with a batch axis. The function should be used
-        like below.
+        Given the inputs, :meth:`predict_func` returns a prediction.
+        :meth:`predict_func` should accept the first element of the tuple
+        returned by the dataset, and returns a prediction.
+        A batch axis is added to the input image when fed into the function
+        as an argument. The prediction returned by the function can be with
+        or without batch axis. The code below illustrates this step.
 
         .. code:: python
 
             img, label = inputs
-            pred_label, = predict_func((img[None], label[None]))
+            pred_label = predict_func(img[None])
 
     3. Converting input arrays for visualization.
         Given the inputs from :meth:`dataset.__getitem__`, a method
@@ -97,8 +99,9 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         in CHW format. This means that :obj:`img` and :obj:`label` are of
         shape :math:`(3, H, W)` and :math:`(1, H, W)`.
 
-        The output of the model should be in BCHW format. More concretely,
-        :obj:`pred_label` should be of shape :math:`(1, L, H, W)`. Note that
+        The output of the model should be in BCHW or CHW format. More
+        concretely, :obj:`pred_label` should be of shape
+        :math:`(1, 1, H, W)` or :math:`(1, H, W)`. Note that
         :math:`L` is number of categories including the background.
 
         The output of :obj:`vis_transformer` should be in HWC format.
@@ -201,28 +204,31 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
             inputs = self.dataset[idx]
             gt = inputs[1]
             self._check_type_dataset(inputs)
-            out = forward(self.target, inputs,
-                          forward_func=self.predict_func, expand_dim=True)
-            self._check_type_model(out)
-            label = out[0]  # (1, 1, H, W)
-            label = label[0][0]  # (H, W)
+
+            pred_label = forward(self.target, inputs[0],
+                                 forward_func=self.predict_func,
+                                 expand_dim=True)
+            if pred_label.ndim == 3:
+                pred_label = pred_label[None]
+            self._check_type_model(pred_label)
+            pred_label = pred_label[0][0]  # (1, 1, H, W) -> (H, W)
 
             vis_transformed = self.vis_transform(inputs)
             self._check_type_vis_transformed(vis_transformed)
             vis_img = vis_transformed[0]
 
             # mask
-            label[gt[0] == -1] = -1
+            pred_label[gt[0] == -1] = -1
 
             # prepare label
-            label = _process_label(label, self.n_class)
+            pred_label = _process_label(pred_label, self.n_class)
             gt_label = _process_label(gt[0], self.n_class)
 
             plot.subplot(2, 2, 1)
             plot.imshow(vis_img)
             plot.axis('off')
             plot.subplot(2, 2, 3)
-            plot.imshow(label, vmin=-1, vmax=21)
+            plot.imshow(pred_label, vmin=-1, vmax=21)
             plot.axis('off')
             plot.subplot(2, 2, 4)
             plot.imshow(gt_label, vmin=-1, vmax=21)
@@ -264,7 +270,7 @@ def _process_label(label, n_class, bg_label=-1):
 
 if __name__ == '__main__':
     from chainercv.datasets import VOCSemanticSegmentationDataset
-    from chainercv.testing import ConstantReturnModel
+    from chainercv.utils.test_utils import ConstantReturnModel
     import mock
     import tempfile
 

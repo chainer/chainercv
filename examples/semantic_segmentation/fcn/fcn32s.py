@@ -109,7 +109,7 @@ class FCN32s(chainer.Chain):
 
         return self.loss
 
-    def predict(self, x, t=None):
+    def predict(self, x):
         """Computes the semantic segmentation of the given image.
 
         Returns:
@@ -117,7 +117,7 @@ class FCN32s(chainer.Chain):
 
         """
         xp = chainer.cuda.get_array_module(x)
-        self.__call__(x, t)
+        self.__call__(x)
         pred_label = xp.argmax(self.score.data, axis=1)
         pred_label = xp.expand_dims(pred_label, axis=1)
         return pred_label

@@ -12,8 +12,8 @@ def forward(model, inputs, forward_func=None, expand_dim=False):
         model (chainer.Chain):
             If model stores its paramters in a GPU, the GPU will be used
             for forwarding.
-        inputs: tuple of numpy.ndarray to be used as input. If `expand_dim`
-            is True, the first axis will be added.
+        inputs: an array or tuple of numpy.ndarray to be used as input.
+            If `expand_dim` is True, the first axis will be added.
         forward_func (callable): called to forward
         expand_dim (bool)
 
@@ -21,11 +21,12 @@ def forward(model, inputs, forward_func=None, expand_dim=False):
         tuple of outputs
 
     """
+    if not isinstance(inputs, tuple):
+        inputs = inputs,
 
     if forward_func is None:
         forward_func = model
     input_vars = []
-    outputs = []
     xp = model.xp
     for a in inputs:
         if not isinstance(a, np.ndarray):
@@ -38,15 +39,30 @@ def forward(model, inputs, forward_func=None, expand_dim=False):
             a_var.to_gpu()
         input_vars.append(a_var)
 
+    # forward pass while setting train attribute to False if there is one
+    # TODO(yuyu2172): make this more general
+    if hasattr(model, 'train'):
+        original = model.train
+        model.train = False
     output_vars = forward_func(*input_vars)
-    if not isinstance(output_vars, tuple):
-        output_vars = (output_vars,)
+    if hasattr(model, 'train'):
+        model.train = original
+
+    is_tuple = isinstance(output_vars, tuple)
+    if not is_tuple:
+        # force output_vars to be an iterable
+        output_vars = output_vars,
+    outputs = []
     for out in output_vars:
         if isinstance(out, chainer.Variable):
             out = out.data
         out = chainer.cuda.to_cpu(out)
         outputs.append(out)
-    return tuple(outputs)
+    outputs = tuple(outputs)
+
+    if not is_tuple:
+        outputs = outputs[0]
+    return outputs
 
 
 def check_type(check_type_func, name=None):
