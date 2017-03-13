@@ -43,7 +43,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
     This extension wraps three steps of operations needed to visualize output
     of the model. :obj:`dataset`,
-    :obj:`predict_func` and :obj:`vis_transformer` are used at each step.
+    :obj:`predict_func` and :obj:`vis_transform` are used at each step.
 
     1. Getting an example.
         :meth:`dataset.__getitem__` returns tuple of arrays that are used as
@@ -66,17 +66,17 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
         .. code:: python
 
-            img, label = inputs
+            img = inputs[0]  # first element of the tuple
             pred_label = predict_func(img[None])
 
     3. Converting input arrays for visualization.
         Given the inputs from :meth:`dataset.__getitem__`, a method
-        :meth:`vis_transformer` should convert them into visualizable forms.
-        The values returned by :meth:`vis_transformer` should be
+        :meth:`vis_transform` should convert them into visualizable forms.
+        The values returned by :meth:`vis_transform` should be
 
         .. code:: python
 
-            img, label = vis_transformer(inputs)
+            img, label = vis_transform(inputs)
 
         :obj:`img` should be an image which is in HWC format, RGB and
         :obj:`dtype==numpy.uint8`.
@@ -86,9 +86,9 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
     .. code:: python
 
         img, label = dataset[i]
-        pred_label, = predict_func((img[None], label[None])  # add batch axis
-        pred_label = pred_label[0]  # remove batch axis
-        vis_img, vis_label = vis_transformer(inputs)
+        pred_label = predict_func(img[None])  # add batch axis to the image
+        pred_label = pred_label[0]  # (B, 1, H, W) -> (1, H, W)
+        vis_img, vis_label = vis_transform(inputs)  # (H, W, C) and (H, W, 1)
 
         # Visualization code
         # Uses (vis_img, vis_label) as the ground truth output
@@ -101,22 +101,21 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
         The output of the model should be in BCHW or CHW format. More
         concretely, :obj:`pred_label` should be of shape
-        :math:`(1, 1, H, W)` or :math:`(1, H, W)`. Note that
-        :math:`L` is number of categories including the background.
+        :math:`(1, 1, H, W)` or :math:`(1, H, W)`.
 
-        The output of :obj:`vis_transformer` should be in HWC format.
+        The output of :obj:`vis_transform` should be in HWC format.
         This means that :obj:`vis_img` and :obj:`vis_label` should be in
         shape :math:`(H, W, 3)` and :math:`(H, W, 1)`.
 
     .. note::
         All datasets prepared in :mod:`chainercv.datasets` should work
-        out of the box with the default value of :obj:`vis_transformer`.
+        out of the box with the default value of :obj:`vis_transform`.
 
         However, if the dataset has been extended by transformers,
-        :obj:`vis_transformer` needs to offset some transformations
+        :obj:`vis_transform` needs to offset some transformations
         that are applied in order to achive a visual quality.
         For example, when the mean value is subtracted from input images,
-        the mean value needs to be added back inside of :obj:`vis_transformer`.
+        the mean value needs to be added back inside of :obj:`vis_transform`.
 
     Args:
         indices (list of ints or int): List of indices for data to be
@@ -126,14 +125,23 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         n_class (int): number of labels including background, but excluding
             unknowns.
         filename_base (int): basename for saved image
-        predict_func (callable): Callable that is used to forward data input.
-            This callable takes all the arrays returned by the dataset as
-            input. Also, this callable returns an predicted bounding boxes.
+        predict_func (callable): Callable that is used to predict the
+            class label of the image. This function takes an image stored
+            at the first element of the tuple returned by the dataset with
+            batch dimension added.
+            As an output, this function returns a predicted class label,
+            which is of shape :math:`(1, 1, H, W)`.  Note that :math:`H` and
+            :math:`W` are height and width of the input image.
+            Also, the first axis, which is a batch axis,
+            can be removed. Please see description on the step 2 of internal
+            mechanics found above for more detail.
             If :obj:`predict_func = None`, then :meth:`model.__call__`
             method will be called.
-        vis_transformer (callable): A callable that is used to convert tuple of
+        vis_transform (callable): A callable that is used to convert tuple of
             arrays returned by :obj:`dataset.__getitem__`. This function
             should return tuple of arrays which can be used for visualization.
+            More detail can be found at the description on the step 3 of
+            internal mechanics found above.
 
     """
     invoke_before_training = False
