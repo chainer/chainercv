@@ -8,8 +8,7 @@ def pca_lighting(img, sigma, eigen_value=None, eigen_vector=None):
 
     .. [Krizhevsky] Alex Krizhevsky, Ilya Sutskever, Geoffrey E. Hinton. \
     ImageNet Classification with Deep Convolutional Neural Networks. \
-    NIPS 2012."ImageNet Classification with Deep Convolutional Neural
-    Networks" [NIPS 2012].
+    NIPS 2012.
 
     Args:
         image (numpy.ndarray): An image array to be augmented. This is in
