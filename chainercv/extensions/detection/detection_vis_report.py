@@ -37,7 +37,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
     :obj:`indices`.
     This extension wraps three steps of operations needed to visualize output
     of the model. :obj:`dataset`,
-    :obj:`predict_func` and :obj:`vis_transformer` are used at each step.
+    :obj:`predict_func` and :obj:`vis_transform` are used at each step.
 
     1. Getting an example.
         :meth:`dataset.__getitem__` returns tuple of arrays that are used as
@@ -61,16 +61,16 @@ class DetectionVisReport(chainer.training.extension.Extension):
         .. code:: python
 
             img = inputs[0]  # first element of the tuple
-            pred_bbox = predict_func(img[None])
+            pred_bbox = predict_func(img[None])  # (1, R, 5) or (R, 5)
 
     3. Converting input arrays for visualization.
         Given the inputs from :meth:`dataset.__getitem__`, a method
-        :meth:`vis_transformer` should convert them into visualizable forms.
-        The values returned by :meth:`vis_transformer` should be
+        :meth:`vis_transform` should convert them into visualizable forms.
+        The values returned by :meth:`vis_transform` should be
 
         .. code:: python
 
-            img, bbox = vis_transformer(inputs)
+            img, bbox = vis_transform(inputs)
 
         :obj:`img` should be an image which is in HWC format, RGB and
         :obj:`dtype==numpy.uint8`.
@@ -80,9 +80,9 @@ class DetectionVisReport(chainer.training.extension.Extension):
     .. code:: python
 
         img, bbox = dataset[i]
-        pred_bbox, = predict_func((img[None], bbox[None])  # add batch axis
-        pred_bbox = pred_bbox[0]  # remove batch axis
-        vis_img, vis_bbox = vis_transformer(inputs)
+        pred_bbox = predict_func((img[None])  # add batch axis to the image
+        pred_bbox = pred_bbox[0]  # (B, R, 5) -> (R, 5)
+        vis_img, vis_bbox = vis_transform(inputs)  # (H, W, C) and (R, 5)
         # Visualization code
         # Uses (vis_img, vis_bbox) as the ground truth output
         # Uses (vis_img, pred_bbox) as the predicted output
@@ -98,13 +98,13 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
     .. note::
         All datasets prepared in :mod:`chainercv.datasets` should work
-        out of the box with the default value of :obj:`vis_transformer`,
+        out of the box with the default value of :obj:`vis_transform`,
         which is :obj:`chainercv.transforms.chw_to_pil_image_tuple`.
-        However, if the dataset has been extended by transformers,
-        :obj:`vis_transformer` needs to offset some transformations
-        that are applied in order to achive a visual quality.
+        However, if the dataset has been extended by transforms,
+        :obj:`vis_transform` needs to offset some transformations
+        that are applied for correct visualization.
         For example, when the mean value is subtracted from input images,
-        the mean value needs to be added back inside of :obj:`vis_transformer`.
+        the mean value needs to be added back in :obj:`vis_transform`.
 
     Args:
         indices (list of ints or int): List of indices for data to be
@@ -113,16 +113,17 @@ class DetectionVisReport(chainer.training.extension.Extension):
         dataset: Dataset class that produces inputs to :obj:`target`.
         filename_base (int): basename for saved image
         predict_func (callable): Callable that is used to predict the
-            bounding boxes of the image. This function takes the first
-            element of the tuple returned by the dataset with batch dimension
-            added. As an output, this function returns bounding boxes, which is
+            bounding boxes of the image. This function takes an image stored
+            at the first element of the tuple returned by the dataset with
+            batch dimension added.
+            As an output, this function returns bounding boxes, which is
             of shape :math:`(1, R, 5)`. :math:`R` is the number of bounding
             boxes. Also, the first axis, which is a batch axis, can be removed.
             Please see description on the step 2 of internal mechanics found
             above for more detail.
             If :obj:`predict_func = None`, then :meth:`model.__call__`
             method will be called.
-        vis_transformer (callable): A callable that is used to convert tuple of
+        vis_transform (callable): A callable that is used to convert tuple of
             arrays returned by :obj:`dataset.__getitem__`. This function
             should return tuple of arrays which can be used for visualization.
             More detail can be found at the description on the step 3 of
