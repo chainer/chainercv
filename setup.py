@@ -13,7 +13,7 @@ Collection of Deep Learning Computer Vision Algorithms implemented in Chainer
 
 setup(
     name='chainercv',
-    version='0.4.3',
+    version='0.4.4',
     packages=find_packages(),
     author='Yusuke Niitani',
     author_email='yuyuniitani@gmail.com',
