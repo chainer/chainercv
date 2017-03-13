@@ -15,9 +15,16 @@ def eval_pck(pred, expected, alpha, L):
     :math:`L=\\sqrt{w^2 + h^2}` is used.
 
     Args:
-        pred (~numpy.ndarray): An array of shape :math:`(N, 2)` where
+        pred (~numpy.ndarray): An array of shape :math:`(N, 2)` or
+            :math:`(N, 3)`, where
             :math:`N` is the number of vertices to be evaluated. The
-            second axis corresponds to x and y coordinate of the keypoint.
+            first two elements of the second axis corresponds to x and y
+            coordinate of the keypoint. If the shape is :math:`(N, 3)`,
+            the last element corresponds to whether the point should be
+            included in calculation or not. If either of corresponding
+            vertices in :obj:`pred` and :obj:`expected` is specified to
+            be excluded from the calculation, that pair will not be used
+            for evaluation.
         expected (~numpy.ndarray): Same kind of array as :obj:`pred`.
             This contains ground truth location of the keypoints that
             the user tries to predict.
@@ -32,7 +39,14 @@ def eval_pck(pred, expected, alpha, L):
     n = expected.shape[0]
     assert m == n
 
-    difference = np.linalg.norm(pred - expected, axis=1)
+    if pred.shape[1] == 3 and expected.shape[1] == 3:
+        verts = np.stack([pred, expected], axis=1)  # (N, 2, 3)
+        valid_mask = np.all(verts[:, :, 2] == 1, axis=1)
+        verts_idx, = np.where(valid_mask)
+        pred = pred[verts_idx]
+        expected = expected[verts_idx]
+
+    difference = np.linalg.norm(pred[:, :2] - expected[:, :2], axis=1)
 
     pck_accuracy = np.mean(difference < alpha * L)
     return pck_accuracy
