@@ -12,13 +12,14 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import numpy as np
 from chainer import serializers
+import numpy as np
 
 
 def convert_darknet_model_to_npz(in_path, out_path, model=None):
     with open(in_path, 'rb') as f:
-        dat = np.fromfile(f, dtype=np.float32)[4:] # skip header(4xint)
+        dat = np.fromfile(f, dtype=np.float32)[4:]  # skip header(4xint)
+        len(dat)  # suppress flake8 error
 
     # load model
     print("loading initial model...")
@@ -26,7 +27,10 @@ def convert_darknet_model_to_npz(in_path, out_path, model=None):
         n_classes = 80
         n_boxes = 5
         from yolov2.links import YOLOv2
-        model = YOLOv2(n_classes=n_classes, n_boxes=n_boxes, pretrained_model=None)
+        model = YOLOv2(
+            n_classes=n_classes,
+            n_boxes=n_boxes,
+            pretrained_model=None)
     else:
         n_classes = model.n_classes
         n_boxes = model.n_boxes
@@ -36,7 +40,7 @@ def convert_darknet_model_to_npz(in_path, out_path, model=None):
     model.train = True
     model.finetune = False
 
-    layers=[
+    layers = [
         [3, 32, 3],
         [32, 64, 3],
         [64, 128, 3],
@@ -60,46 +64,54 @@ def convert_darknet_model_to_npz(in_path, out_path, model=None):
         [3072, 1024, 3],
     ]
 
-    offset=0
+    offset = 0
 
     for i, l in enumerate(layers):
         in_ch = l[0]
         out_ch = l[1]
         ksize = l[2]
 
-        txt = "model.bias%d.b.data = dat[%d:%d]" % (i+1, offset, offset+out_ch)
+        txt = "model.bias%d.b.data = dat[%d:%d]" % (
+            i + 1, offset, offset + out_ch)
         offset += out_ch
         exec(txt)
 
-        txt = "model.bn%d.gamma.data = dat[%d:%d]" % (i+1, offset, offset+out_ch)
+        txt = "model.bn%d.gamma.data = dat[%d:%d]" % (
+            i + 1, offset, offset + out_ch)
         offset += out_ch
         exec(txt)
 
-        txt = "model.bn%d.avg_mean = dat[%d:%d]" % (i+1, offset, offset+out_ch)
+        txt = "model.bn%d.avg_mean = dat[%d:%d]" % (
+            i + 1, offset, offset + out_ch)
         offset += out_ch
         exec(txt)
 
-        txt = "model.bn%d.avg_var = dat[%d:%d]" % (i+1, offset, offset+out_ch)
+        txt = "model.bn%d.avg_var = dat[%d:%d]" % (
+            i + 1, offset, offset + out_ch)
         offset += out_ch
         exec(txt)
 
-        txt = "model.conv%d.W.data = dat[%d:%d].reshape(%d, %d, %d, %d)" % (i+1, offset, offset+(out_ch*in_ch*ksize*ksize), out_ch, in_ch, ksize, ksize)
-        offset += (out_ch*in_ch*ksize*ksize)
+        txt = "model.conv%d.W.data = dat[%d:%d].reshape(%d, %d, %d, %d)" % (
+            i + 1, offset, offset + (out_ch * in_ch * ksize * ksize),
+            out_ch, in_ch, ksize, ksize)
+        offset += (out_ch * in_ch * ksize * ksize)
         exec(txt)
-        print(i+1, offset)
+        print(i + 1, offset)
 
     in_ch = 1024
     out_ch = last_out
     ksize = 1
 
-    txt = "model.bias%d.b.data = dat[%d:%d]" % (i+2, offset, offset+out_ch)
+    txt = "model.bias%d.b.data = dat[%d:%d]" % (i + 2, offset, offset + out_ch)
     offset += out_ch
     exec(txt)
 
-    txt = "model.conv%d.W.data = dat[%d:%d].reshape(%d, %d, %d, %d)" % (i+2, offset, offset+(out_ch*in_ch*ksize*ksize), out_ch, in_ch, ksize, ksize)
-    offset += out_ch*in_ch*ksize*ksize
+    txt = "model.conv%d.W.data = dat[%d:%d].reshape(%d, %d, %d, %d)" % (
+        i + 2, offset, offset + (out_ch * in_ch * ksize * ksize),
+        out_ch, in_ch, ksize, ksize)
+    offset += out_ch * in_ch * ksize * ksize
     exec(txt)
-    print(i+2, offset)
+    print(i + 2, offset)
 
     print("save weights file to %s" % out_path)
     serializers.save_npz(out_path, model)

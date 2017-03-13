@@ -12,7 +12,8 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-
-from yolov2.utils.convert import convert_darknet_model_to_npz
-from yolov2.utils.utils import *
-from yolov2.utils.image_generator import *
+from yolov2.utils.convert import convert_darknet_model_to_npz  # NOQA
+from yolov2.utils.utils import Box  # NOQA
+from yolov2.utils.utils import box_iou  # NOQA
+from yolov2.utils.utils import multi_box_iou  # NOQA
+from yolov2.utils.utils import nms  # NOQA

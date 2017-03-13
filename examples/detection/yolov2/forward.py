@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Author: Yuki Furuta <furushchev@jsk.imi.i.u-tokyo.ac.jp>
+# Written by Yuki Furuta <furushchev@jsk.imi.i.u-tokyo.ac.jp>
 #
 # Original work by:
 # --------------------------------------------------------
@@ -11,21 +11,22 @@
 # https://github.com/leetenki/YOLOv2
 # --------------------------------------------------------
 
-import os
 import mock
 import numpy as np
+import os
 
-import chainer
 import chainer.functions as F
 
-from chainercv.datasets import VOCDetectionDataset
 from chainercv.datasets.pascal_voc.voc_utils import pascal_voc_labels
 from chainercv.datasets import TransformDataset
+from chainercv.datasets import VOCDetectionDataset
 from chainercv.extensions import DetectionVisReport
 import chainercv.transforms as T
 
-from yolov2.links import YOLOv2, YOLOv2Predictor
-from yolov2.utils import Box, nms
+from yolov2.links import YOLOv2
+from yolov2.links import YOLOv2Predictor
+from yolov2.utils import Box
+from yolov2.utils import nms
 
 
 def _min_max_shape(in_shape, soft_min, hard_max):
@@ -57,12 +58,13 @@ if __name__ == '__main__':
         return img, bbox
 
     test_data = TransformDataset(test_data, transform)
-    n_classes = len(pascal_voc_labels) - 1 # remove background
+    n_classes = len(pascal_voc_labels) - 1  # remove background
     n_boxes = 5
     iou_threshold = 0.5
     detection_threshold = 0.5
 
-    model = YOLOv2(n_classes=n_classes, n_boxes=n_boxes, pretrained_model='voc')
+    model = YOLOv2(n_classes=n_classes, n_boxes=n_boxes,
+                   pretrained_model='voc')
     model.train = False
     model.finetune = False
     predictor = YOLOv2Predictor(model)
@@ -84,20 +86,25 @@ if __name__ == '__main__':
         w = F.reshape(w, (n_boxes, grid_h, grid_w)).data
         h = F.reshape(h, (n_boxes, grid_h, grid_w)).data
         conf = F.reshape(conf, (n_boxes, grid_h, grid_w)).data
-        prob = F.transpose(F.reshape(prob, (n_boxes, n_classes, grid_h, grid_w)), (1, 0, 2, 3)).data
+        prob = F.transpose(
+            F.reshape(prob, (n_boxes, n_classes, grid_h, grid_w)),
+            (1, 0, 2, 3)).data
         detected_indices = (conf * prob).max(axis=0) > detection_threshold
 
         results = []
         for i in range(detected_indices.sum()):
+            prob_i = prob.transpose(1, 2, 3, 0)[detected_indices][i]
+            class_id = prob_i.argmax() + 1  # shift for background class
             results.append({
-                "class_id": prob.transpose(1, 2, 3, 0)[detected_indices][i].argmax()+1, # shift for background class
-                "probs": prob.transpose(1, 2, 3, 0)[detected_indices][i],
-                "objectness": conf[detected_indices][i] * prob.transpose(1, 2, 3, 0)[detected_indices][i].max(),
-                "box"  : Box(
-                            x[detected_indices][i]*img_w,
-                            y[detected_indices][i]*img_h,
-                            w[detected_indices][i]*img_w,
-                            h[detected_indices][i]*img_h).crop_region(img_h, img_w)
+                "class_id": class_id,
+                "probs": prob_i,
+                "objectness": conf[detected_indices][i] * prob_i.max(),
+                "box": Box(
+                    x[detected_indices][i] * img_w,
+                    y[detected_indices][i] * img_h,
+                    w[detected_indices][i] * img_w,
+                    h[detected_indices][i] * img_h)
+                .crop_region(img_h, img_w)
             })
 
         results = nms(results, iou_threshold)
@@ -120,7 +127,7 @@ if __name__ == '__main__':
         return img, bboxes
 
     extension = DetectionVisReport(
-        range(5,10),
+        range(5, 10),
         test_data,
         model,
         predict_func=predict_bboxes,
