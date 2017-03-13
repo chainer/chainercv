@@ -5,7 +5,7 @@ import warnings
 import chainer
 from chainer.utils import type_check
 
-from chainercv.tasks import vis_img_bbox
+from chainercv.tasks import vis_bbox
 from chainercv.transforms import chw_to_pil_image_tuple
 from chainercv.utils.extension_utils import check_type
 from chainercv.utils.extension_utils import forward
@@ -208,13 +208,13 @@ class DetectionVisReport(chainer.training.extension.Extension):
             ax_gt = fig.add_subplot(2, 1, 1)
             ax_gt.set_title('ground truth')
             label_names = getattr(self.dataset, 'labels', None)
-            vis_img_bbox(
+            vis_bbox(
                 vis_img, raw_bbox, label_names=label_names, ax=ax_gt)
 
             ax_pred = fig.add_subplot(2, 1, 2)
             ax_pred.set_title('prediction')
 
-            vis_img_bbox(vis_img, bbox, label_names=label_names, ax=ax_pred)
+            vis_bbox(vis_img, bbox, label_names=label_names, ax=ax_pred)
 
             plot.savefig(out_file)
             plot.close()
@@ -222,10 +222,10 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
 if __name__ == '__main__':
     from chainercv.datasets import VOCDetectionDataset
-    from chainercv.testing import ConstantReturnModel
+    from chainercv.utils.test_utils import ConstantReturnModel
     import mock
     import tempfile
-    train_data = VOCDetectionDataset(mode='train', use_cache=True, year='2007')
+    train_data = VOCDetectionDataset(mode='train', year='2007')
     _, bbox = train_data.get_example(3)
 
     model = ConstantReturnModel(bbox[None])

@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def vis_img_bbox(img, bbox, label_names=None, ax=None):
+def vis_bbox(img, bbox, label_names=None, ax=None):
     """Visualize bounding boxes inside image
 
     For notation, `H` and `W` are height and width of a image respectively.
@@ -14,7 +14,7 @@ def vis_img_bbox(img, bbox, label_names=None, ax=None):
         >>> dataset = chainercv.datasets.VOCDetectionDataset()
         >>> img, bbox = dataset[10]
         >>> img = chainercv.transforms.chw_to_pil_image(img)
-        >>> chainercv.tasks.vis_img_bbox(img, bbox, dataset.labels)
+        >>> chainercv.tasks.vis_bbox(img, bbox, dataset.labels)
         >>> plot.show()
 
 

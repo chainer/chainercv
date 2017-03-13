@@ -7,9 +7,9 @@ Tasks
 Detection
 ---------
 
-vis_img_bbox
-~~~~~~~~~~~~
-.. autofunction:: vis_img_bbox
+vis_bbox
+~~~~~~~~
+.. autofunction:: vis_bbox
 
 
 Keypoint Matching
