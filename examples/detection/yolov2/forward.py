@@ -111,7 +111,7 @@ if __name__ == '__main__':
                          box.int_right_bottom()[1],
                          results[i]["class_id"]]
 
-        return bboxes[None],
+        return bboxes[None]
 
     def vis_transform(in_data):
         img, bboxes = in_data
