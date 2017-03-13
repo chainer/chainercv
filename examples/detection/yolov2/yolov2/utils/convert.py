@@ -28,7 +28,7 @@ def convert_darknet_model_to_npz(in_path, out_path, model=None):
     if model is None:
         n_classes = 80
         n_boxes = 5
-        from yolov2.models import YOLOv2
+        from yolov2.links import YOLOv2
         model = YOLOv2(n_classes=n_classes, n_boxes=n_boxes, pretrained_model=None)
     else:
         n_classes = model.n_classes

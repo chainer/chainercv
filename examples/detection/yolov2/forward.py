@@ -23,7 +23,7 @@ from chainercv.datasets import TransformDataset
 from chainercv.extensions import DetectionVisReport
 import chainercv.transforms as T
 
-from yolov2.models import YOLOv2, YOLOv2Predictor
+from yolov2.links import YOLOv2, YOLOv2Predictor
 from yolov2.utils import Box, nms
 
 
