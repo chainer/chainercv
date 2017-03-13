@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-#
 # Mofidied by:
 # Copyright (c) 2017 Yuki Furuta
 #
