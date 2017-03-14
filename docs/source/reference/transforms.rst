@@ -43,6 +43,10 @@ resize
 ~~~~~~
 .. autofunction:: resize
 
+ten_crop
+~~~~~~~~
+.. autofunction:: ten_crop
+
 
 Bounding Box
 ------------
