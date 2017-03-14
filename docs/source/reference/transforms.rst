@@ -43,6 +43,10 @@ resize
 ~~~~~~
 .. autofunction:: resize
 
+scale
+~~~~~
+.. autofunction:: scale
+
 ten_crop
 ~~~~~~~~
 .. autofunction:: ten_crop
@@ -58,10 +62,6 @@ flip_bbox
 resize_bbox
 ~~~~~~~~~~~
 .. autofunction:: resize_bbox
-
-scale
-~~~~~
-.. autofunction:: scale
 
 
 Keypoint
