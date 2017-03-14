@@ -6,8 +6,9 @@ def ten_crop(img, output_shape):
 
     This method crops 10 regions. All regions will be in shape
     ``output_shape``. These regions consist of 1 center crop and 4 corner
-    crops and horizontal flips of them as shown below.
+    crops and horizontal flips of them.
 
+    The crops are ordered in this order.
     * center crop
     * top-left crop
     * bottom-left crop
