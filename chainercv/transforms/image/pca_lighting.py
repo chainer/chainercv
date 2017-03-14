@@ -2,9 +2,12 @@ import numpy
 
 
 def pca_lighting(img, sigma, eigen_value=None, eigen_vector=None):
-    """Alter the intensities of input image using PCA.
+    """AlexNet style color augmentation
 
-    This is used in training of AlexNet [1].
+    This method adds a noise vector drawn from a Gaussian. The direction of
+    the Gaussian is same as that of the principal components of the dataset.
+
+    This method is used in training of AlexNet [1].
 
     .. [1] Alex Krizhevsky, Ilya Sutskever, Geoffrey E. Hinton. \
     ImageNet Classification with Deep Convolutional Neural Networks. \
