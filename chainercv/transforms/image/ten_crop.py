@@ -5,7 +5,7 @@ def ten_crop(img, output_shape):
     """Crop 10 regions from an array.
 
     This method crops 10 regions. All regions will be in shape
-    ``output_shape``. These regions consist of 1 center crop and 4 corner
+    :obj:`output_shape`. These regions consist of 1 center crop and 4 corner
     crops and horizontal flips of them.
 
     The crops are ordered in this order.
