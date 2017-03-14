@@ -81,6 +81,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         anno = ET.parse(
             os.path.join(self.data_dir, 'Annotations', id_ + '.xml'))
         bbox = []
+        label = []
         for obj in anno.findall('object'):
             # when in not using difficult mode, and the object is
             # difficult, skipt it.
@@ -95,9 +96,10 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             # make pixel indexes 0-based
             bbox_elem = [float(b - 1) for b in bbox_elem]
             name = obj.find('name').text.lower().strip()
-            bbox_elem += [self.labels.index(name)]
+            label.append(self.labels.index(name))
             bbox.append(bbox_elem)
         bbox = np.stack(bbox).astype(np.float32)
+        label = np.stack(label).astype(np.int32)
 
         # Load a image
         img_file = os.path.join(self.data_dir, 'JPEGImages', id_ + '.jpg')
@@ -105,4 +107,4 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
-        return img, bbox
+        return img, bbox, label
