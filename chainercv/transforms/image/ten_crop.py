@@ -15,7 +15,7 @@ def ten_crop(img, output_shape):
             This value is :math:`(heihgt, width)`.
 
     Returns:
-        The cropped arrays. The shape of tensor is `(10, C, H, W)`.
+        The cropped arrays. The shape of tensor is :math:`(10, C, H, W)`.
 
     """
     H, W = output_shape
