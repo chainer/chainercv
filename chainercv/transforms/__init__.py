@@ -9,4 +9,5 @@ from chainercv.transforms.image.random_flip import random_flip  # NOQA
 from chainercv.transforms.image.random_rotate import random_rotate  # NOQA
 from chainercv.transforms.image.resize import resize  # NOQA
 from chainercv.transforms.image.scale import scale  # NOQA
+from chainercv.transforms.image.ten_crop import ten_crop  # NOQA
 from chainercv.transforms.keypoint.resize_keypoint import resize_keypoint  # NOQA
