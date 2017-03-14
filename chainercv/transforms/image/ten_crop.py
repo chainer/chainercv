@@ -5,8 +5,19 @@ def ten_crop(img, output_shape):
     """Crop 10 regions from an array.
 
     This method crops 10 regions. All regions will be in shape
-    ``output_shape``. These regions consists of 1 center crop and 4 corner
-    crops and horizontal flips of them.
+    ``output_shape``. These regions consist of 1 center crop and 4 corner
+    crops and horizontal flips of them as shown below.
+
+    * center crop
+    * top-left crop
+    * bottom-left crop
+    * top-right crop
+    * bottom-right crop
+    * center crop (flipped horizontally)
+    * top-left crop (flipped horizontally)
+    * bottom-left crop (flipped horizontally)
+    * top-right crop (flipped horizontally)
+    * bottom-right crop (flipped horizontally)
 
     Args:
         img (numpy.ndarray): An image array to be cropped. This is in
