@@ -9,6 +9,7 @@ def ten_crop(img, output_shape):
     crops and horizontal flips of them.
 
     The crops are ordered in this order.
+
     * center crop
     * top-left crop
     * bottom-left crop
