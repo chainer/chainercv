@@ -35,7 +35,7 @@ def vis_keypoint_pair(src_img, dst_img, keypoints, axes=None):
     if keypoints.shape[2] == 3:
         valid_indices = np.where(np.all(keypoints[:, :, 2] > 0, axis=1))[0]
     elif keypoints.shape[2] == 2:
-        valid_indices = list(six.moves.range(keypoints.shape[1]))
+        valid_indices = list(six.moves.range(keypoints.shape[0]))
     else:
         raise ValueError('invalid vertex shape')
     select_idxs = np.random.choice(
