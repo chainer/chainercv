@@ -55,6 +55,10 @@ scale
 ~~~~~
 .. autofunction:: scale
 
+ten_crop
+~~~~~~~~
+.. autofunction:: ten_crop
+
 
 Keypoint
 --------
