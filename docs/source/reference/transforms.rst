@@ -39,6 +39,10 @@ resize
 ~~~~~~
 .. autofunction:: resize
 
+ten_crop
+~~~~~~~~
+.. autofunction:: ten_crop
+
 
 Bounding Box
 ------------
@@ -54,10 +58,6 @@ resize_bbox
 scale
 ~~~~~
 .. autofunction:: scale
-
-ten_crop
-~~~~~~~~
-.. autofunction:: ten_crop
 
 
 Keypoint
