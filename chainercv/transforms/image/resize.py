@@ -32,8 +32,8 @@ def resize(img, output_shape):
 
     This method uses `cv2` or `Pillow` for the backend.
     If `cv2` is installed, it uses `cv2`. This backend is highly
-    recommended because it is faster than `Pillow`. If you are using Anaconda,
-    you can install it by following command.
+    recommended because it is faster than `Pillow`. Under Anaconda environment,
+    `cv2` can be installed by following command.
         $ conda install -c menpo opencv=2.4.11
 
     If `cv2` is not installed, this method uses `Pillow`.
