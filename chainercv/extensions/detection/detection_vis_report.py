@@ -46,7 +46,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         .. code:: python
 
             inputs = dataset[i]
-            img, bbox = inputs
+            img, bbox, label = inputs
 
         :obj:`i` corresponds to an id included in :obj:`indices`.
 
@@ -61,7 +61,9 @@ class DetectionVisReport(chainer.training.extension.Extension):
         .. code:: python
 
             img = inputs[0]  # first element of the tuple
-            pred_bbox = predict_func(img[None])  # (1, R, 5) or (R, 5)
+            # pred_bbox can be either (1, R, 4) or (R, 4)
+            # pred_label can be either (1, R) or (R,)
+            pred_bbox, pred_label = predict_func(img[None])
 
     3. Converting input arrays for visualization.
         Given the inputs from :meth:`dataset.__getitem__`, a method
@@ -70,7 +72,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
         .. code:: python
 
-            img, bbox = vis_transform(inputs)
+            img, bbox, label = vis_transform(inputs)
 
         :obj:`img` should be an image which is in HWC format, RGB and
         :obj:`dtype==numpy.uint8`.
@@ -79,22 +81,27 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
     .. code:: python
 
-        img, bbox = dataset[i]
-        pred_bbox = predict_func((img[None])  # add batch axis to the image
-        pred_bbox = pred_bbox[0]  # (B, R, 5) -> (R, 5)
-        vis_img, vis_bbox = vis_transform(inputs)  # (H, W, C) and (R, 5)
+        img, bbox, label = dataset[i]
+        pred_bbox, pred_label = predict_func((img[None])
+        pred_bbox = pred_bbox[0]  # (B, R, 4) -> (R, 4)
+        pred_label = pred_label  # (B, R)  -> (R,)
+        vis_img, vis_bbox, vis_label = vis_transform(inputs)
         # Visualization code
-        # Uses (vis_img, vis_bbox) as the ground truth output
-        # Uses (vis_img, pred_bbox) as the predicted output
+        # Uses (vis_img, vis_bbox, vis_label) as the ground truth output
+        # Uses (vis_img, pred_bbox, pred_label) as the predicted output
 
     .. note::
-        The bounding box is expected to be a two dimensional tensor of shape
-        :math:`(R, 5)`, where :math:`R` is the number of bounding boxes in
-        the image. The second axis represents attributes of the bounding box.
-        They are :obj:`(x_min, y_min, x_max, y_max, label_id)`, where first
-        four attributes are coordinates of the bottom left and the top right
-        vertices. The last attribute is the label id, which points to the
-        category of the object in the bounding box.
+        The bounding boxes are expected to be packed into a two dimensional
+        tensor of shape :math:`(R, 4)`, where :math:`R` is the number of
+        bounding boxes in the image. The second axis represents attributes of
+        the bounding box. They are
+        :obj:`(x_min, y_min, x_max, y_max)`,
+        where first four attributes are coordinates of the bottom left and the
+        top right vertices.
+
+        The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
+        :math:`R` is the number of bounding boxes in the image. These are integers
+        that correspond to object ID of the dataset.
 
     .. note::
         All datasets prepared in :mod:`chainercv.datasets` should work
@@ -116,8 +123,9 @@ class DetectionVisReport(chainer.training.extension.Extension):
             bounding boxes of the image. This function takes an image stored
             at the first element of the tuple returned by the dataset with
             batch dimension added.
-            As an output, this function returns bounding boxes, which is
-            of shape :math:`(1, R, 5)`. :math:`R` is the number of bounding
+            As an output, this function returns bounding boxes and labels,
+            which have shape :math:`(1, R, 4)` and :math:`(1, R,)`
+            respectively. :math:`R` is the number of bounding
             boxes. Also, the first axis, which is a batch axis, can be removed.
             Please see description on the step 2 of internal mechanics found
             above for more detail.
@@ -151,32 +159,42 @@ class DetectionVisReport(chainer.training.extension.Extension):
     def _check_type_dataset(self, in_types):
         img_type = in_types[0]
         bbox_type = in_types[1]
+        label_type = in_types[2]
         type_check.expect(
             img_type.shape[0] == 3,
-            bbox_type.shape[1] == 5,
+            bbox_type.shape[1] == 4,
             img_type.ndim == 3,
-            bbox_type.ndim == 2
+            bbox_type.ndim == 2,
+            label_type.ndim == 1,
+            bbox_type.shape[0] == label_type.shape[0],
         )
 
     @check_type
     def _check_type_model(self, in_types):
         predict_bbox_type = in_types[0]
+        predict_label_type = in_types[1]
         type_check.expect(
             predict_bbox_type.ndim == 3,
+            predict_label_type.ndim == 2,
             predict_bbox_type.shape[0] == 1,
-            predict_bbox_type.shape[2] == 5,
+            predict_bbox_type.shape[2] == 4,
+            predict_label_type.shape[0] == 1,
+            predict_bbox_type.shape[1] == predict_label_type.shape[1],
         )
 
     @check_type
     def _check_type_vis_transformed(self, in_types):
         img_type = in_types[0]
         bbox_type = in_types[1]
+        label_type = in_types[2]
         type_check.expect(
             img_type.dtype.kind == 'u',
             img_type.ndim == 3,
             img_type.shape[2] == 3,
             bbox_type.ndim == 2,
-            bbox_type.shape[1] == 5
+            bbox_type.shape[1] == 4,
+            label_type.ndim == 1,
+            bbox_type.shape[0] == label_type.shape[0],
         )
 
     @staticmethod
@@ -197,13 +215,14 @@ class DetectionVisReport(chainer.training.extension.Extension):
             inputs = self.dataset[idx]
             self._check_type_dataset(inputs)
 
-            pred_bbox = forward(self.target, inputs[0],
-                                forward_func=self.predict_func,
-                                expand_dim=True)
+            pred_bbox, pred_label = forward(self.target, inputs[0],
+                                            forward_func=self.predict_func,
+                                            expand_dim=True)
             if pred_bbox.ndim == 2:
                 # force output to have batch axis
                 pred_bbox = pred_bbox[None]
-            self._check_type_model(pred_bbox)
+                pred_label = pred_label[None]
+            self._check_type_model((pred_bbox, pred_label))
             pred_bbox = pred_bbox[0]  # (B, R, 5) -> (R, 5)
 
             vis_transformed = self.vis_transform(inputs)
@@ -235,9 +254,9 @@ if __name__ == '__main__':
     import mock
     import tempfile
     train_data = VOCDetectionDataset(mode='train', year='2007')
-    _, bbox = train_data.get_example(3)
+    _, bbox, label = train_data[3]
 
-    model = ConstantReturnModel(bbox[None])
+    model = ConstantReturnModel((bbox[None], label[None]))
 
     trainer = mock.MagicMock()
     out_dir = tempfile.mkdtemp()

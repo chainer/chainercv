@@ -13,8 +13,8 @@ from chainercv.utils import DummyDataset
 
 
 @testing.parameterize(
-    {'shape': (3, 5)},
-    {'shape': (0, 5)},
+    {'bbox_shape': (3, 4), 'label_shape': (3,)},
+    {'bbox_shape': (0, 4), 'label_shape': (0,)},
 )
 class TestDetectionVisReport(unittest.TestCase):
 
@@ -26,10 +26,12 @@ class TestDetectionVisReport(unittest.TestCase):
         self.trainer.out = self.out_dir
         self.trainer.updater.iteration = 0
 
-        model = ConstantReturnModel(np.random.uniform(size=(1,) + self.shape))
+        model = ConstantReturnModel(
+            (np.random.uniform(size=(1,) + self.bbox_shape),
+             np.random.uniform(size=(1,) + self.label_shape)))
         dataset = DummyDataset(
-            shapes=[(3, 10, 10), self.shape],
-            dtypes=[np.float32, np.float32])
+            shapes=[(3, 10, 10), self.bbox_shape, self.label_shape],
+            dtypes=[np.float32, np.float32, np.int32])
 
         self.extension = DetectionVisReport(
             self.indices, dataset, model,
