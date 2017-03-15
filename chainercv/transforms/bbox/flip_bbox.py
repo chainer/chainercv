@@ -1,16 +1,15 @@
 def flip_bbox(bbox, img_shape, h_flip=False, v_flip=False):
     """Flip bounding boxes accordingly.
 
-    The bounding box is expected to be a two dimensional tensor of shape
-    :math:`(R, 5)`, where :math:`R` is the number of bounding boxes in
-    the image. The second axis represents attributes of the bounding box.
-    They are :obj:`(x_min, y_min, x_max, y_max, label_id)`, where first
-    four attributes are coordinates of the bottom left and the top right
-    vertices. The last attribute is the label id, which points to the
-    category of the object in the bounding box.
+    The bounding boxes are expected to be packed into a two dimensional
+    tensor of shape :math:`(R, 4)`, where :math:`R` is the number of
+    bounding boxes in the image. The second axis represents attributes of
+    the bounding box. They are :obj:`(x_min, y_min, x_max, y_max, label_id)`,
+    where first four attributes are coordinates of the bottom left and the
+    top right vertices. 
 
     Args:
-        bbox (~numpy.ndarray): shape is :math:`(R, 5)`. :math:`R` is
+        bbox (~numpy.ndarray): shape is :math:`(R, 4)`. :math:`R` is
             the number of bounding boxes.
         img_shape (tuple): A tuple of length 2. The height and the width
             of the image before resized.
