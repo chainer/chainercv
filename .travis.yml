@@ -4,6 +4,9 @@ language: python
 python:
   - "2.7"
   - "3.6"
+env:
+  - CONDA_CONFIG=environment.yml
+  - CONDA_CONFIG=environment_minimum.yml
 notifications:
   email: false
 
@@ -21,7 +24,7 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
-  - conda env create -f environment.yml
+  - conda env create -f "$CONDA_CONFIG"
   - source activate chainercv
   - pip install -e .
 
