@@ -1,9 +1,27 @@
+import warnings
+
 try:
     import cv2
-    _available = True
+
+    def _resize(img, size):
+        return cv2.resize(img, dsize=size)
 
 except ImportError:
-    _available = False
+    import numpy
+    import PIL
+
+    warnings.warn(
+        'cv2 is not installed on your environment. '
+        'ChainerCV will fallback on Pillow. ',
+        RuntimeWarning)
+
+    def _resize(img, size):
+        channels = []
+        for i in range(3):
+            ch = PIL.Image.fromarray(img[:, :, i], mode='F')
+            ch = ch.resize(size)
+            channels.append(numpy.array(ch))
+        return numpy.stack(channels, axis=2)
 
 
 def resize(img, output_shape):
@@ -21,15 +39,8 @@ def resize(img, output_shape):
         ~numpy.ndarray: A resize array in CHW format.
 
     """
-    if not _available:
-        raise ValueError('cv2 is not installed on your environment, '
-                         'so nothing will be plotted at this time. '
-                         'Please install OpenCV.\n\n Under Anaconda '
-                         ' environment, you can install it by '
-                         '$ conda install -c menpo opencv=2.4.11\n')
-
     H, W = output_shape
     img = img.transpose(1, 2, 0)
-    img = cv2.resize(img, dsize=(W, H))
+    img = _resize(img, (W, H))
     img = img.transpose(2, 0, 1)
     return img
