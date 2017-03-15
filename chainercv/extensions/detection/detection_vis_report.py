@@ -82,7 +82,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
     .. code:: python
 
         img, bbox, label = dataset[i]
-        pred_bbox, pred_label = predict_func((img[None])
+        pred_bbox, pred_label = predict_func((img[None]))
         pred_bbox = pred_bbox[0]  # (B, R, 4) -> (R, 4)
         pred_label = pred_label[0]  # (B, R)  -> (R,)
         vis_img, vis_bbox, vis_label = vis_transform(inputs)
@@ -96,7 +96,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         bounding boxes in the image. The second axis represents attributes of
         the bounding box. They are
         :obj:`(x_min, y_min, x_max, y_max)`,
-        where first four attributes are coordinates of the bottom left and the
+        where the four attributes are coordinates of the bottom left and the
         top right vertices.
 
         The labels are packed into a one dimensional tensor of shape
@@ -124,7 +124,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
             at the first element of the tuple returned by the dataset with
             batch dimension added.
             As an output, this function returns bounding boxes and labels,
-            which have shape :math:`(1, R, 4)` and :math:`(1, R,)`
+            which have shape :math:`(1, R, 4)` and :math:`(1, R)`
             respectively. :math:`R` is the number of bounding
             boxes. Also, the first axis, which is a batch axis, can be removed.
             Please see description on the step 2 of internal mechanics found

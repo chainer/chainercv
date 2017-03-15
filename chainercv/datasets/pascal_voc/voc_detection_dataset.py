@@ -23,7 +23,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     The bounding boxes are packed into a two dimensional tensor of shape
     :math:`(R, 4)`, where :math:`R` is the number of bounding boxes in
     the image. The second axis represents attributes of the bounding box.
-    They are :obj:`(x_min, y_min, x_max, y_max)`, where first
+    They are :obj:`(x_min, y_min, x_max, y_max)`, where the
     four attributes are coordinates of the bottom left and the top right
     vertices.
 
