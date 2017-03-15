@@ -30,7 +30,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
     :math:`R` is the number of bounding boxes in the image. These are integers
     that correspond to object ID which are listed in
-    :obj:`chainercv.datasets.pascal_voc_labels`.
+    :obj:`VOCDetectionDataset.labels`.
 
     The type of the image, the bounding boxes and the labels are as follows.
 
