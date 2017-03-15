@@ -102,15 +102,12 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
                 continue
 
             bndbox_anno = obj.find('bndbox')
-            bbox_elem = [int(bndbox_anno.find('xmin').text),
-                         int(bndbox_anno.find('ymin').text),
-                         int(bndbox_anno.find('xmax').text),
-                         int(bndbox_anno.find('ymax').text)]
-            # make pixel indexes 0-based
-            bbox_elem = [float(b - 1) for b in bbox_elem]
+            # subtract 1 to make pixel indexes 0-based
+            bbox.append([
+                int(bndbox_anno.find(tag).text) - 1
+                for tag in ('xmin', 'ymin', 'xmax', 'ymax')])
             name = obj.find('name').text.lower().strip()
             label.append(self.labels.index(name))
-            bbox.append(bbox_elem)
         bbox = np.stack(bbox).astype(np.float32)
         label = np.stack(label).astype(np.int32)
 
