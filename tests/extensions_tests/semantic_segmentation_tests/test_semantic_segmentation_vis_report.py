@@ -11,6 +11,13 @@ from chainercv.extensions import SemanticSegmentationVisReport
 from chainercv.utils import ConstantReturnModel
 from chainercv.utils import DummyDataset
 
+import importlib
+try:
+    importlib.import_module('matplotlib')
+    optional_modules = True
+except ImportError:
+    optional_modules = False
+
 
 class TestSemanticSegmentationVisReport(unittest.TestCase):
 
@@ -35,10 +42,11 @@ class TestSemanticSegmentationVisReport(unittest.TestCase):
 
     def test_call(self):
         self.extension(self.trainer)
-        for idx in self.indices:
-            file_name = osp.join(
-                self.out_dir, 'semantic_seg_idx={}_iter=0.jpg'.format(idx))
-            self.assertTrue(osp.exists(file_name))
+        if optional_modules:
+            for idx in self.indices:
+                file_name = osp.join(
+                    self.out_dir, 'semantic_seg_idx={}_iter=0.jpg'.format(idx))
+                self.assertTrue(osp.exists(file_name))
 
 
 testing.run_module(__name__, __file__)
