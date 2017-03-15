@@ -12,7 +12,8 @@ except ImportError:
 
     warnings.warn(
         'cv2 is not installed on your environment. '
-        'ChainerCV will fallback on Pillow. ',
+        'ChainerCV will fallback on Pillow. '
+        'Installation of cv2 is highly recommended for faster computation. ',
         RuntimeWarning)
 
     def _resize(img, size):
