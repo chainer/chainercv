@@ -10,7 +10,7 @@ class TestResizeBbox(unittest.TestCase):
 
     def test_resize_bbox(self):
         bbox = np.random.uniform(
-            low=0., high=32., size=(10, 5))
+            low=0., high=32., size=(10, 4))
 
         out = resize_bbox(bbox, input_shape=(32, 32), output_shape=(64, 128))
         bbox_expected = bbox.copy()

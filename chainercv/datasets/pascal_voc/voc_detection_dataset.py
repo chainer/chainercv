@@ -17,13 +17,26 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     The index corresponds to each image.
 
-    The bounding box is a two dimensional tensor of shape
-    :math:`(R, 5)`, where :math:`R` is the number of bounding boxes in
+    When queried by an index, this dataset returns a corresponding
+    :obj:`img, bbox, label`, a tuple of an image, bounding boxes and labels.
+
+    The bounding boxes are packed into a two dimensional tensor of shape
+    :math:`(R, 4)`, where :math:`R` is the number of bounding boxes in
     the image. The second axis represents attributes of the bounding box.
-    They are :obj:`(x_min, y_min, x_max, y_max, label_id)`, where first
+    They are :obj:`(x_min, y_min, x_max, y_max)`, where the
     four attributes are coordinates of the bottom left and the top right
-    vertices. The last attribute is the label id, which points to the
-    category of the object in the bounding box.
+    vertices.
+
+    The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
+    :math:`R` is the number of bounding boxes in the image. These are integers
+    that correspond to object ID which are listed in
+    :obj:`VOCDetectionDataset.labels`.
+
+    The type of the image, the bounding boxes and the labels are as follows.
+
+    * :obj:`img.dtype == numpy.float32`
+    * :obj:`bbox.dtype == numpy.float32`
+    * :obj:`label.dtype == numpy.int32`
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -81,6 +94,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         anno = ET.parse(
             os.path.join(self.data_dir, 'Annotations', id_ + '.xml'))
         bbox = []
+        label = []
         for obj in anno.findall('object'):
             # when in not using difficult mode, and the object is
             # difficult, skipt it.
@@ -95,9 +109,10 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             # make pixel indexes 0-based
             bbox_elem = [float(b - 1) for b in bbox_elem]
             name = obj.find('name').text.lower().strip()
-            bbox_elem += [self.labels.index(name)]
+            label.append(self.labels.index(name))
             bbox.append(bbox_elem)
         bbox = np.stack(bbox).astype(np.float32)
+        label = np.stack(label).astype(np.int32)
 
         # Load a image
         img_file = os.path.join(self.data_dir, 'JPEGImages', id_ + '.jpg')
@@ -105,4 +120,4 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
-        return img, bbox
+        return img, bbox, label
