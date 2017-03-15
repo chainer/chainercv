@@ -102,7 +102,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
                 continue
 
             bndbox_anno = obj.find('bndbox')
-            # substract 1 to make pixel indexes 0-based
+            # subtract 1 to make pixel indexes 0-based
             bbox.append([
                 int(bndbox_anno.find(tag).text) - 1
                 for tag in ('xmin', 'ymin', 'xmax', 'ymax')])
