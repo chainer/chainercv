@@ -99,9 +99,9 @@ class DetectionVisReport(chainer.training.extension.Extension):
         where first four attributes are coordinates of the bottom left and the
         top right vertices.
 
-        The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
-        :math:`R` is the number of bounding boxes in the image. These are integers
-        that correspond to object ID of the dataset.
+        The labels are packed into a one dimensional tensor of shape
+        :math:`(R,)`. :math:`R` is the number of bounding boxes in the image.
+        These are integers that correspond to object ID of the dataset.
 
     .. note::
         All datasets prepared in :mod:`chainercv.datasets` should work
