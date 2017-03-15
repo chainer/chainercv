@@ -17,13 +17,26 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     The index corresponds to each image.
 
-    The bounding box is a two dimensional tensor of shape
-    :math:`(R, 5)`, where :math:`R` is the number of bounding boxes in
+    When queried by an index, this dataset returns a corresponding
+    :obj:`img, bbox, label`, a tuple of an image, bounding boxes and labels.
+
+    The bounding boxes are packed into a two dimensional tensor of shape
+    :math:`(R, 4)`, where :math:`R` is the number of bounding boxes in
     the image. The second axis represents attributes of the bounding box.
-    They are :obj:`(x_min, y_min, x_max, y_max, label_id)`, where first
+    They are :obj:`(x_min, y_min, x_max, y_max)`, where first
     four attributes are coordinates of the bottom left and the top right
-    vertices. The last attribute is the label id, which points to the
-    category of the object in the bounding box.
+    vertices.
+
+    The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
+    :math:`R` is the number of bounding boxes in the image. These are integers
+    that correspond to object ID which are listed in
+    :obj:`chainercv.datasets.pascal_voc_labels`. 
+
+    The type of the image, the bounding boxes and the labels are as follows.
+
+    * :obj:`img.dtype == numpy.float32`
+    * :obj:`bbox.dtype == numpy.float32`
+    * :obj:`label.dtype == numpy.int32`
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
