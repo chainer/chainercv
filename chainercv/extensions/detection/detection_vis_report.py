@@ -84,7 +84,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         img, bbox, label = dataset[i]
         pred_bbox, pred_label = predict_func((img[None])
         pred_bbox = pred_bbox[0]  # (B, R, 4) -> (R, 4)
-        pred_label = pred_label  # (B, R)  -> (R,)
+        pred_label = pred_label[0]  # (B, R)  -> (R,)
         vis_img, vis_bbox, vis_label = vis_transform(inputs)
         # Visualization code
         # Uses (vis_img, vis_bbox, vis_label) as the ground truth output
