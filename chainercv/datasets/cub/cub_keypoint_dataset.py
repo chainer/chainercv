@@ -130,5 +130,6 @@ class CUBKeypointDataset(CUBDatasetBase):
             self.mask_dir, self.fns[original_idx][:-4] + '.png'))
         if self.crop_bbox:
             mask = mask[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
+        mask = mask[None]
 
         return img, keypoint, kp_mask, mask
