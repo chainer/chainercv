@@ -1,6 +1,6 @@
 import collections
 import numpy as np
-import os.path as osp
+import os
 
 from chainercv.datasets.cub.cub_utils import CUBDatasetBase
 from chainercv import utils
@@ -63,8 +63,9 @@ class CUBKeypointDataset(CUBDatasetBase):
 
         # set mode
         test_images = np.load(
-            osp.join(osp.split(osp.split(osp.abspath(__file__))[0])[0],
-                     'data/cub_keypoint_dataset_test_image_ids.npy'))
+            os.path.join(
+                os.path.split(os.path.split(os.path.abspath(__file__))[0])[0],
+                'data/cub_keypoint_dataset_test_image_ids.npy'))
         # the original one has ids starting from 1
         test_images = test_images - 1
         train_images = np.setdiff1d(np.arange(len(self.fns)), test_images)
@@ -76,7 +77,7 @@ class CUBKeypointDataset(CUBDatasetBase):
             raise ValueError('invalid mode')
 
         # load keypoint
-        parts_loc_file = osp.join(self.data_dir, 'parts/part_locs.txt')
+        parts_loc_file = os.path.join(self.data_dir, 'parts/part_locs.txt')
         self.kp_dict = collections.OrderedDict()
         self.kp_mask_dict = collections.OrderedDict()
         for loc in open(parts_loc_file):
@@ -100,7 +101,7 @@ class CUBKeypointDataset(CUBDatasetBase):
     def get_example(self, i):
         # this i is transformed to id for the entire dataset
         original_idx = self.selected_ids[i]
-        img = utils.read_image_as_array(osp.join(
+        img = utils.read_image_as_array(os.path.join(
             self.data_dir, 'images', self.fns[original_idx]))  # RGB
         keypoint = np.array(self.kp_dict[original_idx], dtype=np.float32)
         kp_mask = np.array(self.kp_mask_dict[original_idx], dtype=np.bool)
@@ -119,7 +120,7 @@ class CUBKeypointDataset(CUBDatasetBase):
         if not self.return_mask:
             return img, keypoint, kp_mask
 
-        mask = utils.read_image_as_array(osp.join(
+        mask = utils.read_image_as_array(os.path.join(
             self.mask_dir, self.fns[original_idx][:-4] + '.png'))
         if self.crop_bbox:
             mask = mask[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
