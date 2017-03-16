@@ -12,8 +12,8 @@ except ImportError:
 
     warnings.warn(
         'cv2 is not installed on your environment. '
-        'ChainerCV will fallback on Pillow. '
-        'Installation of cv2 is highly recommended for faster computation. ',
+        'ChainerCV will fall back on Pillow. '
+        'Installation of cv2 is recommended for faster computation. ',
         RuntimeWarning)
 
     def _resize(img, size):
@@ -31,8 +31,8 @@ def resize(img, output_shape):
     A bilinear interpolation is used for resizing.
 
     This method uses :mod:`cv2` or :mod:`PIL` for the backend.
-    If :mod:`cv2` is installed, it uses :mod:`cv2`. This backend is
-    highly recommended because it is faster than
+    If :mod:`cv2` is installed, this function uses the implementation in
+    :mod:`cv2`. This implementation is faster than the implementation in
     :mod:`PIL`. Under Anaconda environment,
     :mod:`cv2` can be installed by the following command.
 
