@@ -8,18 +8,28 @@ from chainercv import utils
 
 class CUBKeypointDataset(CUBDatasetBase):
 
-    """Dataset class for `CUB-200-2011`_ with keypoint as supervision data.
+    """`Caltech-UCSD Birds-200-2011`_ dataset  with annotated keypoints.
 
-    .. _`CUB-200-2011`:
+    .. _`Caltech-UCSD Birds-200-2011`:
         http://www.vision.caltech.edu/visipedia/CUB-200-2011.html
 
-    This dataset has annotations of 15 keypoint of birds for each image.
-    Note that not all keypoint are visible in an image. In that case,
-    :obj:`valid` value is :math:`0`.
-    The shape of keypoint is :math:`(15, 3)`. The last dimension is
-    composed of :obj:`(x, y, valid)` in this order. :obj:`x` and
-    :obj:`y` are coordinates of a keypoint. :obj:`valid` is whether the
-    keypoint is visible in the image or not.
+    An index corresponds to each image.
+
+    When queried by an index, this dataset returns a corresponding
+    :obj:`img, keypoint, kp_mask`, a tuple of an image, keypoints
+    and a mask that indicates visible keypoints in the image. The data
+    type of the three elements are :obj:`float32, float32, bool`.
+
+    The keypoints are packed into a two dimensional array of shape
+    :math:`(K, 2)`, where :math:`K` is the number of keypoints in the
+    array. Note that :math:`K=15` in this dataset, and not all fifteen
+    keypoints are visible in an image. When a keypoint is not visible,
+    the values stored for that keypoint are undefined. The second axis
+    corresponds to the :math:`x` and :math:`y` coordinates of the
+    keypoints in the image.
+
+    A keypoint mask array indicates whether a keypoint is visible in the
+    image or not. This is a boolean array of shape :math:`(K,)`.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -36,8 +46,7 @@ class CUBKeypointDataset(CUBDatasetBase):
 
     """
 
-    def __init__(self, data_dir='auto', mode='train',
-                 crop_bbox=True):
+    def __init__(self, data_dir='auto', mode='train', crop_bbox=True):
         super(CUBKeypointDataset, self).__init__(
             data_dir=data_dir, crop_bbox=crop_bbox)
 
@@ -57,15 +66,22 @@ class CUBKeypointDataset(CUBDatasetBase):
 
         # load keypoint
         parts_loc_file = osp.join(self.data_dir, 'parts/part_locs.txt')
-        keypoint_dict = collections.OrderedDict()
+        self.kp_dict = collections.OrderedDict()
+        self.kp_mask_dict = collections.OrderedDict()
         for loc in open(parts_loc_file):
             values = loc.split()
             id_ = int(values[0]) - 1
-            if id_ not in keypoint_dict:
-                keypoint_dict[id_] = []
-            keypoint = [float(v) for v in values[2:]]
-            keypoint_dict[id_].append(keypoint)
-        self.keypoint_dict = keypoint_dict
+
+            if id_ not in self.kp_dict:
+                self.kp_dict[id_] = []
+            if id_ not in self.kp_mask_dict:
+                self.kp_mask_dict[id_] = []
+
+            keypoint = [float(v) for v in values[2:4]]
+            kp_mask = bool(int(values[4]))
+
+            self.kp_dict[id_].append(keypoint)
+            self.kp_mask_dict[id_].append(kp_mask)
 
     def __len__(self):
         return len(self.selected_ids)
@@ -75,8 +91,8 @@ class CUBKeypointDataset(CUBDatasetBase):
         original_idx = self.selected_ids[i]
         img = utils.read_image_as_array(osp.join(
             self.data_dir, 'images', self.fns[original_idx]))  # RGB
-        keypoint = self.keypoint_dict[original_idx]
-        keypoint = np.array(keypoint, dtype=np.float32)
+        keypoint = np.array(self.kp_dict[original_idx], dtype=np.float32)
+        kp_mask = np.array(self.kp_mask_dict[original_idx], dtype=np.bool)
 
         if self.crop_bbox:
             bbox = self.bboxes[original_idx]  # (x, y, width, height)
@@ -88,19 +104,4 @@ class CUBKeypointDataset(CUBDatasetBase):
 
         img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
-        return img, keypoint
-
-
-if __name__ == '__main__':
-    dataset = CUBKeypointDataset()
-
-    from chainercv.tasks import vis_verts_pairs
-    import matplotlib.pyplot as plt
-
-    for i in range(200, 220):
-        src_img, src_keys = dataset[2 * i]
-        dst_img, dst_keys = dataset[2 * i + 1]
-        keys = np.stack([src_keys, dst_keys], axis=1)
-        vis_verts_pairs(src_img.transpose(1, 2, 0),
-                        dst_img.transpose(1, 2, 0), keys)
-        plt.show()
+        return img, keypoint, kp_mask
