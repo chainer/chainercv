@@ -1,4 +1,4 @@
-name: chainercv
+name: chainercv_minimum
 channels:
 - !!python/unicode
   'defaults'

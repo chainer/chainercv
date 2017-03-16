@@ -5,8 +5,8 @@ python:
   - "2.7"
   - "3.6"
 env:
-  - CONDA_CONFIG=environment.yml
-  - CONDA_CONFIG=environment_minimum.yml
+  - OPTIONAL_MODULES=1
+  - OPTIONAL_MODULES=0
 notifications:
   email: false
 
@@ -24,8 +24,13 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
-  - conda env create -f "$CONDA_CONFIG"
-  - source activate chainercv
+  - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
+      conda env create -f environment.yml
+      source activate chainercv
+    else
+      conda env create -f environment_minimum.yml
+      source activate chainercv_minimum
+    fi
   - pip install -e .
 
 script:
