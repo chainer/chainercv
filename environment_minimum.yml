@@ -1,8 +1,6 @@
 name: chainercv
 channels:
 - !!python/unicode
-  'menpo'
-- !!python/unicode
   'defaults'
 dependencies:
   - numpy
