@@ -14,13 +14,13 @@ def random_flip(img, random_h=False, random_v=False,
         copy (bool): If False, a view of :obj:`img` will be returned.
 
     Returns:
-        Tuple of transformed :obj:`img` and information of flip if
-        :obj:`return_flip = True`.
-        If :obj:`return_flip = False`, information about flip will not be
-        returned. The information is a dictionary with key :obj:`h` and
-        :obj:`v` whose values are boolean. The bools contain whether the
-        images were flipped along the corresponding orientation.
-        The image is in CHW format.
+        This function returns :obj:`out_img, flip_h, flip_v` if
+        :obj:`return_flip = True`. Otherwise, this returns :obj:`out_img`.
+
+        Note that :obj:`out_img` is the transformed image array.
+        Also, :obj:`flip_h` and :obj:`flip_v` are bools that indicate whether
+        the image was flipped in the horizontal direction and the vertical
+        direction respectively.
 
     """
     flip_h, flip_v = False, False
@@ -38,6 +38,6 @@ def random_flip(img, random_h=False, random_v=False,
         img = img.copy()
 
     if return_flip:
-        return img, {'h': flip_h, 'v': flip_v}
+        return img, flip_h, flip_v
     else:
         return img
