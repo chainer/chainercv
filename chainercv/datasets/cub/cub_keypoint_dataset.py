@@ -22,7 +22,7 @@ class CUBKeypointDataset(CUBDatasetBase):
     If :obj:`return_mask = True`, :obj:`mask` will be returned as well,
     making the returned tuple to be of length four. This is a
     :obj:`uint8` image which indicates the region of the image
-    where the bird locates.
+    where a bird locates.
 
     The keypoints are packed into a two dimensional array of shape
     :math:`(K, 2)`, where :math:`K` is the number of keypoints in the
