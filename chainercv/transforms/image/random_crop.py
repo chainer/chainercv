@@ -13,13 +13,21 @@ def random_crop(img, output_shape, return_slices=False, copy=False):
             CHW format.
         output_shape (tuple): the size of output image after cropping.
             This value is :math:`(heihgt, width)`.
+        return_slices (bool): returns information of slices.
         copy (bool): If False, a view of :obj:`img` is returned.
 
     Returns:
-        If :obj:`return_slices = True`, a tuple of a cropped array and
-        tuple of slices used to crop the input image is returned.
-        If :obj:`return_slices = False`, the cropped array is returned.
-        The image is in CHW format.
+        This function returns :obj:`out_img, slice_H, slice_W` if
+        :obj:`return_slices = True`. Otherwise, this returns
+        :obj:`out_img`.
+
+        Note that :obj:`out_img` is the transformed image array.
+        Also, :obj:`slice_H` and :obj:`slice_W` are slices used to crop the
+        input image. The following relationship is satisfied.
+
+        .. code::
+
+            out_img = img[:, slice_H, slice_W]
 
     """
     H, W = output_shape
@@ -46,6 +54,6 @@ def random_crop(img, output_shape, return_slices=False, copy=False):
         img = img.copy()
 
     if return_slices:
-        return img, (slice_H, slice_W)
+        return img, slice_H, slice_W
     else:
         return img
