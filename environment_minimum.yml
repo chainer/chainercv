@@ -4,5 +4,6 @@ channels:
   'defaults'
 dependencies:
   - numpy
+  - pillow
   - pip:
     - chainer
