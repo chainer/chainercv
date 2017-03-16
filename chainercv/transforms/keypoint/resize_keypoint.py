@@ -1,17 +1,12 @@
 def resize_keypoint(keypoint, input_shape, output_shape):
     """Change values of keypoint according to paramters for resizing an image.
 
-    The shape of keypoint is :math:`(K, 3)`. :math:`K` is the number of
-    keypoint in the image.
-    The last dimension is composed of :obj:`(x, y, valid)` in this order.
-    These are discriptions of a corresponding keypoint.
-    :obj;`x` and :obj:`y` are coordinates of the keypoint. :obj:`valid`
-    is whether the keypoint is visible in the image or not.
-
     Args:
-        keypoint (~numpy.ndarray): keypoint in the image. This can be
-            either a float or integer array. Please see description
-            above for more detail.
+        keypoint (~numpy.ndarray): Keypoints in the image.
+            The shape of this array is :math:`(K, 2)`. :math:`K` is the number
+            of keypoint in the image.
+            The last dimension is composed of :math:`x` and :math:`y`
+            coordinates of the keypoints.
         input_shape (tuple): A tuple of length 2. The height and the width
             of the image before resized.
         output_shape (tuple): A tuple of length 2. The height and the width
