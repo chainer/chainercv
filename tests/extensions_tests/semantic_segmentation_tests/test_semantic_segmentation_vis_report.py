@@ -11,9 +11,8 @@ from chainercv.extensions import SemanticSegmentationVisReport
 from chainercv.utils import ConstantReturnModel
 from chainercv.utils import DummyDataset
 
-import importlib
 try:
-    importlib.import_module('matplotlib')
+    import matplotlib  # NOQA
     optional_modules = True
 except ImportError:
     optional_modules = False
