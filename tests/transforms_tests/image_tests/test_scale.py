@@ -6,28 +6,19 @@ from chainer import testing
 from chainercv.transforms import scale
 
 
-import importlib
-try:
-    importlib.import_module('cv2')
-    optional_modules = True
-except ImportError:
-    optional_modules = False
+class TestScale(unittest.TestCase):
 
+    def test_scale_1(self):
+        img = np.random.uniform(size=(3, 24, 16))
 
-if optional_modules:
-    class TestScale(unittest.TestCase):
+        out = scale(img, 8)
+        self.assertEqual(out.shape, (3, 12, 8))
 
-        def test_scale_1(self):
-            img = np.random.uniform(size=(3, 24, 16))
+    def test_scale_2(self):
+        img = np.random.uniform(size=(3, 16, 24))
 
-            out = scale(img, 8)
-            self.assertEqual(out.shape, (3, 12, 8))
-
-            def test_scale_2(self):
-                img = np.random.uniform(size=(3, 16, 24))
-
-                out = scale(img, 8)
-                self.assertEqual(out.shape, (3, 8, 12))
+        out = scale(img, 8)
+        self.assertEqual(out.shape, (3, 8, 12))
 
 
 testing.run_module(__name__, __file__)
