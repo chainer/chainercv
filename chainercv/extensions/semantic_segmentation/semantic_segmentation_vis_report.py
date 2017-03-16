@@ -26,9 +26,6 @@ def _check_available():
                       'so nothing will be plotted at this time. '
                       'Please install matplotlib to plot figures.\n\n'
                       '  $ pip install matplotlib\n')
-        return False
-
-    return True
 
 
 def chw_to_pil_image_tuple_img_label(xs):
@@ -152,6 +149,8 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
     def __init__(self, indices, dataset, target, n_class,
                  filename_base='semantic_seg', predict_func=None,
                  vis_transform=chw_to_pil_image_tuple_img_label):
+        _check_available()
+
         if not isinstance(indices, collections.Iterable):
             indices = list(indices)
         self.dataset = dataset
@@ -198,8 +197,13 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
             label_type.shape[2] == 1,
         )
 
+    @staticmethod
+    def available():
+        _check_available()
+        return _available
+
     def __call__(self, trainer):
-        if not _check_available():
+        if not _available:
             return
 
         for idx in self.indices:
