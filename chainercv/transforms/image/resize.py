@@ -30,10 +30,14 @@ def resize(img, output_shape):
 
     A bilinear interpolation is used for resizing.
 
-    This method uses `cv2` or `Pillow` for the backend.
-    If `cv2` is installed, it uses `cv2`. This backend is highly
-    recommended because it is faster than `Pillow`. Under Anaconda environment,
-    `cv2` can be installed by following command.
+    This method uses :mod:`cv2` or :mod:`PIL` for the backend.
+    If :mod:`cv2` is installed, it uses :mod:`cv2`. This backend is
+    highly recommended because it is faster than
+    :mod:`PIL`. Under Anaconda environment,
+    :mod:`cv2` can be installed by the following command.
+
+    .. code::
+
         $ conda install -c menpo opencv3=3.2.0
 
     If `cv2` is not installed, this method uses `Pillow`.
