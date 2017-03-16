@@ -19,6 +19,10 @@ class CUBKeypointDataset(CUBDatasetBase):
     :obj:`img, keypoint, kp_mask`, a tuple of an image, keypoints
     and a mask that indicates visible keypoints in the image. The data
     type of the three elements are :obj:`float32, float32, bool`.
+    If :obj:`return_mask = True`, :obj:`mask` will be returned as well,
+    making the returned tuple to be of length four. This is a
+    :obj:`uint8` image which indicates the region of the image
+    where the bird locates.
 
     The keypoints are packed into a two dimensional array of shape
     :math:`(K, 2)`, where :math:`K` is the number of keypoints in the
@@ -39,6 +43,11 @@ class CUBKeypointDataset(CUBDatasetBase):
             [Kanazawa]_.
         crop_bbox (bool): If true, this class returns an image cropped
             by the bounding box of the bird inside it.
+        mask_dir (string): Path to the root of the mask data. If this is
+            :obj:`auto`, this class will automatically download data for you
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
+        return_mask (bool): Decide whether to include mask image of the bird
+            in a tuple served for a query.
 
     .. [Kanazawa] Angjoo Kanazawa, David W. Jacobs, \
        Manmohan Chandraker. WarpNet: Weakly Supervised Matching for \
@@ -46,9 +55,11 @@ class CUBKeypointDataset(CUBDatasetBase):
 
     """
 
-    def __init__(self, data_dir='auto', mode='train', crop_bbox=True):
+    def __init__(self, data_dir='auto', mode='train', crop_bbox=True,
+                 mask_dir='auto', return_mask=False):
         super(CUBKeypointDataset, self).__init__(
             data_dir=data_dir, crop_bbox=crop_bbox)
+        self.return_mask = return_mask
 
         # set mode
         test_images = np.load(
@@ -104,4 +115,13 @@ class CUBKeypointDataset(CUBDatasetBase):
 
         img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
-        return img, keypoint, kp_mask
+
+        if not self.return_mask:
+            return img, keypoint, kp_mask
+
+        mask = utils.read_image_as_array(osp.join(
+            self.mask_dir, self.fns[original_idx][:-4] + '.png'))
+        if self.crop_bbox:
+            mask = mask[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
+
+        return img, keypoint, kp_mask, mask
