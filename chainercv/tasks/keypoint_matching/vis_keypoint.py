@@ -51,5 +51,5 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
             ax.scatter(keypoint[i][0], keypoint[i][1], c=colors[i], s=100)
 
     ax.set_xlim(left=0, right=W)
-    ax.set_ylim(bottom=H-1, top=0)
+    ax.set_ylim(bottom=H - 1, top=0)
     return ax
