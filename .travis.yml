@@ -25,11 +25,11 @@ install:
   - conda info -a
 
   - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
-      conda env create -f environment.yml
-      source activate chainercv
+      conda env create -f environment.yml;
+      source activate chainercv;
     else
-      conda env create -f environment_minimum.yml
-      source activate chainercv_minimum
+      conda env create -f environment_minimum.yml;
+      source activate chainercv_minimum;
     fi
   - pip install -e .
 
