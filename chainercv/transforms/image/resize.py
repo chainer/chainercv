@@ -1,9 +1,28 @@
+import warnings
+
 try:
     import cv2
-    _available = True
+
+    def _resize(img, size):
+        return cv2.resize(img, dsize=size)
 
 except ImportError:
-    _available = False
+    import numpy
+    import PIL
+
+    warnings.warn(
+        'cv2 is not installed on your environment. '
+        'ChainerCV will fallback on Pillow. '
+        'Installation of cv2 is highly recommended for faster computation. ',
+        RuntimeWarning)
+
+    def _resize(img, size):
+        channels = []
+        for i in range(3):
+            ch = PIL.Image.fromarray(img[:, :, i], mode='F')
+            ch = ch.resize(size, resample=PIL.Image.BILINEAR)
+            channels.append(numpy.array(ch))
+        return numpy.stack(channels, axis=2)
 
 
 def resize(img, output_shape):
@@ -11,9 +30,17 @@ def resize(img, output_shape):
 
     A bilinear interpolation is used for resizing.
 
+    This method uses `cv2` or `Pillow` for the backend.
+    If `cv2` is installed, it uses `cv2`. This backend is highly
+    recommended because it is faster than `Pillow`. Under Anaconda environment,
+    `cv2` can be installed by following command.
+        $ conda install -c menpo opencv=2.4.11
+
+    If `cv2` is not installed, this method uses `Pillow`.
+
     Args:
         img (~numpy.ndarray): An array to be transformed.
-            This is in CHW format.
+            This is in CHW format and the type should be :obj:`numpy.float32`.
         output_shape (tuple): this is a tuple of length 2. Its elements are
             ordered as (height, width).
 
@@ -21,15 +48,8 @@ def resize(img, output_shape):
         ~numpy.ndarray: A resize array in CHW format.
 
     """
-    if not _available:
-        raise ValueError('cv2 is not installed on your environment, '
-                         'so nothing will be plotted at this time. '
-                         'Please install OpenCV.\n\n Under Anaconda '
-                         ' environment, you can install it by '
-                         '$ conda install -c menpo opencv=2.4.11\n')
-
     H, W = output_shape
     img = img.transpose(1, 2, 0)
-    img = cv2.resize(img, dsize=(W, H))
+    img = _resize(img, (W, H))
     img = img.transpose(2, 0, 1)
     return img
