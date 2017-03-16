@@ -6,7 +6,7 @@ import chainer
 from chainer.utils import type_check
 
 from chainercv.tasks import vis_bbox
-from chainercv.transforms import chw_to_pil_image_tuple
+from chainercv.transforms import chw_to_pil_image
 from chainercv.utils.extension_utils import check_type
 from chainercv.utils.extension_utils import forward
 
@@ -25,6 +25,10 @@ def _check_available():
                       'so nothing will be plotted at this time. '
                       'Please install matplotlib to plot figures.\n\n'
                       '  $ pip install matplotlib\n')
+
+
+def _detection_vis_transform(xs):
+    return chw_to_pil_image(xs[0]), xs[1], xs[2]
 
 
 class DetectionVisReport(chainer.training.extension.Extension):
@@ -143,7 +147,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
     def __init__(self, indices, dataset, target,
                  filename_base='detection', predict_func=None,
-                 vis_transform=chw_to_pil_image_tuple):
+                 vis_transform=_detection_vis_transform):
         _check_available()
 
         if not isinstance(indices, collections.Iterable):
