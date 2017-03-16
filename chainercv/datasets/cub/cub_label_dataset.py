@@ -6,9 +6,12 @@ from chainercv import utils
 
 class CUBLabelDataset(CUBDatasetBase):
 
-    """Dataset class for `CUB-200-2011`_ with labels as supervision data.
+    """`Caltech-UCSD Birds-200-2011`_ dataset  with annotated class labels.
 
-    .. _CUB-200-2011: http://www.vision.caltech.edu/visipedia/CUB-200-2011.html
+    .. _`Caltech-UCSD Birds-200-2011`:
+        http://www.vision.caltech.edu/visipedia/CUB-200-2011.html
+
+    An index corresponds to each image.
 
     There are 200 labels of birds in total.
 
