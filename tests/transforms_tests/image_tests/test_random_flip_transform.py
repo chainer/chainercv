@@ -12,7 +12,7 @@ class TestRandomFlip(unittest.TestCase):
         img = np.random.uniform(size=(3, 24, 24))
 
         out, flip_h, flip_v = random_flip(img, random_h=True, random_v=True,
-                                 return_flip=True)
+                                          return_flip=True)
 
         expected = img
         if flip_h:
