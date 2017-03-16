@@ -40,8 +40,6 @@ def resize(img, output_shape):
 
         $ conda install -c menpo opencv3=3.2.0
 
-    If `cv2` is not installed, this method uses `Pillow`.
-
     Args:
         img (~numpy.ndarray): An array to be transformed.
             This is in CHW format and the type should be :obj:`numpy.float32`.
