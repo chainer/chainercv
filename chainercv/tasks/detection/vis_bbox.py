@@ -29,6 +29,10 @@ def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), new axis is created.
 
+    Returns:
+        ~matploblib.axes.Axes:
+        Returns the Axes object with the plot for further tweaking.
+
     """
     from matplotlib import pyplot as plot
     if ax is None:
@@ -48,3 +52,4 @@ def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
                     label_names[label_elem.astype(np.int)],
                     style='italic',
                     bbox={'facecolor': 'white', 'alpha': 0.7, 'pad': 10})
+    return ax
