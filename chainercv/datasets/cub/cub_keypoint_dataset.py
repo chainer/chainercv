@@ -35,6 +35,12 @@ class CUBKeypointDataset(CUBDatasetBase):
     A keypoint mask array indicates whether a keypoint is visible in the
     image or not. This is a boolean array of shape :math:`(K,)`.
 
+    A mask image of the bird shows how likely the bird is located at a
+    given pixel. If the value is close to 255, more likely that the bird
+    locates at that pixel. The shape of this array is :math:`(1, H, W)`,
+    where :math:`H` and :math:`W` are height and width of the image
+    respectively.
+
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
