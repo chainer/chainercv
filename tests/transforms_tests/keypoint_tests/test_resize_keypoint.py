@@ -6,11 +6,11 @@ from chainer import testing
 from chainercv.transforms import resize_keypoint
 
 
-class TestRandomCrop(unittest.TestCase):
+class TestResizeKeypoint(unittest.TestCase):
 
-    def test_random_crop(self):
+    def test_resize_keypoint(self):
         keypoint = np.random.uniform(
-            low=0., high=32., size=(12, 3))
+            low=0., high=32., size=(12, 2))
 
         out = resize_keypoint(
             keypoint, input_shape=(32, 32),
