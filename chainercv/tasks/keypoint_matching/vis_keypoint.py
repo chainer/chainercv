@@ -1,9 +1,18 @@
-import numpy as np
 import six
 
 
 def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
-    """Visualize keypoint.
+    """Visualize keypoints in an image.
+
+    Example:
+
+        >>> import chainercv
+        >>> import matplotlib.pyplot as plot
+        >>> dataset = chainercv.datasets.CUBKeypointDataset()
+        >>> img, keypoint, kp_mask = dataset[0]
+        >>> img = chainercv.transforms.chw_to_pil_image(img)
+        >>> chainercv.tasks.vis_keypoint(img, keypoint, kp_mask)
+        >>> plot.show()
 
     Args:
         src_img (~numpy.ndarray): source mage of shape
@@ -16,7 +25,7 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
         kp_mask (~numpy.ndarray): A boolean array whose shape is :math:`(K,)`.
             If :math:`i` th index is :obj:`True`, the :math:`i` th keypoint is
             not displayed.
-        n_colors (int, optional): Number of 
+        n_colors (int, optional): Number of
         ax (matplotlib.axes.Axes, optional): If provided, plot on this axis.
 
     Returns:
@@ -37,7 +46,6 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
     colors = [cm(1. * i / n_kp) for i in six.moves.range(n_kp)]
 
     ax.imshow(img)
-    print kp_mask
     for i in range(n_kp):
         if kp_mask[i]:
             ax.scatter(keypoint[i][0], keypoint[i][1], c=colors[i], s=100)
@@ -45,16 +53,3 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
     ax.set_xlim(left=0, right=W)
     ax.set_ylim(bottom=H-1, top=0)
     return ax
-
-
-
-# import chainercv
-# import matplotlib.pyplot as plot
-# 
-# 
-# dataset = chainercv.datasets.CUBKeypointDataset()
-# img, keypoint, kp_mask = dataset[0]
-# img = chainercv.transforms.chw_to_pil_image(img)
-# chainercv.tasks.vis_keypoint(img, keypoint, kp_mask)
-# 
-# plot.show()
