@@ -10,7 +10,7 @@ def _chw_to_pil_image(img, reverse_color_channel):
 
 
 def chw_to_pil_image(img, reverse_color_channel=True):
-    """Transforms a CHW array into uint8 HWC array.
+    """Transforms one or multiple CHW arrays into uint8 HWC arrays.
 
     This function transforms one or multiple CHW arrays into HWC format
     whose types :obj:`dtype==numpy.uint8`.
@@ -26,7 +26,8 @@ def chw_to_pil_image(img, reverse_color_channel=True):
                 img = img[:, :, ::-1]
 
     Returns:
-        ~numpy.ndarray: a uint8 image array
+        an array or tuple of arrays: These arrays are in HWC format and have
+            uint8 as data type.
 
     """
     if not isinstance(img, tuple):
