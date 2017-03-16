@@ -7,7 +7,7 @@ import warnings
 import chainer
 from chainer.utils import type_check
 
-from chainercv.transforms import chw_to_pil_image_tuple
+from chainercv.transforms import chw_to_pil_image
 from chainercv.utils import check_type
 from chainercv.utils import forward
 
@@ -26,10 +26,6 @@ def _check_available():
                       'so nothing will be plotted at this time. '
                       'Please install matplotlib to plot figures.\n\n'
                       '  $ pip install matplotlib\n')
-
-
-def chw_to_pil_image_tuple_img_label(xs):
-    return chw_to_pil_image_tuple(xs, indices=[0, 1])
 
 
 class SemanticSegmentationVisReport(chainer.training.extension.Extension):
@@ -148,7 +144,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
     def __init__(self, indices, dataset, target, n_class,
                  filename_base='semantic_seg', predict_func=None,
-                 vis_transform=chw_to_pil_image_tuple_img_label):
+                 vis_transform=chw_to_pil_image):
         _check_available()
 
         if not isinstance(indices, collections.Iterable):

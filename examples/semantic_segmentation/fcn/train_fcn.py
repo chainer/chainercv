@@ -138,8 +138,7 @@ def main():
             [103.939, 116.779, 123.68], np.float32)[:, None, None]
         img, label = in_data
         img += vgg_subtract_bgr
-        img, label = transforms.chw_to_pil_image_tuple(
-            (img, label), indices=[0, 1])
+        img, label = transforms.chw_to_pil_image((img, label))
         return img, label
 
     trainer.extend(

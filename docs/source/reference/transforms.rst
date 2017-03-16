@@ -11,10 +11,6 @@ chw_to_pil_image
 ~~~~~~~~~~~~~~~~
 .. autofunction:: chw_to_pil_image
 
-chw_to_pil_image_tuple
-~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: chw_to_pil_image_tuple
-
 flip
 ~~~~
 .. autofunction:: flip
