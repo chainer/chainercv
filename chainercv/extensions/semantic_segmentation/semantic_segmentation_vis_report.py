@@ -26,6 +26,9 @@ def _check_available():
                       'so nothing will be plotted at this time. '
                       'Please install matplotlib to plot figures.\n\n'
                       '  $ pip install matplotlib\n')
+        return False
+
+    return True
 
 
 def chw_to_pil_image_tuple_img_label(xs):
@@ -196,11 +199,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         )
 
     def __call__(self, trainer):
-        if not _available:
-            warnings.warn('scikit-image is not installed on your environment, '
-                          'so a function embedding_tensorboard can not be '
-                          ' used. Please install scikit-image.\n\n'
-                          '  $ pip install scikit-image\n')
+        if not _check_available():
             return
 
         for idx in self.indices:
