@@ -15,18 +15,18 @@ class CUBKeypointDataset(CUBDatasetBase):
 
     An index corresponds to each image.
 
-    When queried by an index, this dataset returns a corresponding
+    When queried by an index, this dataset returns the corresponding
     :obj:`img, keypoint, kp_mask`, a tuple of an image, keypoints
-    and a mask that indicates visible keypoints in the image. The data
-    type of the three elements are :obj:`float32, float32, bool`.
+    and a keypoint mask that indicates visible keypoints in the image.
+    The data type of the three elements are :obj:`float32, float32, bool`.
     If :obj:`return_mask = True`, :obj:`mask` will be returned as well,
-    making the returned tuple to be of length four. This is a
+    making the returned tuple to be of length four. :obj:`mask` is a
     :obj:`uint8` image which indicates the region of the image
     where a bird locates.
 
-    The keypoints are packed into a two dimensional array of shape
-    :math:`(K, 2)`, where :math:`K` is the number of keypoints in the
-    array. Note that :math:`K=15` in this dataset, and not all fifteen
+    keypoints are packed into a two dimensional array of shape
+    :math:`(K, 2)`, where :math:`K` is the number of keypoints.
+    Note that :math:`K=15` in CUB dataset. Also note that not all fifteen
     keypoints are visible in an image. When a keypoint is not visible,
     the values stored for that keypoint are undefined. The second axis
     corresponds to the :math:`x` and :math:`y` coordinates of the
@@ -36,7 +36,7 @@ class CUBKeypointDataset(CUBDatasetBase):
     image or not. This is a boolean array of shape :math:`(K,)`.
 
     A mask image of the bird shows how likely the bird is located at a
-    given pixel. If the value is close to 255, more likely that the bird
+    given pixel. If the value is close to 255, more likely that a bird
     locates at that pixel. The shape of this array is :math:`(1, H, W)`,
     where :math:`H` and :math:`W` are height and width of the image
     respectively.
