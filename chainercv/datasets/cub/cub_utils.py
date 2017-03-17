@@ -9,6 +9,8 @@ from chainercv import utils
 root = 'pfnet/chainercv/cub'
 url = 'http://www.vision.caltech.edu/visipedia-data/CUB-200-2011/'\
     'CUB_200_2011.tgz'
+mask_url = 'http://www.vision.caltech.edu/visipedia-data/'\
+    'CUB-200-2011/segmentations.tgz'
 
 
 def get_cub():
@@ -24,16 +26,33 @@ def get_cub():
     return base_path
 
 
+def get_cub_mask():
+    data_root = download.get_dataset_directory(root)
+    base_path = os.path.join(data_root, 'segmentations')
+    if os.path.exists(base_path):
+        # skip downloading
+        return base_path
+
+    download_file_path_mask = utils.cached_download(mask_url)
+    ext_mask = os.path.splitext(mask_url)[1]
+    utils.extractall(
+        download_file_path_mask, data_root, ext_mask)
+    return base_path
+
+
 class CUBDatasetBase(chainer.dataset.DatasetMixin):
 
     """Base class for CUB dataset.
 
     """
 
-    def __init__(self, data_dir='auto', crop_bbox=True):
+    def __init__(self, data_dir='auto', mask_dir='auto', crop_bbox=True):
         if data_dir == 'auto':
             data_dir = get_cub()
+        if mask_dir == 'auto':
+            mask_dir = get_cub_mask()
         self.data_dir = data_dir
+        self.mask_dir = mask_dir
 
         images_file = os.path.join(data_dir, 'images.txt')
         bboxes_file = os.path.join(data_dir, 'bounding_boxes.txt')

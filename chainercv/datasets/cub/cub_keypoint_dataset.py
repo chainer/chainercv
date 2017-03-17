@@ -1,6 +1,6 @@
 import collections
 import numpy as np
-import os.path as osp
+import os
 
 from chainercv.datasets.cub.cub_utils import CUBDatasetBase
 from chainercv import utils
@@ -15,14 +15,18 @@ class CUBKeypointDataset(CUBDatasetBase):
 
     An index corresponds to each image.
 
-    When queried by an index, this dataset returns a corresponding
+    When queried by an index, this dataset returns the corresponding
     :obj:`img, keypoint, kp_mask`, a tuple of an image, keypoints
-    and a mask that indicates visible keypoints in the image. The data
-    type of the three elements are :obj:`float32, float32, bool`.
+    and a keypoint mask that indicates visible keypoints in the image.
+    The data type of the three elements are :obj:`float32, float32, bool`.
+    If :obj:`return_mask = True`, :obj:`mask` will be returned as well,
+    making the returned tuple to be of length four. :obj:`mask` is a
+    :obj:`uint8` image which indicates the region of the image
+    where a bird locates.
 
-    The keypoints are packed into a two dimensional array of shape
-    :math:`(K, 2)`, where :math:`K` is the number of keypoints in the
-    array. Note that :math:`K=15` in this dataset, and not all fifteen
+    keypoints are packed into a two dimensional array of shape
+    :math:`(K, 2)`, where :math:`K` is the number of keypoints.
+    Note that :math:`K=15` in CUB dataset. Also note that not all fifteen
     keypoints are visible in an image. When a keypoint is not visible,
     the values stored for that keypoint are undefined. The second axis
     corresponds to the :math:`x` and :math:`y` coordinates of the
@@ -30,6 +34,12 @@ class CUBKeypointDataset(CUBDatasetBase):
 
     A keypoint mask array indicates whether a keypoint is visible in the
     image or not. This is a boolean array of shape :math:`(K,)`.
+
+    A mask image of the bird shows how likely the bird is located at a
+    given pixel. If the value is close to 255, more likely that a bird
+    locates at that pixel. The shape of this array is :math:`(1, H, W)`,
+    where :math:`H` and :math:`W` are height and width of the image
+    respectively.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -39,6 +49,11 @@ class CUBKeypointDataset(CUBDatasetBase):
             [Kanazawa]_.
         crop_bbox (bool): If true, this class returns an image cropped
             by the bounding box of the bird inside it.
+        mask_dir (string): Path to the root of the mask data. If this is
+            :obj:`auto`, this class will automatically download data for you
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
+        return_mask (bool): Decide whether to include mask image of the bird
+            in a tuple served for a query.
 
     .. [Kanazawa] Angjoo Kanazawa, David W. Jacobs, \
        Manmohan Chandraker. WarpNet: Weakly Supervised Matching for \
@@ -46,14 +61,17 @@ class CUBKeypointDataset(CUBDatasetBase):
 
     """
 
-    def __init__(self, data_dir='auto', mode='train', crop_bbox=True):
+    def __init__(self, data_dir='auto', mode='train', crop_bbox=True,
+                 mask_dir='auto', return_mask=False):
         super(CUBKeypointDataset, self).__init__(
             data_dir=data_dir, crop_bbox=crop_bbox)
+        self.return_mask = return_mask
 
         # set mode
         test_images = np.load(
-            osp.join(osp.split(osp.split(osp.abspath(__file__))[0])[0],
-                     'data/cub_keypoint_dataset_test_image_ids.npy'))
+            os.path.join(
+                os.path.split(os.path.split(os.path.abspath(__file__))[0])[0],
+                'data/cub_keypoint_dataset_test_image_ids.npy'))
         # the original one has ids starting from 1
         test_images = test_images - 1
         train_images = np.setdiff1d(np.arange(len(self.fns)), test_images)
@@ -65,7 +83,7 @@ class CUBKeypointDataset(CUBDatasetBase):
             raise ValueError('invalid mode')
 
         # load keypoint
-        parts_loc_file = osp.join(self.data_dir, 'parts/part_locs.txt')
+        parts_loc_file = os.path.join(self.data_dir, 'parts/part_locs.txt')
         self.kp_dict = collections.OrderedDict()
         self.kp_mask_dict = collections.OrderedDict()
         for loc in open(parts_loc_file):
@@ -89,7 +107,7 @@ class CUBKeypointDataset(CUBDatasetBase):
     def get_example(self, i):
         # this i is transformed to id for the entire dataset
         original_idx = self.selected_ids[i]
-        img = utils.read_image_as_array(osp.join(
+        img = utils.read_image_as_array(os.path.join(
             self.data_dir, 'images', self.fns[original_idx]))  # RGB
         keypoint = np.array(self.kp_dict[original_idx], dtype=np.float32)
         kp_mask = np.array(self.kp_mask_dict[original_idx], dtype=np.bool)
@@ -104,4 +122,14 @@ class CUBKeypointDataset(CUBDatasetBase):
 
         img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1).astype(np.float32)
-        return img, keypoint, kp_mask
+
+        if not self.return_mask:
+            return img, keypoint, kp_mask
+
+        mask = utils.read_image_as_array(os.path.join(
+            self.mask_dir, self.fns[original_idx][:-4] + '.png'))
+        if self.crop_bbox:
+            mask = mask[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
+        mask = mask[None]
+
+        return img, keypoint, kp_mask, mask
