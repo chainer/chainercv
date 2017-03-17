@@ -14,7 +14,7 @@ def pca_lighting(img, sigma, eigen_value=None, eigen_vector=None):
     NIPS 2012.
 
     Args:
-        image (numpy.ndarray): An image array to be augmented. This is in
+        img (numpy.ndarray): An image array to be augmented. This is in
             CHW format.
         sigma (float): Standard deviation of the Gaussian. In the original
             paper, this value is 10% of the range of intensity
