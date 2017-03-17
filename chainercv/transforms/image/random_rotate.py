@@ -5,7 +5,7 @@ def random_rotate(img, return_rotation=False):
     """Randomly rotate images by 90, 180, 270 or 360 degrees.
 
     Args:
-        img (numpy.ndarray): An arrays that get flipped. This is in
+        img (~numpy.ndarray): An arrays that get flipped. This is in
             CHW format.
         return_rotation (bool): returns information of rotation.
 

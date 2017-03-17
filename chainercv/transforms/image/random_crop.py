@@ -9,7 +9,7 @@ def random_crop(img, output_shape, return_slices=False, copy=False):
     output will all be in shape :obj:`output_shape`.
 
     Args:
-        img (numpy.ndarray): An image array to be cropped. This is in
+        img (~numpy.ndarray): An image array to be cropped. This is in
             CHW format.
         output_shape (tuple): the size of output image after cropping.
             This value is :math:`(heihgt, width)`.

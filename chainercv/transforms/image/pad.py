@@ -25,7 +25,7 @@ def _get_pad_slices(img, max_size):
     """Get slices needed for padding.
 
     Args:
-        img (numpy.ndarray): this image is in format CHW.
+        img (~numpy.ndarray): this image is in format CHW.
         max_size (tuple of two ints): (max_H, max_W).
     """
     _, H, W = img.shape

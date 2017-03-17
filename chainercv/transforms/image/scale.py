@@ -9,7 +9,7 @@ def scale(img, size):
     Similar resizing will be done otherwise.
 
     Args:
-        img (numpy.ndarray): An image array to be scaled. This is in
+        img (~numpy.ndarray): An image array to be scaled. This is in
             CHW format.
         size (int): the length of the smaller edge.
 
