@@ -6,7 +6,7 @@ def random_flip(img, random_h=False, random_v=False,
     """Randomly flip an image in vertical or horizontal direction.
 
     Args:
-        img (numpy.ndarray): An array that gets flipped. This is in
+        img (~numpy.ndarray): An array that gets flipped. This is in
             CHW format.
         random_h (bool): randomly flip in horizontal direction.
         random_v (bool): randomly flip in vertical direction.

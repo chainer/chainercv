@@ -15,13 +15,13 @@ def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
         >>> plot.show()
 
     Args:
-        img (numpy.ndarray): array of shape :math:`(height, width, 3)`.
+        img (~numpy.ndarray): array of shape :math:`(height, width, 3)`.
             This is in RGB format.
-        bbox (numpy.ndarray): an array of shape :math:`(R, 5)`, where :math:`R`
+        bbox (~numpy.ndarray): an array of shape :math:`(R, 5)`, where :math:`R`
             is the number of bounding boxes in the image. Elements are
             organized
             by :obj:`(x_min, y_min, x_max, y_max)` in the second axis.
-        label (numpy.ndarray): an integer array of shape :math:`(R,)`.
+        label (~numpy.ndarray): an integer array of shape :math:`(R,)`.
             The values correspond to id for label names stored in
             :obj:`label_names`. This is optional.
         label_names (iterable of strings): name of labels ordered according
