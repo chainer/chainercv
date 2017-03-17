@@ -1,3 +1,4 @@
+import numpy as np
 import six
 
 
@@ -15,17 +16,18 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
         >>> plot.show()
 
     Args:
-        src_img (~numpy.ndarray): source mage of shape
-            :math:`(height, width, 3)`.
+        img (~numpy.ndarray): an image of shape
+            :math:`(height, width, 3)`. This should be visualizable using
+            :obj:`matplotlib.pyplot.imshow(img)`
         keypoint (~numpy.ndarray): An array with keypoint pairs whose shape is
             :math:`(K, 2)`, where :math:`K` is
             the number of keypoints in the array.
             The second axis corresponds to :math:`x` and :math:`y` coordinates
             of the keypoint.
-        kp_mask (~numpy.ndarray): A boolean array whose shape is :math:`(K,)`.
-            If :math:`i` th index is :obj:`True`, the :math:`i` th keypoint is
-            not displayed.
-        n_colors (int, optional): Number of
+        kp_mask (~numpy.ndarray, optional): A boolean array whose shape is
+            :math:`(K,)`. If :math:`i` th index is :obj:`True`, the
+            :math:`i` th keypoint is not displayed. If not specified,
+            all keypoints in :obj:`keypoint` will be displayed.
         ax (matplotlib.axes.Axes, optional): If provided, plot on this axis.
 
     Returns:
@@ -41,6 +43,10 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
 
     H, W, _ = img.shape
     n_kp = len(keypoint)
+
+    if kp_mask is None:
+        kp_mask = np.ones((n_kp,), dtype=np.bool)
+
     cm = plot.get_cmap('gist_rainbow')
 
     colors = [cm(1. * i / n_kp) for i in six.moves.range(n_kp)]
