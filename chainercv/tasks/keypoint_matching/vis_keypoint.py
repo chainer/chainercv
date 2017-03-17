@@ -1,3 +1,4 @@
+import numpy as np
 import six
 
 
@@ -41,6 +42,10 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
 
     H, W, _ = img.shape
     n_kp = len(keypoint)
+
+    if kp_mask is None:
+        kp_mask = np.ones((n_kp,), dtype=np.bool)
+
     cm = plot.get_cmap('gist_rainbow')
 
     colors = [cm(1. * i / n_kp) for i in six.moves.range(n_kp)]
