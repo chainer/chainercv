@@ -18,7 +18,7 @@ except ImportError:
 
     def _resize(img, size):
         channels = []
-        for i in range(3):
+        for i in range(img.shape[2]):
             ch = PIL.Image.fromarray(img[:, :, i], mode='F')
             ch = ch.resize(size, resample=PIL.Image.BILINEAR)
             channels.append(numpy.array(ch))
