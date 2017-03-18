@@ -1,13 +1,17 @@
+import numpy
 import warnings
 
 try:
     import cv2
 
     def _resize(img, size):
-        return cv2.resize(img, dsize=size)
+        img = cv2.resize(img, dsize=size)
+        if len(img.shape) == 3:
+            return img
+        else:
+            return img[:, :, numpy.newaxis]
 
 except ImportError:
-    import numpy
     import PIL
 
     warnings.warn(
