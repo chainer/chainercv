@@ -1,5 +1,6 @@
 from chainercv.transforms.bbox.flip_bbox import flip_bbox  # NOQA
 from chainercv.transforms.bbox.resize_bbox import resize_bbox  # NOQA
+from chainercv.transforms.bbox.random_expand import random_expand  # NOQA
 from chainercv.transforms.image.chw_to_pil_image import chw_to_pil_image  # NOQA
 from chainercv.transforms.image.flip import flip  # NOQA
 from chainercv.transforms.image.pad import pad  # NOQA

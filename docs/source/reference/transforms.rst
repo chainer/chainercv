@@ -55,6 +55,10 @@ flip_bbox
 ~~~~~~~~~
 .. autofunction:: flip_bbox
 
+random_expand
+~~~~~~~~~~~~~
+.. autofunction:: random_expand
+
 resize_bbox
 ~~~~~~~~~~~
 .. autofunction:: resize_bbox
