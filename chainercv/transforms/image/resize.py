@@ -5,13 +5,13 @@ try:
     import cv2
 
     def _resize(img, size):
+        img = img.transpose(1, 2, 0)
         img = cv2.resize(img, dsize=size)
 
         # If input is a grayscale image, cv2 returns a two-dimentional array.
         if len(img.shape) == 2:
-            return img[:, :, numpy.newaxis]
-        else:
-            return img
+            img = img[:, :, numpy.newaxis]
+        return img.transpose(2, 0, 1)
 
 except ImportError:
     import PIL
@@ -23,12 +23,13 @@ except ImportError:
         RuntimeWarning)
 
     def _resize(img, size):
-        channels = []
-        for i in range(img.shape[2]):
-            ch = PIL.Image.fromarray(img[:, :, i], mode='F')
-            ch = ch.resize(size, resample=PIL.Image.BILINEAR)
-            channels.append(numpy.array(ch))
-        return numpy.stack(channels, axis=2)
+        C = img.shape[0]
+        W, H = size
+        out = numpy.empty((C, H, W), dtype=img.dtype)
+        for ch, out_ch in zip(img, out):
+            ch = PIL.Image.fromarray(ch, mode='F')
+            out_ch[:] = ch.resize(size, resample=PIL.Image.BILINEAR)
+        return out
 
 
 def resize(img, output_shape):
@@ -57,7 +58,5 @@ def resize(img, output_shape):
 
     """
     H, W = output_shape
-    img = img.transpose(1, 2, 0)
     img = _resize(img, (W, H))
-    img = img.transpose(2, 0, 1)
     return img
