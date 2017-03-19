@@ -1,13 +1,19 @@
+import numpy
 import warnings
 
 try:
     import cv2
 
     def _resize(img, size):
-        return cv2.resize(img, dsize=size)
+        img = cv2.resize(img, dsize=size)
+
+        # If input is a grayscale image, cv2 returns a two-dimentional array.
+        if len(img.shape) == 2:
+            return img[:, :, numpy.newaxis]
+        else:
+            return img
 
 except ImportError:
-    import numpy
     import PIL
 
     warnings.warn(
@@ -18,7 +24,7 @@ except ImportError:
 
     def _resize(img, size):
         channels = []
-        for i in range(3):
+        for i in range(img.shape[2]):
             ch = PIL.Image.fromarray(img[:, :, i], mode='F')
             ch = ch.resize(size, resample=PIL.Image.BILINEAR)
             channels.append(numpy.array(ch))
