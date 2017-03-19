@@ -6,10 +6,12 @@ try:
 
     def _resize(img, size):
         img = cv2.resize(img, dsize=size)
-        if len(img.shape) == 3:
-            return img
-        else:
+
+        # If img is grayscale image, cv2 returns two dimentional array.
+        if len(img.shape) == 2:
             return img[:, :, numpy.newaxis]
+        else:
+            return img
 
 except ImportError:
     import PIL
