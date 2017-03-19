@@ -7,7 +7,7 @@ try:
     def _resize(img, size):
         img = cv2.resize(img, dsize=size)
 
-        # If img is grayscale image, cv2 returns two dimentional array.
+        # If input is a grayscale image, cv2 returns a two-dimentional array.
         if len(img.shape) == 2:
             return img[:, :, numpy.newaxis]
         else:
