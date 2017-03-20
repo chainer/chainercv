@@ -1,6 +1,10 @@
 def translate_bbox(bbox, x_offset=0, y_offset=0):
     """Translate bounding boxes.
 
+    This method is mainly used together with image transforms, such as padding
+    and cropping, which translates the left top point of the image from
+    coordinate :math:`(0, 0)` to coordinate :math:`(x\_offset, y\_offset)`.
+
     The bounding boxes are expected to be packed into a two dimensional
     tensor of shape :math:`(R, 4)`, where :math:`R` is the number of
     bounding boxes in the image. The second axis represents attributes of

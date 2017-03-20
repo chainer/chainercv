@@ -3,12 +3,15 @@ import random
 
 
 def random_expand(img, max_ratio=4, fill=0, return_params=False):
-    """Expand image randomly.
+    """Expand an image randomly.
 
-    This method expands the size of image randomly by padding pixels. The
-    aspect ratio of the image is kept.
+    This method randomly place the input image on a larger canvas. The size of
+    the canvas is :math:`(rW, rH)`, where :math:`(W, H)` is the size of the
+    input image and :math:`r` is a random ratio drawn from
+    :math:`[1, max\_ratio]`. The canvas is filled by a value :obj:`fill`
+    except for the region where the original image is placed.
 
-    This method is used in training of SSD [1].
+    This data augmentation trick is used to create "zoom out" effect [1].
 
     .. [1] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, \
     Scott Reed, Cheng-Yang Fu, Alexander C. Berg. \
