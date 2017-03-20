@@ -41,14 +41,14 @@ def random_expand(img, max_ratio=4, fill=0, return_params=False):
     ratio = random.uniform(1, max_ratio)
     out_H, out_W = int(H * ratio), int(W * ratio)
 
-    top = random.randint(0, out_H - H)
-    left = random.randint(0, out_W - W)
+    x_offset = random.randint(0, out_W - W)
+    y_offset = random.randint(0, out_H - H)
 
     out_img = numpy.empty((C, out_H, out_W), dtype=img.dtype)
     out_img[:] = numpy.array(fill).reshape(-1, 1, 1)
-    out_img[:, top:top + H, left:left + W] = img
+    out_img[:, y_offset:y_offset + H, x_offset:x_offset + W] = img
 
     if return_params:
-        return out_img, ratio, left, top
+        return out_img, ratio, x_offset, y_offset
     else:
         return out_img
