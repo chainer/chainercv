@@ -27,6 +27,10 @@ random_crop
 ~~~~~~~~~~~
 .. autofunction:: random_crop
 
+random_expand
+~~~~~~~~~~~~~
+.. autofunction:: random_expand
+
 random_flip
 ~~~~~~~~~~~
 .. autofunction:: random_flip
@@ -55,14 +59,14 @@ flip_bbox
 ~~~~~~~~~
 .. autofunction:: flip_bbox
 
-random_expand
-~~~~~~~~~~~~~
-.. autofunction:: random_expand
 
 resize_bbox
 ~~~~~~~~~~~
 .. autofunction:: resize_bbox
 
+translate_bbox
+~~~~~~~~~~~~~~
+.. autofunction:: translate_bbox
 
 Keypoint
 --------
