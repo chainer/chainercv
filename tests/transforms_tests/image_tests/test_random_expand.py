@@ -27,24 +27,29 @@ class TestRandomExpand(unittest.TestCase):
 
         out = random_expand(img, max_ratio=2)
 
+
+@testing.parameterize(
+    {'fill': 128},
+    {'fill': (104, 117, 123)},
+    {'fill':  np.random.uniform(255, size=3)},
+)
+class TestRandomExpandFill(unittest.TestCase):
+
     def test_random_expand_fill(self):
         img = np.random.uniform(-1, 1, size=(3, 64, 32))
 
-        fills = (128, (104, 117, 123), np.random.uniform(255, size=3))
+        while True:
+            out, _, x_offset, y_offset = random_expand(
+                img, fill=self.fill, return_params=True)
+            if x_offset > 0 or y_offset > 0:
+                break
 
-        for fill in fills:
-            while True:
-                out, _, x_offset, y_offset = random_expand(
-                    img, fill=fill, return_params=True)
-                if x_offset > 0 or y_offset > 0:
-                    break
-
-            if isinstance(fill, int):
-                np.testing.assert_equal(
-                    out[:, 0, 0], (fill, fill, fill))
-            else:
-                np.testing.assert_equal(
-                    out[:, 0, 0], fill)
+        if isinstance(self.fill, int):
+            np.testing.assert_equal(
+                out[:, 0, 0], (self.fill,) * 3)
+        else:
+            np.testing.assert_equal(
+                out[:, 0, 0], self.fill)
 
 
 testing.run_module(__name__, __file__)
