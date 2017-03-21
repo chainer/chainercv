@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 import warnings
 
 try:
@@ -10,7 +10,7 @@ try:
 
         # If input is a grayscale image, cv2 returns a two-dimentional array.
         if len(img.shape) == 2:
-            img = img[:, :, numpy.newaxis]
+            img = img[:, :, np.newaxis]
         return img.transpose(2, 0, 1)
 
 except ImportError:
@@ -25,7 +25,7 @@ except ImportError:
     def _resize(img, size):
         C = img.shape[0]
         W, H = size
-        out = numpy.empty((C, H, W), dtype=img.dtype)
+        out = np.empty((C, H, W), dtype=img.dtype)
         for ch, out_ch in zip(img, out):
             ch = PIL.Image.fromarray(ch, mode='F')
             out_ch[:] = ch.resize(size, resample=PIL.Image.BILINEAR)

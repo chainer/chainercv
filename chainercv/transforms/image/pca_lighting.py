@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 
 
 def pca_lighting(img, sigma, eigen_value=None, eigen_vector=None):
@@ -35,14 +35,14 @@ def pca_lighting(img, sigma, eigen_value=None, eigen_vector=None):
 
     # these values are copied from facebook/fb.resnet.torch
     if eigen_value is None:
-        eigen_value = numpy.array((0.2175, 0.0188, 0.0045))
+        eigen_value = np.array((0.2175, 0.0188, 0.0045))
     if eigen_vector is None:
-        eigen_vector = numpy.array((
+        eigen_vector = np.array((
             (0.4009, -0.814,  0.4203),
             (0.7192, -0.0045, -0.6948),
             (-0.5675, -0.5808, -0.5836)))
 
-    alpha = numpy.random.normal(0, sigma, size=3)
+    alpha = np.random.normal(0, sigma, size=3)
 
     img = img.copy()
     img += eigen_vector.dot(eigen_value * alpha).reshape(-1, 1, 1)

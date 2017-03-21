@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 
 
 def ten_crop(img, output_shape):
@@ -37,7 +37,7 @@ def ten_crop(img, output_shape):
     if iH < H or iW < W:
         raise ValueError('shape of image is larger than output shape')
 
-    crops = numpy.stack((
+    crops = np.stack((
         img[:, (iH - H) // 2:(iH + H) // 2, (iW - W) // 2:(iW + W) // 2],
         img[:, 0:H, 0:W],
         img[:, iH - H:iH, 0:W],
@@ -45,6 +45,6 @@ def ten_crop(img, output_shape):
         img[:, iH - H:iH, iW - W:iW],
     ))
 
-    crops = numpy.vstack((crops, crops[:, :, :, ::-1]))
+    crops = np.vstack((crops, crops[:, :, :, ::-1]))
 
     return crops
