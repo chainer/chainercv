@@ -35,5 +35,5 @@ def eval_pck(pred, expected, alpha, L):
 
     difference = np.linalg.norm(pred[:, :2] - expected[:, :2], axis=1)
 
-    pck_accuracy = np.mean(difference < alpha * L)
+    pck_accuracy = np.mean(difference <= alpha * L)
     return pck_accuracy
