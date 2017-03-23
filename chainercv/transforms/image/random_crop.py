@@ -13,8 +13,9 @@ def random_crop(img, output_shape, return_slices=False, copy=False):
             CHW format.
         output_shape (tuple): the size of output image after cropping.
             This value is :math:`(heihgt, width)`.
-        return_slices (bool): returns information of slices.
-        copy (bool): If False, a view of :obj:`img` is returned.
+        return_slices (bool): If :obj:`True`, this function returns
+            information of slices.
+        copy (bool): If :obj:`False`, a view of :obj:`img` is returned.
 
     Returns:
         This function returns :obj:`out_img, slice_H, slice_W` if
