@@ -35,6 +35,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     :obj:`img, class_id, super_class_id`, a tuple of an image, a class id and
     a coarse level class id.
     Images are in BGR and CHW format.
+    Class ids start from 0.
 
     The :obj:`mode` selects train and test split of the dataset as done in
     [Song]_. The train split contains the first 11318 classes and the test
