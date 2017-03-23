@@ -26,7 +26,7 @@ def _get_online_products():
 
 class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
-    """Simple class to load data from `Stanford Online Products Dataset`_.
+    """Dataset class for `Stanford Online Products Dataset`_.
 
     .. _`Stanford Online Products Dataset`:
         http://cvgl.stanford.edu/projects/lifted_struct
