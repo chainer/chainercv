@@ -64,17 +64,6 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         self.super_class_ids += [int(id_[2]) for id_ in ids_tmp]
         self.paths += [os.path.join(data_dir, id_[3]) for id_ in ids_tmp]
 
-        self.class_ids_dict = self._list_to_dict(self.class_ids)
-        self.super_class_ids_dict = self._list_to_dict(self.super_class_ids)
-
-    def _list_to_dict(self, l):
-        dict_ = {}
-        for i, v in enumerate(l):
-            if v not in dict_:
-                dict_[v] = []
-            dict_[v].append(i)
-        return dict_
-
     def __len__(self):
         return len(self.paths)
 
