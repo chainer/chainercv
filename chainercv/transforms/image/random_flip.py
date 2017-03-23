@@ -1,43 +1,43 @@
 import random
 
 
-def random_flip(img, random_h=False, random_v=False,
+def random_flip(img, random_x=False, random_y=False,
                 return_flip=False, copy=False):
     """Randomly flip an image in vertical or horizontal direction.
 
     Args:
         img (~numpy.ndarray): An array that gets flipped. This is in
             CHW format.
-        random_h (bool): randomly flip in horizontal direction.
-        random_v (bool): randomly flip in vertical direction.
+        random_x (bool): randomly flip in horizontal direction.
+        random_y (bool): randomly flip in vertical direction.
         return_flip (bool): returns information of flip.
         copy (bool): If False, a view of :obj:`img` will be returned.
 
     Returns:
-        This function returns :obj:`out_img, flip_h, flip_v` if
+        This function returns :obj:`out_img, flip_x, flip_y` if
         :obj:`return_flip = True`. Otherwise, this returns :obj:`out_img`.
 
         Note that :obj:`out_img` is the transformed image array.
-        Also, :obj:`flip_h` and :obj:`flip_v` are bools that indicate whether
+        Also, :obj:`flip_x` and :obj:`flip_y` are bools that indicate whether
         the image was flipped in the horizontal direction and the vertical
         direction respectively.
 
     """
-    flip_h, flip_v = False, False
-    if random_h:
-        flip_h = random.choice([True, False])
-    if random_v:
-        flip_v = random.choice([True, False])
+    flip_x, flip_y = False, False
+    if random_x:
+        flip_x = random.choice([True, False])
+    if random_y:
+        flip_y = random.choice([True, False])
 
-    if flip_h:
+    if flip_x:
         img = img[:, :, ::-1]
-    if flip_v:
+    if flip_y:
         img = img[:, ::-1, :]
 
     if copy:
         img = img.copy()
 
     if return_flip:
-        return img, flip_h, flip_v
+        return img, flip_x, flip_y
     else:
         return img
