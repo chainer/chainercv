@@ -63,8 +63,9 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         # for mode in ['train', 'test']:
         id_list_file = os.path.join(data_dir, 'Ebay_{}.txt'.format(mode))
         ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
-        self.class_ids += [int(id_[1]) for id_ in ids_tmp]
-        self.super_class_ids += [int(id_[2]) for id_ in ids_tmp]
+        # ids start from 0
+        self.class_ids += [int(id_[1]) - 1 for id_ in ids_tmp]
+        self.super_class_ids += [int(id_[2]) - 1 for id_ in ids_tmp]
         self.paths += [os.path.join(data_dir, id_[3]) for id_ in ids_tmp]
 
     def __len__(self):
@@ -82,7 +83,6 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         Returns:
             i-th example
         """
-
         class_id = np.array(self.class_ids[i], np.int32)
         super_class_id = np.array(self.super_class_ids[i], np.int32)
 
