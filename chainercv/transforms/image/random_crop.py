@@ -18,43 +18,43 @@ def random_crop(img, output_shape, return_slices=False, copy=False):
         copy (bool): If :obj:`False`, a view of :obj:`img` is returned.
 
     Returns:
-        This function returns :obj:`out_img, slice_H, slice_W` if
+        This function returns :obj:`out_img, y_slice, x_slice` if
         :obj:`return_slices = True`. Otherwise, this returns
         :obj:`out_img`.
 
         Note that :obj:`out_img` is the transformed image array.
-        Also, :obj:`slice_H` and :obj:`slice_W` are slices used to crop the
+        Also, :obj:`y_slice` and :obj:`x_slice` are slices used to crop the
         input image. The following relationship is satisfied.
 
         .. code::
 
-            out_img = img[:, slice_H, slice_W]
+            out_img = img[:, y_slice, x_slice]
 
     """
     H, W = output_shape
 
     if img.shape[1] == H:
-        start_H = 0
+        y_offset = 0
     elif img.shape[1] > H:
-        start_H = random.choice(six.moves.range(img.shape[1] - H))
+        y_offset = random.choice(six.moves.range(img.shape[1] - H))
     else:
         raise ValueError('shape of image needs to be larger than output shape')
-    slice_H = slice(start_H, start_H + H)
+    y_slice = slice(y_offset, y_offset + H)
 
     if img.shape[2] == W:
-        start_W = 0
+        x_offset = 0
     elif img.shape[2] > W:
-        start_W = random.choice(six.moves.range(img.shape[2] - W))
+        x_offset = random.choice(six.moves.range(img.shape[2] - W))
     else:
         raise ValueError('shape of image needs to be larger than output shape')
-    slice_W = slice(start_W, start_W + W)
+    x_slice = slice(x_offset, x_offset + W)
 
-    img = img[:, slice_H, slice_W]
+    img = img[:, y_slice, x_slice]
 
     if copy:
         img = img.copy()
 
     if return_slices:
-        return img, slice_H, slice_W
+        return img, y_slice, x_slice
     else:
         return img
