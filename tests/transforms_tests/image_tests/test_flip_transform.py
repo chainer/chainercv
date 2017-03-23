@@ -11,7 +11,7 @@ class TestRandomFlip(unittest.TestCase):
     def test_random_flip(self):
         img = np.random.uniform(size=(3, 24, 24))
 
-        out = flip(img, flip_x=True, flip_y=True)
+        out = flip(img, x_flip=True, y_flip=True)
 
         expected = img
         expected = expected[:, :, ::-1]
@@ -21,7 +21,7 @@ class TestRandomFlip(unittest.TestCase):
     def test_random_flip_vertical(self):
         img = np.random.uniform(size=(3, 24, 24))
 
-        out = flip(img, flip_x=False, flip_y=True)
+        out = flip(img, x_flip=False, y_flip=True)
 
         expected = img
         expected = expected[:, ::-1, :]

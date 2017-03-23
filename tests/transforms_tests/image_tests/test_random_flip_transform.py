@@ -11,13 +11,13 @@ class TestRandomFlip(unittest.TestCase):
     def test_random_flip(self):
         img = np.random.uniform(size=(3, 24, 24))
 
-        out, flip_x, flip_y = random_flip(img, random_x=True, random_y=True,
+        out, x_flip, y_flip = random_flip(img, random_x=True, random_y=True,
                                           return_flip=True)
 
         expected = img
-        if flip_x:
+        if x_flip:
             expected = expected[:, :, ::-1]
-        if flip_y:
+        if y_flip:
             expected = expected[:, ::-1, :]
         np.testing.assert_equal(out, expected)
 

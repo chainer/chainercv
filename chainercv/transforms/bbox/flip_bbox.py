@@ -1,4 +1,4 @@
-def flip_bbox(bbox, img_shape, flip_x=False, flip_y=False):
+def flip_bbox(bbox, img_shape, x_flip=False, y_flip=False):
     """Flip bounding boxes accordingly.
 
     The bounding boxes are expected to be packed into a two dimensional
@@ -13,9 +13,9 @@ def flip_bbox(bbox, img_shape, flip_x=False, flip_y=False):
             the number of bounding boxes.
         img_shape (tuple): A tuple of length 2. The height and the width
             of the image before resized.
-        flip_x (bool): Flip bounding box according to a horizontal flip of
+        x_flip (bool): Flip bounding box according to a horizontal flip of
             an image.
-        flip_y (bool): Flip bounding box according to a vertical flip of
+        y_flip (bool): Flip bounding box according to a vertical flip of
             an image.
 
     Returns:
@@ -25,12 +25,12 @@ def flip_bbox(bbox, img_shape, flip_x=False, flip_y=False):
     """
     H, W = img_shape
     bbox = bbox.copy()
-    if flip_x:
+    if x_flip:
         x_max = W - 1 - bbox[:, 0]
         x_min = W - 1 - bbox[:, 2]
         bbox[:, 0] = x_min
         bbox[:, 2] = x_max
-    if flip_y:
+    if y_flip:
         y_max = H - 1 - bbox[:, 1]
         y_min = H - 1 - bbox[:, 3]
         bbox[:, 1] = y_min
