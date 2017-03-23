@@ -14,17 +14,17 @@ def center_crop(img, output_shape, return_slices=False, copy=False):
         copy (bool): If :obj:`False`, a view of :obj:`img` is returned.
 
     Returns:
-        This function returns :obj:`out_img, slice_H, slice_W` if
+        This function returns :obj:`out_img, y_slice, x_slice` if
         :obj:`return_slices = True`. Otherwise, this returns
         :obj:`out_img`.
 
         Note that :obj:`out_img` is the transformed image array.
-        Also, :obj:`slice_H` and :obj:`slice_W` are slices used to crop the
+        Also, :obj:`y_slice` and :obj:`x_slice` are slices used to crop the
         input image. The following relationship is satisfied.
 
         .. code::
 
-            out_img = img[:, slice_H, slice_W]
+            out_img = img[:, y_slice, x_slice]
 
     """
     _, H, W = img.shape
@@ -32,18 +32,18 @@ def center_crop(img, output_shape, return_slices=False, copy=False):
     if oH > H or oW > W:
         raise ValueError('shape of image needs to be larger than output_shape')
 
-    start_H = int(round((H - oH) / 2.))
-    start_W = int(round((W - oW) / 2.))
+    y_offset = int(round((H - oH) / 2.))
+    x_offset = int(round((W - oW) / 2.))
 
-    slice_H = slice(start_H, start_H + oH)
-    slice_W = slice(start_W, start_W + oW)
+    y_slice = slice(y_offset, y_offset + oH)
+    x_slice = slice(x_offset, x_offset + oW)
 
-    img = img[:, slice_H, slice_W]
+    img = img[:, y_slice, x_slice]
 
     if copy:
         img = img.copy()
 
     if return_slices:
-        return img, slice_H, slice_W
+        return img, y_slice, x_slice
     else:
         return img
