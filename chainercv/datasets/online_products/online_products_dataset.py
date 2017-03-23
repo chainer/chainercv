@@ -26,10 +26,16 @@ def _get_online_products():
 
 class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
-    """Simple class to load data from `Stanford Online Products Dataset`_.
+    """Dataset class for `Stanford Online Products Dataset`_.
 
     .. _`Stanford Online Products Dataset`:
         http://cvgl.stanford.edu/projects/lifted_struct
+
+    When queried by an index, this dataset returns a corresponding
+    :obj:`img, class_id, super_class_id`, a tuple of an image, a class id and
+    a coarse level class id.
+    Images are in BGR and CHW format.
+    Class ids start from 0.
 
     The :obj:`mode` selects train and test split of the dataset as done in
     [Song]_. The train split contains the first 11318 classes and the test
@@ -38,8 +44,6 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     .. [Song] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
         Deep Metric Learning via Lifted Structured Feature Embedding.
         https://arxiv.org/abs/1511.06452.
-
-    All returned images are in RGB format.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -60,20 +64,10 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         # for mode in ['train', 'test']:
         id_list_file = os.path.join(data_dir, 'Ebay_{}.txt'.format(mode))
         ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
-        self.class_ids += [int(id_[1]) for id_ in ids_tmp]
-        self.super_class_ids += [int(id_[2]) for id_ in ids_tmp]
+        # ids start from 0
+        self.class_ids += [int(id_[1]) - 1 for id_ in ids_tmp]
+        self.super_class_ids += [int(id_[2]) - 1 for id_ in ids_tmp]
         self.paths += [os.path.join(data_dir, id_[3]) for id_ in ids_tmp]
-
-        self.class_ids_dict = self._list_to_dict(self.class_ids)
-        self.super_class_ids_dict = self._list_to_dict(self.super_class_ids)
-
-    def _list_to_dict(self, l):
-        dict_ = {}
-        for i, v in enumerate(l):
-            if v not in dict_:
-                dict_[v] = []
-            dict_[v].append(i)
-        return dict_
 
     def __len__(self):
         return len(self.paths)
@@ -90,7 +84,6 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         Returns:
             i-th example
         """
-
         class_id = np.array(self.class_ids[i], np.int32)
         super_class_id = np.array(self.super_class_ids[i], np.int32)
 
