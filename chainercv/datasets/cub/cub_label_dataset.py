@@ -11,7 +11,10 @@ class CUBLabelDataset(CUBDatasetBase):
     .. _`Caltech-UCSD Birds-200-2011`:
         http://www.vision.caltech.edu/visipedia/CUB-200-2011.html
 
-    An index corresponds to each image.
+    When queried by an index, this dataset returns a corresponding
+    :obj:`img, label`, a tuple of an image and class id.
+    The image is in BGR and CHW format.
+    The class id are between 0 and 199.
 
     There are 200 labels of birds in total.
 
