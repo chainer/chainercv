@@ -59,20 +59,3 @@ class CUBLabelDataset(CUBDatasetBase):
         img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1)
         return img, label
-
-
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    for i in range(1000, 1020):
-        plt.figure()
-        dataset = CUBLabelDataset(crop_bbox=False)
-        img, label = dataset[i]
-        img = img.transpose(1, 2, 0)[:, :, ::-1]
-        dataset = CUBLabelDataset(crop_bbox=True)
-        cropped, label = dataset[i]
-        cropped = cropped.transpose(1, 2, 0)[:, :, ::-1]
-        plt.subplot(2, 1, 1)
-        plt.imshow(img)
-        plt.subplot(2, 1, 2)
-        plt.imshow(cropped)
-        plt.show()
