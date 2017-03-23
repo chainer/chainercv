@@ -11,7 +11,10 @@ class CUBLabelDataset(CUBDatasetBase):
     .. _`Caltech-UCSD Birds-200-2011`:
         http://www.vision.caltech.edu/visipedia/CUB-200-2011.html
 
-    An index corresponds to each image.
+    When queried by an index, this dataset returns a corresponding
+    :obj:`img, label`, a tuple of an image and class id.
+    The image is in BGR and CHW format.
+    The class id are between 0 and 199.
 
     There are 200 labels of birds in total.
 
@@ -28,18 +31,13 @@ class CUBLabelDataset(CUBDatasetBase):
         super(CUBLabelDataset, self).__init__(
             data_dir=data_dir, crop_bbox=crop_bbox)
 
-        classes_file = osp.join(self.data_dir, 'classes.txt')
         image_class_labels_file = osp.join(
             self.data_dir, 'image_class_labels.txt')
-        self.labels = [label.split()[1] for label in open(classes_file)]
         self._data_labels = [int(d_label.split()[1]) - 1 for
                              d_label in open(image_class_labels_file)]
 
     def get_example(self, i):
         """Returns the i-th example.
-
-        Returns a color image and bounding boxes. The image is in CHW format.
-        If `self.bgr` is True, the image is in BGR. If not, it is in RGB.
 
         Args:
             i (int): The index of the example.
@@ -61,20 +59,3 @@ class CUBLabelDataset(CUBDatasetBase):
         img = img[:, :, ::-1]  # RGB to BGR
         img = img.transpose(2, 0, 1)
         return img, label
-
-
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    for i in range(1000, 1020):
-        plt.figure()
-        dataset = CUBLabelDataset(crop_bbox=False)
-        img, label = dataset[i]
-        img = img.transpose(1, 2, 0)[:, :, ::-1]
-        dataset = CUBLabelDataset(crop_bbox=True)
-        cropped, label = dataset[i]
-        cropped = cropped.transpose(1, 2, 0)[:, :, ::-1]
-        plt.subplot(2, 1, 1)
-        plt.imshow(img)
-        plt.subplot(2, 1, 2)
-        plt.imshow(cropped)
-        plt.show()
