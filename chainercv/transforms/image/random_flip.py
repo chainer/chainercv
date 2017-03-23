@@ -1,15 +1,15 @@
 import random
 
 
-def random_flip(img, random_x=False, random_y=False,
+def random_flip(img, x_random=False, y_random=False,
                 return_flip=False, copy=False):
     """Randomly flip an image in vertical or horizontal direction.
 
     Args:
         img (~numpy.ndarray): An array that gets flipped. This is in
             CHW format.
-        random_x (bool): randomly flip in horizontal direction.
-        random_y (bool): randomly flip in vertical direction.
+        x_random (bool): randomly flip in horizontal direction.
+        y_random (bool): randomly flip in vertical direction.
         return_flip (bool): returns information of flip.
         copy (bool): If False, a view of :obj:`img` will be returned.
 
@@ -24,9 +24,9 @@ def random_flip(img, random_x=False, random_y=False,
 
     """
     x_flip, y_flip = False, False
-    if random_x:
+    if x_random:
         x_flip = random.choice([True, False])
-    if random_y:
+    if y_random:
         y_flip = random.choice([True, False])
 
     if x_flip:
