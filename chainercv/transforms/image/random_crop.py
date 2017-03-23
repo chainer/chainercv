@@ -5,8 +5,8 @@ import six
 def random_crop(img, output_shape, return_slices=False, copy=False):
     """Crop array randomly into `output_shape`.
 
-    All arrays will be cropped by the same region randomly selected. The
-    output will all be in shape :obj:`output_shape`.
+    The input image is cropped by a randomly selected region whose shape
+    is :obj:`output_shape`.
 
     Args:
         img (~numpy.ndarray): An image array to be cropped. This is in
