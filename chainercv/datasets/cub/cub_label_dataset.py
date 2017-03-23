@@ -31,10 +31,8 @@ class CUBLabelDataset(CUBDatasetBase):
         super(CUBLabelDataset, self).__init__(
             data_dir=data_dir, crop_bbox=crop_bbox)
 
-        classes_file = osp.join(self.data_dir, 'classes.txt')
         image_class_labels_file = osp.join(
             self.data_dir, 'image_class_labels.txt')
-        self.labels = [label.split()[1] for label in open(classes_file)]
         self._data_labels = [int(d_label.split()[1]) - 1 for
                              d_label in open(image_class_labels_file)]
 
