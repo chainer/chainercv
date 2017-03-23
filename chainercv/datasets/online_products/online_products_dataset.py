@@ -31,6 +31,11 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     .. _`Stanford Online Products Dataset`:
         http://cvgl.stanford.edu/projects/lifted_struct
 
+    When queried by an index, this dataset returns a corresponding
+    :obj:`img, class_id, super_class_id`, a tuple of an image, a class id and
+    a coarse level class id.
+    Images are in BGR and CHW format.
+
     The :obj:`mode` selects train and test split of the dataset as done in
     [Song]_. The train split contains the first 11318 classes and the test
     split contains the remaining 11316 classes.
@@ -38,8 +43,6 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     .. [Song] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
         Deep Metric Learning via Lifted Structured Feature Embedding.
         https://arxiv.org/abs/1511.06452.
-
-    All returned images are in RGB format.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
