@@ -23,7 +23,7 @@ def scale(img, size):
 
     if W < H:
         oH = int(size * H / W)
-        return resize(img, (oH, size))
+        return resize(img, (size, oH))
     else:
         oW = int(size * W / H)
-        return resize(img, (size, oW))
+        return resize(img, (oW, size))
