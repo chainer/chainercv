@@ -2,16 +2,16 @@ import random
 import six
 
 
-def random_crop(img, output_shape, return_slices=False, copy=False):
-    """Crop array randomly into `output_shape`.
+def random_crop(img, size, return_slices=False, copy=False):
+    """Crop array randomly into `size`.
 
     The input image is cropped by a randomly selected region whose shape
-    is :obj:`output_shape`.
+    is :obj:`size`.
 
     Args:
         img (~numpy.ndarray): An image array to be cropped. This is in
             CHW format.
-        output_shape (tuple): the size of output image after cropping.
+        size (tuple): the size of output image after cropping.
             This value is :math:`(width, height)`.
         return_slices (bool): If :obj:`True`, this function returns
             information of slices.
@@ -31,7 +31,7 @@ def random_crop(img, output_shape, return_slices=False, copy=False):
             out_img = img[:, y_slice, x_slice]
 
     """
-    W, H = output_shape
+    W, H = size
 
     if img.shape[2] == W:
         x_offset = 0

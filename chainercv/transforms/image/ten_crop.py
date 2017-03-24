@@ -1,11 +1,11 @@
 import numpy as np
 
 
-def ten_crop(img, output_shape):
+def ten_crop(img, size):
     """Crop 10 regions from an array.
 
     This method crops 10 regions. All regions will be in shape
-    :obj:`output_shape`. These regions consist of 1 center crop and 4 corner
+    :obj:`size`. These regions consist of 1 center crop and 4 corner
     crops and horizontal flips of them.
 
     The crops are ordered in this order.
@@ -24,14 +24,14 @@ def ten_crop(img, output_shape):
     Args:
         img (~numpy.ndarray): An image array to be cropped. This is in
             CHW format.
-        output_shape (tuple): the size of output images after cropping.
+        size (tuple): the size of output images after cropping.
             This value is :math:`(width, height)`.
 
     Returns:
         The cropped arrays. The shape of tensor is :math:`(10, C, H, W)`.
 
     """
-    W, H = output_shape
+    W, H = size
     iH, iW = img.shape[1:3]
 
     if iW < W or iH < H:

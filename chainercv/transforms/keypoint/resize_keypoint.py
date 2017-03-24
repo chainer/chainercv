@@ -1,4 +1,4 @@
-def resize_keypoint(keypoint, input_shape, output_shape):
+def resize_keypoint(keypoint, in_size, out_size):
     """Change values of keypoint according to paramters for resizing an image.
 
     Args:
@@ -7,9 +7,9 @@ def resize_keypoint(keypoint, input_shape, output_shape):
             of keypoint in the image.
             The last dimension is composed of :math:`x` and :math:`y`
             coordinates of the keypoints.
-        input_shape (tuple): A tuple of length 2. The width and the height
+        in_size (tuple): A tuple of length 2. The width and the height
             of the image before resized.
-        output_shape (tuple): A tuple of length 2. The width and the height
+        out_size (tuple): A tuple of length 2. The width and the height
             of the image after resized.
 
     Returns:
@@ -18,8 +18,8 @@ def resize_keypoint(keypoint, input_shape, output_shape):
 
     """
     keypoint = keypoint.copy()
-    x_scale = float(output_shape[0]) / input_shape[0]
-    y_scale = float(output_shape[1]) / input_shape[1]
+    x_scale = float(out_size[0]) / in_size[0]
+    y_scale = float(out_size[1]) / in_size[1]
     keypoint[:, 0] = x_scale * keypoint[:, 0]
     keypoint[:, 1] = y_scale * keypoint[:, 1]
     return keypoint
