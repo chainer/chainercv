@@ -58,8 +58,8 @@ def main():
         vgg_subtract_bgr = np.array(
             [103.939, 116.779, 123.68], np.float32)[:, None, None]
         img -= vgg_subtract_bgr
-        img = transforms.pad(img, max_size=(512, 512), bg_value=0)
-        label = transforms.pad(label, max_size=(512, 512), bg_value=-1)
+        img = transforms.pad(img, size=(512, 512), bg_value=0)
+        label = transforms.pad(label, size=(512, 512), bg_value=-1)
         return img, label
 
     train_data = VOCSemanticSegmentationDataset(mode='train')
