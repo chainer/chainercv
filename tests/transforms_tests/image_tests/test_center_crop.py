@@ -11,7 +11,7 @@ class TestCenterCrop(unittest.TestCase):
     def test_center_crop(self):
         img = np.random.uniform(size=(3, 48, 32))
 
-        out, param  = center_crop(img, (16, 24), return_param=True)
+        out, param = center_crop(img, (16, 24), return_param=True)
         x_slice = param['x_slice']
         y_slice = param['y_slice']
 

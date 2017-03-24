@@ -14,7 +14,6 @@ class TestRandomRotate(unittest.TestCase):
         out, param = random_rotate(img, return_param=True)
         k = param['k']
 
-
         expected = np.transpose(img, axes=(1, 2, 0))
         expected = np.rot90(expected, k)
         expected = np.transpose(expected, axes=(2, 0, 1))
