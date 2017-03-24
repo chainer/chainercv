@@ -8,7 +8,7 @@ def center_crop(img, output_shape, return_slices=False, copy=False):
         img (~numpy.ndarray): An image array to be cropped. This is in
             CHW format.
         output_shape (tuple): the size of output image after cropping.
-            This value is :math:`(width, heihgt)`.
+            This value is :math:`(width, height)`.
         return_slices (bool): If :obj:`True`, this function returns information
             of slices.
         copy (bool): If :obj:`False`, a view of :obj:`img` is returned.

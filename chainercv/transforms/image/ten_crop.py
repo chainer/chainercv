@@ -25,7 +25,7 @@ def ten_crop(img, output_shape):
         img (~numpy.ndarray): An image array to be cropped. This is in
             CHW format.
         output_shape (tuple): the size of output images after cropping.
-            This value is :math:`(width, heihgt)`.
+            This value is :math:`(width, height)`.
 
     Returns:
         The cropped arrays. The shape of tensor is :math:`(10, C, H, W)`.
