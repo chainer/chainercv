@@ -16,8 +16,11 @@ class TestRandomExpand(unittest.TestCase):
         out = random_expand(img, max_ratio=1)
         np.testing.assert_equal(out, img)
 
-        out, ratio, x_offset, y_offset = random_expand(
-            img, max_ratio=4, return_params=True)
+        out, param = random_expand(
+            img, max_ratio=4, return_param=True)
+        ratio = param['ratio']
+        x_offset = param['x_offset']
+        y_offset = param['y_offset']
         np.testing.assert_equal(
             out[:, y_offset:y_offset + 64, x_offset:x_offset + 32], img)
         self.assertGreaterEqual(ratio, 1)
@@ -39,8 +42,9 @@ class TestRandomExpandFill(unittest.TestCase):
         img = np.random.uniform(-1, 1, size=(3, 64, 32))
 
         while True:
-            out, _, x_offset, y_offset = random_expand(
-                img, fill=self.fill, return_params=True)
+            out, param = random_expand(img, fill=self.fill, return_param=True)
+            x_offset = param['x_offset']
+            y_offset = param['y_offset']
             if x_offset > 0 or y_offset > 0:
                 break
 

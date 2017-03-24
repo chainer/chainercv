@@ -1,28 +1,34 @@
 import numpy as np
 
 
-def random_rotate(img, return_rotation=False):
+def random_rotate(img, return_param=False):
     """Randomly rotate images by 90, 180, 270 or 360 degrees.
 
     Args:
         img (~numpy.ndarray): An arrays that get flipped. This is in
             CHW format.
-        return_rotation (bool): returns information of rotation.
+        return_param (bool): returns information of rotation.
 
     Returns:
-        If :obj:`return_rotation = True`, return tuple of the transformed
-        array and an integer that represents number of times the array
-        is rotated by 90 degrees.
-        If :obj:`return_rotation = False`, return the transformed array
-        only.
-        The image is in CHW format.
+        numpy.ndarray or tuple of numpy.ndarray and dict.
+
+            If :obj:`return_param = False`,\
+            returns an array :obj:`out_img` that is the result of rotation.
+
+            If :obj:`return_param = True`,\
+            returns a tuple whose elements are :obj:`out_img, param`.\
+            :obj:`param` is a dictionary of intermediate parameters whose
+            key and value-type pairs are as follows.
+
+            * ('k', *int*): The integer that represents the number of
+                times the image is rotated by 90 degrees.
 
     """
     k = np.random.randint(4)
     img = np.transpose(img, axes=(1, 2, 0))
     img = np.rot90(img, k)
     img = np.transpose(img, axes=(2, 0, 1))
-    if return_rotation:
-        return img, k
+    if return_param:
+        return img, {'k': k}
     else:
         return img

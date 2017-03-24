@@ -2,7 +2,7 @@ import random
 
 
 def random_flip(img, x_random=False, y_random=False,
-                return_flip=False, copy=False):
+                return_param=False, copy=False):
     """Randomly flip an image in vertical or horizontal direction.
 
     Args:
@@ -10,17 +10,24 @@ def random_flip(img, x_random=False, y_random=False,
             CHW format.
         x_random (bool): randomly flip in horizontal direction.
         y_random (bool): randomly flip in vertical direction.
-        return_flip (bool): returns information of flip.
+        return_param (bool): returns information of flip.
         copy (bool): If False, a view of :obj:`img` will be returned.
 
     Returns:
-        This function returns :obj:`out_img, x_flip, y_flip` if
-        :obj:`return_flip = True`. Otherwise, this returns :obj:`out_img`.
+        numpy.ndarray or tuple of numpy.ndarray and dict.
 
-        Note that :obj:`out_img` is the transformed image array.
-        Also, :obj:`x_flip` and :obj:`y_flip` are bools that indicate whether
-        the image was flipped in the horizontal direction and the vertical
-        direction respectively.
+            If :obj:`return_param = False`,\
+            returns an array :obj:`out_img` that is the result of flipping.
+
+            If :obj:`return_param = True`,\
+            returns a tuple whose elements are :obj:`out_img, param`.\
+            :obj:`param` is a dictionary of intermediate parameters whose
+            key and value-type pairs are as follows.
+
+            * ('x_flip', *bool*): Whether the image was flipped in the
+                horizontal direction or not.
+            * ('y_flip', *bool*): Whether the image was flipped in the
+                vertical direction or not.
 
     """
     x_flip, y_flip = False, False
@@ -37,7 +44,7 @@ def random_flip(img, x_random=False, y_random=False,
     if copy:
         img = img.copy()
 
-    if return_flip:
-        return img, x_flip, y_flip
+    if return_param:
+        return img, {'x_flip': x_flip, 'y_flip': y_flip}
     else:
         return img

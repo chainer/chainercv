@@ -11,7 +11,9 @@ class TestRandomCrop(unittest.TestCase):
     def test_random_crop(self):
         img = np.random.uniform(size=(3, 48, 32))
 
-        out, x_slice, y_slice = random_crop(img, (32, 48), return_slices=True)
+        out, param = random_crop(img, (32, 48), return_param=True)
+        x_slice = param['x_slice']
+        y_slice = param['y_slice']
         np.testing.assert_equal(out, img)
         self.assertEqual(x_slice, slice(0, 32))
         self.assertEqual(y_slice, slice(0, 48))
