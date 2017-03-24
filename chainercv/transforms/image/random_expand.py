@@ -48,8 +48,7 @@ def random_expand(img, max_ratio=4, fill=0, return_param=False):
 
     if max_ratio <= 1:
         if return_param:
-            # img, ratio, x_offset, y_offset
-            return img, 1, 0, 0
+            return img, {'ratio': 1, 'x_offset': 0, 'y_offset': 0}
         else:
             return img
 
