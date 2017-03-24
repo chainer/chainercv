@@ -51,12 +51,11 @@ def resize(img, output_shape):
         img (~numpy.ndarray): An array to be transformed.
             This is in CHW format and the type should be :obj:`numpy.float32`.
         output_shape (tuple): this is a tuple of length 2. Its elements are
-            ordered as (height, width).
+            ordered as (width, height).
 
     Returns:
         ~numpy.ndarray: A resize array in CHW format.
 
     """
-    H, W = output_shape
-    img = _resize(img, (W, H))
+    img = _resize(img, output_shape)
     return img
