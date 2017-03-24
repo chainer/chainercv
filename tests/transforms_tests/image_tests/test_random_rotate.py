@@ -11,10 +11,11 @@ class TestRandomRotate(unittest.TestCase):
     def test_random_rotate(self):
         img = np.random.uniform(size=(3, 24, 24))
 
-        out, rotation = random_rotate(img, return_rotation=True)
+        out, param = random_rotate(img, return_param=True)
+        k = param['k']
 
         expected = np.transpose(img, axes=(1, 2, 0))
-        expected = np.rot90(expected, rotation)
+        expected = np.rot90(expected, k)
         expected = np.transpose(expected, axes=(2, 0, 1))
 
         np.testing.assert_equal(out, expected)

@@ -2,7 +2,7 @@ import random
 import six
 
 
-def random_crop(img, size, return_slices=False, copy=False):
+def random_crop(img, size, return_param=False, copy=False):
     """Crop array randomly into `size`.
 
     The input image is cropped by a randomly selected region whose shape
@@ -13,22 +13,29 @@ def random_crop(img, size, return_slices=False, copy=False):
             CHW format.
         size (tuple): the size of output image after cropping.
             This value is :math:`(width, height)`.
-        return_slices (bool): If :obj:`True`, this function returns
+        return_param (bool): If :obj:`True`, this function returns
             information of slices.
         copy (bool): If :obj:`False`, a view of :obj:`img` is returned.
 
     Returns:
-        This function returns :obj:`out_img, x_slice, y_slice` if
-        :obj:`return_slices = True`. Otherwise, this returns
-        :obj:`out_img`.
+        numpy.ndarray or tuple of numpy.ndarray and dict.
 
-        Note that :obj:`out_img` is the transformed image array.
-        Also, :obj:`x_slice` and :obj:`y_slice` are slices used to crop the
-        input image. The following relationship is satisfied.
+            If :obj:`return_param = False`,\
+            returns an array :obj:`out_img` that is cropped from the input\
+            array.
 
-        .. code::
+            If :obj:`return_param = True`,\
+            returns a tuple whose elements are :obj:`out_img, param`.\
+            :obj:`param` is a dictionary of intermediate parameters whose
+            key and value-type pairs are as follows.
 
-            out_img = img[:, y_slice, x_slice]
+            * ('x_slice', *slice*): A slice used to crop the input image.\
+                The relation below holds together with :obj:`y_slice`.
+            * ('y_slice', *slice*): Similar to :obj:`x_slice`.
+
+                .. code::
+
+                    out_img = img[:, y_slice, x_slice]
 
     """
     W, H = size
@@ -54,7 +61,7 @@ def random_crop(img, size, return_slices=False, copy=False):
     if copy:
         img = img.copy()
 
-    if return_slices:
-        return img, x_slice, y_slice
+    if return_param:
+        return img, {'x_slice': x_slice, 'y_slice': y_slice}
     else:
         return img

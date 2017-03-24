@@ -2,7 +2,7 @@ import numpy as np
 import random
 
 
-def random_expand(img, max_ratio=4, fill=0, return_params=False):
+def random_expand(img, max_ratio=4, fill=0, return_param=False):
     """Expand an image randomly.
 
     This method randomly place the input image on a larger canvas. The size of
@@ -24,18 +24,31 @@ def random_expand(img, max_ratio=4, fill=0, return_params=False):
             paper, this value is 4.
         fill (float or tuple or ~numpy.ndarray): The value of padded pixels.
             In the original paper, this value is the mean of ImageNet.
-        return_params (bool): returns random parameters.
+        return_param (bool): returns random parameters.
 
     Returns:
-        This function returns :obj:`out_img, ratio, x_offset, y_offset` if
-        :obj:`return_params=True`. Otherwise, this returns :obj:`out_img`.
+
+        numpy.ndarray or tuple of numpy.ndarray and dict.
+
+            If :obj:`return_param = False`,\
+            returns an array :obj:`out_img` that is the result of expansion.
+
+            If :obj:`return_param = True`,\
+            returns a tuple whose elements are :obj:`out_img, param`.\
+            :obj:`param` is a dictionary of intermediate parameters whose
+            key and value-type pairs are as follows.
+
+            * ('ratio', *float*): The sampled value used to make the canvas.
+            * ('x_offset', *int*): The x coordinate of the top left corner of
+                the image after placing on the canvas.
+            * ('y_offset', *int*): The y coodinate of the top left corner of
+                the image after placing on the canvas.
 
     """
 
     if max_ratio <= 1:
-        if return_params:
-            # img, ratio, x_offset, y_offset
-            return img, 1, 0, 0
+        if return_param:
+            return img, {'ratio': 1, 'x_offset': 0, 'y_offset': 0}
         else:
             return img
 
@@ -51,7 +64,8 @@ def random_expand(img, max_ratio=4, fill=0, return_params=False):
     out_img[:] = np.array(fill).reshape(-1, 1, 1)
     out_img[:, y_offset:y_offset + H, x_offset:x_offset + W] = img
 
-    if return_params:
-        return out_img, ratio, x_offset, y_offset
+    if return_param:
+        param = {'ratio': ratio, 'x_offset': x_offset, 'y_offset': y_offset}
+        return out_img, param
     else:
         return out_img
