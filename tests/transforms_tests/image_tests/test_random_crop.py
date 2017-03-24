@@ -11,12 +11,12 @@ class TestRandomCrop(unittest.TestCase):
     def test_random_crop(self):
         img = np.random.uniform(size=(3, 48, 32))
 
-        out, y_slice, x_slice = random_crop(img, (48, 32), return_slices=True)
+        out, x_slice, y_slice = random_crop(img, (32, 48), return_slices=True)
         np.testing.assert_equal(out, img)
-        self.assertEqual(y_slice, slice(0, 48))
         self.assertEqual(x_slice, slice(0, 32))
+        self.assertEqual(y_slice, slice(0, 48))
 
-        out = random_crop(img, (24, 12))
+        out = random_crop(img, (12, 24))
         self.assertEqual(out.shape[1:], (24, 12))
 
 
