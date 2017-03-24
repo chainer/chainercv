@@ -12,9 +12,9 @@ class TestPadTransform(unittest.TestCase):
         img = np.random.uniform(size=(3, 32, 32))
         bg_value = -1
 
-        out = pad(img, (34, 34), bg_value=bg_value)
+        out = pad(img, (34, 36), bg_value=bg_value)
 
-        np.testing.assert_array_equal(img, out[:, 1:33, 1:33])
+        np.testing.assert_array_equal(img, out[:, 2:34, 1:33])
         np.testing.assert_array_equal(bg_value, out[:, 0, 0])
 
 
