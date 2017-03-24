@@ -6,6 +6,10 @@ from chainer import testing
 from chainercv.transforms import random_expand
 
 
+@testing.parameterize(
+    {'max_ratio': 1},
+    {'max_ratio': 4},
+)
 class TestRandomExpand(unittest.TestCase):
 
     def test_random_expand(self):
@@ -17,14 +21,14 @@ class TestRandomExpand(unittest.TestCase):
         np.testing.assert_equal(out, img)
 
         out, param = random_expand(
-            img, max_ratio=4, return_param=True)
+            img, max_ratio=self.max_ratio, return_param=True)
         ratio = param['ratio']
         x_offset = param['x_offset']
         y_offset = param['y_offset']
         np.testing.assert_equal(
             out[:, y_offset:y_offset + 64, x_offset:x_offset + 32], img)
         self.assertGreaterEqual(ratio, 1)
-        self.assertLessEqual(ratio, 4)
+        self.assertLessEqual(ratio, self.max_ratio)
         self.assertEqual(out.shape[1], int(64 * ratio))
         self.assertEqual(out.shape[2], int(32 * ratio))
 
