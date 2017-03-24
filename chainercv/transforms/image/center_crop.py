@@ -1,13 +1,13 @@
-def center_crop(img, output_shape, return_slices=False, copy=False):
-    """Center crop an image by `output_shape`.
+def center_crop(img, size, return_slices=False, copy=False):
+    """Center crop an image by `size`.
 
-    An image is cropped to :obj:`output_shape`. The center of the output image
+    An image is cropped to :obj:`size`. The center of the output image
     and the center of the input image are same.
 
     Args:
         img (~numpy.ndarray): An image array to be cropped. This is in
             CHW format.
-        output_shape (tuple): the size of output image after cropping.
+        size (tuple): the size of output image after cropping.
             This value is :math:`(width, height)`.
         return_slices (bool): If :obj:`True`, this function returns information
             of slices.
@@ -28,9 +28,9 @@ def center_crop(img, output_shape, return_slices=False, copy=False):
 
     """
     _, H, W = img.shape
-    oW, oH = output_shape
+    oW, oH = size
     if oW > W or oH > H:
-        raise ValueError('shape of image needs to be larger than output_shape')
+        raise ValueError('shape of image needs to be larger than size')
 
     x_offset = int(round((W - oW) / 2.))
     y_offset = int(round((H - oH) / 2.))

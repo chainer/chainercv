@@ -32,7 +32,7 @@ except ImportError:
         return out
 
 
-def resize(img, output_shape):
+def resize(img, size):
     """Resize image to match the given shape.
 
     A bilinear interpolation is used for resizing.
@@ -50,12 +50,12 @@ def resize(img, output_shape):
     Args:
         img (~numpy.ndarray): An array to be transformed.
             This is in CHW format and the type should be :obj:`numpy.float32`.
-        output_shape (tuple): this is a tuple of length 2. Its elements are
+        size (tuple): this is a tuple of length 2. Its elements are
             ordered as (width, height).
 
     Returns:
         ~numpy.ndarray: A resize array in CHW format.
 
     """
-    img = _resize(img, output_shape)
+    img = _resize(img, size)
     return img
