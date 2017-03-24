@@ -18,8 +18,8 @@ def resize_keypoint(keypoint, input_shape, output_shape):
 
     """
     keypoint = keypoint.copy()
-    h_scale = float(output_shape[0]) / input_shape[0]
-    v_scale = float(output_shape[1]) / input_shape[1]
-    keypoint[:, 0] = h_scale * keypoint[:, 0]
-    keypoint[:, 1] = v_scale * keypoint[:, 1]
+    x_scale = float(output_shape[0]) / input_shape[0]
+    y_scale = float(output_shape[1]) / input_shape[1]
+    keypoint[:, 0] = x_scale * keypoint[:, 0]
+    keypoint[:, 1] = y_scale * keypoint[:, 1]
     return keypoint

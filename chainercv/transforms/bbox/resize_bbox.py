@@ -22,10 +22,10 @@ def resize_bbox(bbox, input_shape, output_shape):
 
     """
     bbox = bbox.copy()
-    h_scale = float(output_shape[0]) / input_shape[0]
-    v_scale = float(output_shape[1]) / input_shape[1]
-    bbox[:, 0] = h_scale * bbox[:, 0]
-    bbox[:, 2] = h_scale * bbox[:, 2]
-    bbox[:, 1] = v_scale * bbox[:, 1]
-    bbox[:, 3] = v_scale * bbox[:, 3]
+    x_scale = float(output_shape[0]) / input_shape[0]
+    y_scale = float(output_shape[1]) / input_shape[1]
+    bbox[:, 0] = x_scale * bbox[:, 0]
+    bbox[:, 2] = x_scale * bbox[:, 2]
+    bbox[:, 1] = y_scale * bbox[:, 1]
+    bbox[:, 3] = y_scale * bbox[:, 3]
     return bbox
