@@ -27,7 +27,7 @@ def random_expand(img, max_ratio=4, fill=0, return_param=False):
         return_param (bool): returns random parameters.
 
     Returns:
-        *ndarray* or *(ndarray, dict)*:
+        ~numpy.ndarray or (~numpy.ndarray, dict):
 
         If :obj:`return_param = False`,\
         returns an array :obj:`out_img` that is the result of expansion.

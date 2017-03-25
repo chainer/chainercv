@@ -18,7 +18,7 @@ def random_crop(img, size, return_param=False, copy=False):
         copy (bool): If :obj:`False`, a view of :obj:`img` is returned.
 
     Returns:
-        *ndarray* or *(ndarray, dict)*:
+        ~numpy.ndarray or (~numpy.ndarray, dict):
 
         If :obj:`return_param = False`,\
         returns an array :obj:`out_img` that is cropped from the input\

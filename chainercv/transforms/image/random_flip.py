@@ -14,7 +14,7 @@ def random_flip(img, x_random=False, y_random=False,
         copy (bool): If False, a view of :obj:`img` will be returned.
 
     Returns:
-        *ndarray* or *(ndarray, dict)*:
+        ~numpy.ndarray or (~numpy.ndarray, dict):
 
         If :obj:`return_param = False`,\
         returns an array :obj:`out_img` that is the result of flipping.

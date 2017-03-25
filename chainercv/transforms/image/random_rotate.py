@@ -10,7 +10,7 @@ def random_rotate(img, return_param=False):
         return_param (bool): returns information of rotation.
 
     Returns:
-        *ndarray* or *(ndarray, dict)*:
+        ~numpy.ndarray or (~numpy.ndarray, dict):
 
         If :obj:`return_param = False`,\
         returns an array :obj:`out_img` that is the result of rotation.
