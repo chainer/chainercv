@@ -12,11 +12,11 @@ def random_rotate(img, return_param=False):
     Returns:
         ~numpy.ndarray or (~numpy.ndarray, dict):
 
-        If :obj:`return_param = False`,\
+        If :obj:`return_param = False`,
         returns an array :obj:`out_img` that is the result of rotation.
 
-        If :obj:`return_param = True`,\
-        returns a tuple whose elements are :obj:`out_img, param`.\
+        If :obj:`return_param = True`,
+        returns a tuple whose elements are :obj:`out_img, param`.
         :obj:`param` is a dictionary of intermediate parameters whose
         contents are listed below with key, value-type and the description
         of the value.
