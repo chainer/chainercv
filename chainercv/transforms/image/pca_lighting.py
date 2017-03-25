@@ -18,13 +18,13 @@ def pca_lighting(img, sigma, eigen_value=None, eigen_vector=None):
             CHW format.
         sigma (float): Standard deviation of the Gaussian. In the original
             paper, this value is 10% of the range of intensity
-            (25.5 if the range is [0, 255]).
-        eigen_value: (~numpy.ndarray): An array of eigen values. The shape
-            have to be (3,). If it is not specified, the values computed from
-            ImageNet are used.
-        eigen_vector: (~numpy.ndarray): An array of eigen vectors. The shape
-            have to be (3, 3). If it is not specified, the vectors computed
+            (25.5 if the range is :math:`[0, 255]`).
+        eigen_value (~numpy.ndarray): An array of eigen values. The shape
+            has to be :math:`(3,)`. If it is not specified, the values computed
             from ImageNet are used.
+        eigen_vector (~numpy.ndarray): An array of eigen vectors. The shape
+            has to be :math:`(3, 3)`. If it is not specified, the vectors
+            computed from ImageNet are used.
 
     Returns:
         An image in CHW format.
