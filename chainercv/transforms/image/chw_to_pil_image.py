@@ -26,7 +26,7 @@ def chw_to_pil_image(img, reverse_color_channel=True):
                 img = img[:, :, ::-1]
 
     Returns:
-        an array or tuple of arrays: These arrays are in HWC format and have
+        an array or tuple of arrays: These arrays are in HWC format and have \
             uint8 as data type.
 
     """
