@@ -22,11 +22,12 @@ def random_flip(img, x_random=False, y_random=False,
             If :obj:`return_param = True`,\
             returns a tuple whose elements are :obj:`out_img, param`.\
             :obj:`param` is a dictionary of intermediate parameters whose
-            key and value-type pairs are as follows.
+            contents are listed below with key, value-type and the description
+            of the value.
 
-            * ('x_flip', *bool*): Whether the image was flipped in the
+            * **x_flip** (*bool*): Whether the image was flipped in the\
                 horizontal direction or not.
-            * ('y_flip', *bool*): Whether the image was flipped in the
+            * **y_flip** (*bool*): Whether the image was flipped in the\
                 vertical direction or not.
 
     """

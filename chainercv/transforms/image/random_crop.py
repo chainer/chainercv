@@ -27,11 +27,12 @@ def random_crop(img, size, return_param=False, copy=False):
             If :obj:`return_param = True`,\
             returns a tuple whose elements are :obj:`out_img, param`.\
             :obj:`param` is a dictionary of intermediate parameters whose
-            key and value-type pairs are as follows.
+            contents are listed below with key, value-type and the description
+            of the value.
 
-            * ('x_slice', *slice*): A slice used to crop the input image.\
+            * **x_slice** (*slice*): A slice used to crop the input image.\
                 The relation below holds together with :obj:`y_slice`.
-            * ('y_slice', *slice*): Similar to :obj:`x_slice`.
+            * **y_slice** (*slice*): Similar to :obj:`x_slice`.
 
                 .. code::
 

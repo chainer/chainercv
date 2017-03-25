@@ -36,12 +36,13 @@ def random_expand(img, max_ratio=4, fill=0, return_param=False):
             If :obj:`return_param = True`,\
             returns a tuple whose elements are :obj:`out_img, param`.\
             :obj:`param` is a dictionary of intermediate parameters whose
-            key and value-type pairs are as follows.
+            contents are listed below with key, value-type and the description
+            of the value.
 
-            * ('ratio', *float*): The sampled value used to make the canvas.
-            * ('x_offset', *int*): The x coordinate of the top left corner of
-                the image after placing on the canvas.
-            * ('y_offset', *int*): The y coodinate of the top left corner of
+            * **ratio** (*float*): The sampled value used to make the canvas.
+            * **x_offset** (*int*): The x coordinate of the top left corner\
+                of the image after placing on the canvas.
+            * **y_offset** (*int*): The y coodinate of the top left corner of\
                 the image after placing on the canvas.
 
     """

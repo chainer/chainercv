@@ -18,9 +18,10 @@ def random_rotate(img, return_param=False):
             If :obj:`return_param = True`,\
             returns a tuple whose elements are :obj:`out_img, param`.\
             :obj:`param` is a dictionary of intermediate parameters whose
-            key and value-type pairs are as follows.
+            contents are listed below with key, value-type and the description
+            of the value.
 
-            * ('k', *int*): The integer that represents the number of
+            * **k** (*int*): The integer that represents the number of\
                 times the image is rotated by 90 degrees.
 
     """
