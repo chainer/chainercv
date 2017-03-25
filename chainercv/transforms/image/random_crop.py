@@ -18,24 +18,25 @@ def random_crop(img, size, return_param=False, copy=False):
         copy (bool): If :obj:`False`, a view of :obj:`img` is returned.
 
     Returns:
-        numpy.ndarray or tuple of numpy.ndarray and dict.
+        ~numpy.ndarray or (~numpy.ndarray, dict):
 
-            If :obj:`return_param = False`,\
-            returns an array :obj:`out_img` that is cropped from the input\
-            array.
+        If :obj:`return_param = False`,
+        returns an array :obj:`out_img` that is cropped from the input
+        array.
 
-            If :obj:`return_param = True`,\
-            returns a tuple whose elements are :obj:`out_img, param`.\
-            :obj:`param` is a dictionary of intermediate parameters whose
-            key and value-type pairs are as follows.
+        If :obj:`return_param = True`,
+        returns a tuple whose elements are :obj:`out_img, param`.
+        :obj:`param` is a dictionary of intermediate parameters whose
+        contents are listed below with key, value-type and the description
+        of the value.
 
-            * ('x_slice', *slice*): A slice used to crop the input image.\
-                The relation below holds together with :obj:`y_slice`.
-            * ('y_slice', *slice*): Similar to :obj:`x_slice`.
+        * **x_slice** (*slice*): A slice used to crop the input image.\
+            The relation below holds together with :obj:`y_slice`.
+        * **y_slice** (*slice*): Similar to :obj:`x_slice`.
 
-                .. code::
+            .. code::
 
-                    out_img = img[:, y_slice, x_slice]
+                out_img = img[:, y_slice, x_slice]
 
     """
     W, H = size

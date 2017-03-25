@@ -27,22 +27,22 @@ def random_expand(img, max_ratio=4, fill=0, return_param=False):
         return_param (bool): returns random parameters.
 
     Returns:
+        ~numpy.ndarray or (~numpy.ndarray, dict):
 
-        numpy.ndarray or tuple of numpy.ndarray and dict.
+        If :obj:`return_param = False`,
+        returns an array :obj:`out_img` that is the result of expansion.
 
-            If :obj:`return_param = False`,\
-            returns an array :obj:`out_img` that is the result of expansion.
+        If :obj:`return_param = True`,
+        returns a tuple whose elements are :obj:`out_img, param`.
+        :obj:`param` is a dictionary of intermediate parameters whose
+        contents are listed below with key, value-type and the description
+        of the value.
 
-            If :obj:`return_param = True`,\
-            returns a tuple whose elements are :obj:`out_img, param`.\
-            :obj:`param` is a dictionary of intermediate parameters whose
-            key and value-type pairs are as follows.
-
-            * ('ratio', *float*): The sampled value used to make the canvas.
-            * ('x_offset', *int*): The x coordinate of the top left corner of
-                the image after placing on the canvas.
-            * ('y_offset', *int*): The y coodinate of the top left corner of
-                the image after placing on the canvas.
+        * **ratio** (*float*): The sampled value used to make the canvas.
+        * **x_offset** (*int*): The x coordinate of the top left corner\
+            of the image after placing on the canvas.
+        * **y_offset** (*int*): The y coodinate of the top left corner of\
+            the image after placing on the canvas.
 
     """
 
