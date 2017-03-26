@@ -11,7 +11,7 @@ def flip_bbox(bbox, size, x_flip=False, y_flip=False):
     Args:
         bbox (~numpy.ndarray): shape is :math:`(R, 4)`. :math:`R` is
             the number of bounding boxes.
-        size (tuple): A tuple of length 2. The height and the width
+        size (tuple): A tuple of length 2. The width and the height
             of the image before resized.
         x_flip (bool): Flip bounding box according to a horizontal flip of
             an image.
@@ -23,7 +23,7 @@ def flip_bbox(bbox, size, x_flip=False, y_flip=False):
         Bounding boxes flipped according to the given flips.
 
     """
-    H, W = size
+    W, H = size
     bbox = bbox.copy()
     if x_flip:
         x_max = W - 1 - bbox[:, 0]
