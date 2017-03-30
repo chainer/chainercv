@@ -31,8 +31,9 @@ class GoogLeNet(link.Chain):
     model that can be specified in the constructor,
     please use ``convert_caffemodel_to_npz`` classmethod instead.
 
-    .. [1] K. Simonyan and A. Zisserman, `Going Deeper with Convolutions
-        <https://arxiv.org/abs/1409.4842>`_
+    .. [1] C. Szegedy, W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov,\
+        D. Erhan, V. Vanhoucke, A. Rabinovich.\
+        Going Deeper with Convolutions. CVPR 2015.
 
     Args:
         pretrained_model (str): the destination of the pre-trained
