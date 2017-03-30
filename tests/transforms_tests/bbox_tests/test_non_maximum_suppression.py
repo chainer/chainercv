@@ -28,10 +28,20 @@ class TestNonMaximumSuppression(unittest.TestCase):
         out = non_maximum_suppression(self.bbox, self.threshold)
         np.testing.assert_equal(out, self.bbox[self.expect])
 
+        out = non_maximum_suppression(self.bbox, self.threshold, limit=2)
+        expect = np.logical_and(self.expect, self.expect.cumsum() <= 2)
+        np.testing.assert_equal(out, self.bbox[expect])
+
     def test_non_maximum_suppression_param(self):
         out, param = non_maximum_suppression(
             self.bbox, self.threshold, return_param=True)
         np.testing.assert_equal(param['selection'], self.expect)
+        np.testing.assert_equal(out, self.bbox[param['selection']])
+
+        out, param = non_maximum_suppression(
+            self.bbox, self.threshold, limit=2, return_param=True)
+        expect = np.logical_and(self.expect, self.expect.cumsum() <= 2)
+        np.testing.assert_equal(param['selection'], expect)
         np.testing.assert_equal(out, self.bbox[param['selection']])
 
 
