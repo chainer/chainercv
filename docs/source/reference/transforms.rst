@@ -63,7 +63,6 @@ flip_bbox
 ~~~~~~~~~
 .. autofunction:: flip_bbox
 
-
 resize_bbox
 ~~~~~~~~~~~
 .. autofunction:: resize_bbox
