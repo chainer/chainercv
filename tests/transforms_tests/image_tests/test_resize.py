@@ -1,11 +1,18 @@
 import unittest
 
 import numpy as np
+import PIL
 
 from chainer import testing
 from chainercv.transforms import resize
 
 
+@testing.parameterize(
+    {'interpolation': PIL.Image.NEAREST},
+    {'interpolation': PIL.Image.BILINEAR},
+    {'interpolation': PIL.Image.BICUBIC},
+    {'interpolation': PIL.Image.LANCZOS},
+)
 class TestResize(unittest.TestCase):
 
     def test_resize_color(self):
