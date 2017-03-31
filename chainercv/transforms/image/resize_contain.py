@@ -36,8 +36,9 @@ def resize_contain(img, size, bg_value=0, return_param=False):
             of the image after placing on the canvas.
         * **y_offset** (*int*): The y coodinate of the top left corner of\
             the image after placing on the canvas.
-        * **scale** (*float*): Both the height and the width of the
-            input image is scaled by this amount.
+        * **scaled_size** (*tuple*): The size to which the image is scaled
+            to before placing on a canvas. This is a tuple of two elements:
+            :obj:`width, height`.
 
     """
     C, H, W = img.shape
@@ -45,15 +46,16 @@ def resize_contain(img, size, bg_value=0, return_param=False):
     scale_h = out_H / float(H)
     scale_w = out_W / float(W)
     scale = min(min(scale_h, scale_w), 1.)
+    scaled_size = (int(W * scale), int(H * scale))
     if scale < 1.:
-        img = resize(img, (int(H * scale), int(W * scale)))
+        img = resize(img, scaled_size)
     x_slice, y_slice = _get_pad_slice(img, size=size)
     out_img = bg_value * np.ones((C, out_H, out_W), dtype=img.dtype)
     out_img[:, y_slice, x_slice] = img
 
     if return_param:
         param = {'x_offset': x_slice.start, 'y_offset': y_slice.start,
-                 'scale': scale}
+                 'scaled_size': scaled_size}
         return out_img, param
     else:
         return out_img
