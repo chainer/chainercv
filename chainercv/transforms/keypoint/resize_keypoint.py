@@ -14,7 +14,7 @@ def resize_keypoint(keypoint, in_size, out_size):
 
     Returns:
         ~numpy.ndarray:
-        keypoint rescaled according to the given image shapes.
+        Keypoint rescaled according to the given image shapes.
 
     """
     keypoint = keypoint.copy()

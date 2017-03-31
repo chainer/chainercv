@@ -7,7 +7,7 @@ def random_rotate(img, return_param=False):
     Args:
         img (~numpy.ndarray): An arrays that get flipped. This is in
             CHW format.
-        return_param (bool): returns information of rotation.
+        return_param (bool): Returns information of rotation.
 
     Returns:
         ~numpy.ndarray or (~numpy.ndarray, dict):

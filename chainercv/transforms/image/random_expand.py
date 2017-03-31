@@ -24,7 +24,7 @@ def random_expand(img, max_ratio=4, fill=0, return_param=False):
             paper, this value is 4.
         fill (float or tuple or ~numpy.ndarray): The value of padded pixels.
             In the original paper, this value is the mean of ImageNet.
-        return_param (bool): returns random parameters.
+        return_param (bool): Returns random parameters.
 
     Returns:
         ~numpy.ndarray or (~numpy.ndarray, dict):

@@ -9,8 +9,8 @@ def flip_bbox(bbox, size, x_flip=False, y_flip=False):
     top right vertices.
 
     Args:
-        bbox (~numpy.ndarray): shape is :math:`(R, 4)`. :math:`R` is
-            the number of bounding boxes.
+        bbox (~numpy.ndarray): An array whose shape is :math:`(R, 4)`.
+            :math:`R` is the number of bounding boxes.
         size (tuple): A tuple of length 2. The width and the height
             of the image before resized.
         x_flip (bool): Flip bounding box according to a horizontal flip of

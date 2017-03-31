@@ -8,9 +8,9 @@ def random_flip(img, x_random=False, y_random=False,
     Args:
         img (~numpy.ndarray): An array that gets flipped. This is in
             CHW format.
-        x_random (bool): randomly flip in horizontal direction.
-        y_random (bool): randomly flip in vertical direction.
-        return_param (bool): returns information of flip.
+        x_random (bool): Randomly flip in horizontal direction.
+        y_random (bool): Randomly flip in vertical direction.
+        return_param (bool): Returns information of flip.
         copy (bool): If False, a view of :obj:`img` will be returned.
 
     Returns:

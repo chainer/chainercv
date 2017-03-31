@@ -4,8 +4,8 @@ def flip(img, x_flip=False, y_flip=False, copy=False):
     Args:
         img (~numpy.ndarray): An array that gets flipped. This is in CHW
             format.
-        x_flip (bool): flip in horizontal direction
-        y_flip (bool): flip in vertical direction
+        x_flip (bool): Flip in horizontal direction.
+        y_flip (bool): Flip in vertical direction.
         copy (bool): If False, a view of :obj:`img` will be returned.
 
     Returns:
