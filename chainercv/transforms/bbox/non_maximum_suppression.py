@@ -44,21 +44,21 @@ def non_maximum_suppression(bbox, threshold, limit=None, return_param=False):
 
     bbox_area = np.prod(bbox[:, 2:] - bbox[:, :2], axis=1)
 
-    selected = np.zeros(bbox.shape[0], dtype=bool)
+    selection = np.zeros(bbox.shape[0], dtype=bool)
     for i, b in enumerate(bbox):
-        lt = np.maximum(b[:2], bbox[selected, :2])
-        rb = np.minimum(b[2:], bbox[selected, 2:])
+        lt = np.maximum(b[:2], bbox[selection, :2])
+        rb = np.minimum(b[2:], bbox[selection, 2:])
         area = np.prod(rb - lt, axis=1) * (lt < rb).all(axis=1)
 
-        jaccard = area / (bbox_area[i] + bbox_area[selected] - area)
+        jaccard = area / (bbox_area[i] + bbox_area[selection] - area)
         if (jaccard >= threshold).any():
             continue
 
-        selected[i] = True
-        if limit and np.count_nonzero(selected) >= limit:
+        selection[i] = True
+        if limit and np.count_nonzero(selection) >= limit:
             break
 
     if return_param:
-        return bbox[selected], {'selection': selected}
+        return bbox[selection], {'selection': selection}
     else:
-        return bbox[selected]
+        return bbox[selection]
