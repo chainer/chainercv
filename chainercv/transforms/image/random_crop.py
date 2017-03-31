@@ -11,7 +11,7 @@ def random_crop(img, size, return_param=False, copy=False):
     Args:
         img (~numpy.ndarray): An image array to be cropped. This is in
             CHW format.
-        size (tuple): the size of output image after cropping.
+        size (tuple): The size of output image after cropping.
             This value is :math:`(width, height)`.
         return_param (bool): If :obj:`True`, this function returns
             information of slices.

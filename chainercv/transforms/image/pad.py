@@ -7,12 +7,12 @@ def pad(img, size, bg_value):
     Args:
         img (~numpy.ndarray): An array to be transformed. This is in
             CHW format.
-        size (tuple of two ints): a tuple of two elements:
+        size (tuple of two ints): A tuple of two elements:
             :obj:`width, height`. The size of the image after padding.
-        bg_value (scalar): value of the padded regions
+        bg_value (scalar): Value of the padded regions.
 
     Returns:
-        ~numpy.ndarray: a padded array in CHW format.
+        ~numpy.ndarray: A padded array in CHW format.
 
     """
     x_slices, y_slices = _get_pad_slices(img, size=size)

@@ -24,7 +24,7 @@ def ten_crop(img, size):
     Args:
         img (~numpy.ndarray): An image array to be cropped. This is in
             CHW format.
-        size (tuple): the size of output images after cropping.
+        size (tuple): The size of output images after cropping.
             This value is :math:`(width, height)`.
 
     Returns:

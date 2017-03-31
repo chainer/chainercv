@@ -50,7 +50,7 @@ def resize(img, size):
     Args:
         img (~numpy.ndarray): An array to be transformed.
             This is in CHW format and the type should be :obj:`numpy.float32`.
-        size (tuple): this is a tuple of length 2. Its elements are
+        size (tuple): This is a tuple of length 2. Its elements are
             ordered as (width, height).
 
     Returns:
