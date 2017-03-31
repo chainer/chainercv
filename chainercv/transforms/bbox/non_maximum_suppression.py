@@ -23,8 +23,9 @@ def non_maximum_suppression(bbox, threshold, limit=None, return_param=False):
         bbox (~numpy.ndarray): Bounding boxes to be transformed. The shape is
             :math:`(R, 4)`. :math:`R` is the number of bounding boxes.
         threshold (float): Thresold of Jaccard overlap.
-        limit (int): The upper bound of the number of the output boxes. If it
-            is not specified, this method selects as many boxes as possible.
+        limit (int): The upper bound of the number of the output bounding
+            boxes. If it is not specified, this method selects as many
+            bounding boxes as possible.
         return_param (bool): Returns information of selection.
 
     Returns:
