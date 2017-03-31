@@ -19,10 +19,6 @@ flip
 ~~~~
 .. autofunction:: flip
 
-pad
-~~~
-.. autofunction:: pad
-
 pca_lighting
 ~~~~~~~~~~~~
 .. autofunction:: pca_lighting
@@ -46,6 +42,10 @@ random_rotate
 resize
 ~~~~~~
 .. autofunction:: resize
+
+resize_contain
+~~~~~~~~~~~~~~
+.. autofunction:: resize_contain
 
 scale
 ~~~~~
