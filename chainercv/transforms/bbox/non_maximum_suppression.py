@@ -5,11 +5,12 @@ import numpy as np
 def non_maximum_suppression(bbox, threshold, limit=None, return_param=False):
     """Suppress bounding boxes according to their Jaccard overlap.
 
-    This method checks each bounding box sequentially and selects the box
-    if the Jaccard overlap between the box and previously selected boxes
-    is less than :obj:`threshold`. This method is mainly used as postprocessing
-    of object detection. In this case, the bounding boxes should be sorted in
-    descending order.
+    This method checks each bounding box sequentially and selects the bounding
+    box if the Jaccard overlap between the bounding box and the previously
+    selected bounding boxes is less than :obj:`threshold`. This method is
+    mainly used as postprocessing of object detection. In this case, the
+    bounding boxes should be sorted by their confidence scores in descending
+    order so that ones with more confidence get prioritized.
 
     The bounding boxes are expected to be packed into a two dimensional
     tensor of shape :math:`(R, 4)`, where :math:`R` is the number of
@@ -19,12 +20,12 @@ def non_maximum_suppression(bbox, threshold, limit=None, return_param=False):
     top right vertices.
 
     Args:
-        bbox (~numpy.ndarray): Bounding boxes to be augmented. The shape is
+        bbox (~numpy.ndarray): Bounding boxes to be transformed. The shape is
             :math:`(R, 4)`. :math:`R` is the number of bounding boxes.
         threshold (float): Thresold of Jaccard overlap.
-        limit (int): the upper bound of the number of selected boxes. If it is
-            not specified, this method selects as many boxes as possible.
-        return_param (bool): returns information of selection.
+        limit (int): The upper bound of the number of the output boxes. If it
+            is not specified, this method selects as many boxes as possible.
+        return_param (bool): Returns information of selection.
 
     Returns:
         ~numpy.ndarray or (~numpy.ndarray, dict):
@@ -32,13 +33,15 @@ def non_maximum_suppression(bbox, threshold, limit=None, return_param=False):
         returns an array :obj:`out_bbox` that is the result of suppression.
 
         If :obj:`return_param = True`,
-        returns a tuple whose elements are :obj:`out_img, param`.
+        returns a tuple whose elements are :obj:`out_bbox, param`.
         :obj:`param` is a dictionary of intermediate parameters whose
         contents are listed below with key, value-type and the description
         of the value.
 
-        * **selection** (:obj:`~numpy.ndarray`): An array which indicates each\
-            bounding box is selected or not.
+        * **selection** (*ndarray*): An array which indicates\
+            whether each bounding box is selected or not.\
+            The shape of this array is :math:`(R,)` and its type is\
+            :obj:`bool`.
 
     """
 
