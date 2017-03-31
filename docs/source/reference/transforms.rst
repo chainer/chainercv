@@ -78,6 +78,10 @@ translate_bbox
 Keypoint
 --------
 
+flip_keypoint
+~~~~~~~~~~~~~
+.. autofunction:: flip_keypoint
+
 resize_keypoint
 ~~~~~~~~~~~~~~~
 .. autofunction:: resize_keypoint
