@@ -1,4 +1,5 @@
 from chainercv.transforms.bbox.flip_bbox import flip_bbox  # NOQA
+from chainercv.transforms.bbox.non_maximum_suppression import non_maximum_suppression  # NOQA
 from chainercv.transforms.bbox.resize_bbox import resize_bbox  # NOQA
 from chainercv.transforms.bbox.translate_bbox import translate_bbox  # NOQA
 from chainercv.transforms.image.center_crop import center_crop  # NOQA
