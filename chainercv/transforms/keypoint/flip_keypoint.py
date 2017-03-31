@@ -4,7 +4,7 @@ def flip_keypoint(keypoint, size, x_flip=False, y_flip=False):
     Args:
         keypoint (~numpy.ndarray): Keypoints in the image.
             The shape of this array is :math:`(K, 2)`. :math:`K` is the number
-            of keypoint in the image.
+            of keypoints in the image.
             The last dimension is composed of :math:`x` and :math:`y`
             coordinates of the keypoints.
         size (tuple): A tuple of length 2. The width and the height
@@ -16,7 +16,7 @@ def flip_keypoint(keypoint, size, x_flip=False, y_flip=False):
 
     Returns:
         ~numpy.ndarray:
-        Keypoint modified according to image flips.
+        Keypoints modified according to image flips.
 
     """
     W, H = size
