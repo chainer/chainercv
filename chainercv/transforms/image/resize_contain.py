@@ -7,11 +7,11 @@ def resize_contain(img, size, bg_value=0, return_param=False):
     """Resize the image to fit in the given area while keeping aspect ratio.
 
     If both the width and the height in :obj:`size` are larger than the
-    width and the height of the shape, the :obj:`img` is placed on the center
-    with appropriate padding to match :obj:`size`.
+    width and the height of the :obj:`img`, the :obj:`img` is placed on
+    the center with an appropriate padding to match :obj:`size`.
 
     Otherwise, the input image is scaled to fit in a canvas whose size
-    is :obj:`size`.
+    is :obj:`size` while preserving aspect ratio.
 
     Args:
         img (~numpy.ndarray): An array to be transformed. This is in
@@ -36,8 +36,8 @@ def resize_contain(img, size, bg_value=0, return_param=False):
             of the image after placing on the canvas.
         * **y_offset** (*int*): The y coodinate of the top left corner of\
             the image after placing on the canvas.
-        * **scaled_size** (*tuple*): The size to which the image is scaled
-            to before placing on a canvas. This is a tuple of two elements:
+        * **scaled_size** (*tuple*): The size to which the image is scaled\
+            to before placing it on a canvas. This is a tuple of two elements:\
             :obj:`width, height`.
 
     """
