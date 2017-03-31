@@ -13,7 +13,7 @@ try:
         elif interpolation == PIL.Image.BILINEAR:
             cv_interpolation = cv2.INTER_LINEAR
         elif interpolation == PIL.Image.BICUBIC:
-            cv_interpolation = cv2.INTER_BICUBIC
+            cv_interpolation = cv2.INTER_CUBIC
         elif interpolation == PIL.Image.LANCZOS:
             cv_interpolation = cv2.INTER_LANCZOS4
         img = cv2.resize(img, dsize=size, interpolation=cv_interpolation)
