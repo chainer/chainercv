@@ -16,7 +16,7 @@ def chw_to_pil_image(img, reverse_color_channel=True):
     whose types :obj:`dtype==numpy.uint8`.
 
     Args:
-        img (~numpy.ndarray, or tuple of arrays): An array or tuple of arrays
+        img (~numpy.ndarray or tuple of arrays): An array or tuple of arrays
             which are in CHW format.
         bgr_to_rgb (bool): If true, the array's color channel is
             reversed.
