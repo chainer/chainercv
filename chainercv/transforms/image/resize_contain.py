@@ -3,7 +3,7 @@ import numpy as np
 from chainercv.transforms import resize
 
 
-def resize_contain(img, size, bg_value=0, return_param=False):
+def resize_contain(img, size, fill=0, return_param=False):
     """Resize the image to fit in the given area while keeping aspect ratio.
 
     If both the width and the height in :obj:`size` are larger than the
@@ -18,7 +18,7 @@ def resize_contain(img, size, bg_value=0, return_param=False):
             CHW format.
         size (tuple of two ints): A tuple of two elements:
             :obj:`width, height`. The size of the image after resizing.
-        bg_value (scalar): Value of the padded regions.
+        fill (float, tuple or ~numpy.ndarray): The value of padded pixels.
         return_param (bool): Returns information of resizing and offsetting.
 
     Returns:
@@ -51,7 +51,8 @@ def resize_contain(img, size, bg_value=0, return_param=False):
     if scale < 1.:
         img = resize(img, scaled_size)
     x_slice, y_slice = _get_pad_slice(img, size=size)
-    out_img = bg_value * np.ones((C, out_H, out_W), dtype=img.dtype)
+    out_img = np.empty((C, out_H, out_W), dtype=img.dtype)
+    out_img[:] = np.array(fill).reshape(-1, 1, 1)
     out_img[:, y_slice, x_slice] = img
 
     if return_param:
