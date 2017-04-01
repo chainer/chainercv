@@ -18,7 +18,7 @@ def resize_contain(img, size, fill=0, return_param=False):
             CHW format.
         size (tuple of two ints): A tuple of two elements:
             :obj:`width, height`. The size of the image after resizing.
-        fill (float or tuple or ~numpy.ndarray): The value of padded pixels.
+        fill (float, tuple or ~numpy.ndarray): The value of padded pixels.
         return_param (bool): Returns information of resizing and offsetting.
 
     Returns:
