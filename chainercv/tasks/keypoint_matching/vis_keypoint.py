@@ -16,7 +16,7 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
         >>> plot.show()
 
     Args:
-        img (~numpy.ndarray): an image of shape
+        img (~numpy.ndarray): An image of shape
             :math:`(height, width, 3)`. This should be visualizable using
             :obj:`matplotlib.pyplot.imshow(img)`
         keypoint (~numpy.ndarray): An array with keypoint pairs whose shape is

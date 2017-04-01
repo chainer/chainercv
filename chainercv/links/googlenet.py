@@ -36,7 +36,7 @@ class GoogLeNet(link.Chain):
         Going Deeper with Convolutions. CVPR 2015.
 
     Args:
-        pretrained_model (str): the destination of the pre-trained
+        pretrained_model (str): The destination of the pre-trained
             chainer model serialized as a ``.npz`` file.
             If this argument is specified as ``auto``,
             it automatically loads and converts the caffemodel from

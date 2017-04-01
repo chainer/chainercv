@@ -12,9 +12,9 @@ def forward(model, inputs, forward_func=None, expand_dim=False):
         model (chainer.Chain):
             If model stores its paramters in a GPU, the GPU will be used
             for forwarding.
-        inputs: an array or tuple of numpy.ndarray to be used as input.
+        inputs: An array or tuple of numpy.ndarray to be used as input.
             If `expand_dim` is True, the first axis will be added.
-        forward_func (callable): called to forward
+        forward_func (callable): Called to forward.
         expand_dim (bool)
 
     Returns:
