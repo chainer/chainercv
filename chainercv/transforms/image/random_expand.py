@@ -22,7 +22,7 @@ def random_expand(img, max_ratio=4, fill=0, return_param=False):
             CHW format.
         max_ratio (float): The maximum ratio of expansion. In the original
             paper, this value is 4.
-        fill (float or tuple or ~numpy.ndarray): The value of padded pixels.
+        fill (float, tuple or ~numpy.ndarray): The value of padded pixels.
             In the original paper, this value is the mean of ImageNet.
         return_param (bool): Returns random parameters.
 
