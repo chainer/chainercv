@@ -85,3 +85,7 @@ flip_keypoint
 resize_keypoint
 ~~~~~~~~~~~~~~~
 .. autofunction:: resize_keypoint
+
+translate_keypoint
+~~~~~~~~~~~~~~~~~~
+.. autofunction:: translate_keypoint
