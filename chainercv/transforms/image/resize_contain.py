@@ -19,6 +19,7 @@ def resize_contain(img, size, bg_value=0, return_param=False):
         size (tuple of two ints): A tuple of two elements:
             :obj:`width, height`. The size of the image after resizing.
         bg_value (scalar): Value of the padded regions.
+        return_param (bool): Returns information of resizing and offsetting.
 
     Returns:
         ~numpy.ndarray or (~numpy.ndarray, dict):
