@@ -119,10 +119,10 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
     Args:
         indices (list of ints or int): List of indices for data to be
-            visualized
-        target: Link object used for visualization
+            visualized.
+        target: Link object used for visualization.
         dataset: Dataset class that produces inputs to :obj:`target`.
-        filename_base (int): basename for saved image
+        filename_base (int): Basename for saved image.
         predict_func (callable): Callable that is used to predict the
             bounding boxes of the image. This function takes an image stored
             at the first element of the tuple returned by the dataset with

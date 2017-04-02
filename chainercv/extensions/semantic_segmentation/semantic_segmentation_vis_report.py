@@ -115,12 +115,12 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
     Args:
         indices (list of ints or int): List of indices for data to be
-            visualized
+            visualized.
         dataset: Dataset class that produces inputs to :obj:`target`.
-        target: Link object used for visualization
-        n_class (int): number of labels including background, but excluding
+        target: Link object used for visualization.
+        n_class (int): The number of labels including background, but excluding
             unknowns.
-        filename_base (int): basename for saved image
+        filename_base (int): Basename for saved image.
         predict_func (callable): Callable that is used to predict the
             class label of the image. This function takes an image stored
             at the first element of the tuple returned by the dataset with

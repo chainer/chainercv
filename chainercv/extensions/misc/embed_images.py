@@ -27,7 +27,7 @@ class EmbedImages(chainer.training.extension.Extension):
         iterator (chainer.iterators.Iterator): Dataset iterator for the
             images to be embedded. The element in the first index of the
             returned tuple will be image.
-        target (chainer.Chain): model that embeds images to a feature space.
+        target (chainer.Chain): Model that embeds images to a feature space.
         embed_func (callable): This function will be called to embed batch
             of images.
         filename (string): NumPy array of embedded features will be saved as a

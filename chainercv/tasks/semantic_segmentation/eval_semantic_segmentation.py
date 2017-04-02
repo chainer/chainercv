@@ -24,10 +24,10 @@ def label_accuracy_score(label_true, label_pred, n_class):
       - fwavacc
 
     Args:
-        label_true (~numpy.ndarray): a integer 2D image of classes. A pixel
+        label_true (~numpy.ndarray): A integer 2D image of classes. A pixel
             with value "-1" will be ignored during evaluation.
-        label_pred (~numpy.ndarray): a integer 2D image.
-        n_class (int):  number of classes
+        label_pred (~numpy.ndarray): A integer 2D image.
+        n_class (int): Number of classes.
     """
     hist = _fast_hist(label_true.flatten(), label_pred.flatten(), n_class)
     acc = np.diag(hist).sum() / hist.sum()

@@ -37,7 +37,7 @@ class MeasureKRetrieval(chainer.training.extension.Extension):
         features_file (string): A file where embedded features are saved.
         ks (list of ints)
         window_size (int)
-        n_jobs (int): number of processes run in parallel to compute the
+        n_jobs (int): The number of processes run in parallel to compute the
             k-nearest neighbor.
     """
 
