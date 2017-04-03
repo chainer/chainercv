@@ -39,10 +39,10 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 
 ChainerCV supports functions commonly used to prepare data before feeding to a neural network.
 We expect users to use these functions together with an object that supports the dataset interface (e.g. `chainer.dataset.DatasetMixin`).
-The users can create a custom preprocessing pipeline by defining a function that describes a
+Users can create a custom preprocessing pipeline by defining a function that describes a
 procedure to transform the incoming data.
 
-Here is an example where the user rescales and applies a randomly rotation to an image.
+Here is an example where a user rescales and applies a random rotation to an image as a preprocessing step.
 
 ```python
 from chainer.datasets import get_mnist
