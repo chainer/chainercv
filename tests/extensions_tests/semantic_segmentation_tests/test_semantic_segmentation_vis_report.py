@@ -5,11 +5,11 @@ import numpy as np
 import os.path as osp
 import tempfile
 
+from chainer.datasets import TupleDataset
 from chainer import testing
 
 from chainercv.extensions import SemanticSegmentationVisReport
 from chainercv.utils import ConstantReturnModel
-from chainercv.utils import DummyDataset
 
 try:
     import matplotlib  # NOQA
@@ -31,9 +31,9 @@ class TestSemanticSegmentationVisReport(unittest.TestCase):
         n_class = 2
         model = ConstantReturnModel(
             np.random.uniform(size=(1, 1, 10, 10)).astype(np.int32))
-        dataset = DummyDataset(
-            shapes=[(3, 10, 10), (1, 10, 10)],
-            dtypes=[np.float32, np.int32])
+        dataset = TupleDataset(
+            np.random.uniform(size=(100, 3, 10, 10)).astype(np.float32),
+            np.random.uniform(size=(100, 1, 10, 10)).astype(np.int32))
 
         self.extension = SemanticSegmentationVisReport(
             self.indices, dataset, model, n_class=n_class,

@@ -1,46 +1,4 @@
-import numpy as np
-
 import chainer
-
-
-class DummyDataset(chainer.dataset.DatasetMixin):
-
-    def __init__(self, shapes, length=100, constants=None, dtypes=None):
-        self.length = length
-
-        if not all(isinstance(elem, tuple) for elem in shapes):
-            raise ValueError('`shapes` needs to be a list of tuples')
-        self.shapes = shapes
-        self.n_arrays = len(self.shapes)
-
-        if constants is None:
-            constants = [None] * self.n_arrays
-        self.constants = constants
-
-        if dtypes is None:
-            dtypes = self.n_arrays * [np.float64]
-        if len(dtypes) != self.n_arrays:
-            raise ValueError('dtypes is either None or iterable whose length '
-                             'is equal to shapes')
-        self.dtypes = dtypes
-
-    def __len__(self):
-        return self.length
-
-    def get_example(self, i):
-        return self._get_example(i, self.shapes, self.dtypes, self.constants)
-
-    def _get_example(self, i, shapes, dtypes, constants):
-        out = []
-        for shape, dtype, constant in zip(shapes, dtypes, constants):
-            if constant is None:
-                a = np.random.uniform(size=(shape))
-            else:
-                a = constant.copy()
-                a = np.broadcast_to(a, shape)
-            a = a.astype(dtype)
-            out.append(a)
-        return tuple(out)
 
 
 class ConstantReturnModel(chainer.Chain):
