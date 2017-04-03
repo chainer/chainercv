@@ -41,6 +41,7 @@ ChainerCV supports functions commonly used to prepare data before feeding to a n
 We expect users to use these functions together with an object that supports the dataset interface (e.g. `chainer.dataset.DatasetMixin`).
 Users can create a custom preprocessing pipeline by defining a function that describes a
 procedure to transform the incoming data.
+By decoupling preprocessing steps from dataset objects, dataset objects can be reused in a variety of preprocessing pipelines.
 
 Here is an example where a user rescales and applies a random rotation to an image as a preprocessing step.
 
