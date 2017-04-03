@@ -53,7 +53,7 @@ from chainercv.transforms import random_rotate
 dataset, _ = get_mnist(ndim=3)
 
 def transform(in_data):
-    # in_data is values returned by `__getitem__` method of MNIST dataset.
+    # in_data is values returned by __getitem__ method of MNIST dataset.
     img, label = in_data
     img -= 0.5  # rescale to [-0.5, 0.5]
     img = random_rotate(img)
