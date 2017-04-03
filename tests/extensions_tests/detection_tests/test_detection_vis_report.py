@@ -5,11 +5,11 @@ import numpy as np
 import os.path as osp
 import tempfile
 
+from chainer.datasets import TupleDataset
 from chainer import testing
 
 from chainercv.extensions import DetectionVisReport
 from chainercv.utils import ConstantReturnModel
-from chainercv.utils import DummyDataset
 
 try:
     import matplotlib  # NOQA
@@ -35,9 +35,12 @@ class TestDetectionVisReport(unittest.TestCase):
         model = ConstantReturnModel(
             (np.random.uniform(size=(1,) + self.bbox_shape),
              np.random.uniform(size=(1,) + self.label_shape)))
-        dataset = DummyDataset(
-            shapes=[(3, 10, 10), self.bbox_shape, self.label_shape],
-            dtypes=[np.float32, np.float32, np.int32])
+        dataset = TupleDataset(
+            np.random.uniform(size=(100, 3, 10, 10)).astype(np.float32),
+            np.random.uniform(
+                size=(100,) + self.bbox_shape).astype(np.float32),
+            np.random.uniform(
+                size=(100,) + (self.label_shape)).astype(np.int32))
 
         self.extension = DetectionVisReport(
             self.indices, dataset, model,
