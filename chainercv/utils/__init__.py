@@ -6,4 +6,3 @@ from chainercv.utils.image_utils import gray2rgb  # NOQA
 from chainercv.utils.image_utils import read_image_as_array  # NOQA
 from chainercv.utils.test_utils import ConstantReturnModel  # NOQA
 from chainercv.utils.test_utils import DummyDataset  # NOQA
-from chainercv.utils.test_utils import SimpleDataset  # NOQA
