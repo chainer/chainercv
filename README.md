@@ -64,7 +64,7 @@ img, label = dataset[0]
 
 As found in the example, `random_rotate` is one of the transforms ChainerCV supports. Like other transforms, this is just a
 function that takes an array as input.
-Also, `TransformDataset` is a new dataset class added in ChainerCV that overrides the underlying dataset's `__getitem__` by calling `transform` as post processing.
+Also, `TransformDataset` is a new dataset class added in ChainerCV that overrides the underlying dataset's `__getitem__` by applying `transform` to the values returned by the original `__getitem__`.
 
 
 # Automatic Download
