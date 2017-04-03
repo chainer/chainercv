@@ -28,7 +28,6 @@ For additional features
 
 + Matplotlib
 + OpenCV
-+ Scikit-Learn
 
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
@@ -38,14 +37,12 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 
 ## Transforms
 
-ChainerCV supports functions commonly used to prepare image data before feeding to neural networks.
-We expect users to use these functions together with a dataset object (e.g. `chainer.dataset.DatasetMixin`).
-Many of the datasets prepared in ChainerCV are very thin wrappers around raw datasets in the filesystem, and
-the transforms work best with such thin dataset classes.
-The users can create a custom preprocessing pipeline by defining a function that describes
-procedures to transform data.
+ChainerCV supports functions commonly used to prepare data before feeding to a neural network.
+We expect users to use these functions together with an object that supports the dataset interface (e.g. `chainer.dataset.DatasetMixin`).
+The users can create a custom preprocessing pipeline by defining a function that describes a
+procedure to transform the incoming data.
 
-Here is an example where the user rescales input image and data augments it by randomly rotation.
+Here is an example where the user rescales and applies a randomly rotation to an image.
 
 ```python
 from chainer.datasets import get_mnist
@@ -55,7 +52,7 @@ from chainercv.transforms import random_rotate
 dataset, _ = get_mnist(ndim=3)
 
 def transform(in_data):
-    # in_data is the returned values of VOCSemanticSegmentationDataset.get_example
+    # in_data is values returned by `__getitem__` method of MNIST dataset.
     img, label = in_data
     img -= 0.5  # rescale to [-0.5, 0.5]
     img = random_rotate(img)
