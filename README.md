@@ -28,7 +28,6 @@ For additional features
 
 + Matplotlib
 + OpenCV
-+ Scikit-Learn
 
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
