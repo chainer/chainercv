@@ -44,7 +44,7 @@ class _CustomCaffeFunction(caffe.CaffeFunction):
     @caffe._layer('MultiBoxLoss', None)
     @caffe._layer('Permute', None)
     @caffe._layer('PriorBox', None)
-    def _skip_layer(self, layer):
+    def _skip_layer(self, _):
         pass
 
 
