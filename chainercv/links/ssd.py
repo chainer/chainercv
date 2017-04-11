@@ -29,10 +29,10 @@ class _Normalize(chainer.Link):
         return x * scale / norm
 
 
-class _CustomCaffeFunction(caffe.CaffeFunction):
+class _CaffeFunction(caffe.CaffeFunction):
 
     def __init__(self, model_path):
-        super(_CustomCaffeFunction, self).__init__(model_path)
+        super(_CaffeFunction, self).__init__(model_path)
 
     @caffe._layer('Normalize', None)
     def _setup_normarize(self, layer):
@@ -228,7 +228,7 @@ class SSD300(chainer.Chain):
 
     @classmethod
     def convert_caffemodel_to_npz(cls, path_caffemodel, path_npz):
-        caffemodel = _CustomCaffeFunction(path_caffemodel)
+        caffemodel = _CaffeFunction(path_caffemodel)
         chainermodel = cls(pretrained_model=None)
 
         chainermodel.conv1_1.copyparams(caffemodel.conv1_1)
