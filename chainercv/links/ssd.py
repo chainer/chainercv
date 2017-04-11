@@ -25,7 +25,6 @@ class _Normalize(chainer.Link):
         norm = F.sqrt(F.sum(F.square(x), axis=1) + self.eps)
         norm = F.broadcast_to(norm[:, np.newaxis], x.shape)
         scale = F.broadcast_to(self.scale[:, np.newaxis, np.newaxis], x.shape)
-
         return x * scale / norm
 
 
@@ -210,10 +209,8 @@ class SSD300(chainer.Chain):
             self.default_boxes[:, 2:] * np.exp(loc[:, 2:] * self.variance[1])))
         bbox[:, :2] -= bbox[:, 2:] / 2
         bbox[:, 2:] += bbox[:, :2]
-
         conf = np.exp(conf)
         conf /= conf.sum(axis=1, keepdims=True)
-
         return bbox, conf
 
     def predict(self, img):
@@ -223,7 +220,6 @@ class SSD300(chainer.Chain):
         loc, conf = self(img[np.newaxis])
         bbox, conf = self._decode(loc.data[0], conf.data[0])
         bbox = transforms.resize_bbox(bbox, (1, 1), (W, H))
-
         return bbox, conf
 
     @classmethod
@@ -244,7 +240,6 @@ class SSD300(chainer.Chain):
         chainermodel.conv4_1.copyparams(caffemodel.conv4_1)
         chainermodel.conv4_2.copyparams(caffemodel.conv4_2)
         chainermodel.conv4_3.copyparams(caffemodel.conv4_3)
-
         chainermodel.norm4.copyparams(caffemodel.conv4_3_norm)
 
         chainermodel.conv5_1.copyparams(caffemodel.conv5_1)
