@@ -135,7 +135,7 @@ class SSD300(chainer.Chain):
                         (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
                     default_boxes.append(
                         (cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
-        return np.array(default_boxes)
+        return np.stack(default_boxes)
 
     def __call__(self, x):
         hs = list()
