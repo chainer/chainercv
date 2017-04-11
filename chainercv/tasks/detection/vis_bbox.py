@@ -38,7 +38,7 @@ def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
     if ax is None:
         fig = plot.figure()
         ax = fig.add_subplot(1, 1, 1)
-    ax.imshow(img)
+    ax.imshow(img.transpose(1, 2, 0))
 
     for i, bbox_elem in enumerate(bbox):
         xy = (bbox_elem[0], bbox_elem[1])
