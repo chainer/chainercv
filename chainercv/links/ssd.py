@@ -114,28 +114,29 @@ class SSD300(chainer.Chain):
         elif pretrained_model:
             serializers.load_npz(pretrained_model, self)
 
-        self.default_boxes = self._default_boxes()
+        # the format of default_bbox is (center_x, center_y, width, height)
+        self.default_bbox = self._default_bbox()
 
-    def _default_boxes(self):
-        default_boxes = list()
+    def _default_bbox(self):
+        bbox = list()
         for k in range(len(self.grids)):
             for v, u in itertools.product(range(self.grids[k]), repeat=2):
                 cx = (u + 0.5) * self.steps[k]
                 cy = (v + 0.5) * self.steps[k]
 
                 s = self.sizes[k]
-                default_boxes.append((cx, cy, s, s))
+                bbox.append((cx, cy, s, s))
 
                 s = np.sqrt(self.sizes[k] * self.sizes[k + 1])
-                default_boxes.append((cx, cy, s, s))
+                bbox.append((cx, cy, s, s))
 
                 s = self.sizes[k]
                 for ar in self.aspect_ratios[k]:
-                    default_boxes.append(
+                    bbox.append(
                         (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
-                    default_boxes.append(
+                    bbox.append(
                         (cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
-        return np.stack(default_boxes)
+        return np.stack(bbox)
 
     def __call__(self, x):
         hs = list()
@@ -203,10 +204,12 @@ class SSD300(chainer.Chain):
         return h_loc, h_conf
 
     def _decode(self, loc, conf):
+        # the format of bbox is (center_x, center_y, width, height)
         bbox = np.hstack((
-            self.default_boxes[:, :2] +
-            loc[:, :2] * self.variance[0] * self.default_boxes[:, 2:],
-            self.default_boxes[:, 2:] * np.exp(loc[:, 2:] * self.variance[1])))
+            self.default_bbox[:, :2] +
+            loc[:, :2] * self.variance[0] * self.default_bbox[:, 2:],
+            self.default_bbox[:, 2:] * np.exp(loc[:, 2:] * self.variance[1])))
+        # convert the format of bbox to (x_min, y_min, x_max, y_max)
         bbox[:, :2] -= bbox[:, 2:] / 2
         bbox[:, 2:] += bbox[:, :2]
         conf = np.exp(conf)
