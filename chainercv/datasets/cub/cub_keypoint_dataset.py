@@ -107,8 +107,9 @@ class CUBKeypointDataset(CUBDatasetBase):
     def get_example(self, i):
         # this i is transformed to id for the entire dataset
         original_idx = self.selected_ids[i]
-        img = utils.read_image_as_array(os.path.join(
-            self.data_dir, 'images', self.fns[original_idx]))  # RGB
+        img = utils.read_image_as_array(
+            os.path.join(self.data_dir, 'images', self.fns[original_idx]),
+            force_color=True)
         keypoint = np.array(self.kp_dict[original_idx], dtype=np.float32)
         kp_mask = np.array(self.kp_mask_dict[original_idx], dtype=np.bool)
 
@@ -117,19 +118,14 @@ class CUBKeypointDataset(CUBDatasetBase):
             img = img[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
             keypoint[:, :2] = keypoint[:, :2] - np.array([bbox[0], bbox[1]])
 
-        if img.ndim == 2:
-            img = utils.gray2rgb(img)
-
-        img = img[:, :, ::-1]  # RGB to BGR
-        img = img.transpose(2, 0, 1).astype(np.float32)
-
         if not self.return_mask:
             return img, keypoint, kp_mask
 
         mask = utils.read_image_as_array(os.path.join(
             self.mask_dir, self.fns[original_idx][:-4] + '.png'))
         if self.crop_bbox:
-            mask = mask[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
-        mask = mask[None]
+            mask = mask[:,
+                        bbox[1]: bbox[1] + bbox[3],
+                        bbox[0]: bbox[0] + bbox[2]]
 
         return img, keypoint, kp_mask, mask

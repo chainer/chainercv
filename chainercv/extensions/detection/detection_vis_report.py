@@ -1,4 +1,5 @@
 import collections
+import numpy as np
 import os.path as osp
 import warnings
 
@@ -28,7 +29,7 @@ def _check_available():
 
 
 def _detection_vis_transform(xs):
-    return chw_to_pil_image(xs[0]), xs[1], xs[2]
+    return xs[0].astype(np.uint8), xs[1], xs[2]
 
 
 class DetectionVisReport(chainer.training.extension.Extension):
@@ -78,7 +79,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
             img, bbox, label = vis_transform(inputs)
 
-        :obj:`img` should be an image which is in HWC format, RGB and
+        :obj:`img` should be an image which is in CHW format, BGR and
         :obj:`dtype==numpy.uint8`.
 
     The process can be illustrated in the following code.
@@ -194,7 +195,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         type_check.expect(
             img_type.dtype.kind == 'u',
             img_type.ndim == 3,
-            img_type.shape[2] == 3,
+            img_type.shape[0] == 3,
             bbox_type.ndim == 2,
             bbox_type.shape[1] == 4,
             label_type.ndim == 1,
