@@ -87,10 +87,6 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         class_id = np.array(self.class_ids[i], np.int32)
         super_class_id = np.array(self.super_class_ids[i], np.int32)
 
-        img = utils.read_image_as_array(self.paths[i])
-
-        if img.ndim == 2:
-            img = utils.gray2rgb(img)
-        img = img[:, :, ::-1]  # RGB to BGR
-        img = img.transpose(2, 0, 1).astype(np.float32)
+        img = utils.read_image_as_array(
+            self.paths[i], dtype=np.float32, force_color=True)
         return img, class_id, super_class_id
