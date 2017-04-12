@@ -216,14 +216,33 @@ class SSD300(chainer.Chain):
         conf /= conf.sum(axis=1, keepdims=True)
         return bbox, conf
 
-    def predict(self, img):
+    def predict(self, img, min_conf=0.01, nms_threshold=0.45):
         H, W = img.shape[1:]
         img = transforms.resize(img, (self.insize, self.insize))
         img -= np.array(self.mean)[:, np.newaxis, np.newaxis]
         loc, conf = self(img[np.newaxis])
         bbox, conf = self._decode(loc.data[0], conf.data[0])
         bbox = transforms.resize_bbox(bbox, (1, 1), (W, H))
-        return bbox, conf
+
+        bbox_all = list()
+        label_all = list()
+        conf_all = list()
+        for label in range(1, 1 + self.n_classes):
+            mask = conf[:, label] >= min_conf
+            bbox_label, conf_label = bbox[mask], conf[mask, label]
+
+            if nms_threshold is not None:
+                order = conf_label.argsort()[::-1]
+                bbox_label, conf_label = bbox_label[order], conf_label[order]
+                bbox_label, param = transforms.non_maximum_suppression(
+                    bbox_label, nms_threshold, return_param=True)
+                conf_label = conf_label[param['selection']]
+
+            bbox_all.append(bbox_label)
+            label_all.append((label,) * len(bbox_label))
+            conf_all.append(conf_label)
+
+        return np.vstack(bbox_all), np.hstack(label_all), np.hstack(conf_all)
 
     @classmethod
     def convert_caffemodel_to_npz(cls, path_caffemodel, path_npz):
