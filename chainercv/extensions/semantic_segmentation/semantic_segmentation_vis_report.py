@@ -7,7 +7,6 @@ import warnings
 import chainer
 from chainer.utils import type_check
 
-from chainercv.transforms import chw_to_pil_image
 from chainercv.utils import check_type
 from chainercv.utils import forward
 
@@ -84,7 +83,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         img, label = dataset[i]
         pred_label = predict_func(img[None])  # add batch axis to the image
         pred_label = pred_label[0]  # (B, 1, H, W) -> (1, H, W)
-        vis_img, vis_label = vis_transform(inputs)  # (H, W, C) and (H, W, 1)
+        vis_img, vis_label = vis_transform(inputs)  # (C, H, W) and (1, H, W)
 
         # Visualization code
         # Uses (vis_img, vis_label) as the ground truth output
@@ -101,7 +100,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
         The output of :obj:`vis_transform` should be in HWC format.
         This means that :obj:`vis_img` and :obj:`vis_label` should be in
-        shape :math:`(H, W, 3)` and :math:`(H, W, 1)`.
+        shape :math:`(3, H, W)` and :math:`(1, H, W)`.
 
     .. note::
         All datasets prepared in :mod:`chainercv.datasets` should work
@@ -144,7 +143,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
     def __init__(self, indices, dataset, target, n_class,
                  filename_base='semantic_seg', predict_func=None,
-                 vis_transform=chw_to_pil_image):
+                 vis_transform=None):
         _check_available()
 
         if not isinstance(indices, collections.Iterable):
@@ -220,7 +219,10 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
             self._check_type_model(pred_label)
             pred_label = pred_label[0][0]  # (1, 1, H, W) -> (H, W)
 
-            vis_transformed = self.vis_transform(inputs)
+            if self.vis_transform:
+                vis_transformed = self.vis_transform(inputs)
+            else:
+                vis_transformed = inputs
             self._check_type_vis_transformed(vis_transformed)
             vis_img = vis_transformed[0]
 

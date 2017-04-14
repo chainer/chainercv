@@ -1,6 +1,8 @@
 import numpy as np
 import six
 
+from chainercv.transforms import chw_to_pil_image
+
 
 def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
     """Visualize keypoints in an image.
@@ -17,7 +19,7 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
 
     Args:
         img (~numpy.ndarray): An image of shape
-            :math:`(height, width, 3)`. This should be visualizable using
+            :math:`(3, height, width)`. This should be visualizable using
             :obj:`matplotlib.pyplot.imshow(img)`
         keypoint (~numpy.ndarray): An array with keypoint pairs whose shape is
             :math:`(K, 2)`, where :math:`K` is
@@ -41,7 +43,7 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
         fig = plot.figure()
         ax = fig.add_subplot(1, 1, 1)
 
-    H, W, _ = img.shape
+    _, H, W = img.shape
     n_kp = len(keypoint)
 
     if kp_mask is None:
@@ -51,7 +53,7 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
 
     colors = [cm(1. * i / n_kp) for i in six.moves.range(n_kp)]
 
-    ax.imshow(img)
+    ax.imshow(chw_to_pil_image(img))
     for i in range(n_kp):
         if kp_mask[i]:
             ax.scatter(keypoint[i][0], keypoint[i][1], c=colors[i], s=100)
