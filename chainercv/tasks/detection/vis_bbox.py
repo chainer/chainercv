@@ -12,7 +12,6 @@ def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
         >>> import matplotlib.pyplot as plot
         >>> dataset = chainercv.datasets.VOCDetectionDataset()
         >>> img, bbox, label = dataset[60]
-        >>> img = chainercv.transforms.chw_to_pil_image(img)
         >>> chainercv.tasks.vis_bbox(img, bbox, label, dataset.labels)
         >>> plot.show()
 
