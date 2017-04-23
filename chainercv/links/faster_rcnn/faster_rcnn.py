@@ -33,7 +33,8 @@ class FasterRCNN(chainer.Chain):
             roi_size,
             spatial_scale=0.0625,
             nms_thresh=0.3,
-            confidence=0.8
+            confidence=0.8,
+            targets_precomputed=True
     ):
         super(FasterRCNN, self).__init__(
             feature=feature,
@@ -49,6 +50,7 @@ class FasterRCNN(chainer.Chain):
         self.roi_size = roi_size
         self.nms_thresh = nms_thresh
         self.confidence = confidence
+        self.targets_precomputed = targets_precomputed
 
     def __call__(self, x, bbox=None, label=None, scale=1.):
         train = self.train and bbox is not None
@@ -105,7 +107,14 @@ class FasterRCNN(chainer.Chain):
             boxes = rois[:, 1:5]
             boxes = boxes / scale
             H, W = img_shape
-            pred_boxes = bbox_transform_inv(boxes, bbox_pred.data, device.id)
+            bbox_pred = bbox_pred.data 
+
+            if self.targets_precomputed:
+                mean = np.tile(np.array(self.proposal_target_layer.BBOX_NORMALIZE_MEANS), self.n_class)
+                std = np.tile(np.array(self.proposal_target_layer.BBOX_NORMALIZE_STDS), self.n_class)
+                bbox_pred = (bbox_pred * std + mean).astype(np.float32)
+
+            pred_boxes = bbox_transform_inv(boxes, bbox_pred, device.id)
             # Use this if you want to have identical results to the caffe
             # implementation.
             # pred_boxes = bbox_transform_inv(
@@ -114,7 +123,7 @@ class FasterRCNN(chainer.Chain):
             cls_prob = F.softmax(cls_score)
             pred_boxes = clip_boxes(
                 pred_boxes, (H / scale, W / scale), device.id)
-            return pred_boxes[None], cls_prob[None].data, 
+            return pred_boxes[None], cls_prob[None].data 
 
         if device.id >= 0:
             labels = cuda.to_gpu(labels, device=device)
@@ -211,7 +220,9 @@ class FasterRCNNVGG(FasterRCNN):
     def __init__(self,
                  n_anchors=9, anchor_scales=[8, 16, 32],
                  n_class=21,
-                 nms_thresh=0.3, confidence=0.8):
+                 nms_thresh=0.3, confidence=0.8,
+                 targets_precomputed=True
+                 ):
         feat_stride = 16
         rpn_sigma = 3.
         sigma = 1.
@@ -228,7 +239,8 @@ class FasterRCNNVGG(FasterRCNN):
             sigma=sigma,
             roi_size=7,
             nms_thresh=nms_thresh,
-            confidence=confidence
+            confidence=confidence,
+            targets_precomputed=targets_precomputed
         )
         # Handle pretrained models
         self.head.fc6.copyparams(self.feature.fc6)
