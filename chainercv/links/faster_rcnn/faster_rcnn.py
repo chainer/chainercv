@@ -183,9 +183,9 @@ def _predict_to_bbox(pred_bbox, cls_prob, nms_thresh, confidence, n_class):
             out_label.append(np.ones((len(selected),)) * cls_id)
             out_confidence.append(selected[:, 4])
     if len(out_bbox) != 0:
-        out_bbox = np.concatenate(out_bbox, axis=0)
-        out_label = np.concatenate(out_label, axis=0)
-        out_confidence = np.concatenate(out_confidence, axis=0)
+        out_bbox = np.concatenate(out_bbox, axis=0).astype(np.float32)
+        out_label = np.concatenate(out_label, axis=0).astype(np.int32)
+        out_confidence = np.concatenate(out_confidence, axis=0).astype(np.float32)
     else:
         out_bbox = np.zeros((0, 4), dtype=np.float32)
         out_label = np.zeros((0,), dtype=np.int32)
