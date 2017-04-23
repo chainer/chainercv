@@ -110,8 +110,8 @@ class FasterRCNN(chainer.Chain):
             bbox_pred = bbox_pred.data 
 
             if self.targets_precomputed:
-                mean = np.tile(np.array(self.proposal_target_layer.BBOX_NORMALIZE_MEANS), self.n_class)
-                std = np.tile(np.array(self.proposal_target_layer.BBOX_NORMALIZE_STDS), self.n_class)
+                mean = xp.tile(xp.array(self.proposal_target_layer.BBOX_NORMALIZE_MEANS), self.n_class)
+                std = xp.tile(np.array(self.proposal_target_layer.BBOX_NORMALIZE_STDS), self.n_class)
                 bbox_pred = (bbox_pred * std + mean).astype(np.float32)
 
             pred_boxes = bbox_transform_inv(boxes, bbox_pred, device.id)
