@@ -29,11 +29,11 @@ class FasterRCNN(chainer.Chain):
 
     def __init__(
             self, feature, rpn, head,
-            n_class, sigma,
-            roi_size,
-            spatial_scale=0.0625,
+            n_class, roi_size,
             nms_thresh=0.3,
             confidence=0.8,
+            sigma=1.
+            spatial_scale=0.0625,
             targets_precomputed=True
     ):
         super(FasterRCNN, self).__init__(
@@ -217,10 +217,9 @@ class FasterRCNNHeadVGG(chainer.Chain):
 
 class FasterRCNNVGG(FasterRCNN):
 
-    def __init__(self,
-                 n_anchors=9, anchor_scales=[8, 16, 32],
-                 n_class=21,
+    def __init__(self, n_class=21,
                  nms_thresh=0.3, confidence=0.8,
+                 n_anchors=9, anchor_scales=[8, 16, 32],
                  targets_precomputed=True
                  ):
         feat_stride = 16
@@ -236,10 +235,10 @@ class FasterRCNNVGG(FasterRCNN):
             rpn,
             head,
             n_class=n_class,
-            sigma=sigma,
             roi_size=7,
             nms_thresh=nms_thresh,
             confidence=confidence,
+            sigma=sigma,
             targets_precomputed=targets_precomputed
         )
         # Handle pretrained models
@@ -279,9 +278,11 @@ class FasterRCNNHeadResNet(chainer.Chain):
 
 class FasterRCNNResNet(FasterRCNN):
 
-    def __init__(self,
+    def __init__(self, n_class=21,
+                 nms_thresh=0.3, confidence=0.8,
                  n_anchors=9, anchor_scales=[8, 16, 32],
-                 n_class=21):
+                 targets_precomputed=True
+                 ):
         feat_stride = 16
         rpn_sigma = 3.
         sigma = 1.
@@ -296,8 +297,10 @@ class FasterRCNNResNet(FasterRCNN):
             rpn,
             head,
             n_class=n_class,
+            roi_size=14,
+            nms_thresh=nms_thresh,
+            confidence=confidence,
             sigma=sigma,
-            roi_size=14
         )
         # Handle pretrained models
         self.head.res5.copyparams(self.feature.res5)
