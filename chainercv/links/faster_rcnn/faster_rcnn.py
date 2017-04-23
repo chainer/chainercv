@@ -18,11 +18,11 @@ from chainer.links.model.vision.resnet import BuildingBlock
 
 from chainercv.functions.smooth_l1_loss import smooth_l1_loss
 
-from bbox_transform import bbox_transform_inv
-from bbox_transform import clip_boxes
-from nms_cpu import nms_cpu as nms
-from proposal_target_layer import ProposalTargetLayer
-from rpn import RPN
+from chainercv.links.faster_rcnn.bbox_transform import bbox_transform_inv
+from chainercv.links.faster_rcnn.bbox_transform import clip_boxes
+from chainercv.links.faster_rcnn.nms_cpu import nms_cpu as nms
+from chainercv.links.faster_rcnn.proposal_target_layer import ProposalTargetLayer
+from chainercv.links.faster_rcnn.rpn import RPN
 
 
 class FasterRCNN(chainer.Chain):
