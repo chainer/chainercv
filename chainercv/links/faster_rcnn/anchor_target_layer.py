@@ -182,7 +182,6 @@ class AnchorTargetLayer(object):
         num_fg = int(self.RPN_FG_FRACTION * self.RPN_BATCHSIZE)
         fg_inds = np.where(labels == 1)[0]
         if len(fg_inds) > num_fg:
-            np.random.seed(0)
             disable_inds = np.random.choice(
                 fg_inds, size=(len(fg_inds) - num_fg), replace=False)
             labels[disable_inds] = -1
@@ -191,7 +190,6 @@ class AnchorTargetLayer(object):
         num_bg = self.RPN_BATCHSIZE - np.sum(labels == 1)
         bg_inds = np.where(labels == 0)[0]
         if len(bg_inds) > num_bg:
-            np.random.seed(0)
             disable_inds = np.random.choice(
                 bg_inds, size=(len(bg_inds) - num_bg), replace=False)
             labels[disable_inds] = -1
