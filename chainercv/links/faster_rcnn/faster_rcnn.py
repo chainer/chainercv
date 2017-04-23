@@ -152,19 +152,19 @@ class FasterRCNN(chainer.Chain):
 
         """
         pred_bbox, cls_prob = self.__call__(x)
-        cls_prob = chainer.cuda.to_cpu(cls_prob)
-        pred_bbox = chainer.cuda.to_cpu(pred_bbox)
+        cls_prob = chainer.cuda.to_cpu(cls_prob)[0]
+        pred_bbox = chainer.cuda.to_cpu(pred_bbox)[0]
 
-        out_bbox, out_label, out_confidence = _predict_to_bboxes(
-            pred_bbox[0], cls_prob[0], self.nms_thresh, self.confidence,
-            n_clas=self.n_class)
+        out_bbox, out_label, out_confidence = _predict_to_bbox(
+            pred_bbox, cls_prob, self.nms_thresh, self.confidence,
+            n_class=self.n_class)
         return out_bbox[None], out_label[None], out_confidence[None]
 
     def _extract_feature(self, x):
         raise NotImplementedError
 
 
-def _predict_to_bboxes(pred_bbox, cls_prob, nms_thresh, confidence, n_class):
+def _predict_to_bbox(pred_bbox, cls_prob, nms_thresh, confidence, n_class):
     assert cls_prob.ndim == 2
     out_bbox = []
     out_label = []
