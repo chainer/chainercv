@@ -79,7 +79,6 @@ def _nms(boxes_host, boxes_num, boxes_dim, nms_overlap_thresh):
     col_blocks = divup(boxes_num, threads_per_block)
 
     boxes_dev = cupy.array(boxes_host, dtype=np.float32)
-    # boxes_dev = cupy.asfortranarray(boxes_dev)
     mask_dev = cupy.zeros((boxes_num * col_blocks,), dtype=np.uint64)
 
     blocks = (divup(boxes_num, threads_per_block), divup(boxes_num, threads_per_block), 1)
@@ -110,8 +109,7 @@ def nms_gpu(dets, thresh):
     scores = dets[:, 4]
     order = scores.argsort()[::-1]
     sorted_dets = dets[order, :]
-    keep, num_out = _nms(keep, sorted_dets, boxes_num, boxes_dim, thresh)
-    # _nms(&keep[0], &num_out, &sorted_dets[0, 0], boxes_num, boxes_dim, thresh, device_id)
+    keep, num_out = _nms(sorted_dets, boxes_num, boxes_dim, thresh)
     keep = keep[:num_out]
     return list(order[keep])
 
