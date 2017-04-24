@@ -17,7 +17,8 @@ from bbox_transform import bbox_transform_inv
 from bbox_transform import clip_boxes
 from generate_anchors import generate_anchors
 
-from nms_cpu import nms_cpu as nms
+# from nms_cpu import nms_cpu as nms
+from nms_gpu import nms_gpu
 
 
 class ProposalLayer(object):
@@ -131,7 +132,7 @@ class ProposalLayer(object):
         # 6. apply nms (e.g. threshold = 0.7)
         # 7. take after_nms_topN (e.g. 300)
         # 8. return the top proposals (-> RoIs top)
-        keep = nms(np.hstack((proposals, scores)), nms_thresh)
+        keep = nms_gpu(np.hstack((proposals, scores)), nms_thresh)
         if post_nms_topN > 0:
             keep = keep[:post_nms_topN]
         proposals = proposals[keep, :]
