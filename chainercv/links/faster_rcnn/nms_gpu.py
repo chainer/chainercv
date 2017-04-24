@@ -95,7 +95,6 @@ def _nms(keep_out, boxes_host, boxes_num, boxes_dim, nms_overlap_thresh):
         inblock = np.array(i % threads_per_block, dtype=np.uint64)
 
         one_ull = np.array(1, dtype=np.uint64)
-        # print np.bitwise_and(remv[nblock], np.left_shift(one_ull, inblock))
         if not np.bitwise_and(remv[nblock], np.left_shift(one_ull, inblock)):
             keep_out[num_to_keep] = i
             num_to_keep += 1
