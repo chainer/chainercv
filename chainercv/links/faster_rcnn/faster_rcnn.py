@@ -147,11 +147,11 @@ class FasterRCNN(chainer.Chain):
                                 self)
         return loss
 
-    def predict_bbox(self, x):
+    def predict_bbox(self, x, scale=1.):
         """Predicts bounding boxes which satisfy confidence constraints.
 
         """
-        pred_bbox, cls_prob = self.__call__(x)
+        pred_bbox, cls_prob = self.__call__(x, scale=scale)
         cls_prob = chainer.cuda.to_cpu(cls_prob)[0]
         pred_bbox = chainer.cuda.to_cpu(pred_bbox)[0]
 
