@@ -32,7 +32,7 @@ class FasterRCNN(chainer.Chain):
             n_class, roi_size,
             nms_thresh=0.3,
             confidence=0.8,
-            sigma=1.
+            sigma=1.,
             spatial_scale=0.0625,
             targets_precomputed=True
     ):
