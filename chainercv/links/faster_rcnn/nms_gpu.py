@@ -1,6 +1,8 @@
 import numpy as np
 import cupy
 
+from nms_gpu_post import nms_gpu_post
+
 
 code = '''
 #include <stdio.h>
@@ -70,7 +72,8 @@ void nms_kernel(const int n_boxes, const float nms_overlap_thresh,
 '''
 
 
-def _nms(keep_out, boxes_host, boxes_num, boxes_dim, nms_overlap_thresh):
+def _nms(boxes_host, boxes_num, boxes_dim, nms_overlap_thresh):
+
     threads_per_block = 64
 
     col_blocks = divup(boxes_num, threads_per_block)
@@ -86,23 +89,11 @@ def _nms(keep_out, boxes_host, boxes_num, boxes_dim, nms_overlap_thresh):
     kern(blocks, threads, args=(boxes_num, cupy.float32(nms_overlap_thresh),
                                 boxes_dev, mask_dev))
 
-    remv = np.zeros((col_blocks,), dtype=np.uint64)
     mask_host = mask_dev.get()
 
-    num_to_keep = 0
-    for i in range(boxes_num):
-        nblock = i / threads_per_block
-        inblock = np.array(i % threads_per_block, dtype=np.uint64)
-
-        one_ull = np.array(1, dtype=np.uint64)
-        if not np.bitwise_and(remv[nblock], np.left_shift(one_ull, inblock)):
-            keep_out[num_to_keep] = i
-            num_to_keep += 1
-
-            index = i * col_blocks
-            for j in range(nblock, col_blocks):
-                remv[j] = np.bitwise_or(remv[j], mask_host[index + j])
-    return keep_out, num_to_keep
+    keep, num_to_keep = nms_gpu_post(
+        mask_host, boxes_num, threads_per_block, col_blocks)
+    return keep, num_to_keep
 
 
 @cupy.util.memoize(for_each_device=True)
@@ -115,7 +106,7 @@ def load_kernel(kernel_name, code, options=()):
 def nms_gpu(dets, thresh):
     boxes_num = dets.shape[0]
     boxes_dim = dets.shape[1]
-    keep = np.zeros(boxes_num, dtype=np.int32)
+
     scores = dets[:, 4]
     order = scores.argsort()[::-1]
     sorted_dets = dets[order, :]

@@ -19,7 +19,9 @@ ext_modules = [
     Extension('chainercv.links.faster_rcnn.bbox',
               ['chainercv/links/faster_rcnn/cython/bbox.pyx']),
     Extension('chainercv.links.faster_rcnn.nms_cpu',
-              ['chainercv/links/faster_rcnn/cython/nms_cpu.pyx'])
+              ['chainercv/links/faster_rcnn/cython/nms_cpu.pyx']),
+    Extension('chainercv.links.faster_rcnn.nms_gpu_post',
+              ['chainercv/links/faster_rcnn/cython/nms_gpu_post.pyx'])
 ]
 cmdclass = {'build_ext': build_ext}
 
