@@ -23,7 +23,7 @@ class ProposalTargetLayer(object):
     targets.
     """
 
-    BATCH_SIZE = 128  # number of regions of interest [ROIs]  # faster_rcnn_end2end.yml
+    BATCH_SIZE = 256  # number of regions of interest [ROIs]
     # Fraction of minibatch that is labeled foreground (i.e. class > 0)
     FG_FRACTION = 0.25
     # Deprecated (inside weights)
