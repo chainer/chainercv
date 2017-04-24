@@ -25,7 +25,7 @@ from chainercv.links.faster_rcnn.proposal_target_layer import ProposalTargetLaye
 from chainercv.links.faster_rcnn.rpn import RPN
 
 
-class FasterRCNN(chainer.Chain):
+class FasterRCNNBase(chainer.Chain):
 
     def __init__(
             self, feature, rpn, head,
@@ -36,7 +36,7 @@ class FasterRCNN(chainer.Chain):
             spatial_scale=0.0625,
             targets_precomputed=True
     ):
-        super(FasterRCNN, self).__init__(
+        super(FasterRCNNBase, self).__init__(
             feature=feature,
             rpn=rpn,
             head=head,
@@ -215,7 +215,7 @@ class FasterRCNNHeadVGG(chainer.Chain):
         return cls_score, bbox_pred
 
 
-class FasterRCNNVGG(FasterRCNN):
+class FasterRCNNVGG(FasterRCNNBase):
 
     def __init__(self, n_class=21,
                  nms_thresh=0.3, confidence=0.8,
@@ -276,7 +276,7 @@ class FasterRCNNHeadResNet(chainer.Chain):
         return cls_score, bbox_pred
 
 
-class FasterRCNNResNet(FasterRCNN):
+class FasterRCNNResNet(FasterRCNNBase):
 
     def __init__(self, n_class=21,
                  nms_thresh=0.3, confidence=0.8,
