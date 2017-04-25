@@ -54,6 +54,8 @@ class FasterRCNNBase(chainer.Chain):
 
     def __call__(self, x, bbox=None, label=None, scale=1.):
         train = self.train and bbox is not None
+        if not train:
+            bbox = None
 
         # TODO(yuyu2172) this is really ugly
         if isinstance(scale, chainer.Variable):
