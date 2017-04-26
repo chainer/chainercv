@@ -1,7 +1,5 @@
 import numpy as np
 
-import chainer
-
 
 def eval_detection(
         bboxes, labels, confs, gt_bboxes, gt_labels, n_class,
@@ -59,13 +57,11 @@ def eval_detection(
 
     """
     assert len(bboxes) == len(gt_bboxes)
-    
+
     valid_cls = np.zeros((n_class,), dtype=np.bool)
     n_img = len(bboxes)
-    _bboxes = [[None for _ in xrange(n_img)]
-                for _ in xrange(n_class)]
-    _confs = [[None for _ in xrange(n_img)]
-                for _ in xrange(n_class)]
+    _bboxes = [[None for _ in xrange(n_img)] for _ in xrange(n_class)]
+    _confs = [[None for _ in xrange(n_img)] for _ in xrange(n_class)]
 
     for i in range(n_img):
         for cls in range(n_class):
@@ -116,7 +112,7 @@ def eval_detection(
         results[cls]['recall'] = rec
         results[cls]['precision'] = prec
         results[cls]['ap'] = ap
-    
+
     results['map'] = np.asscalar(np.mean(
         [results[cls]['ap'] for cls in valid_cls_indices]))
     return results
@@ -160,7 +156,7 @@ def _eval_detection_cls(
         index = indices[d]
         bb = bbox[d]
         ovmax = 0
-        
+
         for j in range(len(gt_bboxes_cls[index])):
             bbgt = gt_bboxes_cls[index][j]
             ov = _iou_ratio(bb, bbgt)
@@ -228,7 +224,7 @@ def _iou_ratio(bbox_1, bbox_2):
     ih = np.maximum(bi[3] - bi[1] + 1, 0.)
 
     overlap = 0
-    
+
     inter = iw * ih
 
     # union
