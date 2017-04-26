@@ -15,10 +15,6 @@ vis_bbox
 Keypoint Matching
 -----------------
 
-eval_pck
-~~~~~~~~
-.. autofunction:: eval_pck
-
 vis_keypoint
 ~~~~~~~~~~~~
 .. autofunction:: vis_keypoint
