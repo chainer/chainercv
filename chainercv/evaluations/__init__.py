@@ -1,1 +1,1 @@
-from chainercv.evaluations.eval_pck import eval_pck
+from chainercv.evaluations.eval_pck import eval_pck  # NOQA
