@@ -1,4 +1,5 @@
 import numpy as np
+import six
 
 
 def eval_detection(
@@ -60,8 +61,8 @@ def eval_detection(
 
     valid_cls = np.zeros((n_class,), dtype=np.bool)
     n_img = len(bboxes)
-    _bboxes = [[None for _ in xrange(n_img)] for _ in xrange(n_class)]
-    _confs = [[None for _ in xrange(n_img)] for _ in xrange(n_class)]
+    _bboxes = [[None for _ in six.moves.range(n_img)] for _ in xrange(n_class)]
+    _confs = [[None for _ in six.moves.range(n_img)] for _ in xrange(n_class)]
 
     for i in range(n_img):
         for cls in range(n_class):
@@ -85,8 +86,8 @@ def eval_detection(
             if len(bboxes_cls) > 0:
                 valid_cls[cls] = True
 
-    _gt_bboxes = [[None for _ in xrange(n_img)]
-                  for _ in xrange(n_class)]
+    _gt_bboxes = [[None for _ in six.moves.range(n_img)]
+                  for _ in six.moves.range(n_class)]
     for i in range(n_img):
         for cls in range(n_class):
             gt_bboxes_cls = []
