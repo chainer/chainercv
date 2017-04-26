@@ -8,6 +8,7 @@ ChainerCV Reference Manual
    :maxdepth: 2
 
    datasets
+   evaluations
    extensions
    transforms
 
