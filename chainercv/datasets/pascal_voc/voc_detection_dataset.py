@@ -113,8 +113,5 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         # Load a image
         img_file = os.path.join(self.data_dir, 'JPEGImages', id_ + '.jpg')
-        img = read_image_as_array(img_file)  # RGB
-
-        img = img[:, :, ::-1]  # RGB to BGR
-        img = img.transpose(2, 0, 1).astype(np.float32)
+        img = read_image_as_array(img_file, dtype=np.float32)
         return img, bbox, label

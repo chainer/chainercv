@@ -1,5 +1,7 @@
 import numpy as np
 
+from chainercv.transforms import chw_to_pil_image
+
 
 def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
     """Visualize bounding boxes inside image.
@@ -15,8 +17,8 @@ def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
         >>> plot.show()
 
     Args:
-        img (~numpy.ndarray): An array of shape :math:`(height, width, 3)`.
-            This is in RGB format.
+        img (~numpy.ndarray): An array of shape :math:`(3, height, width)`.
+            This is in BGR format.
         bbox (~numpy.ndarray): An array of shape :math:`(R, 5)`, where
             :math:`R` is the number of bounding boxes in the image. Elements
             are organized
@@ -38,7 +40,7 @@ def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
     if ax is None:
         fig = plot.figure()
         ax = fig.add_subplot(1, 1, 1)
-    ax.imshow(img)
+    ax.imshow(chw_to_pil_image(img))
 
     for i, bbox_elem in enumerate(bbox):
         xy = (bbox_elem[0], bbox_elem[1])
