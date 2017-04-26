@@ -13,6 +13,10 @@ def eval_detection(
     This evaluates predicted bounding boxes obtained from a dataset which
     has :math:`N` images.
 
+    Mean average precision is calculated by taking a mean of average
+    precision for all classes which have at least one bounding box
+    assigned by prediction or ground truth labels.
+
     Args:
         bboxes (list of numpy.ndarray): A list of bounding boxes.
             The index to this list corresponds to the index of the data
@@ -56,6 +60,7 @@ def eval_detection(
     """
     assert len(bboxes) == len(gt_bboxes)
     
+    valid_cls = np.zeros((n_class,), dtype=np.bool)
     n_img = len(bboxes)
     _bboxes = [[None for _ in xrange(n_img)]
                 for _ in xrange(n_class)]
@@ -70,8 +75,19 @@ def eval_detection(
                 if cls == labels[i][j]:
                     bboxes_cls.append(bboxes[i][j])
                     confs_cls.append(confs[i][j])
-            _bboxes[cls][i] = np.stack(bboxes_cls)
-            _confs[cls][i] = np.stack(confs_cls)
+            if len(bboxes_cls) > 0:
+                bboxes_cls = np.stack(bboxes_cls)
+            else:
+                bboxes_cls = np.zeros((0, 4))
+            if len(confs_cls) > 0:
+                confs_cls = np.stack(confs_cls)
+            else:
+                confs_cls = np.zeros((0,))
+            _bboxes[cls][i] = bboxes_cls
+            _confs[cls][i] = confs_cls
+
+            if len(bboxes_cls) > 0:
+                valid_cls[cls] = True
 
     _gt_bboxes = [[None for _ in xrange(n_img)]
                   for _ in xrange(n_class)]
@@ -81,10 +97,18 @@ def eval_detection(
             for j in range(gt_bboxes[i].shape[0]):
                 if cls == gt_labels[i][j]:
                     gt_bboxes_cls.append(gt_bboxes[i][j])
-            _gt_bboxes[cls][i] = np.stack(gt_bboxes_cls)
+            if len(gt_bboxes_cls) > 0:
+                gt_bboxes_cls = np.stack(gt_bboxes_cls)
+            else:
+                gt_bboxes_cls = np.zeros((0, 4))
+            _gt_bboxes[cls][i] = gt_bboxes_cls
+
+            if len(gt_bboxes_cls) > 0:
+                valid_cls[cls] = True
 
     results = {}
-    for cls in range(n_class):
+    valid_cls_indices = np.where(valid_cls)[0]
+    for cls in valid_cls_indices:
         rec, prec, ap = _eval_detection_cls(
             _bboxes[cls], _confs[cls], _gt_bboxes[cls],
             minoverlap, use_07_metric)
@@ -94,7 +118,7 @@ def eval_detection(
         results[cls]['ap'] = ap
     
     results['map'] = np.asscalar(np.mean(
-        [results[cls]['ap'] for cls in range(n_class)]))
+        [results[cls]['ap'] for cls in valid_cls_indices]))
     return results
 
 
@@ -102,6 +126,8 @@ def _eval_detection_cls(
         bboxes_cls, confs_cls, gt_bboxes_cls,
         minoverlap=0.5, use_07_metric=False):
     # Calculate deterction metrics with respect to a class.
+    # This function is called only when there is at least one
+    # prediction or ground truth box which is labeld as the class.
     npos = 0
     gt_det_cls = [None for i in range(len(gt_bboxes_cls))]
     for i in range(len(gt_bboxes_cls)):
@@ -117,8 +143,9 @@ def _eval_detection_cls(
     indices = np.array(indices, dtype=np.int)
     conf = np.concatenate(confs_cls)
     bbox = np.concatenate(bboxes_cls)
-    if len(conf) == 0:
-        return None
+    n_pred = len(conf)
+    if npos == 0 or n_pred == 0:
+        return np.zeros((n_pred,)), np.zeros((n_pred,)), 0.
 
     si = np.argsort(-conf)
     indices = indices[si]
