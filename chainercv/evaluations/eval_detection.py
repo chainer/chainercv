@@ -61,8 +61,8 @@ def eval_detection(
 
     valid_cls = np.zeros((n_class,), dtype=np.bool)
     n_img = len(bboxes)
-    _bboxes = [[None for _ in six.moves.range(n_img)] for _ in xrange(n_class)]
-    _confs = [[None for _ in six.moves.range(n_img)] for _ in xrange(n_class)]
+    _bboxes = [[None for _ in six.moves.range(n_img)] for _ in six.moves.range(n_class)]
+    _confs = [[None for _ in six.moves.range(n_img)] for _ in six.move.range(n_class)]
 
     for i in range(n_img):
         for cls in range(n_class):
