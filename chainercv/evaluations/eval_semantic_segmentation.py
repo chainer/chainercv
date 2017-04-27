@@ -44,27 +44,37 @@ def eval_semantic_segmentation(label_pred, label_true, n_class):
     Args:
         label_pred (~numpy.ndarray): An integer array of image containing
             class labels as values, which is obtained from inference.
-            This should be a one channel CHW formatted image.
+            This has shape :math:`(N, 1, H, W)` or :math:`(1, H, W)`,
+            where :math:`N` is size of the batch, :math:`H` is the height
+            and :math:`W` is the width.
         label_true (~numpy.ndarray): An integer array of image containing
             the ground truth class labels as values. A pixel with value
-            "-1" will be ignored during evaluation.
+            "-1" will be ignored during evaluation. Its shape is similar
+            to :obj:`label_pred`.
             Its image size is equal to that of :obj:`label_pred`.
             This should be a one channel CHW formatted image.
         n_class (int): Number of classes.
 
     Returns:
-        (float, float, float, float):
+        (numpy.ndarray, numpy.ndarary, numpy.ndarray, numpy.ndarray):
         A tuple of pixel accuracy, mean pixel accuracy, MIoU and FWIoU.
+        These arrays arrays have shape :math:`(N,)`, where :math:`N` is
+        the number of images in the input.
 
     """
     ndim = label_pred.ndim
     if label_pred.ndim != label_true.ndim:
         raise ValueError(
-            'ground truth and predicted label map should have same number '
-            'of dimensions')
+            'Ground truth and predicted label map should have same number '
+            'of dimensions.')
     if ndim == 3:
         label_pred = label_pred[None]
         label_true = label_true[None]
+    elif ndim < 3:
+        raise ValueError('Input images need to be at least three dimensional.')
+
+    if label_pred.shape[1] != 1 or label_true.shape[1] != 1:
+        raise ValueError('Channel sizes of inputs need to be one.')
 
     N = len(label_pred)
     acc = np.zeros((N,))
