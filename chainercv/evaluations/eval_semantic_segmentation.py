@@ -82,11 +82,13 @@ def eval_semantic_segmentation(label_pred, label_true, n_class):
     mean_iu = np.zeros((N,))
     fwavacc = np.zeros((N,))
     for i in range(len(label_pred)):
-        hist = _fast_hist(label_true[i].flatten(), label_pred[i].flatten(), n_class)
+        hist = _fast_hist(
+            label_true[i].flatten(), label_pred[i].flatten(), n_class)
         acc[i] = np.diag(hist).sum() / hist.sum()
         acc_cls_i = np.diag(hist) / hist.sum(axis=1)
         acc_cls[i] = np.nanmean(acc_cls_i)
-        iu = np.diag(hist) / (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
+        iu_denominator = (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
+        iu = np.diag(hist) / iu_denominator
         mean_iu[i] = np.nanmean(iu)
         freq = hist.sum(axis=1) / hist.sum()
         fwavacc[i] = (freq[freq > 0] * iu[freq > 0]).sum()
