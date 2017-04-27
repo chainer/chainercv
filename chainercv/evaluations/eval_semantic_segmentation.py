@@ -57,12 +57,27 @@ def eval_semantic_segmentation(label_pred, label_true, n_class):
         A tuple of pixel accuracy, mean pixel accuracy, MIoU and FWIoU.
 
     """
-    hist = _fast_hist(label_true.flatten(), label_pred.flatten(), n_class)
-    acc = np.diag(hist).sum() / hist.sum()
-    acc_cls = np.diag(hist) / hist.sum(axis=1)
-    acc_cls = np.nanmean(acc_cls)
-    iu = np.diag(hist) / (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
-    mean_iu = np.nanmean(iu)
-    freq = hist.sum(axis=1) / hist.sum()
-    fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
+    ndim = label_pred.ndim
+    if label_pred.ndim != label_true.ndim:
+        raise ValueError(
+            'ground truth and predicted label map should have same number '
+            'of dimensions')
+    if ndim == 3:
+        label_pred = label_pred[None]
+        label_true = label_true[None]
+
+    N = len(label_pred)
+    acc = np.zeros((N,))
+    acc_cls = np.zeros((N,))
+    mean_iu = np.zeros((N,))
+    fwavacc = np.zeros((N,))
+    for i in range(len(label_pred)):
+        hist = _fast_hist(label_true[i].flatten(), label_pred[i].flatten(), n_class)
+        acc[i] = np.diag(hist).sum() / hist.sum()
+        acc_cls_i = np.diag(hist) / hist.sum(axis=1)
+        acc_cls[i] = np.nanmean(acc_cls_i)
+        iu = np.diag(hist) / (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
+        mean_iu[i] = np.nanmean(iu)
+        freq = hist.sum(axis=1) / hist.sum()
+        fwavacc[i] = (freq[freq > 0] * iu[freq > 0]).sum()
     return acc, acc_cls, mean_iu, fwavacc
