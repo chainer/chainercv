@@ -123,6 +123,7 @@ class CUBKeypointDataset(CUBDatasetBase):
 
         mask = utils.read_image(
             os.path.join(self.mask_dir, self.fns[original_idx][:-4] + '.png'),
+            dtype=np.uint8,
             force_color=False)
         if self.crop_bbox:
             mask = mask[:,
