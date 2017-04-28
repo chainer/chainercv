@@ -107,7 +107,7 @@ class CUBKeypointDataset(CUBDatasetBase):
     def get_example(self, i):
         # this i is transformed to id for the entire dataset
         original_idx = self.selected_ids[i]
-        img = utils.read_image_as_array(
+        img = utils.read_image(
             os.path.join(self.data_dir, 'images', self.fns[original_idx]),
             force_color=True)
         keypoint = np.array(self.kp_dict[original_idx], dtype=np.float32)
@@ -121,8 +121,8 @@ class CUBKeypointDataset(CUBDatasetBase):
         if not self.return_mask:
             return img, keypoint, kp_mask
 
-        mask = utils.read_image_as_array(os.path.join(
-            self.mask_dir, self.fns[original_idx][:-4] + '.png'))
+        mask = utils.read_image(
+            os.path.join(self.mask_dir, self.fns[original_idx][:-4] + '.png'))
         if self.crop_bbox:
             mask = mask[:,
                         bbox[1]: bbox[1] + bbox[3],

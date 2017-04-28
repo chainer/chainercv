@@ -5,7 +5,7 @@ from PIL import Image
 import chainer
 
 from chainercv.datasets.pascal_voc import voc_utils
-from chainercv.utils import read_image_as_array
+from chainercv.utils import read_image
 
 
 class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
@@ -65,7 +65,7 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
         if i >= len(self):
             raise IndexError('index is too large')
         img_file = osp.join(self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
-        img = read_image_as_array(img_file, dtype=np.float32)
+        img = read_image(img_file)
         label = self._load_label(self.data_dir, self.ids[i])
         label = label[None]
         return img, label
