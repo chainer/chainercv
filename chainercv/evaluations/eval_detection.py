@@ -4,6 +4,7 @@ import six
 
 def eval_detection(
         bboxes, labels, confs, gt_bboxes, gt_labels, n_class,
+        gt_difficults=None,
         minoverlap=0.5, use_07_metric=False):
     """Calculate deterction metrics.
 
@@ -88,17 +89,31 @@ def eval_detection(
 
     _gt_bboxes = [[None for _ in six.moves.range(n_img)]
                   for _ in six.moves.range(n_class)]
+    _gt_difficults = [[None for _ in six.moves.range(n_img)]
+                  for _ in six.moves.range(n_class)]
     for i in range(n_img):
         for cls in range(n_class):
             gt_bboxes_cls = []
+            gt_difficults_cls = []
             for j in range(gt_bboxes[i].shape[0]):
                 if cls == gt_labels[i][j]:
                     gt_bboxes_cls.append(gt_bboxes[i][j])
+                    if gt_difficults is not None:
+                        gt_difficults_cls.append(gt_difficults[i][j])
+                    else:
+                        gt_difficults_cls.append(np.array(False, dtype=np.bool))
+
             if len(gt_bboxes_cls) > 0:
                 gt_bboxes_cls = np.stack(gt_bboxes_cls)
             else:
                 gt_bboxes_cls = np.zeros((0, 4))
+            if len(gt_difficults_cls) > 0:
+                gt_difficults_cls = np.stack(gt_difficults_cls)
+            else:
+                gt_difficults_cls = np.zeros((0,), dtype=np.bool)
+
             _gt_bboxes[cls][i] = gt_bboxes_cls
+            _gt_difficults[cls][i] = gt_difficults_cls
 
             if len(gt_bboxes_cls) > 0:
                 valid_cls[cls] = True
@@ -107,30 +122,29 @@ def eval_detection(
     valid_cls_indices = np.where(valid_cls)[0]
     for cls in valid_cls_indices:
         rec, prec, ap = _eval_detection_cls(
-            _bboxes[cls], _confs[cls], _gt_bboxes[cls],
+            _bboxes[cls], _confs[cls], _gt_bboxes[cls], _gt_difficults[cls],
             minoverlap, use_07_metric)
         results[cls] = {}
         results[cls]['recall'] = rec
         results[cls]['precision'] = prec
         results[cls]['ap'] = ap
-
     results['map'] = np.asscalar(np.mean(
         [results[cls]['ap'] for cls in valid_cls_indices]))
     return results
 
 
 def _eval_detection_cls(
-        bboxes_cls, confs_cls, gt_bboxes_cls,
+        bboxes_cls, confs_cls, gt_bboxes_cls, gt_difficults_cls,
         minoverlap=0.5, use_07_metric=False):
-    # Calculate deterction metrics with respect to a class.
+    # Calculate detection metrics with respect to a class.
     # This function is called only when there is at least one
     # prediction or ground truth box which is labeld as the class.
     npos = 0
-    gt_det_cls = [None for i in range(len(gt_bboxes_cls))]
+    gt_det_cls = [None for _ in range(len(gt_bboxes_cls))]
     for i in range(len(gt_bboxes_cls)):
         n_gt_bbox = len(gt_bboxes_cls[i])
-        gt_det_cls[i] = np.zeros(n_gt_bbox)
-        npos += n_gt_bbox
+        gt_det_cls[i] = np.zeros(n_gt_bbox, dtype=np.bool)
+        npos += np.sum(np.logical_not(gt_difficults_cls[i]))
 
     # load the detection result
     indices = []
@@ -140,44 +154,58 @@ def _eval_detection_cls(
     indices = np.array(indices, dtype=np.int)
     conf = np.concatenate(confs_cls)
     bbox = np.concatenate(bboxes_cls)
-    n_pred = len(conf)
-    if npos == 0 or n_pred == 0:
-        return np.zeros((n_pred,)), np.zeros((n_pred,)), 0.
+    if npos == 0 or len(conf) == 0:
+        return np.zeros((nd,)), np.zeros((n_pred,)), 0.
 
     si = np.argsort(-conf)
     indices = indices[si]
     bbox = bbox[si]
 
     # assign detections to ground truth objects
-    nd = len(conf)
+    nd = len(indices)
     tp = np.zeros(nd)
     fp = np.zeros(nd)
 
     for d in range(nd):
         index = indices[d]
         bb = bbox[d]
-        ovmax = 0
+        ovmax = -np.inf
+        gt_bb = gt_bboxes_cls[index]
 
-        for j in range(len(gt_bboxes_cls[index])):
-            bbgt = gt_bboxes_cls[index][j]
-            ov = _iou_ratio(bb, bbgt)
-            if ov > ovmax:
-                ovmax = ov
-                jmax = j
+        if gt_bb.size > 0:
+            # compute overlaps
+            # intersection
+            ixmin = np.maximum(gt_bb[:, 0], bb[0])
+            iymin = np.maximum(gt_bb[:, 1], bb[1])
+            ixmax = np.minimum(gt_bb[:, 2], bb[2])
+            iymax = np.minimum(gt_bb[:, 3], bb[3])
+            iw = np.maximum(ixmax - ixmin + 1., 0.)
+            ih = np.maximum(iymax - iymin + 1., 0.)
+            inters = iw * ih
 
-        if ovmax >= minoverlap:
-            if not gt_det_cls[index][jmax]:
-                tp[d] = 1
-                gt_det_cls[index][jmax] = 1
-            else:
-                fp[d] = 1
+            # union
+            uni = ((bb[2] - bb[0] + 1.) * (bb[3] - bb[1] + 1.) +
+                   (gt_bb[:, 2] - gt_bb[:, 0] + 1.) *
+                   (gt_bb[:, 3] - gt_bb[:, 1] + 1.) - inters)
+
+            overlaps = inters / uni
+            ovmax = np.max(overlaps)
+            jmax = np.argmax(overlaps)
+
+        if ovmax > minoverlap:
+            if not gt_difficults_cls[index][jmax]:
+                if not gt_det_cls[index][jmax]:
+                    tp[d] = 1
+                    gt_det_cls[index][jmax] = 1
+                else:
+                    fp[d] = 1
         else:
             fp[d] = 1
 
     # compute precision/recall
     fp = np.cumsum(fp)
     tp = np.cumsum(tp)
-    rec = tp / npos
+    rec = tp / float(npos)
     prec = tp / np.maximum(fp + tp, np.finfo(np.float64).eps)
 
     ap = _voc_ap(rec, prec, use_07_metric=use_07_metric)
