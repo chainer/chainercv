@@ -171,14 +171,15 @@ def _predict_to_bbox(pred_bbox, cls_prob, nms_thresh, confidence, n_class):
     out_bbox = []
     out_label = []
     out_confidence = []
+    # skip cls_id = 0 because it is the background class
     for cls_id in range(1, n_class):
         _cls = cls_prob[:, cls_id][:, None]  # (300, 1)
         _bbx = pred_bbox[:, cls_id * 4: (cls_id + 1) * 4]  # (300, 4)
         dets = np.hstack((_bbx, _cls))  # (300, 5)
+        inds = np.where(dets[:, -1] >= confidence)[0]
+        dets = dets[inds, :]
         keep = nms(dets, nms_thresh)
         dets = dets[keep, :]
-
-        inds = np.where(dets[:, -1] >= confidence)[0]
         if len(inds) > 0:
             selected = dets[inds]
             out_bbox.append(selected[:, :4])
