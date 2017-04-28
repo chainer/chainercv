@@ -7,7 +7,6 @@ import chainer
 from chainer.utils import type_check
 
 from chainercv.tasks import vis_bbox
-from chainercv.transforms import chw_to_pil_image
 from chainercv.utils.extension_utils import check_type
 from chainercv.utils.extension_utils import forward
 
@@ -79,8 +78,8 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
             img, bbox, label = vis_transform(inputs)
 
-        :obj:`img` should be an image which is in CHW format, BGR and
-        :obj:`dtype==numpy.uint8`.
+        :obj:`img` should be an image which is in CHW format, BGR,
+        :math:`[0, 255]` and :obj:`dtype==numpy.uint8`.
 
     The process can be illustrated in the following code.
 
