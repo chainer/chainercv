@@ -4,7 +4,7 @@ import numpy as np
 
 from chainer import testing
 
-from chainercv.tasks import vis_keypoint
+from chainercv.visualizations import vis_keypoint
 
 try:
     import matplotlib  # NOQA

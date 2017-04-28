@@ -1,19 +1,13 @@
-Tasks
-=====
+Visualizations
+==============
 
-.. module:: chainercv.tasks
+.. module:: chainercv.visualizations
 
 
-Detection
----------
 
 vis_bbox
 ~~~~~~~~
 .. autofunction:: vis_bbox
-
-
-Keypoint Matching
------------------
 
 vis_keypoint
 ~~~~~~~~~~~~

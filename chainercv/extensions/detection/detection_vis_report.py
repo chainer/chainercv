@@ -5,10 +5,10 @@ import warnings
 import chainer
 from chainer.utils import type_check
 
-from chainercv.tasks import vis_bbox
 from chainercv.transforms import chw_to_pil_image
 from chainercv.utils.extension_utils import check_type
 from chainercv.utils.extension_utils import forward
+from chainercv.visualizations import vis_bbox
 
 try:
     from matplotlib import pyplot as plot
