@@ -33,16 +33,21 @@ class TestEvalDetectionOneBbox(unittest.TestCase):
         np.testing.assert_equal(results[0]['precision'], self.prec)
 
 
+@testing.parameterize(
+    {'use_07_metric': False,
+     'ap0': 0.25,
+     'ap1': 0.5},
+    {'use_07_metric': True,
+     'ap0': 0.5 / 11. * 6,
+     'ap1': 0.5},
+)
 class TestEvalDetectionMultipleBboxes(unittest.TestCase):
 
     minoverlap = 0.4
     rec0 = np.array([0.0, 0.5, 0.5])
     prec0 = np.array([0., 0.5, 1. / 3.])
-    ap0 = 0.25
     rec1 = np.array([0., 1.])
     prec1 = np.array([0., 0.5])
-    ap1 = 0.5
-    mean_ap = 0.375
 
     def test_eval_detection(self):
         bboxes = [
@@ -59,14 +64,16 @@ class TestEvalDetectionMultipleBboxes(unittest.TestCase):
 
         results = eval_detection(
             bboxes, labels, confs, gt_bboxes, gt_labels,
-            n_class=3, minoverlap=self.minoverlap)
+            n_class=3, minoverlap=self.minoverlap,
+            use_07_metric=self.use_07_metric)
         np.testing.assert_equal(results[0]['recall'], self.rec0)
         np.testing.assert_equal(results[0]['precision'], self.prec0)
-        np.testing.assert_equal(results[0]['ap'], self.ap0)
+        np.testing.assert_almost_equal(results[0]['ap'], self.ap0)
         np.testing.assert_equal(results[1]['recall'], self.rec1)
         np.testing.assert_equal(results[1]['precision'], self.prec1)
-        np.testing.assert_equal(results[1]['ap'], self.ap1)
-        np.testing.assert_equal(results['map'], self.mean_ap)
+        np.testing.assert_almost_equal(results[1]['ap'], self.ap1)
+        np.testing.assert_almost_equal(
+            results['map'], (self.ap0 + self.ap1) / 2)
 
 
 class TestEvalDetectionDifficults(unittest.TestCase):
