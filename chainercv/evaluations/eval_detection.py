@@ -38,6 +38,10 @@ def eval_detection(
             which are organized similarly to :obj:`bboxes_cls`.
         gt_labels (list of numpy.ndarray): List of ground truth labels which
             are organized similarly to :obj:`labels`.
+        n_class (int): Number of classes.
+        gt_difficults (list of numpy.ndarray): List of boolean arrays which
+            organized similarly to :obj:`labels`. This tells whether the
+            corresponding ground truth bounding box is difficult or not.
         minoverlap (float): A prediction is correct if its intersection of
             union with the ground truth is above this value.
         use_07_metric (bool): Whether to use Pascal VOC 2007 evaluation metric

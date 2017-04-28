@@ -67,3 +67,26 @@ class TestEvalDetectionMultipleBboxes(unittest.TestCase):
         np.testing.assert_equal(results[1]['precision'], self.prec1)
         np.testing.assert_equal(results[1]['ap'], self.ap1)
         np.testing.assert_equal(results['map'], self.mean_ap)
+
+
+class TestEvalDetectionDifficults(unittest.TestCase):
+
+    minoverlap = 0.5
+    rec = np.array([0., 0., 1.])
+    prec = np.array([0., 0., 1. / 3.])
+
+    def test_eval_detection_difficult(self):
+        bboxes = [np.array([
+            [0., 0., 1., 1.], [0., 0., 2., 2.], [0.3, 0.3, 0.5, 0.5]])]
+        labels = [np.array([0, 0, 0])]
+        confs = [np.array([0.8, 0.9, 1.])]
+        gt_bboxes = [np.array([[0., 0., 1., 0.9], [1., 1., 2., 2.]])]
+        gt_labels = [np.array([0, 0])]
+        gt_difficults = [np.array([False, True])]
+        # iou is [0.95, 0.422, 0.3789] and [0.142, 0.444, 0.048]
+
+        results = eval_detection(
+            bboxes, labels, confs, gt_bboxes, gt_labels,
+            n_class=1, gt_difficults=gt_difficults, minoverlap=self.minoverlap)
+        np.testing.assert_equal(results[0]['recall'], self.rec)
+        np.testing.assert_equal(results[0]['precision'], self.prec)
