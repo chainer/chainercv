@@ -21,7 +21,6 @@ class TestEvalSemanticSegmentation(unittest.TestCase):
         self.assertTrue(isinstance(acc_cls, np.ndarray))
         self.assertTrue(isinstance(mean_iu, np.ndarray))
         self.assertTrue(isinstance(fwavacc, np.ndarray))
-        acc_gt = 4. / 5.
         self.assertEqual(acc[0], 4. / 5.)
         self.assertEqual(acc_cls[0], 1. / 2. * (1 + 2. / 3.))
         self.assertEqual(mean_iu[0], 1. / 2. * (1. / 3. + 1))
