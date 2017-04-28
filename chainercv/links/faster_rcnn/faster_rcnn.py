@@ -180,11 +180,10 @@ def _predict_to_bbox(pred_bbox, cls_prob, nms_thresh, confidence, n_class):
         dets = dets[inds, :]
         keep = nms(dets, nms_thresh)
         dets = dets[keep, :]
-        if len(inds) > 0:
-            selected = dets[inds]
-            out_bbox.append(selected[:, :4])
-            out_label.append(np.ones((len(selected),)) * cls_id)
-            out_confidence.append(selected[:, 4])
+        if len(dets) > 0:
+            out_bbox.append(dets[:, :4])
+            out_label.append(np.ones((len(dets),)) * cls_id)
+            out_confidence.append(dets[:, 4])
     if len(out_bbox) != 0:
         out_bbox = np.concatenate(out_bbox, axis=0).astype(np.float32)
         out_label = np.concatenate(out_label, axis=0).astype(np.int32)
