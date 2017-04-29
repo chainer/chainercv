@@ -7,6 +7,7 @@ import warnings
 import chainer
 from chainer.utils import type_check
 
+from chainercv.transforms import chw_to_pil_image
 from chainercv.utils import check_type
 from chainercv.utils import forward
 
@@ -192,8 +193,8 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         type_check.expect(
             img_type.ndim == 3,
             label_type.ndim == 3,
-            img_type.shape[2] == 3,
-            label_type.shape[2] == 1,
+            img_type.shape[0] == 3,
+            label_type.shape[0] == 1,
         )
 
     @staticmethod
@@ -235,7 +236,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
             gt_label = _process_label(gt[0], self.n_class)
 
             plot.subplot(2, 2, 1)
-            plot.imshow(vis_img)
+            plot.imshow(chw_to_pil_image(vis_img))
             plot.axis('off')
             plot.subplot(2, 2, 3)
             plot.imshow(pred_label, vmin=-1, vmax=21)
