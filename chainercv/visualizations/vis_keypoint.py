@@ -1,7 +1,7 @@
 import numpy as np
 import six
 
-from chainercv.transforms import chw_to_pil_image
+from chainercv.visualizations.vis_image import vis_image
 
 
 def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
@@ -13,7 +13,7 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
         >>> import matplotlib.pyplot as plot
         >>> dataset = chainercv.datasets.CUBKeypointDataset()
         >>> img, keypoint, kp_mask = dataset[0]
-        >>> chainercv.tasks.vis_keypoint(img, keypoint, kp_mask)
+        >>> chainercv.visualizations.vis_keypoint(img, keypoint, kp_mask)
         >>> plot.show()
 
     Args:
@@ -38,10 +38,8 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
 
     """
     import matplotlib.pyplot as plot
-
-    if ax is None:
-        fig = plot.figure()
-        ax = fig.add_subplot(1, 1, 1)
+    # Returns newly instantiated matplotlib.axes.Axes object if ax is None
+    ax = vis_image(img, ax=ax)
 
     _, H, W = img.shape
     n_kp = len(keypoint)
@@ -53,7 +51,6 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
 
     colors = [cm(1. * i / n_kp) for i in six.moves.range(n_kp)]
 
-    ax.imshow(chw_to_pil_image(img))
     for i in range(n_kp):
         if kp_mask[i]:
             ax.scatter(keypoint[i][0], keypoint[i][1], c=colors[i], s=100)

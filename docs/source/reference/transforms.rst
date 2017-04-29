@@ -11,10 +11,6 @@ center_crop
 ~~~~~~~~~~~
 .. autofunction:: center_crop
 
-chw_to_pil_image
-~~~~~~~~~~~~~~~~
-.. autofunction:: chw_to_pil_image
-
 flip
 ~~~~
 .. autofunction:: flip
