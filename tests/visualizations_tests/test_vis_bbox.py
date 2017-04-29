@@ -14,10 +14,11 @@ except ImportError:
 
 
 @testing.parameterize(
-    {'label': np.array([0, 1, 1]),
+    {'bbox_shape': (3, 4), 'label': np.array([0, 1, 1]), 'label_names': None},
+    {'bbox_shape': (3, 4), 'label': np.array([0, 1, 2]),
+     'label_names': ('class_0', 'class_1', 'class_2')},
+    {'bbox_shape': (0, 4), 'label': np.array([], dtype=np.int32),
      'label_names': None},
-    {'label': np.array([0, 1, 2]),
-     'label_names': ('class_0', 'class_1', 'class_2')}
 )
 class TestVisBbox(unittest.TestCase):
 
