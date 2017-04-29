@@ -23,11 +23,11 @@ class TestReadImage(unittest.TestCase):
 
         if self.color:
             self.img = np.random.randint(
-                0, 255, size=(3, *self.size), dtype=np.uint8)
+                0, 255, size=(3,) + self.size, dtype=np.uint8)
             Image.fromarray(self.img[::-1].transpose(1, 2, 0)).save(self.path)
         else:
             self.img = np.random.randint(
-                0, 255, size=(1, *self.size), dtype=np.uint8)
+                0, 255, size=(1,) + self.size, dtype=np.uint8)
             Image.fromarray(self.img[0]).save(self.path)
 
     def test_read_image_as_color(self):
@@ -36,13 +36,13 @@ class TestReadImage(unittest.TestCase):
         else:
             img = read_image(self.path, dtype=self.dtype)
 
-        self.assertEqual(img.shape, (3, *self.size))
+        self.assertEqual(img.shape, (3,) + self.size)
         self.assertEqual(img.dtype, self.dtype)
 
         if self.suffix in {'bmp', 'png'}:
             np.testing.assert_equal(
                 img,
-                np.broadcast_to(self.img, (3, *self.size)).astype(self.dtype))
+                np.broadcast_to(self.img, (3,) + self.size).astype(self.dtype))
 
     def test_read_image_as_grayscale(self):
         if self.dtype == np.float32:
@@ -50,7 +50,7 @@ class TestReadImage(unittest.TestCase):
         else:
             img = read_image(self.path, dtype=self.dtype, color=False)
 
-        self.assertEqual(img.shape, (1, *self.size))
+        self.assertEqual(img.shape, (1,) + self.size)
         self.assertEqual(img.dtype, self.dtype)
 
         if self.suffix in {'bmp', 'png'} and not self.color:
