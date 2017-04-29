@@ -62,8 +62,10 @@ def eval_detection(
 
     valid_cls = np.zeros((n_class,), dtype=np.bool)
     n_img = len(bboxes)
-    _bboxes = [[None for _ in six.moves.range(n_img)] for _ in six.moves.range(n_class)]
-    _confs = [[None for _ in six.moves.range(n_img)] for _ in six.move.range(n_class)]
+    _bboxes = [[None for _ in six.moves.range(n_img)]
+               for _ in six.moves.range(n_class)]
+    _confs = [[None for _ in six.moves.range(n_img)]
+              for _ in six.moves.range(n_class)]
 
     for i in range(n_img):
         for cls in range(n_class):
@@ -90,7 +92,7 @@ def eval_detection(
     _gt_bboxes = [[None for _ in six.moves.range(n_img)]
                   for _ in six.moves.range(n_class)]
     _gt_difficults = [[None for _ in six.moves.range(n_img)]
-                  for _ in six.moves.range(n_class)]
+                      for _ in six.moves.range(n_class)]
     for i in range(n_img):
         for cls in range(n_class):
             gt_bboxes_cls = []
@@ -101,7 +103,8 @@ def eval_detection(
                     if gt_difficults is not None:
                         gt_difficults_cls.append(gt_difficults[i][j])
                     else:
-                        gt_difficults_cls.append(np.array(False, dtype=np.bool))
+                        gt_difficults_cls.append(
+                            np.array(False, dtype=np.bool))
 
             if len(gt_bboxes_cls) > 0:
                 gt_bboxes_cls = np.stack(gt_bboxes_cls)
@@ -155,7 +158,7 @@ def _eval_detection_cls(
     conf = np.concatenate(confs_cls)
     bbox = np.concatenate(bboxes_cls)
     if npos == 0 or len(conf) == 0:
-        return np.zeros((nd,)), np.zeros((n_pred,)), 0.
+        return np.zeros((len(conf),)), np.zeros((len(conf),)), 0.
 
     si = np.argsort(-conf)
     indices = indices[si]
