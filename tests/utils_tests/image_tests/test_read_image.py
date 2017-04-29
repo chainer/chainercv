@@ -58,7 +58,7 @@ class TestReadImage(unittest.TestCase):
 
     def test_read_image_mutable(self):
         img = read_image(self.path)
-        img[:] = np.zeros_like(img)
+        img[:] = 0
         np.testing.assert_equal(img, 0)
 
 
