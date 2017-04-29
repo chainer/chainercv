@@ -37,10 +37,8 @@ def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
 
     """
     from matplotlib import pyplot as plot
-    if ax is None:
-        fig = plot.figure()
-        ax = fig.add_subplot(1, 1, 1)
-    vis_image(img, ax=ax)
+    # Returns newly instantiated matplotlib.axes.Axes object if ax is None
+    ax = vis_image(img, ax=ax)
 
     for i, bbox_elem in enumerate(bbox):
         xy = (bbox_elem[0], bbox_elem[1])

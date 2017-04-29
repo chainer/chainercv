@@ -38,10 +38,8 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
 
     """
     import matplotlib.pyplot as plot
-
-    if ax is None:
-        fig = plot.figure()
-        ax = fig.add_subplot(1, 1, 1)
+    # Returns newly instantiated matplotlib.axes.Axes object if ax is None
+    ax = vis_image(img, ax=ax)
 
     _, H, W = img.shape
     n_kp = len(keypoint)
@@ -53,7 +51,6 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
 
     colors = [cm(1. * i / n_kp) for i in six.moves.range(n_kp)]
 
-    vis_image(img, ax=ax)
     for i in range(n_kp):
         if kp_mask[i]:
             ax.scatter(keypoint[i][0], keypoint[i][1], c=colors[i], s=100)
