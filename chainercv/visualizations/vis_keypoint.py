@@ -1,7 +1,7 @@
 import numpy as np
 import six
 
-from chainercv.transforms import chw_to_pil_image
+from chainercv.visualizations.vis_image import vis_image
 
 
 def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
@@ -53,7 +53,7 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
 
     colors = [cm(1. * i / n_kp) for i in six.moves.range(n_kp)]
 
-    ax.imshow(chw_to_pil_image(img))
+    vis_image(img, ax=ax)
     for i in range(n_kp):
         if kp_mask[i]:
             ax.scatter(keypoint[i][0], keypoint[i][1], c=colors[i], s=100)

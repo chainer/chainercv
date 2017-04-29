@@ -1,6 +1,6 @@
 import numpy as np
 
-from chainercv.transforms import chw_to_pil_image
+from chainercv.visualizations.vis_image import vis_image
 
 
 def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
@@ -40,7 +40,7 @@ def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
     if ax is None:
         fig = plot.figure()
         ax = fig.add_subplot(1, 1, 1)
-    ax.imshow(chw_to_pil_image(img))
+    vis_image(img, ax=ax)
 
     for i, bbox_elem in enumerate(bbox):
         xy = (bbox_elem[0], bbox_elem[1])

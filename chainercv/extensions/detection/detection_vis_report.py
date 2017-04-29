@@ -8,7 +8,7 @@ from chainer.utils import type_check
 
 from chainercv.utils import check_type
 from chainercv.utils import forward
-from chainercv.visualizations import vis_bbox
+from chainercv.visualizations.vis_bbox import vis_bbox
 
 try:
     from matplotlib import pyplot as plot

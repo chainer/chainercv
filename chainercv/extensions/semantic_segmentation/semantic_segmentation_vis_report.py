@@ -7,9 +7,9 @@ import warnings
 import chainer
 from chainer.utils import type_check
 
-from chainercv.transforms import chw_to_pil_image
 from chainercv.utils import check_type
 from chainercv.utils import forward
+from chainercv.visualizations.vis_image import vis_image
 
 try:
     from matplotlib import pyplot as plot
@@ -235,14 +235,15 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
             pred_label = _process_label(pred_label, self.n_class)
             gt_label = _process_label(gt[0], self.n_class)
 
-            plot.subplot(2, 2, 1)
-            plot.imshow(chw_to_pil_image(vis_img))
+            f = plot.figure()
+            ax1 = f.add_subplot(2, 2, 1)
+            vis_image(vis_img, ax=ax1)
             plot.axis('off')
-            plot.subplot(2, 2, 3)
-            plot.imshow(pred_label, vmin=-1, vmax=21)
+            ax3 = f.add_subplot(2, 2, 3)
+            ax3.imshow(pred_label, vmin=-1, vmax=self.n_class)
             plot.axis('off')
-            plot.subplot(2, 2, 4)
-            plot.imshow(gt_label, vmin=-1, vmax=21)
+            ax4 = f.add_subplot(2, 2, 4)
+            ax4.imshow(gt_label, vmin=-1, vmax=self.n_class)
             plot.axis('off')
             plot.savefig(out_file)
             plot.close()
@@ -281,7 +282,7 @@ def _process_label(label, n_class, bg_label=-1):
 
 if __name__ == '__main__':
     from chainercv.datasets import VOCSemanticSegmentationDataset
-    from chainercv.utils.test_utils import ConstantReturnModel
+    from chainercv.utils.test import ConstantReturnModel
     import mock
     import tempfile
 
