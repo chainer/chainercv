@@ -49,7 +49,7 @@ class FasterRCNNBase(chainer.Chain):
         self.spatial_scale = spatial_scale
         self.roi_size = roi_size
         self.nms_thresh = nms_thresh
-        self.conf = conf_thresh
+        self.conf_thresh = conf_thresh
         self.targets_precomputed = targets_precomputed
 
     def __call__(self, x, bbox=None, label=None, scale=1.):
