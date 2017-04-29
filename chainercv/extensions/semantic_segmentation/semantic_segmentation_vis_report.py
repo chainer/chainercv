@@ -28,6 +28,10 @@ def _check_available():
                       '  $ pip install matplotlib\n')
 
 
+def _segmentation_vis_transform(xs):
+    return xs[0].astype(np.uint8), xs[1]
+
+
 class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
     """An extension that visualizes output for semantic segmentation task.
@@ -74,7 +78,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
             img, label = vis_transform(inputs)
 
-        :obj:`img` should be an image which is in HWC format, RGB and
+        :obj:`img` should be an image which is in HWC format, BGR and
         :obj:`dtype==numpy.uint8`.
 
     The process can be illustrated in the following code.
@@ -84,7 +88,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         img, label = dataset[i]
         pred_label = predict_func(img[None])  # add batch axis to the image
         pred_label = pred_label[0]  # (B, 1, H, W) -> (1, H, W)
-        vis_img, vis_label = vis_transform(inputs)  # (H, W, C) and (H, W, 1)
+        vis_img, vis_label = vis_transform(inputs)  # (C, H, W) and (1, H, W)
 
         # Visualization code
         # Uses (vis_img, vis_label) as the ground truth output
@@ -99,9 +103,9 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         concretely, :obj:`pred_label` should be of shape
         :math:`(1, 1, H, W)` or :math:`(1, H, W)`.
 
-        The output of :obj:`vis_transform` should be in HWC format.
+        The output of :obj:`vis_transform` should be in CHW format.
         This means that :obj:`vis_img` and :obj:`vis_label` should be in
-        shape :math:`(H, W, 3)` and :math:`(H, W, 1)`.
+        shape :math:`(3, H, W)` and :math:`(1, H, W)`.
 
     .. note::
         All datasets prepared in :mod:`chainercv.datasets` should work
@@ -144,7 +148,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
     def __init__(self, indices, dataset, target, n_class,
                  filename_base='semantic_seg', predict_func=None,
-                 vis_transform=chw_to_pil_image):
+                 vis_transform=_segmentation_vis_transform):
         _check_available()
 
         if not isinstance(indices, collections.Iterable):
@@ -189,8 +193,8 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         type_check.expect(
             img_type.ndim == 3,
             label_type.ndim == 3,
-            img_type.shape[2] == 3,
-            label_type.shape[2] == 1,
+            img_type.shape[0] == 3,
+            label_type.shape[0] == 1,
         )
 
     @staticmethod
@@ -232,7 +236,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
             gt_label = _process_label(gt[0], self.n_class)
 
             plot.subplot(2, 2, 1)
-            plot.imshow(vis_img)
+            plot.imshow(chw_to_pil_image(vis_img))
             plot.axis('off')
             plot.subplot(2, 2, 3)
             plot.imshow(pred_label, vmin=-1, vmax=21)
