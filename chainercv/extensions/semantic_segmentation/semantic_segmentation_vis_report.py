@@ -28,7 +28,7 @@ def _check_available():
 
 
 def _segmentation_vis_transform(xs):
-    return xs[0].astype(np.uint8), xs[1], xs[2]
+    return xs[0].astype(np.uint8), xs[1]
 
 
 class SemanticSegmentationVisReport(chainer.training.extension.Extension):
