@@ -4,7 +4,6 @@ Visualizations
 .. module:: chainercv.visualizations
 
 
-
 vis_bbox
 ~~~~~~~~
 .. autofunction:: vis_bbox
