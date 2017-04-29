@@ -25,4 +25,19 @@ class TestScale(unittest.TestCase):
         self.assertEqual(out.shape, self.out_shape)
 
 
+@testing.parameterize(
+    {'in_shape': (3, 24, 16), 'size': 16, 'fit_short': True},
+    {'in_shape': (3, 16, 24), 'size': 16, 'fit_short': True},
+    {'in_shape': (3, 24, 16), 'size': 24, 'fit_short': False},
+    {'in_shape': (3, 16, 24), 'size': 24, 'fit_short': False},
+)
+class TestScaleNoResize(unittest.TestCase):
+
+    def test_scale_no_resize(self):
+        img = np.random.uniform(size=self.in_shape)
+
+        out = scale(img, self.size, fit_short=self.fit_short)
+        self.assertIs(img, out)
+
+
 testing.run_module(__name__, __file__)
