@@ -31,7 +31,7 @@ class FasterRCNNBase(chainer.Chain):
             self, feature, rpn, head,
             n_class, roi_size,
             nms_thresh=0.3,
-            confidence=0.8,
+            conf_thresh=0.05,
             sigma=1.,
             spatial_scale=0.0625,
             targets_precomputed=True
@@ -49,7 +49,7 @@ class FasterRCNNBase(chainer.Chain):
         self.spatial_scale = spatial_scale
         self.roi_size = roi_size
         self.nms_thresh = nms_thresh
-        self.confidence = confidence
+        self.conf = conf_thresh
         self.targets_precomputed = targets_precomputed
 
     def __call__(self, x, bbox=None, label=None, scale=1.):
@@ -158,7 +158,7 @@ class FasterRCNNBase(chainer.Chain):
         pred_bbox = chainer.cuda.to_cpu(pred_bbox)[0]
 
         out_bbox, out_label, out_confidence = _predict_to_bbox(
-            pred_bbox, cls_prob, self.nms_thresh, self.confidence,
+            pred_bbox, cls_prob, self.nms_thresh, self.conf_thresh,
             n_class=self.n_class)
         return out_bbox[None], out_label[None], out_confidence[None]
 
@@ -166,7 +166,7 @@ class FasterRCNNBase(chainer.Chain):
         raise NotImplementedError
 
 
-def _predict_to_bbox(pred_bbox, cls_prob, nms_thresh, confidence, n_class):
+def _predict_to_bbox(pred_bbox, cls_prob, nms_thresh, conf_thresh, n_class):
     assert cls_prob.ndim == 2
     out_bbox = []
     out_label = []
@@ -176,7 +176,7 @@ def _predict_to_bbox(pred_bbox, cls_prob, nms_thresh, confidence, n_class):
         _cls = cls_prob[:, cls_id][:, None]  # (300, 1)
         _bbx = pred_bbox[:, cls_id * 4: (cls_id + 1) * 4]  # (300, 4)
         dets = np.hstack((_bbx, _cls))  # (300, 5)
-        inds = np.where(dets[:, -1] >= confidence)[0]
+        inds = np.where(dets[:, -1] > conf_thresh)[0]
         dets = dets[inds, :]
         keep = nms(dets, nms_thresh)
         dets = dets[keep, :]
@@ -220,7 +220,7 @@ class FasterRCNNHeadVGG(chainer.Chain):
 class FasterRCNNVGG(FasterRCNNBase):
 
     def __init__(self, n_class=21,
-                 nms_thresh=0.3, confidence=0.8,
+                 nms_thresh=0.3, conf_thresh=0.05,
                  n_anchors=9, anchor_scales=[8, 16, 32],
                  targets_precomputed=True
                  ):
@@ -239,7 +239,7 @@ class FasterRCNNVGG(FasterRCNNBase):
             n_class=n_class,
             roi_size=7,
             nms_thresh=nms_thresh,
-            confidence=confidence,
+            conf_thresh=conf_thresh,
             sigma=sigma,
             targets_precomputed=targets_precomputed
         )
@@ -281,7 +281,7 @@ class FasterRCNNHeadResNet(chainer.Chain):
 class FasterRCNNResNet(FasterRCNNBase):
 
     def __init__(self, n_class=21,
-                 nms_thresh=0.3, confidence=0.8,
+                 nms_thresh=0.3, conf_thresh=0.05,
                  n_anchors=9, anchor_scales=[8, 16, 32],
                  targets_precomputed=True
                  ):
@@ -301,7 +301,7 @@ class FasterRCNNResNet(FasterRCNNBase):
             n_class=n_class,
             roi_size=14,
             nms_thresh=nms_thresh,
-            confidence=confidence,
+            conf_thresh=conf_thresh,
             sigma=sigma,
         )
         # Handle pretrained models
