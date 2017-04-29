@@ -1,11 +1,10 @@
 import numpy as np
 import os.path as osp
-from PIL import Image
 
 import chainer
 
 from chainercv.datasets.pascal_voc import voc_utils
-from chainercv.utils import read_image_as_array
+from chainercv.utils import read_image
 
 
 class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
@@ -65,18 +64,14 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
         if i >= len(self):
             raise IndexError('index is too large')
         img_file = osp.join(self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
-        img = read_image_as_array(img_file)
+        img = read_image(img_file, color=True)
         label = self._load_label(self.data_dir, self.ids[i])
-
-        img = img[:, :, ::-1]  # RGB to BGR
-        img = img.transpose(2, 0, 1).astype(np.float32)
         label = label[None]
         return img, label
 
     def _load_label(self, data_dir, id_):
-        label_rgb_file = osp.join(
+        label_file = osp.join(
             data_dir, 'SegmentationClass', id_ + '.png')
-        im = Image.open(label_rgb_file)
-        label = np.array(im, dtype=np.uint8).astype(np.int32)
+        label = read_image(label_file, dtype=np.int32, color=False)
         label[label == 255] = -1
         return label
