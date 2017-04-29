@@ -113,5 +113,5 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         # Load a image
         img_file = os.path.join(self.data_dir, 'JPEGImages', id_ + '.jpg')
-        img = read_image(img_file)
+        img = read_image(img_file, color=True)
         return img, bbox, label

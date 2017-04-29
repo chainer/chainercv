@@ -109,7 +109,7 @@ class CUBKeypointDataset(CUBDatasetBase):
         original_idx = self.selected_ids[i]
         img = utils.read_image(
             os.path.join(self.data_dir, 'images', self.fns[original_idx]),
-            force_color=True)
+            color=True)
         keypoint = np.array(self.kp_dict[original_idx], dtype=np.float32)
         kp_mask = np.array(self.kp_mask_dict[original_idx], dtype=np.bool)
 
@@ -124,7 +124,7 @@ class CUBKeypointDataset(CUBDatasetBase):
         mask = utils.read_image(
             os.path.join(self.mask_dir, self.fns[original_idx][:-4] + '.png'),
             dtype=np.uint8,
-            force_color=False)
+            color=False)
         if self.crop_bbox:
             mask = mask[:,
                         bbox[1]: bbox[1] + bbox[3],

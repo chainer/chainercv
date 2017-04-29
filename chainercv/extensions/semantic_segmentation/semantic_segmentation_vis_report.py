@@ -27,6 +27,10 @@ def _check_available():
                       '  $ pip install matplotlib\n')
 
 
+def _segmentation_vis_transform(xs):
+    return xs[0].astype(np.uint8), xs[1], xs[2]
+
+
 class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
     """An extension that visualizes output for semantic segmentation task.
@@ -73,7 +77,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
             img, label = vis_transform(inputs)
 
-        :obj:`img` should be an image which is in HWC format, RGB and
+        :obj:`img` should be an image which is in HWC format, BGR and
         :obj:`dtype==numpy.uint8`.
 
     The process can be illustrated in the following code.
@@ -98,7 +102,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
         concretely, :obj:`pred_label` should be of shape
         :math:`(1, 1, H, W)` or :math:`(1, H, W)`.
 
-        The output of :obj:`vis_transform` should be in HWC format.
+        The output of :obj:`vis_transform` should be in CHW format.
         This means that :obj:`vis_img` and :obj:`vis_label` should be in
         shape :math:`(3, H, W)` and :math:`(1, H, W)`.
 
@@ -143,7 +147,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
 
     def __init__(self, indices, dataset, target, n_class,
                  filename_base='semantic_seg', predict_func=None,
-                 vis_transform=None):
+                 vis_transform=_segmentation_vis_transform):
         _check_available()
 
         if not isinstance(indices, collections.Iterable):
@@ -219,10 +223,7 @@ class SemanticSegmentationVisReport(chainer.training.extension.Extension):
             self._check_type_model(pred_label)
             pred_label = pred_label[0][0]  # (1, 1, H, W) -> (H, W)
 
-            if self.vis_transform:
-                vis_transformed = self.vis_transform(inputs)
-            else:
-                vis_transformed = inputs
+            vis_transformed = self.vis_transform(inputs)
             self._check_type_vis_transformed(vis_transformed)
             vis_img = vis_transformed[0]
 

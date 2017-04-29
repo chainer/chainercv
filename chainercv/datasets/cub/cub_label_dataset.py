@@ -47,7 +47,7 @@ class CUBLabelDataset(CUBDatasetBase):
 
         """
         img = utils.read_image(
-            osp.join(self.data_dir, 'images', self.fns[i]), force_color=True)
+            osp.join(self.data_dir, 'images', self.fns[i]), color=True)
 
         if self.crop_bbox:
             bbox = self.bboxes[i]  # (x, y, width, height)
