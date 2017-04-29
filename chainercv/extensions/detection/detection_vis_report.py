@@ -6,9 +6,9 @@ import warnings
 import chainer
 from chainer.utils import type_check
 
-from chainercv.tasks import vis_bbox
 from chainercv.utils import check_type
 from chainercv.utils import forward
+from chainercv.visualizations import vis_bbox
 
 try:
     from matplotlib import pyplot as plot
