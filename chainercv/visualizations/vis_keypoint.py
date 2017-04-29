@@ -13,7 +13,7 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
         >>> import matplotlib.pyplot as plot
         >>> dataset = chainercv.datasets.CUBKeypointDataset()
         >>> img, keypoint, kp_mask = dataset[0]
-        >>> chainercv.tasks.vis_keypoint(img, keypoint, kp_mask)
+        >>> chainercv.visualizations.vis_keypoint(img, keypoint, kp_mask)
         >>> plot.show()
 
     Args:
