@@ -17,7 +17,8 @@ class TestVisImage(unittest.TestCase):
 
     def test_vis_image(self):
         if optional_modules:
-            img = np.random.uniform(size=(3, 32, 32)).astype(np.float32)
+            img = np.random.randint(
+                0, 255, size=(3, 32, 32)).astype(np.float32)
             ax = vis_image(img)
 
             self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
