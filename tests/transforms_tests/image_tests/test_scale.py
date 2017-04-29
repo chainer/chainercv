@@ -14,7 +14,12 @@ from chainercv.transforms import scale
     {'in_shape': (3, 24, 16), 'size': 36,
      'fit_short': False, 'out_shape': (3, 36, 24)},
     {'in_shape': (3, 16, 24), 'size': 36,
-     'fit_short': False, 'out_shape': (3, 24, 36)}
+     'fit_short': False, 'out_shape': (3, 24, 36)},
+    # grayscale
+    {'in_shape': (1, 16, 24), 'size': 8,
+     'fit_short': True, 'out_shape': (1, 8, 12)},
+    {'in_shape': (1, 16, 24), 'size': 36,
+     'fit_short': False, 'out_shape': (1, 24, 36)},
 )
 class TestScale(unittest.TestCase):
 
@@ -30,6 +35,8 @@ class TestScale(unittest.TestCase):
     {'in_shape': (3, 16, 24), 'size': 16, 'fit_short': True},
     {'in_shape': (3, 24, 16), 'size': 24, 'fit_short': False},
     {'in_shape': (3, 16, 24), 'size': 24, 'fit_short': False},
+    # grayscale
+    {'in_shape': (1, 16, 24), 'size': 24, 'fit_short': False},
 )
 class TestScaleNoResize(unittest.TestCase):
 
