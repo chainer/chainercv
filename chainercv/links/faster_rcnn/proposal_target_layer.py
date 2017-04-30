@@ -127,11 +127,12 @@ class ProposalTargetLayer(object):
         max_overlaps = overlaps.max(axis=1)
         labels = gt_boxes[gt_assignment, 4]
 
+
         # Select foreground RoIs as those with >= FG_THRESH overlap
         fg_inds = np.where(max_overlaps >= self.FG_THRESH)[0]
         # Guard against the case when an image has fewer than fg_rois_per_image
         # foreground RoIs
-        fg_rois_per_this_image = min(fg_rois_per_image, fg_inds.size)
+        fg_rois_per_this_image = int(min(fg_rois_per_image, fg_inds.size))
         # Sample foreground regions without replacement
         if fg_inds.size > 0:
             fg_inds = npr.choice(
@@ -143,7 +144,7 @@ class ProposalTargetLayer(object):
         # Compute number of background RoIs to take from this image (guarding
         # against there being fewer than desired)
         bg_rois_per_this_image = rois_per_image - fg_rois_per_this_image
-        bg_rois_per_this_image = min(bg_rois_per_this_image, bg_inds.size)
+        bg_rois_per_this_image = int(min(bg_rois_per_this_image, bg_inds.size))
         # Sample background regions without replacement
         if bg_inds.size > 0:
             bg_inds = npr.choice(
