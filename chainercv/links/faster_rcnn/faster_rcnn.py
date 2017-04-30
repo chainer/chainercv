@@ -103,7 +103,7 @@ class FasterRCNNBase(chainer.Chain):
         # RCNN
         pool5 = F.roi_pooling_2d(
             h, rois, self.roi_size, self.roi_size, self.spatial_scale)
-        cls_score, bbox_pred = self.head(pool5, train=train)
+        bbox_pred, cls_score = self.head(pool5, train=train)
 
         if not train:
             boxes = rois[:, 1:5]
@@ -216,7 +216,7 @@ class FasterRCNNHeadVGG(chainer.Chain):
         cls_score = self.cls_score(fc7)
 
         bbox_pred = self.bbox_pred(fc7)
-        return cls_score, bbox_pred
+        return bbox_pred, cls_score
 
 
 class FasterRCNNVGG(FasterRCNNBase):
@@ -277,7 +277,7 @@ class FasterRCNNHeadResNet(chainer.Chain):
 
         cls_score = self.cls_score(h)
         bbox_pred = self.bbox_pred(h)
-        return cls_score, bbox_pred
+        return bbox_pred, cls_score
 
 
 class FasterRCNNResNet(FasterRCNNBase):
