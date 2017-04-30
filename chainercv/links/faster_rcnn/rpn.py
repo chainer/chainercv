@@ -15,10 +15,13 @@ class RPN(chainer.Chain):
     def __init__(
             self, in_ch=512, out_ch=512, n_anchors=9, feat_stride=16,
             anchor_scales=[8, 16, 32], num_classes=21, rpn_sigma=3.0):
+        initializer = chainer.initializers.Normal(scale=0.01)
         super(RPN, self).__init__(
-            rpn_conv_3x3=L.Convolution2D(in_ch, out_ch, 3, 1, 1, wscale=0.01),
-            rpn_cls_score=L.Convolution2D(out_ch, 2 * n_anchors, 1, 1, 0, wscale=0.01),
-            rpn_bbox_pred=L.Convolution2D(out_ch, 4 * n_anchors, 1, 1, 0, wscale=0.01)
+            rpn_conv_3x3=L.Convolution2D(in_ch, out_ch, 3, 1, 1, initialW=initializer),
+            rpn_cls_score=L.Convolution2D(
+                out_ch, 2 * n_anchors, 1, 1, 0, initialW=initializer),
+            rpn_bbox_pred=L.Convolution2D(
+                out_ch, 4 * n_anchors, 1, 1, 0, initialW=initializer)
         )
         self.anchor_target_layer = AnchorTargetLayer(feat_stride)
         self.proposal_layer = ProposalLayer(feat_stride, anchor_scales)

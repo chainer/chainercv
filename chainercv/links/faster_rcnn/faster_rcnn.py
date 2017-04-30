@@ -198,12 +198,14 @@ def _predict_to_bbox(pred_bbox, cls_prob, nms_thresh, conf_thresh, n_class):
 class FasterRCNNHeadVGG(chainer.Chain):
 
     def __init__(self, n_class, initialW=None):
+        cls_init = chainer.initializers.Normal(0.01)
+        bbox_init = chainer.initializers.Normal(0.001)
         super(FasterRCNNHeadVGG, self).__init__(
             # these linear links take some time to initialize
             fc6=L.Linear(25088, 4096, initialW=initialW),
             fc7=L.Linear(4096, 4096, initialW=initialW),
-            cls_score=L.Linear(4096, n_class, wscale=0.01),
-            bbox_pred=L.Linear(4096, n_class * 4, wscale=0.001),
+            cls_score=L.Linear(4096, n_class, initialW=cls_init),
+            bbox_pred=L.Linear(4096, n_class * 4, initialW=bbox_init)
         )
 
     def __call__(self, x, train=False):
