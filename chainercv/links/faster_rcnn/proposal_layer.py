@@ -17,7 +17,7 @@ from bbox_transform import bbox_transform_inv
 from bbox_transform import clip_boxes
 from generate_anchors import generate_anchors
 
-# from nms_cpu import nms_cpu as nms
+from nms_cpu import nms_cpu
 from nms_gpu import nms_gpu
 
 
@@ -34,10 +34,11 @@ class ProposalLayer(object):
     # this was originally 16 * image scale, heuristically 16 * 1.6 = 26
     RPN_MIN_SIZE = 16
 
-    def __init__(self, feat_stride=16, anchor_scales=[8, 16, 32]):
+    def __init__(self, feat_stride=16, anchor_scales=[8, 16, 32], use_gpu_nms=True):
         self._feat_stride = feat_stride
         self._anchors = generate_anchors(scales=np.array(anchor_scales))
         self._num_anchors = self._anchors.shape[0]
+        self.use_gpu_nms = use_gpu_nms
 
     def __call__(self, rpn_cls_prob, rpn_bbox_pred, img_shape, train, scale=1.):
         """
@@ -132,7 +133,10 @@ class ProposalLayer(object):
         # 6. apply nms (e.g. threshold = 0.7)
         # 7. take after_nms_topN (e.g. 300)
         # 8. return the top proposals (-> RoIs top)
-        keep = nms_gpu(np.hstack((proposals, scores)), nms_thresh)
+        if self.use_gpu_nms:
+            keep = nms_gpu(np.hstack((proposals, scores)), nms_thresh)
+        else:
+            keep = nms_cpu(np.hstack((proposals, scores)), nms_thresh)
         if post_nms_topN > 0:
             keep = keep[:post_nms_topN]
         proposals = proposals[keep, :]
