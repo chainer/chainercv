@@ -267,10 +267,12 @@ class FasterRCNNHeadResNet(chainer.Chain):
 
     # MEMO: http://ethereon.github.io/netscope/#/gist/4b53f4ee831891ce886a5b8fae62473c
     def __init__(self, n_class, initialW=None):
+        cls_init = chainer.initializers.Normal(0.01)
+        bbox_init = chainer.initializers.Normal(0.001)
         super(FasterRCNNHeadResNet, self).__init__(
             res5=BuildingBlock(3, 1024, 512, 2048, 2, initialW=initialW),
-            cls_score=L.Linear(2048, n_class, wscale=0.01),
-            bbox_pred=L.Linear(2048, n_class * 4, wscale=0.001),
+            cls_score=L.Linear(2048, n_class, wscale=cls_init),
+            bbox_pred=L.Linear(2048, n_class * 4, wscale=bbox_init),
         )
 
     def __call__(self, x, train=False):
