@@ -32,7 +32,7 @@ class FasterRCNNBase(chainer.Chain):
             nms_thresh=0.3,
             conf_thresh=0.05,
             spatial_scale=0.0625,
-            targets_precomputed=True,
+            target_precomputed=True,
             bbox_normalize_mean=(0., 0., 0., 0.),
             bbox_normalize_std=(0.1, 0.1, 0.2, 0.2),
             proposal_target_layer_params={},
@@ -47,7 +47,7 @@ class FasterRCNNBase(chainer.Chain):
         self.roi_size = roi_size
         self.nms_thresh = nms_thresh
         self.conf_thresh = conf_thresh
-        self.targets_precomputed = targets_precomputed
+        self.target_precomputed = target_precomputed
         self.bbox_normalize_mean = bbox_normalize_mean
         self.bbox_normalize_std = bbox_normalize_std
 
@@ -98,7 +98,7 @@ class FasterRCNNBase(chainer.Chain):
         bbox_roi = roi[:, 1:5]
         bbox_roi = bbox_roi / scale
         bbox_tf_data = bbox_tf.data
-        if self.targets_precomputed:
+        if self.target_precomputed:
             mean = xp.tile(
                 xp.array(self.bbox_normalize_mean),
                 self.n_class)
@@ -199,7 +199,7 @@ class FasterRCNNVGG(FasterRCNNBase):
     def __init__(self, n_class=21,
                  nms_thresh=0.3, conf_thresh=0.05,
                  n_anchors=9, anchor_scales=[8, 16, 32],
-                 targets_precomputed=True
+                 target_precomputed=True
                  ):
         feat_stride = 16
         rpn_sigma = 3.
@@ -219,8 +219,7 @@ class FasterRCNNVGG(FasterRCNNBase):
             roi_size=7,
             nms_thresh=nms_thresh,
             conf_thresh=conf_thresh,
-            sigma=sigma,
-            targets_precomputed=targets_precomputed
+            target_precomputed=target_precomputed
         )
         # Handle pretrained models
         self.head.fc6.copyparams(self.feature.fc6)
@@ -264,11 +263,10 @@ class FasterRCNNResNet(FasterRCNNBase):
     def __init__(self, n_class=21,
                  nms_thresh=0.3, conf_thresh=0.05,
                  n_anchors=9, anchor_scales=[8, 16, 32],
-                 targets_precomputed=True
+                 target_precomputed=True
                  ):
         feat_stride = 16
         rpn_sigma = 3.
-        sigma = 1.
 
         feature = ResNet101Layers()
         rpn = RegionProposalNetwork(
@@ -284,7 +282,6 @@ class FasterRCNNResNet(FasterRCNNBase):
             roi_size=14,
             nms_thresh=nms_thresh,
             conf_thresh=conf_thresh,
-            sigma=sigma,
         )
         # Handle pretrained models
         self.head.res5.copyparams(self.feature.res5)

@@ -15,16 +15,9 @@ from chainercv import transforms
 
 from chainercv.links import FasterRCNNResNet
 from chainercv.links import FasterRCNNVGG
-
-from traffic_camera.links.faster_rcnn_deformable import FasterRCNNResNetDeformable
-from traffic_camera.links.faster_rcnn_resnet_deep import FasterRCNNResNet152
+from chainercv.links import FasterRCNNLoss
 
 from chainer_tools.extensions.visdom_report import VisdomReport
-
-from traffic_camera.visualizations.vis_pred_bbox import vis_pred_bbox
-from traffic_camera.datasets.tcd_localization_dataset import TCDLocalizationDataset
-
-from traffic_camera.extensions.map_report import MAPReporter 
 
 from chainercv.datasets.pascal_voc.voc_utils import pascal_voc_labels
 
@@ -120,7 +113,7 @@ def main(gpus=[0, 1, 2], model_mode='vgg',
     test_data = TransformDataset(test_data, get_transform(False))
 
     if model_mode == 'vgg':
-        model = FasterRCNNVGG(n_class=len(labels))
+        model = FasterRCNNLoss(FasterRCNNVGG(len(labels)))
         weight_decay = 0.0005
     elif model_mode == 'resnet':
         model = FasterRCNNResNet(n_class=len(labels))

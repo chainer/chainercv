@@ -11,10 +11,11 @@ from chainercv.links.faster_rcnn.proposal_target_layer import\
 
 class FasterRCNNLoss(chainer.Chain):
 
-    def __init__(self, faster_rcnn, rpn_sigma, sigma,
+    def __init__(self, faster_rcnn, rpn_sigma=3., sigma=1.,
                  anchor_target_layer_params={},
                  proposal_target_layer_params={},
                  ):
+        self.sigma = sigma
         self.n_class = faster_rcnn.n_class
         self.roi_size = faster_rcnn.roi_size
         self.spatial_scale = faster_rcnn.spatial_scale
@@ -23,7 +24,7 @@ class FasterRCNNLoss(chainer.Chain):
         # These paramteres need to be consistent across modules
         proposal_target_layer_params.update({
             'n_class': self.n_class,
-            'targets_precomputed': self.faster_rcnn.targes_precomputed,
+            'bbox_normalize_target_precomputed': self.faster_rcnn.target_precomputed,
             'bbox_normalize_mean': self.faster_rcnn.bbox_normalize_mean,
             'bbox_normalize_std': self.faster_rcnn.bbox_normalize_std,
         })

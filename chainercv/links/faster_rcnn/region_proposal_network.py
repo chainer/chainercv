@@ -68,7 +68,7 @@ class RegionProposalNetworkLoss(object):
 
     """
 
-    def __init__(self, rpn_sigma, anchor_target_layer_params):
+    def __init__(self, rpn_sigma=3., anchor_target_layer_params={}):
         self.anchor_target_layer = AnchorTargetLayer(
             **anchor_target_layer_params)
         self.rpn_sigma = rpn_sigma

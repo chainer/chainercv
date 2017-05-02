@@ -32,7 +32,7 @@ class ProposalTargetLayer(object):
     Args:
         n_class (int): Number of classes to categorize.
         batch_size (int): Number of regions to produce.
-        bbox_normalize_targets_precomputed (bool): Normalize the targets
+        bbox_normalize_target_precomputed (bool): Normalize the targets
             using :obj:`bbox_normalize_means` and :obj:`bbox_normalize_stds`.
         bbox_normalize_mean (tuple of four floats): Mean values to normalize
             coordinates of bouding boxes.
@@ -50,7 +50,7 @@ class ProposalTargetLayer(object):
 
     def __init__(self, n_class=21,
                  batch_size=128,
-                 bbox_normalize_targets_precomputed=True,
+                 bbox_normalize_target_precomputed=True,
                  bbox_normalize_mean=(0., 0., 0., 0.),
                  bbox_normalize_std=(0.1, 0.1, 0.2, 0.2),
                  bbox_inside_weight=(1., 1., 1., 1.),
@@ -61,8 +61,8 @@ class ProposalTargetLayer(object):
         self.batch_size = batch_size
         self.fg_fraction = fg_fraction
         self.bbox_inside_weight = bbox_inside_weight
-        self.bbox_normalize_targets_precomputed =\
-            bbox_normalize_targets_precomputed
+        self.bbox_normalize_target_precomputed =\
+            bbox_normalize_target_precomputed
         self.bbox_normalize_mean = bbox_normalize_mean
         self.bbox_normalize_std = bbox_normalize_std
         self.fg_thresh = fg_thresh
@@ -164,7 +164,7 @@ class ProposalTargetLayer(object):
 
         bbox_sample = bbox_transform(
             roi_sample[:, 1:5], bbox[gt_assignment[keep_inds]])
-        if self.bbox_normalize_targets_precomputed:
+        if self.bbox_normalize_target_precomputed:
             # Optionally normalize targets by a precomputed mean and stdev
             bbox_sample = ((bbox_sample - np.array(self.bbox_normalize_mean)
                             ) / np.array(self.bbox_normalize_std))
