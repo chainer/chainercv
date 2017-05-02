@@ -86,29 +86,29 @@ class FasterRCNNBase(chainer.Chain):
             if isinstance(bboxes, chainer.Variable):
                 bboxes = bboxes.data
             bboxes = cuda.to_cpu(bboxes)
-            rpn_cls_loss, rpn_loss_bbox, rois = self.rpn(
+            rpn_cls_loss, rpn_loss_bbox, proposal = self.rpn(
                 h, img_size, bboxes=bboxes, scale=scale)
         else:
             # shape (300, 5)
             # the second axis is (batch_id, x_min, y_min, x_max, y_max)
-            rois = self.rpn(h, img_size, bboxes=bboxes, scale=scale)
+            proposal = self.rpn(h, img_size, bboxes=bboxes, scale=scale)
 
         if train:
-            rois, labels, bbox_targets, bbox_inside_weights, \
+            roi, labels, bbox_targets, bbox_inside_weights, \
                 bbox_outside_weights = self.proposal_target_layer(
-                    rois, bboxes)
+                    proposal, bboxes)
 
         # Convert rois
         if device.id >= 0:
-            rois = cuda.to_gpu(rois, device=device)
+            proposal = cuda.to_gpu(proposal, device=device)
 
         # RCNN
         pool5 = F.roi_pooling_2d(
-            h, rois, self.roi_size, self.roi_size, self.spatial_scale)
+            h, proposal, self.roi_size, self.roi_size, self.spatial_scale)
         bbox_pred, cls_score = self.head(pool5, train=train)
 
         if not train:
-            boxes = rois[:, 1:5]
+            boxes = roi[:, 1:5]
             boxes = boxes / scale
             W, H = img_size
             bbox_pred = bbox_pred.data 
