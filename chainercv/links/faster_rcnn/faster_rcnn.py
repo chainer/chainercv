@@ -71,7 +71,9 @@ class FasterRCNNBase(chainer.Chain):
 
         if isinstance(scale, chainer.Variable):
             scale = scale.data
-        scale = np.asscalar(cuda.to_cpu(np.array(scale)))
+        if isinstance(scale, float):
+            scale = np.array(scale)
+        scale = np.asscalar(cuda.to_cpu(scale))
         img_size = x.shape[2:][::-1]
 
         h = self._extract_feature(x)
