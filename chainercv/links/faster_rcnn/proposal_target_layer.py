@@ -49,7 +49,7 @@ class ProposalTargetLayer(object):
     """
 
     def __init__(self, n_class=21,
-                 batch_size=256,
+                 batch_size=128,
                  bbox_normalize_targets_precomputed=True,
                  bbox_normalize_mean=(0., 0., 0., 0.),
                  bbox_normalize_std=(0.1, 0.1, 0.2, 0.2),

@@ -38,7 +38,7 @@ class AnchorTargetLayer(object):
     """ 
 
     def __init__(self,
-                 rpn_batchsize=128,
+                 rpn_batchsize=256,
                  rpn_negative_overlap=0.3, rpn_positive_overlap=0.7,
                  rpn_fg_fraction=0.5,
                  rpn_bbox_inside_weights=(1., 1., 1., 1.)):
