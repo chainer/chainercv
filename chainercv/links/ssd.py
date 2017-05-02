@@ -244,7 +244,7 @@ class SSD300(_SSDVGG16):
             serializers.load_npz(pretrained_model, self)
 
     def _features(self, x):
-        ys = super()._features(x)
+        ys = super(SSD300, self)._features(x)
         for i in range(8, 11 + 1):
             h = ys[-1]
             h = F.relu(self['conv{:d}_1'.format(i)](h))
@@ -290,7 +290,7 @@ class SSD512(_SSDVGG16):
             serializers.load_npz(pretrained_model, self)
 
     def _features(self, x):
-        ys = super()._features(x)
+        ys = super(SSD512, self)._features(x)
         for i in range(8, 12 + 1):
             h = ys[-1]
             h = F.relu(self['conv{:d}_1'.format(i)](h))
