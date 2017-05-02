@@ -15,6 +15,7 @@ import numpy.random as npr
 from bbox_transform import bbox_transform
 
 from bbox import bbox_overlaps
+from bbox_transform import get_bbox_regression_label
 
 
 class ProposalTargetLayer(object):
@@ -68,7 +69,7 @@ class ProposalTargetLayer(object):
         self.bg_thresh_hi = bg_thresh_hi
         self.bg_thresh_lo = bg_thresh_lo
 
-    def __call__(self, all_rois, gt_boxes):
+    def __call__(self, roi, bbox, label):
         """It assigns labels to proposals from RPN.
 
         Args:
@@ -88,83 +89,48 @@ class ProposalTargetLayer(object):
         # TODO(rbg): it's annoying that sometimes I have extra info before
         # and other times after box coordinates -- normalize to one format
         # Include ground-truth boxes in the set of candidate rois
-        assert gt_boxes.ndim == 3
-        n_image = gt_boxes.shape[0]
-        assert gt_boxes.shape[0] == 1
+        assert bbox.ndim == 3
+        n_image, n_bbox, _ = bbox.shape
+        assert bbox.shape[0] == 1
+        assert label.shape[0] == 1
         # Sanity check: single batch only
-        assert np.all(all_rois[:, 0] == 0), \
+        assert np.all(roi[:, 0] == 0), \
             'Only single item batches are supported'
+        bbox = bbox[0]
+        label = label[0]
 
-        gt_boxes = gt_boxes[0]
-        zeros = np.zeros((gt_boxes.shape[0], 1), dtype=gt_boxes.dtype)
-        all_rois = np.vstack(
-            (all_rois, np.hstack((zeros, gt_boxes[:, :-1]))))
+        gt_roi = np.hstack((np.zeros((n_bbox, 1), dtype=bbox.dtype), bbox))
+        roi = np.vstack((roi, gt_roi))
 
         rois_per_image = self.batch_size / n_image
         fg_rois_per_image = np.round(self.fg_fraction * rois_per_image)
 
         # Sample rois with classification labels and bounding box regression
         # targets
-        labels, rois, bbox_targets, bbox_inside_weights = self._sample_rois(
-            all_rois, gt_boxes, fg_rois_per_image,
-            rois_per_image, self.n_class)
-        labels = labels.astype(np.int32)
-        rois = rois.astype(np.float32)
+        label_target, roi_target, bbox_targets, bbox_inside_weight =\
+            self._sample_roi(
+                roi, bbox, label, fg_rois_per_image,
+                rois_per_image, self.n_class)
+        label_target = label_target.astype(np.int32)
+        roi_target = roi_target.astype(np.float32)
 
-        return rois, labels, bbox_targets, bbox_inside_weights, \
-            np.array(bbox_inside_weights > 0).astype(np.float32)
+        bbox_outside_weight = (bbox_inside_weight > 0).astype(np.float32)
+        return roi_target, label_target, bbox_targets, bbox_inside_weight,\
+            bbox_outside_weight
 
-    def _get_bbox_regression_labels(self, bbox_target_data, n_class):
-        """Bounding-box regression targets (bbox_target_data) are stored in a
-        compact form N x (class, tx, ty, tw, th)
-        This function expands those targets into the 4-of-4*K representation
-        used by the network (i.e. only one class has non-zero targets).
-        Returns:
-            bbox_target (ndarray): N x 4K blob of regression targets
-            bbox_inside_weights (ndarray): N x 4K blob of loss weights
-        """
-
-        clss = bbox_target_data[:, 0]
-        bbox_targets = np.zeros((clss.size, 4 * n_class), dtype=np.float32)
-        bbox_inside_weights = np.zeros(bbox_targets.shape, dtype=np.float32)
-        inds = np.where(clss > 0)[0]
-        for ind in inds:
-            cls = int(clss[ind])
-            start = int(4 * cls)
-            end = int(start + 4)
-            bbox_targets[ind, start:end] = bbox_target_data[ind, 1:]
-            bbox_inside_weights[ind, start:end] = self.bbox_inside_weight
-        return bbox_targets, bbox_inside_weights
-
-    def _compute_targets(self, ex_rois, gt_rois, labels):
-        """Compute bounding-box regression targets for an image."""
-
-        assert ex_rois.shape[0] == gt_rois.shape[0]
-        assert ex_rois.shape[1] == 4
-        assert gt_rois.shape[1] == 4
-
-        targets = bbox_transform(ex_rois, gt_rois)
-        if self.bbox_normalize_targets_precomputed:
-            # Optionally normalize targets by a precomputed mean and stdev
-            targets = ((targets - np.array(self.bbox_normalize_mean)
-                        ) / np.array(self.bbox_normalize_std))
-        return np.hstack(
-            (labels[:, np.newaxis], targets)).astype(np.float32, copy=False)
-
-    def _sample_rois(
-            self, all_rois, gt_boxes, fg_rois_per_image, rois_per_image,
+    def _sample_roi(
+            self, roi, bbox, label, fg_rois_per_image, rois_per_image,
             n_class):
         """Generate a random sample of RoIs comprising foreground and background
         examples.
         """
         # overlaps: (rois x gt_boxes)
         overlaps = bbox_overlaps(
-            np.ascontiguousarray(all_rois[:, 1:5], dtype=np.float),
-            np.ascontiguousarray(gt_boxes[:, :4], dtype=np.float))
+            np.ascontiguousarray(roi[:, 1:5], dtype=np.float),
+            np.ascontiguousarray(bbox, dtype=np.float))
         gt_assignment = overlaps.argmax(axis=1)
         max_overlaps = overlaps.max(axis=1)
-        labels = gt_boxes[gt_assignment, 4]
-
+        label_sample = label[gt_assignment]
 
         # Select foreground RoIs as those with >= FG_THRESH overlap
         fg_inds = np.where(max_overlaps >= self.fg_thresh)[0]
@@ -191,15 +157,19 @@ class ProposalTargetLayer(object):
         # The indices that we're selecting (both fg and bg)
         keep_inds = np.append(fg_inds, bg_inds)
         # Select sampled values from various arrays:
-        labels = labels[keep_inds]
+        label_sample = label_sample[keep_inds]
         # Clamp labels for the background RoIs to 0
-        labels[fg_rois_per_this_image:] = 0
-        rois = all_rois[keep_inds]
+        label_sample[fg_rois_per_this_image:] = 0
+        roi_sample = roi[keep_inds]
 
-        bbox_target_data = self._compute_targets(
-            rois[:, 1:5], gt_boxes[gt_assignment[keep_inds], :4], labels)
+        bbox_sample = bbox_transform(
+            roi_sample[:, 1:5], bbox[gt_assignment[keep_inds]])
+        if self.bbox_normalize_targets_precomputed:
+            # Optionally normalize targets by a precomputed mean and stdev
+            bbox_sample = ((bbox_sample - np.array(self.bbox_normalize_mean)
+                            ) / np.array(self.bbox_normalize_std))
 
-        bbox_targets, bbox_inside_weights = \
-            self._get_bbox_regression_labels(bbox_target_data, n_class)
-
-        return labels, rois, bbox_targets, bbox_inside_weights
+        bbox_target_sample, bbox_inside_weight = \
+            get_bbox_regression_label(
+                bbox_sample, label_sample, n_class, self.bbox_inside_weight)
+        return label_sample, roi_sample, bbox_target_sample, bbox_inside_weight
