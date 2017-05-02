@@ -91,6 +91,7 @@ class FasterRCNNBase(chainer.Chain):
             roi = self.rpn(h, img_size, bbox=None, scale=scale)
 
         if train:
+            label = cuda.to_cpu(label.data)
             roi, labels, bbox_targets, bbox_inside_weights, \
                 bbox_outside_weights = self.proposal_target_layer(
                     roi, bbox, label)
