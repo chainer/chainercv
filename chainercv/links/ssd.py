@@ -180,9 +180,9 @@ class _SSDVGG16(chainer.Chain):
         # convert the format of bbox to (x_min, y_min, x_max, y_max)
         bbox[:, :2] -= bbox[:, 2:] / 2
         bbox[:, 2:] += bbox[:, :2]
-        conf = np.exp(conf)
-        conf /= conf.sum(axis=1, keepdims=True)
-        return bbox, conf
+        score = np.exp(conf)
+        score /= conf.sum(axis=1, keepdims=True)
+        return bbox, score
 
     def _prepare(self, img):
         H, W = img.shape[1:]
@@ -190,36 +190,36 @@ class _SSDVGG16(chainer.Chain):
         img -= np.array(self.mean)[:, np.newaxis, np.newaxis]
         return img, (W, H)
 
-    def _suppress(self, bbox, conf, conf_threshold, nms_threshold):
+    def _suppress(self, bbox, score, nms_threshold, score_threshold):
         bbox_all = list()
         label_all = list()
-        conf_all = list()
+        score_all = list()
         for label in range(1, 1 + self.n_classes):
-            mask = conf[:, label] >= conf_threshold
-            bbox_label, conf_label = bbox[mask], conf[mask, label]
+            mask = score[:, label] >= score_threshold
+            bbox_label, score_label = bbox[mask], score[mask, label]
 
             if nms_threshold is not None:
-                order = conf_label.argsort()[::-1]
-                bbox_label, conf_label = bbox_label[order], conf_label[order]
+                order = score_label.argsort()[::-1]
+                bbox_label, score_label = bbox_label[order], score_label[order]
                 bbox_label, param = transforms.non_maximum_suppression(
                     bbox_label, nms_threshold, return_param=True)
-                conf_label = conf_label[param['selection']]
+                score_label = score_label[param['selection']]
 
             bbox_all.append(bbox_label)
             label_all.append((label,) * len(bbox_label))
-            conf_all.append(conf_label)
+            score_all.append(score_label)
 
-        return np.vstack(bbox_all), np.hstack(label_all), np.hstack(conf_all)
+        return np.vstack(bbox_all), np.hstack(label_all), np.hstack(score_all)
 
-    def predict(self, img, conf_threshold=0.01, nms_threshold=0.45):
+    def predict(self, img, nms_threshold=0.45, score_threshold=0.01):
         """Detect objects in an image.
         """
 
         img, size = self._prepare(img)
         loc, conf = self(img[np.newaxis])
-        bbox, conf = self._decode(loc.data[0], conf.data[0])
+        bbox, score = self._decode(loc.data[0], conf.data[0])
         bbox = transforms.resize_bbox(bbox, (1, 1), size)
-        return self._suppress(bbox, conf, conf_threshold, nms_threshold)
+        return self._suppress(bbox, score, nms_threshold, score_threshold)
 
 
 class SSD300(_SSDVGG16):

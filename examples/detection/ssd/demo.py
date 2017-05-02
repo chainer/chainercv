@@ -16,7 +16,7 @@ def main():
     model = SSD300(n_classes=20, pretrained_model=args.model)
 
     img = utils.read_image(args.image, color=True)
-    bbox, label, _ = model.predict(img, conf_threshold=0.6)
+    bbox, label, _ = model.predict(img, score_threshold=0.6)
 
     visualizations.vis_bbox(img, bbox, label, voc_utils.pascal_voc_labels)
     plot.show()
