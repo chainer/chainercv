@@ -78,7 +78,7 @@ class FasterRCNNBase(chainer.Chain):
             bboxes = None
         # TODO(yuyu2172) name bboxes is really bad.
 
-        img_shape = x.shape[2:]
+        img_size = x.shape[2:][::-1]
 
         h = self._extract_feature(x)
 
@@ -87,11 +87,11 @@ class FasterRCNNBase(chainer.Chain):
                 bboxes = bboxes.data
             bboxes = cuda.to_cpu(bboxes)
             rpn_cls_loss, rpn_loss_bbox, rois = self.rpn(
-                h, img_shape, bboxes=bboxes, scale=scale)
+                h, img_size, bboxes=bboxes, scale=scale)
         else:
             # shape (300, 5)
             # the second axis is (batch_id, x_min, y_min, x_max, y_max)
-            rois = self.rpn(h, img_shape, bboxes=bboxes, scale=scale)
+            rois = self.rpn(h, img_size, bboxes=bboxes, scale=scale)
 
         if train:
             rois, labels, bbox_targets, bbox_inside_weights, \
@@ -110,7 +110,7 @@ class FasterRCNNBase(chainer.Chain):
         if not train:
             boxes = rois[:, 1:5]
             boxes = boxes / scale
-            H, W = img_shape
+            W, H = img_size
             bbox_pred = bbox_pred.data 
 
             if self.targets_precomputed:
@@ -126,7 +126,7 @@ class FasterRCNNBase(chainer.Chain):
 
             cls_prob = F.softmax(cls_score)
             pred_boxes = clip_boxes(
-                pred_boxes, (H / scale, W / scale), device.id)
+                pred_boxes, (W / scale, H / scale), device.id)
             return pred_boxes[None], cls_prob[None].data 
 
         if device.id >= 0:
@@ -233,8 +233,9 @@ class FasterRCNNVGG(FasterRCNNBase):
         sigma = 1.
 
         feature = VGG16Layers()
-        rpn = RPN(512, 512, n_anchors, feat_stride,
-                  anchor_scales, n_class, rpn_sigma=rpn_sigma)
+        rpn = RPN(512, 512, anchor_scales=anchor_scales,
+                  feat_stride=feat_stride,
+                  rpn_sigma=rpn_sigma)
         head = FasterRCNNHeadVGG(n_class, initialW=constant.Zero())
         super(FasterRCNNVGG, self).__init__(
             feature,
@@ -296,8 +297,8 @@ class FasterRCNNResNet(FasterRCNNBase):
         sigma = 1.
 
         feature = ResNet101Layers()
-        rpn = RPN(1024, 256, n_anchors, feat_stride,
-                  anchor_scales, n_class, rpn_sigma=rpn_sigma)
+        rpn = RPN(1024, 256, feat_stride=feat_stride,
+                  anchor_scales=anchor_scales, rpn_sigma=rpn_sigma)
         head = FasterRCNNHeadResNet(n_class, initialW=constant.Zero())
 
         super(FasterRCNNResNet, self).__init__(
