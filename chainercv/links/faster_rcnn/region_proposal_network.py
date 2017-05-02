@@ -49,8 +49,8 @@ class RegionProposalNetwork(chainer.Chain):
         rpn_cls_score = self.rpn_cls_score(h)  # (N, 2 * A, H/16, W/16)
         c, hh, ww = rpn_cls_score.shape[1:]
         # take probability against (N, 2, A * H/16 * W/16)
-        rpn_cls_prob = F.softmax(F.reshape(rpn_cls_score, (n, 2, -1)))
-        rpn_cls_prob = F.reshape(rpn_cls_prob, (n, c, hh, ww))
+        rpn_cls_prob = F.softmax(rpn_cls_score.reshape(n, 2, -1))
+        rpn_cls_prob = rpn_cls_prob.reshape(n, c, hh, ww)
         rpn_bbox_pred = self.rpn_bbox_pred(h)
 
         # enumerate all shifted anchors
@@ -93,6 +93,7 @@ class RegionProposalNetworkLoss(object):
             rpn_bbox_outside_weight = chainer.cuda.to_gpu(
                 rpn_bbox_outside_weight, device)
 
+        rpn_cls_score = rpn_cls_score.reshape(1, 2, -1)
         rpn_cls_loss = F.softmax_cross_entropy(rpn_cls_score, rpn_label)
         rpn_loss_bbox = smooth_l1_loss(
             rpn_bbox_pred, rpn_bbox_target, rpn_bbox_inside_weight,

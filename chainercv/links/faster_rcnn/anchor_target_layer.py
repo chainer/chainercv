@@ -16,6 +16,8 @@ from bbox import bbox_overlaps
 from bbox_transform import bbox_transform
 from bbox_transform import keep_inside
 
+import chainer
+
 
 class AnchorTargetLayer(object):
     """Assign anchors to ground-truth targets.

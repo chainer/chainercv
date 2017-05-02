@@ -58,8 +58,8 @@ class FasterRCNNLoss(chainer.Chain):
 
         # Losses for outputs of the head.
         if device.id >= 0:
-            label = cuda.to_gpu(label, device=device)
-            bbox_tf = cuda.to_gpu(bbox_tf, device=device)
+            label_sample = cuda.to_gpu(label_sample, device=device)
+            bbox_target_sample = cuda.to_gpu(bbox_target_sample, device=device)
             bbox_inside_weight = cuda.to_gpu(
                 bbox_inside_weight, device=device)
             bbox_outside_weight = cuda.to_gpu(
