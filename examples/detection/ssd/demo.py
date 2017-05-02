@@ -3,8 +3,8 @@ import matplotlib.pyplot as plot
 
 from chainercv.datasets.pascal_voc import voc_utils
 from chainercv.links import SSD300
-from chainercv import visualizations
 from chainercv import utils
+from chainercv import visualizations
 
 
 def main():
