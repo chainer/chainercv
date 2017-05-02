@@ -13,6 +13,15 @@ from chainercv import transforms
 
 
 class _Normalize(chainer.Link):
+    """Learnable L2 normalization [1].
+
+    This link normalizes input along the channel axis and scales it.
+    The scale factor is trained channel-wise.
+
+    [1] Wei Liu, Andrew Rabinovich, Alexander C. Berg.
+    ParseNet: Looking Wider to See Better. ICLR 2016.
+
+    """
 
     def __init__(self, n_channels, initial=0, eps=1e-5):
         super(_Normalize, self).__init__()
@@ -28,6 +37,9 @@ class _Normalize(chainer.Link):
 
 
 class _SSDVGG16(chainer.Chain):
+    """Base class of SSD.
+    """
+
     mean = (104, 117, 123)
     variance = (0.1, 0.2)
 
@@ -200,6 +212,9 @@ class _SSDVGG16(chainer.Chain):
         return np.vstack(bbox_all), np.hstack(label_all), np.hstack(conf_all)
 
     def predict(self, img, conf_threshold=0.01, nms_threshold=0.45):
+        """Detect objects in an image.
+        """
+
         img, size = self._prepare(img)
         loc, conf = self(img[np.newaxis])
         bbox, conf = self._decode(loc.data[0], conf.data[0])
