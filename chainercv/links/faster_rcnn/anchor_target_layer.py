@@ -15,7 +15,6 @@ import numpy as np
 from bbox import bbox_overlaps
 from bbox_transform import bbox_transform
 from bbox_transform import keep_inside
-from generate_anchors import generate_anchors
 
 
 class AnchorTargetLayer(object):
@@ -49,92 +48,92 @@ class AnchorTargetLayer(object):
         self.rpn_fg_fraction = rpn_fg_fraction
         self.rpn_bbox_inside_weights = rpn_bbox_inside_weights
 
-    def __call__(self, gt_boxes, anchors, feature_size, img_size):
+    def __call__(self, bbox, anchors, feature_size, img_size):
         """Calc targets of classification labels and bbox regression.
         """
-        assert gt_boxes.ndim == 3
-        assert gt_boxes.shape[0] == 1
-        gt_boxes = gt_boxes[0]
+        assert bbox.ndim == 3
+        assert bbox.shape[0] == 1
+        bbox = bbox[0]
 
         width, height = feature_size
         img_W, img_H = img_size
 
         n_anchor = len(anchors)
         inds_inside, anchors = keep_inside(anchors, img_W, img_H)
-        argmax_overlaps, labels = self._create_labels(
-            inds_inside, anchors, gt_boxes)
+        argmax_overlaps, label = self._create_label(
+            inds_inside, anchors, bbox)
 
         # compute bounding box regression targets
-        bbox_targets = bbox_transform(anchors, gt_boxes[argmax_overlaps, :4])
+        bbox_target = bbox_transform(anchors, bbox[argmax_overlaps])
 
         # calculate inside and outside weights weights
-        bbox_inside_weights = np.zeros((len(inds_inside), 4), dtype=np.float32)
-        bbox_inside_weights[labels == 1, :] = np.array(
+        bbox_inside_weight = np.zeros((len(inds_inside), 4), dtype=np.float32)
+        bbox_inside_weight[label == 1, :] = np.array(
             self.rpn_bbox_inside_weights)
-        bbox_outside_weights = self._calc_outside_weights(inds_inside, labels)
+        bbox_outside_weight = self._calc_outside_weights(inds_inside, label)
 
         # map up to original set of anchors
-        labels = _unmap(labels, n_anchor, inds_inside, fill=-1)
-        bbox_targets = _unmap(
-            bbox_targets, n_anchor, inds_inside, fill=0)
-        bbox_inside_weights = _unmap(
-            bbox_inside_weights, n_anchor, inds_inside, fill=0)
-        bbox_outside_weights = _unmap(
-            bbox_outside_weights, n_anchor, inds_inside, fill=0)
+        label = _unmap(label, n_anchor, inds_inside, fill=-1)
+        bbox_target = _unmap(
+            bbox_target, n_anchor, inds_inside, fill=0)
+        bbox_inside_weight = _unmap(
+            bbox_inside_weight, n_anchor, inds_inside, fill=0)
+        bbox_outside_weight = _unmap(
+            bbox_outside_weight, n_anchor, inds_inside, fill=0)
 
         # reshape
-        labels = labels.reshape(
+        label = label.reshape(
             (1, height, width, -1)).transpose(0, 3, 1, 2)
-        labels = labels.astype(np.int32)
-        bbox_targets = bbox_targets.reshape(
+        label = label.astype(np.int32)
+        bbox_target = bbox_target.reshape(
             (1, height, width, -1)).transpose(0, 3, 1, 2)
-        bbox_inside_weights = bbox_inside_weights.reshape(
+        bbox_inside_weight = bbox_inside_weight.reshape(
             (1, height, width, -1)).transpose(0, 3, 1, 2)
-        bbox_outside_weights = bbox_outside_weights.reshape(
+        bbox_outside_weight = bbox_outside_weight.reshape(
             (1, height, width, -1)).transpose(0, 3, 1, 2)
-        return labels, bbox_targets, bbox_inside_weights, bbox_outside_weights
+        return label, bbox_target, bbox_inside_weight, bbox_outside_weight
 
-    def _create_labels(self, inds_inside, anchors, gt_boxes):
+    def _create_label(self, inds_inside, anchors, bbox):
         # label: 1 is positive, 0 is negative, -1 is dont care
-        labels = np.empty((len(inds_inside), ), dtype=np.float32)
-        labels.fill(-1)
+        label = np.empty((len(inds_inside), ), dtype=np.float32)
+        label.fill(-1)
 
         argmax_overlaps, max_overlaps, gt_max_overlaps, gt_argmax_overlaps = \
-            self._calc_overlaps(anchors, gt_boxes, inds_inside)
+            self._calc_overlaps(anchors, bbox, inds_inside)
 
         # assign bg labels first so that positive labels can clobber them
-        labels[max_overlaps < self.rpn_negative_overlap] = 0
+        label[max_overlaps < self.rpn_negative_overlap] = 0
 
         # fg label: for each gt, anchor with highest overlap
-        labels[gt_argmax_overlaps] = 1
+        label[gt_argmax_overlaps] = 1
 
         # fg label: above threshold IOU
-        labels[max_overlaps >= self.rpn_positive_overlap] = 1
+        label[max_overlaps >= self.rpn_positive_overlap] = 1
 
         # subsample positive labels if we have too many
         num_fg = int(self.rpn_fg_fraction * self.rpn_batchsize)
-        fg_inds = np.where(labels == 1)[0]
+        fg_inds = np.where(label == 1)[0]
         if len(fg_inds) > num_fg:
             disable_inds = np.random.choice(
                 fg_inds, size=(len(fg_inds) - num_fg), replace=False)
-            labels[disable_inds] = -1
+            label[disable_inds] = -1
 
         # subsample negative labels if we have too many
-        num_bg = self.rpn_batchsize - np.sum(labels == 1)
-        bg_inds = np.where(labels == 0)[0]
+        num_bg = self.rpn_batchsize - np.sum(label == 1)
+        bg_inds = np.where(label == 0)[0]
         if len(bg_inds) > num_bg:
             disable_inds = np.random.choice(
                 bg_inds, size=(len(bg_inds) - num_bg), replace=False)
-            labels[disable_inds] = -1
+            label[disable_inds] = -1
 
-        return argmax_overlaps, labels
+        return argmax_overlaps, label
 
-    def _calc_overlaps(self, anchors, gt_boxes, inds_inside):
+    def _calc_overlaps(self, anchors, bbox, inds_inside):
         # overlaps between the anchors and the gt boxes
         # overlaps (ex, gt)
         overlaps = bbox_overlaps(
             np.ascontiguousarray(anchors, dtype=np.float),
-            np.ascontiguousarray(gt_boxes, dtype=np.float))
+            np.ascontiguousarray(bbox, dtype=np.float))
         argmax_overlaps = overlaps.argmax(axis=1)
         max_overlaps = overlaps[np.arange(len(inds_inside)), argmax_overlaps]
         gt_argmax_overlaps = overlaps.argmax(axis=0)
@@ -145,17 +144,17 @@ class AnchorTargetLayer(object):
         return argmax_overlaps, max_overlaps, gt_max_overlaps, \
             gt_argmax_overlaps
 
-    def _calc_outside_weights(self, inds_inside, labels):
+    def _calc_outside_weights(self, inds_inside, label):
         bbox_outside_weights = np.zeros(
             (len(inds_inside), 4), dtype=np.float32)
         # uniform weighting of examples (given non-uniform sampling)
-        num_examples = np.sum(labels >= 0)
+        num_examples = np.sum(label >= 0)
 
         positive_weights = np.ones((1, 4)) * 1.0 / num_examples
         negative_weights = np.ones((1, 4)) * 1.0 / num_examples
 
-        bbox_outside_weights[labels == 1, :] = positive_weights
-        bbox_outside_weights[labels == 0, :] = negative_weights
+        bbox_outside_weights[label == 1, :] = positive_weights
+        bbox_outside_weights[label == 0, :] = negative_weights
 
         return bbox_outside_weights
 
