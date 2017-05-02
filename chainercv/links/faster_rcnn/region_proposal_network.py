@@ -68,7 +68,6 @@ class RegionProposalNetwork(chainer.Chain):
         if not train:
             return rois
 
-        assert bbox.shape[1] == 4
         rpn_labels, rpn_bbox_targets, rpn_bbox_inside_weights, \
             rpn_bbox_outside_weights = self.anchor_target_layer(
                 bbox, anchors, (ww, hh), img_size)

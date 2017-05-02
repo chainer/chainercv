@@ -9,6 +9,8 @@
 # https://github.com/rbgirshick/py-faster-rcnn
 # --------------------------------------------------------
 
+import numpy as np
+
 from chainer import cuda
 from chainer.cuda import get_array_module
 

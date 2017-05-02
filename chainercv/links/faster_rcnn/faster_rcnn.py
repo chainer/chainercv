@@ -76,12 +76,6 @@ class FasterRCNNBase(chainer.Chain):
         device = cuda.get_device(x_data)
 
         xp = cuda.get_array_module(x)
-        if bbox is not None and label is not None:
-            bboxes = xp.concatenate(
-                (bbox.data, label.data[:, :, None]), axis=2)
-        else:
-            bboxes = None
-        # TODO(yuyu2172) name bboxes is really bad.
 
         img_size = x.shape[2:][::-1]
 
@@ -89,7 +83,7 @@ class FasterRCNNBase(chainer.Chain):
 
         if train:
             bbox = cuda.to_cpu(bbox.data)
-            rpn_cls_loss, rpn_loss_bbox, proposal = self.rpn(
+            rpn_cls_loss, rpn_loss_bbox, roi = self.rpn(
                 h, img_size, bbox=bbox, scale=scale)
         else:
             # shape (300, 5)
@@ -97,6 +91,7 @@ class FasterRCNNBase(chainer.Chain):
             roi = self.rpn(h, img_size, bbox=None, scale=scale)
 
         if train:
+            label = cuda.to_cpu(label.data)
             roi, labels, bbox_targets, bbox_inside_weights, \
                 bbox_outside_weights = self.proposal_target_layer(
                     roi, bbox, label)
