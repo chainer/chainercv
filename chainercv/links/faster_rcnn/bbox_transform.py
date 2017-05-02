@@ -80,24 +80,46 @@ def _bbox_transform_inv(boxes, deltas):
     return pred_boxes
 
 
-def clip_boxes(boxes, im_shape, gpu=-1):
+def clip_boxes(boxes, img_size, gpu=-1):
     if gpu >= 0:
         with cuda.Device(gpu):
-            return _clip_boxes(boxes, im_shape)
+            return _clip_boxes(boxes, img_size)
     else:
-        return _clip_boxes(boxes, im_shape)
+        return _clip_boxes(boxes, img_size)
 
 
-def _clip_boxes(boxes, im_shape):
+def _clip_boxes(boxes, img_size):
     """Clip boxes to image boundaries."""
     xp = get_array_module(boxes)
+    W, H = img_size
 
     # x1 >= 0
-    boxes[:, 0::4] = xp.maximum(xp.minimum(boxes[:, 0::4], im_shape[1] - 1), 0)
+    boxes[:, 0::4] = xp.maximum(xp.minimum(boxes[:, 0::4], W - 1), 0)
     # y1 >= 0
-    boxes[:, 1::4] = xp.maximum(xp.minimum(boxes[:, 1::4], im_shape[0] - 1), 0)
+    boxes[:, 1::4] = xp.maximum(xp.minimum(boxes[:, 1::4], H - 1), 0)
     # x2 < im_shape[1]
-    boxes[:, 2::4] = xp.maximum(xp.minimum(boxes[:, 2::4], im_shape[1] - 1), 0)
+    boxes[:, 2::4] = xp.maximum(xp.minimum(boxes[:, 2::4], W - 1), 0)
     # y2 < im_shape[0]
-    boxes[:, 3::4] = xp.maximum(xp.minimum(boxes[:, 3::4], im_shape[0] - 1), 0)
+    boxes[:, 3::4] = xp.maximum(xp.minimum(boxes[:, 3::4], H - 1), 0)
     return boxes
+
+
+def keep_inside(anchors, img_info):
+    """Calc indicies of anchors which are inside of the image size.
+
+    Calc indicies of anchors which are located completely inside of the image
+    whose size is speficied by img_info ((height, width, scale)-shaped array).
+    """
+    with cuda.get_device_from_array(anchors) as d:
+        xp = cuda.get_array_module(anchors)
+        if d.id >= 0:
+            img_info = cuda.to_gpu(img_info, d)
+            assert anchors.device == img_info.device
+
+        inds_inside = xp.where(
+            (anchors[:, 0] >= 0) &
+            (anchors[:, 1] >= 0) &
+            (anchors[:, 2] < img_info[1]) &  # width
+            (anchors[:, 3] < img_info[0])  # height
+        )[0]
+        return inds_inside, anchors[inds_inside]

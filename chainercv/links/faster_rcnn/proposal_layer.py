@@ -26,21 +26,24 @@ class ProposalLayer(object):
     Outputs object detection proposals by applying estimated bounding-box
     transformations to a set of regular boxes (called "anchors").
     """
-    RPN_NMS_THRESH = 0.7
-    TRAIN_RPN_PRE_NMS_TOP_N = 12000
-    TRAIN_RPN_POST_NMS_TOP_N = 2000
-    TEST_RPN_PRE_NMS_TOP_N = 6000
-    TEST_RPN_POST_NMS_TOP_N = 300
-    # this was originally 16 * image scale, heuristically 16 * 1.6 = 26
-    RPN_MIN_SIZE = 16
 
-    def __init__(self, feat_stride=16, anchor_scales=[8, 16, 32], use_gpu_nms=True):
-        self._feat_stride = feat_stride
-        self._anchors = generate_anchors(scales=np.array(anchor_scales))
-        self._num_anchors = self._anchors.shape[0]
+    def __init__(self, use_gpu_nms=True,
+                 rpn_nms_thresh=0.7,
+                 train_rpn_pre_nms_top_n=12000,
+                 train_rpn_post_nms_top_n=2000,
+                 test_rpn_pre_nms_top_n=6000,
+                 test_rpn_post_nms_top_n=300,
+                 rpn_min_size=16):
         self.use_gpu_nms = use_gpu_nms
+        self.rpn_nms_thresh = rpn_nms_thresh
+        self.train_rpn_pre_nms_top_n = train_rpn_pre_nms_top_n
+        self.train_rpn_post_nms_top_n = train_rpn_post_nms_top_n
+        self.test_rpn_pre_nms_top_n = test_rpn_pre_nms_top_n
+        self.test_rpn_post_nms_top_n = test_rpn_pre_nms_top_n 
+        self.rpn_min_size = rpn_min_size
 
-    def __call__(self, rpn_cls_prob, rpn_bbox_pred, img_shape, train, scale=1.):
+    def __call__(self, rpn_cls_prob, rpn_bbox_pred,
+                 anchors, img_size, train, scale=1.):
         """
         Args:
             rpn_cls_prob:
@@ -59,66 +62,31 @@ class ProposalLayer(object):
         # take after_nms_topN proposals after NMS
         # return the top proposals (-> RoIs top, scores top)
 
-        pre_nms_topN = self.TRAIN_RPN_PRE_NMS_TOP_N \
-            if train else self.TEST_RPN_PRE_NMS_TOP_N
-        post_nms_topN = self.TRAIN_RPN_POST_NMS_TOP_N \
-            if train else self.TEST_RPN_POST_NMS_TOP_N
-        nms_thresh = self.RPN_NMS_THRESH
-        min_size = self.RPN_MIN_SIZE
+        pre_nms_topN = self.train_rpn_pre_nms_top_n \
+            if train else self.test_rpn_pre_nms_top_n
+        post_nms_topN = self.train_rpn_post_nms_top_n \
+            if train else self.test_rpn_post_nms_top_n
 
         # the first set of _num_anchors channels are bg probs
         # the second set are the fg probs, which we want
-        scores = to_cpu(rpn_cls_prob.data[:, self._num_anchors:, :, :])
+        n_anchors = rpn_cls_prob.shape[1] / 2
+        scores = to_cpu(rpn_cls_prob.data[:, n_anchors:, :, :])
         bbox_deltas = to_cpu(rpn_bbox_pred.data)
 
-        # 1. Generate proposals from bbox deltas and shifted anchors
-        height, width = scores.shape[-2:]
-
-        # Enumerate all shifts
-        shift_x = np.arange(0, width) * self._feat_stride
-        shift_y = np.arange(0, height) * self._feat_stride
-        shift_x, shift_y = np.meshgrid(shift_x, shift_y)
-        shifts = np.vstack((shift_x.ravel(), shift_y.ravel(),
-                            shift_x.ravel(), shift_y.ravel())).transpose()
-
-        # Enumerate all shifted anchors:
-        #
-        # add A anchors (1, A, 4) to
-        # cell K shifts (K, 1, 4) to get
-        # shift anchors (K, A, 4)
-        # reshape to (K*A, 4) shifted anchors
-        A = self._num_anchors
-        K = shifts.shape[0]
-        anchors = self._anchors.reshape((1, A, 4)) + \
-            shifts.reshape((1, K, 4)).transpose((1, 0, 2))
-        anchors = anchors.reshape((K * A, 4))
-
-        # Transpose and reshape predicted bbox transformations to get them
-        # into the same order as the anchors:
-        #
-        # bbox deltas will be (1, 4 * A, H, W) format
-        # transpose to (1, H, W, 4 * A)
-        # reshape to (1 * H * W * A, 4) where rows are ordered by (h, w, a)
-        # in slowest to fastest order
+        # Transpose and reshape predicted bbox transformations and scores
+        # to get them into the same order as the anchors:
         bbox_deltas = bbox_deltas.transpose((0, 2, 3, 1)).reshape((-1, 4))
-
-        # Same story for the scores:
-        #
-        # scores are (1, A, H, W) format
-        # transpose to (1, H, W, A)
-        # reshape to (1 * H * W * A, 1) where rows are ordered by (h, w, a)
         scores = scores.transpose((0, 2, 3, 1)).reshape((-1, 1))
 
-        # Convert anchors into proposals via bbox transformations
-        anchors = anchors.astype(np.float64)
-        bbox_deltas = bbox_deltas.astype(np.float32)
-        proposals = bbox_transform_inv(anchors, bbox_deltas, -1)
+        # Convert anchors 
+        # into proposals via bbox transformations
+        proposals = bbox_transform_inv(anchors, bbox_deltas, gpu=-1)
 
         # 2. clip predicted boxes to image
-        proposals = clip_boxes(proposals, img_shape)
+        proposals = clip_boxes(proposals, img_size)
 
         # 3. remove predicted boxes with either height or width < threshold
-        keep = _filter_boxes(proposals, min_size * scale)
+        keep = _filter_boxes(proposals, self.rpn_min_size * scale)
         proposals = proposals[keep, :]
         scores = scores[keep]
 
@@ -134,9 +102,9 @@ class ProposalLayer(object):
         # 7. take after_nms_topN (e.g. 300)
         # 8. return the top proposals (-> RoIs top)
         if self.use_gpu_nms:
-            keep = nms_gpu(np.hstack((proposals, scores)), nms_thresh)
+            keep = nms_gpu(np.hstack((proposals, scores)), self.rpn_nms_thresh)
         else:
-            keep = nms_cpu(np.hstack((proposals, scores)), nms_thresh)
+            keep = nms_cpu(np.hstack((proposals, scores)), self.rpn_nms_thresh)
         if post_nms_topN > 0:
             keep = keep[:post_nms_topN]
         proposals = proposals[keep, :]

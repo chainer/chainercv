@@ -13,16 +13,18 @@ import chainer.functions as F
 from chainer.initializers import constant
 import chainer.links as L
 from chainer.links.model.vision.vgg import VGG16Layers
-from chainer.links.model.vision.resnet import ResNet101Layers
 from chainer.links.model.vision.resnet import BuildingBlock
+from chainer.links.model.vision.resnet import ResNet101Layers
 
 from chainercv.functions.smooth_l1_loss import smooth_l1_loss
 
 from chainercv.links.faster_rcnn.bbox_transform import bbox_transform_inv
 from chainercv.links.faster_rcnn.bbox_transform import clip_boxes
 from chainercv.links.faster_rcnn.nms_cpu import nms_cpu as nms
-from chainercv.links.faster_rcnn.proposal_target_layer import ProposalTargetLayer
-from chainercv.links.faster_rcnn.rpn import RPN
+from chainercv.links.faster_rcnn.proposal_target_layer import\
+    ProposalTargetLayer
+from chainercv.links.faster_rcnn.region_proposal_network import\
+    RegionProposalNetwork
 
 
 class FasterRCNNBase(chainer.Chain):
@@ -76,7 +78,7 @@ class FasterRCNNBase(chainer.Chain):
             bboxes = None
         # TODO(yuyu2172) name bboxes is really bad.
 
-        img_shape = x.shape[2:]
+        img_size = x.shape[2:][::-1]
 
         h = self._extract_feature(x)
 
@@ -85,11 +87,11 @@ class FasterRCNNBase(chainer.Chain):
                 bboxes = bboxes.data
             bboxes = cuda.to_cpu(bboxes)
             rpn_cls_loss, rpn_loss_bbox, rois = self.rpn(
-                h, img_shape, bboxes=bboxes, scale=scale)
+                h, img_size, bboxes=bboxes, scale=scale)
         else:
             # shape (300, 5)
             # the second axis is (batch_id, x_min, y_min, x_max, y_max)
-            rois = self.rpn(h, img_shape, bboxes=bboxes, scale=scale)
+            rois = self.rpn(h, img_size, bboxes=bboxes, scale=scale)
 
         if train:
             rois, labels, bbox_targets, bbox_inside_weights, \
@@ -108,7 +110,7 @@ class FasterRCNNBase(chainer.Chain):
         if not train:
             boxes = rois[:, 1:5]
             boxes = boxes / scale
-            H, W = img_shape
+            W, H = img_size
             bbox_pred = bbox_pred.data 
 
             if self.targets_precomputed:
@@ -124,7 +126,7 @@ class FasterRCNNBase(chainer.Chain):
 
             cls_prob = F.softmax(cls_score)
             pred_boxes = clip_boxes(
-                pred_boxes, (H / scale, W / scale), device.id)
+                pred_boxes, (W / scale, H / scale), device.id)
             return pred_boxes[None], cls_prob[None].data 
 
         if device.id >= 0:
@@ -231,8 +233,9 @@ class FasterRCNNVGG(FasterRCNNBase):
         sigma = 1.
 
         feature = VGG16Layers()
-        rpn = RPN(512, 512, n_anchors, feat_stride,
-                  anchor_scales, n_class, rpn_sigma=rpn_sigma)
+        rpn = RPN(512, 512, anchor_scales=anchor_scales,
+                  feat_stride=feat_stride,
+                  rpn_sigma=rpn_sigma)
         head = FasterRCNNHeadVGG(n_class, initialW=constant.Zero())
         super(FasterRCNNVGG, self).__init__(
             feature,
@@ -269,8 +272,8 @@ class FasterRCNNHeadResNet(chainer.Chain):
         bbox_init = chainer.initializers.Normal(0.001)
         super(FasterRCNNHeadResNet, self).__init__(
             res5=BuildingBlock(3, 1024, 512, 2048, 2, initialW=initialW),
-            cls_score=L.Linear(2048, n_class, wscale=cls_init),
-            bbox_pred=L.Linear(2048, n_class * 4, wscale=bbox_init),
+            cls_score=L.Linear(2048, n_class, initialW=cls_init),
+            bbox_pred=L.Linear(2048, n_class * 4, initialW=bbox_init),
         )
 
     def __call__(self, x, train=False):
@@ -294,8 +297,8 @@ class FasterRCNNResNet(FasterRCNNBase):
         sigma = 1.
 
         feature = ResNet101Layers()
-        rpn = RPN(1024, 256, n_anchors, feat_stride,
-                  anchor_scales, n_class, rpn_sigma=rpn_sigma)
+        rpn = RPN(1024, 256, feat_stride=feat_stride,
+                  anchor_scales=anchor_scales, rpn_sigma=rpn_sigma)
         head = FasterRCNNHeadResNet(n_class, initialW=constant.Zero())
 
         super(FasterRCNNResNet, self).__init__(
