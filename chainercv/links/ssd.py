@@ -180,7 +180,7 @@ class _SSDVGG16(chainer.Chain):
         bbox[:, :2] -= bbox[:, 2:] / 2
         bbox[:, 2:] += bbox[:, :2]
         score = np.exp(conf)
-        score /= conf.sum(axis=1, keepdims=True)
+        score /= score.sum(axis=1, keepdims=True)
         return bbox, score
 
     def _prepare(self, img):
