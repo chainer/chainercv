@@ -8,6 +8,7 @@ ChainerCV Reference Manual
    :maxdepth: 2
 
    datasets
+   evaluations
    extensions
    transforms
 
@@ -15,4 +16,4 @@ ChainerCV Reference Manual
 .. toctree::
    :maxdepth: 1
 
-   tasks
+   visualizations

@@ -1,5 +1,7 @@
 import numpy as np
 
+from chainercv.visualizations.vis_image import vis_image
+
 
 def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
     """Visualize bounding boxes inside image.
@@ -10,13 +12,13 @@ def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
         >>> import matplotlib.pyplot as plot
         >>> dataset = chainercv.datasets.VOCDetectionDataset()
         >>> img, bbox, label = dataset[60]
-        >>> img = chainercv.transforms.chw_to_pil_image(img)
-        >>> chainercv.tasks.vis_bbox(img, bbox, label, dataset.labels)
+        >>> chainercv.visualizations.vis_bbox(img, bbox, label, dataset.labels)
         >>> plot.show()
 
     Args:
-        img (~numpy.ndarray): An array of shape :math:`(height, width, 3)`.
-            This is in RGB format.
+        img (~numpy.ndarray): An array of shape :math:`(3, height, width)`.
+            This is in BGR format and the range of its value is
+            :math:`[0, 255]`.
         bbox (~numpy.ndarray): An array of shape :math:`(R, 5)`, where
             :math:`R` is the number of bounding boxes in the image. Elements
             are organized
@@ -27,7 +29,7 @@ def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
         label_names (iterable of strings): Name of labels ordered according
             to label_ids. If this is :obj:`None`, labels will be skipped.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
-            axis. If this is :obj:`None` (default), new axis is created.
+            axis. If this is :obj:`None` (default), a new axis is created.
 
     Returns:
         ~matploblib.axes.Axes:
@@ -35,10 +37,8 @@ def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
 
     """
     from matplotlib import pyplot as plot
-    if ax is None:
-        fig = plot.figure()
-        ax = fig.add_subplot(1, 1, 1)
-    ax.imshow(img)
+    # Returns newly instantiated matplotlib.axes.Axes object if ax is None
+    ax = vis_image(img, ax=ax)
 
     for i, bbox_elem in enumerate(bbox):
         xy = (bbox_elem[0], bbox_elem[1])

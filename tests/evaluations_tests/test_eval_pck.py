@@ -4,7 +4,7 @@ import numpy as np
 
 from chainer import testing
 
-from chainercv.tasks import eval_pck
+from chainercv.evaluations import eval_pck
 
 
 class TestEvalPCK(unittest.TestCase):
