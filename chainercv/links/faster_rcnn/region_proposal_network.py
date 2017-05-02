@@ -55,7 +55,7 @@ class RegionProposalNetwork(chainer.Chain):
 
         # enumerate all shifted anchors
         anchor = _enumerate_shifted_anchor(
-            self.anchor_base, self.feat_stride, hh, ww)
+            self.anchor_base, self.feat_stride, ww, hh)
         roi = self.proposal_layer(
             rpn_cls_prob, rpn_bbox_pred, anchor, img_size,
             scale=scale, train=train)
