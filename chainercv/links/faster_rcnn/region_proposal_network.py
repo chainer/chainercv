@@ -1,8 +1,5 @@
 import numpy as np
 
-from chainer import Variable
-from chainer.cuda import to_gpu
-
 import chainer
 import chainer.functions as F
 import chainer.links as L
@@ -24,7 +21,7 @@ class RegionProposalNetwork(chainer.Chain):
     ):
         self.anchor_base = generate_anchors(
             scales=np.array(anchor_scales), ratios=ratios)
-        self.n_anchor = self.anchor_base.shape[1]
+        self.n_anchor = self.anchor_base.shape[0]
         self.feat_stride = feat_stride
         self.rpn_sigma = rpn_sigma
         self.anchor_target_layer = AnchorTargetLayer(
@@ -47,7 +44,7 @@ class RegionProposalNetwork(chainer.Chain):
         img_shape (img_W, img_H)
         bbox (numpy.ndarry)
         """
-        width, height = img_size
+        img_W, img_H = img_size
         train = bbox is not None  # this is dangerous
 
         n = x.data.shape[0]
@@ -61,9 +58,10 @@ class RegionProposalNetwork(chainer.Chain):
         rpn_cls_prob = F.reshape(rpn_cls_prob, (n, c, hh, ww))
         rpn_bbox_pred = self.rpn_bbox_pred(h)
 
+
         # enumerate all shifted anchors
-        anchors = enumerate_shifted_anchors(
-            self.anchor_base, self.feat_stride, width, height)
+        anchors = _enumerate_shifted_anchors(
+            self.anchor_base, self.feat_stride, hh, ww)
         rois = self.proposal_layer(
             rpn_cls_prob, rpn_bbox_pred, anchors, img_size, train, scale=scale)
 
@@ -93,10 +91,12 @@ class RegionProposalNetwork(chainer.Chain):
         return rpn_cls_loss, rpn_loss_bbox, rois
 
 
-def enumerate_shifted_anchors(anchors, feat_stride, width, height):
-    # 1. Generate proposals from bbox deltas and shifted anchors
-    height, width = scores.shape[-2:]
+def _enumerate_shifted_anchors(anchors, feat_stride, width, height):
+    """
+    Anchors (A, 4)
 
+    """
+    # 1. Generate proposals from bbox deltas and shifted anchors
     # Enumerate all shifts
     shift_x = np.arange(0, width) * feat_stride
     shift_y = np.arange(0, height) * feat_stride
@@ -110,9 +110,9 @@ def enumerate_shifted_anchors(anchors, feat_stride, width, height):
     # cell K shifts (K, 1, 4) to get
     # shift anchors (K, A, 4)
     # reshape to (K*A, 4) shifted anchors
-    A = anchors.shape[1]
+    A = anchors.shape[0]
     K = shifts.shape[0]
     anchors_shifted = anchors.reshape((1, A, 4)) + \
         shifts.reshape((1, K, 4)).transpose((1, 0, 2))
-    anchors_shifted = anchors.reshape((K * A, 4)).astype(np.float32)
-    return anchors
+    anchors_shifted = anchors_shifted.reshape((K * A, 4)).astype(np.float32)
+    return anchors_shifted

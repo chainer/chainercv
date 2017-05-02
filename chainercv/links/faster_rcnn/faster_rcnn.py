@@ -87,7 +87,7 @@ class FasterRCNNBase(chainer.Chain):
                 bboxes = bboxes.data
             bboxes = cuda.to_cpu(bboxes)
             rpn_cls_loss, rpn_loss_bbox, rois = self.rpn(
-                h, img_size, bboxes=bboxes, scale=scale)
+                h, img_size, bbox=bboxes, scale=scale)
         else:
             # shape (300, 5)
             # the second axis is (batch_id, x_min, y_min, x_max, y_max)
@@ -233,9 +233,10 @@ class FasterRCNNVGG(FasterRCNNBase):
         sigma = 1.
 
         feature = VGG16Layers()
-        rpn = RPN(512, 512, anchor_scales=anchor_scales,
-                  feat_stride=feat_stride,
-                  rpn_sigma=rpn_sigma)
+        rpn = RegionProposalNetwork(
+            512, 512, anchor_scales=anchor_scales,
+            feat_stride=feat_stride,
+            rpn_sigma=rpn_sigma)
         head = FasterRCNNHeadVGG(n_class, initialW=constant.Zero())
         super(FasterRCNNVGG, self).__init__(
             feature,
@@ -297,8 +298,9 @@ class FasterRCNNResNet(FasterRCNNBase):
         sigma = 1.
 
         feature = ResNet101Layers()
-        rpn = RPN(1024, 256, feat_stride=feat_stride,
-                  anchor_scales=anchor_scales, rpn_sigma=rpn_sigma)
+        rpn = RegionProposalNetwork(
+            1024, 256, feat_stride=feat_stride,
+            anchor_scales=anchor_scales, rpn_sigma=rpn_sigma)
         head = FasterRCNNHeadResNet(n_class, initialW=constant.Zero())
 
         super(FasterRCNNResNet, self).__init__(
