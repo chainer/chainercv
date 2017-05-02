@@ -55,9 +55,12 @@ class TestSSD(unittest.TestCase):
         img = self._random_array(3, 480, 640)
         with np.errstate(divide='ignore'):
             bbox, label, score = self.link.predict(img)
-        self.assertLessEqual(len(bbox), self.n_bbox * self.n_classes)
-        self.assertEqual(len(bbox), len(label))
-        self.assertEqual(len(bbox), len(score))
+        self.assertLessEqual(bbox.shape[0], self.n_bbox * self.n_classes)
+        self.assertEqual(bbox.shape[0], label.shape[0])
+        self.assertEqual(bbox.shape[0], score.shape[0])
+        self.assertEqual(bbox.shape[1:], (4,))
+        self.assertEqual(label.shape[1:], (1,))
+        self.assertEqual(score.shape[1:], (1,))
 
 
 testing.run_module(__name__, __file__)
