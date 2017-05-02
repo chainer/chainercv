@@ -15,7 +15,7 @@ from chainercv import transforms
 class _Normalize(chainer.Link):
 
     def __init__(self, n_channels, initial=0, eps=1e-5):
-        super().__init__()
+        super(_Normalize, self).__init__()
         self.eps = eps
         self.add_param(
             'scale', n_channels,
@@ -42,7 +42,7 @@ class _SSDVGG16(chainer.Chain):
     def __init__(self, n_classes):
         self.n_classes = n_classes
 
-        super().__init__(
+        super(_SSDVGG16, self).__init__(
             conv1_1=L.Convolution2D(None, 64, 3, pad=1, **self.conv_init),
             conv1_2=L.Convolution2D(None, 64, 3, pad=1, **self.conv_init),
 
@@ -216,7 +216,7 @@ class SSD300(_SSDVGG16):
     sizes = [s / 300 for s in (30, 60, 111, 162, 213, 264, 315)]
 
     def __init__(self, n_classes, pretrained_model):
-        super().__init__(n_classes)
+        super(SSD300, self).__init__(n_classes)
 
         self.add_link(
             'conv8_1', L.Convolution2D(None, 256, 1, **self.conv_init))
@@ -263,7 +263,7 @@ class SSD512(_SSDVGG16):
              (35.84, 76.8, 153.6, 230.4, 307.2, 384.0, 460.8, 537.6)]
 
     def __init__(self, n_classes, pretrained_model=None):
-        super().__init__(n_classes)
+        super(SSD512, self).__init__(n_classes)
 
         self.add_link(
             'conv8_1', L.Convolution2D(None, 256, 1, **self.conv_init))
