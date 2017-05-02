@@ -82,27 +82,6 @@ class _SSDVGG16(chainer.Chain):
         # the format of default_bbox is (center_x, center_y, width, height)
         self.default_bbox = self._default_bbox()
 
-    def _default_bbox(self):
-        bbox = list()
-        for k in range(len(self.grids)):
-            for v, u in itertools.product(range(self.grids[k]), repeat=2):
-                cx = (u + 0.5) * self.steps[k]
-                cy = (v + 0.5) * self.steps[k]
-
-                s = self.sizes[k]
-                bbox.append((cx, cy, s, s))
-
-                s = np.sqrt(self.sizes[k] * self.sizes[k + 1])
-                bbox.append((cx, cy, s, s))
-
-                s = self.sizes[k]
-                for ar in self.aspect_ratios[k]:
-                    bbox.append(
-                        (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
-                    bbox.append(
-                        (cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
-        return np.stack(bbox)
-
     def _features(self, x):
         ys = list()
 
@@ -159,6 +138,27 @@ class _SSDVGG16(chainer.Chain):
     def __call__(self, x):
         return self._multibox(self._features(x))
 
+    def _default_bbox(self):
+        bbox = list()
+        for k in range(len(self.grids)):
+            for v, u in itertools.product(range(self.grids[k]), repeat=2):
+                cx = (u + 0.5) * self.steps[k]
+                cy = (v + 0.5) * self.steps[k]
+
+                s = self.sizes[k]
+                bbox.append((cx, cy, s, s))
+
+                s = np.sqrt(self.sizes[k] * self.sizes[k + 1])
+                bbox.append((cx, cy, s, s))
+
+                s = self.sizes[k]
+                for ar in self.aspect_ratios[k]:
+                    bbox.append(
+                        (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
+                    bbox.append(
+                        (cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
+        return np.stack(bbox)
+
     def _decode(self, loc, conf):
         # the format of bbox is (center_x, center_y, width, height)
         bbox = np.hstack((
@@ -172,14 +172,13 @@ class _SSDVGG16(chainer.Chain):
         conf /= conf.sum(axis=1, keepdims=True)
         return bbox, conf
 
-    def predict(self, img, conf_threshold=0.01, nms_threshold=0.45):
+    def _prepare(self, img):
         H, W = img.shape[1:]
         img = transforms.resize(img, (self.insize, self.insize))
         img -= np.array(self.mean)[:, np.newaxis, np.newaxis]
-        loc, conf = self(img[np.newaxis])
-        bbox, conf = self._decode(loc.data[0], conf.data[0])
-        bbox = transforms.resize_bbox(bbox, (1, 1), (W, H))
+        return img, (W, H)
 
+    def _suppress(self, bbox, conf, conf_threshold, nms_threshold):
         bbox_all = list()
         label_all = list()
         conf_all = list()
@@ -199,6 +198,13 @@ class _SSDVGG16(chainer.Chain):
             conf_all.append(conf_label)
 
         return np.vstack(bbox_all), np.hstack(label_all), np.hstack(conf_all)
+
+    def predict(self, img, conf_threshold=0.01, nms_threshold=0.45):
+        img, size = self._prepare(img)
+        loc, conf = self(img[np.newaxis])
+        bbox, conf = self._decode(loc.data[0], conf.data[0])
+        bbox = transforms.resize_bbox(bbox, (1, 1), size)
+        return self._suppress(bbox, conf, conf_threshold, nms_threshold)
 
 
 class SSD300(_SSDVGG16):
@@ -256,7 +262,7 @@ class SSD512(_SSDVGG16):
     sizes = [s / 512 for s in
              (35.84, 76.8, 153.6, 230.4, 307.2, 384.0, 460.8, 537.6)]
 
-    def __init__(self, n_classes, pretrained_model):
+    def __init__(self, n_classes, pretrained_model=None):
         super().__init__(n_classes)
 
         self.add_link(
