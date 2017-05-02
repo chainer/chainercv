@@ -53,6 +53,11 @@ class AnchorTargetLayer(object):
         """
         assert bbox.ndim == 3
         assert bbox.shape[0] == 1
+        # TODO(yuyu2172) Make modules independent of device.
+        if isinstance(bbox, chainer.Variable):
+            bbox = bbox.data
+        bbox = chainer.cuda.to_cpu(bbox)
+
         bbox = bbox[0]
 
         width, height = feature_size

@@ -17,6 +17,8 @@ from bbox_transform import bbox_transform
 from bbox import bbox_overlaps
 from bbox_transform import get_bbox_regression_label
 
+import chainer
+
 
 class ProposalTargetLayer(object):
     """Assign proposals to ground-truth targets.
@@ -96,6 +98,14 @@ class ProposalTargetLayer(object):
         # Sanity check: single batch only
         assert np.all(roi[:, 0] == 0), \
             'Only single item batches are supported'
+
+        # TODO(yuyu2172) Make modules independent of device.
+        if isinstance(bbox, chainer.Variable):
+            bbox = bbox.data
+        if isinstance(label, chainer.Variable):
+            label = label.data
+        bbox = chainer.cuda.to_cpu(bbox)
+        label = chainer.cuda.to_cpu(label)
         bbox = bbox[0]
         label = label[0]
 

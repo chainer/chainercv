@@ -54,7 +54,7 @@ class FasterRCNNLoss(chainer.Chain):
         pool5 = F.roi_pooling_2d(
             out['feature'],
             roi_sample, self.roi_size, self.roi_size, self.spatial_scale)
-        bbox_tf, cls_score = self.head(pool5, train=self.train)
+        bbox_tf, cls_score = self.faster_rcnn.head(pool5, train=self.train)
 
         # Losses for outputs of the head.
         if device.id >= 0:
