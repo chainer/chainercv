@@ -92,8 +92,8 @@ class FasterRCNNBase(chainer.Chain):
 
         if train:
             label = cuda.to_cpu(label.data)
-            roi, labels, bbox_targets, bbox_inside_weights, \
-                bbox_outside_weights = self.proposal_target_layer(
+            roi, labels, bbox_targets, bbox_inside_weight, \
+                bbox_outside_weight = self.proposal_target_layer(
                     roi, bbox, label)
 
         # Convert rois
@@ -109,7 +109,7 @@ class FasterRCNNBase(chainer.Chain):
             boxes = roi[:, 1:5]
             boxes = boxes / scale
             W, H = img_size
-            bbox_pred = bbox_pred.data 
+            bbox_pred = bbox_pred.data
 
             if self.targets_precomputed:
                 mean = xp.tile(
@@ -121,27 +121,23 @@ class FasterRCNNBase(chainer.Chain):
                 bbox_pred = (bbox_pred * std + mean).astype(np.float32)
 
             pred_boxes = bbox_transform_inv(boxes, bbox_pred, device.id)
-            # Use this if you want to have identical results to the caffe
-            # implementation.
-            # pred_boxes = bbox_transform_inv(
-            #     cuda.to_cpu(boxes), cuda.to_cpu(bbox_pred.data))
 
             cls_prob = F.softmax(cls_score)
             pred_boxes = clip_boxes(
                 pred_boxes, (W / scale, H / scale), device.id)
-            return pred_boxes[None], cls_prob[None].data 
+            return pred_boxes[None], cls_prob[None].data
 
         if device.id >= 0:
-            labels = cuda.to_gpu(labels, device=device)
-            bbox_targets = cuda.to_gpu(bbox_targets, device=device)
-            bbox_inside_weights = cuda.to_gpu(
-                bbox_inside_weights, device=device)
-            bbox_outside_weights = cuda.to_gpu(
-                bbox_outside_weights, device=device)
+            label = cuda.to_gpu(labels, device=device)
+            bbox_target = cuda.to_gpu(bbox_targets, device=device)
+            bbox_inside_weight = cuda.to_gpu(
+                bbox_inside_weight, device=device)
+            bbox_outside_weight = cuda.to_gpu(
+                bbox_outside_weight, device=device)
 
-        loss_cls = F.softmax_cross_entropy(cls_score, labels)
+        loss_cls = F.softmax_cross_entropy(cls_score, label)
         loss_bbox = smooth_l1_loss(
-            bbox_pred, bbox_targets, bbox_inside_weights, bbox_outside_weights,
+            bbox_pred, bbox_target, bbox_inside_weight, bbox_outside_weight,
             self.sigma)
 
         loss = rpn_cls_loss + rpn_loss_bbox + loss_bbox + loss_cls
