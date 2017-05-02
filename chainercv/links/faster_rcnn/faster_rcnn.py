@@ -13,16 +13,18 @@ import chainer.functions as F
 from chainer.initializers import constant
 import chainer.links as L
 from chainer.links.model.vision.vgg import VGG16Layers
-from chainer.links.model.vision.resnet import ResNet101Layers
 from chainer.links.model.vision.resnet import BuildingBlock
+from chainer.links.model.vision.resnet import ResNet101Layers
 
 from chainercv.functions.smooth_l1_loss import smooth_l1_loss
 
 from chainercv.links.faster_rcnn.bbox_transform import bbox_transform_inv
 from chainercv.links.faster_rcnn.bbox_transform import clip_boxes
 from chainercv.links.faster_rcnn.nms_cpu import nms_cpu as nms
-from chainercv.links.faster_rcnn.proposal_target_layer import ProposalTargetLayer
-from chainercv.links.faster_rcnn.rpn import RPN
+from chainercv.links.faster_rcnn.proposal_target_layer import\
+    ProposalTargetLayer
+from chainercv.links.faster_rcnn.region_proposal_network import\
+    RegionProposalNetwork
 
 
 class FasterRCNNBase(chainer.Chain):

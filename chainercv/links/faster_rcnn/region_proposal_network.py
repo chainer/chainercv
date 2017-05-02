@@ -10,13 +10,13 @@ from proposal_layer import ProposalLayer
 from chainercv.functions.smooth_l1_loss import smooth_l1_loss
 
 
-class RPN(chainer.Chain):
+class RegionProposalNetwork(chainer.Chain):
 
     def __init__(
             self, in_ch=512, out_ch=512, n_anchors=9, feat_stride=16,
             anchor_scales=[8, 16, 32], num_classes=21, rpn_sigma=3.0):
         initializer = chainer.initializers.Normal(scale=0.01)
-        super(RPN, self).__init__(
+        super(RegionProposalNetwork, self).__init__(
             rpn_conv_3x3=L.Convolution2D(in_ch, out_ch, 3, 1, 1, initialW=initializer),
             rpn_cls_score=L.Convolution2D(
                 out_ch, 2 * n_anchors, 1, 1, 0, initialW=initializer),
@@ -27,13 +27,13 @@ class RPN(chainer.Chain):
         self.proposal_layer = ProposalLayer(feat_stride, anchor_scales)
         self.rpn_sigma = rpn_sigma
 
-    def __call__(self, x, img_shape, bboxes=None, scale=1.):
+    def __call__(self, x, img_shape, bbox=None, scale=1.):
         """
         x:  (N, C, H, W)
         img_shape (img_H, img_W)
-        bboxes (numpy.ndarry)
+        bbox (numpy.ndarry)
         """
-        train = bboxes is not None  # this is dangerous
+        train = bbox is not None  # this is dangerous
 
         n = x.data.shape[0]
         assert n == 1
@@ -54,7 +54,7 @@ class RPN(chainer.Chain):
 
         rpn_labels, rpn_bbox_targets, rpn_bbox_inside_weights, \
             rpn_bbox_outside_weights = self.anchor_target_layer(
-                bboxes, (hh, ww), img_shape)
+                bbox, (hh, ww), img_shape)
 
         rpn_labels = rpn_labels.reshape((n, -1))
 
