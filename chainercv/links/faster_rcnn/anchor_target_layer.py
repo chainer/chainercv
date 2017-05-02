@@ -59,8 +59,8 @@ class AnchorTargetLayer(object):
         width, height = feature_size
         img_W, img_H = img_size
 
-        n_anchors = len(anchors)
-        inds_inside, anchors = keep_inside(anchors, img_H, img_W)
+        n_anchor = len(anchors)
+        inds_inside, anchors = keep_inside(anchors, img_W, img_H)
         argmax_overlaps, labels = self._create_labels(
             inds_inside, anchors, gt_boxes)
 
@@ -74,24 +74,24 @@ class AnchorTargetLayer(object):
         bbox_outside_weights = self._calc_outside_weights(inds_inside, labels)
 
         # map up to original set of anchors
-        labels = _unmap(labels, n_anchors, inds_inside, fill=-1)
+        labels = _unmap(labels, n_anchor, inds_inside, fill=-1)
         bbox_targets = _unmap(
-            bbox_targets, total_anchors, inds_inside, fill=0)
+            bbox_targets, n_anchor, inds_inside, fill=0)
         bbox_inside_weights = _unmap(
-            bbox_inside_weights, total_anchors, inds_inside, fill=0)
+            bbox_inside_weights, n_anchor, inds_inside, fill=0)
         bbox_outside_weights = _unmap(
-            bbox_outside_weights, total_anchors, inds_inside, fill=0)
+            bbox_outside_weights, n_anchor, inds_inside, fill=0)
 
         # reshape
         labels = labels.reshape(
-            (1, height, width, self.n_anchors)).transpose(0, 3, 1, 2)
+            (1, height, width, -1)).transpose(0, 3, 1, 2)
         labels = labels.astype(np.int32)
         bbox_targets = bbox_targets.reshape(
-            (1, height, width, self.n_anchors * 4)).transpose(0, 3, 1, 2)
+            (1, height, width, -1)).transpose(0, 3, 1, 2)
         bbox_inside_weights = bbox_inside_weights.reshape(
-            (1, height, width, self.n_anchors * 4)).transpose(0, 3, 1, 2)
+            (1, height, width, -1)).transpose(0, 3, 1, 2)
         bbox_outside_weights = bbox_outside_weights.reshape(
-            (1, height, width, self.n_anchors * 4)).transpose(0, 3, 1, 2)
+            (1, height, width, -1)).transpose(0, 3, 1, 2)
         return labels, bbox_targets, bbox_inside_weights, bbox_outside_weights
 
     def _create_labels(self, inds_inside, anchors, gt_boxes):
@@ -160,18 +160,18 @@ class AnchorTargetLayer(object):
         return bbox_outside_weights
 
 
-def _unmap(self, data, count, inds, fill=0):
+def _unmap(data, count, inds, fill=0):
     """
         Unmap a subset of item (data) back to the original set of items (of
         size count)
     """
 
     if len(data.shape) == 1:
-        ret = np.empty((count, ), dtype=np.float32)
+        ret = np.empty((count,), dtype=np.float32)
         ret.fill(fill)
         ret[inds] = data
     else:
-        ret = np.empty((count, ) + data.shape[1:], dtype=np.float32)
+        ret = np.empty((count,) + data.shape[1:], dtype=np.float32)
         ret.fill(fill)
         ret[inds, :] = data
     return ret

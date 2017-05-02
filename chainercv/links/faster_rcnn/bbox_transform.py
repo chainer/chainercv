@@ -104,7 +104,7 @@ def _clip_boxes(boxes, img_size):
     return boxes
 
 
-def keep_inside(anchors, img_info):
+def keep_inside(anchors, W, H):
     """Calc indicies of anchors which are inside of the image size.
 
     Calc indicies of anchors which are located completely inside of the image
@@ -119,7 +119,7 @@ def keep_inside(anchors, img_info):
         inds_inside = xp.where(
             (anchors[:, 0] >= 0) &
             (anchors[:, 1] >= 0) &
-            (anchors[:, 2] < img_info[1]) &  # width
-            (anchors[:, 3] < img_info[0])  # height
+            (anchors[:, 2] < W) &  # width
+            (anchors[:, 3] < H)  # height
         )[0]
         return inds_inside, anchors[inds_inside]

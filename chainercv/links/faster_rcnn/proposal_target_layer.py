@@ -33,11 +33,11 @@ class ProposalTargetLayer(object):
         batch_size (int): Number of regions to produce.
         bbox_normalize_targets_precomputed (bool): Normalize the targets
             using :obj:`bbox_normalize_means` and :obj:`bbox_normalize_stds`.
-        bbox_normalize_means (tuple of four floats): Mean values to normalize
+        bbox_normalize_mean (tuple of four floats): Mean values to normalize
             coordinates of bouding boxes.
-        bbox_normalize_stds (tupler of four floats): Standard deviation of
+        bbox_normalize_std (tupler of four floats): Standard deviation of
             the coordinates of bounding boxes.
-        bbox_inside_weights (tuple of four floats):
+        bbox_inside_weight (tuple of four floats):
         fg_fraction (float): Fraction of regions that is labeled foreground.
         fg_thresh (float): Overlap threshold for a ROI to be considered
             foreground.
@@ -50,20 +50,20 @@ class ProposalTargetLayer(object):
     def __init__(self, n_class=21,
                  batch_size=256,
                  bbox_normalize_targets_precomputed=True,
-                 bbox_normalize_means=(0., 0., 0., 0.),
-                 bbox_normalize_stds=(0.1, 0.1, 0.2, 0.2),
-                 bbox_inside_weights=(1., 1., 1., 1.),
+                 bbox_normalize_mean=(0., 0., 0., 0.),
+                 bbox_normalize_std=(0.1, 0.1, 0.2, 0.2),
+                 bbox_inside_weight=(1., 1., 1., 1.),
                  fg_fraction=0.25,
                  fg_thresh=0.5, bg_thresh_hi=0.5, bg_thresh_lo=0.0
                  ):
         self.n_class = n_class
         self.batch_size = batch_size
         self.fg_fraction = fg_fraction
-        self.bbox_inside_weights = bbox_inside_weights
+        self.bbox_inside_weight = bbox_inside_weight
         self.bbox_normalize_targets_precomputed =\
             bbox_normalize_targets_precomputed
-        self.bbox_normalize_means = bbox_normalized_means
-        self.bbox_normalize_stds = bbox_normalize_stds
+        self.bbox_normalize_mean = bbox_normalize_mean
+        self.bbox_normalize_std = bbox_normalize_std
         self.fg_thresh = fg_thresh
         self.bg_thresh_hi = bg_thresh_hi
         self.bg_thresh_lo = bg_thresh_lo
@@ -133,7 +133,7 @@ class ProposalTargetLayer(object):
             start = int(4 * cls)
             end = int(start + 4)
             bbox_targets[ind, start:end] = bbox_target_data[ind, 1:]
-            bbox_inside_weights[ind, start:end] = self.bbox_inside_weights
+            bbox_inside_weights[ind, start:end] = self.bbox_inside_weight
         return bbox_targets, bbox_inside_weights
 
     def _compute_targets(self, ex_rois, gt_rois, labels):
@@ -146,8 +146,8 @@ class ProposalTargetLayer(object):
         targets = bbox_transform(ex_rois, gt_rois)
         if self.bbox_normalize_targets_precomputed:
             # Optionally normalize targets by a precomputed mean and stdev
-            targets = ((targets - np.array(self.bbox_normalized_means)
-                        ) / np.array(self.bbox_normalize_stds))
+            targets = ((targets - np.array(self.bbox_normalize_mean)
+                        ) / np.array(self.bbox_normalize_std))
         return np.hstack(
             (labels[:, np.newaxis], targets)).astype(np.float32, copy=False)
 
