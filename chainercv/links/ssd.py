@@ -37,8 +37,7 @@ class _Normalize(chainer.Link):
 
 
 class _SSDVGG16(chainer.Chain):
-    """Base class of SSD.
-    """
+    """Base class of SSD. """
 
     mean = (104, 117, 123)
     variance = (0.1, 0.2)
@@ -212,8 +211,7 @@ class _SSDVGG16(chainer.Chain):
         return np.vstack(bbox_all), np.hstack(label_all), np.hstack(score_all)
 
     def predict(self, img, nms_threshold=0.45, score_threshold=0.01):
-        """Detect objects in an image.
-        """
+        """Detect objects in an image."""
 
         img, size = self._prepare(img)
         loc, conf = self(img[np.newaxis])
