@@ -12,17 +12,14 @@ from chainer import cuda
 import chainer.functions as F
 from chainer.initializers import constant
 import chainer.links as L
-from chainer.links.model.vision.vgg import VGG16Layers
 from chainer.links.model.vision.resnet import BuildingBlock
 from chainer.links.model.vision.resnet import ResNet101Layers
-
-from chainercv.functions.smooth_l1_loss import smooth_l1_loss
+from chainer.links.model.vision.vgg import VGG16Layers
 
 from chainercv.links.faster_rcnn.bbox_transform import bbox_transform_inv
 from chainercv.links.faster_rcnn.bbox_transform import clip_boxes
 from chainercv.links.faster_rcnn.nms_cpu import nms_cpu as nms
-from chainercv.links.faster_rcnn.proposal_target_layer import\
-    ProposalTargetLayer
+
 from chainercv.links.faster_rcnn.region_proposal_network import\
     RegionProposalNetwork
 
@@ -34,9 +31,10 @@ class FasterRCNNBase(chainer.Chain):
             n_class, roi_size,
             nms_thresh=0.3,
             conf_thresh=0.05,
-            sigma=1.,
             spatial_scale=0.0625,
             targets_precomputed=True,
+            bbox_normalize_mean=(0., 0., 0., 0.),
+            bbox_normalize_std=(0.1, 0.1, 0.2, 0.2),
             proposal_target_layer_params={},
     ):
         super(FasterRCNNBase, self).__init__(
@@ -44,155 +42,132 @@ class FasterRCNNBase(chainer.Chain):
             rpn=rpn,
             head=head,
         )
-        if 'n_class' not in proposal_target_layer_params:
-            proposal_target_layer_params['n_class'] = n_class
-        self.proposal_target_layer = ProposalTargetLayer(
-            **proposal_target_layer_params)
-
         self.n_class = n_class
-        self.sigma = sigma
         self.spatial_scale = spatial_scale
         self.roi_size = roi_size
         self.nms_thresh = nms_thresh
         self.conf_thresh = conf_thresh
         self.targets_precomputed = targets_precomputed
+        self.bbox_normalize_mean = bbox_normalize_mean
+        self.bbox_normalize_std = bbox_normalize_std
 
-        self.train = True
+    def __call__(self, x, scale=1., layers=['bbox', 'cls_prob'],
+                 rpn_only=False, test=True):
+        # Making stopabble __call__ like that of VGG is not practical
+        # in the case of FasterRCNN.
+        # This is because there are few number of cases where you
+        # need to extract intermediate representations.
+        # I can only come up with two cases.
+        # 1. Stop at RPN
+        # 2. Forward all
 
-    def __call__(self, x, bbox=None, label=None, scale=1.):
-        train = self.train and bbox is not None
-        if not train:
-            bbox = None
+        # These simple control logic can be expressed using a simple flag
+        # variable.
+        # Therefore, an orderedDict used in VGG is not necessary.
 
-        # TODO(yuyu2172) this is really ugly
+        # TODO(yuyu2172)  stop using scale filtering by default call.
+        # TODO(yuyu2172)  support a scenario where RoI is already computed.
+        activations = {key: None for key in layers}
+
         if isinstance(scale, chainer.Variable):
-            scale = np.asscalar(cuda.to_cpu(scale.data))
-
-        # TODO(yuyu2172) this is really ugly
-        if isinstance(x, chainer.Variable):
-            x_data = x.data
-        else:
-            x_data = x
-        device = cuda.get_device(x_data)
-
-        xp = cuda.get_array_module(x)
-
+            scale = scale.data
+        scale = np.asscalar(cuda.to_cpu(np.array(scale)))
         img_size = x.shape[2:][::-1]
 
         h = self._extract_feature(x)
+        rpn_bbox_pred, rpn_cls_score, roi, anchor =\
+            self.rpn(h, img_size, scale, train=not test)
 
-        if train:
-            bbox = cuda.to_cpu(bbox.data)
-            rpn_cls_loss, rpn_loss_bbox, roi = self.rpn(
-                h, img_size, bbox=bbox, scale=scale)
-        else:
-            # shape (300, 5)
-            # the second axis is (batch_id, x_min, y_min, x_max, y_max)
-            roi = self.rpn(h, img_size, bbox=None, scale=scale)
+        _update_if_specified({
+            'feature': h,
+            'rpn_bbox_pred': rpn_bbox_pred,
+            'rpn_cls_score': rpn_cls_score,
+            'roi': roi,
+            'anchor': anchor
+        }, activations)
+        if rpn_only:
+            return activations
 
-        if train:
-            label = cuda.to_cpu(label.data)
-            roi, labels, bbox_targets, bbox_inside_weight, \
-                bbox_outside_weight = self.proposal_target_layer(
-                    roi, bbox, label)
-
-        # Convert rois
-        if device.id >= 0:
-            roi = cuda.to_gpu(roi, device=device)
-
-        # RCNN
         pool5 = F.roi_pooling_2d(
             h, roi, self.roi_size, self.roi_size, self.spatial_scale)
-        bbox_pred, cls_score = self.head(pool5, train=train)
+        bbox_tf, cls_score = self.head(pool5, train=False)
 
-        if not train:
-            boxes = roi[:, 1:5]
-            boxes = boxes / scale
-            W, H = img_size
-            bbox_pred = bbox_pred.data
+        xp = chainer.cuda.get_array_module(pool5)
+        device = chainer.cuda.get_device(pool5.data)
+        # Convert predictions to bounding boxes in image coordinates.
+        bbox_roi = roi[:, 1:5]
+        bbox_roi = bbox_roi / scale
+        bbox_tf_data = bbox_tf.data
+        if self.targets_precomputed:
+            mean = xp.tile(
+                xp.array(self.bbox_normalize_mean),
+                self.n_class)
+            std = xp.tile(
+                np.array(self.bbox_normalize_std),
+                self.n_class)
+            bbox_tf_data = (bbox_tf_data * std + mean).astype(np.float32)
+        bbox = bbox_transform_inv(bbox_roi, bbox_tf_data, device.id)
+        W, H = img_size
+        bbox = clip_boxes(
+            bbox, (W / scale, H / scale), device.id)
 
-            if self.targets_precomputed:
-                mean = xp.tile(
-                    xp.array(self.proposal_target_layer.bbox_normalize_mean),
-                    self.n_class)
-                std = xp.tile(
-                    np.array(self.proposal_target_layer.bbox_normalize_std),
-                    self.n_class)
-                bbox_pred = (bbox_pred * std + mean).astype(np.float32)
+        # Compute probabilities that each bounding box is assigned to.
+        cls_prob = F.softmax(cls_score).data
 
-            pred_boxes = bbox_transform_inv(boxes, bbox_pred, device.id)
+        _update_if_specified({
+            'pool5': pool5,
+            'bbox_tf': bbox_tf,
+            'cls_score': cls_score,
+            'bbox': bbox[None],
+            'cls_prob': cls_prob[None]
+        }, activations)
+        return activations
 
-            cls_prob = F.softmax(cls_score)
-            pred_boxes = clip_boxes(
-                pred_boxes, (W / scale, H / scale), device.id)
-            return pred_boxes[None], cls_prob[None].data
-
-        if device.id >= 0:
-            label = cuda.to_gpu(labels, device=device)
-            bbox_target = cuda.to_gpu(bbox_targets, device=device)
-            bbox_inside_weight = cuda.to_gpu(
-                bbox_inside_weight, device=device)
-            bbox_outside_weight = cuda.to_gpu(
-                bbox_outside_weight, device=device)
-
-        loss_cls = F.softmax_cross_entropy(cls_score, label)
-        loss_bbox = smooth_l1_loss(
-            bbox_pred, bbox_target, bbox_inside_weight, bbox_outside_weight,
-            self.sigma)
-
-        loss = rpn_cls_loss + rpn_loss_bbox + loss_bbox + loss_cls
-        chainer.reporter.report({'rpn_loss_cls': rpn_cls_loss,
-                                 'rpn_loss_bbox': rpn_loss_bbox,
-                                 'loss_bbox': loss_bbox,
-                                 'loss_cls': loss_cls,
-                                 'loss': loss},
-                                self)
-        return loss
-
-    def predict_bbox(self, x, scale=1.):
+    def predict(self, x, scale=1.):
         """Predicts bounding boxes which satisfy confidence constraints.
 
         """
-        pred_bbox, cls_prob = self.__call__(x, scale=scale)
-        cls_prob = chainer.cuda.to_cpu(cls_prob)[0]
-        pred_bbox = chainer.cuda.to_cpu(pred_bbox)[0]
+        out = self.__call__(
+            x, scale=scale, layers=['bbox', 'cls_prob'])
+        bbox = chainer.cuda.to_cpu(out['bbox'])[0]
+        cls_prob = chainer.cuda.to_cpu(out['cls_prob'])[0]
 
-        out_bbox, out_label, out_confidence = _predict_to_bbox(
-            pred_bbox, cls_prob, self.nms_thresh, self.conf_thresh,
-            n_class=self.n_class)
-        return out_bbox[None], out_label[None], out_confidence[None]
+        assert cls_prob.ndim == 2
+        bbox_nms = []
+        label_nms = []
+        conf_nms = []
+        # skip cls_id = 0 because it is the background class
+        for cls_id in range(1, self.n_class):
+            _cls = cls_prob[:, cls_id][:, None]  # (300, 1)
+            _bbx = bbox[:, cls_id * 4: (cls_id + 1) * 4]  # (300, 4)
+            dets = np.hstack((_bbx, _cls))  # (300, 5)
+            inds = np.where(dets[:, -1] > self.conf_thresh)[0]
+            dets = dets[inds, :]
+            keep = nms(dets, self.nms_thresh)
+            dets = dets[keep, :]
+            if len(dets) > 0:
+                bbox_nms.append(dets[:, :4])
+                label_nms.append(np.ones((len(dets),)) * cls_id)
+                conf_nms.append(dets[:, 4])
+        if len(bbox_nms) != 0:
+            bbox_nms = np.concatenate(bbox_nms, axis=0).astype(np.float32)
+            label_nms = np.concatenate(label_nms, axis=0).astype(np.int32)
+            conf_nms = np.concatenate(conf_nms, axis=0).astype(np.float32)
+        else:
+            bbox_nms = np.zeros((0, 4), dtype=np.float32)
+            label_nms = np.zeros((0,), dtype=np.int32)
+            conf_nms = np.zeros((0,), dtype=np.float32)
+
+        return bbox_nms[None], label_nms[None], conf_nms[None]
 
     def _extract_feature(self, x):
         raise NotImplementedError
 
 
-def _predict_to_bbox(pred_bbox, cls_prob, nms_thresh, conf_thresh, n_class):
-    assert cls_prob.ndim == 2
-    out_bbox = []
-    out_label = []
-    out_confidence = []
-    # skip cls_id = 0 because it is the background class
-    for cls_id in range(1, n_class):
-        _cls = cls_prob[:, cls_id][:, None]  # (300, 1)
-        _bbx = pred_bbox[:, cls_id * 4: (cls_id + 1) * 4]  # (300, 4)
-        dets = np.hstack((_bbx, _cls))  # (300, 5)
-        inds = np.where(dets[:, -1] > conf_thresh)[0]
-        dets = dets[inds, :]
-        keep = nms(dets, nms_thresh)
-        dets = dets[keep, :]
-        if len(dets) > 0:
-            out_bbox.append(dets[:, :4])
-            out_label.append(np.ones((len(dets),)) * cls_id)
-            out_confidence.append(dets[:, 4])
-    if len(out_bbox) != 0:
-        out_bbox = np.concatenate(out_bbox, axis=0).astype(np.float32)
-        out_label = np.concatenate(out_label, axis=0).astype(np.int32)
-        out_confidence = np.concatenate(out_confidence, axis=0).astype(np.float32)
-    else:
-        out_bbox = np.zeros((0, 4), dtype=np.float32)
-        out_label = np.zeros((0,), dtype=np.int32)
-        out_confidence = np.zeros((0,), dtype=np.float32)
-    return out_bbox, out_label, out_confidence
+def _update_if_specified(source, target):
+    for key in source.keys():
+        if key in target:
+            target[key] = source[key]
 
 
 class FasterRCNNHeadVGG(chainer.Chain):

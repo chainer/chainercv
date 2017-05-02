@@ -43,7 +43,7 @@ class ProposalLayer(object):
         self.rpn_min_size = rpn_min_size
 
     def __call__(self, rpn_cls_prob, rpn_bbox_pred,
-                 anchors, img_size, train, scale=1.):
+                 anchors, img_size, scale=1., train=False):
         """
         Args:
             rpn_cls_prob:
