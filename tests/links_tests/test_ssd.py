@@ -2,6 +2,7 @@ import numpy as np
 import unittest
 
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.links import SSD300
 from chainercv.links import SSD512
@@ -25,6 +26,7 @@ class TestSSD(unittest.TestCase):
         xp = self.link.xp
         return xp.array(np.random.uniform(-1, 1, shape), dtype=np.float32)
 
+    @attr.slow
     def test_call(self):
 
         x = self._random_array(1, 3, self.insize, self.insize)
@@ -48,6 +50,7 @@ class TestSSD(unittest.TestCase):
         self.assertEqual(img.shape, (3, self.insize, self.insize))
         self.assertEqual(size, (640, 480))
 
+    @attr.slow
     def test_predict(self):
         img = self._random_array(3, 480, 640)
         with np.errstate(divide='ignore'):
