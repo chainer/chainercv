@@ -29,13 +29,16 @@ def generate_bbox(n, img_size, min_length, max_length):
 )
 class TestProposalLayer(unittest.TestCase):
 
+    img_size = (320, 240)
+    rpn_batch_size = 256
+    n_anchor_base = 9
+    train_rpn_post_nms_top_n = 350
+    test_rpn_post_nms_top_n = 300
+
     def setUp(self):
         n_anchor_base = 9
-        img_size = (320, 240)
-        feat_size = (img_size[0] / 16, img_size[1] / 16)
-        n_anchor = n_anchor_base * np.prod(feat_size)
-        self.train_rpn_post_nms_top_n = 350
-        self.test_rpn_post_nms_top_n = 300
+        feat_size = (self.img_size[0] / 16, self.img_size[1] / 16)
+        n_anchor = self.n_anchor_base * np.prod(feat_size)
 
         self.rpn_cls_prob = np.random.uniform(
             low=0., high=1.,
@@ -44,8 +47,7 @@ class TestProposalLayer(unittest.TestCase):
         self.rpn_bbox_pred = np.random.uniform(
             low=0., high=1.,
             size=(1, 4 * n_anchor_base) + feat_size).astype(np.float32)
-        self.anchor = generate_bbox(n_anchor, img_size, 2, 5)
-        self.img_size = img_size
+        self.anchor = generate_bbox(n_anchor, self.img_size, 16, 200)
         self.proposal_layer = ProposalLayer(
             use_gpu_nms=self.use_gpu_nms,
             train_rpn_post_nms_top_n=self.train_rpn_post_nms_top_n,
