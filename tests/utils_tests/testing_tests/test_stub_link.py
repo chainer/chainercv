@@ -47,5 +47,9 @@ class TestStubLinkInvalidArgument(unittest.TestCase):
         with self.assertRaises(ValueError):
             StubLink((3, 4), value='invalid')
 
+    def test_invalid_kwargs(self):
+        with self.assertRaises(ValueError):
+            StubLink((3, 4), invalid='invalid')
+
 
 testing.run_module(__name__, __file__)
