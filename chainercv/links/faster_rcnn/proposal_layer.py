@@ -39,7 +39,7 @@ class ProposalLayer(object):
         self.train_rpn_pre_nms_top_n = train_rpn_pre_nms_top_n
         self.train_rpn_post_nms_top_n = train_rpn_post_nms_top_n
         self.test_rpn_pre_nms_top_n = test_rpn_pre_nms_top_n
-        self.test_rpn_post_nms_top_n = test_rpn_pre_nms_top_n
+        self.test_rpn_post_nms_top_n = test_rpn_post_nms_top_n
         self.rpn_min_size = rpn_min_size
 
     def __call__(self, rpn_bbox_pred, rpn_cls_prob,
@@ -61,18 +61,20 @@ class ProposalLayer(object):
         # apply NMS with threshold 0.7 to remaining proposals
         # take after_nms_topN proposals after NMS
         # return the top proposals (-> RoIs top, score top)
-        xp = cuda.get_array_module(rpn_cls_prob)
-
         pre_nms_topN = self.train_rpn_pre_nms_top_n \
             if train else self.test_rpn_pre_nms_top_n
         post_nms_topN = self.train_rpn_post_nms_top_n \
             if train else self.test_rpn_post_nms_top_n
 
+        xp = cuda.get_array_module(rpn_cls_prob)
+        bbox_deltas = cuda.to_cpu(rpn_bbox_pred.data)
+        rpn_cls_prob = cuda.to_cpu(rpn_cls_prob.data)
+        anchor = cuda.to_cpu(anchor)
+
         # the first set of _num_anchors channels are bg probs
         # the second set are the fg probs, which we want
         n_anchor = rpn_cls_prob.shape[1] / 2
-        score = rpn_cls_prob.data[:, n_anchor:, :, :]
-        bbox_deltas = rpn_bbox_pred.data
+        score = rpn_cls_prob[:, n_anchor:, :, :]
 
         # Transpose and reshape predicted bbox transformations and score
         # to get them into the same order as the anchors:
@@ -90,14 +92,12 @@ class ProposalLayer(object):
         min_size = self.rpn_min_size * scale
         ws = proposal[:, 2] - proposal[:, 0] + 1
         hs = proposal[:, 3] - proposal[:, 1] + 1
-        keep = xp.where((ws >= min_size) & (hs >= min_size))[0]
+        keep = np.where((ws >= min_size) & (hs >= min_size))[0]
         proposal = proposal[keep, :]
         score = score[keep]
 
         # 4. sort all (proposal, score) pairs by score from highest to lowest
         # 5. take top pre_nms_topN (e.g. 6000)
-        score = cuda.to_cpu(score)
-        proposal = cuda.to_cpu(proposal)
         order = score.ravel().argsort()[::-1]
         if pre_nms_topN > 0:
             order = order[:pre_nms_topN]
@@ -119,9 +119,10 @@ class ProposalLayer(object):
         # Output rois blob
         # Our RPN implementation only supports a single input image, so all
         # batch inds are 0
+        batch_inds = np.zeros((proposal.shape[0], 1), dtype=np.float32)
+        roi = np.hstack((batch_inds, proposal)).astype(np.float32, copy=False)
+
         if xp != np:
-            proposal = cuda.to_gpu(proposal)
-        batch_inds = xp.zeros((proposal.shape[0], 1), dtype=np.float32)
-        roi = xp.hstack((batch_inds, proposal)).astype(np.float32, copy=False)
+            roi = cuda.to_gpu(roi)
 
         return roi
