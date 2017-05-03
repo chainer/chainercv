@@ -35,7 +35,7 @@ class AnchorTargetLayer(object):
             threshold will be assigned as positive.
         rpn_fg_fraction (float): Fraction of positive regions in the
             set of all regions produced.
-        rpn_bbox_inside_weights (tuple of four floats): Four coefficients
+        rpn_bbox_inside_weight (tuple of four floats): Four coefficients
             used to calculate bbox_inside_weights.
 
     """ 
@@ -44,12 +44,12 @@ class AnchorTargetLayer(object):
                  rpn_batchsize=256,
                  rpn_negative_overlap=0.3, rpn_positive_overlap=0.7,
                  rpn_fg_fraction=0.5,
-                 rpn_bbox_inside_weights=(1., 1., 1., 1.)):
+                 rpn_bbox_inside_weight=(1., 1., 1., 1.)):
         self.rpn_batchsize = rpn_batchsize
         self.rpn_negative_overlap = rpn_negative_overlap
         self.rpn_positive_overlap = rpn_positive_overlap
         self.rpn_fg_fraction = rpn_fg_fraction
-        self.rpn_bbox_inside_weights = rpn_bbox_inside_weights
+        self.rpn_bbox_inside_weight = rpn_bbox_inside_weight
 
     def __call__(self, bbox, anchor, feat_size, img_size):
         """Calc targets of classification labels and bbox regression.
@@ -78,7 +78,7 @@ class AnchorTargetLayer(object):
         # calculate inside and outside weights weights
         bbox_inside_weight = np.zeros((len(inds_inside), 4), dtype=np.float32)
         bbox_inside_weight[label == 1, :] = np.array(
-            self.rpn_bbox_inside_weights)
+            self.rpn_bbox_inside_weight)
         bbox_outside_weight = self._calc_outside_weights(inds_inside, label)
 
         # map up to original set of anchors
@@ -162,18 +162,18 @@ class AnchorTargetLayer(object):
             gt_argmax_overlaps
 
     def _calc_outside_weights(self, inds_inside, label):
-        bbox_outside_weights = np.zeros(
+        bbox_outside_weight = np.zeros(
             (len(inds_inside), 4), dtype=np.float32)
         # uniform weighting of examples (given non-uniform sampling)
-        num_examples = np.sum(label >= 0)
+        n_example = np.sum(label >= 0)
 
-        positive_weights = np.ones((1, 4)) * 1.0 / num_examples
-        negative_weights = np.ones((1, 4)) * 1.0 / num_examples
+        positive_weight = np.ones((1, 4)) * 1.0 / n_example
+        negative_weight = np.ones((1, 4)) * 1.0 / n_example
 
-        bbox_outside_weights[label == 1, :] = positive_weights
-        bbox_outside_weights[label == 0, :] = negative_weights
+        bbox_outside_weight[label == 1, :] = positive_weight
+        bbox_outside_weight[label == 0, :] = negative_weight
 
-        return bbox_outside_weights
+        return bbox_outside_weight
 
 
 def _unmap(data, count, inds, fill=0):
