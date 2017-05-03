@@ -51,7 +51,7 @@ class AnchorTargetLayer(object):
         self.rpn_fg_fraction = rpn_fg_fraction
         self.rpn_bbox_inside_weights = rpn_bbox_inside_weights
 
-    def __call__(self, bbox, anchor, feature_size, img_size):
+    def __call__(self, bbox, anchor, feat_size, img_size):
         """Calc targets of classification labels and bbox regression.
         """
         assert bbox.ndim == 3
@@ -64,7 +64,7 @@ class AnchorTargetLayer(object):
 
         bbox = bbox[0]
 
-        width, height = feature_size
+        width, height = feat_size
         img_W, img_H = img_size
 
         n_anchor = len(anchor)
