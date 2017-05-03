@@ -41,7 +41,7 @@ class TestStubLinkInvalidArgument(unittest.TestCase):
 
     def test_no_shapes(self):
         with self.assertRaises(ValueError):
-            StubLink(value='uniform')
+            StubLink()
 
     def test_invalid_value(self):
         with self.assertRaises(ValueError):
