@@ -37,7 +37,7 @@ class TestConstantStubLink(unittest.TestCase):
             originals = self.outputs,
             outputs = outputs,
 
-        self.assertEquals(len(originals), len(outputs))
+        self.assertEqual(len(originals), len(outputs))
 
         for orig, out in zip(originals, outputs):
             self.assertIsInstance(out, chainer.Variable)
