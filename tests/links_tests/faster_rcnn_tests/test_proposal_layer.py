@@ -5,8 +5,8 @@ import numpy as np
 import chainer
 from chainer import cuda
 from chainer import testing
-from chainer.testing import condition
 from chainer.testing import attr
+from chainer.testing import condition
 
 from chainercv.links.faster_rcnn.proposal_layer import ProposalLayer
 
@@ -31,18 +31,19 @@ class TestProposalLayer(unittest.TestCase):
 
     def setUp(self):
         n_anchor_base = 9
-        img_size = (14, 18)
-        n_anchor = n_anchor_base * np.prod(img_size)
+        img_size = (320, 240)
+        feat_size = (img_size[0] / 16, img_size[1] / 16)
+        n_anchor = n_anchor_base * np.prod(feat_size)
         self.train_rpn_post_nms_top_n = 350
         self.test_rpn_post_nms_top_n = 300
 
         self.rpn_cls_prob = np.random.uniform(
             low=0., high=1.,
-            size=(1, 2 * n_anchor_base) + img_size).astype(np.float32)
+            size=(1, 2 * n_anchor_base) + feat_size).astype(np.float32)
 
         self.rpn_bbox_pred = np.random.uniform(
             low=0., high=1.,
-            size=(1, 4 * n_anchor_base) + img_size).astype(np.float32)
+            size=(1, 4 * n_anchor_base) + feat_size).astype(np.float32)
         self.anchor = generate_bbox(n_anchor, img_size, 2, 5)
         self.img_size = img_size
         self.proposal_layer = ProposalLayer(
@@ -53,7 +54,8 @@ class TestProposalLayer(unittest.TestCase):
 
     def check_proposal_layer(
             self, proposal_layer,
-            rpn_bbox_pred, rpn_cls_prob, anchor, img_size, scale=1., train=False):
+            rpn_bbox_pred, rpn_cls_prob, anchor, img_size,
+            scale=1., train=False):
         roi = self.proposal_layer(
             rpn_bbox_pred, rpn_cls_prob, anchor, img_size, scale, train)
 
@@ -71,11 +73,12 @@ class TestProposalLayer(unittest.TestCase):
 
     @attr.gpu
     @condition.retry(3)
-    def test_proposal_layer_cpu(self):
+    def test_proposal_layer_gpu(self):
         self.check_proposal_layer(
             self.proposal_layer,
             chainer.Variable(cuda.to_gpu(self.rpn_bbox_pred)),
             chainer.Variable(cuda.to_gpu(self.rpn_cls_prob)),
-            cuda.to_gpu(self.anchor), self.img_size, scale=1., train=self.train)
+            cuda.to_gpu(self.anchor), self.img_size,
+            scale=1., train=self.train)
 
 testing.run_module(__name__, __file__)
