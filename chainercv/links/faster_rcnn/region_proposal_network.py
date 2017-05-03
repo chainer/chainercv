@@ -41,7 +41,12 @@ class RegionProposalNetwork(chainer.Chain):
 
         x:  (N, C, H, W)
         img_shape (img_W, img_H)
-        bbox (numpy.ndarry)
+
+        Returns:
+            rpn_bbox_pred  (~chainer.Variable)
+            rpn_cls_score  (~chainer.Variable)
+            roi  (~ndarray)
+            anchor  (~ndarray)
 
         """
         xp = cuda.get_array_module(x)
@@ -75,8 +80,16 @@ class RegionProposalNetworkLoss(object):
             **anchor_target_layer_params)
         self.rpn_sigma = rpn_sigma
 
-    def __call__(self, rpn_bbox_pred, rpn_cls_score, roi,
+    def __call__(self, rpn_bbox_pred, rpn_cls_score,
                  bbox, anchor, img_size):
+        """
+        Args:
+            rpn_bbox_pred (~chainer.Variable)
+            rpn_cls_score (~chainer.Variable)
+            bbox (~ndarray or chainer.Variable)
+            anchor (~ndarray)
+            img_size (tuple of ints)
+        """
         hh, ww = rpn_bbox_pred.shape[2:]
         n = bbox.shape[0]
         assert n == 1
@@ -85,15 +98,6 @@ class RegionProposalNetworkLoss(object):
             rpn_bbox_outside_weight = self.anchor_target_layer(
                 bbox, anchor, (ww, hh), img_size)
         rpn_label = rpn_label.reshape((n, -1))
-
-        device = chainer.cuda.get_device(rpn_cls_score.data)
-        if device.id >= 0:
-            rpn_label = chainer.cuda.to_gpu(rpn_label, device)
-            rpn_bbox_target = chainer.cuda.to_gpu(rpn_bbox_target, device)
-            rpn_bbox_inside_weight = chainer.cuda.to_gpu(
-                rpn_bbox_inside_weight, device)
-            rpn_bbox_outside_weight = chainer.cuda.to_gpu(
-                rpn_bbox_outside_weight, device)
 
         rpn_cls_score = rpn_cls_score.reshape(1, 2, -1)
         rpn_cls_loss = F.softmax_cross_entropy(rpn_cls_score, rpn_label)
@@ -107,11 +111,11 @@ def _enumerate_shifted_anchor(anchor, feat_stride, width, height):
     xp = cuda.get_array_module(anchor)
     # 1. Generate proposals from bbox deltas and shifted anchors
     # Enumerate all shifts
-    shift_x = xp.arange(0, width) * feat_stride
-    shift_y = xp.arange(0, height) * feat_stride
+    shift_x = xp.arange(0, width * feat_stride, feat_stride)
+    shift_y = xp.arange(0, height * feat_stride, feat_stride)
     shift_x, shift_y = xp.meshgrid(shift_x, shift_y)
-    shift = xp.vstack((shift_x.ravel(), shift_y.ravel(),
-                       shift_x.ravel(), shift_y.ravel())).transpose()
+    shift = xp.stack((shift_x.ravel(), shift_y.ravel(),
+                      shift_x.ravel(), shift_y.ravel()), axis=1)
 
     # Enumerate all shifted anchors:
     #

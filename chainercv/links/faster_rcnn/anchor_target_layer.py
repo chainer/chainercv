@@ -50,12 +50,11 @@ class AnchorTargetLayer(object):
         self.rpn_fg_fraction = rpn_fg_fraction
         self.rpn_bbox_inside_weights = rpn_bbox_inside_weights
 
-    def __call__(self, bbox, anchors, feature_size, img_size):
+    def __call__(self, bbox, anchor, feature_size, img_size):
         """Calc targets of classification labels and bbox regression.
         """
         assert bbox.ndim == 3
         assert bbox.shape[0] == 1
-        # TODO(yuyu2172) Make modules independent of device.
         if isinstance(bbox, chainer.Variable):
             bbox = bbox.data
         bbox = chainer.cuda.to_cpu(bbox)
@@ -65,13 +64,13 @@ class AnchorTargetLayer(object):
         width, height = feature_size
         img_W, img_H = img_size
 
-        n_anchor = len(anchors)
-        inds_inside, anchors = keep_inside(anchors, img_W, img_H)
+        n_anchor = len(anchor)
+        inds_inside, anchor = keep_inside(anchor, img_W, img_H)
         argmax_overlaps, label = self._create_label(
-            inds_inside, anchors, bbox)
+            inds_inside, anchor, bbox)
 
         # compute bounding box regression targets
-        bbox_target = bbox_transform(anchors, bbox[argmax_overlaps])
+        bbox_target = bbox_transform(anchor, bbox[argmax_overlaps])
 
         # calculate inside and outside weights weights
         bbox_inside_weight = np.zeros((len(inds_inside), 4), dtype=np.float32)
@@ -100,13 +99,13 @@ class AnchorTargetLayer(object):
             (1, height, width, -1)).transpose(0, 3, 1, 2)
         return label, bbox_target, bbox_inside_weight, bbox_outside_weight
 
-    def _create_label(self, inds_inside, anchors, bbox):
+    def _create_label(self, inds_inside, anchor, bbox):
         # label: 1 is positive, 0 is negative, -1 is dont care
         label = np.empty((len(inds_inside), ), dtype=np.float32)
         label.fill(-1)
 
         argmax_overlaps, max_overlaps, gt_max_overlaps, gt_argmax_overlaps = \
-            self._calc_overlaps(anchors, bbox, inds_inside)
+            self._calc_overlaps(anchor, bbox, inds_inside)
 
         # assign bg labels first so that positive labels can clobber them
         label[max_overlaps < self.rpn_negative_overlap] = 0
@@ -135,11 +134,11 @@ class AnchorTargetLayer(object):
 
         return argmax_overlaps, label
 
-    def _calc_overlaps(self, anchors, bbox, inds_inside):
+    def _calc_overlaps(self, anchor, bbox, inds_inside):
         # overlaps between the anchors and the gt boxes
         # overlaps (ex, gt)
         overlaps = bbox_overlaps(
-            np.ascontiguousarray(anchors, dtype=np.float),
+            np.ascontiguousarray(anchor, dtype=np.float),
             np.ascontiguousarray(bbox, dtype=np.float))
         argmax_overlaps = overlaps.argmax(axis=1)
         max_overlaps = overlaps[np.arange(len(inds_inside)), argmax_overlaps]

@@ -90,25 +90,21 @@ def clip_boxes(boxes, img_size):
     return boxes
 
 
-def keep_inside(anchors, W, H):
+def keep_inside(anchor, W, H):
     """Calc indicies of anchors which are inside of the image size.
 
     Calc indicies of anchors which are located completely inside of the image
     whose size is speficied by img_info ((height, width, scale)-shaped array).
     """
-    with cuda.get_device_from_array(anchors) as d:
-        xp = cuda.get_array_module(anchors)
-        if d.id >= 0:
-            img_info = cuda.to_gpu(img_info, d)
-            assert anchors.device == img_info.device
+    xp = cuda.get_array_module(anchor)
 
-        inds_inside = xp.where(
-            (anchors[:, 0] >= 0) &
-            (anchors[:, 1] >= 0) &
-            (anchors[:, 2] < W) &  # width
-            (anchors[:, 3] < H)  # height
-        )[0]
-        return inds_inside, anchors[inds_inside]
+    index_inside = xp.where(
+        (anchor[:, 0] >= 0) &
+        (anchor[:, 1] >= 0) &
+        (anchor[:, 2] < W) &  # width
+        (anchor[:, 3] < H)  # height
+    )[0]
+    return index_inside, anchor[inds_inside]
 
 
 def get_bbox_regression_label(bbox, label, n_class, bbox_inside_weight_coeff):
