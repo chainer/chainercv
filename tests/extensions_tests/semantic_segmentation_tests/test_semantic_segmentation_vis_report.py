@@ -9,7 +9,7 @@ from chainer.datasets import TupleDataset
 from chainer import testing
 
 from chainercv.extensions import SemanticSegmentationVisReport
-from chainercv.utils import ConstantReturnModel
+from chainercv.utils import StubLink
 
 try:
     import matplotlib  # NOQA
@@ -29,8 +29,7 @@ class TestSemanticSegmentationVisReport(unittest.TestCase):
         self.trainer.updater.iteration = 0
 
         n_class = 2
-        model = ConstantReturnModel(
-            np.random.uniform(size=(1, 1, 10, 10)).astype(np.int32))
+        model = StubLink((1, 1, 10, 10), dtype=np.int32)
         dataset = TupleDataset(
             np.random.uniform(size=(100, 3, 10, 10)).astype(np.float32),
             np.random.uniform(size=(100, 1, 10, 10)).astype(np.int32))

@@ -9,7 +9,7 @@ from chainer.datasets import TupleDataset
 from chainer import testing
 
 from chainercv.extensions import DetectionVisReport
-from chainercv.utils import ConstantReturnModel
+from chainercv.utils import StubLink
 
 try:
     import matplotlib  # NOQA
@@ -32,9 +32,9 @@ class TestDetectionVisReport(unittest.TestCase):
         self.trainer.out = self.out_dir
         self.trainer.updater.iteration = 0
 
-        model = ConstantReturnModel(
-            (np.random.uniform(size=(1,) + self.bbox_shape),
-             np.random.uniform(size=(1,) + self.label_shape)))
+        model = StubLink(
+            (1,) + self.bbox_shape,
+            (1,) + self.label_shape)
         dataset = TupleDataset(
             np.random.uniform(size=(100, 3, 10, 10)).astype(np.float32),
             np.random.uniform(
