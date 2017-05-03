@@ -56,12 +56,14 @@ class TestProposalLayer(unittest.TestCase):
             self, proposal_layer,
             rpn_bbox_pred, rpn_cls_prob, anchor, img_size,
             scale=1., train=False):
+        xp = cuda.get_array_module(rpn_bbox_pred)
         roi = self.proposal_layer(
             rpn_bbox_pred, rpn_cls_prob, anchor, img_size, scale, train)
 
         out_length = self.train_rpn_post_nms_top_n \
             if train else self.test_rpn_post_nms_top_n
         self.assertEqual(roi.shape[0], out_length)
+        self.assertTrue(isinstance(roi, xp.ndarray))
 
     @condition.retry(3)
     def test_proposal_layer_cpu(self):
