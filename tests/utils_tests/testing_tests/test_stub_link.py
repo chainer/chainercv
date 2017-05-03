@@ -23,12 +23,12 @@ class TestStubLink(unittest.TestCase):
         values = self.link('ignored', -1, 'values', 1.0)
 
         if len(self.shapes) == 1:
-            values = (values,)
+            values = values,
 
         for shape, value in zip(self.shapes, values):
             self.assertIsInstance(value, chainer.Variable)
             if isinstance(shape, int):
-                shape = (shape,)
+                shape = shape,
             self.assertEqual(value.shape, shape)
             self.assertEqual(value.dtype, self.dtype)
 
