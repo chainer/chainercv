@@ -96,20 +96,20 @@ def transform(in_data):
     return img, bbox, label, float(o_W) / float(W), difficult
 
 
-def main(device=0, weight='', not_targets_precomputed=False):
+def main(gpu=0, weight='', not_targets_precomputed=False):
     dataset = VOCDetectionDataset(mode='test', year='2007',
                                   use_difficult=True, return_difficult=True)
     labels = pascal_voc_labels
     dataset = TransformDataset(dataset, transform)
     model = FasterRCNNVGG(
-        conf_threh=0.05, target_precomputed=not not_targets_precomputed)
+        conf_thresh=0.05, target_precomputed=not not_targets_precomputed)
     chainer.serializers.load_npz(weight, model)
-    if device >= 0:
-        chainer.cuda.get_device(device).use()
+    if gpu >= 0:
+        chainer.cuda.get_device(gpu).use()
         model.to_gpu()
 
     bboxes, labels, confs, gt_bboxes, gt_labels, gt_difficults = record_bbox(
-        model, dataset, device, len(pascal_voc_labels))
+        model, dataset, gpu, len(pascal_voc_labels))
 
     metric = eval_detection(
         bboxes, labels, confs, gt_bboxes,
