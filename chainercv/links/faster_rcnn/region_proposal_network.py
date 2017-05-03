@@ -69,44 +69,6 @@ class RegionProposalNetwork(chainer.Chain):
         return rpn_bbox_pred, rpn_cls_score, roi, anchor
 
 
-class RegionProposalNetworkLoss(object):
-
-    """A loss function that produces loss given inputs
-
-    """
-
-    def __init__(self, rpn_sigma=3., anchor_target_layer_params={}):
-        self.anchor_target_layer = AnchorTargetLayer(
-            **anchor_target_layer_params)
-        self.rpn_sigma = rpn_sigma
-
-    def __call__(self, rpn_bbox_pred, rpn_cls_score,
-                 bbox, anchor, img_size):
-        """
-        Args:
-            rpn_bbox_pred (~chainer.Variable)
-            rpn_cls_score (~chainer.Variable)
-            bbox (~ndarray or chainer.Variable)
-            anchor (~ndarray)
-            img_size (tuple of ints)
-        """
-        hh, ww = rpn_bbox_pred.shape[2:]
-        n = bbox.shape[0]
-        assert n == 1
-
-        rpn_bbox_target, rpn_label, rpn_bbox_inside_weight, \
-            rpn_bbox_outside_weight = self.anchor_target_layer(
-                bbox, anchor, (ww, hh), img_size)
-        rpn_label = rpn_label.reshape((n, -1))
-
-        rpn_cls_score = rpn_cls_score.reshape(1, 2, -1)
-        rpn_cls_loss = F.softmax_cross_entropy(rpn_cls_score, rpn_label)
-        rpn_loss_bbox = smooth_l1_loss(
-            rpn_bbox_pred, rpn_bbox_target, rpn_bbox_inside_weight,
-            rpn_bbox_outside_weight, self.rpn_sigma)
-        return rpn_loss_bbox, rpn_cls_loss
-
-
 def _enumerate_shifted_anchor(anchor, feat_stride, width, height):
     xp = cuda.get_array_module(anchor)
     # 1. Generate proposals from bbox deltas and shifted anchors

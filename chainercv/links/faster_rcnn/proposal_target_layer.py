@@ -11,7 +11,6 @@
 
 
 import numpy as np
-import numpy.random as npr
 from bbox_transform import bbox_transform
 
 from bbox import bbox_overlaps
@@ -99,10 +98,6 @@ class ProposalTargetLayer(object):
         # TODO(rbg): it's annoying that sometimes I have extra info before
         # and other times after box coordinates -- normalize to one format
         # Include ground-truth boxes in the set of candidate rois
-        if isinstance(bbox, chainer.Variable):
-            bbox = bbox.data
-        if isinstance(label, chainer.Variable):
-            label = label.data
         xp = cuda.get_array_module(roi)
         roi = cuda.to_cpu(roi)
         bbox = cuda.to_cpu(bbox)
@@ -112,9 +107,7 @@ class ProposalTargetLayer(object):
         n_image, n_bbox, _ = bbox.shape
         assert bbox.shape[0] == 1
         assert label.shape[0] == 1
-        # Sanity check: single batch only
-        assert np.all(roi[:, 0] == 0), \
-            'Only single item batches are supported'
+        assert np.all(roi[:, 0] == 0), 'Only single item batches are supported'
 
         bbox = bbox[0]
         label = label[0]
@@ -166,7 +159,7 @@ class ProposalTargetLayer(object):
         fg_rois_per_this_image = int(min(fg_rois_per_image, fg_inds.size))
         # Sample foreground regions without replacement
         if fg_inds.size > 0:
-            fg_inds = npr.choice(
+            fg_inds = np.random.choice(
                 fg_inds, size=fg_rois_per_this_image, replace=False)
 
         # Select background RoIs as those within [BG_THRESH_LO, BG_THRESH_HI)
@@ -178,7 +171,7 @@ class ProposalTargetLayer(object):
         bg_rois_per_this_image = int(min(bg_rois_per_this_image, bg_inds.size))
         # Sample background regions without replacement
         if bg_inds.size > 0:
-            bg_inds = npr.choice(
+            bg_inds = np.random.choice(
                 bg_inds, size=bg_rois_per_this_image, replace=False)
 
         # The indices that we're selecting (both fg and bg)
