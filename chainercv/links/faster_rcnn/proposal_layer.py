@@ -10,7 +10,7 @@
 # https://github.com/rbgirshick/py-faster-rcnn
 # -----------------------------------------------------------------------------
 
-from chainer.cuda import to_cpu
+from chainer import cuda
 import numpy as np
 
 from bbox_transform import bbox_transform_inv
@@ -39,11 +39,11 @@ class ProposalLayer(object):
         self.train_rpn_pre_nms_top_n = train_rpn_pre_nms_top_n
         self.train_rpn_post_nms_top_n = train_rpn_post_nms_top_n
         self.test_rpn_pre_nms_top_n = test_rpn_pre_nms_top_n
-        self.test_rpn_post_nms_top_n = test_rpn_pre_nms_top_n 
+        self.test_rpn_post_nms_top_n = test_rpn_pre_nms_top_n
         self.rpn_min_size = rpn_min_size
 
     def __call__(self, rpn_cls_prob, rpn_bbox_pred,
-                 anchors, img_size, scale=1., train=False):
+                 anchor, img_size, scale=1., train=False):
         """
         Args:
             rpn_cls_prob:
@@ -60,7 +60,8 @@ class ProposalLayer(object):
         # take top pre_nms_topN proposals before NMS
         # apply NMS with threshold 0.7 to remaining proposals
         # take after_nms_topN proposals after NMS
-        # return the top proposals (-> RoIs top, scores top)
+        # return the top proposals (-> RoIs top, score top)
+        xp = cuda.get_array_module(rpn_cls_prob)
 
         pre_nms_topN = self.train_rpn_pre_nms_top_n \
             if train else self.test_rpn_pre_nms_top_n
@@ -69,59 +70,58 @@ class ProposalLayer(object):
 
         # the first set of _num_anchors channels are bg probs
         # the second set are the fg probs, which we want
-        n_anchors = rpn_cls_prob.shape[1] / 2
-        scores = to_cpu(rpn_cls_prob.data[:, n_anchors:, :, :])
-        bbox_deltas = to_cpu(rpn_bbox_pred.data)
+        n_anchor = rpn_cls_prob.shape[1] / 2
+        score = rpn_cls_prob.data[:, n_anchor:, :, :]
+        bbox_deltas = rpn_bbox_pred.data
 
-        # Transpose and reshape predicted bbox transformations and scores
+        # Transpose and reshape predicted bbox transformations and score
         # to get them into the same order as the anchors:
         bbox_deltas = bbox_deltas.transpose((0, 2, 3, 1)).reshape((-1, 4))
-        scores = scores.transpose((0, 2, 3, 1)).reshape((-1, 1))
+        score = score.transpose((0, 2, 3, 1)).reshape((-1, 1))
 
-        # Convert anchors 
-        # into proposals via bbox transformations
-        proposals = bbox_transform_inv(anchors, bbox_deltas)
+        # Convert anchors
+        # into proposal via bbox transformations
+        proposal = bbox_transform_inv(anchor, bbox_deltas)
 
         # 2. clip predicted boxes to image
-        proposals = clip_boxes(proposals, img_size)
+        proposal = clip_boxes(proposal, img_size)
 
         # 3. remove predicted boxes with either height or width < threshold
-        keep = _filter_boxes(proposals, self.rpn_min_size * scale)
-        proposals = proposals[keep, :]
-        scores = scores[keep]
+        min_size = self.rpn_min_size * scale
+        ws = proposal[:, 2] - proposal[:, 0] + 1
+        hs = proposal[:, 3] - proposal[:, 1] + 1
+        keep = xp.where((ws >= min_size) & (hs >= min_size))[0]
+        proposal = proposal[keep, :]
+        score = score[keep]
 
         # 4. sort all (proposal, score) pairs by score from highest to lowest
         # 5. take top pre_nms_topN (e.g. 6000)
-        order = scores.ravel().argsort()[::-1]
+        score = cuda.to_cpu(score)
+        proposal = cuda.to_cpu(proposal)
+        order = score.ravel().argsort()[::-1]
         if pre_nms_topN > 0:
             order = order[:pre_nms_topN]
-        proposals = proposals[order, :]
-        scores = scores[order]
+        proposal = proposal[order, :]
+        score = score[order]
 
         # 6. apply nms (e.g. threshold = 0.7)
         # 7. take after_nms_topN (e.g. 300)
-        # 8. return the top proposals (-> RoIs top)
+        # 8. return the top proposal (-> RoIs top)
         if self.use_gpu_nms:
-            keep = nms_gpu(np.hstack((proposals, scores)), self.rpn_nms_thresh)
+            keep = nms_gpu(np.hstack((proposal, score)), self.rpn_nms_thresh)
         else:
-            keep = nms_cpu(np.hstack((proposals, scores)), self.rpn_nms_thresh)
+            keep = nms_cpu(np.hstack((proposal, score)), self.rpn_nms_thresh)
         if post_nms_topN > 0:
             keep = keep[:post_nms_topN]
-        proposals = proposals[keep, :]
-        scores = scores[keep]
+        proposal = proposal[keep, :]
+        score = score[keep]
 
         # Output rois blob
         # Our RPN implementation only supports a single input image, so all
         # batch inds are 0
-        batch_inds = np.zeros((proposals.shape[0], 1), dtype=np.float32)
-        rois = np.hstack((batch_inds, proposals)).astype(np.float32, copy=False)
+        if xp != np:
+            proposal = cuda.to_gpu(proposal)
+        batch_inds = xp.zeros((proposal.shape[0], 1), dtype=np.float32)
+        rois = xp.hstack((batch_inds, proposal)).astype(np.float32, copy=False)
 
         return rois
-
-
-def _filter_boxes(boxes, min_size):
-    """Remove all boxes with any side smaller than min_size."""
-    ws = boxes[:, 2] - boxes[:, 0] + 1
-    hs = boxes[:, 3] - boxes[:, 1] + 1
-    keep = np.where((ws >= min_size) & (hs >= min_size))[0]
-    return keep

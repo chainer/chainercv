@@ -3,6 +3,7 @@ import numpy as np
 import chainer
 import chainer.functions as F
 import chainer.links as L
+from chainer import cuda
 
 from anchor_target_layer import AnchorTargetLayer
 from generate_anchors import generate_anchors
@@ -43,6 +44,7 @@ class RegionProposalNetwork(chainer.Chain):
         bbox (numpy.ndarry)
 
         """
+        xp = cuda.get_array_module(x)
         n = x.data.shape[0]
         assert n == 1
         h = F.relu(self.rpn_conv_3x3(x))
@@ -55,7 +57,7 @@ class RegionProposalNetwork(chainer.Chain):
 
         # enumerate all shifted anchors
         anchor = _enumerate_shifted_anchor(
-            self.anchor_base, self.feat_stride, ww, hh)
+            xp.array(self.anchor_base), self.feat_stride, ww, hh)
         roi = self.proposal_layer(
             rpn_cls_prob, rpn_bbox_pred, anchor, img_size,
             scale=scale, train=train)
@@ -101,14 +103,15 @@ class RegionProposalNetworkLoss(object):
         return rpn_loss_bbox, rpn_cls_loss
 
 
-def _enumerate_shifted_anchor(anchors, feat_stride, width, height):
+def _enumerate_shifted_anchor(anchor, feat_stride, width, height):
+    xp = cuda.get_array_module(anchor)
     # 1. Generate proposals from bbox deltas and shifted anchors
     # Enumerate all shifts
-    shift_x = np.arange(0, width) * feat_stride
-    shift_y = np.arange(0, height) * feat_stride
-    shift_x, shift_y = np.meshgrid(shift_x, shift_y)
-    shifts = np.vstack((shift_x.ravel(), shift_y.ravel(),
-                        shift_x.ravel(), shift_y.ravel())).transpose()
+    shift_x = xp.arange(0, width) * feat_stride
+    shift_y = xp.arange(0, height) * feat_stride
+    shift_x, shift_y = xp.meshgrid(shift_x, shift_y)
+    shift = xp.vstack((shift_x.ravel(), shift_y.ravel(),
+                       shift_x.ravel(), shift_y.ravel())).transpose()
 
     # Enumerate all shifted anchors:
     #
@@ -116,9 +119,9 @@ def _enumerate_shifted_anchor(anchors, feat_stride, width, height):
     # cell K shifts (K, 1, 4) to get
     # shift anchors (K, A, 4)
     # reshape to (K*A, 4) shifted anchors
-    A = anchors.shape[0]
+    A = anchor.shape[0]
     K = shifts.shape[0]
-    anchors_shifted = anchors.reshape((1, A, 4)) + \
-        shifts.reshape((1, K, 4)).transpose((1, 0, 2))
-    anchors_shifted = anchors_shifted.reshape((K * A, 4)).astype(np.float32)
-    return anchors_shifted
+    anchor_shifted = anchor.reshape((1, A, 4)) + \
+        shift.reshape((1, K, 4)).transpose((1, 0, 2))
+    anchor_shifted = anchor_shifted.reshape((K * A, 4)).astype(np.float32)
+    return anchor_shifted
