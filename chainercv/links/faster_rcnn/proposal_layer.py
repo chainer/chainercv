@@ -80,7 +80,7 @@ class ProposalLayer(object):
 
         # Convert anchors 
         # into proposals via bbox transformations
-        proposals = bbox_transform_inv(anchors, bbox_deltas, gpu=-1)
+        proposals = bbox_transform_inv(anchors, bbox_deltas)
 
         # 2. clip predicted boxes to image
         proposals = clip_boxes(proposals, img_size)

@@ -38,15 +38,7 @@ def bbox_transform(ex_rois, gt_rois):
     return targets
 
 
-def bbox_transform_inv(boxes, deltas, gpu=-1):
-    if gpu >= 0:
-        with cuda.Device(gpu):
-            return _bbox_transform_inv(boxes, deltas)
-    else:
-        return _bbox_transform_inv(boxes, deltas)
-
-
-def _bbox_transform_inv(boxes, deltas):
+def bbox_transform_inv(boxes, deltas):
     xp = get_array_module(boxes)
 
     if boxes.shape[0] == 0:
@@ -82,15 +74,7 @@ def _bbox_transform_inv(boxes, deltas):
     return pred_boxes
 
 
-def clip_boxes(boxes, img_size, gpu=-1):
-    if gpu >= 0:
-        with cuda.Device(gpu):
-            return _clip_boxes(boxes, img_size)
-    else:
-        return _clip_boxes(boxes, img_size)
-
-
-def _clip_boxes(boxes, img_size):
+def clip_boxes(boxes, img_size):
     """Clip boxes to image boundaries."""
     xp = get_array_module(boxes)
     W, H = img_size

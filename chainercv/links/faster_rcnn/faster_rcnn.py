@@ -95,7 +95,6 @@ class FasterRCNNBase(chainer.Chain):
         bbox_tf, cls_score = self.head(pool5, train=False)
 
         xp = chainer.cuda.get_array_module(pool5)
-        device = chainer.cuda.get_device(pool5.data)
         # Convert predictions to bounding boxes in image coordinates.
         bbox_roi = roi[:, 1:5]
         bbox_roi = bbox_roi / scale
@@ -108,10 +107,10 @@ class FasterRCNNBase(chainer.Chain):
                 np.array(self.bbox_normalize_std),
                 self.n_class)
             bbox_tf_data = (bbox_tf_data * std + mean).astype(np.float32)
-        bbox = bbox_transform_inv(bbox_roi, bbox_tf_data, device.id)
+        bbox = bbox_transform_inv(bbox_roi, bbox_tf_data)
         W, H = img_size
         bbox = clip_boxes(
-            bbox, (W / scale, H / scale), device.id)
+            bbox, (W / scale, H / scale))
 
         # Compute probabilities that each bounding box is assigned to.
         cls_prob = F.softmax(cls_score).data
