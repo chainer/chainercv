@@ -17,6 +17,7 @@ from bbox_transform import bbox_transform
 from bbox_transform import keep_inside
 
 import chainer
+from chainer import cuda
 
 
 class AnchorTargetLayer(object):
@@ -57,7 +58,9 @@ class AnchorTargetLayer(object):
         assert bbox.shape[0] == 1
         if isinstance(bbox, chainer.Variable):
             bbox = bbox.data
-        bbox = chainer.cuda.to_cpu(bbox)
+        xp = cuda.get_array_module(bbox)
+        bbox = cuda.to_cpu(bbox)
+        anchor = cuda.to_cpu(anchor)
 
         bbox = bbox[0]
 
@@ -97,6 +100,14 @@ class AnchorTargetLayer(object):
             (1, height, width, -1)).transpose(0, 3, 1, 2)
         bbox_outside_weight = bbox_outside_weight.reshape(
             (1, height, width, -1)).transpose(0, 3, 1, 2)
+
+        if xp != np:
+            label = chainer.cuda.to_gpu(label)
+            bbox_target = chainer.cuda.to_gpu(bbox_target)
+            bbox_inside_weight = chainer.cuda.to_gpu(
+                bbox_inside_weight)
+            bbox_outside_weight = chainer.cuda.to_gpu(
+                bbox_outside_weight)
         return label, bbox_target, bbox_inside_weight, bbox_outside_weight
 
     def _create_label(self, inds_inside, anchor, bbox):

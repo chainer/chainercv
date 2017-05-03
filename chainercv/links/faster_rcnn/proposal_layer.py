@@ -122,6 +122,6 @@ class ProposalLayer(object):
         if xp != np:
             proposal = cuda.to_gpu(proposal)
         batch_inds = xp.zeros((proposal.shape[0], 1), dtype=np.float32)
-        rois = xp.hstack((batch_inds, proposal)).astype(np.float32, copy=False)
+        roi = xp.hstack((batch_inds, proposal)).astype(np.float32, copy=False)
 
-        return rois
+        return roi

@@ -18,6 +18,7 @@ from bbox import bbox_overlaps
 from bbox_transform import get_bbox_regression_label
 
 import chainer
+from chainer import cuda
 
 
 class ProposalTargetLayer(object):
@@ -91,6 +92,15 @@ class ProposalTargetLayer(object):
         # TODO(rbg): it's annoying that sometimes I have extra info before
         # and other times after box coordinates -- normalize to one format
         # Include ground-truth boxes in the set of candidate rois
+        if isinstance(bbox, chainer.Variable):
+            bbox = bbox.data
+        if isinstance(label, chainer.Variable):
+            label = label.data
+        xp = cuda.get_array_module(roi)
+        roi = cuda.to_cpu(roi)
+        bbox = cuda.to_cpu(bbox)
+        label = cuda.to_cpu(label)
+
         assert bbox.ndim == 3
         n_image, n_bbox, _ = bbox.shape
         assert bbox.shape[0] == 1
@@ -99,13 +109,6 @@ class ProposalTargetLayer(object):
         assert np.all(roi[:, 0] == 0), \
             'Only single item batches are supported'
 
-        # TODO(yuyu2172) Make modules independent of device.
-        if isinstance(bbox, chainer.Variable):
-            bbox = bbox.data
-        if isinstance(label, chainer.Variable):
-            label = label.data
-        bbox = chainer.cuda.to_cpu(bbox)
-        label = chainer.cuda.to_cpu(label)
         bbox = bbox[0]
         label = label[0]
 
@@ -117,7 +120,7 @@ class ProposalTargetLayer(object):
 
         # Sample rois with classification labels and bounding box regression
         # targets
-        label_target, roi_target, bbox_targets, bbox_inside_weight =\
+        label_target, roi_target, bbox_target, bbox_inside_weight =\
             self._sample_roi(
                 roi, bbox, label, fg_rois_per_image,
                 rois_per_image, self.n_class)
@@ -125,7 +128,14 @@ class ProposalTargetLayer(object):
         roi_target = roi_target.astype(np.float32)
 
         bbox_outside_weight = (bbox_inside_weight > 0).astype(np.float32)
-        return roi_target, label_target, bbox_targets, bbox_inside_weight,\
+
+        if xp != np:
+            roi_sample = cuda.to_gpu(roi_sample)
+            label_sample = cuda.to_gpu(label_sample)
+            bbox_target = cuda.to_gpu(bbox_target)
+            bbox_inside_weight = cuda.to_gpu(bbox_inside_weight)
+            bbox_outside_weight = cuda.to_gpu(bbox_outside_weight)
+        return roi_target, label_target, bbox_target, bbox_inside_weight,\
             bbox_outside_weight
 
     def _sample_roi(

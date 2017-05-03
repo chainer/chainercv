@@ -48,8 +48,6 @@ class FasterRCNNLoss(chainer.Chain):
         roi_sample, label_sample, bbox_target_sample, bbox_inside_weight, \
             bbox_outside_weight = self.proposal_target_layer(
                 out['roi'], bbox, label)
-        if device.id >= 0:
-            roi_sample = cuda.to_gpu(roi_sample, device=device)
         # forward sampled RoIs
         pool5 = F.roi_pooling_2d(
             out['feature'],
@@ -57,13 +55,6 @@ class FasterRCNNLoss(chainer.Chain):
         bbox_tf, cls_score = self.faster_rcnn.head(pool5, train=self.train)
 
         # Losses for outputs of the head.
-        if device.id >= 0:
-            label_sample = cuda.to_gpu(label_sample, device=device)
-            bbox_target_sample = cuda.to_gpu(bbox_target_sample, device=device)
-            bbox_inside_weight = cuda.to_gpu(
-                bbox_inside_weight, device=device)
-            bbox_outside_weight = cuda.to_gpu(
-                bbox_outside_weight, device=device)
         loss_cls = F.softmax_cross_entropy(cls_score, label_sample)
         loss_bbox = smooth_l1_loss(
             bbox_tf, bbox_target_sample,
