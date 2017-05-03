@@ -29,7 +29,7 @@ class TestSemanticSegmentationVisReport(unittest.TestCase):
         self.trainer.updater.iteration = 0
 
         n_class = 2
-        model = StubLink((1, 1, 10, 10), dtype=np.int32)
+        model = StubLink(((1, 1, 10, 10),), dtype=np.int32)
         dataset = TupleDataset(
             np.random.uniform(size=(100, 3, 10, 10)).astype(np.float32),
             np.random.uniform(size=(100, 1, 10, 10)).astype(np.int32))

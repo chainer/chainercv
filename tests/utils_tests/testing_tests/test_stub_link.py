@@ -15,7 +15,7 @@ from chainercv.utils import StubLink
 class TestStubLink(unittest.TestCase):
 
     def setUp(self):
-        self.link = StubLink(*self.shapes, value=self.value, dtype=self.dtype)
+        self.link = StubLink(self.shapes, value=self.value, dtype=self.dtype)
 
     def test_stub_link(self):
         self.assertIsInstance(self.link, chainer.Link)
@@ -39,17 +39,9 @@ class TestStubLink(unittest.TestCase):
 
 class TestStubLinkInvalidArgument(unittest.TestCase):
 
-    def test_no_shapes(self):
-        with self.assertRaises(ValueError):
-            StubLink()
-
     def test_invalid_value(self):
         with self.assertRaises(ValueError):
             StubLink((3, 4), value='invalid')
-
-    def test_invalid_kwargs(self):
-        with self.assertRaises(ValueError):
-            StubLink((3, 4), invalid='invalid')
 
 
 testing.run_module(__name__, __file__)

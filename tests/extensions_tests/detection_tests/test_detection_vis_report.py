@@ -32,9 +32,9 @@ class TestDetectionVisReport(unittest.TestCase):
         self.trainer.out = self.out_dir
         self.trainer.updater.iteration = 0
 
-        model = StubLink(
+        model = StubLink((
             (1,) + self.bbox_shape,
-            (1,) + self.label_shape)
+            (1,) + self.label_shape))
         dataset = TupleDataset(
             np.random.uniform(size=(100, 3, 10, 10)).astype(np.float32),
             np.random.uniform(
