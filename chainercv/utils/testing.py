@@ -7,7 +7,7 @@ class StubLink(chainer.Link):
     """A chainer.Link that returns dummy value(s).
 
     This is a :obj:`chainer.Link` that returns dummy
-    :obj:`chainer.Variable` when :meth:`__call__` method is called.
+    :obj:`chainer.Variable`(s) when :meth:`__call__` method is called.
 
     Args:
         shape (int or tuple of int): The shape of returned variable.
@@ -60,8 +60,8 @@ class StubLink(chainer.Link):
         """Returns dummy value(s).
 
         Args:
-            This method can take any values as argument.
-            All of them are ignored.
+            This method can take any values as its arguments.
+            This function returns values independent of the arguments.
 
         Returns:
             chainer.Variable or tuple of chainer.Variable:
