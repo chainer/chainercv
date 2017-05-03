@@ -103,6 +103,9 @@ def load_kernel(kernel_name, code, options=()):
 
 
 def nms_gpu(dets, thresh):
+    if len(dets) == 0:
+        return np.zeros((0,), dtype=np.int32)
+
     boxes_num = dets.shape[0]
     boxes_dim = dets.shape[1]
 
@@ -111,7 +114,7 @@ def nms_gpu(dets, thresh):
     sorted_dets = dets[order, :]
     keep, num_out = _nms(sorted_dets, boxes_num, boxes_dim, thresh)
     keep = keep[:num_out]
-    return list(order[keep])
+    return order[keep]
 
 
 def divup(m, n):
