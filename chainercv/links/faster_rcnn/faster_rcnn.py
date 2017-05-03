@@ -76,7 +76,7 @@ class FasterRCNNBase(chainer.Chain):
         scale = np.asscalar(cuda.to_cpu(scale))
         img_size = x.shape[2:][::-1]
 
-        h = self._extract_feature(x)
+        h = self._extract_feature(x, train=not test)
         rpn_bbox_pred, rpn_cls_score, roi, anchor =\
             self.rpn(h, img_size, scale, train=not test)
 
@@ -161,7 +161,7 @@ class FasterRCNNBase(chainer.Chain):
 
         return bbox_nms[None], label_nms[None], conf_nms[None]
 
-    def _extract_feature(self, x):
+    def _extract_feature(self, x, train=False):
         raise NotImplementedError
 
 
@@ -231,7 +231,7 @@ class FasterRCNNVGG(FasterRCNNBase):
             self.feature._children.remove(name)
             delattr(self.feature, name)
 
-    def _extract_feature(self, x):
+    def _extract_feature(self, x, train=False):
         hs = self.feature(x, layers=['pool2', 'conv5_3'])
         h = hs['conv5_3']
         hs['pool2'].unchain_backward()
@@ -292,8 +292,8 @@ class FasterRCNNResNet(FasterRCNNBase):
             self.feature._children.remove(name)
             delattr(self.feature, name)
 
-    def _extract_feature(self, x):
-        hs = self.feature(x, layers=['res2', 'res4'])
+    def _extract_feature(self, x, train=False):
+        hs = self.feature(x, layers=['res2', 'res4'], test=not train)
         h = hs['res4']
         hs['res2'].unchain_backward()
         return h

@@ -43,7 +43,6 @@ class FasterRCNNLoss(chainer.Chain):
         out = self.faster_rcnn(
             img, scale=scale, layers=layers, rpn_only=True,
             test=not self.train)
-        device = cuda.get_device(out['feature'].data)
 
         roi_sample, label_sample, bbox_target_sample, bbox_inside_weight, \
             bbox_outside_weight = self.proposal_target_layer(
