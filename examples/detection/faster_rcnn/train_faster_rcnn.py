@@ -144,7 +144,7 @@ def main(gpus=[0, 1, 2], model_mode='vgg',
     fn = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S").replace(' ', '_')
     trainer.extend(extensions.snapshot(filename='snapshot'+fn), trigger=(1, 'epoch'))
     trainer.extend(extensions.snapshot_object(
-        model, 'model' + fn), trigger=(1, 'epoch'))
+        model.faster_rcnn, 'model' + fn), trigger=(1, 'epoch'))
     trainer.extend(extensions.ExponentialShift('lr', gamma),
                    trigger=(step_size, 'iteration'))
 
@@ -274,7 +274,7 @@ def main(gpus=[0, 1, 2], model_mode='vgg',
     use_07_metric = True
     trainer.extend(
         DetectionReport(
-            model, test_data,gpus[0], len(labels), minoverlap=0.5,
+            model.faster_rcnn, test_data,gpus[0], len(labels), minoverlap=0.5,
             use_07_metric=use_07_metric, post_transform=post_transform),
         trigger=val_interval, invoke_before_training=False
 
