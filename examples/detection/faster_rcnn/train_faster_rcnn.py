@@ -62,7 +62,9 @@ def get_updater(train_iter, optimizer, device):
 
 def main(gpus=[0, 1, 2], model_mode='vgg',
          lr=1e-3, gamma=0.1,
-        out='result', resume='', long_mode=False, seed=0):
+         out='result', resume='', long_mode=False, seed=0,
+         roi_batchsize=128,
+         ):
     for key, val in locals().items():
         print('{}: {}'.format(key, val))
     batch_size = 1
@@ -113,7 +115,10 @@ def main(gpus=[0, 1, 2], model_mode='vgg',
     test_data = TransformDataset(test_data, get_transform(False))
 
     if model_mode == 'vgg':
-        model = FasterRCNNLoss(FasterRCNNVGG(len(labels)))
+        proposal_target_layer_params = {'batch_size': roi_batchsize}
+        model = FasterRCNNLoss(
+            FasterRCNNVGG(len(labels)),
+            proposal_target_layer_params=proposal_target_layer_params)
         weight_decay = 0.0005
     elif model_mode == 'resnet':
         model = FasterRCNNResNet(n_class=len(labels))

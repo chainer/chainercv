@@ -62,8 +62,7 @@ class FasterRCNNLoss(chainer.Chain):
         # rpn losses
         rpn_loss_bbox, rpn_cls_loss = self.rpn_loss_func(
             out['rpn_bbox_pred'], out['rpn_cls_score'],
-            out['roi'], bbox, out['anchor'],
-            img_size)
+            bbox, out['anchor'], img_size)
 
         loss = rpn_loss_bbox + rpn_cls_loss + loss_bbox + loss_cls
         chainer.reporter.report({'rpn_loss_cls': rpn_cls_loss,
