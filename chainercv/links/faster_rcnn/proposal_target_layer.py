@@ -85,6 +85,13 @@ class ProposalTargetLayer(object):
                 :math:`(x1, y1, x2, y2, cls_id)` of each ground truth bbox.
                 The scale of them are at the input image scale.
 
+        Returns:
+            roi_sample (~ndarray)
+            label_sample (~ndarray)
+            bbox_target_sample (~ndarray)
+            bbox_inside_weight (~ndarray)
+            bbox_outside_weight (~ndarray)
+
         """
         # Proposal ROIs (0, x1, y1, x2, y2) coming from RPN
         # (i.e., rpn.proposal_layer.ProposalLayer), or any other source
@@ -120,23 +127,23 @@ class ProposalTargetLayer(object):
 
         # Sample rois with classification labels and bounding box regression
         # targets
-        label_target, roi_target, bbox_target, bbox_inside_weight =\
+        label_sample, roi_sample, bbox_target_sample, bbox_inside_weight =\
             self._sample_roi(
                 roi, bbox, label, fg_rois_per_image,
                 rois_per_image, self.n_class)
-        label_target = label_target.astype(np.int32)
-        roi_target = roi_target.astype(np.float32)
+        label_sample = label_sample.astype(np.int32)
+        roi_sample = roi_sample.astype(np.float32)
 
         bbox_outside_weight = (bbox_inside_weight > 0).astype(np.float32)
 
         if xp != np:
             roi_sample = cuda.to_gpu(roi_sample)
             label_sample = cuda.to_gpu(label_sample)
-            bbox_target = cuda.to_gpu(bbox_target)
+            bbox_target_sample = cuda.to_gpu(bbox_target_sample)
             bbox_inside_weight = cuda.to_gpu(bbox_inside_weight)
             bbox_outside_weight = cuda.to_gpu(bbox_outside_weight)
-        return roi_target, label_target, bbox_target, bbox_inside_weight,\
-            bbox_outside_weight
+        return roi_sample, label_sample, bbox_target_sample,\
+            bbox_inside_weight, bbox_outside_weight
 
     def _sample_roi(
             self, roi, bbox, label, fg_rois_per_image, rois_per_image,
