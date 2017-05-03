@@ -18,7 +18,9 @@ class TestStubLink(unittest.TestCase):
         self.link = StubLink(*self.shapes, value=self.value, dtype=self.dtype)
 
     def test_stub_link(self):
-        values = self.link()
+        self.assertIsInstance(self.link, chainer.Link)
+
+        values = self.link('ignored', -1, 'values', 1.0)
 
         if len(self.shapes) == 1:
             values = (values,)
