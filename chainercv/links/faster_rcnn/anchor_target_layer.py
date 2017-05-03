@@ -91,24 +91,24 @@ class AnchorTargetLayer(object):
             bbox_outside_weight, n_anchor, inds_inside, fill=0)
 
         # reshape
+        bbox_target = bbox_target.reshape(
+            (1, height, width, -1)).transpose(0, 3, 1, 2)
         label = label.reshape(
             (1, height, width, -1)).transpose(0, 3, 1, 2)
         label = label.astype(np.int32)
-        bbox_target = bbox_target.reshape(
-            (1, height, width, -1)).transpose(0, 3, 1, 2)
         bbox_inside_weight = bbox_inside_weight.reshape(
             (1, height, width, -1)).transpose(0, 3, 1, 2)
         bbox_outside_weight = bbox_outside_weight.reshape(
             (1, height, width, -1)).transpose(0, 3, 1, 2)
 
         if xp != np:
-            label = chainer.cuda.to_gpu(label)
             bbox_target = chainer.cuda.to_gpu(bbox_target)
+            label = chainer.cuda.to_gpu(label)
             bbox_inside_weight = chainer.cuda.to_gpu(
                 bbox_inside_weight)
             bbox_outside_weight = chainer.cuda.to_gpu(
                 bbox_outside_weight)
-        return label, bbox_target, bbox_inside_weight, bbox_outside_weight
+        return bbox_target, label, bbox_inside_weight, bbox_outside_weight
 
     def _create_label(self, inds_inside, anchor, bbox):
         # label: 1 is positive, 0 is negative, -1 is dont care

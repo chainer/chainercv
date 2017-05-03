@@ -35,8 +35,6 @@ class FasterRCNNLoss(chainer.Chain):
         self.train = True
 
     def __call__(self, img, bbox, label, scale=1.):
-        # TODO(yuyu2172) use train setting for feature extraction as well
-        # some layers need the parameter (like ResNet)
         img_size = img.shape[2:][::-1]
         layers = ['feature', 'rpn_bbox_pred', 'rpn_cls_score',
                   'roi', 'anchor']
@@ -44,7 +42,7 @@ class FasterRCNNLoss(chainer.Chain):
             img, scale=scale, layers=layers, rpn_only=True,
             test=not self.train)
 
-        roi_sample, label_sample, bbox_target_sample, bbox_inside_weight, \
+        roi_sample, bbox_target_sample, label_sample, bbox_inside_weight, \
             bbox_outside_weight = self.proposal_target_layer(
                 out['roi'], bbox, label)
         # forward sampled RoIs

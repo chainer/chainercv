@@ -138,11 +138,11 @@ class ProposalTargetLayer(object):
 
         if xp != np:
             roi_sample = cuda.to_gpu(roi_sample)
-            label_sample = cuda.to_gpu(label_sample)
             bbox_target_sample = cuda.to_gpu(bbox_target_sample)
+            label_sample = cuda.to_gpu(label_sample)
             bbox_inside_weight = cuda.to_gpu(bbox_inside_weight)
             bbox_outside_weight = cuda.to_gpu(bbox_outside_weight)
-        return roi_sample, label_sample, bbox_target_sample,\
+        return roi_sample, bbox_target_sample, label_sample,\
             bbox_inside_weight, bbox_outside_weight
 
     def _sample_roi(

@@ -64,7 +64,7 @@ class RegionProposalNetwork(chainer.Chain):
         anchor = _enumerate_shifted_anchor(
             xp.array(self.anchor_base), self.feat_stride, ww, hh)
         roi = self.proposal_layer(
-            rpn_cls_prob, rpn_bbox_pred, anchor, img_size,
+            rpn_bbox_pred, rpn_cls_prob, anchor, img_size,
             scale=scale, train=train)
         return rpn_bbox_pred, rpn_cls_score, roi, anchor
 
@@ -94,7 +94,7 @@ class RegionProposalNetworkLoss(object):
         n = bbox.shape[0]
         assert n == 1
 
-        rpn_label, rpn_bbox_target, rpn_bbox_inside_weight, \
+        rpn_bbox_target, rpn_label, rpn_bbox_inside_weight, \
             rpn_bbox_outside_weight = self.anchor_target_layer(
                 bbox, anchor, (ww, hh), img_size)
         rpn_label = rpn_label.reshape((n, -1))

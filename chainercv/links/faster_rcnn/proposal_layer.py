@@ -42,7 +42,7 @@ class ProposalLayer(object):
         self.test_rpn_post_nms_top_n = test_rpn_pre_nms_top_n
         self.rpn_min_size = rpn_min_size
 
-    def __call__(self, rpn_cls_prob, rpn_bbox_pred,
+    def __call__(self, rpn_bbox_pred, rpn_cls_prob,
                  anchor, img_size, scale=1., train=False):
         """
         Args:
