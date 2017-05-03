@@ -33,7 +33,7 @@ class TestForward(unittest.TestCase):
         if len(self.outputs) == 1:
             self.outputs = self.outputs[0]
 
-    def _check_inputs(self, inputs):
+    def _check_inputs(self, inputs, expand_dim=False):
         if isinstance(self.inputs, tuple):
             orig_inputs = self.inputs
         else:
@@ -44,6 +44,8 @@ class TestForward(unittest.TestCase):
             self.assertEqual(chainer.cuda.get_array_module(in_.data), self.xp)
 
             in_ = chainer.cuda.to_cpu(in_.data)
+            if expand_dim:
+                orig = orig[np.newaxis]
             np.testing.assert_equal(in_, orig)
 
     def _check_outputs(self, outputs):
@@ -58,14 +60,41 @@ class TestForward(unittest.TestCase):
             orig = chainer.cuda.to_cpu(orig)
             np.testing.assert_equal(out, orig)
 
-    def test_forward(self):
+    def test_basic(self):
         def _call(*inputs):
             self._check_inputs(inputs)
             return self.outputs
         self.mocked_model.side_effect = _call
-
         outputs = forward(self.mocked_model, self.inputs)
         self._check_outputs(outputs)
+
+    def test_with_forward_func(self):
+        def forward_func(*inputs):
+            self._check_inputs(inputs)
+            return self.outputs
+        outputs = forward(
+            self.mocked_model, self.inputs, forward_func=forward_func)
+        self._check_outputs(outputs)
+
+    def test_with_expand_dim(self):
+        def _call(*inputs):
+            self._check_inputs(inputs, expand_dim=True)
+            return self.outputs
+        self.mocked_model.side_effect = _call
+        outputs = forward(self.mocked_model, self.inputs, expand_dim=True)
+        self._check_outputs(outputs)
+
+    def test_with_train_attr(self):
+        self.mocked_model.train = True
+
+        def _call(*inputs):
+            self._check_inputs(inputs)
+            self.assertFalse(self.mocked_model.train)
+            return self.outputs
+        self.mocked_model.side_effect = _call
+        outputs = forward(self.mocked_model, self.inputs)
+        self._check_outputs(outputs)
+        self.assertTrue(self.mocked_model.train)
 
 
 testing.run_module(__name__, __file__)
