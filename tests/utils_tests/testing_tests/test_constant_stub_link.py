@@ -3,6 +3,7 @@ import unittest
 
 import chainer
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.utils import ConstantStubLink
 
@@ -23,8 +24,9 @@ class TestConstantStubLink(unittest.TestCase):
             self.outputs = np.empty(**self.outputs)
         self.link = ConstantStubLink(self.outputs)
 
-    def test_cpu(self):
+    def _check(self, xp):
         self.assertIsInstance(self.link, chainer.Link)
+        self.assertEqual(self.link.xp, xp)
 
         outputs = self.link('ignored', -1, 'inputs', 1.0)
 
@@ -43,8 +45,23 @@ class TestConstantStubLink(unittest.TestCase):
             self.assertEqual(out.dtype, orig.dtype)
 
             self.assertEqual(
-                chainer.cuda.get_array_module(out.data), np)
+                chainer.cuda.get_array_module(out.data), xp)
+            out.to_cpu()
             np.testing.assert_equal(out.data, orig)
+
+    def test_cpu(self):
+        self._check(np)
+
+    @attr.gpu
+    def test_gpu(self):
+        self.link.to_gpu()
+        self._check(chainer.cuda.cupy)
+
+    @attr.gpu
+    def test_gpu_to_cpu(self):
+        self.link.to_gpu()
+        self.link.to_cpu()
+        self._check(np)
 
 
 class TestConstantStubLinkInvalidArgument(unittest.TestCase):
