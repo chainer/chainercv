@@ -104,7 +104,7 @@ def keep_inside(anchor, W, H):
         (anchor[:, 2] < W) &  # width
         (anchor[:, 3] < H)  # height
     )[0]
-    return index_inside, anchor[inds_inside]
+    return index_inside, anchor[index_inside]
 
 
 def get_bbox_regression_label(bbox, label, n_class, bbox_inside_weight_coeff):

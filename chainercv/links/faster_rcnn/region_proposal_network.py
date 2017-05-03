@@ -124,7 +124,7 @@ def _enumerate_shifted_anchor(anchor, feat_stride, width, height):
     # shift anchors (K, A, 4)
     # reshape to (K*A, 4) shifted anchors
     A = anchor.shape[0]
-    K = shifts.shape[0]
+    K = shift.shape[0]
     anchor_shifted = anchor.reshape((1, A, 4)) + \
         shift.reshape((1, K, 4)).transpose((1, 0, 2))
     anchor_shifted = anchor_shifted.reshape((K * A, 4)).astype(np.float32)
