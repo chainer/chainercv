@@ -18,7 +18,7 @@ def do_analyze():
     print results
 
 
-def main(gpus=0, n=1, roi_batchsize=128, analyze=False):
+def main(gpus=0, n=1, roi_batchsize=128, model_mode='vgg', analyze=False):
     if analyze:
         do_analyze()
     seeds = np.random.randint(0, 10000, size=(n,))
@@ -26,7 +26,9 @@ def main(gpus=0, n=1, roi_batchsize=128, analyze=False):
         out_dir = 'result/seed_{}'.format(seed)
         with open(experiments_txt, 'a') as f:
             f.write('{} \n'.format(out_dir))
-        train_main(out=out_dir, seed=seed, gpus=gpus, roi_batchsize=roi_batchsize)
+        train_main(
+            out=out_dir, seed=seed, gpus=gpus,
+            model_mode=model_mode, roi_batchsize=roi_batchsize)
 
 
 if __name__ == '__main__':
