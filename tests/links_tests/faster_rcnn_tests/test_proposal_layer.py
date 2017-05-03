@@ -63,7 +63,7 @@ class TestProposalLayer(unittest.TestCase):
         out_length = self.train_rpn_post_nms_top_n \
             if train else self.test_rpn_post_nms_top_n
         self.assertEqual(roi.shape[0], out_length)
-        self.assertTrue(isinstance(roi, xp.ndarray))
+        self.assertIsInstance(roi, xp.ndarray)
 
     @condition.retry(3)
     def test_proposal_layer_cpu(self):
@@ -82,5 +82,6 @@ class TestProposalLayer(unittest.TestCase):
             chainer.Variable(cuda.to_gpu(self.rpn_cls_prob)),
             cuda.to_gpu(self.anchor), self.img_size,
             scale=1., train=self.train)
+
 
 testing.run_module(__name__, __file__)
