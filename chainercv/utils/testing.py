@@ -23,12 +23,25 @@ class StubLink(chainer.Link):
             :obj:`~numpy.float32`.
     """
 
-    def __init__(self, *shape, value='uniform', dtype=np.float32):
+    def __init__(self, *shape, **kwargs):
         super(StubLink, self).__init__()
 
         if len(shape) == 0:
             raise ValueError('At least, one shape must be specified')
         self.shapes = shape
+
+        value = 'uniform'
+        if 'value' in kwargs:
+            value = kwargs['value']
+            del kwargs['value']
+
+        dtype = np.float32
+        if 'dtype' in kwargs:
+            dtype = kwargs['dtype']
+            del kwargs['dtype']
+
+        if len(kwargs) > 0:
+            raise ValueError('Unknown arguments {}'.format(kwargs))
 
         if value == 'uniform':
             def _get_array(shape):
