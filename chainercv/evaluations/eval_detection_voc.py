@@ -72,11 +72,12 @@ def eval_detection_voc(
 
     valid_cls = np.zeros((n_class,), dtype=np.bool)
     n_img = len(bboxes)
+
+    # Organize predictions into List[n_class][n_img]
     _bboxes = [[None for _ in six.moves.range(n_img)]
                for _ in six.moves.range(n_class)]
     _confs = [[None for _ in six.moves.range(n_img)]
               for _ in six.moves.range(n_class)]
-
     for i in range(n_img):
         for cls in range(n_class):
             bboxes_cls = []
@@ -95,10 +96,10 @@ def eval_detection_voc(
                 confs_cls = np.zeros((0,))
             _bboxes[cls][i] = bboxes_cls
             _confs[cls][i] = confs_cls
-
             if len(bboxes_cls) > 0:
                 valid_cls[cls] = True
 
+    # Organize ground truths into List[n_class][n_img]
     _gt_bboxes = [[None for _ in six.moves.range(n_img)]
                   for _ in six.moves.range(n_class)]
     _gt_difficults = [[None for _ in six.moves.range(n_img)]
@@ -115,7 +116,6 @@ def eval_detection_voc(
                     else:
                         gt_difficults_cls.append(
                             np.array(False, dtype=np.bool))
-
             if len(gt_bboxes_cls) > 0:
                 gt_bboxes_cls = np.stack(gt_bboxes_cls)
             else:
@@ -124,13 +124,12 @@ def eval_detection_voc(
                 gt_difficults_cls = np.stack(gt_difficults_cls)
             else:
                 gt_difficults_cls = np.zeros((0,), dtype=np.bool)
-
             _gt_bboxes[cls][i] = gt_bboxes_cls
             _gt_difficults[cls][i] = gt_difficults_cls
-
             if len(gt_bboxes_cls) > 0:
                 valid_cls[cls] = True
 
+    # Accumulate recacall, precison and ap
     results = {}
     valid_cls_indices = np.where(valid_cls)[0]
     for cls in valid_cls_indices:
