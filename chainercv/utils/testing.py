@@ -7,7 +7,7 @@ class ConstantStubLink(chainer.Link):
     """A chainer.Link that returns constant value(s).
 
     This is a :obj:`chainer.Link` that returns constant
-    :obj:`chainer.Variable`(s) when :meth:`__call__` method is called.
+    :obj:`chainer.Variable` (s) when :meth:`__call__` method is called.
 
     Args:
         outputs (~numpy.ndarray or tuple or ~numpy.ndarray):
