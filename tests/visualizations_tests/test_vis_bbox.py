@@ -29,7 +29,7 @@ class TestVisBbox(unittest.TestCase):
             bbox = np.random.uniform(size=(3, 4)).astype(np.float32)
             ax = vis_bbox(img, bbox, self.label, self.label_names)
 
-            self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
+            self.assertIsInstance(ax, matplotlib.axes.Axes)
 
 
 class TestInvalidVisBbox(unittest.TestCase):
