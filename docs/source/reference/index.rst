@@ -17,3 +17,4 @@ ChainerCV Reference Manual
    :maxdepth: 1
 
    visualizations
+   utils
