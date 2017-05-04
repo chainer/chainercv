@@ -1,10 +1,10 @@
 from chainer import cuda
 
 
-def bbox_overlap(bbox, query_bbox):
-    """Calculate overlap coefficients between bounding boxes.
+def bbox_overlap(bbox_a, bbox_b):
+    """Calculate Jaccard overlap between bounding boxes.
 
-    The coefficient is calculated as a ratio of area of the intersection
+    Jaccard overlap is calculated as a ratio of area of the intersection
     and area of the union.
 
     This function accepts both :obj:`numpy.ndarray` and :obj:`cupy.ndarray` as
