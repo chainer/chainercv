@@ -8,7 +8,8 @@ def bbox_overlap(bbox_a, bbox_b):
     and area of the union.
 
     This function accepts both :obj:`numpy.ndarray` and :obj:`cupy.ndarray` as
-    inputs.
+    inputs. Please note that both :obj:`bbox_a` and :obj:`bbox_b` need to be
+    same type.
     The output is same type as the type of the inputs.
 
     Args:
