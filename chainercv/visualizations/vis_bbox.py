@@ -44,6 +44,10 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
     # Returns newly instantiated matplotlib.axes.Axes object if ax is None
     ax = vis_image(img, ax=ax)
 
+    # If there is no bounding box to display, visualize the image and exit.
+    if len(bbox) == 0:
+        return ax
+
     for i, bbox_elem in enumerate(bbox):
         xy = (bbox_elem[0], bbox_elem[1])
         width = bbox_elem[2] - bbox_elem[0]
