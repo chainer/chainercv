@@ -7,16 +7,20 @@ def bbox_overlap(bbox, query_bbox):
     The coefficient is calculated as a ratio of area of the intersection
     and area of the union.
 
+    This function accepts both :obj:`numpy.ndarray` and :obj:`cupy.ndarray` as
+    inputs.
+    The output is same type as the type of the inputs.
+
     Args:
-        bbox (~numpy.ndarray): An array whose shape is :math:`(N, 4)`.
+        bbox (array): An array whose shape is :math:`(N, 4)`.
             :math:`N` is the number of bounding boxes.
             The dtype should be :obj:`numpy.float32`.
-        query_bbox (~numpy.ndarray): An array similar to :obj:`bbox`,
+        query_bbox (array): An array similar to :obj:`bbox`,
             whose shape is :math:`(K, 4)`.
             The dtype should be :obj:`numpy.float32`.
 
     Returns:
-        ~numpy.ndarray:
+        array:
         An array whose shape is :math:`(N, K)`. \
         An element at index :math:`(n, k)` contains overlap between \
         :math:`n` th bounding box in :obj:`bbox` and :math:`k` th bounding \
