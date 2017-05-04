@@ -2,7 +2,7 @@ import numpy as np
 import six
 
 
-def eval_detection(
+def eval_detection_voc(
         bboxes, labels, confs, gt_bboxes, gt_labels, n_class,
         gt_difficults=None,
         minoverlap=0.5, use_07_metric=False):

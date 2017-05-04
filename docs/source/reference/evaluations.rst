@@ -4,9 +4,9 @@ Evaluations
 .. module:: chainercv.evaluations
 
 
-eval_detection
-~~~~~~~~~~~~~~
-.. autofunction:: eval_detection
+eval_detection_voc
+~~~~~~~~~~~~~~~~~~
+.. autofunction:: eval_detection_voc
 
 
 eval_pck

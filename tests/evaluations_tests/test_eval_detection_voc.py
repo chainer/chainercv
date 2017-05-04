@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from chainercv.evaluations import eval_detection
+from chainercv.evaluations import eval_detection_voc
 
 from chainer import testing
 
@@ -15,9 +15,9 @@ from chainer import testing
      'rec': np.array([0., 0., 0.]),
      'prec': np.array([0., 0., 0.])}
 )
-class TestEvalDetectionOneBbox(unittest.TestCase):
+class TestEvalDetectionVOCOneBbox(unittest.TestCase):
 
-    def test_eval_detection(self):
+    def test_eval_detection_voc_one_bbox(self):
         bboxes = [np.array([
             [0., 0., 1., 1.], [0., 0., 2., 2.], [0.3, 0.3, 0.5, 0.5]])]
         labels = [np.array([0, 0, 0])]
@@ -26,7 +26,7 @@ class TestEvalDetectionOneBbox(unittest.TestCase):
         gt_labels = [np.array([0])]
         # iou is [0.95, 0.422, 0.3789]
 
-        results = eval_detection(
+        results = eval_detection_voc(
             bboxes, labels, confs, gt_bboxes, gt_labels,
             n_class=1, minoverlap=self.minoverlap)
         np.testing.assert_equal(results[0]['recall'], self.rec)
@@ -41,7 +41,7 @@ class TestEvalDetectionOneBbox(unittest.TestCase):
      'ap0': 0.5 / 11. * 6,
      'ap1': 0.5},
 )
-class TestEvalDetectionMultipleBboxes(unittest.TestCase):
+class TestEvalDetectionVOCMultipleBboxes(unittest.TestCase):
 
     minoverlap = 0.4
     rec0 = np.array([0.0, 0.5, 0.5])
@@ -49,7 +49,7 @@ class TestEvalDetectionMultipleBboxes(unittest.TestCase):
     rec1 = np.array([0., 1.])
     prec1 = np.array([0., 0.5])
 
-    def test_eval_detection(self):
+    def test_eval_detection_voc(self):
         bboxes = [
             np.array([[0., 4., 1., 5.], [0., 0., 1., 1.]]),
             np.array([[0., 0., 2., 2.], [2., 2., 3., 3.], [5., 5., 7., 7.]])
@@ -62,7 +62,7 @@ class TestEvalDetectionMultipleBboxes(unittest.TestCase):
         ]
         gt_labels = [np.array([0, 0]), np.array([1])]
 
-        results = eval_detection(
+        results = eval_detection_voc(
             bboxes, labels, confs, gt_bboxes, gt_labels,
             n_class=3, minoverlap=self.minoverlap,
             use_07_metric=self.use_07_metric)
@@ -76,13 +76,13 @@ class TestEvalDetectionMultipleBboxes(unittest.TestCase):
             results['map'], (self.ap0 + self.ap1) / 2)
 
 
-class TestEvalDetectionDifficults(unittest.TestCase):
+class TestEvalDetectionVOCDifficults(unittest.TestCase):
 
     minoverlap = 0.5
     rec = np.array([0., 0., 1.])
     prec = np.array([0., 0., 1. / 3.])
 
-    def test_eval_detection_difficult(self):
+    def test_eval_detection_voc_difficult(self):
         bboxes = [np.array([
             [0., 0., 1., 1.], [0., 0., 2., 2.], [0.3, 0.3, 0.5, 0.5]])]
         labels = [np.array([0, 0, 0])]
@@ -92,7 +92,7 @@ class TestEvalDetectionDifficults(unittest.TestCase):
         gt_difficults = [np.array([False, True])]
         # iou is [0.95, 0.422, 0.3789] and [0.142, 0.444, 0.048]
 
-        results = eval_detection(
+        results = eval_detection_voc(
             bboxes, labels, confs, gt_bboxes, gt_labels,
             n_class=1, gt_difficults=gt_difficults, minoverlap=self.minoverlap)
         np.testing.assert_equal(results[0]['recall'], self.rec)
