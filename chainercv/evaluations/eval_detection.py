@@ -6,7 +6,7 @@ def eval_detection(
         bboxes, labels, confs, gt_bboxes, gt_labels, n_class,
         gt_difficults=None,
         minoverlap=0.5, use_07_metric=False):
-    """Calculate deterction metrics.
+    """Calculate deterction metrics based on evaluation code of PASCAL VOC.
 
     This function evaluates recall, precison and average precision with
     respect to a class as well as mean average precision.
@@ -16,6 +16,7 @@ def eval_detection(
     Mean average precision is calculated by taking a mean of average
     precision for all classes which have at least one bounding box
     assigned by prediction or ground truth labels.
+    The code is based on the evaluation code used in PASCAL VOC Challenge.
 
     Args:
         bboxes (list of numpy.ndarray): A list of bounding boxes.
@@ -34,14 +35,19 @@ def eval_detection(
             predicted bounding boxes. Similar to :obj:`bboxes`,
             its index corresponds to an index for the base dataset.
             Its length :math:`N` list.
-        gt_bboxes (list of numpy.ndarray): List of ground truth bounding boxes
-            which are organized similarly to :obj:`bboxes_cls`.
+        gt_bboxes (list of numpy.ndarray): List of ground truth bounding whose
+            length is :math:`N`. An element of :obj:`gt_bboxes` is a bounding
+            box whose shape is :math:`(R, 4)`. Note that number of bounding
+            boxes in each image does not need to be same as the number of
+            corresponding predicted boxes.
         gt_labels (list of numpy.ndarray): List of ground truth labels which
             are organized similarly to :obj:`labels`.
         n_class (int): Number of classes.
         gt_difficults (list of numpy.ndarray): List of boolean arrays which
-            organized similarly to :obj:`labels`. This tells whether the
+            is organized similarly to :obj:`labels`. This tells whether the
             corresponding ground truth bounding box is difficult or not.
+            By default, this is :obj:`None`. In that case, this function
+            consider all bounding boxes to be not difficult.
         minoverlap (float): A prediction is correct if its intersection of
             union with the ground truth is above this value.
         use_07_metric (bool): Whether to use Pascal VOC 2007 evaluation metric
