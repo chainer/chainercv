@@ -5,6 +5,5 @@ channels:
 dependencies:
   - numpy
   - pillow
-  - cython
   - pip:
     - chainer

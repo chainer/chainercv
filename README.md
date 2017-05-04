@@ -22,7 +22,6 @@ pip install chainercv
 ### Requirements
 
 + [Chainer](https://github.com/pfnet/chainer) and its dependencies
-+ Cython
 + Pillow
 
 For additional features

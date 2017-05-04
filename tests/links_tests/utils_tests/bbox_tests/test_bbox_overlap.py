@@ -1,25 +1,45 @@
+from __future__ import division
+
 import unittest
 
 import numpy as np
 
+from chainer import cuda
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.links.utils import bbox_overlap
 
 
 class TestBboxOverlap(unittest.TestCase):
 
-    def test_bbox_overlap(self):
-        bbox = np.array([[0, 0, 8, 8]], dtype=np.float32)
-        query_bbox = np.array([[3, 5, 10, 12], [9, 10, 11, 12]],
-                              dtype=np.float32)
+    def setUp(self):
+        self.bbox = np.array([[0, 0, 8, 8]], dtype=np.float32)
+        self.query_bbox = np.array([[3, 5, 10, 12], [9, 10, 11, 12]],
+                                   dtype=np.float32)
 
+        o0 = (5 * 3) / (8 * 8 + 7 * 7 - 5 * 3)
+        o1 = 0.
+        self.expected = np.array([[o0, o1]], dtype=np.float32)
+
+    def check(self, bbox, query_bbox, expected):
+        xp = cuda.get_array_module(bbox)
         overlap = bbox_overlap(bbox, query_bbox)
 
-        o0 = float(4 * 6) / (9 * 9 + 8 * 8 - 4 * 6)
-        o1 = 0.
-        expected = np.array([[o0, o1]], dtype=query_bbox.dtype)
-        np.testing.assert_equal(overlap, expected)
+        self.assertIsInstance(overlap, xp.ndarray)
+        np.testing.assert_equal(
+            cuda.to_cpu(overlap),
+            cuda.to_cpu(expected))
+
+    def test_bbox_overlap_cpu(self):
+        self.check(self.bbox, self.query_bbox, self.expected)
+
+    @attr.gpu
+    def test_bbox_overlap_gpu(self):
+        self.check(
+            cuda.to_gpu(self.bbox),
+            cuda.to_gpu(self.query_bbox),
+            cuda.to_gpu(self.expected))
 
 
 class TestBboxOverlapInvalidShape(unittest.TestCase):

@@ -1,3 +1,2 @@
 chainer >= 1.21
-cython
 pillow
