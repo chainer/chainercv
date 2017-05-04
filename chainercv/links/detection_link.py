@@ -27,7 +27,8 @@ class DetectionLink(chainer.Link):
 
             * **bbox**: A float array of shape :math:`(R, 4)`, where \
                  :math:`R` is the number of bounding boxes in the image. \
-                Elements are organized by :obj:`(x_min, y_min, x_max, y_max)` \
+                Each bouding box is organized by \
+                :obj:`(x_min, y_min, x_max, y_max)` \
                 in the second axis.
             * **label** : An integer array of shape :math:`(R,)`. \
                 Each value indicates the class of the bounding box.
