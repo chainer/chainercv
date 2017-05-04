@@ -19,9 +19,13 @@ class TestConstantStubLink(unittest.TestCase):
 
     def setUp(self):
         if isinstance(self.outputs, tuple):
-            self.outputs = tuple(np.empty(**output) for output in self.outputs)
+            self.outputs = tuple(
+                np.random.uniform(size=output['shape']).astype(output['dtype'])
+                for output in self.outputs)
         else:
-            self.outputs = np.empty(**self.outputs)
+            self.outputs = np.random.uniform(
+                size=self.outputs['shape']).astype(self.outputs['dtype'])
+
         self.link = ConstantStubLink(self.outputs)
 
     def _check(self, xp):
