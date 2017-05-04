@@ -1,5 +1,3 @@
-import numpy as np
-
 from chainercv.visualizations.vis_image import vis_image
 
 
@@ -41,6 +39,12 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
 
     """
     from matplotlib import pyplot as plot
+
+    if label is not None and not len(bbox) == len(label):
+        raise ValueError('The length of label must be same as that of bbox')
+    if score is not None and not len(bbox) == len(score):
+        raise ValueError('The length of score must be same as that of bbox')
+
     # Returns newly instantiated matplotlib.axes.Axes object if ax is None
     ax = vis_image(img, ax=ax)
 
@@ -59,6 +63,8 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
 
         if label is not None and label_names is not None:
             label_elem = label[i]
+            if not (0 <= label_elem < len(label_names)):
+                raise ValueError('No corresponding name is given')
             caption.append(label_names[label_elem])
         if score is not None:
             score_elem = score[i]
