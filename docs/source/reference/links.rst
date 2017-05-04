@@ -10,6 +10,14 @@ Model
 Faster RCNN
 ~~~~~~~~~~~
 
+bbox_regression_target
+""""""""""""""""""""""
+.. autofunction:: chainercv.links.bbox_regression_target
+
+bbox_regression_target_inv
+""""""""""""""""""""""""""
+.. autofunction:: chainercv.links.bbox_regression_target_inv
+
 generate_anchor_base
 """"""""""""""""""""
 .. autofunction:: chainercv.links.generate_anchor_base
