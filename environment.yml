@@ -9,5 +9,6 @@ dependencies:
   - matplotlib
   - numpy
   - scikit-learn
+  - cython
   - pip:
     - chainer

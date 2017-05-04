@@ -3,6 +3,7 @@
 *.egg/
 *.pyc
 *.cpp
+*.c
 *.so
 build
 \#*\#
