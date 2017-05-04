@@ -19,7 +19,7 @@ def vis_bbox(img, bbox, label=None, label_names=None, ax=None):
         img (~numpy.ndarray): An array of shape :math:`(3, height, width)`.
             This is in BGR format and the range of its value is
             :math:`[0, 255]`.
-        bbox (~numpy.ndarray): An array of shape :math:`(R, 5)`, where
+        bbox (~numpy.ndarray): An array of shape :math:`(R, 4)`, where
             :math:`R` is the number of bounding boxes in the image. Elements
             are organized
             by :obj:`(x_min, y_min, x_max, y_max)` in the second axis.
