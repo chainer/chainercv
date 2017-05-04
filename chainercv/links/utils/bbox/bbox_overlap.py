@@ -37,6 +37,6 @@ def bbox_overlap(bbox, query_bbox):
     rb = xp.minimum(bbox[:, None, 2:], query_bbox[:, 2:])
 
     area_i = xp.prod(rb - lt, axis=2) * (lt < rb).all(axis=2)
-    area_0 = xp.prod(bbox[:, 2:] - bbox[:, :2], axis=1)
-    area_1 = xp.prod(query_bbox[:, 2:] - query_bbox[:, :2], axis=1)
-    return area_i / (area_0[:, None] + area_1 - area_i)
+    area_b = xp.prod(bbox[:, 2:] - bbox[:, :2], axis=1)
+    area_q = xp.prod(query_bbox[:, 2:] - query_bbox[:, :2], axis=1)
+    return area_i / (area_b[:, None] + area_q - area_i)
