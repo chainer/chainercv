@@ -8,7 +8,7 @@ read_image
 ~~~~~~~~~~
 .. autofunction:: read_image
 
-StubLink
-~~~~~~~~
-.. autoclass:: StubLink
+ConstantStubLink
+~~~~~~~~~~~~~~~~
+.. autoclass:: ConstantStubLink
    :members:

@@ -10,8 +10,8 @@ class ConstantStubLink(chainer.Link):
     :obj:`chainer.Variable`(s) when :meth:`__call__` method is called.
 
     Args:
-        outputs (~nuumpy.ndarray or tuple or ~numpy.ndarray):
-            The value(s) of returned variable(s).
+        outputs (~numpy.ndarray or tuple or ~numpy.ndarray):
+            The value(s) of variable(s) returned by :meth:`__call__`.
             If an array is specified, :meth:`__call__` returns
             a :obj:`chainer.Variable`. Otherwise, it returns a tuple of
             :obj:`chainer.Variable`.
