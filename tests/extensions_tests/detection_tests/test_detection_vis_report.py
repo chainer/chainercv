@@ -1,15 +1,16 @@
-import unittest
-
 import mock
 import numpy as np
 import os.path as osp
+import six
 import tempfile
+import unittest
+
 
 from chainer.datasets import TupleDataset
 from chainer import testing
 
 from chainercv.extensions import DetectionVisReport
-from chainercv.utils import ConstantStubLink
+from chainercv.links import DetectionLink
 
 try:
     import matplotlib  # NOQA
@@ -18,41 +19,58 @@ except ImportError:
     optional_modules = False
 
 
-@testing.parameterize(
-    {'bbox_shape': (3, 4), 'label_shape': (3,)},
-    {'bbox_shape': (0, 4), 'label_shape': (0,)},
-)
-class TestDetectionVisReport(unittest.TestCase):
+class _RandomDetectionStubLink(DetectionLink):
 
-    indices = [0, 1]
+    def predict(self, img):
+        n_bbox = np.random.randint(0, 10)
+        bbox = np.random.uniform(size=(n_bbox, 4))
+        label = np.random.randint(0, 19, size=n_bbox)
+        score = np.random.uniform(0, 1, size=n_bbox)
+        return bbox, label, score
+
+
+class TestDetectionVisReport(unittest.TestCase):
 
     def setUp(self):
         self.trainer = mock.MagicMock()
-        self.out_dir = tempfile.mkdtemp()
-        self.trainer.out = self.out_dir
+        self.trainer.out = tempfile.mkdtemp()
         self.trainer.updater.iteration = 0
 
-        model = ConstantStubLink((
-            np.random.uniform(size=(1,) + self.bbox_shape).astype(np.float32),
-            np.random.uniform(size=(1,) + self.label_shape).astype(np.int32)))
-        dataset = TupleDataset(
-            np.random.uniform(size=(100, 3, 10, 10)).astype(np.float32),
-            np.random.uniform(
-                size=(100,) + self.bbox_shape).astype(np.float32),
-            np.random.uniform(
-                size=(100,) + (self.label_shape)).astype(np.int32))
+        self.link = _RandomDetectionStubLink()
+        self.dataset = TupleDataset(
+            np.random.uniform(size=(10, 3, 32, 48)),
+            np.random.uniform(size=(10, 5, 4)),
+            np.random.randint(0, 19, size=(10, 5)))
 
-        self.extension = DetectionVisReport(
-            self.indices, dataset, model,
-            filename_base='detection')
+    def test_available(self):
+        self.extension = DetectionVisReport(self.dataset, self.link)
+        self.assertEqual(self.extension.available(), optional_modules)
 
-    def test_call(self):
+    def test_basic(self):
+        self.extension = DetectionVisReport(self.dataset, self.link)
         self.extension(self.trainer)
-        if optional_modules:
-            for idx in self.indices:
-                file_name = osp.join(
-                    self.out_dir, 'detection_idx={}_iter=0.jpg'.format(idx))
-                self.assertTrue(osp.exists(file_name))
+
+        if not optional_modules:
+            return
+
+        for idx in six.moves.range(len(self.dataset)):
+            out_file = osp.join(
+                self.trainer.out, 'detection_idx={:d}_iter=0.jpg'.format(idx))
+            self.assertTrue(osp.exists(out_file))
+
+    def test_with_filename(self):
+        self.extension = DetectionVisReport(
+            self.dataset, self.link,
+            filename='result_iter_{iteration}_no_{index}.png')
+        self.extension(self.trainer)
+
+        if not optional_modules:
+            return
+
+        for idx in six.moves.range(len(self.dataset)):
+            out_file = osp.join(
+                self.trainer.out, 'result_iter_0_no_{:d}.png'.format(idx))
+            self.assertTrue(osp.exists(out_file))
 
 
 testing.run_module(__name__, __file__)
