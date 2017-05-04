@@ -20,6 +20,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     When queried by an index, if :obj:`return_difficult == False`,
     this dataset returns a corresponding
     :obj:`img, bbox, label`, a tuple of an image, bounding boxes and labels.
+    This is the default behaviour.
     If :obj:`return_difficult == True`, this dataset returns corresponding
     :obj:`img, bbox, label, difficult`. :obj:`difficult` is a boolean array
     that indicates whether bounding boxes are labeled as difficult or not.
@@ -56,9 +57,9 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             held in :obj:`year`.
         use_difficult (bool): If true, use images that are labeled as
             difficult in the original annotation.
-        return_difficult(bool): If true, this dataset returns a boolean array
+        return_difficult (bool): If true, this dataset returns a boolean array
             that indicates whether bounding boxes are labeled as difficult
-            or not.
+            or not. The default value is :obj:`False`.
 
     """
 
