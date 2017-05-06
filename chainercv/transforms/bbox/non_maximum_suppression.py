@@ -62,6 +62,7 @@ def non_maximum_suppression(bbox, threshold, limit=None, return_param=False):
         if limit and np.count_nonzero(selection) >= limit:
             break
 
+    print selection
     if return_param:
         return bbox[selection], {'selection': selection}
     else:

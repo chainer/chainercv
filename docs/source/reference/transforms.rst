@@ -59,10 +59,6 @@ flip_bbox
 ~~~~~~~~~
 .. autofunction:: flip_bbox
 
-non_maximum_suppression
-~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: non_maximum_suppression
-
 resize_bbox
 ~~~~~~~~~~~
 .. autofunction:: resize_bbox
