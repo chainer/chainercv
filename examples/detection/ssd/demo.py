@@ -1,10 +1,11 @@
 import argparse
 import matplotlib.pyplot as plot
+import numpy as np
 
 from chainercv.datasets.pascal_voc import voc_utils
 from chainercv.links import SSD300
 from chainercv import utils
-from chainercv import visualizations
+from chainercv.visualizations import vis_bbox
 
 
 def main():
@@ -14,12 +15,14 @@ def main():
     args = parser.parse_args()
 
     model = SSD300(n_classes=20, pretrained_model=args.model)
+    model.score_threshold = 0.6
 
     img = utils.read_image(args.image, color=True)
-    bbox, label, score = model.predict(img, score_threshold=0.6)
+    bboxes, labels, scores = model.predict(img[np.newaxis])
+    bbox, label, score = bboxes[0], labels[0], scores[0]
 
-    visualizations.vis_bbox(
-        img, bbox, label, voc_utils.pascal_voc_labels, score)
+    vis_bbox(
+        img, bbox, label, score, label_names=voc_utils.pascal_voc_labels)
     plot.show()
 
 

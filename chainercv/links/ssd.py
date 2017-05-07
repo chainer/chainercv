@@ -42,6 +42,9 @@ class _SSDVGG16(chainer.Chain):
     mean = (104, 117, 123)
     variance = (0.1, 0.2)
 
+    nms_threshold = 0.45
+    score_threshold = 0.01
+
     conv_init = {
         'initialW': initializers.GlorotUniform(),
         'initial_bias': initializers.Zero(),
@@ -91,7 +94,33 @@ class _SSDVGG16(chainer.Chain):
                 None, n * (self.n_classes + 1), 3, pad=1, **self.conv_init))
 
         # the format of default_bbox is (center_x, center_y, width, height)
-        self.default_bbox = self._default_bbox()
+        self._default_bbox = list()
+        for k in range(len(self.grids)):
+            for v, u in itertools.product(range(self.grids[k]), repeat=2):
+                cx = (u + 0.5) * self.steps[k]
+                cy = (v + 0.5) * self.steps[k]
+
+                s = self.sizes[k]
+                self._default_bbox.append((cx, cy, s, s))
+
+                s = np.sqrt(self.sizes[k] * self.sizes[k + 1])
+                self._default_bbox.append((cx, cy, s, s))
+
+                s = self.sizes[k]
+                for ar in self.aspect_ratios[k]:
+                    self._default_bbox.append(
+                        (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
+                    self._default_bbox.append(
+                        (cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
+        self._default_bbox = np.stack(self._default_bbox)
+
+    def to_cpu(self):
+        super(_SSDVGG16, self).to_cpu()
+        self._default_bbox = chainer.cuda.to_cpu(self._default_bbox)
+
+    def to_gpu(self):
+        super(_SSDVGG16, self).to_gpu()
+        self._default_bbox = chainer.cuda.to_gpu(self._default_bbox)
 
     def _features(self, x):
         ys = list()
@@ -149,39 +178,20 @@ class _SSDVGG16(chainer.Chain):
     def __call__(self, x):
         return self._multibox(self._features(x))
 
-    def _default_bbox(self):
-        bbox = list()
-        for k in range(len(self.grids)):
-            for v, u in itertools.product(range(self.grids[k]), repeat=2):
-                cx = (u + 0.5) * self.steps[k]
-                cy = (v + 0.5) * self.steps[k]
-
-                s = self.sizes[k]
-                bbox.append((cx, cy, s, s))
-
-                s = np.sqrt(self.sizes[k] * self.sizes[k + 1])
-                bbox.append((cx, cy, s, s))
-
-                s = self.sizes[k]
-                for ar in self.aspect_ratios[k]:
-                    bbox.append(
-                        (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
-                    bbox.append(
-                        (cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
-        return np.stack(bbox)
-
     def _decode(self, loc, conf):
+        xp = self.xp
         # the format of bbox is (center_x, center_y, width, height)
-        bbox = np.hstack((
-            self.default_bbox[:, :2] +
-            loc[:, :2] * self.variance[0] * self.default_bbox[:, 2:],
-            self.default_bbox[:, 2:] * np.exp(loc[:, 2:] * self.variance[1])))
+        bboxes = xp.dstack((
+            self._default_bbox[:, :2] +
+            loc[:, :, :2] * self.variance[0] * self._default_bbox[:, 2:],
+            self._default_bbox[:, 2:] *
+            xp.exp(loc[:, :, 2:] * self.variance[1])))
         # convert the format of bbox to (x_min, y_min, x_max, y_max)
-        bbox[:, :2] -= bbox[:, 2:] / 2
-        bbox[:, 2:] += bbox[:, :2]
-        score = np.exp(conf)
-        score /= score.sum(axis=1, keepdims=True)
-        return bbox, score
+        bboxes[:, :, :2] -= bboxes[:, :, 2:] / 2
+        bboxes[:, :, 2:] += bboxes[:, :, :2]
+        scores = xp.exp(conf)
+        scores /= scores.sum(axis=2, keepdims=True)
+        return bboxes, scores
 
     def _prepare(self, img):
         H, W = img.shape[1:]
@@ -189,35 +199,58 @@ class _SSDVGG16(chainer.Chain):
         img -= np.array(self.mean)[:, np.newaxis, np.newaxis]
         return img, (W, H)
 
-    def _suppress(self, bbox, score, nms_threshold, score_threshold):
-        bbox_all = list()
-        label_all = list()
-        score_all = list()
-        for label in range(1, 1 + self.n_classes):
-            mask = score[:, label] >= score_threshold
-            bbox_label, score_label = bbox[mask], score[mask, label]
+    def _suppress(self, raw_bbox, raw_score):
+        xp = self.xp
 
-            if nms_threshold is not None:
+        bbox = list()
+        label = list()
+        score = list()
+        for i in range(1, 1 + self.n_classes):
+            mask = raw_score[:, i] >= self.score_threshold
+            bbox_label, score_label = raw_bbox[mask], raw_score[mask, i]
+
+            if self.nms_threshold is not None:
                 order = score_label.argsort()[::-1]
                 bbox_label, score_label = bbox_label[order], score_label[order]
                 bbox_label, param = transforms.non_maximum_suppression(
-                    bbox_label, nms_threshold, return_param=True)
+                    bbox_label, self.nms_threshold, return_param=True)
                 score_label = score_label[param['selection']]
 
-            bbox_all.append(bbox_label)
-            label_all.append((label,) * len(bbox_label))
-            score_all.append(score_label)
+            bbox.append(bbox_label)
+            label.append((i,) * len(bbox_label))
+            score.append(score_label)
 
-        return np.vstack(bbox_all), np.hstack(label_all), np.hstack(score_all)
+        bbox = xp.vstack(bbox).astype(np.float32)
+        label = xp.hstack(label).astype(np.int32)
+        score = xp.hstack(score).astype(np.float32)
 
-    def predict(self, img, nms_threshold=0.45, score_threshold=0.01):
-        """Detect objects in an image."""
+        return bbox, label, score
 
-        img, size = self._prepare(img)
-        loc, conf = self(img[np.newaxis])
-        bbox, score = self._decode(loc.data[0], conf.data[0])
-        bbox = transforms.resize_bbox(bbox, (1, 1), size)
-        return self._suppress(bbox, score, nms_threshold, score_threshold)
+    def predict(self, imgs):
+        """Detect objects."""
+
+        prepared_imgs = list()
+        sizes = list()
+        for img in imgs:
+            prepared_img, size = self._prepare(img.astype(np.float32))
+            prepared_imgs.append(prepared_img)
+            sizes.append(size)
+
+        prepared_imgs = self.xp.array(prepared_imgs)
+        loc, conf = self(prepared_imgs)
+        raw_bboxes, raw_scores = self._decode(loc.data, conf.data)
+
+        bboxes = list()
+        labels = list()
+        scores = list()
+        for raw_bbox, raw_score, size in zip(raw_bboxes, raw_scores, sizes):
+            raw_bbox = transforms.resize_bbox(raw_bbox, (1, 1), size)
+            bbox, label, score = self._suppress(raw_bbox, raw_score)
+            bboxes.append(bbox)
+            labels.append(label)
+            scores.append(score)
+
+        return bboxes, labels, scores
 
 
 class SSD300(_SSDVGG16):
