@@ -99,4 +99,5 @@ class TestDetectionVisReport(unittest.TestCase):
         self.link.to_gpu()
         self._check()
 
-        testing.run_module(__name__, __file__)
+
+testing.run_module(__name__, __file__)
