@@ -1,21 +1,29 @@
-Utilities
-=========
+Utils
+=====
 
 .. module:: chainercv.utils
 
 
-ConstantStubLink
-~~~~~~~~~~~~~~~~
-.. autoclass:: ConstantStubLink
-   :members:
+Bounding Box Utilities
+----------------------
+
+bbox_overlap
+~~~~~~~~~~~~
+.. autofunction:: bbox_overlap
+
+
+Image Utilities
+---------------
 
 read_image
 ~~~~~~~~~~
 .. autofunction:: read_image
 
 
-Bounding box utilities
-======================
+Testing Utilities
+-----------------
 
-bbox_overlap
-~~~~~~~~~~~~
+ConstantStubLink
+~~~~~~~~~~~~~~~~
+.. autoclass:: ConstantStubLink
+   :members:
