@@ -4,6 +4,7 @@ import chainer.functions as F
 from chainercv.functions.smooth_l1_loss import smooth_l1_loss
 from chainercv.links.faster_rcnn.proposal_target_layer import\
     ProposalTargetLayer
+from chainercv.links.faster_rcnn.anchor_target_layer import AnchorTargetLayer
 
 
 class FasterRCNNLoss(chainer.Chain):
@@ -29,7 +30,7 @@ class FasterRCNNLoss(chainer.Chain):
         })
         self.proposal_target_layer = ProposalTargetLayer(
             **proposal_target_layer_params)
-        self.anchor_target_layer(
+        self.anchor_target_layer = AnchorTargetLayer(
             **anchor_target_layer_params)
 
         self.train = True
