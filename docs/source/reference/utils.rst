@@ -11,6 +11,10 @@ bbox_overlap
 ~~~~~~~~~~~~
 .. autofunction:: bbox_overlap
 
+non_maximum_suppression
+~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: non_maximum_suppression
+
 
 Image Utilities
 ---------------

@@ -1,4 +1,3 @@
-
 import unittest
 
 import numpy as np
@@ -8,7 +7,7 @@ from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links.utils import non_maximum_suppression
+from chainercv.utils import non_maximum_suppression
 
 
 def _generate_bbox(n, img_size, min_length, max_length):

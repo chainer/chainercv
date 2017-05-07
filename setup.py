@@ -15,8 +15,8 @@ Collection of Deep Learning Computer Vision Algorithms implemented in Chainer
 """
 
 ext_modules = [
-    Extension('chainercv.links.utils.bbox._nms_gpu_post',
-              ['chainercv/links/utils/bbox/_nms_gpu_post.pyx']),
+    Extension('chainercv.utils.bbox._nms_gpu_post',
+              ['chainercv/utils/bbox/_nms_gpu_post.pyx']),
 ]
 cmdclass = {'build_ext': build_ext}
 

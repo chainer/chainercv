@@ -3,7 +3,7 @@ import numpy as np
 
 from chainer import cuda
 
-from chainercv.links.utils.bbox._nms_gpu_post import _nms_gpu_post
+from chainercv.utils.bbox._nms_gpu_post import _nms_gpu_post
 
 
 if cuda.available:
