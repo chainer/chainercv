@@ -40,7 +40,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         # Convert batch -> imgs, gt_bboxes, gt_labels
         pred_bboxes, pred_labels, pred_scores = target.predict(imgs)
         # Visualization code
-        for img, gt_bbox, gt_label, pred_bbox, pred_label, pred_score \
+        for img, gt_bbox, gt_label, pred_bbox, pred_label, pred_score \\
                 in zip(imgs,
                        gt_boxes, gt_labels,
                        pred_bboxes, pred_labels, pred_scores):
