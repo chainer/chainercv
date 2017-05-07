@@ -1,15 +1,17 @@
-import unittest
-
 import mock
 import numpy as np
-import os.path as osp
+import os
+import six
 import tempfile
+import unittest
 
+import chainer
 from chainer.datasets import TupleDataset
+from chainer.iterators import SerialIterator
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.extensions import DetectionVisReport
-from chainercv.utils import ConstantReturnModel
 
 try:
     import matplotlib  # NOQA
@@ -18,41 +20,83 @@ except ImportError:
     optional_modules = False
 
 
+class _RandomDetectionStubLink(chainer.Link):
+
+    def predict(self, imgs):
+        bboxes = list()
+        labels = list()
+        scores = list()
+
+        for _ in imgs:
+            n_bbox = np.random.randint(0, 10)
+            bboxes.append(self.xp.array(np.random.uniform(size=(n_bbox, 4))))
+            labels.append(self.xp.array(np.random.randint(0, 19, size=n_bbox)))
+            scores.append(self.xp.array(np.random.uniform(0, 1, size=n_bbox)))
+
+        return bboxes, labels, scores
+
+
 @testing.parameterize(
-    {'bbox_shape': (3, 4), 'label_shape': (3,)},
-    {'bbox_shape': (0, 4), 'label_shape': (0,)},
+    {
+        'filename': None,
+        'filename_func': lambda iter_, idx:
+        'detection_iter={:d}_idx={:d}.jpg'.format(iter_, idx)},
+    {
+        'filename': 'result_no_{index}_iter_{iteration}.png',
+        'filename_func': lambda iter_, idx:
+        'result_no_{:d}_iter_{:d}.png'.format(idx, iter_)},
+    {
+        'filename': 'detection_iter={iteration}.jpg',
+        'filename_func': lambda iter_, _:
+        'detection_iter={:d}.jpg'.format(iter_)},
+    {
+        'filename': 'detection_idx={index}.jpg',
+        'filename_func': lambda _, idx:
+        'detection_idx={:d}.jpg'.format(idx)},
 )
 class TestDetectionVisReport(unittest.TestCase):
 
-    indices = [0, 1]
-
     def setUp(self):
         self.trainer = mock.MagicMock()
-        self.out_dir = tempfile.mkdtemp()
-        self.trainer.out = self.out_dir
-        self.trainer.updater.iteration = 0
+        self.trainer.out = tempfile.mkdtemp()
 
-        model = ConstantReturnModel(
-            (np.random.uniform(size=(1,) + self.bbox_shape),
-             np.random.uniform(size=(1,) + self.label_shape)))
-        dataset = TupleDataset(
-            np.random.uniform(size=(100, 3, 10, 10)).astype(np.float32),
-            np.random.uniform(
-                size=(100,) + self.bbox_shape).astype(np.float32),
-            np.random.uniform(
-                size=(100,) + (self.label_shape)).astype(np.int32))
+        self.link = _RandomDetectionStubLink()
+        self.dataset = TupleDataset(
+            np.random.uniform(size=(10, 3, 32, 48)),
+            np.random.uniform(size=(10, 5, 4)),
+            np.random.randint(0, 19, size=(10, 5)))
+        self.iterator = SerialIterator(
+            self.dataset, 10, repeat=False, shuffle=False)
 
-        self.extension = DetectionVisReport(
-            self.indices, dataset, model,
-            filename_base='detection')
+    def test_available(self):
+        self.extension = DetectionVisReport(self.dataset, self.link)
+        self.assertEqual(self.extension.available(), optional_modules)
 
-    def test_call(self):
-        self.extension(self.trainer)
-        if optional_modules:
-            for idx in self.indices:
-                file_name = osp.join(
-                    self.out_dir, 'detection_idx={}_iter=0.jpg'.format(idx))
-                self.assertTrue(osp.exists(file_name))
+    def _check(self):
+        if self.filename is None:
+            extension = DetectionVisReport(self.iterator, self.link)
+        else:
+            extension = DetectionVisReport(
+                self.iterator, self.link, filename=self.filename)
 
+        if not optional_modules:
+            return
 
-testing.run_module(__name__, __file__)
+        for iter_ in range(3):
+            self.trainer.updater.iteration = iter_
+            extension(self.trainer)
+
+            for idx in six.moves.range(len(self.dataset)):
+                out_file = os.path.join(
+                    self.trainer.out, self.filename_func(iter_, idx))
+                self.assertTrue(os.path.exists(out_file))
+
+    def test_cpu(self):
+        self._check()
+
+    @attr.gpu
+    def test_gpu(self):
+        self.link.to_gpu()
+        self._check()
+
+        testing.run_module(__name__, __file__)

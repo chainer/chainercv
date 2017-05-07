@@ -17,8 +17,13 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     The index corresponds to each image.
 
-    When queried by an index, this dataset returns a corresponding
+    When queried by an index, if :obj:`return_difficult == False`,
+    this dataset returns a corresponding
     :obj:`img, bbox, label`, a tuple of an image, bounding boxes and labels.
+    This is the default behaviour.
+    If :obj:`return_difficult == True`, this dataset returns corresponding
+    :obj:`img, bbox, label, difficult`. :obj:`difficult` is a boolean array
+    that indicates whether bounding boxes are labeled as difficult or not.
 
     The bounding boxes are packed into a two dimensional tensor of shape
     :math:`(R, 4)`, where :math:`R` is the number of bounding boxes in
@@ -32,11 +37,15 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     that correspond to object ID which are listed in
     :obj:`VOCDetectionDataset.labels`.
 
+    The array :obj:`difficult` is a one dimensional boolean array of shape
+    :math:`(R,)`. :math:`R` is the number of bounding boxes in the image.
+
     The type of the image, the bounding boxes and the labels are as follows.
 
     * :obj:`img.dtype == numpy.float32`
     * :obj:`bbox.dtype == numpy.float32`
     * :obj:`label.dtype == numpy.int32`
+    * :obj:`difficult.dtype == numpy.bool`
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -48,13 +57,16 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             held in :obj:`year`.
         use_difficult (bool): If true, use images that are labeled as
             difficult in the original annotation.
+        return_difficult (bool): If true, this dataset returns a boolean array
+            that indicates whether bounding boxes are labeled as difficult
+            or not. The default value is :obj:`False`.
 
     """
 
     labels = voc_utils.pascal_voc_labels
 
     def __init__(self, data_dir='auto', mode='train', year='2012',
-                 use_difficult=False):
+                 use_difficult=False, return_difficult=False):
         if data_dir == 'auto' and year in ['2007', '2012']:
             data_dir = voc_utils.get_pascal_voc(year, mode)
 
@@ -73,6 +85,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
         self.data_dir = data_dir
         self.use_difficult = use_difficult
+        self.return_difficult = return_difficult
 
     def __len__(self):
         return len(self.ids)
@@ -95,9 +108,11 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             os.path.join(self.data_dir, 'Annotations', id_ + '.xml'))
         bbox = []
         label = []
+        difficult = []
         for obj in anno.findall('object'):
             # when in not using difficult mode, and the object is
             # difficult, skipt it.
+            difficult.append(int(obj.find('difficult').text))
             if not self.use_difficult and int(obj.find('difficult').text) == 1:
                 continue
 
@@ -110,8 +125,11 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             label.append(self.labels.index(name))
         bbox = np.stack(bbox).astype(np.float32)
         label = np.stack(label).astype(np.int32)
+        difficult = np.array(difficult, dtype=np.bool)
 
         # Load a image
         img_file = os.path.join(self.data_dir, 'JPEGImages', id_ + '.jpg')
         img = read_image(img_file, color=True)
+        if self.return_difficult:
+            return img, bbox, label, difficult
         return img, bbox, label
