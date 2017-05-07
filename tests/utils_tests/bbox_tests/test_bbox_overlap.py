@@ -11,16 +11,25 @@ from chainer.testing import attr
 from chainercv.utils import bbox_overlap
 
 
+@testing.parameterize(
+    {'bbox_a': np.array([[0, 0, 8, 8]], dtype=np.float32),
+     'bbox_b': np.array(
+         [[3, 5, 10, 12], [9, 10, 11, 12], [0, 0, 8, 8]], dtype=np.float32),
+     'expected': np.array(
+         [[(5 * 3) / (8 * 8 + 7 * 7 - 5 * 3), 0., 1.]], dtype=np.float32)
+     },
+    {'bbox_a': np.array(
+         [[3, 5, 10, 12], [9, 10, 11, 12], [0, 0, 8, 8]], dtype=np.float32),
+     'bbox_b': np.array([[0, 0, 8, 8]], dtype=np.float32),
+     'expected': np.array(
+         [[(5 * 3) / (8 * 8 + 7 * 7 - 5 * 3)], [0.], [1.]], dtype=np.float32)
+     },
+    {'bbox_a': np.zeros((0, 4), dtype=np.float32),
+     'bbox_b': np.array([[0, 0, 1, 1]], dtype=np.float32),
+     'expected': np.zeros((0, 1), dtype=np.float32)
+     },
+)
 class TestBboxOverlap(unittest.TestCase):
-
-    def setUp(self):
-        self.bbox_a = np.array([[0, 0, 8, 8]], dtype=np.float32)
-        self.bbox_b = np.array([[3, 5, 10, 12], [9, 10, 11, 12]],
-                               dtype=np.float32)
-
-        o0 = (5 * 3) / (8 * 8 + 7 * 7 - 5 * 3)
-        o1 = 0.
-        self.expected = np.array([[o0, o1]], dtype=np.float32)
 
     def check(self, bbox_a, bbox_b, expected):
         xp = cuda.get_array_module(bbox_a)
