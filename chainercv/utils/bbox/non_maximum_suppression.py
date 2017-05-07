@@ -119,46 +119,46 @@ def _non_maximum_suppression_gpu(bbox, thresh, score=None, limit=None):
     return selec
 
 
-nms_gpu_code = '''
-#include <vector>
-
+_nms_gpu_code = '''
 #define DIVUP(m,n) ((m) / (n) + ((m) % (n) > 0))
 int const threadsPerBlock = sizeof(unsigned long long) * 8;
 
-__device__ inline float devIoU(float const * const a, float const * const b) {
-  float left = max(a[0], b[0]), right = min(a[2], b[2]);
-  float top = max(a[1], b[1]), bottom = min(a[3], b[3]);
-  float width = max(right - left, 0.f), height = max(bottom - top, 0.f);
-  float interS = width * height;
-  float Sa = (a[2] - a[0]) * (a[3] - a[1]);
-  float Sb = (b[2] - b[0]) * (b[3] - b[1]);
-  return interS / (Sa + Sb - interS);
+__device__
+inline float devJaccard(float const *const bbox_a, float const *const bbox_b) {
+  float left = max(bbox_a[0], bbox_b[0]);
+  float right = min(bbox_a[2], bbox_b[2]);
+  float top = max(bbox_a[1], bbox_b[1]);
+  float bottom = min(bbox_a[3], bbox_b[3]);
+  float width = max(right - left, 0.f);
+  float height = max(bottom - top, 0.f);
+  float area_i = width * height;
+  float area_a = (bbox_a[2] - bbox_a[0]) * (bbox_a[3] - bbox_a[1]);
+  float area_b = (bbox_b[2] - bbox_b[0]) * (bbox_b[3] - bbox_b[1]);
+  return area_i / (area_a + area_b - area_i);
 }
 
 extern "C"
 __global__
 void nms_kernel(const int n_bbox, const float thresh,
-                           const float *dev_bbox,
-                           unsigned long long *dev_mask) {
+                const float *dev_bbox,
+                unsigned long long *dev_mask) {
   const int row_start = blockIdx.y;
   const int col_start = blockIdx.x;
-
-  // if (row_start > col_start) return;
 
   const int row_size =
         min(n_bbox - row_start * threadsPerBlock, threadsPerBlock);
   const int col_size =
         min(n_bbox - col_start * threadsPerBlock, threadsPerBlock);
 
-  __shared__ float block_boxes[threadsPerBlock * 4];
+  __shared__ float block_bbox[threadsPerBlock * 4];
   if (threadIdx.x < col_size) {
-    block_boxes[threadIdx.x * 4 + 0] =
+    block_bbox[threadIdx.x * 4 + 0] =
         dev_bbox[(threadsPerBlock * col_start + threadIdx.x) * 4 + 0];
-    block_boxes[threadIdx.x * 4 + 1] =
+    block_bbox[threadIdx.x * 4 + 1] =
         dev_bbox[(threadsPerBlock * col_start + threadIdx.x) * 4 + 1];
-    block_boxes[threadIdx.x * 4 + 2] =
+    block_bbox[threadIdx.x * 4 + 2] =
         dev_bbox[(threadsPerBlock * col_start + threadIdx.x) * 4 + 2];
-    block_boxes[threadIdx.x * 4 + 3] =
+    block_bbox[threadIdx.x * 4 + 3] =
         dev_bbox[(threadsPerBlock * col_start + threadIdx.x) * 4 + 3];
   }
   __syncthreads();
@@ -173,7 +173,7 @@ void nms_kernel(const int n_bbox, const float thresh,
       start = threadIdx.x + 1;
     }
     for (i = start; i < col_size; i++) {
-      if (devIoU(cur_box, block_boxes + i * 4) >= thresh) {
+      if (devJaccard(cur_box, block_bbox + i * 4) >= thresh) {
         t |= 1ULL << i;
       }
     }
@@ -192,7 +192,7 @@ def _call_nms_kernel(bbox, n_bbox, thresh):
 
     mask_dev = cupy.zeros((n_bbox * col_blocks,), dtype=np.uint64)
     bbox = cupy.ascontiguousarray(bbox, dtype=np.float32)
-    kern = _load_kernel('nms_kernel', nms_gpu_code)
+    kern = _load_kernel('nms_kernel', _nms_gpu_code)
     kern(blocks, threads, args=(n_bbox, cupy.float32(thresh),
                                 bbox, mask_dev))
 
