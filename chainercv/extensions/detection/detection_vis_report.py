@@ -1,5 +1,5 @@
-import os.path as osp
-import six
+import copy
+import os
 import warnings
 
 import chainer
@@ -61,12 +61,13 @@ class DetectionVisReport(chainer.training.extension.Extension):
     invoke_before_training = False
 
     def __init__(
-            self, dataset, target,
-            filename='detection_idx={index}_iter={iteration}.jpg'):
+            self, iterator, target, label_names=None,
+            filename='detection_iter={iteration}_idx={index}.jpg'):
         _check_available()
 
-        self.dataset = dataset
+        self.iterator = iterator
         self.target = target
+        self.label_names = label_names
         self.filename = filename
 
     @staticmethod
@@ -78,30 +79,48 @@ class DetectionVisReport(chainer.training.extension.Extension):
         if not _available:
             return
 
-        label_names = getattr(self.dataset, 'labels', None)
+        if hasattr(self.iterator, 'reset'):
+            self.iterator.reset()
+            it = self.iterator
+        else:
+            it = copy.copy(self.iterator)
 
-        for idx in six.moves.range(len(self.dataset)):
-            out_file = self.filename.format(
-                index=idx, iteration=trainer.updater.iteration)
-            out_file = osp.join(trainer.out, out_file)
+        idx = 0
+        while True:
+            try:
+                batch = next(it)
+            except StopIteration:
+                break
 
-            img, gt_bbox, gt_label = self.dataset[idx]
-            pred_bbox, pred_label, pred_score = self.target.predict(img)
+            imgs = [img for img, _, _ in batch]
+            pred_bboxes, pred_labels, pred_scores = self.target.predict(imgs)
 
-            # start visualizing using matplotlib
-            fig = plot.figure()
+            for (img, gt_bbox, gt_label), pred_bbox, pred_label, pred_score \
+                    in zip(batch, pred_bboxes, pred_labels, pred_scores):
 
-            ax_gt = fig.add_subplot(2, 1, 1)
-            ax_gt.set_title('ground truth')
-            vis_bbox(
-                img, gt_bbox, gt_label,
-                label_names=label_names, ax=ax_gt)
+                pred_bbox = chainer.cuda.to_cpu(pred_bbox)
+                pred_label = chainer.cuda.to_cpu(pred_label)
+                pred_score = chainer.cuda.to_cpu(pred_score)
 
-            ax_pred = fig.add_subplot(2, 1, 2)
-            ax_pred.set_title('prediction')
-            vis_bbox(
-                img, pred_bbox, pred_label, pred_score,
-                label_names=label_names, ax=ax_pred)
+                out_file = self.filename.format(
+                    index=idx, iteration=trainer.updater.iteration)
+                out_file = os.path.join(trainer.out, out_file)
 
-            plot.savefig(out_file)
-            plot.close()
+                fig = plot.figure()
+
+                ax_gt = fig.add_subplot(2, 1, 1)
+                ax_gt.set_title('ground truth')
+                vis_bbox(
+                    img, gt_bbox, gt_label,
+                    label_names=self.label_names, ax=ax_gt)
+
+                ax_pred = fig.add_subplot(2, 1, 2)
+                ax_pred.set_title('prediction')
+                vis_bbox(
+                    img, pred_bbox, pred_label, pred_score,
+                    label_names=self.label_names, ax=ax_pred)
+
+                plot.savefig(out_file)
+                plot.close()
+
+                idx += 1
