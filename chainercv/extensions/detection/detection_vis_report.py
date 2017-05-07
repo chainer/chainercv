@@ -33,8 +33,9 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
     .. code:: python
 
-        img, gt_bbox, gt_label = dataset[i]
-        pred_bbox, pred_label, pred_score = target.predict(img)
+        batch = next(iterator)
+        # Convert batch -> imgs, gt_bboxes, gt_labels
+        pred_bboxes, pred_labels, pred_scores = target.predict(imgs)
         # Visualization code
         # Uses (img, gt_bbox, gt_label) as the ground truth output
         # Uses (img, pred_bbox, pred_label, pred_score) as the predicted output
@@ -53,8 +54,10 @@ class DetectionVisReport(chainer.training.extension.Extension):
         Each score indicates how confident the prediction is.
 
     Args:
-        target (chainercv.links.DetectionLink): Link object used for detection.
-        dataset : Dataset class that produces inputs to :obj:`target`.
+        iterator: Iterator object that produces images and ground truth.
+        target: Link object used for detection.
+        label_names (iterable of str): Name of labels ordered according
+            to label_ids. If this is :obj:`None`, labels will be skipped.
         filename (str): Basename for saved image.
     """
 
