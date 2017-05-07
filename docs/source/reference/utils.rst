@@ -1,14 +1,21 @@
-Utils
-=====
+Utilities
+=========
 
 .. module:: chainercv.utils
 
-
-read_image
-~~~~~~~~~~
-.. autofunction:: read_image
 
 ConstantStubLink
 ~~~~~~~~~~~~~~~~
 .. autoclass:: ConstantStubLink
    :members:
+
+read_image
+~~~~~~~~~~
+.. autofunction:: read_image
+
+
+Bounding box utilities
+======================
+
+bbox_overlap
+~~~~~~~~~~~~

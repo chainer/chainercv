@@ -8,7 +8,7 @@ from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links.utils import bbox_overlap
+from chainercv.utils import bbox_overlap
 
 
 class TestBboxOverlap(unittest.TestCase):
