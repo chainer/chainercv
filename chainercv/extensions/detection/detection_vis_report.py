@@ -31,7 +31,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
     Internally, this extension takes examples from an iterator,
     predict bounding boxes from the images in the examples,
-    and visualizes them using chainercv.visualizations.vis_bbox.
+    and visualizes them using :meth:`chainercv.visualizations.vis_bbox`.
     The process can be illustrated in the following code.
 
     .. code:: python
@@ -41,12 +41,11 @@ class DetectionVisReport(chainer.training.extension.Extension):
         pred_bboxes, pred_labels, pred_scores = target.predict(imgs)
         # Visualization code
         for img, gt_bbox, gt_label, pred_bbox, pred_label, pred_score \\
-                in zip(imgs,
-                       gt_boxes, gt_labels,
+                in zip(imgs, gt_boxes, gt_labels,
                        pred_bboxes, pred_labels, pred_scores):
-            # the ground truth output
+            # the ground truth
             vis_bbox(img, gt_bbox, gt_label)
-            # the predicted output
+            # the prediction
             vis_bbox(img, pred_bbox, pred_label, pred_scores)
 
     .. note::
@@ -66,12 +65,12 @@ class DetectionVisReport(chainer.training.extension.Extension):
         iterator: Iterator object that produces images and ground truth.
         target: Link object used for detection.
         label_names (iterable of str): Name of labels ordered according
-            to label_ids. If this is :obj:`None`, labels will be skipped.
+            to label ids. If this is :obj:`None`, labels will be skipped.
         filename (str): Basename for the saved image. It can contain two
-            keywords, `'{iteration}'` and `'{index}'`. They are replaced
-            with the iteration of the trainer and the index of the sample
-            when this extension save an image. The default value is
-            `'detection_iter={iteration}_idx={index}.jpg'`.
+            keywords, :obj:`'{iteration}'` and :obj:`'{index}'`. They are
+            replaced with the iteration of the trainer and the index of
+            the sample when this extension save an image. The default value is
+            :obj:`'detection_iter={iteration}_idx={index}.jpg'`.
     """
 
     invoke_before_training = False

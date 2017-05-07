@@ -29,7 +29,7 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
              Each value indicates how confident the prediction is.
              This is optional.
         label_names (iterable of strings): Name of labels ordered according
-            to label_ids. If this is :obj:`None`, labels will be skipped.
+            to label ids. If this is :obj:`None`, labels will be skipped.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
 
