@@ -68,7 +68,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         label_names (iterable of str): Name of labels ordered according
             to label_ids. If this is :obj:`None`, labels will be skipped.
         filename (str): Basename for the saved image. It can contain two
-            keywords, `'{iteration}'` and `'`{index}'`. They are replaced
+            keywords, `'{iteration}'` and `'{index}'`. They are replaced
             with the iteration of the trainer and the index of the sample
             when this extension save an image. The default value is
             `'detection_iter={iteration}_idx={index}.jpg'`.
