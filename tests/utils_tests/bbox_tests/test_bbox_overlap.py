@@ -51,18 +51,17 @@ class TestBboxOverlap(unittest.TestCase):
             cuda.to_gpu(self.expected))
 
 
+@testing.parameterize(
+    {'bbox_a': [[0, 0, 8]], 'bbox_b': [[1, 1, 9, 9]]},
+    {'bbox_a': [[0, 0, 8, 0, 1]], 'bbox_b': [[1, 1, 9, 9]]},
+    {'bbox_a': [[0, 0, 8, 8]], 'bbox_b': [[1, 1, 9]]},
+    {'bbox_a': [[0, 0, 8, 8]], 'bbox_b': [[1, 1, 9, 9, 10]]}
+)
 class TestBboxOverlapInvalidShape(unittest.TestCase):
 
-    def test_bbox_overlap_invalid_bbox(self):
-        bbox_a = np.array([[0, 0, 8]], dtype=np.float32)
-        bbox_b = np.array([[1, 1, 9, 9]], dtype=np.float32)
-
-        with self.assertRaises(IndexError):
-            bbox_overlap(bbox_a, bbox_b)
-
-    def test_bbox_overlap_invalid_query_bbox(self):
-        bbox_a = np.array([[0, 0, 8, 8]], dtype=np.float32)
-        bbox_b = np.array([[1, 1, 9]], dtype=np.float32)
+    def test_bbox_overlap_invalid(self):
+        bbox_a = np.array(self.bbox_a, dtype=np.float32)
+        bbox_b = np.array(self.bbox_b, dtype=np.float32)
 
         with self.assertRaises(IndexError):
             bbox_overlap(bbox_a, bbox_b)
