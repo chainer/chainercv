@@ -111,7 +111,7 @@ def _non_maximum_suppression_gpu(bbox, thresh, score=None, limit=None):
 
     sorted_bbox = bbox[order, :]
     selec, n_selec = _call_nms_kernel(
-        sorted_bbox, n_bbox, thresh)
+        sorted_bbox, thresh)
     selec = selec[:n_selec]
     selec = order[selec]
     if limit is not None:
@@ -184,7 +184,8 @@ void nms_kernel(const int n_bbox, const float thresh,
 '''
 
 
-def _call_nms_kernel(bbox, n_bbox, thresh):
+def _call_nms_kernel(bbox, thresh):
+    n_bbox = bbox.shape[0]
     threads_per_block = 64
     col_blocks = np.ceil(n_bbox / threads_per_block).astype(np.int32)
     blocks = (col_blocks, col_blocks, 1)
