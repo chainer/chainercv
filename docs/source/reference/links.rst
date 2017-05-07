@@ -1,4 +1,0 @@
-Links
-=====
-
-.. module:: chainercv.links

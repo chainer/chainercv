@@ -10,7 +10,6 @@ ChainerCV Reference Manual
    datasets
    evaluations
    extensions
-   links
    transforms
 
 
