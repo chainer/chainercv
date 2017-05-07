@@ -19,7 +19,7 @@ from chainercv.utils import bbox_overlap
          [[(5 * 3) / (8 * 8 + 7 * 7 - 5 * 3), 0., 1.]], dtype=np.float32)
      },
     {'bbox_a': np.array(
-         [[3, 5, 10, 12], [9, 10, 11, 12], [0, 0, 8, 8]], dtype=np.float32),
+        [[3, 5, 10, 12], [9, 10, 11, 12], [0, 0, 8, 8]], dtype=np.float32),
      'bbox_b': np.array([[0, 0, 8, 8]], dtype=np.float32),
      'expected': np.array(
          [[(5 * 3) / (8 * 8 + 7 * 7 - 5 * 3)], [0.], [1.]], dtype=np.float32)
