@@ -29,6 +29,9 @@ class DetectionVisReport(chainer.training.extension.Extension):
     This extension visualizes the predicted bounding boxes together with the
     ground truth bounding boxes.
 
+    Internally, this extension takes examples from an iterator,
+    predict bounding boxes from the images in the examples,
+    and visualizes them using chainercv.visualizations.vis_bbox.
     The process can be illustrated in the following code.
 
     .. code:: python
@@ -37,8 +40,14 @@ class DetectionVisReport(chainer.training.extension.Extension):
         # Convert batch -> imgs, gt_bboxes, gt_labels
         pred_bboxes, pred_labels, pred_scores = target.predict(imgs)
         # Visualization code
-        # Uses (img, gt_bbox, gt_label) as the ground truth output
-        # Uses (img, pred_bbox, pred_label, pred_score) as the predicted output
+        for img, gt_bbox, gt_label, pred_bbox, pred_label, pred_score \
+                in zip(imgs,
+                       gt_boxes, gt_labels,
+                       pred_bboxes, pred_labels, pred_scores):
+            # the ground truth output
+            vis_bbox(img, gt_bbox, gt_label)
+            # the predicted output
+            vis_bbox(img, pred_bbox, pred_label, pred_scores)
 
     .. note::
         :obj:`gt_bbox` and :obj:`pred_bbox` are float arrays
