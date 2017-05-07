@@ -32,10 +32,9 @@ from chainercv.utils import bbox_overlap
 class TestBboxOverlap(unittest.TestCase):
 
     def check(self, bbox_a, bbox_b, expected):
-        xp = cuda.get_array_module(bbox_a)
         overlap = bbox_overlap(bbox_a, bbox_b)
 
-        self.assertIsInstance(overlap, xp.ndarray)
+        self.assertIsInstance(overlap, type(expected))
         np.testing.assert_equal(
             cuda.to_cpu(overlap),
             cuda.to_cpu(expected))
