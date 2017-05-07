@@ -278,7 +278,7 @@ def main(gpus=[0, 1, 2], model_mode='vgg',
         DetectionReport(
             model.faster_rcnn, test_data,gpus[0], len(labels), minoverlap=0.5,
             use_07_metric=use_07_metric, post_transform=post_transform),
-        trigger=val_interval, invoke_before_training=True
+        trigger=val_interval, invoke_before_training=False
 
     )
 
