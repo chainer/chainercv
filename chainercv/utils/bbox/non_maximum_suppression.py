@@ -71,10 +71,10 @@ def _non_maximum_suppression_cpu(bbox, thresh, score=None, limit=None):
     if len(bbox) == 0:
         return np.zeros((0,), dtype=np.int32)
 
-    bbox_area = np.prod(bbox[:, 2:] - bbox[:, :2], axis=1)
     if score is not None:
         order = score.argsort()[::-1]
         bbox = bbox[order]
+    bbox_area = np.prod(bbox[:, 2:] - bbox[:, :2], axis=1)
 
     selec = np.zeros(bbox.shape[0], dtype=bool)
     for i, b in enumerate(bbox):
