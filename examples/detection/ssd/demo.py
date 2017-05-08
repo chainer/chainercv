@@ -2,6 +2,8 @@ import argparse
 import matplotlib.pyplot as plot
 import numpy as np
 
+from chainer import serializers
+
 from chainercv.datasets.pascal_voc import voc_utils
 from chainercv.links import SSD300
 from chainercv import utils
@@ -14,8 +16,8 @@ def main():
     parser.add_argument('image')
     args = parser.parse_args()
 
-    model = SSD300(n_classes=20, pretrained_model=args.model)
-    model.score_threshold = 0.6
+    model = SSD300(n_class=20)
+    serializers.load_npz(args.model, model)
 
     img = utils.read_image(args.image, color=True)
     bboxes, labels, scores = model.predict(img[np.newaxis])

@@ -22,10 +22,11 @@ class SSD(chainer.Chain):
         'initial_bias': initializers.Zero(),
     }
 
-    def __init__(self, n_class):
+    def __init__(self, n_class, **links):
         self.n_class = n_class
 
         super(SSD, self).__init__(
+            **links,
             loc=chainer.ChainList(),
             conf=chainer.ChainList(),
         )
@@ -144,9 +145,10 @@ class SSD(chainer.Chain):
         prepared_imgs = list()
         sizes = list()
         for img in imgs:
-            prepared_img, size = self.prepare(img.astype(np.float32))
-            prepared_imgs.append(prepared_img)
-            sizes.append(size)
+            _, H, W = img.shape
+            img = self.prepare(img.astype(np.float32))
+            prepared_imgs.append(img)
+            sizes.append((W, H))
 
         prepared_imgs = self.xp.stack(prepared_imgs)
         loc, conf = self(prepared_imgs)

@@ -27,8 +27,7 @@ class DummySSD(SSD):
             for grid, n_dim in zip(self.grids, n_dims)]
 
     def prepare(self, img):
-        _, H, W = img.shape
-        return _random_array(self.xp, (3, 32, 32)), (W, H)
+        return _random_array(self.xp, (3, 32, 32))
 
 
 @testing.parameterize(*testing.product({
