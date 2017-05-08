@@ -18,12 +18,12 @@ if cuda.available:
 
 def non_maximum_suppression(bbox, thresh, score=None,
                             limit=None):
-    """Suppress bounding boxes according to their Jaccard overlap.
+    """Suppress bounding boxes according to their IoUs.
 
     This method checks each bounding box sequentially and selects the bounding
-    box if the Jaccard overlap between the bounding box and the previously
-    selected bounding boxes is less than :obj:`thresh`. This method is
-    mainly used as postprocessing of object detection.
+    box if the Intersection over Union (IoU) between the bounding box and the
+    previously selected bounding boxes is less than :obj:`thresh`. This method
+    is mainly used as postprocessing of object detection.
     The bounding boxes are selected from ones with higher scores.
     If :obj:`score` is not provided as an argument, the bounding box
     is ordered by its index in ascending order.
@@ -46,7 +46,7 @@ def non_maximum_suppression(bbox, thresh, score=None,
     Args:
         bbox (array): Bounding boxes to be transformed. The shape is
             :math:`(R, 4)`. :math:`R` is the number of bounding boxes.
-        thresh (float): Thresold of Jaccard overlap.
+        thresh (float): Thresold of IoU.
         score (array): An array of confidences whose shape is :math:`(R,)`.
         limit (int): The upper bound of the number of the output bounding
             boxes. If it is not specified, this method selects as many
@@ -84,8 +84,8 @@ def _non_maximum_suppression_cpu(bbox, thresh, score=None, limit=None):
         rb = np.minimum(b[2:], bbox[selec, 2:])
         area = np.prod(rb - lt, axis=1) * (lt < rb).all(axis=1)
 
-        jaccard = area / (bbox_area[i] + bbox_area[selec] - area)
-        if (jaccard >= thresh).any():
+        iou = area / (bbox_area[i] + bbox_area[selec] - area)
+        if (iou >= thresh).any():
             continue
 
         selec[i] = True
@@ -126,7 +126,7 @@ _nms_gpu_code = '''
 int const threadsPerBlock = sizeof(unsigned long long) * 8;
 
 __device__
-inline float devJaccard(float const *const bbox_a, float const *const bbox_b) {
+inline float devIoU(float const *const bbox_a, float const *const bbox_b) {
   float left = max(bbox_a[0], bbox_b[0]);
   float right = min(bbox_a[2], bbox_b[2]);
   float top = max(bbox_a[1], bbox_b[1]);
@@ -175,7 +175,7 @@ void nms_kernel(const int n_bbox, const float thresh,
       start = threadIdx.x + 1;
     }
     for (i = start; i < col_size; i++) {
-      if (devJaccard(cur_box, block_bbox + i * 4) >= thresh) {
+      if (devIoU(cur_box, block_bbox + i * 4) >= thresh) {
         t |= 1ULL << i;
       }
     }
