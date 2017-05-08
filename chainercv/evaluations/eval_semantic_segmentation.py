@@ -1,5 +1,7 @@
 from __future__ import division
+
 import numpy as np
+import six
 
 
 def _fast_hist(label_true, label_pred, n_class):
@@ -21,25 +23,33 @@ def eval_semantic_segmentation(label_pred, label_true, n_class):
     frequency weighted intersection over union.
 
     The definition of these metrics are as follows, where
-    :math:`p_{ij}` is the amount of pixels of class :math:`i`
+    :math:`N_{ij}` is the amount of pixels of class :math:`i`
     inferred to belong to :math:`j` and there is :math:`k` classes.
 
     * Pixel Accuracy (PA)
         :math:`PA = \\frac
-        {\\sum_{i=1}^k p_{ii}}
-        {\\sum_{i=1}^k \\sum_{j=1}^k p_{ij}}`
+        {\\sum_{i=1}^k N_{ii}}
+        {\\sum_{i=1}^k \\sum_{j=1}^k N_{ij}}`
     * Mean Pixel Accuracy (MPA)
         :math:`MPA = \\frac{1}{k}
         \\sum_{i=1}^k
-        \\frac{p_{ii}}{\\sum_{j=1}^k p_{ij}}`
+        \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij}}`
     * Mean Intersection over Union (MIoU)
         :math:`MIoU = \\frac{1}{k}
         \\sum_{i=1}^k
-        \\frac{p_{ii}}{\\sum_{j=1}^k p_{ij} + \\sum_{j=1}^k p_{ji} - p_{ii}}`
+        \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij} + \\sum_{j=1}^k N_{ji} - N_{ii}}`
     * Frequency Weighted Intersection over Union (FWIoU)
-        :math:`FWIoU = \\frac{1}{\\sum_{i=1}^k \\sum_{j=1}^k p_{ij}}
-        \\sum_{i=1}^k \\frac{\\sum_{j=1}^k p_{ij}p_{ii}}
-        {\\sum_{j=1}^k p_{ij} + \\sum_{j=1}^k p_{ji} - p_{ii}}`
+        :math:`FWIoU = \\frac{1}{\\sum_{i=1}^k \\sum_{j=1}^k N_{ij}}
+        \\sum_{i=1}^k \\frac{\\sum_{j=1}^k N_{ij}N_{ii}}
+        {\\sum_{j=1}^k N_{ij} + \\sum_{j=1}^k N_{ji} - N_{ii}}`
+
+    The more detailed descriptions on the above metrics can be found at a
+    review on semantic segmentation[1].
+
+    .. [1] Alberto Garcia-Garcia, Sergio Orts-Escolano, Sergiu Oprea, \
+    Victor Villena-Martinez, Jose Garcia-Rodriguez. \
+    A Review on Deep Learning Techniques Applied to Semantic Segmentation. \
+    https://arxiv.org/abs/1704.06857
 
     Args:
         label_pred (~numpy.ndarray): An integer array of image containing
@@ -56,9 +66,9 @@ def eval_semantic_segmentation(label_pred, label_true, n_class):
         n_class (int): Number of classes.
 
     Returns:
-        (numpy.ndarray, numpy.ndarary, numpy.ndarray, numpy.ndarray):
+        (numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray):
         A tuple of pixel accuracy, mean pixel accuracy, MIoU and FWIoU.
-        These arrays arrays have shape :math:`(N,)`, where :math:`N` is
+        These arrays have shape :math:`(N,)`, where :math:`N` is
         the number of images in the input.
 
     """
@@ -81,7 +91,7 @@ def eval_semantic_segmentation(label_pred, label_true, n_class):
     acc_cls = np.zeros((N,))
     mean_iu = np.zeros((N,))
     fwavacc = np.zeros((N,))
-    for i in range(len(label_pred)):
+    for i in six.moves.range(len(label_pred)):
         hist = _fast_hist(
             label_true[i].flatten(), label_pred[i].flatten(), n_class)
         acc[i] = np.diag(hist).sum() / hist.sum()
