@@ -7,6 +7,6 @@ Links
 Faster RCNN
 -----------
 
-generate_anchors
-""""""""""""""""
-.. autofunction:: chainercv.links.generate_anchors
+generate_anchor
+"""""""""""""""
+.. autofunction:: chainercv.links.generate_anchor
