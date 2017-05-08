@@ -55,6 +55,8 @@ def non_maximum_suppression(bbox, thresh, score=None,
     Returns:
         array:
         An array with indices of bounding boxes that are selected. \
+        They are sorted by the scores of bounding boxes in descending \
+        order. \
         The shape of this array is :math:`(K,)` and its dtype is\
         :obj:`numpy.int32`. Note that :math:`K \\leq R`.
 
