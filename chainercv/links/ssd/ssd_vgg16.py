@@ -86,7 +86,6 @@ class SSDVGG16(SSD):
 
 
 class SSD300(SSDVGG16):
-
     insize = 300
     grids = (38, 19, 10, 5, 3, 1)
     aspect_ratios = ((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))
@@ -123,7 +122,6 @@ class SSD300(SSDVGG16):
 
 
 class SSD512(SSDVGG16):
-
     insize = 512
     grids = (64, 32, 16, 8, 4, 2, 1)
     aspect_ratios = ((2,), (2, 3), (2, 3), (2, 3), (2, 3), (2,), (2, ))
