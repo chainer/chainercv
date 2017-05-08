@@ -10,30 +10,7 @@ import chainer.links as L
 from chainer import serializers
 
 from chainercv import transforms
-
-
-class _Normalize(chainer.Link):
-    """Learnable L2 normalization [1].
-
-    This link normalizes input along the channel axis and scales it.
-    The scale factor is trained channel-wise.
-
-    [1] Wei Liu, Andrew Rabinovich, Alexander C. Berg.
-    ParseNet: Looking Wider to See Better. ICLR 2016.
-
-    """
-
-    def __init__(self, n_channels, initial=0, eps=1e-5):
-        super(_Normalize, self).__init__()
-        self.eps = eps
-        self.add_param(
-            'scale', n_channels,
-            initializer=initializers._get_initializer(initial))
-
-    def __call__(self, x):
-        x = F.normalize(x, eps=self.eps, axis=1)
-        scale = F.broadcast_to(self.scale[:, np.newaxis, np.newaxis], x.shape)
-        return x * scale
+from chainercv.links.ssd import Normalize
 
 
 class _SSDVGG16(chainer.Chain):
@@ -70,7 +47,7 @@ class _SSDVGG16(chainer.Chain):
             conv4_1=L.Convolution2D(None, 512, 3, pad=1, **self.conv_init),
             conv4_2=L.Convolution2D(None, 512, 3, pad=1, **self.conv_init),
             conv4_3=L.Convolution2D(None, 512, 3, pad=1, **self.conv_init),
-            norm4=_Normalize(512, **self.norm_init),
+            norm4=Normalize(512, **self.norm_init),
 
             conv5_1=L.DilatedConvolution2D(
                 None, 512, 3, pad=1, **self.conv_init),
