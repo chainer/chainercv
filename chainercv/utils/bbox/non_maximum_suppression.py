@@ -32,8 +32,8 @@ def non_maximum_suppression(bbox, thresh, score=None,
     tensor of shape :math:`(R, 4)`, where :math:`R` is the number of
     bounding boxes in the image. The second axis represents attributes of
     the bounding box. They are :obj:`(x_min, y_min, x_max, y_max)`,
-    where the four attributes are coordinates of the bottom left and the
-    top right vertices.
+    where the four attributes are coordinates of the top left and the
+    bottom right vertices.
 
     :obj:`score` is a float array of shape :math:`(R,)`. Each score indicates
     confidence of prediction.
@@ -55,8 +55,8 @@ def non_maximum_suppression(bbox, thresh, score=None,
     Returns:
         array:
         An array with indices of bounding boxes that are selected. \
-        The shape of this array is :math:`(R,)` and its dtype is\
-        :obj:`numpy.int32`.
+        The shape of this array is :math:`(K,)` and its dtype is\
+        :obj:`numpy.int32`. Note that :math:`K \\leq R`.
 
     """
 
