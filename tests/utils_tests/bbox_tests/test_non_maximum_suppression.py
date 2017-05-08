@@ -74,14 +74,9 @@ class TestNonMaximumSuppressionConsistency(unittest.TestCase):
 class TestNonMaximumSuppressionOptions(unittest.TestCase):
 
     def setUp(self):
-        self.bbox = np.array((
-            (0, 0, 4, 4),
-            (1, 1, 5, 5),  # 9/23
-            (2, 1, 6, 5),  # 6/26, 12/20
-            (4, 0, 8, 4),  # 0/32, 3/29, 6/26
-        ))
-        self.score = np.array([3, 1, 0, 2])
-        self.limit = 2
+        self.bbox = _generate_bbox(6000, (600, 800), 32, 512)
+        self.score = np.random.uniform(0, 100, size=(len(self.bbox),))
+        self.limit = 100
         self.threshold = 0.5
 
     def check_non_maximum_suppression_options(
