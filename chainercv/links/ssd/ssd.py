@@ -117,10 +117,11 @@ class SSD(chainer.Chain):
         score = list()
         for i in range(1, 1 + self.n_class):
             mask = raw_score[:, i] >= self.score_threshold
-            bbox_label, score_label = raw_bbox[mask], raw_score[mask, i]
+            bbox_label, score_label = raw_bbox[mask], raw_score[mask][:, i]
 
             if self.nms_threshold is not None:
-                order = score_label.argsort()[::-1]
+                order = xp.array(chainer.cuda.to_cpu(
+                    score_label).argsort()[::-1])
                 bbox_label, score_label = bbox_label[order], score_label[order]
                 bbox_label, param = transforms.non_maximum_suppression(
                     bbox_label, self.nms_threshold, return_param=True)
@@ -144,7 +145,7 @@ class SSD(chainer.Chain):
             prepared_imgs.append(prepared_img)
             sizes.append(size)
 
-        prepared_imgs = self.xp.array(prepared_imgs)
+        prepared_imgs = self.xp.stack(prepared_imgs)
         loc, conf = self(prepared_imgs)
         raw_bboxes, raw_scores = self._decode(loc.data, conf.data)
 
