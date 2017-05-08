@@ -80,6 +80,7 @@ class SSDVGG16(SSD):
         return ys
 
     def prepare(self, img):
+        img = img.astype(np.float32)
         img = transforms.resize(img, (self.insize, self.insize))
         img -= np.array(self.mean)[:, np.newaxis, np.newaxis]
         return img
