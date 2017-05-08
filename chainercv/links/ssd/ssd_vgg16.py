@@ -1,4 +1,5 @@
 import numpy as np
+import six
 
 import chainer.functions as F
 from chainer import initializers
@@ -41,9 +42,9 @@ class SSDVGG16(SSD):
             conv6=L.DilatedConvolution2D(
                 None, 1024, 3, pad=6, dilate=6, **self.conv_init),
             conv7=L.Convolution2D(None, 1024, 1, **self.conv_init),
-
-            **links,
         )
+        for name, link in six.iteritems(links):
+            self.add_link(name, link)
 
     def features(self, x):
         ys = list()

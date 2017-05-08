@@ -2,6 +2,7 @@ from __future__ import division
 
 import itertools
 import numpy as np
+import six
 
 import chainer
 import chainer.functions as F
@@ -26,10 +27,12 @@ class SSD(chainer.Chain):
         self.n_class = n_class
 
         super(SSD, self).__init__(
-            **links,
             loc=chainer.ChainList(),
             conf=chainer.ChainList(),
         )
+        for name, link in six.iteritems(links):
+            self.add_link(name, link)
+
         for ar in self.aspect_ratios:
             n = (len(ar) + 1) * 2
             self.loc.add_link(L.Convolution2D(
