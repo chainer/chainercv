@@ -13,6 +13,41 @@ from chainercv import transforms
 
 
 class SSD(chainer.Chain):
+    """Base class of Single Shot Multibox Detector [1].
+
+    This is a base class of Single Shot Multibox Detector.
+    It requires a feature extraction method and a preprocessing method.
+
+    [1] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+    Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+    SSD: Single Shot MultiBox Detector. ECCV 2016.
+
+    Args:
+        n_class (int): The number of classes.
+        links (dict of chainer.Link): A dictionary of :class:`chainer.Link`.
+            The links  will added to the chain as child links.
+    Parameters:
+        grids (iterable of int): The sizes of feature maps.
+        aspect_ratios (iterable of tuple or int): The aspect ratios of
+            default bounding boxes for each feature map.
+        steps (iterable of float): The step size for each feature map.
+        sizes (iterable of float): The base size of default bounding boxes
+            for each feature map.
+        variance (tuple of float): Two coefficients for encoding
+            the locations of bounding boxe. The first value is used to
+            encode coordinates of the centers. The second value is used to
+            encode the sizes of bounding boxes.
+            The default values are 0.1 and 0.2.
+        nms_threshold (float): The threshold value
+            for :meth:`chainercv.transfroms.non_maximum_suppression`.
+            The default value is 0.45.
+        score_threshold (float): The threshold value for confidence score.
+            If a bounding box whose confidence score is lower than this value,
+            the bounding box will be suppressed. The default value is 0.6.
+            This value is optimized for visualization.
+            For evaluation, the optimized value is 0.01.
+    """
+
     variance = (0.1, 0.2)
 
     nms_threshold = 0.45
@@ -70,6 +105,18 @@ class SSD(chainer.Chain):
         self._default_bbox = chainer.cuda.to_gpu(self._default_bbox)
 
     def features(self, x):
+        """Compute feature maps from a batch of images.
+
+        This is a virtual method.
+        The inheriting class must implement this method.
+
+        Args:
+            x (ndarray): An array holding a batch of images.
+                The images are preprocessed by :meth:`prepare` if needed.
+        Return:
+           list of Variable
+           Each variable contains a feature map.
+        """
         raise NotImplementedError
 
     def _multibox(self, xs):
@@ -96,6 +143,19 @@ class SSD(chainer.Chain):
         return self._multibox(self.features(x))
 
     def prepare(self, img):
+        """Preprocess an image for feature extraction.
+
+        This is a virtual method.
+        The inheriting class must implement this method.
+
+        Args:
+            img (~numpy.ndarray): An image. This is in CHW and BGR format.
+                The range of its value is :math:`[0, 255]`.
+        Return:
+           ~numpy.ndarray
+           A preprocessed image.
+        """
+
         return NotImplementedError
 
     def _decode(self, loc, conf):
