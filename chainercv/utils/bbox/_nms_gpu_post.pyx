@@ -5,7 +5,7 @@ import numpy as np
 
 
 def _nms_gpu_post(np.ndarray[np.uint64_t, ndim=1] mask,
-                 int boxes_num,
+                 int n_bbox,
                  int threads_per_block,
                  int col_blocks
                  ):
@@ -17,10 +17,10 @@ def _nms_gpu_post(np.ndarray[np.uint64_t, ndim=1] mask,
         np.ndarray[np.int32_t, ndim=1] selection
         np.ndarray[np.uint64_t, ndim=1] remv
 
-    selection= np.zeros(boxes_num, dtype=np.int32)
+    selection= np.zeros((n_bbox,), dtype=np.int32)
     remv = np.zeros((col_blocks,), dtype=np.uint64)
 
-    for i in range(boxes_num):
+    for i in range(n_bbox):
         nblock = i // threads_per_block
         inblock = i % threads_per_block
 
