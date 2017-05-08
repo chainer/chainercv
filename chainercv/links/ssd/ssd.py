@@ -112,16 +112,19 @@ class SSD(chainer.Chain):
     def _suppress(self, raw_bbox, raw_score):
         xp = self.xp
 
+        raw_bbox = chainer.cuda.to_cpu(raw_bbox)
+        raw_score = chainer.cuda.to_cpu(raw_score)
+
         bbox = list()
         label = list()
         score = list()
         for i in range(1, 1 + self.n_class):
             mask = raw_score[:, i] >= self.score_threshold
-            bbox_label, score_label = raw_bbox[mask], raw_score[mask][:, i]
+            bbox_label = raw_bbox[mask]
+            score_label = raw_score[mask, i]
 
             if self.nms_threshold is not None:
-                order = xp.array(chainer.cuda.to_cpu(
-                    score_label).argsort()[::-1])
+                order = score_label.argsort()[::-1]
                 bbox_label, score_label = bbox_label[order], score_label[order]
                 bbox_label, param = transforms.non_maximum_suppression(
                     bbox_label, self.nms_threshold, return_param=True)
