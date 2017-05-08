@@ -3,6 +3,8 @@ from __future__ import division
 import numpy as np
 import six
 
+from chainer import cuda
+
 
 def _fast_hist(label_true, label_pred, n_class):
     # Construct histogram for label evaluation.
@@ -51,13 +53,16 @@ def eval_semantic_segmentation(label_pred, label_true, n_class):
     A Review on Deep Learning Techniques Applied to Semantic Segmentation. \
     https://arxiv.org/abs/1704.06857
 
+    Types of :obj:`label_pred` and :obj:`label_true` need to be same.
+    The outputs are same type as the inputs.
+
     Args:
-        label_pred (~numpy.ndarray): An integer array of image containing
+        label_pred (array): An integer array of image containing
             class labels as values, which is obtained from inference.
             This has shape :math:`(N, 1, H, W)` or :math:`(1, H, W)`,
             where :math:`N` is size of the batch, :math:`H` is the height
             and :math:`W` is the width.
-        label_true (~numpy.ndarray): An integer array of image containing
+        label_true (array): An integer array of image containing
             the ground truth class labels as values. A pixel with value
             "-1" will be ignored during evaluation. Its shape is similar
             to :obj:`label_pred`.
@@ -66,12 +71,16 @@ def eval_semantic_segmentation(label_pred, label_true, n_class):
         n_class (int): Number of classes.
 
     Returns:
-        (numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray):
+        (array, array, array, array):
         A tuple of pixel accuracy, mean pixel accuracy, MIoU and FWIoU.
         These arrays have shape :math:`(N,)`, where :math:`N` is
         the number of images in the input.
 
     """
+    xp = cuda.get_array_module(label_pred)
+    label_pred = cuda.to_cpu(label_pred)
+    label_true = cuda.to_cpu(label_true)
+
     ndim = label_pred.ndim
     if label_pred.ndim != label_true.ndim:
         raise ValueError(
@@ -102,4 +111,6 @@ def eval_semantic_segmentation(label_pred, label_true, n_class):
         mean_iu[i] = np.nanmean(iu)
         freq = hist.sum(axis=1) / hist.sum()
         fwavacc[i] = (freq[freq > 0] * iu[freq > 0]).sum()
-    return acc, acc_cls, mean_iu, fwavacc
+
+    return (xp.asarray(acc), xp.asarray(acc_cls),
+            xp.asarray(mean_iu), xp.asarray(fwavacc))
