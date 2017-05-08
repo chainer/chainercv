@@ -113,9 +113,10 @@ class SSD(chainer.Chain):
         Args:
             x (ndarray): An array holding a batch of images.
                 The images are preprocessed by :meth:`prepare` if needed.
-        Return:
-           list of Variable
-           Each variable contains a feature map.
+
+        Returns:
+            list of Variable:
+            Each variable contains a feature map.
         """
         raise NotImplementedError
 
@@ -151,9 +152,10 @@ class SSD(chainer.Chain):
         Args:
             img (~numpy.ndarray): An image. This is in CHW and BGR format.
                 The range of its value is :math:`[0, 255]`.
-        Return:
-           ~numpy.ndarray
-           A preprocessed image.
+
+        Returns:
+            ~numpy.ndarray:
+            A preprocessed image.
         """
 
         return NotImplementedError
@@ -205,6 +207,31 @@ class SSD(chainer.Chain):
         return bbox, label, score
 
     def predict(self, imgs):
+        """Detect objects from images
+
+        This method predicts objects for each image.
+
+        Args:
+            imgs (iterable of ~numpy.ndarray): Arrays holding images.
+                All images are in CHW and BGR format
+                and the range of their value is :math:`[0, 255]`.
+
+        Returns:
+           tuple of list:
+           This method returns a tuple of three lists,
+           :obj:`(bboxes, labels, scores)`.
+
+           * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
+               where :math:`R` is the number of bounding boxes in a image. \
+               Each bouding box is organized by \
+               :obj:`(x_min, y_min, x_max, y_max)` \
+               in the second axis.
+           * **labels** : A list of integer arrays of shape :math:`(R,)`. \
+               Each value indicates the class of the bounding box.
+           * **scores** : A list of float arrays of shape :math:`(R,)`. \
+               Each value indicates how confident the prediction is.
+        """
+
         prepared_imgs = list()
         sizes = list()
         for img in imgs:
