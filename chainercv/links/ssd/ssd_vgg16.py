@@ -86,6 +86,18 @@ class SSDVGG16(SSD):
 
 
 class SSD300(SSDVGG16):
+    """Single Shot Multibox Detector.
+
+    This is a model of Single Shot Multibox Detector.
+    This model is based on VGG-16 and takes 300x300 images as inputs.
+
+    This model is proposed in [1].
+
+    [1] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+    Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+    SSD: Single Shot MultiBox Detector. ECCV 2016.
+    """
+
     insize = 300
     grids = (38, 19, 10, 5, 3, 1)
     aspect_ratios = ((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))
@@ -112,6 +124,21 @@ class SSD300(SSDVGG16):
         )
 
     def features(self, x):
+        """Compute feature maps from a batch of images.
+
+        This method extracts feature maps from
+        :obj:`conv4_3`, :obj:`conv7`, :obj:`conv8_2`,
+        :obj:`conv9_2`, :obj:`conv10_2`, and :obj:`conv11_2`.
+
+        Args:
+            x (ndarray): An array holding a batch of images.
+                The images should be resized and rescaled by :meth:`prepare`.
+
+        Returns:
+            list of Variable:
+            Each variable contains a feature map.
+        """
+
         ys = super(SSD300, self).features(x)
         for i in range(8, 11 + 1):
             h = ys[-1]
@@ -122,6 +149,18 @@ class SSD300(SSDVGG16):
 
 
 class SSD512(SSDVGG16):
+    """Single Shot Multibox Detector.
+
+    This is a model of Single Shot Multibox Detector.
+    This model is based on VGG-16 and takes 512x512 images as inputs.
+
+    This model is proposed in [1].
+
+    [1] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+    Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+    SSD: Single Shot MultiBox Detector. ECCV 2016.
+    """
+
     insize = 512
     grids = (64, 32, 16, 8, 4, 2, 1)
     aspect_ratios = ((2,), (2, 3), (2, 3), (2, 3), (2, 3), (2,), (2, ))
@@ -155,6 +194,21 @@ class SSD512(SSDVGG16):
         )
 
     def features(self, x):
+        """Compute feature maps from a batch of images.
+
+        This method extracts feature maps from
+        :obj:`conv4_3`, :obj:`conv7`, :obj:`conv8_2`,
+        :obj:`conv9_2`, :obj:`conv10_2`, :obj:`conv11_2`, and :obj:`conv12_2`.
+
+        Args:
+            x (ndarray): An array holding a batch of images.
+                The images should be resized and rescaled by :meth:`prepare`.
+
+        Returns:
+            list of Variable:
+            Each variable contains a feature map.
+        """
+
         ys = super(SSD512, self).features(x)
         for i in range(8, 12 + 1):
             h = ys[-1]
