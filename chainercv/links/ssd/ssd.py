@@ -134,9 +134,9 @@ class SSD(chainer.Chain):
             label.append((i,) * len(bbox_label))
             score.append(score_label)
 
-        bbox = xp.vstack(bbox).astype(np.float32)
-        label = xp.hstack(label).astype(np.int32)
-        score = xp.hstack(score).astype(np.float32)
+        bbox = xp.array(np.vstack(bbox).astype(np.float32))
+        label = xp.array(np.hstack(label).astype(np.int32))
+        score = xp.array(np.hstack(score).astype(np.float32))
 
         return bbox, label, score
 
