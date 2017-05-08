@@ -38,9 +38,8 @@ class TestNonMaximumSuppression(unittest.TestCase):
         ))
 
     def check_non_maximum_suppression(self, bbox, threshold, expect):
-        xp = cuda.get_array_module(bbox)
         selec = non_maximum_suppression(bbox, threshold)
-        self.assertIsInstance(selec, xp.ndarray)
+        self.assertIsInstance(selec, type(bbox))
         self.assertEqual(selec.dtype, np.int32)
         np.testing.assert_equal(
             cuda.to_cpu(selec),
@@ -81,18 +80,17 @@ class TestNonMaximumSuppressionOptions(unittest.TestCase):
 
     def check_non_maximum_suppression_options(
             self, bbox, threshold, score, limit):
-        xp = cuda.get_array_module(bbox)
-
         # Pass all options to the tested function
         scored_selec = non_maximum_suppression(bbox, threshold, score, limit)
-        self.assertIsInstance(scored_selec, xp.ndarray)
+        self.assertIsInstance(scored_selec, type(bbox))
 
         # Reorder inputs befor passing it to the function.
         # Reorder the outputs according to scores.
         # CuPy does not support argsort
         order = cuda.to_cpu(score).argsort()[::-1]
         reordered_selec = non_maximum_suppression(
-            bbox[order], threshold, score=None, limit=limit)
+            bbox[order], threshold, score=None, limit=None)
+        reordered_selec = reordered_selec[:limit]
         reordered_selec = cuda.to_cpu(reordered_selec)
         reordered_selec = order[reordered_selec]
 
@@ -117,11 +115,9 @@ class TestNonMaximumSuppressionZeroLengthBbox(unittest.TestCase):
 
     def check_non_maximum_suppression_zero_legnth_bbox(
             self, bbox, threshold):
-        xp = cuda.get_array_module(bbox)
         selec = non_maximum_suppression(bbox, threshold)
-        self.assertIsInstance(selec, xp.ndarray)
-        np.testing.assert_equal(
-            cuda.to_cpu(selec), np.zeros((0,), dtype=np.int32))
+        self.assertIsInstance(selec, type(bbox))
+        self.assertEqual(selec.shape, (0,))
 
     def test_non_maximum_suppression_zero_length_bbox_cpu(self):
         self.check_non_maximum_suppression_zero_legnth_bbox(
