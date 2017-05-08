@@ -23,15 +23,10 @@ class TestSSD(unittest.TestCase):
             self.link = SSD512(n_class=self.n_class)
             self.n_bbox = 24564
 
-    def _random_array(self, shape):
-        return self.link.xp.array(
-            np.random.uniform(-1, 1, size=shape), dtype=np.float32)
-
-    def _random_image(self, width, height):
-        return np.random.randint(0, 255, size=(3, height, width))
-
     def _check_call(self):
-        x = self._random_array((1, 3, self.insize, self.insize))
+        x = self.link.xp.array(
+            np.random.uniform(-1, 1, size=(1, 3, self.insize, self.insize)),
+            dtype=np.float32)
 
         loc, conf = self.link(x)
 
@@ -53,7 +48,7 @@ class TestSSD(unittest.TestCase):
         self._check_call()
 
     def test_prepare(self):
-        img = self._random_image(640, 480)
+        img = np.random.randint(0, 255, size=(3, 480, 640))
         img = self.link.prepare(img)
         self.assertEqual(img.shape, (3, self.insize, self.insize))
 
