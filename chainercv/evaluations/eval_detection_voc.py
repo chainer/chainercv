@@ -187,20 +187,15 @@ def _pred_and_rec_cls(
         bb = bbox[d]
         ioumax = -np.inf
         gt_bb = gt_bboxes_cls[idx]
+        # VOC evaluation follows integer typed bounding boxes.
         gt_bb_area = np.prod(gt_bb[:, 2:] - gt_bb[:, :2] + 1., axis=1)
 
         if gt_bb.size > 0:
             # compute overlaps
-            # intersection
             lt = np.maximum(gt_bb[:, :2], bb[:2])
             rb = np.minimum(gt_bb[:, 2:], bb[2:])
-            # VOC evaluation follows integer typed bounding boxes.
             area = np.prod(rb - lt + 1, axis=1)
-
-            # union
-            uni = bbox_area[d] + gt_bb_area - area
-
-            iou = area / uni
+            iou = area / (bbox_area[d] + gt_bb_area - area)
             ioumax = np.max(iou)
             jmax = np.argmax(iou)
 
