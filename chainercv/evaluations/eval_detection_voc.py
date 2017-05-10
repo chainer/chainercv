@@ -6,7 +6,7 @@ def eval_detection_voc(
         bboxes, labels, confs, gt_bboxes, gt_labels, n_class,
         gt_difficults=None,
         minoverlap=0.5, use_07_metric=False):
-    """Calculate deterction metrics based on evaluation code of PASCAL VOC.
+    """Calculate detection metrics based on evaluation code of PASCAL VOC.
 
     This function evaluates recall, precison and average precision with
     respect to a class as well as mean average precision.
@@ -30,16 +30,16 @@ def eval_detection_voc(
             of a box.
         labels (list of numpy.ndarray): A list of labels.
             Similar to :obj:`bboxes`, its index corresponds to an
-            index for the base dataset. Its length :math:`N` list.
-        confs (list of numpy.ndarray): A list of confidence scores for
+            index for the base dataset. Its length is :math:`N`.
+        scores (list of numpy.ndarray): A list of confidence scores for
             predicted bounding boxes. Similar to :obj:`bboxes`,
             its index corresponds to an index for the base dataset.
-            Its length :math:`N` list.
-        gt_bboxes (list of numpy.ndarray): List of ground truth bounding whose
-            length is :math:`N`. An element of :obj:`gt_bboxes` is a bounding
-            box whose shape is :math:`(R, 4)`. Note that number of bounding
-            boxes in each image does not need to be same as the number of
-            corresponding predicted boxes.
+            Its length is :math:`N`.
+        gt_bboxes (list of numpy.ndarray): List of ground truth bounding boxes
+            whose length is :math:`N`. An element of :obj:`gt_bboxes` is a
+            bounding box whose shape is :math:`(R, 4)`. Note that number of
+            bounding boxes in each image does not need to be same as the number
+            of corresponding predicted boxes.
         gt_labels (list of numpy.ndarray): List of ground truth labels which
             are organized similarly to :obj:`labels`.
         n_class (int): Number of classes.
@@ -48,8 +48,8 @@ def eval_detection_voc(
             corresponding ground truth bounding box is difficult or not.
             By default, this is :obj:`None`. In that case, this function
             consider all bounding boxes to be not difficult.
-        minoverlap (float): A prediction is correct if its intersection of
-            union with the ground truth is above this value.
+        minoverlap (float): A prediction is correct if its Intersection over
+            Union with the ground truth is above this value.
         use_07_metric (bool): Whether to use Pascal VOC 2007 evaluation metric
             for calculating average precision. The default value is
             :obj:`False`.
@@ -60,8 +60,7 @@ def eval_detection_voc(
         This function returns a dictionary whose contents are listed
         below with key, value-type and the description of the value.
 
-        * **map** (*float*): mAP calculated from the prediction and the\
-            ground truth.
+        * **map** (*float*): mean Average Prediction.
         * **i (an integer corresponding to class id)** (*dict*): This is a \
             dictionary whose keys are :obj:`precision, recall, ap`, which \
             maps to precision, recall and average precision with respect \
