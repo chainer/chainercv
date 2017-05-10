@@ -37,7 +37,7 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 
 ## Transforms
 
-ChainerCV supports functions commonly used to prepare data before feeding to a neural network.
+ChainerCV provides functions commonly used to prepare data before feeding to a neural network.
 We expect users to use these functions together with an object that supports the dataset interface (e.g. `chainer.dataset.DatasetMixin`).
 Users can create a custom preprocessing pipeline by defining a function that describes a
 procedure to transform the incoming data.
@@ -62,7 +62,7 @@ dataset = TransformDataset(dataset, transform)
 img, label = dataset[0]
 ```
 
-As found in the example, `random_rotate` is one of the transforms ChainerCV supports. Like other transforms, this is just a
+As found in the example, `random_rotate` is one of the transforms provided by ChainerCV. Like other transforms, this is just a
 function that takes an array as input.
 Also, `TransformDataset` is a new dataset class added in ChainerCV that overrides the underlying dataset's `__getitem__` by applying `transform` to the values returned by the original `__getitem__`.
 
