@@ -170,7 +170,7 @@ def _pred_and_rec_cls(
     # Example:
     # bboxes = [[bbox00, bbox01], [bbox10]]
     # bbox = array([bbox00, bbox01, bbox10])
-    # index = [0, 0, 1] 
+    # index = [0, 0, 1]
     index = []
     for i in six.moves.range(len(confs)):
         for j in six.moves.range(len(confs[i])):
@@ -187,7 +187,6 @@ def _pred_and_rec_cls(
     index = index[si]
     bbox = bbox[si]
 
-    # assign detections to ground truth objects
     nd = len(index)
     tp = np.zeros(nd)
     fp = np.zeros(nd)
@@ -202,7 +201,6 @@ def _pred_and_rec_cls(
         gt_bb_area = np.prod(gt_bb[:, 2:] - gt_bb[:, :2] + 1., axis=1)
 
         if gt_bb.size > 0:
-            # compute overlaps
             lt = np.maximum(gt_bb[:, :2], bb[:2])
             rb = np.minimum(gt_bb[:, 2:], bb[2:])
             area = np.prod(rb - lt + 1, axis=1)
@@ -214,6 +212,7 @@ def _pred_and_rec_cls(
             if not gt_difficults[idx][jmax]:
                 if not selec[idx][jmax]:
                     tp[d] = 1
+                    # assign detections to ground truth objects
                     selec[idx][jmax] = 1
                 else:
                     fp[d] = 1
