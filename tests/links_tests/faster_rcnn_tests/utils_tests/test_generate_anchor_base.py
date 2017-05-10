@@ -6,12 +6,12 @@ import numpy as np
 
 from chainer import testing
 
-from chainercv.links import generate_anchor
+from chainercv.links import generate_anchor_base
 
 
-class TestGenerateAnchor(unittest.TestCase):
+class TestGenerateAnchorBase(unittest.TestCase):
 
-    def test_generaete_anchor(self):
+    def test_generaete_anchor_base(self):
         gt = np.array(
             [[-120., -24., 136., 40.],
              [-248., -56., 264., 72.],
@@ -26,9 +26,9 @@ class TestGenerateAnchor(unittest.TestCase):
         base_size = 16
         scales = [8, 16, 32]
         ratios = [0.25, 1, 4]
-        out = generate_anchor(base_size=base_size,
-                              scales=scales,
-                              ratios=ratios)
+        out = generate_anchor_base(base_size=base_size,
+                                   scales=scales,
+                                   ratios=ratios)
         np.testing.assert_equal(gt, out)
 
 

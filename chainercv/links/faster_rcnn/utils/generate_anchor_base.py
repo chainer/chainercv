@@ -4,9 +4,9 @@ import numpy as np
 import six
 
 
-def generate_anchor(base_size=16, ratios=[0.5, 1, 2],
-                    scales=[8, 16, 32]):
-    """Generate anchor windows by enumerating aspect ratio and scales.
+def generate_anchor_base(base_size=16, ratios=[0.5, 1, 2],
+                         scales=[8, 16, 32]):
+    """Generate anchor base windows by enumerating aspect ratio and scales.
 
     Generate anchors that are scaled and fit to given aspect ratios.
     Area of a scaled anchor is preserved when fitting to an aspect ratio.
@@ -39,15 +39,15 @@ def generate_anchor(base_size=16, ratios=[0.5, 1, 2],
     px = base_size / 2.
     py = base_size / 2.
 
-    anchor = np.zeros((len(ratios) * len(scales), 4), dtype=np.float32)
+    anchor_base = np.zeros((len(ratios) * len(scales), 4), dtype=np.float32)
     for i in six.moves.range(len(ratios)):
         for j in six.moves.range(len(scales)):
             w = base_size * scales[j] * np.sqrt(1. / ratios[i])
             h = base_size * scales[j] * np.sqrt(ratios[i])
 
             index = i * len(scales) + j
-            anchor[index, 0] = px - w / 2.
-            anchor[index, 1] = py - h / 2.
-            anchor[index, 2] = px + w / 2.
-            anchor[index, 3] = py + h / 2.
-    return anchor
+            anchor_base[index, 0] = px - w / 2.
+            anchor_base[index, 1] = py - h / 2.
+            anchor_base[index, 2] = px + w / 2.
+            anchor_base[index, 3] = py + h / 2.
+    return anchor_base

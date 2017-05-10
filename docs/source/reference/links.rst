@@ -4,9 +4,12 @@ Links
 .. module:: chainercv.links
 
 
-Faster RCNN
------------
+Model
+-----
 
-generate_anchor
-"""""""""""""""
-.. autofunction:: chainercv.links.generate_anchor
+Faster RCNN
+~~~~~~~~~~~
+
+generate_anchor_base
+""""""""""""""""""""
+.. autofunction:: chainercv.links.generate_anchor_base
