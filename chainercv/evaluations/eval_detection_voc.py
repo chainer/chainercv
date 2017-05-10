@@ -3,7 +3,7 @@ import six
 
 
 def eval_detection_voc(
-        bboxes, labels, confs, gt_bboxes, gt_labels, n_class,
+        bboxes, labels, scores, gt_bboxes, gt_labels, n_class,
         gt_difficults=None,
         minoverlap=0.5, use_07_metric=False):
     """Calculate detection metrics based on evaluation code of PASCAL VOC.
@@ -67,7 +67,7 @@ def eval_detection_voc(
             to the class id **i**.
 
     """
-    if not (len(bboxes) == len(labels) == len(confs)
+    if not (len(bboxes) == len(labels) == len(scores)
             == len(gt_bboxes) == len(gt_labels)):
         raise ValueError('Length of list inputs need to be same')
 
@@ -77,26 +77,26 @@ def eval_detection_voc(
     # Organize predictions into List[n_class][n_img]
     _bboxes = [[None for _ in six.moves.range(n_img)]
                for _ in six.moves.range(n_class)]
-    _confs = [[None for _ in six.moves.range(n_img)]
-              for _ in six.moves.range(n_class)]
+    _scores = [[None for _ in six.moves.range(n_img)]
+               for _ in six.moves.range(n_class)]
     for i in six.moves.range(n_img):
         for cls in six.moves.range(n_class):
             bboxes_cls = []
-            confs_cls = []
+            scores_cls = []
             for j in six.moves.range(bboxes[i].shape[0]):
                 if cls == labels[i][j]:
                     bboxes_cls.append(bboxes[i][j])
-                    confs_cls.append(confs[i][j])
+                    scores_cls.append(scores[i][j])
             if len(bboxes_cls) > 0:
                 bboxes_cls = np.stack(bboxes_cls)
             else:
                 bboxes_cls = np.zeros((0, 4))
-            if len(confs_cls) > 0:
-                confs_cls = np.stack(confs_cls)
+            if len(scores_cls) > 0:
+                scores_cls = np.stack(scores_cls)
             else:
-                confs_cls = np.zeros((0,))
+                scores_cls = np.zeros((0,))
             _bboxes[cls][i] = bboxes_cls
-            _confs[cls][i] = confs_cls
+            _scores[cls][i] = scores_cls
             if len(bboxes_cls) > 0:
                 valid_cls[cls] = True
 
@@ -135,7 +135,7 @@ def eval_detection_voc(
     valid_cls_index = np.where(valid_cls)[0]
     for cls in valid_cls_index:
         rec, prec = _pred_and_rec_cls(
-            _bboxes[cls], _confs[cls], _gt_bboxes[cls], _gt_difficults[cls],
+            _bboxes[cls], _scores[cls], _gt_bboxes[cls], _gt_difficults[cls],
             minoverlap)
         ap = _voc_ap(rec, prec, use_07_metric=use_07_metric)
         results[cls] = {}
@@ -148,13 +148,13 @@ def eval_detection_voc(
 
 
 def _pred_and_rec_cls(
-        bboxes, confs, gt_bboxes, gt_difficults,
+        bboxes, scores, gt_bboxes, gt_difficults,
         minoverlap=0.5):
     # Calculate detection metrics with respect to a class.
     # This function is called only when there is at least one
     # prediction or ground truth box which is labeled as the class.
     # bboxes: List[numpy.ndarray]
-    # confs: List[numpy.ndarray]
+    # scores: List[numpy.ndarray]
     # gt_bboxes: List[numpy.ndarray]
     # gt_difficults: List[numpy.ndarray]
 
@@ -171,11 +171,11 @@ def _pred_and_rec_cls(
     # bbox = array([bbox00, bbox01, bbox10])
     # index = [0, 0, 1]
     index = []
-    for i in six.moves.range(len(confs)):
-        for j in six.moves.range(len(confs[i])):
+    for i in six.moves.range(len(scores)):
+        for j in six.moves.range(len(scores[i])):
             index.append(i)
     index = np.array(index, dtype=np.int)
-    conf = np.concatenate(confs)
+    conf = np.concatenate(scores)
     bbox = np.concatenate(bboxes)
 
     if npos == 0 or len(conf) == 0:
