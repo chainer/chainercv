@@ -251,27 +251,3 @@ def _voc_ap(rec, prec, use_07_metric=False):
         # and sum (\Delta recall) * prec
         ap = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
     return ap
-
-
-def _iou_ratio(bbox_1, bbox_2):
-    # Compute IoU between bounding boxes.
-
-    bi = [np.maximum(bbox_1[0], bbox_2[0]),
-          np.maximum(bbox_1[1], bbox_2[1]),
-          np.minimum(bbox_1[2], bbox_2[2]),
-          np.minimum(bbox_1[3], bbox_2[3])]
-
-    iw = np.maximum(bi[2] - bi[0] + 1, 0.)
-    ih = np.maximum(bi[3] - bi[1] + 1, 0.)
-
-    overlap = 0
-
-    inter = iw * ih
-
-    # union
-    uni = ((bbox_1[2] - bbox_1[0] + 1.) * (bbox_1[3] - bbox_1[1] + 1.) +
-           (bbox_2[2] - bbox_2[0] + 1.) * (bbox_2[3] - bbox_2[1] + 1.) - inter)
-
-    if ih > 0 and iw > 0:
-        overlap = inter / uni
-    return overlap
