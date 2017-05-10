@@ -133,8 +133,8 @@ def eval_detection_voc(
 
     # Accumulate recacall, precison and ap
     results = {}
-    valid_cls_indices = np.where(valid_cls)[0]
-    for cls in valid_cls_indices:
+    valid_cls_index = np.where(valid_cls)[0]
+    for cls in valid_cls_index:
         rec, prec = _pred_and_rec_cls(
             _bboxes[cls], _confs[cls], _gt_bboxes[cls], _gt_difficults[cls],
             minoverlap)
@@ -144,7 +144,7 @@ def eval_detection_voc(
         results[cls]['precision'] = prec
         results[cls]['ap'] = ap
     results['map'] = np.asscalar(np.mean(
-        [results[cls]['ap'] for cls in valid_cls_indices]))
+        [results[cls]['ap'] for cls in valid_cls_index]))
     return results
 
 
@@ -162,31 +162,31 @@ def _pred_and_rec_cls(
         npos += np.sum(np.logical_not(gt_difficults_cls[i]))
 
     # load the detection result
-    indices = []
+    index = []
     for i in six.moves.range(len(confs_cls)):
         for j in six.moves.range(len(confs_cls[i])):
-            indices.append(i)
-    indices = np.array(indices, dtype=np.int)
+            index.append(i)
+    index = np.array(index, dtype=np.int)
     conf = np.concatenate(confs_cls)
     bbox = np.concatenate(bboxes_cls)
     if npos == 0 or len(conf) == 0:
         return np.zeros((len(conf),)), np.zeros((len(conf),)), 0.
 
     si = np.argsort(-conf)
-    indices = indices[si]
+    index = index[si]
     bbox = bbox[si]
 
     # assign detections to ground truth objects
-    nd = len(indices)
+    nd = len(index)
     tp = np.zeros(nd)
     fp = np.zeros(nd)
 
     bbox_area = np.prod(bbox[:, 2:] - bbox[:, :2] + 1., axis=1)
     for d in six.moves.range(nd):
-        index = indices[d]
+        idx = index[d]
         bb = bbox[d]
         ioumax = -np.inf
-        gt_bb = gt_bboxes_cls[index]
+        gt_bb = gt_bboxes_cls[idx]
         gt_bb_area = np.prod(gt_bb[:, 2:] - gt_bb[:, :2] + 1., axis=1)
 
         if gt_bb.size > 0:
@@ -205,10 +205,10 @@ def _pred_and_rec_cls(
             jmax = np.argmax(iou)
 
         if ioumax > minoverlap:
-            if not gt_difficults_cls[index][jmax]:
-                if not gt_det_cls[index][jmax]:
+            if not gt_difficults_cls[idx][jmax]:
+                if not gt_det_cls[idx][jmax]:
                     tp[d] = 1
-                    gt_det_cls[index][jmax] = 1
+                    gt_det_cls[idx][jmax] = 1
                 else:
                     fp[d] = 1
         else:
