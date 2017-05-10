@@ -118,9 +118,9 @@ class ProposalCreator(object):
 
         # 2. clip predicted boxes to image
         proposal[:, slice(0, 4, 2)] = np.clip(
-            proposal[:, slice(0, 4, 2)], 0, img_size[0] - 1)
+            proposal[:, slice(0, 4, 2)], 0, img_size[0])
         proposal[:, slice(1, 4, 2)] = np.clip(
-            proposal[:, slice(1, 4, 2)], 0, img_size[1] - 1)
+            proposal[:, slice(1, 4, 2)], 0, img_size[1])
 
         # 3. remove predicted boxes with either height or width < threshold
         min_size = self.rpn_min_size * scale
