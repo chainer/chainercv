@@ -36,7 +36,7 @@ class TestProposalCreator(unittest.TestCase):
 
     def setUp(self):
         n_anchor_base = 9
-        feat_size = (self.img_size[0] / 16, self.img_size[1] / 16)
+        feat_size = (self.img_size[0] // 16, self.img_size[1] // 16)
         n_anchor = self.n_anchor_base * np.prod(feat_size)
 
         self.rpn_cls_prob = np.random.uniform(
