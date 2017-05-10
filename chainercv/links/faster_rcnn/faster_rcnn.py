@@ -1,5 +1,6 @@
 from __future__ import division
 
+import copy
 import numpy as np
 
 import chainer
@@ -14,12 +15,25 @@ from chainercv.transforms.image.resize import resize
 
 class FasterRCNNBase(chainer.Chain):
 
+    """Base class for Faster RCNN.
+
+    :obj:`feature` is a :class:`chainer.Chain` that takes a batch of images and
+    outputs a batch of features.
+
+    :obj:`rpn` is a :class:`chainercv.links.RegionProposalNetwork`.
+
+    :obj:`head` is a :class:`chainer.Chain` that outputs a tuple of bounding box
+    offsets and scores.
+
+    """
+
     def __init__(
             self, feature, rpn, head,
             n_class, roi_size,
+            spatial_scale,
+            mean,
             nms_thresh=0.3,
             score_thresh=0.7,
-            spatial_scale=0.0625,
             bbox_normalize_mean=(0., 0., 0., 0.),
             bbox_normalize_std=(0.1, 0.1, 0.2, 0.2),
             proposal_target_layer_params={},
@@ -37,12 +51,13 @@ class FasterRCNNBase(chainer.Chain):
         self.bbox_normalize_mean = bbox_normalize_mean
         self.bbox_normalize_std = bbox_normalize_std
 
-        self.mean = np.array([102.9801, 115.9465, 122.7717])[:, None, None]
+        self.mean = mean
         self.min_size = 600
         self.max_size = 1000
 
     def _decide_when_to_stop(self, layers):
-        if len(layers):
+        layers = copy.copy(layers)
+        if len(layers) == 0:
             return 'start'
 
         rpn_outs = [
@@ -55,12 +70,31 @@ class FasterRCNNBase(chainer.Chain):
             return 'rpn'
         return 'head'
 
-    def __call__(self, x, scale=1., layers=['bbox', 'cls_prob'],
+    def _update_if_specified(self, target, source):
+        for key in source.keys():
+            if key in target:
+                target[key] = source[key]
+
+    def __call__(self, x, scale=1., layers=['bbox_tf', 'score'],
                  test=True):
+        """Forward Faster RCNN.
+        
+        Basically, this code carrys out following operations.
+
+        .. code:: python
+
+            h = self.feature(x)
+            rpn_bbox_pred, rpn_cls_score, roi, anchor = self.rpn(h, ...)
+            pool = roi_pooling_2d(h, roi, ...)
+            bbox_tf, score = self.head(pool)
+
+        """
         activations = {key: None for key in layers}
+
         stop_at = self._decide_when_to_stop(activations)
         if stop_at == 'start':
             return {}
+        print activations
 
         if isinstance(scale, chainer.Variable):
             scale = scale.data
@@ -73,21 +107,24 @@ class FasterRCNNBase(chainer.Chain):
         rpn_bbox_pred, rpn_cls_score, roi, anchor =\
             self.rpn(h, img_size, scale, train=not test)
 
-        _update_if_specified({
-            'feature': h,
-            'rpn_bbox_pred': rpn_bbox_pred,
-            'rpn_cls_score': rpn_cls_score,
-            'roi': roi,
-            'anchor': anchor
-        }, activations)
+        self._update_if_specified(
+            activations,
+            {'feature': h,
+             'rpn_bbox_pred': rpn_bbox_pred,
+             'rpn_cls_score': rpn_cls_score,
+             'roi': roi,
+             'anchor': anchor})
         if stop_at == 'rpn':
             return activations
 
         pool = F.roi_pooling_2d(
             h, roi, self.roi_size, self.roi_size, self.spatial_scale)
-        head_out = self.head(pool, train=False)
-        _update_if_specified(head_out, activations)
-        _update_if_specified({'pool': pool}, activations)
+        bbox_tf, score = self.head(pool, train=False)
+        self._update_if_specified(
+            activations,
+            {'pool': pool,
+             'bbox_tf': bbox_tf,
+             'score': score})
         return activations
 
     def _suppress(self, raw_bbox, raw_prob):
@@ -160,21 +197,22 @@ class FasterRCNNBase(chainer.Chain):
             roi = out['roi']
             bbox_tf = out['bbox_tf']
             score = out['score']
-            xp = chainer.cuda.get_array_module(bbox_tf)
             # Convert predictions to bounding boxes in image coordinates.
+            # Bounding boxes are scaled to the scale of the input images.
             bbox_roi = roi[:, 1:5]
             bbox_roi = bbox_roi / scale
             bbox_tf_data = bbox_tf.data
 
-            mean = xp.tile(xp.array(self.bbox_normalize_mean), self.n_class)
-            std = xp.tile(np.array(self.bbox_normalize_std), self.n_class)
+            mean = self.xp.tile(self.xp.array(self.bbox_normalize_mean),
+                                self.n_class)
+            std = self.xp.tile(np.array(self.bbox_normalize_std), self.n_class)
             bbox_tf_data = (bbox_tf_data * std + mean).astype(np.float32)
             raw_bbox = bbox_regression_target_inv(bbox_roi, bbox_tf_data)
 
             # clip bounding box
-            raw_bbox[:, slice(0, 4, 2)] = xp.clip(
+            raw_bbox[:, slice(0, 4, 2)] = self.xp.clip(
                 raw_bbox[:, slice(0, 4, 2)], 0, W / scale)
-            raw_bbox[:, slice(1, 4, 2)] = xp.clip(
+            raw_bbox[:, slice(1, 4, 2)] = self.xp.clip(
                 raw_bbox[:, slice(1, 4, 2)], 0, H / scale)
             # Compute probabilities that each bounding box is assigned to.
             raw_prob = F.softmax(score).data
@@ -197,6 +235,7 @@ class FasterRCNNBase(chainer.Chain):
         Returns:
             ~numpy.ndarray:
             A preprocessed image.
+
         """
         _, H, W = img.shape
 
@@ -211,9 +250,3 @@ class FasterRCNNBase(chainer.Chain):
 
         img -= self.mean
         return img, scale
-
-
-def _update_if_specified(source, target):
-    for key in source.keys():
-        if key in target:
-            target[key] = source[key]
