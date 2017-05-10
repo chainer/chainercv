@@ -2,9 +2,8 @@ import numpy as np
 
 from chainer import cuda
 
-from chainercv.links.utils import bbox_regression_target_inv
-from chainercv.links.utils import clip_bbox
-from chainercv.links.utils import non_maximum_suppression
+from chainercv.links import bbox_regression_target_inv
+from chainercv.utils import non_maximum_suppression
 
 
 class ProposalCreator(object):
@@ -117,8 +116,9 @@ class ProposalCreator(object):
 
         # 2. clip predicted boxes to image
         proposal[:, slice(0, 4, 2)] = np.clip(
-            proposal[:, slice(0, 4, 2)], 0, W - 1)
-        proposal[:, slice(1, 4, 2)] = np.clip(proposal[:, slice(1, 4, 2)], 0, H - 1)
+            proposal[:, slice(0, 4, 2)], 0, img_size[0] - 1)
+        proposal[:, slice(1, 4, 2)] = np.clip(
+            proposal[:, slice(1, 4, 2)], 0, img_size[1] - 1)
 
         # 3. remove predicted boxes with either height or width < threshold
         min_size = self.rpn_min_size * scale
