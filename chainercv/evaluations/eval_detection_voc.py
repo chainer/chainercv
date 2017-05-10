@@ -133,9 +133,10 @@ def eval_detection_voc(
     results = {}
     valid_cls_indices = np.where(valid_cls)[0]
     for cls in valid_cls_indices:
-        rec, prec, ap = _eval_detection_cls(
+        rec, prec = _pred_and_rec_cls(
             _bboxes[cls], _confs[cls], _gt_bboxes[cls], _gt_difficults[cls],
-            minoverlap, use_07_metric)
+            minoverlap)
+        ap = _voc_ap(rec, prec, use_07_metric=use_07_metric)
         results[cls] = {}
         results[cls]['recall'] = rec
         results[cls]['precision'] = prec
@@ -145,9 +146,9 @@ def eval_detection_voc(
     return results
 
 
-def _eval_detection_cls(
+def _pred_and_rec_cls(
         bboxes_cls, confs_cls, gt_bboxes_cls, gt_difficults_cls,
-        minoverlap=0.5, use_07_metric=False):
+        minoverlap=0.5):
     # Calculate detection metrics with respect to a class.
     # This function is called only when there is at least one
     # prediction or ground truth box which is labeld as the class.
@@ -219,9 +220,7 @@ def _eval_detection_cls(
     tp = np.cumsum(tp)
     rec = tp / float(npos)
     prec = tp / np.maximum(fp + tp, np.finfo(np.float64).eps)
-
-    ap = _voc_ap(rec, prec, use_07_metric=use_07_metric)
-    return rec, prec, ap
+    return rec, prec
 
 
 def _voc_ap(rec, prec, use_07_metric=False):
