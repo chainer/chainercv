@@ -21,7 +21,7 @@ def non_maximum_suppression(bbox, thresh, score=None,
     """Suppress bounding boxes according to their IoUs.
 
     This method checks each bounding box sequentially and selects the bounding
-    box if the Intersection over Union (IoU) between the bounding box and the
+    box if the Intersection over Unions (IoUs) between the bounding box and the
     previously selected bounding boxes is less than :obj:`thresh`. This method
     is mainly used as postprocessing of object detection.
     The bounding boxes are selected from ones with higher scores.
@@ -46,7 +46,7 @@ def non_maximum_suppression(bbox, thresh, score=None,
     Args:
         bbox (array): Bounding boxes to be transformed. The shape is
             :math:`(R, 4)`. :math:`R` is the number of bounding boxes.
-        thresh (float): Thresold of IoU.
+        thresh (float): Threshold of IoUs.
         score (array): An array of confidences whose shape is :math:`(R,)`.
         limit (int): The upper bound of the number of the output bounding
             boxes. If it is not specified, this method selects as many
