@@ -154,6 +154,11 @@ def _pred_and_rec_cls(
     # Calculate detection metrics with respect to a class.
     # This function is called only when there is at least one
     # prediction or ground truth box which is labeled as the class.
+    # bboxes: List[numpy.ndarray]
+    # confs: List[numpy.ndarray]
+    # gt_bboxes: List[numpy.ndarray]
+    # gt_difficults: List[numpy.ndarray]
+
     npos = 0
     selec = [None for _ in six.moves.range(len(gt_bboxes))]
     for i in six.moves.range(len(gt_bboxes)):
