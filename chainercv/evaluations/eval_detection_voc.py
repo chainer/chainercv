@@ -161,7 +161,11 @@ def _pred_and_rec_cls(
         selec_cls[i] = np.zeros(n_gt_bbox, dtype=np.bool)
         npos += np.sum(np.logical_not(gt_difficults_cls[i]))
 
-    # load the detection result
+    # Make list of arrays into one array.
+    # Example:
+    # bboxes_cls = [[bbox00, bbox01], [bbox10]]
+    # bbox = array([bbox00, bbox01, bbox10])
+    # index = [0, 0, 1] 
     index = []
     for i in six.moves.range(len(confs_cls)):
         for j in six.moves.range(len(confs_cls[i])):
@@ -169,9 +173,11 @@ def _pred_and_rec_cls(
     index = np.array(index, dtype=np.int)
     conf = np.concatenate(confs_cls)
     bbox = np.concatenate(bboxes_cls)
+
     if npos == 0 or len(conf) == 0:
         return np.zeros((len(conf),)), np.zeros((len(conf),)), 0.
 
+    # Reorder arrays by scores in descending order.
     si = np.argsort(-conf)
     index = index[si]
     bbox = bbox[si]
