@@ -179,33 +179,30 @@ def _pred_and_rec_cls(
     tp = np.zeros(nd)
     fp = np.zeros(nd)
 
+    bbox_area = np.prod(bbox[:, 2:] - bbox[:, :2] + 1., axis=1)
     for d in range(nd):
         index = indices[d]
         bb = bbox[d]
-        ovmax = -np.inf
+        ioumax = -np.inf
         gt_bb = gt_bboxes_cls[index]
+        gt_bb_area = np.prod(gt_bb[:, 2:] - gt_bb[:, :2] + 1., axis=1)
 
         if gt_bb.size > 0:
             # compute overlaps
             # intersection
-            ixmin = np.maximum(gt_bb[:, 0], bb[0])
-            iymin = np.maximum(gt_bb[:, 1], bb[1])
-            ixmax = np.minimum(gt_bb[:, 2], bb[2])
-            iymax = np.minimum(gt_bb[:, 3], bb[3])
-            iw = np.maximum(ixmax - ixmin + 1., 0.)
-            ih = np.maximum(iymax - iymin + 1., 0.)
-            inters = iw * ih
+            lt = np.maximum(gt_bb[:, :2], bb[:2])
+            rb = np.minimum(gt_bb[:, 2:], bb[2:])
+            # VOC evaluation follows integer typed bounding boxes.
+            area = np.prod(rb - lt + 1, axis=1)
 
             # union
-            uni = ((bb[2] - bb[0] + 1.) * (bb[3] - bb[1] + 1.) +
-                   (gt_bb[:, 2] - gt_bb[:, 0] + 1.) *
-                   (gt_bb[:, 3] - gt_bb[:, 1] + 1.) - inters)
+            uni = bbox_area[d] + gt_bb_area - area
 
-            overlaps = inters / uni
-            ovmax = np.max(overlaps)
-            jmax = np.argmax(overlaps)
+            iou = area / uni
+            ioumax = np.max(iou)
+            jmax = np.argmax(iou)
 
-        if ovmax > minoverlap:
+        if ioumax > minoverlap:
             if not gt_difficults_cls[index][jmax]:
                 if not gt_det_cls[index][jmax]:
                     tp[d] = 1
