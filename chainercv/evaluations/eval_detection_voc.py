@@ -149,30 +149,30 @@ def eval_detection_voc(
 
 
 def _pred_and_rec_cls(
-        bboxes_cls, confs_cls, gt_bboxes_cls, gt_difficults_cls,
+        bboxes, confs, gt_bboxes, gt_difficults,
         minoverlap=0.5):
     # Calculate detection metrics with respect to a class.
     # This function is called only when there is at least one
     # prediction or ground truth box which is labeled as the class.
     npos = 0
-    selec_cls = [None for _ in six.moves.range(len(gt_bboxes_cls))]
-    for i in six.moves.range(len(gt_bboxes_cls)):
-        n_gt_bbox = len(gt_bboxes_cls[i])
-        selec_cls[i] = np.zeros(n_gt_bbox, dtype=np.bool)
-        npos += np.sum(np.logical_not(gt_difficults_cls[i]))
+    selec = [None for _ in six.moves.range(len(gt_bboxes))]
+    for i in six.moves.range(len(gt_bboxes)):
+        n_gt_bbox = len(gt_bboxes[i])
+        selec[i] = np.zeros(n_gt_bbox, dtype=np.bool)
+        npos += np.sum(np.logical_not(gt_difficults[i]))
 
     # Make list of arrays into one array.
     # Example:
-    # bboxes_cls = [[bbox00, bbox01], [bbox10]]
+    # bboxes = [[bbox00, bbox01], [bbox10]]
     # bbox = array([bbox00, bbox01, bbox10])
     # index = [0, 0, 1] 
     index = []
-    for i in six.moves.range(len(confs_cls)):
-        for j in six.moves.range(len(confs_cls[i])):
+    for i in six.moves.range(len(confs)):
+        for j in six.moves.range(len(confs[i])):
             index.append(i)
     index = np.array(index, dtype=np.int)
-    conf = np.concatenate(confs_cls)
-    bbox = np.concatenate(bboxes_cls)
+    conf = np.concatenate(confs)
+    bbox = np.concatenate(bboxes)
 
     if npos == 0 or len(conf) == 0:
         return np.zeros((len(conf),)), np.zeros((len(conf),)), 0.
@@ -192,7 +192,7 @@ def _pred_and_rec_cls(
         idx = index[d]
         bb = bbox[d]
         ioumax = -np.inf
-        gt_bb = gt_bboxes_cls[idx]
+        gt_bb = gt_bboxes[idx]
         # VOC evaluation follows integer typed bounding boxes.
         gt_bb_area = np.prod(gt_bb[:, 2:] - gt_bb[:, :2] + 1., axis=1)
 
@@ -206,10 +206,10 @@ def _pred_and_rec_cls(
             jmax = np.argmax(iou)
 
         if ioumax > minoverlap:
-            if not gt_difficults_cls[idx][jmax]:
-                if not selec_cls[idx][jmax]:
+            if not gt_difficults[idx][jmax]:
+                if not selec[idx][jmax]:
                     tp[d] = 1
-                    selec_cls[idx][jmax] = 1
+                    selec[idx][jmax] = 1
                 else:
                     fp[d] = 1
         else:
