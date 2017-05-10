@@ -77,10 +77,10 @@ def eval_detection_voc(
     n_img = len(bboxes)
 
     # Organize predictions into List[n_class][n_img]
-    _bboxes = [[None for _ in six.moves.range(n_img)]
-               for _ in six.moves.range(n_class)]
-    _scores = [[None for _ in six.moves.range(n_img)]
-               for _ in six.moves.range(n_class)]
+    bboxes_list = [[None for _ in six.moves.range(n_img)]
+                   for _ in six.moves.range(n_class)]
+    scores_list = [[None for _ in six.moves.range(n_img)]
+                   for _ in six.moves.range(n_class)]
     for i in six.moves.range(n_img):
         for cls in six.moves.range(n_class):
             bboxes_cls = []
@@ -97,16 +97,16 @@ def eval_detection_voc(
                 scores_cls = np.stack(scores_cls)
             else:
                 scores_cls = np.zeros((0,))
-            _bboxes[cls][i] = bboxes_cls
-            _scores[cls][i] = scores_cls
+            bboxes_list[cls][i] = bboxes_cls
+            scores_list[cls][i] = scores_cls
             if len(bboxes_cls) > 0:
                 valid_cls[cls] = True
 
     # Organize ground truths into List[n_class][n_img]
-    _gt_bboxes = [[None for _ in six.moves.range(n_img)]
-                  for _ in six.moves.range(n_class)]
-    _gt_difficults = [[None for _ in six.moves.range(n_img)]
+    gt_bboxes_list = [[None for _ in six.moves.range(n_img)]
                       for _ in six.moves.range(n_class)]
+    gt_difficults_list = [[None for _ in six.moves.range(n_img)]
+                          for _ in six.moves.range(n_class)]
     for i in six.moves.range(n_img):
         for cls in six.moves.range(n_class):
             gt_bboxes_cls = []
@@ -127,8 +127,8 @@ def eval_detection_voc(
                 gt_difficults_cls = np.stack(gt_difficults_cls)
             else:
                 gt_difficults_cls = np.zeros((0,), dtype=np.bool)
-            _gt_bboxes[cls][i] = gt_bboxes_cls
-            _gt_difficults[cls][i] = gt_difficults_cls
+            gt_bboxes_list[cls][i] = gt_bboxes_cls
+            gt_difficults_list[cls][i] = gt_difficults_cls
             if len(gt_bboxes_cls) > 0:
                 valid_cls[cls] = True
 
@@ -137,7 +137,10 @@ def eval_detection_voc(
     valid_cls_index = np.where(valid_cls)[0]
     for cls in valid_cls_index:
         rec, prec = _pred_and_rec_cls(
-            _bboxes[cls], _scores[cls], _gt_bboxes[cls], _gt_difficults[cls],
+            bboxes_list[cls],
+            scores_list[cls],
+            gt_bboxes_list[cls],
+            gt_difficults_list[cls],
             min_iou)
         ap = _voc_ap(rec, prec, use_07_metric=use_07_metric)
         results[cls] = {}
