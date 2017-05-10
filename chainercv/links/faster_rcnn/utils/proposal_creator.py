@@ -67,10 +67,10 @@ class ProposalCreator(object):
         * :math:`H` and :math:`W` are height and width of the input features.
 
         Also, the values contained in :obj:`rpn_bbox_pred` is encoded using
-        :func:`chainercv.links.utils.bbox.bbox_regression_target`
+        :func:`chainercv.links.faster_rcnn.utils.bbox_regression_target`
 
         .. seealso::
-            :func:`~chainercv.links.utils.bbox.bbox_regression_target`
+            :func:`~chainercv.links.faster_rcnn.utils.bbox_regression_target`
 
         Args:
             rpn_bbox_pred (array): Predicted regression targets for anchors.
