@@ -30,18 +30,14 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
 
     """Dataset class for a semantic segmantion task on CamVid `CamVid`_.
 
-    .. _`CamVid`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
+    .. _`CamVid`: https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
-            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc`.
-        mode ({'train', 'val', 'trainval'}): Select from dataset splits used
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/camvid`.
+        mode ({'train', 'val', 'test'}): Select from dataset splits used
             in VOC.
-        year ({'2007', '2012'}): Use a dataset prepared for a challenge
-            held in :obj:`year`.
-        use_difficult (bool): If true, use images that are labeled as
-            difficult in the original annotation.
 
     """
 
