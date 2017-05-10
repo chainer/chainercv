@@ -68,7 +68,9 @@ def eval_detection_voc(
             to the class id **i**.
 
     """
-    assert len(bboxes) == len(gt_bboxes)
+    if not (len(bboxes) == len(labels) == len(confs)
+            == len(gt_bboxes) == len(gt_labels)):
+        raise ValueError('Length of list inputs need to be same')
 
     valid_cls = np.zeros((n_class,), dtype=np.bool)
     n_img = len(bboxes)
