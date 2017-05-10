@@ -1,13 +1,13 @@
-import numpy as np
-import os.path as osp
 import glob
+import os.path as osp
 import shutil
+
+import numpy as np
+
 import chainer
 from chainer.dataset import download
 from chainercv import utils
-
 from chainercv.utils import read_image
-
 
 root = 'pfnet/chainercv/camvid'
 url = 'https://github.com/alexgkendall/SegNet-Tutorial/archive/master.zip'
