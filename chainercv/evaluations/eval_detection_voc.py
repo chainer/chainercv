@@ -80,11 +80,11 @@ def eval_detection_voc(
                for _ in six.moves.range(n_class)]
     _confs = [[None for _ in six.moves.range(n_img)]
               for _ in six.moves.range(n_class)]
-    for i in range(n_img):
-        for cls in range(n_class):
+    for i in six.moves.range(n_img):
+        for cls in six.moves.range(n_class):
             bboxes_cls = []
             confs_cls = []
-            for j in range(bboxes[i].shape[0]):
+            for j in six.moves.range(bboxes[i].shape[0]):
                 if cls == labels[i][j]:
                     bboxes_cls.append(bboxes[i][j])
                     confs_cls.append(confs[i][j])
@@ -106,11 +106,11 @@ def eval_detection_voc(
                   for _ in six.moves.range(n_class)]
     _gt_difficults = [[None for _ in six.moves.range(n_img)]
                       for _ in six.moves.range(n_class)]
-    for i in range(n_img):
-        for cls in range(n_class):
+    for i in six.moves.range(n_img):
+        for cls in six.moves.range(n_class):
             gt_bboxes_cls = []
             gt_difficults_cls = []
-            for j in range(gt_bboxes[i].shape[0]):
+            for j in six.moves.range(gt_bboxes[i].shape[0]):
                 if cls == gt_labels[i][j]:
                     gt_bboxes_cls.append(gt_bboxes[i][j])
                     if gt_difficults is not None:
@@ -155,16 +155,16 @@ def _pred_and_rec_cls(
     # This function is called only when there is at least one
     # prediction or ground truth box which is labeld as the class.
     npos = 0
-    gt_det_cls = [None for _ in range(len(gt_bboxes_cls))]
-    for i in range(len(gt_bboxes_cls)):
+    gt_det_cls = [None for _ in six.moves.range(len(gt_bboxes_cls))]
+    for i in six.moves.range(len(gt_bboxes_cls)):
         n_gt_bbox = len(gt_bboxes_cls[i])
         gt_det_cls[i] = np.zeros(n_gt_bbox, dtype=np.bool)
         npos += np.sum(np.logical_not(gt_difficults_cls[i]))
 
     # load the detection result
     indices = []
-    for i in range(len(confs_cls)):
-        for j in range(len(confs_cls[i])):
+    for i in six.moves.range(len(confs_cls)):
+        for j in six.moves.range(len(confs_cls[i])):
             indices.append(i)
     indices = np.array(indices, dtype=np.int)
     conf = np.concatenate(confs_cls)
@@ -182,7 +182,7 @@ def _pred_and_rec_cls(
     fp = np.zeros(nd)
 
     bbox_area = np.prod(bbox[:, 2:] - bbox[:, :2] + 1., axis=1)
-    for d in range(nd):
+    for d in six.moves.range(nd):
         index = indices[d]
         bb = bbox[d]
         ioumax = -np.inf
@@ -239,7 +239,7 @@ def _voc_ap(rec, prec, use_07_metric=False):
         mpre = np.concatenate(([0.], prec, [0.]))
 
         # compute the precision envelope
-        for i in range(mpre.size - 1, 0, -1):
+        for i in six.moves.range(mpre.size - 1, 0, -1):
             mpre[i - 1] = np.maximum(mpre[i - 1], mpre[i])
 
         # to calculate area under PR curve, look for points
