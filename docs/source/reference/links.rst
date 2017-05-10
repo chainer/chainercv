@@ -10,6 +10,12 @@ Model
 Faster RCNN
 ~~~~~~~~~~~
 
+RegionProposalNetwork
+~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: chainercv.links.RegionProposalNetwork
+   :members:
+   :special-members:  __call__
+
 bbox_regression_target
 """"""""""""""""""""""
 .. autofunction:: chainercv.links.bbox_regression_target
