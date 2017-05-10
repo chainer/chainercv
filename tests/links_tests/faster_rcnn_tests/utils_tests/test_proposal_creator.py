@@ -6,7 +6,6 @@ import chainer
 from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
-from chainer.testing import condition
 
 from chainercv.links import ProposalCreator
 
