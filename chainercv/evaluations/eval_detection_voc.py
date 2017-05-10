@@ -153,7 +153,7 @@ def _pred_and_rec_cls(
         minoverlap=0.5):
     # Calculate detection metrics with respect to a class.
     # This function is called only when there is at least one
-    # prediction or ground truth box which is labeld as the class.
+    # prediction or ground truth box which is labeled as the class.
     npos = 0
     gt_det_cls = [None for _ in six.moves.range(len(gt_bboxes_cls))]
     for i in six.moves.range(len(gt_bboxes_cls)):
