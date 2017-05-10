@@ -155,10 +155,10 @@ def _pred_and_rec_cls(
     # This function is called only when there is at least one
     # prediction or ground truth box which is labeled as the class.
     npos = 0
-    gt_det_cls = [None for _ in six.moves.range(len(gt_bboxes_cls))]
+    selec_cls = [None for _ in six.moves.range(len(gt_bboxes_cls))]
     for i in six.moves.range(len(gt_bboxes_cls)):
         n_gt_bbox = len(gt_bboxes_cls[i])
-        gt_det_cls[i] = np.zeros(n_gt_bbox, dtype=np.bool)
+        selec_cls[i] = np.zeros(n_gt_bbox, dtype=np.bool)
         npos += np.sum(np.logical_not(gt_difficults_cls[i]))
 
     # load the detection result
@@ -206,9 +206,9 @@ def _pred_and_rec_cls(
 
         if ioumax > minoverlap:
             if not gt_difficults_cls[idx][jmax]:
-                if not gt_det_cls[idx][jmax]:
+                if not selec_cls[idx][jmax]:
                     tp[d] = 1
-                    gt_det_cls[idx][jmax] = 1
+                    selec_cls[idx][jmax] = 1
                 else:
                     fp[d] = 1
         else:
