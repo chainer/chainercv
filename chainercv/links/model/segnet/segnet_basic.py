@@ -24,11 +24,16 @@ class SegNetBasic(chainer.Chain):
             conv_decode2_bn=L.BatchNormalization(64, initial_beta=0.001),
             conv_decode1=L.Convolution2D(64, 64, 7, 1, 3, initialW=w),
             conv_decode1_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv_classifier=L.Convolution2D(64, out_ch, 1, 0, 0, initialW=w)
+            conv_classifier=L.Convolution2D(64, out_ch, 1, 1, 0, initialW=w)
         )
         self.train = True
 
     def _upsampling_2d(self, x, pool):
+        if x.shape != pool.indexes.shape:
+            min_h = min(x.shape[2], pool.indexes.shape[2])
+            min_w = min(x.shape[3], pool.indexes.shape[3])
+            x = x[:, :, :min_h, :min_w]
+            pool.indexes = pool.indexes[:, :, :min_h, :min_w]
         outsize = (x.shape[2] * 2, x.shape[3] * 2)
         return F.upsampling_2d(
             x, pool.indexes, ksize=(pool.kh, pool.kw),

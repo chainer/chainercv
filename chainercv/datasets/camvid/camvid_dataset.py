@@ -28,9 +28,9 @@ def get_camvid():
 
 class CamVidDataset(chainer.dataset.DatasetMixin):
 
-    """Dataset class for a semantic segmantion task on CamVid `CamVid`_.
+    """Dataset class for a semantic segmantion task on CamVid `u`_.
 
-    .. _`CamVid`: https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid
+    .. _`u`: https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -76,5 +76,5 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
             raise IndexError('index is too large')
         image_fn, label_fn = self.fns[i]
         image = read_image(image_fn, color=True)
-        label = read_image(label_fn, dtype=np.int32, color=False)
+        label = read_image(label_fn, dtype=np.int32, color=False)[0]
         return image, label

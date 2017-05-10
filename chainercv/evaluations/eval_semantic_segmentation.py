@@ -1,40 +1,116 @@
 from __future__ import division
+
 import numpy as np
+import six
+
+from chainer import cuda
 
 
 def _fast_hist(label_true, label_pred, n_class):
-    """Construct histogram for label evaluation.
+    # Construct histogram for label evaluation.
 
-    Returns
-        numpy.ndarray of shape (n_class, n_class)
-    """
     mask = (label_true >= 0) & (label_true < n_class)
+    # an array of shape (n_class, n_class)
     hist = np.bincount(
         n_class * label_true[mask].astype(int) +
         label_pred[mask], minlength=n_class**2).reshape(n_class, n_class)
     return hist
 
 
-def label_accuracy_score(label_true, label_pred, n_class):
-    """Returns accuracy score evaluation result.
+def eval_semantic_segmentation(label_pred, label_true, n_class):
+    """Evaluate results of semantic segmentation.
 
-      - overall accuracy
-      - mean accuracy
-      - mean IU
-      - fwavacc
+    This function measures four metrics: pixel accuracy,
+    mean pixel accuracy, mean intersection over union and
+    frequency weighted intersection over union.
+
+    The definition of these metrics are as follows, where
+    :math:`N_{ij}` is the amount of pixels of class :math:`i`
+    inferred to belong to :math:`j` and there is :math:`k` classes.
+
+    * Pixel Accuracy (PA)
+        :math:`PA = \\frac
+        {\\sum_{i=1}^k N_{ii}}
+        {\\sum_{i=1}^k \\sum_{j=1}^k N_{ij}}`
+    * Mean Pixel Accuracy (MPA)
+        :math:`MPA = \\frac{1}{k}
+        \\sum_{i=1}^k
+        \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij}}`
+    * Mean Intersection over Union (MIoU)
+        :math:`MIoU = \\frac{1}{k}
+        \\sum_{i=1}^k
+        \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij} + \\sum_{j=1}^k N_{ji} - N_{ii}}`
+    * Frequency Weighted Intersection over Union (FWIoU)
+        :math:`FWIoU = \\frac{1}{\\sum_{i=1}^k \\sum_{j=1}^k N_{ij}}
+        \\sum_{i=1}^k \\frac{\\sum_{j=1}^k N_{ij}N_{ii}}
+        {\\sum_{j=1}^k N_{ij} + \\sum_{j=1}^k N_{ji} - N_{ii}}`
+
+    The more detailed descriptions on the above metrics can be found at a
+    review on semantic segmentation[1].
+
+    .. [1] Alberto Garcia-Garcia, Sergio Orts-Escolano, Sergiu Oprea, \
+    Victor Villena-Martinez, Jose Garcia-Rodriguez. \
+    A Review on Deep Learning Techniques Applied to Semantic Segmentation. \
+    https://arxiv.org/abs/1704.06857
+
+    Types of :obj:`label_pred` and :obj:`label_true` need to be same.
+    The outputs are same type as the inputs.
 
     Args:
-        label_true (~numpy.ndarray): A integer 2D image of classes. A pixel
-            with value "-1" will be ignored during evaluation.
-        label_pred (~numpy.ndarray): A integer 2D image.
+        label_pred (array): An integer array of image containing
+            class labels as values, which is obtained from inference.
+            This has shape :math:`(N, 1, H, W)` or :math:`(1, H, W)`,
+            where :math:`N` is size of the batch, :math:`H` is the height
+            and :math:`W` is the width.
+        label_true (array): An integer array of image containing
+            the ground truth class labels as values. A pixel with value
+            "-1" will be ignored during evaluation. Its shape is similar
+            to :obj:`label_pred`.
+            Its image size is equal to that of :obj:`label_pred`.
+            This should be a one channel CHW formatted image.
         n_class (int): Number of classes.
+
+    Returns:
+        (array, array, array, array):
+        A tuple of pixel accuracy, mean pixel accuracy, MIoU and FWIoU.
+        These arrays have shape :math:`(N,)`, where :math:`N` is
+        the number of images in the input.
+
     """
-    hist = _fast_hist(label_true.flatten(), label_pred.flatten(), n_class)
-    acc = np.diag(hist).sum() / hist.sum()
-    acc_cls = np.diag(hist) / hist.sum(axis=1)
-    acc_cls = np.nanmean(acc_cls)
-    iu = np.diag(hist) / (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
-    mean_iu = np.nanmean(iu)
-    freq = hist.sum(axis=1) / hist.sum()
-    fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
-    return acc, acc_cls, mean_iu, fwavacc
+    xp = cuda.get_array_module(label_pred)
+    label_pred = cuda.to_cpu(label_pred)
+    label_true = cuda.to_cpu(label_true)
+
+    ndim = label_pred.ndim
+    if label_pred.ndim != label_true.ndim:
+        raise ValueError(
+            'Ground truth and predicted label map should have same number '
+            'of dimensions.')
+    if ndim == 3:
+        label_pred = label_pred[None]
+        label_true = label_true[None]
+    elif ndim < 3:
+        raise ValueError('Input images need to be at least three dimensional.')
+
+    if label_pred.shape[1] != 1 or label_true.shape[1] != 1:
+        raise ValueError('Channel sizes of inputs need to be one.')
+
+    N = len(label_pred)
+    acc = np.zeros((N,))
+    acc_cls = np.zeros((N,))
+    mean_iu = np.zeros((N,))
+    fwavacc = np.zeros((N,))
+    for i in six.moves.range(len(label_pred)):
+        hist = _fast_hist(
+            label_true[i].flatten(), label_pred[i].flatten(), n_class)
+        acc[i] = np.diag(hist).sum() / hist.sum()
+        acc_cls_i = np.diag(hist) / hist.sum(axis=1)
+        acc_cls[i] = np.nanmean(acc_cls_i)
+        iu_denominator = (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
+        iu = np.diag(hist) / iu_denominator
+        mean_iu[i] = np.nanmean(iu)
+        freq = hist.sum(axis=1) / hist.sum()
+        fwavacc[i] = (freq[freq > 0] * iu[freq > 0]).sum()
+
+    return (xp.asarray(acc), xp.asarray(acc_cls),
+            xp.asarray(mean_iu), xp.asarray(fwavacc))

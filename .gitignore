@@ -12,9 +12,7 @@ dist/
 .cache/
 check_autopep8
 
-examples/semantic_segmentation/result/
-examples/semantic_segmentation/fcn/result/
-examples/semantic_segmentation/result
+examples/segnet/result/
 examples/image_retrieval/triplet/result/
 examples/image_classification/tensorboard/result/
 
