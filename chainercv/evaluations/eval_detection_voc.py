@@ -207,7 +207,7 @@ def _pred_and_rec_cls(
         if gt_bb.size > 0:
             lt = np.maximum(gt_bb[:, :2], bb[:2])
             rb = np.minimum(gt_bb[:, 2:], bb[2:])
-            area = np.prod(rb - lt + 1, axis=1)
+            area = np.prod(np.maximum(rb - lt + 1, 0), axis=1)
             iou = area / (bbox_area[d] + gt_bb_area - area)
             ioumax = np.max(iou)
             jmax = np.argmax(iou)
