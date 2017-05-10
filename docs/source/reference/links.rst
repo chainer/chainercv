@@ -21,3 +21,9 @@ bbox_regression_target_inv
 generate_anchor_base
 """"""""""""""""""""
 .. autofunction:: chainercv.links.generate_anchor_base
+
+ProposalCreator
+"""""""""""""""
+.. autoclass:: chainercv.links.ProposalCreator
+   :members:
+   :special-members:  __call__
