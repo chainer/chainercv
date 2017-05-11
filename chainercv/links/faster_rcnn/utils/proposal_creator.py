@@ -104,7 +104,7 @@ class ProposalCreator(object):
 
         # the first set of _num_anchors channels are bg probs
         # the second set are the fg probs, which we want
-        n_anchor = rpn_cls_prob.shape[1] / 2
+        n_anchor = rpn_cls_prob.shape[1] // 2
         score = rpn_cls_prob[:, n_anchor:, :, :]
 
         # Transpose and reshape predicted bbox transformations and score
