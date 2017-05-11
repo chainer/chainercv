@@ -6,7 +6,7 @@ import six
 from chainer import cuda
 
 
-def _fast_hist(gt_label, pred_label, n_class):
+def _fast_hist(pred_label, gt_label, n_class):
     # Construct histogram for label evaluation.
 
     mask = (gt_label >= 0) & (gt_label < n_class)
@@ -102,7 +102,7 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
     fwavacc = np.zeros((N,))
     for i in six.moves.range(len(pred_label)):
         hist = _fast_hist(
-            gt_label[i].flatten(), pred_label[i].flatten(), n_class)
+            pred_label[i].flatten(), gt_label[i].flatten(), n_class)
         acc[i] = np.diag(hist).sum() / hist.sum()
         acc_cls_i = np.diag(hist) / hist.sum(axis=1)
         acc_cls[i] = np.nanmean(acc_cls_i)
