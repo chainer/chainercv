@@ -6,18 +6,18 @@ import six
 from chainer import cuda
 
 
-def _fast_hist(label_true, pred_label, n_class):
+def _fast_hist(gt_label, pred_label, n_class):
     # Construct histogram for label evaluation.
 
-    mask = (label_true >= 0) & (label_true < n_class)
+    mask = (gt_label >= 0) & (gt_label < n_class)
     # an array of shape (n_class, n_class)
     hist = np.bincount(
-        n_class * label_true[mask].astype(int) +
+        n_class * gt_label[mask].astype(int) +
         pred_label[mask], minlength=n_class**2).reshape(n_class, n_class)
     return hist
 
 
-def eval_semantic_segmentation(pred_label, label_true, n_class):
+def eval_semantic_segmentation(pred_label, gt_label, n_class):
     """Evaluate results of semantic segmentation.
 
     This function measures four metrics: pixel accuracy,
@@ -53,7 +53,7 @@ def eval_semantic_segmentation(pred_label, label_true, n_class):
     A Review on Deep Learning Techniques Applied to Semantic Segmentation. \
     https://arxiv.org/abs/1704.06857
 
-    Types of :obj:`pred_label` and :obj:`label_true` need to be same.
+    Types of :obj:`pred_label` and :obj:`gt_label` need to be same.
     The outputs are same type as the inputs.
 
     Args:
@@ -62,7 +62,7 @@ def eval_semantic_segmentation(pred_label, label_true, n_class):
             This has shape :math:`(N, 1, H, W)` or :math:`(1, H, W)`,
             where :math:`N` is size of the batch, :math:`H` is the height
             and :math:`W` is the width.
-        label_true (array): An integer array of image containing
+        gt_label (array): An integer array of image containing
             the ground truth class labels as values. A pixel with value
             "-1" will be ignored during evaluation. Its shape is similar
             to :obj:`pred_label`.
@@ -79,20 +79,20 @@ def eval_semantic_segmentation(pred_label, label_true, n_class):
     """
     xp = cuda.get_array_module(pred_label)
     pred_label = cuda.to_cpu(pred_label)
-    label_true = cuda.to_cpu(label_true)
+    gt_label = cuda.to_cpu(gt_label)
 
     ndim = pred_label.ndim
-    if pred_label.ndim != label_true.ndim:
+    if pred_label.ndim != gt_label.ndim:
         raise ValueError(
             'Ground truth and predicted label map should have same number '
             'of dimensions.')
     if ndim == 3:
         pred_label = pred_label[None]
-        label_true = label_true[None]
+        gt_label = gt_label[None]
     elif ndim < 3:
         raise ValueError('Input images need to be at least three dimensional.')
 
-    if pred_label.shape[1] != 1 or label_true.shape[1] != 1:
+    if pred_label.shape[1] != 1 or gt_label.shape[1] != 1:
         raise ValueError('Channel sizes of inputs need to be one.')
 
     N = len(pred_label)
@@ -102,7 +102,7 @@ def eval_semantic_segmentation(pred_label, label_true, n_class):
     fwavacc = np.zeros((N,))
     for i in six.moves.range(len(pred_label)):
         hist = _fast_hist(
-            label_true[i].flatten(), pred_label[i].flatten(), n_class)
+            gt_label[i].flatten(), pred_label[i].flatten(), n_class)
         acc[i] = np.diag(hist).sum() / hist.sum()
         acc_cls_i = np.diag(hist) / hist.sum(axis=1)
         acc_cls[i] = np.nanmean(acc_cls_i)
