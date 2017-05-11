@@ -11,6 +11,7 @@ SSD
 ~~~
 .. autoclass:: chainercv.links.ssd.SSD
    :members:
+   :special-members:  __call__
 
 SSD300
 ~~~~~~

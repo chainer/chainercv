@@ -115,7 +115,7 @@ class SSD(chainer.Chain):
                 The images are preprocessed by :meth:`prepare` if needed.
 
         Returns:
-            list of Variable:
+            list of chainer.Variable:
             Each variable contains a feature map.
         """
         raise NotImplementedError
@@ -141,6 +141,27 @@ class SSD(chainer.Chain):
         return y_loc, y_conf
 
     def __call__(self, x):
+        """Compute localization and classification from a batch of images.
+
+        This method computes two variables, :obj:`loc` and :obj:`conf`.
+        :meth:`_decode` converts these variables to prediction.
+        These variables are also used in training SSD.
+
+        Args:
+            x (chainer.Variable): A variable holding a batch of images.
+                The images are preprocessed by :meth:`prepare` if needed.
+
+        Returns:
+            tuple of chainer.Variable:
+            This method returns two variables, :obj:`loc` and :obj:`conf`.
+
+            * **loc**: A variable of float arrays of shape :math:`(K, 4)`, \
+                where :math:`K` is the number of default bounding boxes.
+            * **conf**: A variable of float arrays of shape \
+                :math:`(K, n\_class + 1)`, \
+                where :math:`K` is the number of default bounding boxes.
+        """
+
         return self._multibox(self.features(x))
 
     def prepare(self, img):
@@ -217,19 +238,19 @@ class SSD(chainer.Chain):
                 and the range of their value is :math:`[0, 255]`.
 
         Returns:
-           tuple of list:
-           This method returns a tuple of three lists,
-           :obj:`(bboxes, labels, scores)`.
+            tuple of list:
+            This method returns a tuple of three lists,
+            :obj:`(bboxes, labels, scores)`.
 
-           * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
-               where :math:`R` is the number of bounding boxes in a image. \
-               Each bouding box is organized by \
-               :obj:`(x_min, y_min, x_max, y_max)` \
-               in the second axis.
-           * **labels** : A list of integer arrays of shape :math:`(R,)`. \
-               Each value indicates the class of the bounding box.
-           * **scores** : A list of float arrays of shape :math:`(R,)`. \
-               Each value indicates how confident the prediction is.
+            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
+                where :math:`R` is the number of bounding boxes in a image. \
+                Each bouding box is organized by \
+                :obj:`(x_min, y_min, x_max, y_max)` \
+                in the second axis.
+            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
+                Each value indicates the class of the bounding box.
+            * **scores** : A list of float arrays of shape :math:`(R,)`. \
+                Each value indicates how confident the prediction is.
         """
 
         prepared_imgs = list()

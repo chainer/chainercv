@@ -31,6 +31,18 @@ class Normalize(chainer.Link):
             initializer=initializers._get_initializer(initial))
 
     def __call__(self, x):
+        """Normalize input and scale it.
+
+        Args:
+            x (chainer.Variable): A variable holding 4-dimensional array.
+                The dimensions is :math:`(batch, channel, height, width)`.
+                Its :obj:`dtype` is :obj:`numpy.float32`.
+
+        Returns:
+            chainer.Variable:
+            The shape and :obj:`dtype` are same as those of input.
+        """
+
         x = F.normalize(x, eps=self.eps, axis=1)
         scale = F.broadcast_to(self.scale[:, np.newaxis, np.newaxis], x.shape)
         return x * scale
