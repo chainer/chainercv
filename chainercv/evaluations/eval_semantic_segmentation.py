@@ -98,7 +98,7 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
     N = len(pred_label)
     acc = np.zeros((N,))
     acc_cls = np.zeros((N,))
-    mean_iu = np.zeros((N,))
+    mean_iou = np.zeros((N,))
     fwavacc = np.zeros((N,))
     for i in six.moves.range(len(pred_label)):
         hist = _fast_hist(
@@ -106,11 +106,11 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
         acc[i] = np.diag(hist).sum() / hist.sum()
         acc_cls_i = np.diag(hist) / hist.sum(axis=1)
         acc_cls[i] = np.nanmean(acc_cls_i)
-        iu_denominator = (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
-        iu = np.diag(hist) / iu_denominator
-        mean_iu[i] = np.nanmean(iu)
+        iou_denominator = (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
+        iou = np.diag(hist) / iou_denominator
+        mean_iou[i] = np.nanmean(iou)
         freq = hist.sum(axis=1) / hist.sum()
-        fwavacc[i] = (freq[freq > 0] * iu[freq > 0]).sum()
+        fwavacc[i] = (freq[freq > 0] * iou[freq > 0]).sum()
 
     return (xp.asarray(acc), xp.asarray(acc_cls),
-            xp.asarray(mean_iu), xp.asarray(fwavacc))
+            xp.asarray(mean_iou), xp.asarray(fwavacc))
