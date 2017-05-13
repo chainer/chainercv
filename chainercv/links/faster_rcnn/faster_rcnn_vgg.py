@@ -2,7 +2,6 @@ import numpy as np
 
 import chainer
 import chainer.functions as F
-from chainer.initializers import constant
 import chainer.links as L
 from chainer.links import VGG16Layers
 

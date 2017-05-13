@@ -22,8 +22,8 @@ class FasterRCNNBase(chainer.Chain):
 
     :obj:`rpn` is a :class:`chainercv.links.RegionProposalNetwork`.
 
-    :obj:`head` is a :class:`chainer.Chain` that outputs a tuple of bounding box
-    offsets and scores.
+    :obj:`head` is a :class:`chainer.Chain` that outputs a tuple of
+    bounding box offsets and scores.
 
     """
 
@@ -78,7 +78,7 @@ class FasterRCNNBase(chainer.Chain):
     def __call__(self, x, scale=1., layers=['bbox_tf', 'score'],
                  test=True):
         """Forward Faster RCNN.
-        
+
         Basically, this code carrys out following operations.
 
         .. code:: python
@@ -94,7 +94,6 @@ class FasterRCNNBase(chainer.Chain):
         stop_at = self._decide_when_to_stop(activations)
         if stop_at == 'start':
             return {}
-        print activations
 
         if isinstance(scale, chainer.Variable):
             scale = scale.data
