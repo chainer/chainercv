@@ -42,7 +42,7 @@ class FasterRCNNVGG16(FasterRCNNBase):
             n_class=n_class,
             roi_size=7,
             spatial_scale=1. / self.feat_stride,
-            mean=np.array([[[102.9801, 115.9465, 122.7717]]]),
+            mean=np.array([102.9801, 115.9465, 122.7717])[:, None, None],
             nms_thresh=nms_thresh,
             score_thresh=score_thresh,
         )
