@@ -8,7 +8,7 @@ from chainer import cuda
 import chainer.functions as F
 from chainercv.links.faster_rcnn.utils.bbox_regression_target import \
     bbox_regression_target_inv
-from chainercv.utils.bbox import non_maximum_suppression
+from chainercv.utils import non_maximum_suppression
 
 from chainercv.transforms.image.resize import resize
 
@@ -140,6 +140,8 @@ class FasterRCNNBase(chainer.Chain):
         return activations
 
     def _suppress(self, raw_bbox, raw_prob):
+        # raw_prob: numpy.ndarray
+        # raw_prob: numpy.ndarray
         bbox = list()
         label = list()
         score = list()
@@ -156,10 +158,9 @@ class FasterRCNNBase(chainer.Chain):
             bbox.append(bbox_cls[keep])
             label.append(i * np.ones((len(keep),)))
             score.append(prob_cls[keep])
-        bbox = self.xp.asarray(np.concatenate(bbox, axis=0).astype(np.float32))
-        label = self.xp.asarray(np.concatenate(label, axis=0).astype(np.int32))
-        score = self.xp.asarray(
-            np.concatenate(score, axis=0).astype(np.float32))
+        bbox = np.concatenate(bbox, axis=0).astype(np.float32)
+        label = np.concatenate(label, axis=0).astype(np.int32)
+        score = np.concatenate(score, axis=0).astype(np.float32)
         return bbox, label, score
 
     def predict(self, imgs):
@@ -209,25 +210,28 @@ class FasterRCNNBase(chainer.Chain):
             roi = out['roi']
             bbox_tf = out['bbox_tf']
             score = out['score']
+
             # Convert predictions to bounding boxes in image coordinates.
             # Bounding boxes are scaled to the scale of the input images.
             bbox_roi = roi[:, 1:5]
             bbox_roi = bbox_roi / scale
             bbox_tf_data = bbox_tf.data
-
-            mean = self.xp.tile(self.xp.array(self.bbox_normalize_mean),
+            mean = self.xp.tile(self.xp.asarray(self.bbox_normalize_mean),
                                 self.n_class)
-            std = self.xp.tile(np.array(self.bbox_normalize_std), self.n_class)
+            std = self.xp.tile(
+                self.xp.asarray(self.bbox_normalize_std), self.n_class)
             bbox_tf_data = (bbox_tf_data * std + mean).astype(np.float32)
             raw_bbox = bbox_regression_target_inv(bbox_roi, bbox_tf_data)
-
             # clip bounding box
             raw_bbox[:, slice(0, 4, 2)] = self.xp.clip(
                 raw_bbox[:, slice(0, 4, 2)], 0, W / scale)
             raw_bbox[:, slice(1, 4, 2)] = self.xp.clip(
                 raw_bbox[:, slice(1, 4, 2)], 0, H / scale)
-            # Compute probabilities that each bounding box is assigned to.
+
             raw_prob = F.softmax(score).data
+
+            raw_bbox = cuda.to_cpu(raw_bbox)
+            raw_prob = cuda.to_cpu(raw_prob)
 
             bbox, label, score = self._suppress(raw_bbox, raw_prob)
 
@@ -258,7 +262,7 @@ class FasterRCNNBase(chainer.Chain):
         if scale * max(H, W) > self.max_size:
             scale = max(H, W) * scale / self.max_size
 
-        img = resize(img, (W * scale, H * scale))
+        img = resize(img, (int(W * scale), int(H * scale)))
 
         img = img - self.mean
         return img, scale

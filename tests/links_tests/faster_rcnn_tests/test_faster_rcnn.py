@@ -44,8 +44,15 @@ class DummyHead(chainer.Chain):
 
     def __call__(self, x, train=False):
         B = x.shape[0]
-        bbox_tf = _random_array(self.xp, (B, self.n_class * 4))
-        score = _random_array(self.xp, (B, self.n_class))
+        bbox_tf = chainer.Variable(
+            _random_array(self.xp, (B, self.n_class * 4)))
+        # For each bbox, the score for a selected class is
+        # overwhelmingly higher than the scores for the other classes.
+        score_idx = np.random.randint(
+            low=0, high=self.n_class, size=(B,))
+        score = self.xp.zeros((B, self.n_class), dtype=np.float32)
+        score[np.arange(len(score)), score_idx] = 100
+        score = chainer.Variable(score)
         return bbox_tf, score
 
 
@@ -83,7 +90,7 @@ class DummyFasterRCNN(FasterRCNNBase):
             n_class=n_class,
             roi_size=7,
             spatial_scale=1. / feat_stride,
-            mean=np.array([[[100, 122.5, 145]]]),
+            mean=np.array([[[100]], [[122.5]], [[145]]]),
         )
 
 
@@ -92,8 +99,8 @@ class TestFasterRCNNBase(unittest.TestCase):
     def setUp(self):
         self.n_anchor = 6
         self.feat_stride = 4
-        self.n_class = 10
-        self.n_roi = 128
+        self.n_class = 4
+        self.n_roi = 24
         self.link = DummyFasterRCNN(
             n_anchor=self.n_anchor,
             feat_stride=self.feat_stride,
@@ -118,6 +125,40 @@ class TestFasterRCNNBase(unittest.TestCase):
     def test_call_gpu(self):
         self.link.to_gpu()
         self.check_call()
+
+    def check_predict(self):
+        imgs = [
+            _random_array(np, (3, 640, 480)),
+            _random_array(np, (3, 320, 320))]
+
+        bboxes, labels, scores = self.link.predict(imgs)
+
+        self.assertEqual(len(bboxes), len(imgs))
+        self.assertEqual(len(labels), len(imgs))
+        self.assertEqual(len(scores), len(imgs))
+
+        for bbox, label, score in zip(bboxes, labels, scores):
+            self.assertIsInstance(bbox, np.ndarray)
+            self.assertEqual(bbox.dtype, np.float32)
+            self.assertEqual(bbox.ndim, 2)
+            self.assertLessEqual(bbox.shape[0], self.n_roi)
+            self.assertEqual(bbox.shape[1], 4)
+
+            self.assertIsInstance(label, np.ndarray)
+            self.assertEqual(label.dtype, np.int32)
+            self.assertEqual(label.shape, (bbox.shape[0],))
+
+            self.assertIsInstance(score, np.ndarray)
+            self.assertEqual(score.dtype, np.float32)
+            self.assertEqual(score.shape, (bbox.shape[0],))
+
+    def test_predict_cpu(self):
+        self.check_predict()
+
+    @attr.gpu
+    def test_predict_gpu(self):
+        self.link.to_gpu()
+        self.check_predict()
 
 
 testing.run_module(__name__, __file__)
