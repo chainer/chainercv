@@ -77,16 +77,30 @@ class FasterRCNNBase(chainer.Chain):
 
     def __call__(self, x, scale=1., layers=['bbox_tf', 'score'],
                  test=True):
-        """Forward Faster RCNN.
+        """Computes all the feature maps specified by :obj:`layers`.
 
-        Basically, this code carrys out following operations.
+        Here are list of the names of layers that can be collected.
 
-        .. code:: python
+        * feature: Feature extractor output.
+        * rpn_bbox_pred: RPN output.
+        * rpn_cls_score: RPN output.
+        * roi: RPN output.
+        * anchor: RPN output.
+        * pool: Pooled features according to RoIs.
+        * bbox_tf: Head output.
+        * score: Head output.
 
-            h = self.feature(x)
-            rpn_bbox_pred, rpn_cls_score, roi, anchor = self.rpn(h, ...)
-            pool = roi_pooling_2d(h, roi, ...)
-            bbox_tf, score = self.head(pool)
+        Args:
+            x (~chainer.Variable): Input variable.
+            scale (float): Amount of scaling applied to the raw image
+                in preprocessing.
+            layers (list of str): The list of layer names you want to extract.
+            test (bool): If :obj:`True`, test time behavior is used.
+
+        Returns:
+            Dictionary of ~chainer.Variable: A directory in which
+            the key contains the layer name and the value contains
+            the corresponding feature map variable.
 
         """
         activations = {key: None for key in layers}
