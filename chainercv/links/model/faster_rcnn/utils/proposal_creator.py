@@ -69,10 +69,13 @@ class ProposalCreator(object):
         * :math:`H` and :math:`W` are height and width of the input features.
 
         Also, the values contained in :obj:`rpn_bbox_pred` is encoded using
-        :func:`chainercv.links.faster_rcnn.utils.bbox_regression_target`
+        :func:`chainercv.links.model.faster_rcnn.utils.bbox_regression_target`\
+        .
+
+        Type of the output is same as the inputs.
 
         .. seealso::
-            :func:`~chainercv.links.faster_rcnn.utils.bbox_regression_target`
+            :func:`~chainercv.links.model.faster_rcnn.utils.bbox_regression_target`
 
         Args:
             rpn_bbox_pred (array): Predicted regression targets for anchors.
@@ -88,6 +91,14 @@ class ProposalCreator(object):
                 reading it from a file.
             train (bool): If this is in train mode or not.
                 Default value is :obj:`False`.
+
+        Returns:
+            List of arrays:
+            List of bounding box arrays. A bounding box array is an array of \
+            shape :math:`(R, 4)`, where :math:`R` is the number of \
+            bounding boxes in a image. Each bouding box is organized by \
+            :obj:`(x_min, y_min, x_max, y_max)` in the second axis. \
+            The length of this list is same as the batch size of the inputs.
 
         """
         pre_nms_topN = self.train_rpn_pre_nms_top_n \
@@ -156,13 +167,8 @@ class ProposalCreator(object):
             keep = keep[:post_nms_topN]
         proposal = proposal[keep]
 
-        # Output rois blob
-        # Our RPN implementation only supports a single input image, so all
-        # batch inds are 0
-        batch_ind = np.zeros((proposal.shape[0], 1), dtype=np.float32)
-        roi = np.hstack((batch_ind, proposal)).astype(np.float32, copy=False)
-
         if xp != np:
-            roi = cuda.to_gpu(roi)
+            proposal = cuda.to_gpu(proposal)
 
-        return roi
+        proposals = [proposal]
+        return proposals
