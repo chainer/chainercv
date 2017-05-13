@@ -35,7 +35,7 @@ class TestRegionProposalNetwork(unittest.TestCase):
 
     def _check_call(self, x, img_size, train):
         _, _, H, W = x.shape
-        rpn_bbox_pred, rpn_cls_prob, roi, anchor = self.link(
+        rpn_bbox_pred, rpn_cls_prob, proposals, anchor = self.link(
             chainer.Variable(x), img_size, train=train)
         self.assertIsInstance(rpn_bbox_pred, chainer.Variable)
         self.assertIsInstance(rpn_bbox_pred.data, type(x))
@@ -46,14 +46,15 @@ class TestRegionProposalNetwork(unittest.TestCase):
         self.assertEqual(rpn_bbox_pred.shape, (1, A * 4, H, W))
         self.assertEqual(rpn_cls_prob.shape, (1, A * 2, H, W))
 
-        self.assertIsInstance(roi, type(x))
+        self.assertIsInstance(proposals, list)
+        self.assertIsInstance(proposals[0], type(x))
         if train:
             roi_size = self.proposal_creator_params[
                 'train_rpn_post_nms_top_n']
         else:
             roi_size = self.proposal_creator_params[
                 'test_rpn_post_nms_top_n']
-        self.assertEqual(roi.shape, (roi_size, 5))
+        self.assertEqual(proposals[0].shape, (roi_size, 4))
 
         self.assertIsInstance(anchor, type(x))
         self.assertEqual(anchor.shape, (A * H * W, 4))
