@@ -36,7 +36,6 @@ class FasterRCNNBase(chainer.Chain):
             score_thresh=0.7,
             bbox_normalize_mean=(0., 0., 0., 0.),
             bbox_normalize_std=(0.1, 0.1, 0.2, 0.2),
-            proposal_target_layer_params={},
     ):
         super(FasterRCNNBase, self).__init__(
             feature=feature,
@@ -44,14 +43,14 @@ class FasterRCNNBase(chainer.Chain):
             head=head,
         )
         self.n_class = n_class
-        self.spatial_scale = spatial_scale
         self.roi_size = roi_size
+        self.spatial_scale = spatial_scale
+        self.mean = mean
         self.nms_thresh = nms_thresh
         self.score_thresh = score_thresh
         self.bbox_normalize_mean = bbox_normalize_mean
         self.bbox_normalize_std = bbox_normalize_std
 
-        self.mean = mean
         self.min_size = 600
         self.max_size = 1000
 
