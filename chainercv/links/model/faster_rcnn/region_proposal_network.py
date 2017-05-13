@@ -62,13 +62,19 @@ class RegionProposalNetwork(chainer.Chain):
     def __call__(self, x, img_size, scale=1., train=False):
         """Forward Region Proposal Network.
 
+        Currently, only arrays with batch size one are supported.
+
         Here are notations.
 
         * :math:`N` is batch size.
         * :math:`C` channel size of the input.
         * :math:`H` and :math:`W` are height and witdh of the input feature.
         * :math:`A` is number of anchors assigned to each pixel.
-        * :math:`R` is number of rois produced.
+
+        An array of bounding boxes is an array of shape :math:`(R, 4)`, where
+        :math:`R` is the number of  bounding boxes in an image. Each
+        bouding box is organized by :obj:`(x_min, y_min, x_max, y_max)`
+        in the second axis.
 
         Args:
             x (~chainer.Variable): Feature extracted from an image.
@@ -81,7 +87,7 @@ class RegionProposalNetwork(chainer.Chain):
                 Default value is :obj:`False`.
 
         Returns:
-            (~chainer.Variable, ~chainer.Variable, array, array):
+            (~chainer.Variable, ~chainer.Variable, list of arrays, array):
 
             This is a tuple of four following values.
 
@@ -89,13 +95,11 @@ class RegionProposalNetwork(chainer.Chain):
                 Its shape is :math:`(1, 4 A, H, W)`.
             * **rpn_cls_prob**:  Predicted foreground probability for \
                 anchors. Its shape is :math:`(1, 2 A, H, W)`.
-            * **roi**: An array whose shape is :math:`(S, 5)`. The \
-                second axis contains \
-                :obj:`(batch_index, x_min, y_min, x_max, y_max)` of \
-                each region of interests.
-            * **anchor**: Coordinates of anchors. Its shape is \
-                :math:`(R, 4)`. The second axis contains x and y coordinates \
-                of left top vertices and right bottom vertices.
+            * **proposals**: List of bounding box arrays which contain RoI \
+                proposals for regions with high objectness. Its length is same\
+                as the batch size of the inputs.
+            * **anchor**: Coordinates of anchors. This is an array of bounding\
+                boxes. Its length is :math:`A`.
 
         """
         xp = cuda.get_array_module(x)
@@ -110,10 +114,10 @@ class RegionProposalNetwork(chainer.Chain):
         # enumerate all shifted anchors
         anchor = _enumerate_shifted_anchor(
             xp.array(self.anchor_base), self.feat_stride, ww, hh)
-        roi = self.proposal_layer(
+        proposals = self.proposal_layer(
             rpn_bbox_pred, rpn_cls_prob, anchor, img_size,
             scale=scale, train=train)
-        return rpn_bbox_pred, rpn_cls_score, roi, anchor
+        return rpn_bbox_pred, rpn_cls_score, proposals, anchor
 
 
 def _enumerate_shifted_anchor(anchor_base, feat_stride, width, height):
