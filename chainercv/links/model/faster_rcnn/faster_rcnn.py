@@ -29,9 +29,7 @@ class FasterRCNNBase(chainer.Chain):
 
     def __init__(
             self, feature, rpn, head,
-            n_class, roi_size,
-            spatial_scale,
-            mean,
+            n_class, mean,
             nms_thresh=0.3,
             score_thresh=0.7,
             bbox_normalize_mean=(0., 0., 0., 0.),
@@ -42,9 +40,8 @@ class FasterRCNNBase(chainer.Chain):
             rpn=rpn,
             head=head,
         )
+
         self.n_class = n_class
-        self.roi_size = roi_size
-        self.spatial_scale = spatial_scale
         self.mean = mean
         self.nms_thresh = nms_thresh
         self.score_thresh = score_thresh
@@ -61,7 +58,7 @@ class FasterRCNNBase(chainer.Chain):
 
         rpn_outs = [
             'feature', 'rpn_bbox_pred', 'rpn_cls_score',
-            'roi', 'anchor']
+            'proposals', 'anchor']
         for layer in rpn_outs:
             layers.pop(layer, None)
 
@@ -74,7 +71,7 @@ class FasterRCNNBase(chainer.Chain):
             if key in target:
                 target[key] = source[key]
 
-    def __call__(self, x, scale=1., layers=['bbox_tf', 'score'],
+    def __call__(self, x, scale=1., layers=['bbox_tfs', 'scores'],
                  test=True):
         """Computes all the feature maps specified by :obj:`layers`.
 
@@ -83,11 +80,10 @@ class FasterRCNNBase(chainer.Chain):
         * feature: Feature extractor output.
         * rpn_bbox_pred: RPN output.
         * rpn_cls_score: RPN output.
-        * roi: RPN output.
+        * proposals: RPN output.
         * anchor: RPN output.
-        * pool: Pooled features according to RoIs.
-        * bbox_tf: Head output.
-        * score: Head output.
+        * bbox_tfs: Head output.
+        * scores: Head output.
 
         Args:
             x (~chainer.Variable): Input variable.
@@ -103,20 +99,14 @@ class FasterRCNNBase(chainer.Chain):
 
         """
         activations = {key: None for key in layers}
-
         stop_at = self._decide_when_to_stop(activations)
         if stop_at == 'start':
             return {}
 
-        if isinstance(scale, chainer.Variable):
-            scale = scale.data
-        if isinstance(scale, float):
-            scale = np.array(scale)
-        scale = np.asscalar(cuda.to_cpu(scale))
         img_size = x.shape[2:][::-1]
 
         h = self.feature(x, train=not test)
-        rpn_bbox_pred, rpn_cls_score, roi, anchor =\
+        rpn_bbox_pred, rpn_cls_score, proposals, anchor =\
             self.rpn(h, img_size, scale, train=not test)
 
         self._update_if_specified(
@@ -124,19 +114,16 @@ class FasterRCNNBase(chainer.Chain):
             {'feature': h,
              'rpn_bbox_pred': rpn_bbox_pred,
              'rpn_cls_score': rpn_cls_score,
-             'roi': roi,
+             'proposals': proposals,
              'anchor': anchor})
         if stop_at == 'rpn':
             return activations
 
-        pool = F.roi_pooling_2d(
-            h, roi, self.roi_size, self.roi_size, self.spatial_scale)
-        bbox_tf, score = self.head(pool, train=False)
+        bbox_tfs, scores = self.head(h, proposals, train=False)
         self._update_if_specified(
             activations,
-            {'pool': pool,
-             'bbox_tf': bbox_tf,
-             'score': score})
+            {'bbox_tfs': bbox_tfs,
+             'scores': scores})
         return activations
 
     def _suppress(self, raw_bbox, raw_prob):
@@ -205,22 +192,21 @@ class FasterRCNNBase(chainer.Chain):
                 self.xp.asarray(img[None]), volatile=chainer.flag.ON)
             H, W = img_var.shape[2:]
             out = self.__call__(
-                img_var, scale=scale, layers=['roi', 'bbox_tf', 'score'])
-            roi = out['roi']
-            bbox_tf = out['bbox_tf']
-            score = out['score']
+                img_var, scale=scale,
+                layers=['proposals', 'bbox_tfs', 'scores'])
+            bbox_tf = out['bbox_tfs'][0]
+            score = out['scores'][0]
 
             # Convert predictions to bounding boxes in image coordinates.
             # Bounding boxes are scaled to the scale of the input images.
-            bbox_roi = roi[:, 1:5]
-            bbox_roi = bbox_roi / scale
+            proposal = out['proposals'][0] / scale
             bbox_tf_data = bbox_tf.data
             mean = self.xp.tile(self.xp.asarray(self.bbox_normalize_mean),
                                 self.n_class)
             std = self.xp.tile(self.xp.asarray(self.bbox_normalize_std),
                                self.n_class)
             bbox_tf_data = (bbox_tf_data * std + mean).astype(np.float32)
-            raw_bbox = bbox_regression_target_inv(bbox_roi, bbox_tf_data)
+            raw_bbox = bbox_regression_target_inv(proposal, bbox_tf_data)
             # clip bounding box
             raw_bbox[:, slice(0, 4, 2)] = self.xp.clip(
                 raw_bbox[:, slice(0, 4, 2)], 0, W / scale)

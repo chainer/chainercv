@@ -41,7 +41,7 @@ class TestFasterRCNNVGG16(unittest.TestCase):
         y = self.link(
             x,
             layers=['feature', 'rpn_bbox_pred', 'rpn_cls_score',
-                    'roi', 'anchor', 'pool', 'bbox_tf', 'score'],
+                    'proposals', 'anchor', 'pool', 'bbox_tfs', 'scores'],
             test=not self.train
         )
         if self.train:
@@ -67,28 +67,29 @@ class TestFasterRCNNVGG16(unittest.TestCase):
             y['rpn_cls_score'].shape,
             (1, self.n_anchor * 2, feat_size[1], feat_size[0]))
 
-        self.assertIsInstance(y['roi'], xp.ndarray)
-        self.assertEqual(y['roi'].shape, (n_roi, 5))
+        self.assertIsInstance(y['proposals'], list)
+        self.assertEqual(len(y['proposals']), 1)
+        self.assertIsInstance(y['proposals'][0], xp.ndarray)
+        self.assertEqual(y['proposals'][0].shape, (n_roi, 4))
 
         self.assertIsInstance(y['anchor'], xp.ndarray)
         self.assertEqual(
             y['anchor'].shape,
             (self.n_anchor * feat_size[1] * feat_size[0], 4))
 
-        self.assertIsInstance(y['pool'], chainer.Variable)
-        self.assertIsInstance(y['pool'].data, xp.ndarray)
+        self.assertIsInstance(y['bbox_tfs'], list)
+        self.assertEqual(len(y['bbox_tfs']), 1)
+        self.assertIsInstance(y['bbox_tfs'][0], chainer.Variable)
+        self.assertIsInstance(y['bbox_tfs'][0].data, xp.ndarray)
         self.assertEqual(
-            y['pool'].shape, (n_roi, self.n_conv5_3_channel, 7, 7))
+            y['bbox_tfs'][0].shape, (n_roi, self.n_class * 4))
 
-        self.assertIsInstance(y['bbox_tf'], chainer.Variable)
-        self.assertIsInstance(y['bbox_tf'].data, xp.ndarray)
+        self.assertIsInstance(y['scores'], list)
+        self.assertEqual(len(y['scores']), 1)
+        self.assertIsInstance(y['scores'][0], chainer.Variable)
+        self.assertIsInstance(y['scores'][0].data, xp.ndarray)
         self.assertEqual(
-            y['bbox_tf'].shape, (n_roi, self.n_class * 4))
-
-        self.assertIsInstance(y['score'], chainer.Variable)
-        self.assertIsInstance(y['score'].data, xp.ndarray)
-        self.assertEqual(
-            y['score'].shape, (n_roi, self.n_class))
+            y['scores'][0].shape, (n_roi, self.n_class))
 
     def test_call_cpu(self):
         self.check_call()

@@ -42,18 +42,24 @@ class DummyHead(chainer.Chain):
         super(DummyHead, self).__init__()
         self.n_class = n_class
 
-    def __call__(self, x, train=False):
-        B = x.shape[0]
-        bbox_tf = chainer.Variable(
-            _random_array(self.xp, (B, self.n_class * 4)))
-        # For each bbox, the score for a selected class is
-        # overwhelmingly higher than the scores for the other classes.
-        score_idx = np.random.randint(
-            low=0, high=self.n_class, size=(B,))
-        score = self.xp.zeros((B, self.n_class), dtype=np.float32)
-        score[np.arange(len(score)), score_idx] = 100
-        score = chainer.Variable(score)
-        return bbox_tf, score
+    def __call__(self, x, bboxes, train=False):
+        bbox_tfs = []
+        scores = []
+        for bbox in bboxes:
+            n_bbox = len(bbox)
+            bbox_tf = chainer.Variable(
+                _random_array(self.xp, (n_bbox, self.n_class * 4)))
+            # For each bbox, the score for a selected class is
+            # overwhelmingly higher than the scores for the other classes.
+            score_idx = np.random.randint(
+                low=0, high=self.n_class, size=(n_bbox,))
+            score = self.xp.zeros((n_bbox, self.n_class), dtype=np.float32)
+            score[np.arange(n_bbox), score_idx] = 100
+            score = chainer.Variable(score)
+
+            bbox_tfs.append(bbox_tf)
+            scores.append(score)
+        return bbox_tfs, scores
 
 
 class DummyRegionProposalNetwork(chainer.Chain):
@@ -69,15 +75,13 @@ class DummyRegionProposalNetwork(chainer.Chain):
             self.xp, (B, 4 * self.n_anchor, H, W))
         rpn_cls_score = _random_array(
             self.xp, (B, 2 * self.n_anchor, H, W))
-        roi_bbox = _generate_bbox(
+        proposal = _generate_bbox(
             self.xp, self.n_roi, img_size[::-1], 16, min(img_size))
-        roi = self.xp.concatenate(
-            (self.xp.zeros((len(roi_bbox), 1), roi_bbox.dtype), roi_bbox),
-            axis=1)
+        proposals = [proposal] * B
         anchor = _generate_bbox(
             self.xp, self.n_anchor * H * W, img_size[::-1], 16, min(img_size))
         return (chainer.Variable(rpn_bbox_pred),
-                chainer.Variable(rpn_cls_score), roi, anchor)
+                chainer.Variable(rpn_cls_score), proposals, anchor)
 
 
 class DummyFasterRCNN(FasterRCNNBase):
@@ -88,8 +92,6 @@ class DummyFasterRCNN(FasterRCNNBase):
             DummyRegionProposalNetwork(n_anchor, n_roi),
             DummyHead(n_class),
             n_class=n_class,
-            roi_size=7,
-            spatial_scale=1. / feat_stride,
             mean=np.array([[[100]], [[122.5]], [[145]]]),
         )
 
@@ -113,8 +115,8 @@ class TestFasterRCNNBase(unittest.TestCase):
 
         x1 = chainer.Variable(_random_array(xp, (1, 3, 600, 800)))
         y1 = self.link(x1)
-        bbox_tf = y1['bbox_tf']
-        score = y1['score']
+        bbox_tf = y1['bbox_tfs'][0]
+        score = y1['scores'][0]
         self.assertEqual(bbox_tf.shape, (self.n_roi, self.n_class * 4))
         self.assertEqual(score.shape, (self.n_roi, self.n_class))
 
