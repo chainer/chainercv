@@ -140,8 +140,8 @@ class FasterRCNNBase(chainer.Chain):
         return activations
 
     def _suppress(self, raw_bbox, raw_prob):
-        # raw_prob: numpy.ndarray
-        # raw_prob: numpy.ndarray
+        # type(raw_bbox) == numpy.ndarray
+        # type(raw_prob) == numpy.ndarray
         bbox = list()
         label = list()
         score = list()
@@ -206,7 +206,6 @@ class FasterRCNNBase(chainer.Chain):
             H, W = img_var.shape[2:]
             out = self.__call__(
                 img_var, scale=scale, layers=['roi', 'bbox_tf', 'score'])
-
             roi = out['roi']
             bbox_tf = out['bbox_tf']
             score = out['score']
@@ -218,8 +217,8 @@ class FasterRCNNBase(chainer.Chain):
             bbox_tf_data = bbox_tf.data
             mean = self.xp.tile(self.xp.asarray(self.bbox_normalize_mean),
                                 self.n_class)
-            std = self.xp.tile(
-                self.xp.asarray(self.bbox_normalize_std), self.n_class)
+            std = self.xp.tile(self.xp.asarray(self.bbox_normalize_std),
+                               self.n_class)
             bbox_tf_data = (bbox_tf_data * std + mean).astype(np.float32)
             raw_bbox = bbox_regression_target_inv(bbox_roi, bbox_tf_data)
             # clip bounding box
@@ -234,7 +233,6 @@ class FasterRCNNBase(chainer.Chain):
             raw_prob = cuda.to_cpu(raw_prob)
 
             bbox, label, score = self._suppress(raw_bbox, raw_prob)
-
             bboxes.append(bbox)
             labels.append(label)
             scores.append(score)
