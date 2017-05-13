@@ -33,7 +33,7 @@ class DummyFeature(chainer.Link):
         _, _, H, W = x.shape
         return _random_array(
             self.xp,
-            (1, 8, H / self.feat_stride, W / self.feat_stride))
+            (1, 8, H // self.feat_stride, W // self.feat_stride))
 
 
 class DummyHead(chainer.Chain):
