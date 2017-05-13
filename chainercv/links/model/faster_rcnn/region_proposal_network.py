@@ -5,9 +5,10 @@ from chainer import cuda
 import chainer.functions as F
 import chainer.links as L
 
-from chainercv.links.faster_rcnn.utils.generate_anchor_base import \
+from chainercv.links.model.faster_rcnn.utils.generate_anchor_base import \
     generate_anchor_base
-from chainercv.links.faster_rcnn.utils.proposal_creator import ProposalCreator
+from chainercv.links.model.faster_rcnn.utils.proposal_creator import \
+    ProposalCreator
 
 
 class RegionProposalNetwork(chainer.Chain):

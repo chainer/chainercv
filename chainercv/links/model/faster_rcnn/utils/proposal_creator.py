@@ -2,7 +2,7 @@ import numpy as np
 
 from chainer import cuda
 
-from chainercv.links.faster_rcnn.utils.bbox_regression_target import \
+from chainercv.links.model.faster_rcnn.utils.bbox_regression_target import \
     bbox_regression_target_inv
 from chainercv.utils.bbox.non_maximum_suppression import \
     non_maximum_suppression
