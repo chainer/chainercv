@@ -6,7 +6,7 @@ import numpy as np
 import chainer
 from chainer import cuda
 import chainer.functions as F
-from chainercv.links.faster_rcnn.utils.bbox_regression_target import \
+from chainercv.links.model.faster_rcnn.utils.bbox_regression_target import \
     bbox_regression_target_inv
 from chainercv.utils import non_maximum_suppression
 

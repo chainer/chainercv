@@ -5,8 +5,8 @@ import chainer.functions as F
 import chainer.links as L
 from chainer.links import VGG16Layers
 
-from chainercv.links.faster_rcnn.faster_rcnn import FasterRCNNBase
-from chainercv.links.faster_rcnn.region_proposal_network import \
+from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNNBase
+from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 
 
