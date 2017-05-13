@@ -49,31 +49,52 @@ class TestFasterRCNNVGG16(unittest.TestCase):
         else:
             n_roi = self.n_test_roi
 
+        self.assertIsInstance(y['feature'], chainer.Variable)
+        self.assertIsInstance(y['feature'].data, xp.ndarray)
         self.assertEqual(
             y['feature'].shape,
             (1, self.n_conv5_3_channel, feat_size[1], feat_size[0]))
+
+        self.assertIsInstance(y['rpn_bbox_pred'], chainer.Variable)
+        self.assertIsInstance(y['rpn_bbox_pred'].data, xp.ndarray)
         self.assertEqual(
             y['rpn_bbox_pred'].shape,
             (1, self.n_anchor * 4, feat_size[1], feat_size[0]))
+
+        self.assertIsInstance(y['rpn_cls_score'], chainer.Variable)
+        self.assertIsInstance(y['rpn_cls_score'].data, xp.ndarray)
         self.assertEqual(
             y['rpn_cls_score'].shape,
             (1, self.n_anchor * 2, feat_size[1], feat_size[0]))
+
+        self.assertIsInstance(y['roi'], xp.ndarray)
         self.assertEqual(y['roi'].shape, (n_roi, 5))
+
+        self.assertIsInstance(y['anchor'], xp.ndarray)
         self.assertEqual(
             y['anchor'].shape,
             (self.n_anchor * feat_size[1] * feat_size[0], 4))
+
+        self.assertIsInstance(y['pool'], chainer.Variable)
+        self.assertIsInstance(y['pool'].data, xp.ndarray)
         self.assertEqual(
             y['pool'].shape, (n_roi, self.n_conv5_3_channel, 7, 7))
+
+        self.assertIsInstance(y['bbox_tf'], chainer.Variable)
+        self.assertIsInstance(y['bbox_tf'].data, xp.ndarray)
         self.assertEqual(
             y['bbox_tf'].shape, (n_roi, self.n_class * 4))
+
+        self.assertIsInstance(y['score'], chainer.Variable)
+        self.assertIsInstance(y['score'].data, xp.ndarray)
         self.assertEqual(
             y['score'].shape, (n_roi, self.n_class))
 
-    def test_faster_rcnn_vgg16_cpu(self):
+    def test_call_cpu(self):
         self.check_call()
 
     @attr.gpu
-    def test_faster_rcnn_vgg16_gpu(self):
+    def test_call_gpu(self):
         self.link.to_gpu()
         self.check_call()
 
