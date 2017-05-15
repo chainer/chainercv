@@ -1,8 +1,6 @@
 import numpy as np
-import six
 
 import chainer
-from chainer import cuda
 import chainer.functions as F
 import chainer.links as L
 from chainer.links import VGG16Layers
@@ -13,6 +11,10 @@ from chainercv.links.model.faster_rcnn.region_proposal_network import \
 
 
 class FasterRCNNVGG16(FasterRCNNBase):
+
+    """FasterRCNN based on VGG16.
+
+    """
 
     feat_stride = 16
 
@@ -49,30 +51,6 @@ class FasterRCNNVGG16(FasterRCNNBase):
         )
 
 
-def _bboxes_to_roi(bboxes):
-    xp = cuda.get_array_module(bboxes[0])
-    bbox_concat = xp.concatenate(bboxes)
-
-    batch_index = []
-    for i, bbox in enumerate(bboxes):
-        batch_index.append(i * xp.ones(len(bbox), dtype=np.float32))
-    batch_index = xp.concatenate(batch_index)
-
-    roi = xp.concatenate((batch_index[:, None], bbox_concat), axis=1)
-    return roi
-
-
-def _batch_to_list(x, separations):
-    ys = []
-
-    separations = [0] + separations
-    for i in six.moves.range(len(separations) - 1):
-        start = separations[i]
-        end = separations[i + 1]
-        ys.append(x[start:end])
-    return ys
-
-
 class VGG16RoIPoolingHead(chainer.Chain):
 
     """Regress and classify bounding boxes based on RoI pooled features.
@@ -85,36 +63,36 @@ class VGG16RoIPoolingHead(chainer.Chain):
             # these linear links take some time to initialize
             fc6=L.Linear(25088, 4096, initialW=fc_initialW),
             fc7=L.Linear(4096, 4096, initialW=fc_initialW),
-            bbox_tf=L.Linear(4096, n_class * 4, initialW=bbox_initialW),
-            cls_score=L.Linear(4096, n_class, initialW=cls_initialW),
+            bbox=L.Linear(4096, n_class * 4, initialW=bbox_initialW),
+            score=L.Linear(4096, n_class, initialW=cls_initialW),
         )
         self.roi_size = roi_size
         self.spatial_scale = spatial_scale
 
-    def __call__(self, x, bboxes, train=False):
+    def __call__(self, x, rois, batch_indices, train=False):
         """Pool and forward batches of patches.
 
         Args:
             x (~chainer.Variable):
-            bboxes (list of arrays):
+            rois (array)
+            batch_indices (array)
 
         Returns:
             list of chainer.Variable, list of chainer.Variable
 
         """
-        lengths = [len(bbox) for bbox in bboxes]
-        roi = _bboxes_to_roi(bboxes)
+        batch_indices = batch_indices.astype(np.float32)
+        rois = self.xp.concatenate(
+            (batch_indices[:, None], rois), axis=1)
         pool = F.roi_pooling_2d(
-            x, roi, self.roi_size, self.roi_size, self.spatial_scale)
+            x, rois, self.roi_size, self.roi_size, self.spatial_scale)
 
         fc6 = F.dropout(F.relu(self.fc6(pool)), train=train)
         fc7 = F.dropout(F.relu(self.fc7(fc6)), train=train)
-        bbox_tf = self.bbox_tf(fc7)
-        score = self.cls_score(fc7)
+        roi_bboxes = self.bbox(fc7)
+        roi_scores = self.score(fc7)
 
-        bbox_tfs = _batch_to_list(bbox_tf, lengths)
-        scores = _batch_to_list(score, lengths)
-        return bbox_tfs, scores
+        return roi_bboxes, roi_scores
 
 
 class VGG16FeatureExtractor(VGG16Layers):

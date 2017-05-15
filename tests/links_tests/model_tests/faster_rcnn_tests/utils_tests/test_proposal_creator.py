@@ -58,14 +58,18 @@ class TestProposalCreator(unittest.TestCase):
             rpn_bbox_pred, rpn_cls_prob, anchor, img_size,
             scale=1., train=False):
         xp = cuda.get_array_module(rpn_bbox_pred)
-        proposals = self.proposal_creator(
+        rois, batch_indices = self.proposal_creator(
             rpn_bbox_pred, rpn_cls_prob, anchor, img_size, scale, train)
 
         out_length = self.train_rpn_post_nms_top_n \
             if train else self.test_rpn_post_nms_top_n
-        self.assertIsInstance(proposals, list)
-        self.assertEqual(proposals[0].shape[0], out_length)
-        self.assertIsInstance(proposals[0], xp.ndarray)
+        self.assertIsInstance(rois, xp.ndarray)
+        self.assertEqual(rois.shape, (out_length, 4))
+        self.assertIsInstance(batch_indices, xp.ndarray)
+        self.assertEqual(batch_indices.shape, (out_length,))
+        np.testing.assert_equal(
+            cuda.to_cpu(batch_indices),
+            np.zeros((len(batch_indices),), dtype=np.int32))
 
     def test_proposal_creator_cpu(self):
         self.check_proposal_creator(

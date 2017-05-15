@@ -2,6 +2,7 @@ import numpy as np
 import unittest
 
 import chainer
+from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
 
@@ -35,26 +36,30 @@ class TestRegionProposalNetwork(unittest.TestCase):
 
     def _check_call(self, x, img_size, train):
         _, _, H, W = x.shape
-        rpn_bbox_pred, rpn_cls_prob, proposals, anchor = self.link(
+        rpn_bbox_preds, rpn_cls_probs, rois, batch_indices, anchor = self.link(
             chainer.Variable(x), img_size, train=train)
-        self.assertIsInstance(rpn_bbox_pred, chainer.Variable)
-        self.assertIsInstance(rpn_bbox_pred.data, type(x))
-        self.assertIsInstance(rpn_cls_prob, chainer.Variable)
-        self.assertIsInstance(rpn_cls_prob.data, type(x))
+        self.assertIsInstance(rpn_bbox_preds, chainer.Variable)
+        self.assertIsInstance(rpn_bbox_preds.data, type(x))
+        self.assertIsInstance(rpn_cls_probs, chainer.Variable)
+        self.assertIsInstance(rpn_cls_probs.data, type(x))
 
         A = len(self.ratios) * len(self.anchor_scales)
-        self.assertEqual(rpn_bbox_pred.shape, (1, A * 4, H, W))
-        self.assertEqual(rpn_cls_prob.shape, (1, A * 2, H, W))
+        self.assertEqual(rpn_bbox_preds.shape, (1, A * 4, H, W))
+        self.assertEqual(rpn_cls_probs.shape, (1, A * 2, H, W))
 
-        self.assertIsInstance(proposals, list)
-        self.assertIsInstance(proposals[0], type(x))
         if train:
             roi_size = self.proposal_creator_params[
                 'train_rpn_post_nms_top_n']
         else:
             roi_size = self.proposal_creator_params[
                 'test_rpn_post_nms_top_n']
-        self.assertEqual(proposals[0].shape, (roi_size, 4))
+        self.assertIsInstance(rois, type(x))
+        self.assertIsInstance(batch_indices, type(x))
+        self.assertEqual(rois.shape, (roi_size, 4))
+        self.assertEqual(batch_indices.shape, (roi_size,)) 
+        np.testing.assert_equal(
+            cuda.to_cpu(batch_indices),
+            np.zeros((len(batch_indices),), dtype=np.int32))
 
         self.assertIsInstance(anchor, type(x))
         self.assertEqual(anchor.shape, (A * H * W, 4))

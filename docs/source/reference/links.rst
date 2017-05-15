@@ -10,9 +10,19 @@ Model
 Faster RCNN
 ~~~~~~~~~~~
 
+FasterRCNNBase
+""""""""""""""
+.. autoclass:: FasterRCNNBase
+   :members:
+   :special-members:  __call__
+
+FasterRCNNVGG16
+"""""""""""""""
+.. autoclass:: FasterRCNNVGG16
+
 RegionProposalNetwork
-~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: chainercv.links.RegionProposalNetwork
+"""""""""""""""""""""
+.. autoclass:: RegionProposalNetwork
    :members:
    :special-members:  __call__
 
@@ -30,6 +40,6 @@ generate_anchor_base
 
 ProposalCreator
 """""""""""""""
-.. autoclass:: chainercv.links.ProposalCreator
+.. autoclass:: ProposalCreator
    :members:
    :special-members:  __call__
