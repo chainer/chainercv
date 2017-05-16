@@ -250,5 +250,5 @@ class FasterRCNNBase(chainer.Chain):
 
         img = resize(img, (int(W * scale), int(H * scale)))
 
-        img = img - self.mean
+        img = (img - self.mean).astype(np.float32, copy=False)
         return img, scale

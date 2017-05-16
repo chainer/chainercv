@@ -54,7 +54,8 @@ class FasterRCNNVGG16(FasterRCNNBase):
             rpn,
             head,
             n_class=n_class,
-            mean=np.array([102.9801, 115.9465, 122.7717])[:, None, None],
+            mean=np.array([102.9801, 115.9465, 122.7717],
+                          dtype=np.float32)[:, None, None],
             nms_thresh=nms_thresh,
             score_thresh=score_thresh,
         )
