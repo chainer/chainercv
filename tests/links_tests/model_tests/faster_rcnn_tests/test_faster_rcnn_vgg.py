@@ -28,7 +28,8 @@ class TestFasterRCNNVGG16(unittest.TestCase):
             'n_test_post_nms': self.n_test_post_nms
         }
         self.link = FasterRCNNVGG16(
-            self.n_class, proposal_creator_params=proposal_creator_params)
+            self.n_class, pretrained_model=None,
+            proposal_creator_params=proposal_creator_params)
 
     def check_call(self):
         xp = self.link.xp

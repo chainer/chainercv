@@ -43,4 +43,4 @@ script:
   - flake8 .
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
-  - MPLBACKEND="agg" nosetests -a '!gpu' tests
+  - MPLBACKEND="agg" nosetests -a '!gpu,!slow' tests
