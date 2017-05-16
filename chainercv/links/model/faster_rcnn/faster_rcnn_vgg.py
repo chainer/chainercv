@@ -20,11 +20,19 @@ class FasterRCNNVGG16(FasterRCNNBase):
 
     def __init__(self,
                  n_class,
-                 pretrained_model='auto',
+                 pretrained_model='imagenet',
                  nms_thresh=0.3, score_thresh=0.7,
                  ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
                  proposal_creator_params={}
                  ):
+        if pretrained_model:
+            init = chainer.initializers.constant.Zero()
+            vgg_kwargs = {'initialW': init, 'initial_bias': init}
+        else:
+            vgg_kwargs = {}
+        bbox_kwargs = {'initialW': chainer.initializers.Normal(0.001)}
+        score_kwargs = {'initialW': chainer.initializers.Normal(0.01)}
+
         feature = VGG16FeatureExtractor(extract='conv5_3')
         rpn = RegionProposalNetwork(
             512, 512,
@@ -36,8 +44,9 @@ class FasterRCNNVGG16(FasterRCNNBase):
         head = VGG16RoIPoolingHead(
             n_class,
             roi_size=7, spatial_scale=1. / self.feat_stride,
-            bbox_initialW=chainer.initializers.Normal(0.001),
-            cls_initialW=chainer.initializers.Normal(0.01),
+            vgg_kwargs=vgg_kwargs,
+            bbox_kwargs=bbox_kwargs,
+            score_kwargs=score_kwargs
         )
 
         super(FasterRCNNVGG16, self).__init__(
@@ -50,6 +59,27 @@ class FasterRCNNVGG16(FasterRCNNBase):
             score_thresh=score_thresh,
         )
 
+        if pretrained_model == 'imagenet':
+            self._copy_imagenet_pretrained_vgg16()
+
+    def _copy_imagenet_pretrained_vgg16(self):
+        pretrained_model = VGG16Layers()
+        self.feature.conv1_1.copyparams(pretrained_model.conv1_1)
+        self.feature.conv1_2.copyparams(pretrained_model.conv1_2)
+        self.feature.conv2_1.copyparams(pretrained_model.conv2_1)
+        self.feature.conv2_2.copyparams(pretrained_model.conv2_2)
+        self.feature.conv3_1.copyparams(pretrained_model.conv3_1)
+        self.feature.conv3_2.copyparams(pretrained_model.conv3_2)
+        self.feature.conv3_3.copyparams(pretrained_model.conv3_3)
+        self.feature.conv4_1.copyparams(pretrained_model.conv4_1)
+        self.feature.conv4_2.copyparams(pretrained_model.conv4_2)
+        self.feature.conv4_3.copyparams(pretrained_model.conv4_3)
+        self.feature.conv5_1.copyparams(pretrained_model.conv5_1)
+        self.feature.conv5_2.copyparams(pretrained_model.conv5_2)
+        self.feature.conv5_3.copyparams(pretrained_model.conv5_3)
+        self.head.fc6.copyparams(pretrained_model.fc6)
+        self.head.fc7.copyparams(pretrained_model.fc7)
+
 
 class VGG16RoIPoolingHead(chainer.Chain):
 
@@ -58,13 +88,12 @@ class VGG16RoIPoolingHead(chainer.Chain):
     """
 
     def __init__(self, n_class, roi_size, spatial_scale,
-                 fc_initialW=None, cls_initialW=None, bbox_initialW=None):
+                 vgg_kwargs, bbox_kwargs, score_kwargs):
         super(VGG16RoIPoolingHead, self).__init__(
-            # these linear links take some time to initialize
-            fc6=L.Linear(25088, 4096, initialW=fc_initialW),
-            fc7=L.Linear(4096, 4096, initialW=fc_initialW),
-            bbox=L.Linear(4096, n_class * 4, initialW=bbox_initialW),
-            score=L.Linear(4096, n_class, initialW=cls_initialW),
+            fc6=L.Linear(25088, 4096, **vgg_kwargs),
+            fc7=L.Linear(4096, 4096, **vgg_kwargs),
+            bbox=L.Linear(4096, n_class * 4, **bbox_kwargs),
+            score=L.Linear(4096, n_class, **score_kwargs),
         )
         self.roi_size = roi_size
         self.spatial_scale = spatial_scale
@@ -101,8 +130,8 @@ class VGG16FeatureExtractor(VGG16Layers):
 
     """
 
-    def __init__(self, extract='conv5_3', pretrained_model=False):
-        super(VGG16FeatureExtractor, self).__init__(pretrained_model)
+    def __init__(self, extract='conv5_3', vgg_kwargs={}):
+        super(VGG16FeatureExtractor, self).__init__(pretrained_model=False)
         self.extract = extract
         if self.extract not in self.functions:
             raise ValueError(

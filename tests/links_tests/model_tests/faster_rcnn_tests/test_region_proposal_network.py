@@ -56,7 +56,7 @@ class TestRegionProposalNetwork(unittest.TestCase):
         self.assertIsInstance(rois, type(x))
         self.assertIsInstance(batch_indices, type(x))
         self.assertEqual(rois.shape, (roi_size, 4))
-        self.assertEqual(batch_indices.shape, (roi_size,)) 
+        self.assertEqual(batch_indices.shape, (roi_size,))
         np.testing.assert_equal(
             cuda.to_cpu(batch_indices),
             np.zeros((len(batch_indices),), dtype=np.int32))
