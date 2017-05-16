@@ -1,3 +1,4 @@
+import collections
 import numpy as np
 
 import chainer
@@ -33,7 +34,7 @@ class FasterRCNNVGG16(FasterRCNNBase):
         bbox_kwargs = {'initialW': chainer.initializers.Normal(0.001)}
         score_kwargs = {'initialW': chainer.initializers.Normal(0.01)}
 
-        feature = VGG16FeatureExtractor(extract='conv5_3')
+        feature = VGG16FeatureExtractor(vgg_kwargs)
         rpn = RegionProposalNetwork(
             512, 512,
             ratios=ratios,
@@ -125,34 +126,54 @@ class VGG16RoIPoolingHead(chainer.Chain):
         return roi_bboxes, roi_scores
 
 
-class VGG16FeatureExtractor(VGG16Layers):
-
-    """Truncated VGG that extracts an intermediate feature.
+class VGG16FeatureExtractor(chainer.Chain):
+    """Truncated VGG that extracts an conv5_3 features.
 
     """
 
-    def __init__(self, extract='conv5_3', vgg_kwargs={}):
-        super(VGG16FeatureExtractor, self).__init__(pretrained_model=False)
-        self.extract = extract
-        if self.extract not in self.functions:
-            raise ValueError(
-                'Only the features produced by VGG can be extracted')
-
-        start_deleting = False
-        delete_layers = []
-        for layer in self.functions.keys():
-            if start_deleting:
-                delete_layers.append(layer)
-            if layer == extract:
-                start_deleting = True
-
-        for layer in delete_layers:
-            self.functions.pop(layer)
-            if layer in self._children:
-                self._children.remove(layer)
-                delattr(self, layer)
+    def __init__(self, conv_kwargs={}):
+        super(VGG16FeatureExtractor, self).__init__(
+            conv1_1=L.Convolution2D(3, 64, 3, 1, 1, **conv_kwargs),
+            conv1_2=L.Convolution2D(64, 64, 3, 1, 1, **conv_kwargs),
+            conv2_1=L.Convolution2D(64, 128, 3, 1, 1, **conv_kwargs),
+            conv2_2=L.Convolution2D(128, 128, 3, 1, 1, **conv_kwargs),
+            conv3_1=L.Convolution2D(128, 256, 3, 1, 1, **conv_kwargs),
+            conv3_2=L.Convolution2D(256, 256, 3, 1, 1, **conv_kwargs),
+            conv3_3=L.Convolution2D(256, 256, 3, 1, 1, **conv_kwargs),
+            conv4_1=L.Convolution2D(256, 512, 3, 1, 1, **conv_kwargs),
+            conv4_2=L.Convolution2D(512, 512, 3, 1, 1, **conv_kwargs),
+            conv4_3=L.Convolution2D(512, 512, 3, 1, 1, **conv_kwargs),
+            conv5_1=L.Convolution2D(512, 512, 3, 1, 1, **conv_kwargs),
+            conv5_2=L.Convolution2D(512, 512, 3, 1, 1, **conv_kwargs),
+            conv5_3=L.Convolution2D(512, 512, 3, 1, 1, **conv_kwargs),
+        )
+        self.functions = collections.OrderedDict([
+            ('conv1_1', [self.conv1_1, F.relu]),
+            ('conv1_2', [self.conv1_2, F.relu]),
+            ('pool1', [_max_pooling_2d]),
+            ('conv2_1', [self.conv2_1, F.relu]),
+            ('conv2_2', [self.conv2_2, F.relu]),
+            ('pool2', [_max_pooling_2d]),
+            ('conv3_1', [self.conv3_1, F.relu]),
+            ('conv3_2', [self.conv3_2, F.relu]),
+            ('conv3_3', [self.conv3_3, F.relu]),
+            ('pool3', [_max_pooling_2d]),
+            ('conv4_1', [self.conv4_1, F.relu]),
+            ('conv4_2', [self.conv4_2, F.relu]),
+            ('conv4_3', [self.conv4_3, F.relu]),
+            ('pool4', [_max_pooling_2d]),
+            ('conv5_1', [self.conv5_1, F.relu]),
+            ('conv5_2', [self.conv5_2, F.relu]),
+            ('conv5_3', [self.conv5_3, F.relu]),
+        ])
 
     def __call__(self, x, train=False):
-        hs = super(VGG16FeatureExtractor, self).__call__(
-            x, layers=[self.extract], test=not train)
-        return hs[self.extract]
+        h = x
+        for key, funcs in self.functions.items():
+            for func in funcs:
+                h = func(h)
+        return h
+
+
+def _max_pooling_2d(x):
+    return F.max_pooling_2d(x, ksize=2)
