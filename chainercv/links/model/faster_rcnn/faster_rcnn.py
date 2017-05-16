@@ -197,7 +197,7 @@ class FasterRCNNBase(chainer.Chain):
                 img_var, scale=scale,
                 layers=['rois', 'roi_bboxes', 'roi_scores'])
             # We are assuming that batch size is 1.
-            roi_bbox = out['roi_bboxes'].data
+            roi_bbox_d = out['roi_bboxes'].data
             roi_score = out['roi_scores'].data
             roi = out['rois'] / scale
 
@@ -207,8 +207,8 @@ class FasterRCNNBase(chainer.Chain):
                                 self.n_class)
             std = self.xp.tile(self.xp.asarray(self.bbox_normalize_std),
                                self.n_class)
-            roi_bbox = (roi_bbox * std + mean).astype(np.float32)
-            raw_bbox = bbox_regression_target_inv(roi, roi_bbox)
+            roi_bbox_d = (roi_bbox_d * std + mean).astype(np.float32)
+            raw_bbox = bbox_regression_target_inv(roi, roi_bbox_d)
             # clip bounding box
             raw_bbox[:, slice(0, 4, 2)] = self.xp.clip(
                 raw_bbox[:, slice(0, 4, 2)], 0, W / scale)

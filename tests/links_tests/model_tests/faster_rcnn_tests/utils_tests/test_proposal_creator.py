@@ -2,7 +2,6 @@ import unittest
 
 import numpy as np
 
-import chainer
 from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
@@ -29,61 +28,50 @@ def _generate_bbox(n, img_size, min_length, max_length):
 class TestProposalCreator(unittest.TestCase):
 
     img_size = (320, 240)
-    rpn_batch_size = 256
     n_anchor_base = 9
-    train_rpn_post_nms_top_n = 350
-    test_rpn_post_nms_top_n = 300
+    n_train_post_nms = 350
+    n_test_post_nms = 300
 
     def setUp(self):
-        n_anchor_base = 9
         feat_size = (self.img_size[0] // 16, self.img_size[1] // 16)
         n_anchor = np.int32(self.n_anchor_base * np.prod(feat_size))
 
-        self.rpn_cls_prob = np.random.uniform(
-            low=0., high=1.,
-            size=(1, 2 * n_anchor_base) + feat_size).astype(np.float32)
-
-        self.rpn_bbox_pred = np.random.uniform(
-            low=0., high=1.,
-            size=(1, 4 * n_anchor_base) + feat_size).astype(np.float32)
+        self.score = np.random.uniform(
+            low=0, high=1, size=(n_anchor,)).astype(np.float32)
+        self.bbox_d = np.random.uniform(
+            low=-1, high=1., size=(n_anchor, 4)).astype(np.float32)
         self.anchor = _generate_bbox(n_anchor, self.img_size, 16, 200)
         self.proposal_creator = ProposalCreator(
             use_gpu_nms=self.use_gpu_nms,
-            train_rpn_post_nms_top_n=self.train_rpn_post_nms_top_n,
-            test_rpn_post_nms_top_n=self.test_rpn_post_nms_top_n,
-            rpn_min_size=0)
+            n_train_post_nms=self.n_train_post_nms,
+            n_test_post_nms=self.n_test_post_nms,
+            min_size=0)
 
     def check_proposal_creator(
             self, proposal_creator,
-            rpn_bbox_pred, rpn_cls_prob, anchor, img_size,
+            bbox_d, score, anchor, img_size,
             scale=1., train=False):
-        xp = cuda.get_array_module(rpn_bbox_pred)
-        rois, batch_indices = self.proposal_creator(
-            rpn_bbox_pred, rpn_cls_prob, anchor, img_size, scale, train)
+        roi = self.proposal_creator(
+            bbox_d, score, anchor, img_size, scale, train)
 
-        out_length = self.train_rpn_post_nms_top_n \
-            if train else self.test_rpn_post_nms_top_n
-        self.assertIsInstance(rois, xp.ndarray)
-        self.assertEqual(rois.shape, (out_length, 4))
-        self.assertIsInstance(batch_indices, xp.ndarray)
-        self.assertEqual(batch_indices.shape, (out_length,))
-        np.testing.assert_equal(
-            cuda.to_cpu(batch_indices),
-            np.zeros((len(batch_indices),), dtype=np.int32))
+        out_length = self.n_train_post_nms \
+            if train else self.n_test_post_nms
+        self.assertIsInstance(roi, type(bbox_d))
+        self.assertEqual(roi.shape, (out_length, 4))
 
     def test_proposal_creator_cpu(self):
         self.check_proposal_creator(
             self.proposal_creator,
-            chainer.Variable(self.rpn_bbox_pred),
-            chainer.Variable(self.rpn_cls_prob),
+            self.bbox_d,
+            self.score,
             self.anchor, self.img_size, scale=1., train=self.train)
 
     @attr.gpu
     def test_proposal_creator_gpu(self):
         self.check_proposal_creator(
             self.proposal_creator,
-            chainer.Variable(cuda.to_gpu(self.rpn_bbox_pred)),
-            chainer.Variable(cuda.to_gpu(self.rpn_cls_prob)),
+            cuda.to_gpu(self.bbox_d),
+            cuda.to_gpu(self.score),
             cuda.to_gpu(self.anchor), self.img_size,
             scale=1., train=self.train)
 

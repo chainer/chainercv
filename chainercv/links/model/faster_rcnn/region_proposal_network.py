@@ -66,8 +66,6 @@ class RegionProposalNetwork(chainer.Chain):
     def __call__(self, x, img_size, scale=1., train=False):
         """Forward Region Proposal Network.
 
-        Currently, only arrays with batch size one are supported.
-
         Here are notations.
 
         * :math:`N` is batch size.
@@ -114,40 +112,50 @@ class RegionProposalNetwork(chainer.Chain):
                 boxes. Its length is :math:`A`.
 
         """
-        xp = cuda.get_array_module(x)
-        n = x.data.shape[0]
         h = F.relu(self.rpn_conv_3x3(x))
         rpn_scores = self.rpn_score(h)
-        c, hh, ww = rpn_scores.shape[1:]
+        n, c, hh, ww = rpn_scores.shape
         rpn_probs = F.softmax(rpn_scores.reshape(n, 2, -1))
         rpn_probs = rpn_probs.reshape(n, c, hh, ww)
         rpn_bboxes = self.rpn_bbox(h)
 
-        # enumerate all shifted anchors
         anchor = _enumerate_shifted_anchor(
-            xp.array(self.anchor_base), self.feat_stride, ww, hh)
-        rois, batch_indices = self.proposal_layer(
-            rpn_bboxes, rpn_probs, anchor, img_size,
-            scale=scale, train=train)
+            self.xp.array(self.anchor_base), self.feat_stride, ww, hh)
+        rpn_bboxes_reshaped = rpn_bboxes.transpose(
+            (0, 2, 3, 1)).reshape(n, -1, 4).data
+        n_anchor = c // 2
+        rpn_fg_probs = rpn_probs[:, n_anchor:].data
+        rpn_fg_probs = rpn_fg_probs.transpose(0, 2, 3, 1).reshape(n, -1)
+
+        rois = []
+        batch_indices = []
+        for i in range(n):
+            roi = self.proposal_layer(
+                rpn_bboxes_reshaped[0], rpn_fg_probs[0], anchor, img_size,
+                scale=scale, train=train)
+            batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
+            rois.append(roi)
+            batch_indices.append(batch_index)
+
+        rois = self.xp.concatenate(rois, axis=0)
+        batch_indices = self.xp.concatenate(batch_indices, axis=0)
         return rpn_bboxes, rpn_scores, rois, batch_indices, anchor
 
 
 def _enumerate_shifted_anchor(anchor_base, feat_stride, width, height):
-    xp = cuda.get_array_module(anchor_base)
-    # 1. Generate proposals from bbox deltas and shifted anchors
-    # Enumerate all shifts
-    shift_x = xp.arange(0, width * feat_stride, feat_stride)
-    shift_y = xp.arange(0, height * feat_stride, feat_stride)
-    shift_x, shift_y = xp.meshgrid(shift_x, shift_y)
-    shift = xp.stack((shift_x.ravel(), shift_y.ravel(),
-                      shift_x.ravel(), shift_y.ravel()), axis=1)
-
     # Enumerate all shifted anchors:
     #
     # add A anchors (1, A, 4) to
     # cell K shifts (K, 1, 4) to get
     # shift anchors (K, A, 4)
     # reshape to (K*A, 4) shifted anchors
+    xp = cuda.get_array_module(anchor_base)
+    shift_x = xp.arange(0, width * feat_stride, feat_stride)
+    shift_y = xp.arange(0, height * feat_stride, feat_stride)
+    shift_x, shift_y = xp.meshgrid(shift_x, shift_y)
+    shift = xp.stack((shift_x.ravel(), shift_y.ravel(),
+                      shift_x.ravel(), shift_y.ravel()), axis=1)
+
     A = anchor_base.shape[0]
     K = shift.shape[0]
     anchor = anchor_base.reshape((1, A, 4)) + \

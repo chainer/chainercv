@@ -17,21 +17,22 @@ class TestRegionProposalNetwork(unittest.TestCase):
 
     def setUp(self):
         feat_stride = 4
+        self.B = 2
         C = 16
         H = 8
         W = 12
         self.proposal_creator_params = {
-            'train_rpn_post_nms_top_n': 10,
-            'test_rpn_post_nms_top_n': 5}
+            'n_train_post_nms': 10,
+            'n_test_post_nms': 5}
         self.ratios = [0.25, 4]
         self.anchor_scales = [2, 4]
         self.link = RegionProposalNetwork(
-            n_in=C, n_mid=24,
+            in_channels=C, mid_channels=24,
             ratios=self.ratios, anchor_scales=self.anchor_scales,
             feat_stride=feat_stride,
             proposal_creator_params=self.proposal_creator_params
         )
-        self.x = np.random.uniform(size=(1, C, H, W)).astype(np.float32)
+        self.x = np.random.uniform(size=(self.B, C, H, W)).astype(np.float32)
         self.img_size = (W * feat_stride, H * feat_stride)
 
     def _check_call(self, x, img_size, train):
@@ -44,22 +45,24 @@ class TestRegionProposalNetwork(unittest.TestCase):
         self.assertIsInstance(rpn_cls_probs.data, type(x))
 
         A = len(self.ratios) * len(self.anchor_scales)
-        self.assertEqual(rpn_bbox_preds.shape, (1, A * 4, H, W))
-        self.assertEqual(rpn_cls_probs.shape, (1, A * 2, H, W))
+        self.assertEqual(rpn_bbox_preds.shape, (self.B, A * 4, H, W))
+        self.assertEqual(rpn_cls_probs.shape, (self.B, A * 2, H, W))
 
         if train:
             roi_size = self.proposal_creator_params[
-                'train_rpn_post_nms_top_n']
+                'n_train_post_nms']
         else:
             roi_size = self.proposal_creator_params[
-                'test_rpn_post_nms_top_n']
+                'n_test_post_nms']
         self.assertIsInstance(rois, type(x))
         self.assertIsInstance(batch_indices, type(x))
-        self.assertEqual(rois.shape, (roi_size, 4))
-        self.assertEqual(batch_indices.shape, (roi_size,))
-        np.testing.assert_equal(
-            cuda.to_cpu(batch_indices),
-            np.zeros((len(batch_indices),), dtype=np.int32))
+        self.assertEqual(rois.shape, (self.B * roi_size, 4))
+        self.assertEqual(batch_indices.shape, (self.B * roi_size,))
+        for i in range(self.B):
+            s = slice(i * roi_size, (i + 1) * roi_size)
+            np.testing.assert_equal(
+                cuda.to_cpu(batch_indices[s]),
+                i * np.ones((roi_size,), dtype=np.int32))
 
         self.assertIsInstance(anchor, type(x))
         self.assertEqual(anchor.shape, (A * H * W, 4))
