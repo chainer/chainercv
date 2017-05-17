@@ -1,4 +1,5 @@
 import unittest
+import warnings
 
 import numpy as np
 
@@ -31,6 +32,13 @@ from chainercv.evaluations import eval_semantic_segmentation
                  1. / 2. * (1. / 3. + 1.)],
      'fwavacc': [1. / 5. * (2. + 4. / 3.),
                  1. / 5. * (2. + 4. / 3.)]
+     },
+    {'pred_label': [[[0, 0, 0], [0, 0, 0]]],
+     'gt_label': [[[1, 1, 1], [1, 1, 1]]],
+     'acc': [0.],
+     'acc_cls': [0.],
+     'mean_iu': [0.],
+     'fwavacc': [0.]
      }
 )
 class TestEvalSemanticSegmentation(unittest.TestCase):
@@ -39,9 +47,10 @@ class TestEvalSemanticSegmentation(unittest.TestCase):
 
     def check_eval_semantic_segmentation(self, pred_label, gt_label, acc,
                                          acc_cls, mean_iu, fwavacc, n_class):
-        # obtained
-        acc_o, acc_cls_o, mean_iu_o, fwavacc_o = eval_semantic_segmentation(
-            pred_label, gt_label, n_class=n_class)
+        with warnings.catch_warnings(record=True) as w:
+            acc_o, acc_cls_o, mean_iu_o, fwavacc_o =\
+                eval_semantic_segmentation(
+                    pred_label, gt_label, n_class=n_class)
 
         self.assertIsInstance(acc_o, type(acc))
         self.assertIsInstance(acc_cls_o, type(acc_cls))
@@ -52,6 +61,9 @@ class TestEvalSemanticSegmentation(unittest.TestCase):
         np.testing.assert_equal(cuda.to_cpu(acc_cls_o), cuda.to_cpu(acc_cls))
         np.testing.assert_equal(cuda.to_cpu(mean_iu_o), cuda.to_cpu(mean_iu))
         np.testing.assert_equal(cuda.to_cpu(fwavacc_o), cuda.to_cpu(fwavacc))
+
+        # test that no warning has been created
+        self.assertEqual(len(w), 0)
 
     def test_eval_semantic_segmentation_cpu(self):
         self.check_eval_semantic_segmentation(

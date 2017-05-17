@@ -104,8 +104,9 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
         hist = _fast_hist(
             pred_label[i].flatten(), gt_label[i].flatten(), n_class)
         acc[i] = np.diag(hist).sum() / hist.sum()
-        acc_cls_i = np.diag(hist) / hist.sum(axis=1)
-        acc_cls[i] = np.nanmean(acc_cls_i)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            acc_cls_i = np.diag(hist) / hist.sum(axis=1)
+            acc_cls[i] = np.nanmean(acc_cls_i)
         iou_denominator = (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
         iou = np.diag(hist) / iou_denominator
         mean_iou[i] = np.nanmean(iou)
