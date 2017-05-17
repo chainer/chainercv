@@ -131,7 +131,7 @@ class RegionProposalNetwork(chainer.Chain):
         batch_indices = []
         for i in range(n):
             roi = self.proposal_layer(
-                rpn_bboxes_reshaped[0], rpn_fg_probs[0], anchor, img_size,
+                rpn_bboxes_reshaped[i], rpn_fg_probs[i], anchor, img_size,
                 scale=scale, train=train)
             batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
             rois.append(roi)
