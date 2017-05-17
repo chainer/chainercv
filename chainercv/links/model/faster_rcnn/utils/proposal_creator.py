@@ -114,7 +114,7 @@ class ProposalCreator(object):
         ws = bbox[:, 2] - bbox[:, 0]
         hs = bbox[:, 3] - bbox[:, 1]
         keep = np.where((ws >= min_size) & (hs >= min_size))[0]
-        proposal = bbox[keep, :]
+        bbox = bbox[keep, :]
         score = score[keep]
 
         # Sort all (proposal, score) pairs by score from highest to lowest
@@ -130,14 +130,12 @@ class ProposalCreator(object):
         if self.use_gpu_nms and cuda.available:
             keep = non_maximum_suppression(
                 cuda.to_gpu(bbox),
-                thresh=self.nms_thresh,
-                score=cuda.to_gpu(score))
+                thresh=self.nms_thresh)
             keep = cuda.to_cpu(keep)
         else:
             keep = non_maximum_suppression(
                 proposal,
-                thresh=self.nms_thresh,
-                score=score)
+                thresh=self.nms_thresh)
         if n_post_nms > 0:
             keep = keep[:n_post_nms]
         bbox = bbox[keep]
