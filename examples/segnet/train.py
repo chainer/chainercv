@@ -5,13 +5,16 @@ import argparse
 import time
 
 import chainer
+import numpy as np
 from chainer import iterators
 from chainer import optimizers
 from chainer import training
 from chainer.training import extensions
-from chainercv.datasets.camvid import camvid_dataset
+from chainercv.datasets import CamVidDataset
+from chainercv.datasets import TransformDataset
 from chainercv.links.loss import PixelwiseSoftmaxLossWithWeight
 from chainercv.links.model.segnet import segnet_basic
+from chainercv.transforms import random_flip
 
 
 class_weight = [
@@ -32,12 +35,23 @@ class_weight = [
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=-1)
 parser.add_argument('--batchsize', type=int, default=12)
-parser.add_argument('--drop_iter', type=int, default=3000)
+parser.add_argument('--drop_iter', type=int, default=5000)
 args = parser.parse_args()
 
 # Dataset
-train = camvid_dataset.CamVidDataset(mode='train')
-val = camvid_dataset.CamVidDataset(mode='val')
+train = CamVidDataset(mode='train')
+
+
+def transform(in_data):
+    x, t = in_data
+    if np.random.rand() > 0.5:
+        x = x[:, :, ::-1]
+        t = t[:, ::-1]
+    return x, t
+
+
+train = TransformDataset(train, transform)
+val = CamVidDataset(mode='val')
 
 # Iterator
 train_iter = iterators.MultiprocessIterator(train, args.batchsize)
@@ -72,22 +86,22 @@ class TestModeEvaluator(extensions.Evaluator):
         return ret
 
 
-@training.make_extension()
+@training.make_extension(trigger=(args.drop_iter, 'iteration'))
 def drop_lr(trainer):
-    opt = trainer.updater.get_optimizer('main')
-    opt.lr *= 0.1
+    trainer.updater.get_optimizer('main').lr *= 0.1
 
 
 report_trigger = (1, 'epoch')
 trainer.extend(extensions.LogReport(trigger=report_trigger))
-trainer.extend(extensions.observe_lr())
+trainer.extend(extensions.observe_lr(), trigger=report_trigger)
 trainer.extend(extensions.dump_graph('main/loss'))
 trainer.extend(TestModeEvaluator(val_iter, model,
                                  device=args.gpu), trigger=(1, 'epoch'))
 trainer.extend(extensions.PrintReport(
-    ['epoch', 'main/loss', 'main/mean_iou', 'main/mean_pixel_accuracy',
-     'validation/main/loss', 'validation/main/mean_iou',
-     'validation/main/mean_pixel_accuracy', 'elapsed_time', 'lr']),
+    ['epoch', 'iteration', 'main/loss', 'main/mean_iou',
+     'main/mean_pixel_accuracy', 'validation/main/loss',
+     'validation/main/mean_iou', 'validation/main/mean_pixel_accuracy',
+     'elapsed_time', 'lr']),
     trigger=report_trigger)
 trainer.extend(extensions.PlotReport(
     ['main/loss', 'validation/main/loss'], x_key='iteration',
@@ -105,6 +119,6 @@ trainer.extend(extensions.snapshot_object(
     model.predictor, filename='model_iteration-{.updater.iteration}',
     trigger=(1000, 'iteration')))
 trainer.extend(extensions.ProgressBar())
-trainer.extend(drop_lr, trigger=(args.drop_iter, 'epoch'))
+trainer.extend(drop_lr)
 
 trainer.run()

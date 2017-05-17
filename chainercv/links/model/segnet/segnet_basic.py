@@ -8,21 +8,25 @@ class SegNetBasic(chainer.Chain):
     def __init__(self, out_ch):
         w = chainer.initializers.HeNormal()
         super(SegNetBasic, self).__init__(
-            conv1=L.Convolution2D(None, 64, 7, 1, 3, initialW=w),
+            conv1=L.Convolution2D(None, 64, 7, 1, 3, nobias=True, initialW=w),
             conv1_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv2=L.Convolution2D(64, 64, 7, 1, 3, initialW=w),
+            conv2=L.Convolution2D(64, 64, 7, 1, 3, nobias=True, initialW=w),
             conv2_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv3=L.Convolution2D(64, 64, 7, 1, 3, initialW=w),
+            conv3=L.Convolution2D(64, 64, 7, 1, 3, nobias=True, initialW=w),
             conv3_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv4=L.Convolution2D(64, 64, 7, 1, 3, initialW=w),
+            conv4=L.Convolution2D(64, 64, 7, 1, 3, nobias=True, initialW=w),
             conv4_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv_decode4=L.Convolution2D(64, 64, 7, 1, 3, initialW=w),
+            conv_decode4=L.Convolution2D(
+                64, 64, 7, 1, 3, nobias=True, initialW=w),
             conv_decode4_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv_decode3=L.Convolution2D(64, 64, 7, 1, 3, initialW=w),
+            conv_decode3=L.Convolution2D(
+                64, 64, 7, 1, 3, nobias=True, initialW=w),
             conv_decode3_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv_decode2=L.Convolution2D(64, 64, 7, 1, 3, initialW=w),
+            conv_decode2=L.Convolution2D(
+                64, 64, 7, 1, 3, nobias=True, initialW=w),
             conv_decode2_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv_decode1=L.Convolution2D(64, 64, 7, 1, 3, initialW=w),
+            conv_decode1=L.Convolution2D(
+                64, 64, 7, 1, 3, nobias=True, initialW=w),
             conv_decode1_bn=L.BatchNormalization(64, initial_beta=0.001),
             conv_classifier=L.Convolution2D(64, out_ch, 1, 1, 0, initialW=w)
         )

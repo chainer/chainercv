@@ -11,8 +11,9 @@ build
 dist/
 .cache/
 check_autopep8
+.sync-config.cson
 
-examples/segnet/result/
+examples/segnet/results/
 examples/image_retrieval/triplet/result/
 examples/image_classification/tensorboard/result/
 

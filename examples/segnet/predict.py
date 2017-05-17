@@ -12,6 +12,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=-1)
 parser.add_argument('--snapshot', type=str)
 parser.add_argument('--batchsize', type=int, default=12)
+parser.add_argument('--n_class', type=int, default=11)
 args = parser.parse_args()
 
 model = SegNetBasic(12)
@@ -22,9 +23,9 @@ if args.gpu >= 0:
 
 test = CamVidDataset(mode='test')
 
-n_positive = [0 for _ in range(len())]
-n_true = []
-n_true_positive = 0
+n_positive = [0 for _ in range(len(args.n_class))]
+n_true = [0 for _ in range(len(args.n_class))]
+n_true_positive = [0 for _ in range(len(args.n_class))]
 for i in range(0, len(test), args.batchsize):
     img, lbl = concat_examples(test[i:i + args.batchsize], args.gpu)
     y = F.argmax(F.softmax(model(img)), axis=1)
