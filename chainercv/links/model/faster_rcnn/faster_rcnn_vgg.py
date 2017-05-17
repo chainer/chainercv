@@ -118,8 +118,8 @@ class VGG16RoIPoolingHead(chainer.Chain):
         pool = F.roi_pooling_2d(
             x, rois, self.roi_size, self.roi_size, self.spatial_scale)
 
-        fc6 = F.dropout(F.relu(self.fc6(pool)), train=train)
-        fc7 = F.dropout(F.relu(self.fc7(fc6)), train=train)
+        fc6 = F.dropout(F.relu(self.fc6(pool)), train=False)
+        fc7 = F.dropout(F.relu(self.fc7(fc6)), train=False)
         roi_bboxes = self.bbox(fc7)
         roi_scores = self.score(fc7)
 

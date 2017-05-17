@@ -121,7 +121,8 @@ class FasterRCNNBase(chainer.Chain):
         if stop_at == 'rpn':
             return activations
 
-        roi_bboxes, roi_scores = self.head(h, rois, batch_indices, train=False)
+        roi_bboxes, roi_scores = self.head(
+            h, rois, batch_indices, train=not test)
         self._update_if_specified(
             activations,
             {'roi_bboxes': roi_bboxes,
