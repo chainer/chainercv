@@ -195,7 +195,8 @@ class FasterRCNNBase(chainer.Chain):
             H, W = img_var.shape[2:]
             out = self.__call__(
                 img_var, scale=scale,
-                layers=['rois', 'roi_bboxes', 'roi_scores'])
+                layers=['rois', 'roi_bboxes', 'roi_scores'],
+                test=True)
             # We are assuming that batch size is 1.
             roi_bbox_d = out['roi_bboxes'].data
             roi_score = out['roi_scores'].data

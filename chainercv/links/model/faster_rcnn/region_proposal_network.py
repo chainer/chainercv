@@ -55,11 +55,11 @@ class RegionProposalNetwork(chainer.Chain):
         n_anchor = self.anchor_base.shape[0]
         initializer = chainer.initializers.Normal(scale=0.01)
         super(RegionProposalNetwork, self).__init__(
-            rpn_conv_3x3=L.Convolution2D(
+            conv1=L.Convolution2D(
                 in_channels, mid_channels, 3, 1, 1, initialW=initializer),
-            rpn_score=L.Convolution2D(
+            score=L.Convolution2D(
                 mid_channels, 2 * n_anchor, 1, 1, 0, initialW=initializer),
-            rpn_bbox=L.Convolution2D(
+            bbox=L.Convolution2D(
                 mid_channels, 4 * n_anchor, 1, 1, 0, initialW=initializer)
         )
 
@@ -112,12 +112,12 @@ class RegionProposalNetwork(chainer.Chain):
                 boxes. Its length is :math:`A`.
 
         """
-        h = F.relu(self.rpn_conv_3x3(x))
-        rpn_scores = self.rpn_score(h)
+        h = F.relu(self.conv1(x))
+        rpn_scores = self.score(h)
         n, c, hh, ww = rpn_scores.shape
         rpn_probs = F.softmax(rpn_scores.reshape(n, 2, -1))
         rpn_probs = rpn_probs.reshape(n, c, hh, ww)
-        rpn_bboxes = self.rpn_bbox(h)
+        rpn_bboxes = self.bbox(h)
 
         anchor = _enumerate_shifted_anchor(
             self.xp.array(self.anchor_base), self.feat_stride, ww, hh)
