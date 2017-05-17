@@ -77,9 +77,9 @@ def eval_detection_voc(
     n_img = len(bboxes)
 
     # Organize predictions into List[n_class][n_img]
-    bboxes_list = [[None for _ in six.moves.range(n_img)]
+    bboxes_list = [[np.zeros((0, 4)) for _ in six.moves.range(n_img)]
                    for _ in six.moves.range(n_class)]
-    scores_list = [[None for _ in six.moves.range(n_img)]
+    scores_list = [[np.zeros((0,)) for _ in six.moves.range(n_img)]
                    for _ in six.moves.range(n_class)]
     for i in six.moves.range(n_img):
         for cls in six.moves.range(n_class):
@@ -90,23 +90,16 @@ def eval_detection_voc(
                     bboxes_cls.append(bboxes[i][j])
                     scores_cls.append(scores[i][j])
             if len(bboxes_cls) > 0:
-                bboxes_cls = np.stack(bboxes_cls)
-            else:
-                bboxes_cls = np.zeros((0, 4))
-            if len(scores_cls) > 0:
-                scores_cls = np.stack(scores_cls)
-            else:
-                scores_cls = np.zeros((0,))
-            bboxes_list[cls][i] = bboxes_cls
-            scores_list[cls][i] = scores_cls
-            if len(bboxes_cls) > 0:
+                bboxes_list[cls][i] = np.stack(bboxes_cls)
+                scores_list[cls][i] = np.stack(scores_cls)
                 valid_cls[cls] = True
 
     # Organize ground truths into List[n_class][n_img]
-    gt_bboxes_list = [[None for _ in six.moves.range(n_img)]
+    gt_bboxes_list = [[np.zeros((0, 4)) for _ in six.moves.range(n_img)]
                       for _ in six.moves.range(n_class)]
-    gt_difficults_list = [[None for _ in six.moves.range(n_img)]
-                          for _ in six.moves.range(n_class)]
+    gt_difficults_list =\
+        [[np.zeros((0,), dtype=np.bool) for _ in six.moves.range(n_img)]
+         for _ in six.moves.range(n_class)]
     for i in six.moves.range(n_img):
         for cls in six.moves.range(n_class):
             gt_bboxes_cls = []
@@ -120,16 +113,8 @@ def eval_detection_voc(
                         gt_difficults_cls.append(
                             np.array(False, dtype=np.bool))
             if len(gt_bboxes_cls) > 0:
-                gt_bboxes_cls = np.stack(gt_bboxes_cls)
-            else:
-                gt_bboxes_cls = np.zeros((0, 4))
-            if len(gt_difficults_cls) > 0:
-                gt_difficults_cls = np.stack(gt_difficults_cls)
-            else:
-                gt_difficults_cls = np.zeros((0,), dtype=np.bool)
-            gt_bboxes_list[cls][i] = gt_bboxes_cls
-            gt_difficults_list[cls][i] = gt_difficults_cls
-            if len(gt_bboxes_cls) > 0:
+                gt_bboxes_list[cls][i] = np.stack(gt_bboxes_cls)
+                gt_difficults_list[cls][i] = np.stack(gt_difficults_cls)
                 valid_cls[cls] = True
 
     # Accumulate recacall, precison and ap
