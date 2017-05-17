@@ -37,7 +37,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     Images are in BGR and CHW format.
     Class ids start from 0.
 
-    The :obj:`mode` selects train and test split of the dataset as done in
+    The :obj:`split` selects train and test split of the dataset as done in
     [Song]_. The train split contains the first 11318 classes and the test
     split contains the remaining 11316 classes.
 
@@ -49,11 +49,11 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/online_products`.
-        mode ({'train', 'test'}): Mode of the dataset.
+        split ({'train', 'test'}): split of the dataset.
 
     """
 
-    def __init__(self, data_dir='auto', mode='train'):
+    def __init__(self, data_dir='auto', split='train'):
         if data_dir == 'auto':
             data_dir = _get_online_products()
         self.data_dir = data_dir
@@ -61,8 +61,8 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         self.class_ids = []
         self.super_class_ids = []
         self.paths = []
-        # for mode in ['train', 'test']:
-        id_list_file = os.path.join(data_dir, 'Ebay_{}.txt'.format(mode))
+        # for split in ['train', 'test']:
+        id_list_file = os.path.join(data_dir, 'Ebay_{}.txt'.format(split))
         ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
         # ids start from 0
         self.class_ids += [int(id_[1]) - 1 for id_ in ids_tmp]

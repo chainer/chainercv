@@ -45,7 +45,7 @@ class CUBKeypointDataset(CUBDatasetBase):
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
-        mode ({`train`, `test`}): Select train or test split used in
+        split ({`train`, `test`}): Select train or test split used in
             [Kanazawa]_.
         crop_bbox (bool): If true, this class returns an image cropped
             by the bounding box of the bird inside it.
@@ -61,13 +61,13 @@ class CUBKeypointDataset(CUBDatasetBase):
 
     """
 
-    def __init__(self, data_dir='auto', mode='train', crop_bbox=True,
+    def __init__(self, data_dir='auto', split='train', crop_bbox=True,
                  mask_dir='auto', return_mask=False):
         super(CUBKeypointDataset, self).__init__(
             data_dir=data_dir, crop_bbox=crop_bbox)
         self.return_mask = return_mask
 
-        # set mode
+        # set split
         test_images = np.load(
             os.path.join(
                 os.path.split(os.path.split(os.path.abspath(__file__))[0])[0],
@@ -75,12 +75,12 @@ class CUBKeypointDataset(CUBDatasetBase):
         # the original one has ids starting from 1
         test_images = test_images - 1
         train_images = np.setdiff1d(np.arange(len(self.fns)), test_images)
-        if mode == 'train':
+        if split == 'train':
             self.selected_ids = train_images
-        elif mode == 'test':
+        elif split == 'test':
             self.selected_ids = test_images
         else:
-            raise ValueError('invalid mode')
+            raise ValueError('invalid split')
 
         # load keypoint
         parts_loc_file = os.path.join(self.data_dir, 'parts/part_locs.txt')
