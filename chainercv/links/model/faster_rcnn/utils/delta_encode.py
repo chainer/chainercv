@@ -1,7 +1,7 @@
 from chainer import cuda
 
 
-def delta_encode(raw_bbox_src, raw_bbox_dst):
+def delta_encode(src_bbox, dst_bbox):
     """Encodes bounding boxes into deltas of the base bounding boxes.
 
     Given bounding boxes, this function computes offsets and scales (deltas)
@@ -24,32 +24,32 @@ def delta_encode(raw_bbox_src, raw_bbox_dst):
     segmentation. CVPR 2014.
 
     Args:
-        raw_bbox_src (array): An image coordinate array whose shape is
+        src_bbox (array): An image coordinate array whose shape is
             :math:`(R, 4)`. :math:`R` is the number of bounding boxes.
             These coordinates are used to compute :math:`p_x, p_y, p_w, p_h`.
-        raw_bbox_dst (array): An image coordinate array whose shape is
+        dst_bbox (array): An image coordinate array whose shape is
             :math:`(R, 4)`.
             These coordinates are used to compute :math:`g_x, g_y, g_w, g_h`.
 
     Returns:
         array:
-        Bounding box offsets and scales from :obj:`raw_bbox_src` \
-        to :obj:`raw_bbox_dst`. \
+        Bounding box offsets and scales from :obj:`src_bbox` \
+        to :obj:`dst_bbox`. \
         This has shape :math:`(R, 4)`.
         The second axis contains four values :math:`t_x, t_y, t_w, t_h`.
 
     """
-    xp = cuda.get_array_module(raw_bbox_src)
+    xp = cuda.get_array_module(src_bbox)
 
-    width = raw_bbox_src[:, 2] - raw_bbox_src[:, 0]
-    height = raw_bbox_src[:, 3] - raw_bbox_src[:, 1]
-    ctr_x = raw_bbox_src[:, 0] + 0.5 * width
-    ctr_y = raw_bbox_src[:, 1] + 0.5 * height
+    width = src_bbox[:, 2] - src_bbox[:, 0]
+    height = src_bbox[:, 3] - src_bbox[:, 1]
+    ctr_x = src_bbox[:, 0] + 0.5 * width
+    ctr_y = src_bbox[:, 1] + 0.5 * height
 
-    base_width = raw_bbox_dst[:, 2] - raw_bbox_dst[:, 0]
-    base_height = raw_bbox_dst[:, 3] - raw_bbox_dst[:, 1]
-    base_ctr_x = raw_bbox_dst[:, 0] + 0.5 * base_width
-    base_ctr_y = raw_bbox_dst[:, 1] + 0.5 * base_height
+    base_width = dst_bbox[:, 2] - dst_bbox[:, 0]
+    base_height = dst_bbox[:, 3] - dst_bbox[:, 1]
+    base_ctr_x = dst_bbox[:, 0] + 0.5 * base_width
+    base_ctr_y = dst_bbox[:, 1] + 0.5 * base_height
 
     dx = (base_ctr_x - ctr_x) / width
     dy = (base_ctr_y - ctr_y) / height

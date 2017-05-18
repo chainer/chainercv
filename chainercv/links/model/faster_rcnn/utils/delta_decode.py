@@ -1,7 +1,7 @@
 from chainer import cuda
 
 
-def delta_decode(raw_bbox, bbox):
+def delta_decode(src_bbox, loc):
     """Decode bounding boxes from bounding box offsets and scales.
 
     Given bounding box offsets and scales (deltas) computed by
@@ -28,11 +28,11 @@ def delta_decode(raw_bbox, bbox):
     The output is same type as the type of the inputs.
 
     Args:
-        raw_bbox (array): A coordinates of bounding boxes.
+        src_bbox (array): A coordinates of bounding boxes.
             Its shape is :math:`(R, 4)`. These coordinates are used to
             compute :math:`p_x, p_y, p_w, p_h`.
-        bbox (array): An array with offsets and scales.
-            The shapes of :obj:`raw_bbox` and :obj:`bbox` should be same.
+        loc (array): An array with offsets and scales.
+            The shapes of :obj:`src_bbox` and :obj:`loc` should be same.
             This contains values :math:`t_x, t_y, t_w, t_h`.
 
     Returns:
@@ -40,32 +40,32 @@ def delta_decode(raw_bbox, bbox):
         Decoded bounding box coordinates. Its shape is :math:`(R, 4)`.
 
     """
-    xp = cuda.get_array_module(bbox)
+    xp = cuda.get_array_module(src_bbox)
 
-    if raw_bbox.shape[0] == 0:
-        return xp.zeros((0, 4), dtype=bbox.dtype)
+    if src_bbox.shape[0] == 0:
+        return xp.zeros((0, 4), dtype=loc.dtype)
 
-    raw_bbox = raw_bbox.astype(raw_bbox.dtype, copy=False)
+    src_bbox = src_bbox.astype(src_bbox.dtype, copy=False)
 
-    base_width = raw_bbox[:, 2] - raw_bbox[:, 0]
-    base_height = raw_bbox[:, 3] - raw_bbox[:, 1]
-    base_ctr_x = raw_bbox[:, 0] + 0.5 * base_width
-    base_ctr_y = raw_bbox[:, 1] + 0.5 * base_height
+    src_width = src_bbox[:, 2] - src_bbox[:, 0]
+    src_height = src_bbox[:, 3] - src_bbox[:, 1]
+    src_ctr_x = src_bbox[:, 0] + 0.5 * src_width
+    src_ctr_y = src_bbox[:, 1] + 0.5 * src_height
 
-    dx = bbox[:, 0::4]
-    dy = bbox[:, 1::4]
-    dw = bbox[:, 2::4]
-    dh = bbox[:, 3::4]
+    dx = loc[:, 0::4]
+    dy = loc[:, 1::4]
+    dw = loc[:, 2::4]
+    dh = loc[:, 3::4]
 
-    ctr_x = dx * base_width[:, xp.newaxis] + base_ctr_x[:, xp.newaxis]
-    ctr_y = dy * base_height[:, xp.newaxis] + base_ctr_y[:, xp.newaxis]
-    w = xp.exp(dw) * base_width[:, xp.newaxis]
-    h = xp.exp(dh) * base_height[:, xp.newaxis]
+    ctr_x = dx * src_width[:, xp.newaxis] + src_ctr_x[:, xp.newaxis]
+    ctr_y = dy * src_height[:, xp.newaxis] + src_ctr_y[:, xp.newaxis]
+    w = xp.exp(dw) * src_width[:, xp.newaxis]
+    h = xp.exp(dh) * src_height[:, xp.newaxis]
 
-    bbox_raw = xp.zeros(bbox.shape, dtype=bbox.dtype)
-    bbox_raw[:, 0::4] = ctr_x - 0.5 * w
-    bbox_raw[:, 1::4] = ctr_y - 0.5 * h
-    bbox_raw[:, 2::4] = ctr_x + 0.5 * w
-    bbox_raw[:, 3::4] = ctr_y + 0.5 * h
+    dst_bbox = xp.zeros(src_bbox.shape, dtype=src_bbox.dtype)
+    dst_bbox[:, 0::4] = ctr_x - 0.5 * w
+    dst_bbox[:, 1::4] = ctr_y - 0.5 * h
+    dst_bbox[:, 2::4] = ctr_x + 0.5 * w
+    dst_bbox[:, 3::4] = ctr_y + 0.5 * h
 
-    return bbox_raw
+    return dst_bbox
