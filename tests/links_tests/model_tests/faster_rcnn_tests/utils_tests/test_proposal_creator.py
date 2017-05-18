@@ -22,7 +22,6 @@ def _generate_bbox(n, img_size, min_length, max_length):
 @testing.parameterize(
     *testing.product({
         'train': [True, False],
-        'use_gpu_nms': [True]
     })
 )
 class TestProposalCreator(unittest.TestCase):
@@ -42,7 +41,6 @@ class TestProposalCreator(unittest.TestCase):
             low=-1, high=1., size=(n_anchor, 4)).astype(np.float32)
         self.anchor = _generate_bbox(n_anchor, self.img_size, 16, 200)
         self.proposal_creator = ProposalCreator(
-            use_gpu_nms=self.use_gpu_nms,
             n_train_post_nms=self.n_train_post_nms,
             n_test_post_nms=self.n_test_post_nms,
             min_size=0)

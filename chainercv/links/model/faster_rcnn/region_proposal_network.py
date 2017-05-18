@@ -73,11 +73,6 @@ class RegionProposalNetwork(chainer.Chain):
         * :math:`H` and :math:`W` are height and witdh of the input feature.
         * :math:`A` is number of anchors assigned to each pixel.
 
-        An array of bounding boxes is an array of shape :math:`(R, 4)`, where
-        :math:`R` is the number of  bounding boxes in an image. Each
-        bouding box is organized by :obj:`(x_min, y_min, x_max, y_max)`
-        in the second axis.
-
         Args:
             x (~chainer.Variable): Feature extracted from an image.
                 Its shape is :math:`(N, C, H, W)`.
@@ -93,10 +88,10 @@ class RegionProposalNetwork(chainer.Chain):
 
             This is a tuple of five following values.
 
-            * **rpn_bboxes**: Predicted regression targets for anchors. \
-                Its shape is :math:`(1, 4 A, H, W)`.
+            * **rpn_bboxes**: Predicted bounding box offsets for anchors. \
+                Its shape is :math:`(N, 4 A, H, W)`.
             * **rpn_scores**:  Predicted foreground scores for \
-                anchors. Its shape is :math:`(1, 2 A, H, W)`.
+                anchors. Its shape is :math:`(N, 2 A, H, W)`.
             * **rois**: A bounding box array containing coordinates of \
                 proposal boxes.  The bounding box array is a concatenation of\
                 bounding box arrays \
@@ -108,8 +103,8 @@ class RegionProposalNetwork(chainer.Chain):
                 :obj:`(x_min, y_min, x_max, y_max)` in the second axis. \
             * **batch_indices**: An array containing indices of images to \
                 which bounding boxes correspond to. Its shape is :math:`(R',)`.
-            * **anchor**: Coordinates of anchors. This is an array of bounding\
-                boxes. Its length is :math:`A`.
+            * **anchor**: Coordinates of enumerated shifted anchors. \
+                Its shape is :math:`(H W A, 4)`.
 
         """
         h = F.relu(self.conv1(x))

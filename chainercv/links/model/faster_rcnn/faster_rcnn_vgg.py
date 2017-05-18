@@ -21,14 +21,61 @@ class FasterRCNNVGG16(FasterRCNNBase):
 
     """FasterRCNN based on VGG16.
 
+    When you specify the path of the pre-trained chainer model serialized as
+    a ``.npz`` file in the constructor, this chain model automatically
+    initializes all the parameters with it.
+    When a string in prespecified set is provided, a pretrained model is
+    loaded from weights distributed on the internet.
+    The list of pretrained models supported are as follows.
+
+    * :obj:`voc07`: Loads weights trained with trainval split of \
+        PASCAL VOC2007 Detection Dataset.
+    * :obj:`imagenet`: Loads weights trained with ImageNet Classfication
+        task for the feature extractor and head modules.
+        For weights that do not have a corresponding layer in VGG16 network
+        will be randomly initialized.
+
+    For descriptions on the interface of this model, please refer to
+    :class:`chainercv.links.FasterRCNNBase`.
+
+    Args:
+        n_class (int): The number of classes. This counts background.
+        pretrained_model (str): the destination of the pre-trained
+            chainer model serialized as a :obj:`.npz` file.
+            If this argument is specified as in one of the strings described
+            above, it automatically loads weights stored under a directory
+            :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/models/`,
+            where :obj:`$CHAINER_DATASET_ROOT` is set as
+            :obj:`$HOME/.chainer/dataset` unless you specify another value
+            by modifying the environment variable.
+        nms_thresh (float): Threshold value used when calling NMS in
+            :func:`predict`.
+        score_thresh (float): Threshold value used to discard low
+            confidence proposals in :func:`predict`.
+        min_size (int): While preparing an image in :func:`predict`,
+            the length of the shorter edge is scaled to :obj:`min_size`.
+            After that, if the length of the longer edge is longer than
+            :obj:`max_size`, the image is scaled to fit the longer edge
+            to :obj:`max_size`.
+        max_size (int): See the description for :obj:`min_size`.
+        ratios (list of floats): Anchors with ratios contained in this list
+            will be generated. Ratio is the ratio of the height by the width.
+        anchor_scales (list of numbers): Values in :obj:`scales` determine area
+            of possibly generated anchors. Those areas will be square of an
+            element in :obj:`scales` times the original area of the
+            reference window.
+        proposal_creator_params (dict): Key valued paramters for
+            :obj:`chainercv.links.ProposalCreator`.
+
     """
 
     feat_stride = 16
 
     def __init__(self,
                  n_class,
-                 pretrained_model='imagenet',
+                 pretrained_model='voc07',
                  nms_thresh=0.3, score_thresh=0.7,
+                 min_size=600, max_size=1000,
                  ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
                  proposal_creator_params={}
                  ):
@@ -65,6 +112,8 @@ class FasterRCNNVGG16(FasterRCNNBase):
                           dtype=np.float32)[:, None, None],
             nms_thresh=nms_thresh,
             score_thresh=score_thresh,
+            min_size=min_size,
+            max_size=max_size
         )
 
         if pretrained_model == 'imagenet':
