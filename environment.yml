@@ -5,6 +5,7 @@ channels:
 - !!python/unicode
   'defaults'
 dependencies:
+  - cython
   - opencv3=3.2.0
   - matplotlib
   - numpy
