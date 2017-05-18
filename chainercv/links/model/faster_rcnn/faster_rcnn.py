@@ -25,8 +25,8 @@ import numpy as np
 import chainer
 from chainer import cuda
 import chainer.functions as F
-from chainercv.links.model.faster_rcnn.utils.bbox_regression_target import \
-    bbox_regression_target_inv
+from chainercv.links.model.faster_rcnn.utils.delta_decode import \
+    delta_decode
 from chainercv.utils import non_maximum_suppression
 
 from chainercv.transforms.image.resize import resize
@@ -276,7 +276,7 @@ class FasterRCNNBase(chainer.Chain):
             std = self.xp.tile(self.xp.asarray(self.bbox_normalize_std),
                                self.n_class)
             roi_bbox = (roi_bbox * std + mean).astype(np.float32)
-            raw_bbox = bbox_regression_target_inv(roi, roi_bbox)
+            raw_bbox = delta_decode(roi, roi_bbox)
             # clip bounding box
             raw_bbox[:, slice(0, 4, 2)] = self.xp.clip(
                 raw_bbox[:, slice(0, 4, 2)], 0, W / scale)

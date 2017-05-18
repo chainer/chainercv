@@ -6,8 +6,8 @@ from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links import bbox_regression_target
-from chainercv.links import bbox_regression_target_inv
+from chainercv.links import delta_decode
+from chainercv.links import delta_encode
 
 
 def generate_bbox(n, img_size, min_length, max_length):
@@ -20,15 +20,15 @@ def generate_bbox(n, img_size, min_length, max_length):
     return bbox
 
 
-class TestBboxRegressionTarget(unittest.TestCase):
+class TestDeltaEncodeDecode(unittest.TestCase):
 
     def setUp(self):
         self.bbox = np.array([[0, 0, 49, 29]], dtype=np.float32)
         self.gt_bbox = np.array([[0, 0, 49, 29]], dtype=np.float32)
         self.target = np.array([[0, 0, 0, 0]], dtype=np.float32)
 
-    def check_bbox_regression_target(self, bbox, gt_bbox, target):
-        out_target = bbox_regression_target(bbox, gt_bbox)
+    def check_delta_encode(self, bbox, gt_bbox, target):
+        out_target = delta_encode(bbox, gt_bbox)
 
         xp = cuda.get_array_module(target)
         self.assertEqual(xp, cuda.get_array_module(out_target))
@@ -36,18 +36,18 @@ class TestBboxRegressionTarget(unittest.TestCase):
         np.testing.assert_equal(cuda.to_cpu(out_target),
                                 cuda.to_cpu(target))
 
-    def test_bbox_regression_target_cpu(self):
-        self.check_bbox_regression_target(self.bbox, self.gt_bbox, self.target)
+    def test_delta_encode_cpu(self):
+        self.check_delta_encode(self.bbox, self.gt_bbox, self.target)
 
     @attr.gpu
-    def test_bbox_regression_target_gpu(self):
-        self.check_bbox_regression_target(
+    def test_delta_encode_gpu(self):
+        self.check_delta_encode(
             cuda.to_gpu(self.bbox),
             cuda.to_gpu(self.gt_bbox),
             cuda.to_gpu(self.target))
 
-    def check_bbox_regression_target_inv(self, bbox, gt_bbox, target):
-        out_bbox = bbox_regression_target_inv(bbox, target)
+    def check_delta_decode(self, bbox, gt_bbox, target):
+        out_bbox = delta_decode(bbox, target)
 
         xp = cuda.get_array_module(gt_bbox)
         self.assertEqual(xp, cuda.get_array_module(out_bbox))
@@ -55,40 +55,40 @@ class TestBboxRegressionTarget(unittest.TestCase):
         np.testing.assert_equal(
             cuda.to_cpu(out_bbox), cuda.to_cpu(gt_bbox))
 
-    def test_bbox_regression_target_inv_cpu(self):
-        self.check_bbox_regression_target_inv(
+    def test_delta_decode_cpu(self):
+        self.check_delta_decode(
             self.bbox,
             self.gt_bbox,
             self.target)
 
     @attr.gpu
-    def test_bbox_regression_target_inv_gpu(self):
-        self.check_bbox_regression_target_inv(
+    def test_delta_decode_gpu(self):
+        self.check_delta_decode(
             cuda.to_gpu(self.bbox),
             cuda.to_gpu(self.gt_bbox),
             cuda.to_gpu(self.target))
 
 
-class TestBboxRegressionTargetConsistency(unittest.TestCase):
+class TestDeltaEncodeDecodeConsistency(unittest.TestCase):
 
     def setUp(self):
         self.bbox = generate_bbox(8, (32, 64), 4, 16)
         self.gt_bbox = self.bbox + 1
 
-    def check_bbox_regression_target_consistency(self, bbox, gt_bbox):
-        target = bbox_regression_target(bbox, gt_bbox)
-        out_bbox = bbox_regression_target_inv(bbox, target)
+    def check_delta_encode_decode_consistency(self, bbox, gt_bbox):
+        target = delta_encode(bbox, gt_bbox)
+        out_bbox = delta_decode(bbox, target)
 
         np.testing.assert_almost_equal(
             cuda.to_cpu(out_bbox), cuda.to_cpu(gt_bbox), decimal=5)
 
-    def test_bbox_regression_target_consistency_cpu(self):
-        self.check_bbox_regression_target_consistency(
+    def test_delta_encde_decode_consistency_cpu(self):
+        self.check_delta_encode_decode_consistency(
             self.bbox, self.gt_bbox)
 
     @attr.gpu
-    def test_bbox_regression_target_consistency_gpu(self):
-        self.check_bbox_regression_target_consistency(
+    def test_delta_encode_decode_consistency_gpu(self):
+        self.check_delta_encode_decode_consistency(
             cuda.to_gpu(self.bbox),
             cuda.to_gpu(self.gt_bbox))
 

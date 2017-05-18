@@ -26,13 +26,13 @@ RegionProposalNetwork
    :members:
    :special-members:  __call__
 
-bbox_regression_target
-""""""""""""""""""""""
-.. autofunction:: chainercv.links.bbox_regression_target
+delta_decode
+""""""""""""
+.. autofunction:: chainercv.links.delta_decode
 
-bbox_regression_target_inv
-""""""""""""""""""""""""""
-.. autofunction:: chainercv.links.bbox_regression_target_inv
+delta_encode
+""""""""""""
+.. autofunction:: chainercv.links.delta_encode
 
 generate_anchor_base
 """"""""""""""""""""

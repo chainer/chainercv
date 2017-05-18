@@ -56,13 +56,16 @@ class TestRegionProposalNetwork(unittest.TestCase):
                 'n_test_post_nms']
         self.assertIsInstance(rois, type(x))
         self.assertIsInstance(batch_indices, type(x))
-        self.assertEqual(rois.shape, (self.B * roi_size, 4))
-        self.assertEqual(batch_indices.shape, (self.B * roi_size,))
-        for i in range(self.B):
-            s = slice(i * roi_size, (i + 1) * roi_size)
-            np.testing.assert_equal(
-                cuda.to_cpu(batch_indices[s]),
-                i * np.ones((roi_size,), dtype=np.int32))
+        self.assertLessEqual(rois.shape[0], self.B * roi_size)
+        self.assertLessEqual(batch_indices.shape[0], self.B * roi_size)
+
+        # Depending randomly generated bounding boxes, this is not true.
+        if batch_indices.shape[0] == self.B * roi_size:
+            for i in range(self.B):
+                s = slice(i * roi_size, (i + 1) * roi_size)
+                np.testing.assert_equal(
+                    cuda.to_cpu(batch_indices[s]),
+                    i * np.ones((roi_size,), dtype=np.int32))
 
         self.assertIsInstance(anchor, type(x))
         self.assertEqual(anchor.shape, (A * H * W, 4))

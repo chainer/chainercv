@@ -2,8 +2,7 @@ import numpy as np
 
 from chainer import cuda
 
-from chainercv.links.model.faster_rcnn.utils.bbox_regression_target import \
-    bbox_regression_target_inv
+from chainercv.links.model.faster_rcnn.utils.delta_decode import delta_decode
 from chainercv.utils.bbox.non_maximum_suppression import \
     non_maximum_suppression
 
@@ -63,7 +62,7 @@ class ProposalCreator(object):
         """Generate deterministic proposal regions.
 
         The values contained in bounding box delta array :obj:`bbox` are
-        encoded using :func:`chainercv.links.bbox_regression_target`.
+        encoded using :func:`chainercv.links.delta_encode`.
 
         Type of the output is same as the inputs.
 
@@ -72,7 +71,7 @@ class ProposalCreator(object):
         anchor bases per pixel.
 
         .. seealso::
-            :func:`~chainercv.links.bbox_regression_target`
+            :func:`~chainercv.links.delta_encode`
 
         Args:
             bbox (array): Predicted regression targets for anchors.
@@ -107,7 +106,7 @@ class ProposalCreator(object):
         anchor = cuda.to_cpu(anchor)
 
         # Convert anchors into proposal via bbox transformations.
-        roi = bbox_regression_target_inv(anchor, bbox)
+        roi = delta_decode(anchor, bbox)
 
         # Clip predicted boxes to image.
         roi[:, slice(0, 4, 2)] = np.clip(
