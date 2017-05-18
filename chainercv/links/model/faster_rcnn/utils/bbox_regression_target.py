@@ -1,7 +1,7 @@
 from chainer import cuda
 
 
-def bbox_regression_target(bbox, gt_bbox):
+def delta_encode(raw_bbox, base_raw_bbox):
     """Encode bounding boxes into regression targets.
 
     Given a bounding box, this function computes offsets and scaling to match
@@ -34,9 +34,9 @@ def bbox_regression_target(bbox, gt_bbox):
     segmentation. CVPR 2014.
 
     Args:
-        bbox (array): An array whose shape is :math:`(R, 4)`.
+        raw_bbox (array): An array whose shape is :math:`(R, 4)`.
             :math:`R` is the number of bounding boxes.
-        gt_bbox (array): An array whose shape is :math:`(R, 4)`.
+        base_raw_bbox (array): An array whose shape is :math:`(R, 4)`.
             The shapes of :obj:`bbox` and :obj:`gt_bbox` should be same.
 
     Returns:
@@ -47,30 +47,29 @@ def bbox_regression_target(bbox, gt_bbox):
         The second axis contains four values :math:`t_x, t_y, t_w, t_h`.
 
     """
-    xp = cuda.get_array_module(bbox)
+    xp = cuda.get_array_module(raw_bbox)
 
-    width = bbox[:, 2] - bbox[:, 0]
-    height = bbox[:, 3] - bbox[:, 1]
-    ctr_x = bbox[:, 0] + 0.5 * width
-    ctr_y = bbox[:, 1] + 0.5 * height
+    width = raw_bbox[:, 2] - raw_bbox[:, 0]
+    height = raw_bbox[:, 3] - raw_bbox[:, 1]
+    ctr_x = raw_bbox[:, 0] + 0.5 * width
+    ctr_y = raw_bbox[:, 1] + 0.5 * height
 
-    gt_width = gt_bbox[:, 2] - gt_bbox[:, 0]
-    gt_height = gt_bbox[:, 3] - gt_bbox[:, 1]
-    gt_ctr_x = gt_bbox[:, 0] + 0.5 * gt_width
-    gt_ctr_y = gt_bbox[:, 1] + 0.5 * gt_height
+    base_width = base_raw_bbox[:, 2] - base_raw_bbox[:, 0]
+    base_height = base_raw_bbox[:, 3] - base_raw_bbox[:, 1]
+    base_ctr_x = base_raw_bbox[:, 0] + 0.5 * base_width
+    base_ctr_y = base_raw_bbox[:, 1] + 0.5 * base_height
 
-    target_dx = (gt_ctr_x - ctr_x) / width
-    target_dy = (gt_ctr_y - ctr_y) / height
-    target_dw = xp.log(gt_width / width)
-    target_dh = xp.log(gt_height / height)
+    dx = (base_ctr_x - ctr_x) / width
+    dy = (base_ctr_y - ctr_y) / height
+    dw = xp.log(base_width / width)
+    dh = xp.log(base_height / height)
 
-    target = xp.vstack(
-        (target_dx, target_dy, target_dw, target_dh)).transpose()
-    return target
+    bbox = xp.vstack((dx, dy, dw, dh)).transpose()
+    return bbox
 
 
-def bbox_regression_target_inv(bbox, target):
-    """Decode bounding boxes from regression targets.
+def delta_decode(base_raw_bbox, bbox):
+    """Decode bounding boxes from bounding box offsets.
 
     Given regression targets computed by :meth:`bbox_regression_target`,
     this function decodes the representation to the bounding box
@@ -105,9 +104,9 @@ def bbox_regression_target_inv(bbox, target):
     The output is same type as the type of the inputs.
 
     Args:
-        bbox (array): An array whose shape is :math:`(R, 4)`.
+        base_raw_bbox (array): An array whose shape is :math:`(R, 4)`.
             Its contents is described above.
-        target (array): An array whose shape is :math:`(R, 4)`.
+        bbox (array): An array whose shape is :math:`(R, 4)`.
             The shapes of :obj:`bbox` and :obj:`gt_bbox` should be same.
             This contains regression targets, and
             the second axis contains four values :math:`t_x, t_y, t_w, t_h`.
@@ -119,33 +118,30 @@ def bbox_regression_target_inv(bbox, target):
     """
     xp = cuda.get_array_module(bbox)
 
-    if bbox.shape[0] == 0:
-        return xp.zeros((0, target.shape[1]), dtype=target.dtype)
+    if base_raw_bbox.shape[0] == 0:
+        return xp.zeros((0, bbox.shape[1]), dtype=bbox.dtype)
 
-    bbox = bbox.astype(target.dtype, copy=False)
+    base_raw_bbox = base_raw_bbox.astype(bbox.dtype, copy=False)
 
-    width = bbox[:, 2] - bbox[:, 0]
-    height = bbox[:, 3] - bbox[:, 1]
-    ctr_x = bbox[:, 0] + 0.5 * width
-    ctr_y = bbox[:, 1] + 0.5 * height
+    base_width = base_raw_bbox[:, 2] - base_raw_bbox[:, 0]
+    base_height = base_raw_bbox[:, 3] - base_raw_bbox[:, 1]
+    base_ctr_x = base_raw_bbox[:, 0] + 0.5 * base_width
+    base_ctr_y = base_raw_bbox[:, 1] + 0.5 * base_height
 
-    dx = target[:, 0::4]
-    dy = target[:, 1::4]
-    dw = target[:, 2::4]
-    dh = target[:, 3::4]
+    dx = bbox[:, 0::4]
+    dy = bbox[:, 1::4]
+    dw = bbox[:, 2::4]
+    dh = bbox[:, 3::4]
 
-    pred_ctr_x = dx * width[:, xp.newaxis] + ctr_x[:, xp.newaxis]
-    pred_ctr_y = dy * height[:, xp.newaxis] + ctr_y[:, xp.newaxis]
-    pred_w = xp.exp(dw) * width[:, xp.newaxis]
-    pred_h = xp.exp(dh) * height[:, xp.newaxis]
+    ctr_x = dx * base_width[:, xp.newaxis] + base_ctr_x[:, xp.newaxis]
+    ctr_y = dy * base_height[:, xp.newaxis] + base_ctr_y[:, xp.newaxis]
+    w = xp.exp(dw) * base_width[:, xp.newaxis]
+    h = xp.exp(dh) * base_height[:, xp.newaxis]
 
-    pred_bbox = xp.zeros(target.shape, dtype=target.dtype)
-    pred_bbox[:, 0::4] = pred_ctr_x - 0.5 * pred_w
-    pred_bbox[:, 1::4] = pred_ctr_y - 0.5 * pred_h
-    # Note that -1 did not exist in the original implementation.
-    # However, these subtractions are necessary to make encoding
-    # and deconding consistent.
-    pred_bbox[:, 2::4] = pred_ctr_x + 0.5 * pred_w
-    pred_bbox[:, 3::4] = pred_ctr_y + 0.5 * pred_h
+    bbox_raw = xp.zeros(bbox.shape, dtype=bbox.dtype)
+    bbox_raw[:, 0::4] = ctr_x - 0.5 * w
+    bbox_raw[:, 1::4] = ctr_y - 0.5 * h
+    bbox_raw[:, 2::4] = ctr_x + 0.5 * w
+    bbox_raw[:, 3::4] = ctr_y + 0.5 * h
 
-    return pred_bbox
+    return bbox_raw
