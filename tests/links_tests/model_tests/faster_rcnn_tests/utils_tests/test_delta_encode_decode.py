@@ -23,74 +23,71 @@ def generate_bbox(n, img_size, min_length, max_length):
 class TestDeltaEncodeDecode(unittest.TestCase):
 
     def setUp(self):
-        self.bbox = np.array([[0, 0, 49, 29]], dtype=np.float32)
-        self.gt_bbox = np.array([[0, 0, 49, 29]], dtype=np.float32)
-        self.target = np.array([[0, 0, 0, 0]], dtype=np.float32)
+        self.raw_bbox = np.array([[0, 0, 49, 29]], dtype=np.float32)
+        self.base_raw_bbox = np.array([[0, 0, 49, 29]], dtype=np.float32)
+        self.expected_enc = np.array([[0, 0, 0, 0]], dtype=np.float32)
 
-    def check_delta_encode(self, bbox, gt_bbox, target):
-        out_target = delta_encode(bbox, gt_bbox)
+    def check_delta_encode(self, raw_bbox, base_raw_bbox, expected_enc):
+        bbox = delta_encode(raw_bbox, base_raw_bbox)
 
-        xp = cuda.get_array_module(target)
-        self.assertEqual(xp, cuda.get_array_module(out_target))
-
-        np.testing.assert_equal(cuda.to_cpu(out_target),
-                                cuda.to_cpu(target))
+        self.assertIsInstance(bbox, type(expected_enc))
+        np.testing.assert_equal(cuda.to_cpu(bbox),
+                                cuda.to_cpu(expected_enc))
 
     def test_delta_encode_cpu(self):
-        self.check_delta_encode(self.bbox, self.gt_bbox, self.target)
+        self.check_delta_encode(
+            self.raw_bbox, self.base_raw_bbox, self.expected_enc)
 
     @attr.gpu
     def test_delta_encode_gpu(self):
         self.check_delta_encode(
-            cuda.to_gpu(self.bbox),
-            cuda.to_gpu(self.gt_bbox),
-            cuda.to_gpu(self.target))
+            cuda.to_gpu(self.raw_bbox),
+            cuda.to_gpu(self.base_raw_bbox),
+            cuda.to_gpu(self.expected_enc))
 
-    def check_delta_decode(self, bbox, gt_bbox, target):
-        out_bbox = delta_decode(bbox, target)
+    def check_delta_decode(self, bbox, base_raw_bbox, expected):
+        raw_bbox = delta_decode(bbox, base_raw_bbox)
 
-        xp = cuda.get_array_module(gt_bbox)
-        self.assertEqual(xp, cuda.get_array_module(out_bbox))
-
+        self.assertIsInstance(raw_bbox, type(expected))
         np.testing.assert_equal(
-            cuda.to_cpu(out_bbox), cuda.to_cpu(gt_bbox))
+            cuda.to_cpu(raw_bbox), cuda.to_cpu(expected))
 
     def test_delta_decode_cpu(self):
         self.check_delta_decode(
-            self.bbox,
-            self.gt_bbox,
-            self.target)
+            self.expected_enc,
+            self.raw_bbox,
+            self.base_raw_bbox)
 
     @attr.gpu
     def test_delta_decode_gpu(self):
         self.check_delta_decode(
-            cuda.to_gpu(self.bbox),
-            cuda.to_gpu(self.gt_bbox),
-            cuda.to_gpu(self.target))
+            cuda.to_gpu(self.expected_enc),
+            cuda.to_gpu(self.raw_bbox),
+            cuda.to_gpu(self.base_raw_bbox))
 
 
 class TestDeltaEncodeDecodeConsistency(unittest.TestCase):
 
     def setUp(self):
-        self.bbox = generate_bbox(8, (32, 64), 4, 16)
-        self.gt_bbox = self.bbox + 1
+        self.raw_bbox = generate_bbox(8, (32, 64), 4, 16)
+        self.base_raw_bbox = self.raw_bbox + 1
 
-    def check_delta_encode_decode_consistency(self, bbox, gt_bbox):
-        target = delta_encode(bbox, gt_bbox)
-        out_bbox = delta_decode(bbox, target)
+    def check_delta_encode_decode_consistency(self, raw_bbox, base_raw_bbox):
+        bbox = delta_encode(raw_bbox, base_raw_bbox)
+        out_raw_bbox = delta_decode(bbox, raw_bbox)
 
         np.testing.assert_almost_equal(
-            cuda.to_cpu(out_bbox), cuda.to_cpu(gt_bbox), decimal=5)
+            cuda.to_cpu(out_raw_bbox), cuda.to_cpu(base_raw_bbox), decimal=5)
 
     def test_delta_encde_decode_consistency_cpu(self):
         self.check_delta_encode_decode_consistency(
-            self.bbox, self.gt_bbox)
+            self.raw_bbox, self.base_raw_bbox)
 
     @attr.gpu
     def test_delta_encode_decode_consistency_gpu(self):
         self.check_delta_encode_decode_consistency(
-            cuda.to_gpu(self.bbox),
-            cuda.to_gpu(self.gt_bbox))
+            cuda.to_gpu(self.raw_bbox),
+            cuda.to_gpu(self.base_raw_bbox))
 
 
 testing.run_module(__name__, __file__)

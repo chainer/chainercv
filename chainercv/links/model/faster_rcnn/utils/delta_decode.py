@@ -1,7 +1,7 @@
 from chainer import cuda
 
 
-def delta_decode(base_raw_bbox, bbox):
+def delta_decode(bbox, base_raw_bbox):
     """Decode bounding boxes from bounding box offsets and scales.
 
     Given bounding box offsets and scales (deltas) computed by
@@ -28,8 +28,9 @@ def delta_decode(base_raw_bbox, bbox):
     The output is same type as the type of the inputs.
 
     Args:
-        base_raw_bbox (array): An array whose shape is :math:`(R, 4)`.
         bbox (array): An array with offsets and scales.
+            Its shape is :math:`(R, 4)`.
+        base_raw_bbox (array): A coordinates of bounding boxes.
             The shapes of :obj:`bbox` and :obj:`gt_bbox` should be same.
 
     Returns:
