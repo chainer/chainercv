@@ -2,7 +2,6 @@ from __future__ import division
 
 import itertools
 import numpy as np
-import six
 
 import chainer
 import chainer.functions as F
@@ -24,10 +23,9 @@ class SSD(chainer.Chain):
 
     Args:
         n_class (int): The number of classes.
-        links (dict of chainer.Link): A dictionary of :class:`chainer.Link`.
-            The links  will added to the chain as child links.
-    Parameters:
-        grids (iterable of int): The sizes of feature maps.
+        extractor: A link which extract feature maps.
+            This link must have :obj:`grid`, :meth:`prepare` and
+            :meth:`__call__`.
         aspect_ratios (iterable of tuple or int): The aspect ratios of
             default bounding boxes for each feature map.
         steps (iterable of float): The step size for each feature map.
@@ -37,7 +35,15 @@ class SSD(chainer.Chain):
             the locations of bounding boxe. The first value is used to
             encode coordinates of the centers. The second value is used to
             encode the sizes of bounding boxes.
-            The default values are 0.1 and 0.2.
+            The default value is :obj:`(0.1, 0.2)`.
+        initialW: An initializer used in
+            :meth:`chainer.links.Convolution2d.__init__`.
+            The default value is :class:`chainer.initializers.GlorotUniform`.
+        initial_bias: An initializer used in
+            :meth:`chainer.links.Convolution2d.__init__`.
+            The default value is :class:`chainer.initializers.Zero`.
+
+    Parameters:
         nms_threshold (float): The threshold value
             for :meth:`chainercv.transfroms.non_maximum_suppression`.
             The default value is 0.45.
@@ -48,53 +54,52 @@ class SSD(chainer.Chain):
             For evaluation, the optimized value is 0.01.
     """
 
-    variance = (0.1, 0.2)
-
-    nms_threshold = 0.45
-    score_threshold = 0.6
-
-    conv_init = {
-        'initialW': initializers.GlorotUniform(),
-        'initial_bias': initializers.Zero(),
-    }
-
-    def __init__(self, n_class, **links):
+    def __init__(
+            self, n_class,
+            extractor,
+            aspect_ratios, steps, sizes,
+            variance=(0.1, 0.2),
+            initialW=initializers.GlorotUniform(),
+            initial_bias=initializers.Zero()):
         self.n_class = n_class
 
         super(SSD, self).__init__(
+            extractor=extractor,
             loc=chainer.ChainList(),
             conf=chainer.ChainList(),
         )
-        for name, link in six.iteritems(links):
-            self.add_link(name, link)
-
-        for ar in self.aspect_ratios:
+        init = {'initialW': initialW, 'initial_bias': initial_bias}
+        for ar in aspect_ratios:
             n = (len(ar) + 1) * 2
-            self.loc.add_link(L.Convolution2D(
-                None, n * 4, 3, pad=1, **self.conv_init))
+            self.loc.add_link(L.Convolution2D(None, n * 4, 3, pad=1, **init))
             self.conf.add_link(L.Convolution2D(
-                None, n * (self.n_class + 1), 3, pad=1, **self.conv_init))
+                None, n * (self.n_class + 1), 3, pad=1, **init))
 
         # the format of default_bbox is (center_x, center_y, width, height)
         self._default_bbox = list()
-        for k in range(len(self.grids)):
-            for v, u in itertools.product(range(self.grids[k]), repeat=2):
-                cx = (u + 0.5) * self.steps[k]
-                cy = (v + 0.5) * self.steps[k]
+        for k, grid in enumerate(extractor.grids):
+            for v, u in itertools.product(range(grid), repeat=2):
+                cx = (u + 0.5) * steps[k]
+                cy = (v + 0.5) * steps[k]
 
-                s = self.sizes[k]
+                s = sizes[k]
                 self._default_bbox.append((cx, cy, s, s))
 
-                s = np.sqrt(self.sizes[k] * self.sizes[k + 1])
+                s = np.sqrt(sizes[k] * sizes[k + 1])
                 self._default_bbox.append((cx, cy, s, s))
 
-                s = self.sizes[k]
-                for ar in self.aspect_ratios[k]:
+                s = sizes[k]
+                for ar in aspect_ratios[k]:
                     self._default_bbox.append(
                         (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
                     self._default_bbox.append(
                         (cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
         self._default_bbox = np.stack(self._default_bbox)
+
+        self.variance = variance
+
+        self.nms_threshold = 0.45
+        self.score_threshold = 0.6
 
     def to_cpu(self):
         super(SSD, self).to_cpu()
@@ -104,21 +109,21 @@ class SSD(chainer.Chain):
         super(SSD, self).to_gpu()
         self._default_bbox = chainer.cuda.to_gpu(self._default_bbox)
 
-    def features(self, x):
-        """Compute feature maps from a batch of images.
+    # def features(self, x):
+    #     """Compute feature maps from a batch of images.
 
-        This is a virtual method.
-        The inheriting class must implement this method.
+    #     This is a virtual method.
+    #     The inheriting class must implement this method.
 
-        Args:
-            x (ndarray): An array holding a batch of images.
-                The images are preprocessed by :meth:`prepare` if needed.
+    #     Args:
+    #         x (ndarray): An array holding a batch of images.
+    #             The images are preprocessed by :meth:`prepare` if needed.
 
-        Returns:
-            list of chainer.Variable:
-            Each variable contains a feature map.
-        """
-        raise NotImplementedError
+    #     Returns:
+    #         list of chainer.Variable:
+    #         Each variable contains a feature map.
+    #     """
+    #     raise NotImplementedError
 
     def _multibox(self, xs):
         ys_loc = list()
@@ -162,24 +167,7 @@ class SSD(chainer.Chain):
                 where :math:`K` is the number of default bounding boxes.
         """
 
-        return self._multibox(self.features(x))
-
-    def prepare(self, img):
-        """Preprocess an image for feature extraction.
-
-        This is a virtual method.
-        The inheriting class must implement this method.
-
-        Args:
-            img (~numpy.ndarray): An image. This is in CHW and BGR format.
-                The range of its value is :math:`[0, 255]`.
-
-        Returns:
-            ~numpy.ndarray:
-            A preprocessed image.
-        """
-
-        return NotImplementedError
+        return self._multibox(self.extractor(x))
 
     def _decode(self, loc, conf):
         xp = self.xp
@@ -257,7 +245,7 @@ class SSD(chainer.Chain):
         sizes = list()
         for img in imgs:
             _, H, W = img.shape
-            img = self.prepare(img.astype(np.float32))
+            img = self.extractor.prepare(img.astype(np.float32))
             prepared_imgs.append(img)
             sizes.append((W, H))
 

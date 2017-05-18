@@ -13,21 +13,30 @@ def _random_array(xp, shape):
         np.random.uniform(-1, 1, size=shape), dtype=np.float32)
 
 
-class DummySSD(SSD):
+class DummyExtractor(chainer.Link):
     grids = (10, 4, 1)
-    aspect_ratios = ((2,), (2, 3), (2,))
-    steps = (0.1, 0.25, 1)
-    sizes = (0.1, 0.25, 1, 1.2)
-
-    def features(self, x):
-        n_sample = x.shape[0]
-        n_dims = (32, 16, 8)
-        return [
-            _random_array(self.xp, (n_sample, n_dim, grid, grid))
-            for grid, n_dim in zip(self.grids, n_dims)]
 
     def prepare(self, img):
         return _random_array(self.xp, (3, 32, 32))
+
+    def __call__(self, x):
+        n_sample = x.shape[0]
+        n_dims = (32, 16, 8)
+        return [
+            chainer.Variable(
+                _random_array(self.xp, (n_sample, n_dim, grid, grid)))
+            for grid, n_dim in zip(self.grids, n_dims)]
+
+
+class DummySSD(SSD):
+
+    def __init__(self, n_class):
+        super(DummySSD, self).__init__(
+            n_class=n_class,
+            extractor=DummyExtractor(),
+            aspect_ratios=((2,), (2, 3), (2,)),
+            steps=(0.1, 0.25, 1),
+            sizes=(0.1, 0.25, 1, 1.2))
 
 
 @testing.parameterize(*testing.product({
@@ -37,9 +46,7 @@ class TestSSD(unittest.TestCase):
 
     def setUp(self):
         self.link = DummySSD(n_class=self.n_class)
-        self.n_bbox = sum(
-            grid * grid * ((len(ar) + 1) * 2)
-            for grid, ar in zip(self.link.grids, self.link.aspect_ratios))
+        self.n_bbox = 10 * 10 * 4 + 4 * 4 * 6 + 1 * 1 * 4
 
     def _check_default_bbox(self):
         self.assertIsInstance(self.link._default_bbox, self.link.xp.ndarray)

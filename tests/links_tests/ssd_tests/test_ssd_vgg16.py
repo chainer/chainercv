@@ -23,6 +23,11 @@ class TestSSD(unittest.TestCase):
             self.link = SSD512(n_class=self.n_class)
             self.n_bbox = 24564
 
+    def test_prepare(self):
+        img = np.random.randint(0, 255, size=(3, 480, 640))
+        img = self.link.extractor.prepare(img)
+        self.assertEqual(img.shape, (3, self.insize, self.insize))
+
     def _check_call(self):
         x = self.link.xp.array(
             np.random.uniform(-1, 1, size=(1, 3, self.insize, self.insize)),
@@ -46,11 +51,6 @@ class TestSSD(unittest.TestCase):
     def test_call_gpu(self):
         self.link.to_gpu()
         self._check_call()
-
-    def test_prepare(self):
-        img = np.random.randint(0, 255, size=(3, 480, 640))
-        img = self.link.prepare(img)
-        self.assertEqual(img.shape, (3, self.insize, self.insize))
 
 
 testing.run_module(__name__, __file__)
