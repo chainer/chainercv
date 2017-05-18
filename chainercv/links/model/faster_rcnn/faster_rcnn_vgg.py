@@ -15,7 +15,7 @@ from chainercv.utils import download
 
 
 urls = {
-    'voc07': 'https://github.com/yuyu2172/git-lfs-playground/releases/'
+    'voc07': 'https://github.com/yuyu2172/share-weights/releases/'
     'download/0.0.1/faster_rcnn_vgg_voc07.npz'
 }
 
