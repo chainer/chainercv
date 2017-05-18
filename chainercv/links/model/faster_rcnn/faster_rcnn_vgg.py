@@ -132,6 +132,8 @@ class FasterRCNNVGG16(FasterRCNNBase):
             chainer.serializers.load_npz(dest_fn, self)
         elif pretrained_model == 'imagenet':
             self._copy_imagenet_pretrained_vgg16()
+        elif pretrained_model:
+            chainer.serializers.load_npz(pretrained_model, self)
 
     def _copy_imagenet_pretrained_vgg16(self):
         pretrained_model = VGG16Layers()
