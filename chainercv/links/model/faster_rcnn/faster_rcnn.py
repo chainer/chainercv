@@ -279,7 +279,7 @@ class FasterRCNNBase(chainer.Chain):
             std = self.xp.tile(self.xp.asarray(self.bbox_normalize_std),
                                self.n_class)
             roi_bbox = (roi_bbox * std + mean).astype(np.float32)
-            raw_bbox = delta_decode(roi_bbox, roi)
+            raw_bbox = delta_decode(roi, roi_bbox)
             # clip bounding box
             raw_bbox[:, slice(0, 4, 2)] = self.xp.clip(
                 raw_bbox[:, slice(0, 4, 2)], 0, W / scale)

@@ -1,13 +1,13 @@
 from chainer import cuda
 
 
-def delta_encode(raw_bbox, base_raw_bbox):
+def delta_encode(raw_bbox_src, raw_bbox_dst):
     """Encodes bounding boxes into deltas of the base bounding boxes.
 
     Given bounding boxes, this function computes offsets and scales (deltas)
-    to match the boxes to the ground truth boxes.
+    to match the boxes to the target boxes.
     Mathematcially, given a bounding box whose center is :math:`p_x, p_y` and
-    size :math:`p_w, p_h` and the ground truth bounding box whose center is
+    size :math:`p_w, p_h` and the target bounding box whose center is
     :math:`g_x, g_y` and size :math:`g_w, g_h`, the deltas
     :math:`t_x, t_y, t_w, t_h` can be computed by the following formulas.
 
@@ -24,30 +24,32 @@ def delta_encode(raw_bbox, base_raw_bbox):
     segmentation. CVPR 2014.
 
     Args:
-        raw_bbox (array): An image coordinate array whose shape is
+        raw_bbox_src (array): An image coordinate array whose shape is
             :math:`(R, 4)`. :math:`R` is the number of bounding boxes.
-        base_raw_bbox (array): An image coordinate array whose shape is
-            :mat:`(R, 4)`.
+            These coordinates are used to compute :math:`p_x, p_y, p_w, p_h`.
+        raw_bbox_dst (array): An image coordinate array whose shape is
+            :math:`(R, 4)`.
+            These coordinates are used to compute :math:`g_x, g_y, g_w, g_h`.
 
     Returns:
         array:
-        Bounding box offsets and scales from :obj:`raw_bbox` \
-        to :obj:`base_raw_bbox`. \
+        Bounding box offsets and scales from :obj:`raw_bbox_src` \
+        to :obj:`raw_bbox_dst`. \
         This has shape :math:`(R, 4)`.
         The second axis contains four values :math:`t_x, t_y, t_w, t_h`.
 
     """
-    xp = cuda.get_array_module(raw_bbox)
+    xp = cuda.get_array_module(raw_bbox_src)
 
-    width = raw_bbox[:, 2] - raw_bbox[:, 0]
-    height = raw_bbox[:, 3] - raw_bbox[:, 1]
-    ctr_x = raw_bbox[:, 0] + 0.5 * width
-    ctr_y = raw_bbox[:, 1] + 0.5 * height
+    width = raw_bbox_src[:, 2] - raw_bbox_src[:, 0]
+    height = raw_bbox_src[:, 3] - raw_bbox_src[:, 1]
+    ctr_x = raw_bbox_src[:, 0] + 0.5 * width
+    ctr_y = raw_bbox_src[:, 1] + 0.5 * height
 
-    base_width = base_raw_bbox[:, 2] - base_raw_bbox[:, 0]
-    base_height = base_raw_bbox[:, 3] - base_raw_bbox[:, 1]
-    base_ctr_x = base_raw_bbox[:, 0] + 0.5 * base_width
-    base_ctr_y = base_raw_bbox[:, 1] + 0.5 * base_height
+    base_width = raw_bbox_dst[:, 2] - raw_bbox_dst[:, 0]
+    base_height = raw_bbox_dst[:, 3] - raw_bbox_dst[:, 1]
+    base_ctr_x = raw_bbox_dst[:, 0] + 0.5 * base_width
+    base_ctr_y = raw_bbox_dst[:, 1] + 0.5 * base_height
 
     dx = (base_ctr_x - ctr_x) / width
     dy = (base_ctr_y - ctr_y) / height

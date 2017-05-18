@@ -1,7 +1,7 @@
 from chainer import cuda
 
 
-def delta_decode(bbox, base_raw_bbox):
+def delta_decode(raw_bbox, bbox):
     """Decode bounding boxes from bounding box offsets and scales.
 
     Given bounding box offsets and scales (deltas) computed by
@@ -28,10 +28,12 @@ def delta_decode(bbox, base_raw_bbox):
     The output is same type as the type of the inputs.
 
     Args:
+        raw_bbox (array): A coordinates of bounding boxes.
+            Its shape is :math:`(R, 4)`. These coordinates are used to
+            compute :math:`p_x, p_y, p_w, p_h`.
         bbox (array): An array with offsets and scales.
-            Its shape is :math:`(R, 4)`.
-        base_raw_bbox (array): A coordinates of bounding boxes.
-            The shapes of :obj:`bbox` and :obj:`gt_bbox` should be same.
+            The shapes of :obj:`raw_bbox` and :obj:`bbox` should be same.
+            This contains values :math:`t_x, t_y, t_w, t_h`.
 
     Returns:
         array:
@@ -40,15 +42,15 @@ def delta_decode(bbox, base_raw_bbox):
     """
     xp = cuda.get_array_module(bbox)
 
-    if base_raw_bbox.shape[0] == 0:
-        return xp.zeros((0, bbox.shape[1]), dtype=bbox.dtype)
+    if raw_bbox.shape[0] == 0:
+        return xp.zeros((0, 4), dtype=bbox.dtype)
 
-    base_raw_bbox = base_raw_bbox.astype(bbox.dtype, copy=False)
+    raw_bbox = raw_bbox.astype(raw_bbox.dtype, copy=False)
 
-    base_width = base_raw_bbox[:, 2] - base_raw_bbox[:, 0]
-    base_height = base_raw_bbox[:, 3] - base_raw_bbox[:, 1]
-    base_ctr_x = base_raw_bbox[:, 0] + 0.5 * base_width
-    base_ctr_y = base_raw_bbox[:, 1] + 0.5 * base_height
+    base_width = raw_bbox[:, 2] - raw_bbox[:, 0]
+    base_height = raw_bbox[:, 3] - raw_bbox[:, 1]
+    base_ctr_x = raw_bbox[:, 0] + 0.5 * base_width
+    base_ctr_y = raw_bbox[:, 1] + 0.5 * base_height
 
     dx = bbox[:, 0::4]
     dy = bbox[:, 1::4]

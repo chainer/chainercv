@@ -93,11 +93,11 @@ class RegionProposalNetwork(chainer.Chain):
             * **rpn_scores**:  Predicted foreground scores for \
                 anchors. Its shape is :math:`(N, 2 A, H, W)`.
             * **rois**: A bounding box array containing coordinates of \
-                proposal boxes.  This is a concatenation of bounding box
+                proposal boxes.  This is a concatenation of bounding box \
                 arrays from multiple images in the batch. \
                 Its shape is :math:`(R', 4)`. Given :math:`R_i` predicted \
                 bounding boxes from the :math:`i` th image, \
-                :math:`R' = \\sum _{i=1} ^ N R_i`. \
+                :math:`R' = \\sum _{i=1} ^ N R_i`.
             * **batch_indices**: An array containing indices of images to \
                 which bounding boxes correspond to. Its shape is :math:`(R',)`.
             * **anchor**: Coordinates of enumerated shifted anchors. \

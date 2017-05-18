@@ -106,7 +106,7 @@ class ProposalCreator(object):
         anchor = cuda.to_cpu(anchor)
 
         # Convert anchors into proposal via bbox transformations.
-        roi = delta_decode(bbox, anchor)
+        roi = delta_decode(anchor, bbox)
 
         # Clip predicted boxes to image.
         roi[:, slice(0, 4, 2)] = np.clip(
