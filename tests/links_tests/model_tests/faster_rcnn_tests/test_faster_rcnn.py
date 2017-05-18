@@ -110,9 +110,9 @@ class TestFasterRCNNBase(unittest.TestCase):
 
         x1 = chainer.Variable(_random_array(xp, (1, 3, 600, 800)))
         y1 = self.link(x1)
-        roi_locs = y1['roi_locs']
+        roi_cls_locs = y1['roi_cls_locs']
         roi_scores = y1['roi_scores']
-        self.assertEqual(roi_locs.shape, (self.n_roi, self.n_class * 4))
+        self.assertEqual(roi_cls_locs.shape, (self.n_roi, self.n_class * 4))
         self.assertEqual(roi_scores.shape, (self.n_roi, self.n_class))
 
     def test_call_cpu(self):

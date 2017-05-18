@@ -12,7 +12,7 @@ from chainercv.visualizations import vis_bbox
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('gpu')
+    parser.add_argument('gpu', type=int)
     parser.add_argument('image')
     args = parser.parse_args()
 

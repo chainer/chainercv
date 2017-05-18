@@ -129,7 +129,7 @@ class FasterRCNNBase(chainer.Chain):
                 target[key] = source[key]
 
     def __call__(self, x, scale=1.,
-                 layers=['rois', 'roi_locs', 'roi_scores'], test=True):
+                 layers=['rois', 'roi_cls_locs', 'roi_scores'], test=True):
         """Computes all the values specified by :obj:`layers`.
 
         Here are list of the names of layers that can be collected.
@@ -141,7 +141,7 @@ class FasterRCNNBase(chainer.Chain):
         * rois: RoIs produced by RPN.
         * batch_indices: Batch indices of RoIs.
         * anchor: Anchors used by RPN.
-        * roi_locs: Bounding box offsets for RoIs.
+        * roi_cls_locs: Bounding box offsets for RoIs.
         * roi_scores: Class predictions for RoIs.
 
         If none of the features need to be collected after RPN,
@@ -188,33 +188,30 @@ class FasterRCNNBase(chainer.Chain):
         if stop_at == 'rpn':
             return activations
 
-        roi_locs, roi_scores = self.head(
+        roi_cls_locs, roi_scores = self.head(
             h, rois, batch_indices, train=not test)
         self._update_if_specified(
             activations,
-            {'roi_locs': roi_locs,
+            {'roi_cls_locs': roi_cls_locs,
              'roi_scores': roi_scores})
         return activations
 
-    def _suppress(self, raw_bbox, raw_prob):
-        # type(raw_bbox) == numpy.ndarray
-        # type(raw_prob) == numpy.ndarray
+    def _suppress(self, raw_cls_bbox, raw_prob):
         bbox = list()
         label = list()
         score = list()
         # skip cls_id = 0 because it is the background class
-        for i in range(1, self.n_class):
-            bbox_cls = raw_bbox[:, i * 4: (i + 1) * 4]
-            prob_cls = raw_prob[:, i]
-            mask = prob_cls > self.score_thresh
-            bbox_cls = bbox_cls[mask]
-            prob_cls = prob_cls[mask]
+        for l in range(1, self.n_class):
+            cls_bbox_l = raw_cls_bbox[:, l * 4: (l + 1) * 4]
+            prob_l = raw_prob[:, l]
+            mask = prob_l > self.score_thresh
+            cls_bbox_l = cls_bbox_l[mask]
+            prob_l = prob_l[mask]
             keep = non_maximum_suppression(
-                bbox_cls, self.nms_thresh, prob_cls)
-
-            bbox.append(bbox_cls[keep])
-            label.append(i * np.ones((len(keep),)))
-            score.append(prob_cls[keep])
+                cls_bbox_l, self.nms_thresh, prob_l)
+            bbox.append(cls_bbox_l[keep])
+            label.append(l * np.ones((len(keep),)))
+            score.append(prob_l[keep])
         bbox = np.concatenate(bbox, axis=0).astype(np.float32)
         label = np.concatenate(label, axis=0).astype(np.int32)
         score = np.concatenate(score, axis=0).astype(np.float32)
@@ -264,10 +261,10 @@ class FasterRCNNBase(chainer.Chain):
             H, W = img_var.shape[2:]
             out = self.__call__(
                 img_var, scale=scale,
-                layers=['rois', 'roi_locs', 'roi_scores'],
+                layers=['rois', 'roi_cls_locs', 'roi_scores'],
                 test=True)
             # We are assuming that batch size is 1.
-            roi_loc = out['roi_locs'].data
+            roi_cls_loc = out['roi_cls_locs'].data
             roi_score = out['roi_scores'].data
             roi = out['rois'] / scale
 
@@ -277,20 +274,23 @@ class FasterRCNNBase(chainer.Chain):
                                 self.n_class)
             std = self.xp.tile(self.xp.asarray(self.loc_normalize_std),
                                self.n_class)
-            roi_loc = (roi_loc * std + mean).astype(np.float32)
-            bbox = loc2bbox(roi, roi_loc)
+            roi_cls_loc = (roi_cls_loc * std + mean).astype(np.float32)
+            roi_cls_loc = roi_cls_loc.reshape(-1, self.n_class, 4)
+            roi = self.xp.broadcast_to(roi[:, None], roi_cls_loc.shape)
+            cls_bbox = loc2bbox(roi.reshape(-1, 4), roi_cls_loc.reshape(-1, 4))
+            cls_bbox = cls_bbox.reshape(-1, self.n_class * 4)
             # clip bounding box
-            bbox[:, slice(0, 4, 2)] = self.xp.clip(
-                bbox[:, slice(0, 4, 2)], 0, W / scale)
-            bbox[:, slice(1, 4, 2)] = self.xp.clip(
-                bbox[:, slice(1, 4, 2)], 0, H / scale)
+            cls_bbox[:, slice(0, 4, 2)] = self.xp.clip(
+                cls_bbox[:, slice(0, 4, 2)], 0, W / scale)
+            cls_bbox[:, slice(1, 4, 2)] = self.xp.clip(
+                cls_bbox[:, slice(1, 4, 2)], 0, H / scale)
 
             prob = F.softmax(roi_score).data
 
-            raw_bbox = cuda.to_cpu(bbox)
+            raw_cls_bbox = cuda.to_cpu(cls_bbox)
             raw_prob = cuda.to_cpu(prob)
 
-            bbox, label, score = self._suppress(raw_bbox, raw_prob)
+            bbox, label, score = self._suppress(raw_cls_bbox, raw_prob)
             bboxes.append(bbox)
             labels.append(label)
             scores.append(score)

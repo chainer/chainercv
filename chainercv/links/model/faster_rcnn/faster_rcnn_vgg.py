@@ -170,7 +170,7 @@ class VGG16RoIPoolingHead(chainer.Chain):
         super(VGG16RoIPoolingHead, self).__init__(
             fc6=L.Linear(25088, 4096, initialW=vgg_initialW),
             fc7=L.Linear(4096, 4096, initialW=vgg_initialW),
-            loc=L.Linear(4096, n_class * 4, initialW=loc_initialW),
+            cls_loc=L.Linear(4096, n_class * 4, initialW=loc_initialW),
             score=L.Linear(4096, n_class, initialW=score_initialW)
         )
         self.roi_size = roi_size
@@ -185,10 +185,9 @@ class VGG16RoIPoolingHead(chainer.Chain):
 
         fc6 = F.dropout(_relu(self.fc6(pool)), train=False)
         fc7 = F.dropout(_relu(self.fc7(fc6)), train=False)
-        roi_locs = self.loc(fc7)
+        roi_cls_locs = self.cls_loc(fc7)
         roi_scores = self.score(fc7)
-
-        return roi_locs, roi_scores
+        return roi_cls_locs, roi_scores
 
 
 class VGG16FeatureExtractor(chainer.Chain):

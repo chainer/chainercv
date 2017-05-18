@@ -44,7 +44,7 @@ class TestFasterRCNNVGG16(unittest.TestCase):
             x,
             layers=['features', 'rpn_locs', 'rpn_scores',
                     'rois', 'batch_indices', 'anchor',
-                    'roi_locs', 'roi_scores'],
+                    'roi_cls_locs', 'roi_scores'],
             test=not self.train
         )
         if self.train:
@@ -78,10 +78,10 @@ class TestFasterRCNNVGG16(unittest.TestCase):
             y['anchor'].shape,
             (self.n_anchor * feat_size[1] * feat_size[0], 4))
 
-        self.assertIsInstance(y['roi_locs'], chainer.Variable)
-        self.assertIsInstance(y['roi_locs'].data, xp.ndarray)
+        self.assertIsInstance(y['roi_cls_locs'], chainer.Variable)
+        self.assertIsInstance(y['roi_cls_locs'].data, xp.ndarray)
         self.assertEqual(
-            y['roi_locs'].shape, (n_roi, self.n_class * 4))
+            y['roi_cls_locs'].shape, (n_roi, self.n_class * 4))
 
         self.assertIsInstance(y['roi_scores'], chainer.Variable)
         self.assertIsInstance(y['roi_scores'].data, xp.ndarray)
