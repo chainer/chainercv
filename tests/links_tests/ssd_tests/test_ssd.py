@@ -107,18 +107,15 @@ class TestSSD(unittest.TestCase):
         bbox, label, score = self.link._suppress(raw_bbox, raw_score)
 
         self.assertIsInstance(bbox, self.link.xp.ndarray)
-        self.assertEqual(bbox.dtype, np.float32)
         self.assertEqual(bbox.ndim, 2)
         self.assertLessEqual(bbox.shape[0], self.n_bbox * self.n_class)
         self.assertEqual(bbox.shape[1], 4)
 
         self.assertIsInstance(label, self.link.xp.ndarray)
-        self.assertEqual(label.dtype, np.int32)
         self.assertEqual(label.ndim, 1)
         self.assertEqual(label.shape[0], bbox.shape[0])
 
         self.assertIsInstance(score, self.link.xp.ndarray)
-        self.assertEqual(score.dtype, np.float32)
         self.assertEqual(score.ndim, 1)
         self.assertEqual(score.shape[0], bbox.shape[0])
 
@@ -143,18 +140,15 @@ class TestSSD(unittest.TestCase):
 
         for bbox, label, score in zip(bboxes, labels, scores):
             self.assertIsInstance(bbox, self.link.xp.ndarray)
-            self.assertEqual(bbox.dtype, np.float32)
             self.assertEqual(bbox.ndim, 2)
             self.assertLessEqual(bbox.shape[0], self.n_bbox * self.n_class)
             self.assertEqual(bbox.shape[1], 4)
 
             self.assertIsInstance(label, self.link.xp.ndarray)
-            self.assertEqual(label.dtype, np.int32)
             self.assertEqual(label.ndim, 1)
             self.assertEqual(label.shape[0], bbox.shape[0])
 
             self.assertIsInstance(score, self.link.xp.ndarray)
-            self.assertEqual(score.dtype, np.float32)
             self.assertEqual(score.ndim, 1)
             self.assertEqual(score.shape[0], bbox.shape[0])
 

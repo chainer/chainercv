@@ -9,6 +9,7 @@ from chainer import initializers
 import chainer.links as L
 
 from chainercv import transforms
+from chainercv import utils
 
 
 class SSD(chainer.Chain):
@@ -109,22 +110,6 @@ class SSD(chainer.Chain):
         super(SSD, self).to_gpu()
         self._default_bbox = chainer.cuda.to_gpu(self._default_bbox)
 
-    # def features(self, x):
-    #     """Compute feature maps from a batch of images.
-
-    #     This is a virtual method.
-    #     The inheriting class must implement this method.
-
-    #     Args:
-    #         x (ndarray): An array holding a batch of images.
-    #             The images are preprocessed by :meth:`prepare` if needed.
-
-    #     Returns:
-    #         list of chainer.Variable:
-    #         Each variable contains a feature map.
-    #     """
-    #     raise NotImplementedError
-
     def _multibox(self, xs):
         ys_loc = list()
         ys_conf = list()
@@ -180,38 +165,37 @@ class SSD(chainer.Chain):
         # convert the format of bbox to (x_min, y_min, x_max, y_max)
         bboxes[:, :, :2] -= bboxes[:, :, 2:] / 2
         bboxes[:, :, 2:] += bboxes[:, :, :2]
-        scores = xp.exp(conf)
-        scores /= scores.sum(axis=2, keepdims=True)
-        return bboxes, scores
+        confs = xp.exp(conf)
+        confs /= confs.sum(axis=2, keepdims=True)
+        return bboxes, confs
 
-    def _suppress(self, raw_bbox, raw_score):
+    def _suppress(self, bbox, conf):
         xp = self.xp
 
-        raw_bbox = chainer.cuda.to_cpu(raw_bbox)
-        raw_score = chainer.cuda.to_cpu(raw_score)
-
-        bbox = list()
+        suppressed_bbox = list()
         label = list()
         score = list()
-        for i in range(1, 1 + self.n_class):
-            mask = raw_score[:, i] >= self.score_threshold
-            bbox_label = raw_bbox[mask]
-            score_label = raw_score[mask, i]
+        for l in range(1, 1 + self.n_class):
+            l_bbox = bbox
+            l_score = conf[:, l]
+
+            mask = l_score >= self.score_threshold
+            l_bbox = l_bbox[mask]
+            l_score = l_score[mask]
 
             if self.nms_threshold is not None:
-                order = score_label.argsort()[::-1]
-                bbox_label, score_label = bbox_label[order], score_label[order]
-                bbox_label, param = transforms.non_maximum_suppression(
-                    bbox_label, self.nms_threshold, return_param=True)
-                score_label = score_label[param['selection']]
+                indices = utils.non_maximum_suppression(
+                    l_bbox, self.nms_threshold, l_score)
+                l_bbox = l_bbox[indices]
+                l_score = l_score[indices]
 
-            bbox.append(bbox_label)
-            label.append((i,) * len(bbox_label))
-            score.append(score_label)
+            suppressed_bbox.append(l_bbox)
+            label.append((l,) * len(l_bbox))
+            score.append(l_score)
 
-        bbox = xp.array(np.vstack(bbox).astype(np.float32))
-        label = xp.array(np.hstack(label).astype(np.int32))
-        score = xp.array(np.hstack(score).astype(np.float32))
+        bbox = xp.vstack(suppressed_bbox)
+        label = xp.hstack(label)
+        score = xp.hstack(score)
 
         return bbox, label, score
 
