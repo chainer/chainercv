@@ -1,14 +1,23 @@
 import collections
 import numpy as np
+import os
 
 import chainer
 import chainer.functions as F
 import chainer.links as L
 from chainer.links import VGG16Layers
+from chainer.dataset.download import get_dataset_directory
 
 from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNNBase
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
+from chainercv.utils import download
+
+
+urls = {
+    'voc07': 'https://github.com/yuyu2172/git-lfs-playground/releases/download/'
+    '0.0.1/faster_rcnn_vgg_voc07.npz'
+}
 
 
 def _relu(x):
@@ -116,7 +125,16 @@ class FasterRCNNVGG16(FasterRCNNBase):
             max_size=max_size
         )
 
-        if pretrained_model == 'imagenet':
+        if pretrained_model in urls:
+            data_root = get_dataset_directory('pfnet/chainercv/models')
+            url = urls[pretrained_model]
+            fn = url.rsplit('/', 1)[-1]
+            dest_fn = os.path.join(data_root, fn)
+            if not os.path.exists(dest_fn):
+                download_file = download.cached_download(url)
+                os.rename(download_file, dest_fn)
+            chainer.serializers.load_npz(dest_fn, self)
+        elif pretrained_model == 'imagenet':
             self._copy_imagenet_pretrained_vgg16()
 
     def _copy_imagenet_pretrained_vgg16(self):
