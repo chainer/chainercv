@@ -2,13 +2,13 @@ from chainer import cuda
 
 
 def delta_encode(raw_bbox, base_raw_bbox):
-    """Encode bounding boxes into offsets and scales.
+    """Encodes bounding boxes into deltas of the base bounding boxes.
 
-    Given a bounding box, this function computes offsets and scaling to match
-    the box to the ground truth box.
-    Mathematcially, given a bounding whose center is :math:`p_x, p_y` and size
-    :math:`p_w, p_h` and the ground truth bounding box whose center is
-    :math:`g_x, g_y` and size :math:`g_w, g_h`, the regression targets
+    Given bounding boxes, this function computes offsets and scales (deltas)
+    to match the boxes to the ground truth boxes.
+    Mathematcially, given a bounding box whose center is :math:`p_x, p_y` and
+    size :math:`p_w, p_h` and the ground truth bounding box whose center is
+    :math:`g_x, g_y` and size :math:`g_w, g_h`, the deltas
     :math:`t_x, t_y, t_w, t_h` can be computed by the following formulas.
 
     * :math:`t_x = \\frac{(g_x - p_x)} {p_w}`

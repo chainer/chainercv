@@ -10,9 +10,9 @@ def delta_decode(bbox, base_raw_bbox):
 
     Given a delta :math:`t_x, t_y, t_w, t_h` and a bounding
     box whose center is :math:`p_x, p_y` and size :math:`p_w, p_h`,
-    the decoded bounding box's center :math:`\\hat{g}_x`, \\hat{g}_y` and size
-    :math:`\\hat{g}_w`, :math:`\\hat{g}_h` are calculated by the following
-    formulas.
+    the decoded bounding box's center :math:`\\hat{g}_x`, :math:`\\hat{g}_y`
+    and size :math:`\\hat{g}_w`, :math:`\\hat{g}_h` are calculated
+    by the following formulas.
 
     * :math:`\\hat{g}_x = p_w t_x + p_x`
     * :math:`\\hat{g}_y = p_h t_y + p_y`

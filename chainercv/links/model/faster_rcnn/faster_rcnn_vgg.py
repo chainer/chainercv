@@ -31,24 +31,24 @@ class FasterRCNNVGG16(FasterRCNNBase):
     """FasterRCNN based on VGG16.
 
     When you specify the path of the pre-trained chainer model serialized as
-    a ``.npz`` file in the constructor, this chain model automatically
+    a :obj:`.npz` file in the constructor, this chain model automatically
     initializes all the parameters with it.
     When a string in prespecified set is provided, a pretrained model is
-    loaded from weights distributed on the internet.
+    loaded from weights distributed on the Internet.
     The list of pretrained models supported are as follows.
 
     * :obj:`voc07`: Loads weights trained with trainval split of \
         PASCAL VOC2007 Detection Dataset.
-    * :obj:`imagenet`: Loads weights trained with ImageNet Classfication
-        task for the feature extractor and head modules.
-        For weights that do not have a corresponding layer in VGG16 network
+    * :obj:`imagenet`: Loads weights trained with ImageNet Classfication \
+        task for the feature extractor and the head modules. \
+        Weights that do not have a corresponding layer in VGG16 network \
         will be randomly initialized.
 
     For descriptions on the interface of this model, please refer to
     :class:`chainercv.links.FasterRCNNBase`.
 
     Args:
-        n_class (int): The number of classes. This counts background.
+        n_class (int): The number of classes. This counts the background.
         pretrained_model (str): the destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
             If this argument is specified as in one of the strings described
@@ -61,12 +61,8 @@ class FasterRCNNVGG16(FasterRCNNBase):
             :func:`predict`.
         score_thresh (float): Threshold value used to discard low
             confidence proposals in :func:`predict`.
-        min_size (int): While preparing an image in :func:`predict`,
-            the length of the shorter edge is scaled to :obj:`min_size`.
-            After that, if the length of the longer edge is longer than
-            :obj:`max_size`, the image is scaled to fit the longer edge
-            to :obj:`max_size`.
-        max_size (int): See the description for :obj:`min_size`.
+        min_size (int): A preprocessing paramter for :func:`prepare`.
+        max_size (int): A preprocessing paramter for :func:`prepare`.
         ratios (list of floats): Anchors with ratios contained in this list
             will be generated. Ratio is the ratio of the height by the width.
         anchor_scales (list of numbers): Values in :obj:`scales` determine area
@@ -174,17 +170,6 @@ class VGG16RoIPoolingHead(chainer.Chain):
         self.spatial_scale = spatial_scale
 
     def __call__(self, x, rois, batch_indices, train=False):
-        """Pool and forward batches of patches.
-
-        Args:
-            x (~chainer.Variable):
-            rois (array)
-            batch_indices (array)
-
-        Returns:
-            list of chainer.Variable, list of chainer.Variable
-
-        """
         batch_indices = batch_indices.astype(np.float32)
         rois = self.xp.concatenate(
             (batch_indices[:, None], rois), axis=1)

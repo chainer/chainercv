@@ -36,7 +36,7 @@ class FasterRCNNBase(chainer.Chain):
 
     """Base class for Faster RCNN.
 
-    This is a base class for Faster RCNN.
+    This is a base class for Faster RCNN [1].
     Faster RCNN constitutes of following three stages:
 
     1. **Feature extraction**: Images are taken and their \
@@ -45,19 +45,22 @@ class FasterRCNNBase(chainer.Chain):
         the previous stage, produce set of RoIs around objects.
     3. **Localization and Classification Heads**: Using features that belong \
         to the proposed RoIs, classify the categories of the objects in the \
-        RoIs and improve localization of the bounding box.
+        RoIs and improve localizations.
 
     Each stage is carried out by one of the callable objects: :obj:`feature`,
     :obj:`rpn` and :obj:`head`.
 
     There are two functions :func:`predict` and :func:`__call__` to conduct
-    detection algorithm.
-    :func:predict` takes images and returns bounding boxes that are converted
-    to image coordinates. This will be useful for the scenario when
+    object detection.
+    :func:`predict` takes images and returns bounding boxes that are converted
+    to image coordinates. This will be useful for a scenario when
     Faster RCNN is treated as a black box function.
-    For users who want to use intermediate outputs, :func:`__call__` is
-    provided. This function outputs intermediate representations produced by
-    the steps described above.
+    :func:`__call__` is provided for a scnerario when intermediate outputs
+    are needed, such as training and debugging.
+
+    .. [1] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
+    Faster R-CNN: Towards Real-Time Object Detection with \
+    Region Proposal Networks. NIPS 2015.
 
     Args:
         feature (callable): A callable object that extracts features from
@@ -65,17 +68,16 @@ class FasterRCNNBase(chainer.Chain):
         rpn (callable): A callable that has same interface as
             :class:`chainercv.links.RegionProposalNetwork`.
         head (callable): A callable that takes features and rois as inputs
-            and returns bounding boxe offsets and class scores as outputs.
-        nms_thresh (float): Threshold value used when calling NMS in
-            :func:`predict`.
+            and returns bounding box deltas and class scores as outputs.
+        n_class (int): The number of classes including the background.
+        mean (numpy.ndarray): A value to be subtracted from an image
+            in :func:`prepare`.
+        nms_thresh (float): Threshold value used when calling non maximum
+            suppression in :func:`predict`.
         score_thresh (float): Threshold value used to discard low
             confidence proposals in :func:`predict`.
-        min_size (int): While preparing an image in :func:`predict`,
-            the length of the shorter edge is scaled to :obj:`min_size`.
-            After that, if the length of the longer edge is longer than
-            :obj:`max_size`, the image is scaled to fit the longer edge
-            to :obj:`max_size`.
-        max_size (int): See the description for :obj:`min_size`.
+        min_size (int): A preprocessing paramter for :func:`prepare`.
+        max_size (int): A preprocessing paramter for :func:`prepare`.
         bbox_normalize_mean (tuple of four floats): Mean values to normalize
             coordinates of bouding boxes.
         bbox_normalize_std (tupler of four floats): Standard deviation of
@@ -129,7 +131,7 @@ class FasterRCNNBase(chainer.Chain):
 
     def __call__(self, x, scale=1.,
                  layers=['rois', 'roi_bboxes', 'roi_scores'], test=True):
-        """Computes all the feature maps specified by :obj:`layers`.
+        """Computes all the values specified by :obj:`layers`.
 
         Here are list of the names of layers that can be collected.
 
@@ -152,16 +154,17 @@ class FasterRCNNBase(chainer.Chain):
         rejected irrespective of their confidence scores.
 
         Args:
-            x (~chainer.Variable): Input variable.
+            x (~chainer.Variable): 4D image variable.
             scale (float): Amount of scaling applied to the raw image
                 in preprocessing.
-            layers (list of str): The list of layer names you want to extract.
+            layers (list of str): The list of the names of the values to be
+                collected.
             test (bool): If :obj:`True`, test time behavior is used.
 
         Returns:
             Dictionary of variables and arrays:
             A directory whose key corresponds to the layer name specified by \
-            arguments.
+            :obj:`layers`.
 
         """
         activations = {key: None for key in layers}
@@ -224,12 +227,12 @@ class FasterRCNNBase(chainer.Chain):
         This method predicts objects for each image.
 
         Args:
-            imgs (iterable of ~numpy.ndarray): Arrays holding images.
+            imgs (iterable of numpy.ndarray): Arrays holding images.
                 All images are in CHW and BGR format
-                and the range of their value is :math:`[0, 255]`.
+                and the range of their values are :math:`[0, 255]`.
 
         Returns:
-           tuple of list:
+           tuple of lists:
            This method returns a tuple of three lists,
            :obj:`(bboxes, labels, scores)`.
 
@@ -297,6 +300,14 @@ class FasterRCNNBase(chainer.Chain):
 
     def prepare(self, img):
         """Preprocess an image for feature extraction.
+
+        The length of the shorter edge is scaled to :obj:`self.min_size`.
+        After that, if the length of the longer edge is longer than
+        :obj:`self.max_size`, the image is scaled to fit the longer edge
+        to :obj:`self.max_size`.
+
+        After resizing, image is subtracted by a mean image value
+        :obj:`self.mean`.
 
         Args:
             img (~numpy.ndarray): An image. This is in CHW and BGR format.

@@ -16,7 +16,7 @@ class RegionProposalNetwork(chainer.Chain):
     """Region Proposal Networks introduced in Faster RCNN.
 
     This is Region Proposal Networks introduced in Faster RCNN [1].
-    This takes features extracted from an image and predicts
+    This takes features extracted from images and predicts
     class agnostic bounding boxes around "objects".
 
     .. [1] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
@@ -24,10 +24,10 @@ class RegionProposalNetwork(chainer.Chain):
     Region Proposal Networks. NIPS 2015.
 
     Args:
-        in_channels (int): Channel size of input.
-        mid_channels (int): Channel size of the intermediate tensor.
+        in_channels (int): The channel size of input.
+        mid_channels (int): The channel size of the intermediate tensor.
         ratios (list of floats): Anchors with ratios contained in this list
-            will be generated. Ratio is the ratio of the height by the width.
+            will be generated. Ratio is the height divided by the width.
         anchor_scales (list of numbers): Values in :obj:`scales` determine area
             of possibly generated anchors. Those areas will be square of an
             element in :obj:`scales` times the original area of the
@@ -93,14 +93,11 @@ class RegionProposalNetwork(chainer.Chain):
             * **rpn_scores**:  Predicted foreground scores for \
                 anchors. Its shape is :math:`(N, 2 A, H, W)`.
             * **rois**: A bounding box array containing coordinates of \
-                proposal boxes.  The bounding box array is a concatenation of\
-                bounding box arrays \
-                from multiple images in the batch. \
+                proposal boxes.  This is a concatenation of bounding box
+                arrays from multiple images in the batch. \
                 Its shape is :math:`(R', 4)`. Given :math:`R_i` predicted \
-                bounding boxes for the :math:`i` th image and size of batch \
-                :math:`N`, :math:`R' = \\sum _{i=1} ^ N R_i`. \
-                Each bouding box is organized by \
-                :obj:`(x_min, y_min, x_max, y_max)` in the second axis. \
+                bounding boxes from the :math:`i` th image, \
+                :math:`R' = \\sum _{i=1} ^ N R_i`. \
             * **batch_indices**: An array containing indices of images to \
                 which bounding boxes correspond to. Its shape is :math:`(R',)`.
             * **anchor**: Coordinates of enumerated shifted anchors. \
