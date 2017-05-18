@@ -1,7 +1,7 @@
 from chainer import cuda
 
 
-def delta_decode(src_bbox, loc):
+def loc2bbox(src_bbox, loc):
     """Decode bounding boxes from bounding box offsets and scales.
 
     Given bounding box offsets and scales (deltas) computed by
@@ -62,7 +62,7 @@ def delta_decode(src_bbox, loc):
     w = xp.exp(dw) * src_width[:, xp.newaxis]
     h = xp.exp(dh) * src_height[:, xp.newaxis]
 
-    dst_bbox = xp.zeros(src_bbox.shape, dtype=src_bbox.dtype)
+    dst_bbox = xp.zeros(loc.shape, dtype=loc.dtype)
     dst_bbox[:, 0::4] = ctr_x - 0.5 * w
     dst_bbox[:, 1::4] = ctr_y - 0.5 * h
     dst_bbox[:, 2::4] = ctr_x + 0.5 * w

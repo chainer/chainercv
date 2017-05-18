@@ -1,7 +1,7 @@
 from chainer import cuda
 
 
-def delta_encode(src_bbox, dst_bbox):
+def bbox2loc(src_bbox, dst_bbox):
     """Encodes bounding boxes into deltas of the base bounding boxes.
 
     Given bounding boxes, this function computes offsets and scales (deltas)
@@ -56,5 +56,5 @@ def delta_encode(src_bbox, dst_bbox):
     dw = xp.log(base_width / width)
     dh = xp.log(base_height / height)
 
-    bbox = xp.vstack((dx, dy, dw, dh)).transpose()
-    return bbox
+    loc = xp.vstack((dx, dy, dw, dh)).transpose()
+    return loc

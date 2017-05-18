@@ -2,7 +2,7 @@ import numpy as np
 
 from chainer import cuda
 
-from chainercv.links.model.faster_rcnn.utils.delta_decode import delta_decode
+from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
 from chainercv.utils.bbox.non_maximum_suppression import \
     non_maximum_suppression
 
@@ -57,7 +57,7 @@ class ProposalCreator(object):
         self.force_cpu_nms = force_cpu_nms
         self.min_size = min_size
 
-    def __call__(self, bbox, score,
+    def __call__(self, loc, score,
                  anchor, img_size, scale=1., train=False):
         """Generate deterministic proposal regions.
 
@@ -74,7 +74,7 @@ class ProposalCreator(object):
             :func:`~chainercv.links.delta_encode`
 
         Args:
-            bbox (array): Predicted regression targets for anchors.
+            loc (array): Predicted offsets and scaling to anchors.
                 Its shape is :math:`(A, 4)`.
             score (array): Predicted foreground probability for anchors.
                 Its shape is :math:`(A,)`.
@@ -100,13 +100,13 @@ class ProposalCreator(object):
         n_pre_nms = self.n_train_pre_nms if train else self.n_test_pre_nms
         n_post_nms = self.n_train_post_nms if train else self.n_test_post_nms
 
-        xp = cuda.get_array_module(bbox)
-        bbox = cuda.to_cpu(bbox)
+        xp = cuda.get_array_module(loc)
+        loc = cuda.to_cpu(loc)
         score = cuda.to_cpu(score)
         anchor = cuda.to_cpu(anchor)
 
         # Convert anchors into proposal via bbox transformations.
-        roi = delta_decode(anchor, bbox)
+        roi = loc2bbox(anchor, loc)
 
         # Clip predicted boxes to image.
         roi[:, slice(0, 4, 2)] = np.clip(

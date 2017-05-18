@@ -42,9 +42,9 @@ class TestFasterRCNNVGG16(unittest.TestCase):
             ).astype(np.float32), volatile=chainer.flag.ON)
         y = self.link(
             x,
-            layers=['features', 'rpn_bboxes', 'rpn_scores',
+            layers=['features', 'rpn_locs', 'rpn_scores',
                     'rois', 'batch_indices', 'anchor',
-                    'roi_bboxes', 'roi_scores'],
+                    'roi_locs', 'roi_scores'],
             test=not self.train
         )
         if self.train:
@@ -58,10 +58,10 @@ class TestFasterRCNNVGG16(unittest.TestCase):
             y['features'].shape,
             (self.B, self.n_conv5_3_channel, feat_size[1], feat_size[0]))
 
-        self.assertIsInstance(y['rpn_bboxes'], chainer.Variable)
-        self.assertIsInstance(y['rpn_bboxes'].data, xp.ndarray)
+        self.assertIsInstance(y['rpn_locs'], chainer.Variable)
+        self.assertIsInstance(y['rpn_locs'].data, xp.ndarray)
         self.assertEqual(
-            y['rpn_bboxes'].shape,
+            y['rpn_locs'].shape,
             (self.B, self.n_anchor * 4, feat_size[1], feat_size[0]))
 
         self.assertIsInstance(y['rpn_scores'], chainer.Variable)
@@ -78,10 +78,10 @@ class TestFasterRCNNVGG16(unittest.TestCase):
             y['anchor'].shape,
             (self.n_anchor * feat_size[1] * feat_size[0], 4))
 
-        self.assertIsInstance(y['roi_bboxes'], chainer.Variable)
-        self.assertIsInstance(y['roi_bboxes'].data, xp.ndarray)
+        self.assertIsInstance(y['roi_locs'], chainer.Variable)
+        self.assertIsInstance(y['roi_locs'].data, xp.ndarray)
         self.assertEqual(
-            y['roi_bboxes'].shape, (n_roi, self.n_class * 4))
+            y['roi_locs'].shape, (n_roi, self.n_class * 4))
 
         self.assertIsInstance(y['roi_scores'], chainer.Variable)
         self.assertIsInstance(y['roi_scores'].data, xp.ndarray)

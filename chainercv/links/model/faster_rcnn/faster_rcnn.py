@@ -25,8 +25,7 @@ import numpy as np
 import chainer
 from chainer import cuda
 import chainer.functions as F
-from chainercv.links.model.faster_rcnn.utils.delta_decode import \
-    delta_decode
+from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
 from chainercv.utils import non_maximum_suppression
 
 from chainercv.transforms.image.resize import resize
@@ -78,10 +77,10 @@ class FasterRCNNBase(chainer.Chain):
             confidence proposals in :func:`predict`.
         min_size (int): A preprocessing paramter for :func:`prepare`.
         max_size (int): A preprocessing paramter for :func:`prepare`.
-        bbox_normalize_mean (tuple of four floats): Mean values to normalize
-            coordinates of bouding boxes.
-        bbox_normalize_std (tupler of four floats): Standard deviation of
-            the coordinates of bounding boxes.
+        loc_normalize_mean (tuple of four floats): Mean values of
+            localization estimates.
+        loc_normalize_std (tupler of four floats): Standard deviation
+            of localization estimates.
 
     """
 
@@ -92,8 +91,8 @@ class FasterRCNNBase(chainer.Chain):
             score_thresh=0.7,
             min_size=600,
             max_size=1000,
-            bbox_normalize_mean=(0., 0., 0., 0.),
-            bbox_normalize_std=(0.1, 0.1, 0.2, 0.2),
+            loc_normalize_mean=(0., 0., 0., 0.),
+            loc_normalize_std=(0.1, 0.1, 0.2, 0.2),
     ):
         super(FasterRCNNBase, self).__init__(
             feature=feature,
@@ -106,8 +105,8 @@ class FasterRCNNBase(chainer.Chain):
         self.score_thresh = score_thresh
         self.min_size = min_size
         self.max_size = max_size
-        self.bbox_normalize_mean = bbox_normalize_mean
-        self.bbox_normalize_std = bbox_normalize_std
+        self.loc_normalize_mean = loc_normalize_mean
+        self.loc_normalize_std = loc_normalize_std
 
     def _decide_when_to_stop(self, layers):
         layers = copy.copy(layers)
@@ -115,7 +114,7 @@ class FasterRCNNBase(chainer.Chain):
             return 'start'
 
         rpn_outs = [
-            'features', 'rpn_bboxes', 'rpn_scores',
+            'features', 'rpn_locs', 'rpn_scores',
             'rois', 'batch_indices', 'anchor']
         for layer in rpn_outs:
             layers.pop(layer, None)
@@ -130,19 +129,19 @@ class FasterRCNNBase(chainer.Chain):
                 target[key] = source[key]
 
     def __call__(self, x, scale=1.,
-                 layers=['rois', 'roi_bboxes', 'roi_scores'], test=True):
+                 layers=['rois', 'roi_locs', 'roi_scores'], test=True):
         """Computes all the values specified by :obj:`layers`.
 
         Here are list of the names of layers that can be collected.
 
         * features: Feature extractor output (e.g. conv5\_3 for VGG16).
-        * rpn_bboxes: Bounding box offsets for each anchor.
+        * rpn_locs: Bounding box offsets for each anchor.
         * rpn_scores: Confidence scores for each anchor to be a foreground \
             anchor.
         * rois: RoIs produced by RPN.
         * batch_indices: Batch indices of RoIs.
         * anchor: Anchors used by RPN.
-        * roi_bboxes: Bounding box offsets for RoIs.
+        * roi_locs: Bounding box offsets for RoIs.
         * roi_scores: Class predictions for RoIs.
 
         If none of the features need to be collected after RPN,
@@ -175,13 +174,13 @@ class FasterRCNNBase(chainer.Chain):
         img_size = x.shape[2:][::-1]
 
         h = self.feature(x, train=not test)
-        rpn_bboxes, rpn_scores, rois, batch_indices, anchor =\
+        rpn_locs, rpn_scores, rois, batch_indices, anchor =\
             self.rpn(h, img_size, scale, train=not test)
 
         self._update_if_specified(
             activations,
             {'features': h,
-             'rpn_bboxes': rpn_bboxes,
+             'rpn_locs': rpn_locs,
              'rpn_scores': rpn_scores,
              'rois': rois,
              'batch_indices': batch_indices,
@@ -189,15 +188,15 @@ class FasterRCNNBase(chainer.Chain):
         if stop_at == 'rpn':
             return activations
 
-        roi_bboxes, roi_scores = self.head(
+        roi_locs, roi_scores = self.head(
             h, rois, batch_indices, train=not test)
         self._update_if_specified(
             activations,
-            {'roi_bboxes': roi_bboxes,
+            {'roi_locs': roi_locs,
              'roi_scores': roi_scores})
         return activations
 
-    def _suppress(self, raw_bbox, prob):
+    def _suppress(self, raw_bbox, raw_prob):
         # type(raw_bbox) == numpy.ndarray
         # type(raw_prob) == numpy.ndarray
         bbox = list()
@@ -206,7 +205,7 @@ class FasterRCNNBase(chainer.Chain):
         # skip cls_id = 0 because it is the background class
         for i in range(1, self.n_class):
             bbox_cls = raw_bbox[:, i * 4: (i + 1) * 4]
-            prob_cls = prob[:, i]
+            prob_cls = raw_prob[:, i]
             mask = prob_cls > self.score_thresh
             bbox_cls = bbox_cls[mask]
             prob_cls = prob_cls[mask]
@@ -265,33 +264,33 @@ class FasterRCNNBase(chainer.Chain):
             H, W = img_var.shape[2:]
             out = self.__call__(
                 img_var, scale=scale,
-                layers=['rois', 'roi_bboxes', 'roi_scores'],
+                layers=['rois', 'roi_locs', 'roi_scores'],
                 test=True)
             # We are assuming that batch size is 1.
-            roi_bbox = out['roi_bboxes'].data
+            roi_loc = out['roi_locs'].data
             roi_score = out['roi_scores'].data
             roi = out['rois'] / scale
 
             # Convert predictions to bounding boxes in image coordinates.
             # Bounding boxes are scaled to the scale of the input images.
-            mean = self.xp.tile(self.xp.asarray(self.bbox_normalize_mean),
+            mean = self.xp.tile(self.xp.asarray(self.loc_normalize_mean),
                                 self.n_class)
-            std = self.xp.tile(self.xp.asarray(self.bbox_normalize_std),
+            std = self.xp.tile(self.xp.asarray(self.loc_normalize_std),
                                self.n_class)
-            roi_bbox = (roi_bbox * std + mean).astype(np.float32)
-            raw_bbox = delta_decode(roi, roi_bbox)
+            roi_loc = (roi_loc * std + mean).astype(np.float32)
+            bbox = loc2bbox(roi, roi_loc)
             # clip bounding box
-            raw_bbox[:, slice(0, 4, 2)] = self.xp.clip(
-                raw_bbox[:, slice(0, 4, 2)], 0, W / scale)
-            raw_bbox[:, slice(1, 4, 2)] = self.xp.clip(
-                raw_bbox[:, slice(1, 4, 2)], 0, H / scale)
+            bbox[:, slice(0, 4, 2)] = self.xp.clip(
+                bbox[:, slice(0, 4, 2)], 0, W / scale)
+            bbox[:, slice(1, 4, 2)] = self.xp.clip(
+                bbox[:, slice(1, 4, 2)], 0, H / scale)
 
             prob = F.softmax(roi_score).data
 
-            raw_bbox = cuda.to_cpu(raw_bbox)
-            prob = cuda.to_cpu(prob)
+            raw_bbox = cuda.to_cpu(bbox)
+            raw_prob = cuda.to_cpu(prob)
 
-            bbox, label, score = self._suppress(raw_bbox, prob)
+            bbox, label, score = self._suppress(raw_bbox, raw_prob)
             bboxes.append(bbox)
             labels.append(label)
             scores.append(score)

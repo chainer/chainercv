@@ -43,10 +43,8 @@ class DummyHead(chainer.Chain):
         self.n_class = n_class
 
     def __call__(self, x, rois, batch_indices, train=False):
-        bbox_tfs = []
-        scores = []
         n_roi = len(rois)
-        bbox_tfs = chainer.Variable(
+        locs = chainer.Variable(
             _random_array(self.xp, (n_roi, self.n_class * 4)))
         # For each bbox, the score for a selected class is
         # overwhelmingly higher than the scores for the other classes.
@@ -56,7 +54,7 @@ class DummyHead(chainer.Chain):
         scores[np.arange(n_roi), score_idx] = 100
         scores = chainer.Variable(scores)
 
-        return bbox_tfs, scores
+        return locs, scores
 
 
 class DummyRegionProposalNetwork(chainer.Chain):
@@ -68,7 +66,7 @@ class DummyRegionProposalNetwork(chainer.Chain):
 
     def __call__(self, x, img_size, scale, train=False):
         B, _, H, W = x.shape
-        rpn_bbox_preds = _random_array(
+        rpn_locs = _random_array(
             self.xp, (B, 4 * self.n_anchor, H, W))
         rpn_cls_scores = _random_array(
             self.xp, (B, 2 * self.n_anchor, H, W))
@@ -77,7 +75,7 @@ class DummyRegionProposalNetwork(chainer.Chain):
         batch_indices = self.xp.zeros((len(rois),), dtype=np.int32)
         anchor = _generate_bbox(
             self.xp, self.n_anchor * H * W, img_size[::-1], 16, min(img_size))
-        return (chainer.Variable(rpn_bbox_preds),
+        return (chainer.Variable(rpn_locs),
                 chainer.Variable(rpn_cls_scores), rois, batch_indices, anchor)
 
 
@@ -112,9 +110,9 @@ class TestFasterRCNNBase(unittest.TestCase):
 
         x1 = chainer.Variable(_random_array(xp, (1, 3, 600, 800)))
         y1 = self.link(x1)
-        roi_bboxes = y1['roi_bboxes']
+        roi_locs = y1['roi_locs']
         roi_scores = y1['roi_scores']
-        self.assertEqual(roi_bboxes.shape, (self.n_roi, self.n_class * 4))
+        self.assertEqual(roi_locs.shape, (self.n_roi, self.n_class * 4))
         self.assertEqual(roi_scores.shape, (self.n_roi, self.n_class))
 
     def test_call_cpu(self):

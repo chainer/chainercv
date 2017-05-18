@@ -82,30 +82,35 @@ class FasterRCNNVGG16(FasterRCNNBase):
                  nms_thresh=0.3, score_thresh=0.7,
                  min_size=600, max_size=1000,
                  ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
+                 vgg_initialW=None, rpn_initialW=None,
+                 loc_initialW=None, score_initialW=None,
                  proposal_creator_params={}
                  ):
-        if pretrained_model:
-            init = chainer.initializers.constant.Zero()
-            vgg_kwargs = {'initialW': init, 'initial_bias': init}
-        else:
-            vgg_kwargs = {}
-        bbox_kwargs = {'initialW': chainer.initializers.Normal(0.001)}
-        score_kwargs = {'initialW': chainer.initializers.Normal(0.01)}
+        if loc_initialW is None:
+            loc_initialW = chainer.initializers.Normal(0.001)
+        if score_initialW is None:
+            score_initialW = chainer.initializers.Normal(0.01)
+        if rpn_initialW is None:
+            rpn_initialW = chainer.initializers.Normal(0.01)
 
-        feature = VGG16FeatureExtractor(vgg_kwargs)
+        if vgg_initialW is None and pretrained_model:
+            vgg_initialW = chainer.initializers.constant.Zero()
+
+        feature = VGG16FeatureExtractor(initialW=vgg_initialW)
         rpn = RegionProposalNetwork(
             512, 512,
             ratios=ratios,
             anchor_scales=anchor_scales,
             feat_stride=self.feat_stride,
+            initialW=rpn_initialW,
             proposal_creator_params=proposal_creator_params,
         )
         head = VGG16RoIPoolingHead(
             n_class,
             roi_size=7, spatial_scale=1. / self.feat_stride,
-            vgg_kwargs=vgg_kwargs,
-            bbox_kwargs=bbox_kwargs,
-            score_kwargs=score_kwargs
+            vgg_initialW=vgg_initialW,
+            loc_initialW=loc_initialW,
+            score_initialW=score_initialW
         )
 
         super(FasterRCNNVGG16, self).__init__(
@@ -161,12 +166,12 @@ class VGG16RoIPoolingHead(chainer.Chain):
     """
 
     def __init__(self, n_class, roi_size, spatial_scale,
-                 vgg_kwargs, bbox_kwargs, score_kwargs):
+                 vgg_initialW=None, loc_initialW=None, score_initialW=None):
         super(VGG16RoIPoolingHead, self).__init__(
-            fc6=L.Linear(25088, 4096, **vgg_kwargs),
-            fc7=L.Linear(4096, 4096, **vgg_kwargs),
-            bbox=L.Linear(4096, n_class * 4, **bbox_kwargs),
-            score=L.Linear(4096, n_class, **score_kwargs),
+            fc6=L.Linear(25088, 4096, initialW=vgg_initialW),
+            fc7=L.Linear(4096, 4096, initialW=vgg_initialW),
+            loc=L.Linear(4096, n_class * 4, initialW=loc_initialW),
+            score=L.Linear(4096, n_class, initialW=score_initialW)
         )
         self.roi_size = roi_size
         self.spatial_scale = spatial_scale
@@ -180,10 +185,10 @@ class VGG16RoIPoolingHead(chainer.Chain):
 
         fc6 = F.dropout(_relu(self.fc6(pool)), train=False)
         fc7 = F.dropout(_relu(self.fc7(fc6)), train=False)
-        roi_bboxes = self.bbox(fc7)
+        roi_locs = self.loc(fc7)
         roi_scores = self.score(fc7)
 
-        return roi_bboxes, roi_scores
+        return roi_locs, roi_scores
 
 
 class VGG16FeatureExtractor(chainer.Chain):
@@ -191,21 +196,21 @@ class VGG16FeatureExtractor(chainer.Chain):
 
     """
 
-    def __init__(self, conv_kwargs={}):
+    def __init__(self, initialW=None):
         super(VGG16FeatureExtractor, self).__init__(
-            conv1_1=L.Convolution2D(3, 64, 3, 1, 1, **conv_kwargs),
-            conv1_2=L.Convolution2D(64, 64, 3, 1, 1, **conv_kwargs),
-            conv2_1=L.Convolution2D(64, 128, 3, 1, 1, **conv_kwargs),
-            conv2_2=L.Convolution2D(128, 128, 3, 1, 1, **conv_kwargs),
-            conv3_1=L.Convolution2D(128, 256, 3, 1, 1, **conv_kwargs),
-            conv3_2=L.Convolution2D(256, 256, 3, 1, 1, **conv_kwargs),
-            conv3_3=L.Convolution2D(256, 256, 3, 1, 1, **conv_kwargs),
-            conv4_1=L.Convolution2D(256, 512, 3, 1, 1, **conv_kwargs),
-            conv4_2=L.Convolution2D(512, 512, 3, 1, 1, **conv_kwargs),
-            conv4_3=L.Convolution2D(512, 512, 3, 1, 1, **conv_kwargs),
-            conv5_1=L.Convolution2D(512, 512, 3, 1, 1, **conv_kwargs),
-            conv5_2=L.Convolution2D(512, 512, 3, 1, 1, **conv_kwargs),
-            conv5_3=L.Convolution2D(512, 512, 3, 1, 1, **conv_kwargs),
+            conv1_1=L.Convolution2D(3, 64, 3, 1, 1, initialW=initialW),
+            conv1_2=L.Convolution2D(64, 64, 3, 1, 1, initialW=initialW),
+            conv2_1=L.Convolution2D(64, 128, 3, 1, 1, initialW=initialW),
+            conv2_2=L.Convolution2D(128, 128, 3, 1, 1, initialW=initialW),
+            conv3_1=L.Convolution2D(128, 256, 3, 1, 1, initialW=initialW),
+            conv3_2=L.Convolution2D(256, 256, 3, 1, 1, initialW=initialW),
+            conv3_3=L.Convolution2D(256, 256, 3, 1, 1, initialW=initialW),
+            conv4_1=L.Convolution2D(256, 512, 3, 1, 1, initialW=initialW),
+            conv4_2=L.Convolution2D(512, 512, 3, 1, 1, initialW=initialW),
+            conv4_3=L.Convolution2D(512, 512, 3, 1, 1, initialW=initialW),
+            conv5_1=L.Convolution2D(512, 512, 3, 1, 1, initialW=initialW),
+            conv5_2=L.Convolution2D(512, 512, 3, 1, 1, initialW=initialW),
+            conv5_3=L.Convolution2D(512, 512, 3, 1, 1, initialW=initialW),
         )
         self.functions = collections.OrderedDict([
             ('conv1_1', [self.conv1_1, _relu]),

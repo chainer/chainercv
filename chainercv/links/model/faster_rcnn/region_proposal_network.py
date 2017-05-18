@@ -34,6 +34,11 @@ class RegionProposalNetwork(chainer.Chain):
             reference window.
         feat_stride (int): Stride size after extracting features from an
             image.
+        initialW (4-D array): Initial weight value. If :obj:`None`` then this
+            function uses Gaussian distribution scaled by 0.1 to
+            initialize weight.
+            May also be a callable that takes :obj:`numpy.ndarray` or
+            :obj:`cupy.ndarray` and edits its value.
         proposal_creator_params (dict): Key valued paramters for
             :obj:`chainercv.links.ProposalCreator`.
 
@@ -45,6 +50,7 @@ class RegionProposalNetwork(chainer.Chain):
     def __init__(
             self, in_channels=512, mid_channels=512, ratios=[0.5, 1, 2],
             anchor_scales=[8, 16, 32], feat_stride=16,
+            initialW=None,
             proposal_creator_params={},
     ):
         self.anchor_base = generate_anchor_base(
@@ -53,14 +59,13 @@ class RegionProposalNetwork(chainer.Chain):
         self.proposal_layer = ProposalCreator(**proposal_creator_params)
 
         n_anchor = self.anchor_base.shape[0]
-        initializer = chainer.initializers.Normal(scale=0.01)
         super(RegionProposalNetwork, self).__init__(
             conv1=L.Convolution2D(
-                in_channels, mid_channels, 3, 1, 1, initialW=initializer),
+                in_channels, mid_channels, 3, 1, 1, initialW=initialW),
             score=L.Convolution2D(
-                mid_channels, 2 * n_anchor, 1, 1, 0, initialW=initializer),
-            bbox=L.Convolution2D(
-                mid_channels, 4 * n_anchor, 1, 1, 0, initialW=initializer)
+                mid_channels, 2 * n_anchor, 1, 1, 0, initialW=initialW),
+            loc=L.Convolution2D(
+                mid_channels, 4 * n_anchor, 1, 1, 0, initialW=initialW)
         )
 
     def __call__(self, x, img_size, scale=1., train=False):
@@ -88,8 +93,8 @@ class RegionProposalNetwork(chainer.Chain):
 
             This is a tuple of five following values.
 
-            * **rpn_bboxes**: Predicted bounding box offsets for anchors. \
-                Its shape is :math:`(N, 4 A, H, W)`.
+            * **rpn_locs**: Predicted bounding box offsets and scales for \
+                anchors. Its shape is :math:`(N, 4 A, H, W)`.
             * **rpn_scores**:  Predicted foreground scores for \
                 anchors. Its shape is :math:`(N, 2 A, H, W)`.
             * **rois**: A bounding box array containing coordinates of \
@@ -109,11 +114,11 @@ class RegionProposalNetwork(chainer.Chain):
         n, c, hh, ww = rpn_scores.shape
         rpn_probs = F.softmax(rpn_scores.reshape(n, 2, -1))
         rpn_probs = rpn_probs.reshape(n, c, hh, ww)
-        rpn_bboxes = self.bbox(h)
+        rpn_locs = self.loc(h)
 
         anchor = _enumerate_shifted_anchor(
             self.xp.array(self.anchor_base), self.feat_stride, ww, hh)
-        rpn_bboxes_reshaped = rpn_bboxes.transpose(
+        rpn_locs_reshaped = rpn_locs.transpose(
             (0, 2, 3, 1)).reshape(n, -1, 4).data
         n_anchor = c // 2
         rpn_fg_probs = rpn_probs[:, n_anchor:].data
@@ -123,7 +128,7 @@ class RegionProposalNetwork(chainer.Chain):
         batch_indices = []
         for i in range(n):
             roi = self.proposal_layer(
-                rpn_bboxes_reshaped[i], rpn_fg_probs[i], anchor, img_size,
+                rpn_locs_reshaped[i], rpn_fg_probs[i], anchor, img_size,
                 scale=scale, train=train)
             batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
             rois.append(roi)
@@ -131,7 +136,7 @@ class RegionProposalNetwork(chainer.Chain):
 
         rois = self.xp.concatenate(rois, axis=0)
         batch_indices = self.xp.concatenate(batch_indices, axis=0)
-        return rpn_bboxes, rpn_scores, rois, batch_indices, anchor
+        return rpn_locs, rpn_scores, rois, batch_indices, anchor
 
 
 def _enumerate_shifted_anchor(anchor_base, feat_stride, width, height):
