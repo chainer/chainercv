@@ -3,10 +3,10 @@ import numpy as np
 import os
 
 import chainer
+from chainer.dataset.download import get_dataset_directory
 import chainer.functions as F
 import chainer.links as L
 from chainer.links import VGG16Layers
-from chainer.dataset.download import get_dataset_directory
 
 from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNNBase
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
@@ -15,8 +15,8 @@ from chainercv.utils import download
 
 
 urls = {
-    'voc07': 'https://github.com/yuyu2172/git-lfs-playground/releases/download/'
-    '0.0.1/faster_rcnn_vgg_voc07.npz'
+    'voc07': 'https://github.com/yuyu2172/git-lfs-playground/releases/'
+    'download/0.0.1/faster_rcnn_vgg_voc07.npz'
 }
 
 
