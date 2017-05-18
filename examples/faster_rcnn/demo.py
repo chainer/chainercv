@@ -3,7 +3,6 @@ import matplotlib.pyplot as plot
 import numpy as np
 
 import chainer
-from chainer import serializers
 
 from chainercv.datasets.pascal_voc import voc_utils
 from chainercv.links import FasterRCNNVGG16
@@ -23,7 +22,6 @@ def main():
         chainer.cuda.get_device(args.gpu).use()
 
     img = utils.read_image(args.image, color=True)
-    bboxes, labels, scores = model.predict(img[np.newaxis])
     bboxes, labels, scores = model.predict(img[np.newaxis])
     bbox, label, score = bboxes[0], labels[0], scores[0]
 
