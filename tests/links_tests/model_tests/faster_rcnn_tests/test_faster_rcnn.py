@@ -158,4 +158,41 @@ class TestFasterRCNNBase(unittest.TestCase):
         self.check_predict()
 
 
+@testing.parameterize(
+    {'in_shape': (3, 100, 100), 'expected_shape': (3, 200, 200)},
+    {'in_shape': (3, 200, 50), 'expected_shape': (3, 400, 100)},
+    {'in_shape': (3, 400, 100), 'expected_shape': (3, 400, 100)},
+    {'in_shape': (3, 300, 600), 'expected_shape': (3, 200, 400)},
+    {'in_shape': (3, 600, 900), 'expected_shape': (3, 200, 300)}
+)
+class TestFasterRCNNPrepare(unittest.TestCase):
+
+    min_size = 200
+    max_size = 400
+
+    def setUp(self):
+        self.link = DummyFasterRCNN(
+            n_anchor=1,
+            feat_stride=16,
+            n_fg_class=21,
+            n_roi=1,
+            min_size=self.min_size,
+            max_size=self.max_size
+        )
+
+    def check_prepare(self):
+        x = _random_array(np, self.in_shape)
+        out = self.link.prepare(x)
+        self.assertIsInstance(out, np.ndarray)
+        self.assertEqual(out.shape, self.expected_shape)
+
+    def test_prepare_cpu(self):
+        self.check_prepare()
+
+    @attr.gpu
+    def test_prepare_gpu(self):
+        self.link.to_gpu()
+        self.check_prepare()
+
+
 testing.run_module(__name__, __file__)
