@@ -4,11 +4,11 @@ from chainer import cuda
 def loc2bbox(src_bbox, loc):
     """Decode bounding boxes from bounding box offsets and scales.
 
-    Given bounding box offsets and scales (deltas) computed by
-    :meth:`delta_encode`, this function decodes the representation to
+    Given bounding box offsets and scales (loc) computed by
+    :meth:`bbox2loc`, this function decodes the representation to
     coordinates in 2D image space.
 
-    Given a delta :math:`t_x, t_y, t_w, t_h` and a bounding
+    Given scales and offsets :math:`t_x, t_y, t_w, t_h` and a bounding
     box whose center is :math:`p_x, p_y` and size :math:`p_w, p_h`,
     the decoded bounding box's center :math:`\\hat{g}_x`, :math:`\\hat{g}_y`
     and size :math:`\\hat{g}_w`, :math:`\\hat{g}_h` are calculated
@@ -37,7 +37,9 @@ def loc2bbox(src_bbox, loc):
 
     Returns:
         array:
-        Decoded bounding box coordinates. Its shape is :math:`(R, 4)`.
+        Decoded bounding box coordinates. Its shape is :math:`(R, 4)`. \
+        The second axis contains four values \
+        :math:`\\hat{g}_x, \\hat{g}_y, \\hat{g}_w, \\hat{g}_h`.
 
     """
     xp = cuda.get_array_module(src_bbox)

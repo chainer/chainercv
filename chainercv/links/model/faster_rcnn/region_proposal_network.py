@@ -34,11 +34,10 @@ class RegionProposalNetwork(chainer.Chain):
             reference window.
         feat_stride (int): Stride size after extracting features from an
             image.
-        initialW (4-D array): Initial weight value. If :obj:`None`` then this
+        initialW (callable): Initial weight value. If :obj:`None` then this
             function uses Gaussian distribution scaled by 0.1 to
             initialize weight.
-            May also be a callable that takes :obj:`numpy.ndarray` or
-            :obj:`cupy.ndarray` and edits its value.
+            May also be a callable that takes an array and edits its values.
         proposal_creator_params (dict): Key valued paramters for
             :obj:`chainercv.links.ProposalCreator`.
 

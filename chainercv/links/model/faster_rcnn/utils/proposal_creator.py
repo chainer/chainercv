@@ -14,6 +14,11 @@ class ProposalCreator(object):
     applying estimated bounding-box offsets
     to a set of regular boxes (called "anchors").
 
+    This class takes parameters to control number of bounding boxes to
+    pass to NMS and keep after NMS.
+    If the paramters are negative, it uses all the bounding boxes supplied
+    or keep all the bounding boxes returned by NMS.
+
     This class is used for Region Proposal Networks introduced in
     Faster RCNN [1].
 
@@ -61,17 +66,14 @@ class ProposalCreator(object):
                  anchor, img_size, scale=1., train=False):
         """Generate deterministic proposal regions.
 
-        The values contained in bounding box delta array :obj:`bbox` are
-        encoded using :func:`chainercv.links.delta_encode`.
-
-        Type of the output is same as the inputs.
+        Inputs :obj:`loc, score, anchor` refer to the same anchor when indexed
+        by the them index.
 
         On notations, :math:`A` is the total number of anchors. This is equal
         to product of height and width of an image and number of
         anchor bases per pixel.
 
-        .. seealso::
-            :func:`~chainercv.links.delta_encode`
+        Type of the output is same as the inputs.
 
         Args:
             loc (array): Predicted offsets and scaling to anchors.

@@ -36,7 +36,7 @@ class FasterRCNNBase(chainer.Chain):
     """Base class for Faster RCNN.
 
     This is a base class for Faster RCNN [1].
-    Faster RCNN constitutes of following three stages:
+    The following three stages constitute Faster RCNN.
 
     1. **Feature extraction**: Images are taken and their \
         feature maps are calculated.
@@ -53,21 +53,23 @@ class FasterRCNNBase(chainer.Chain):
     object detection.
     :func:`predict` takes images and returns bounding boxes that are converted
     to image coordinates. This will be useful for a scenario when
-    Faster RCNN is treated as a black box function.
+    Faster RCNN is treated as a black box function, for instance.
     :func:`__call__` is provided for a scnerario when intermediate outputs
-    are needed, such as training and debugging.
+    are needed, for instance in training and debugging.
 
     .. [1] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
     Faster R-CNN: Towards Real-Time Object Detection with \
     Region Proposal Networks. NIPS 2015.
 
     Args:
-        feature (callable): A callable object that extracts features from
-            images.
+        feature (callable): A callable that takes BCHW image array and option
+            :obj:`train` as arguments, and returns a BCHW feature.
         rpn (callable): A callable that has same interface as
-            :class:`chainercv.links.RegionProposalNetwork`.
-        head (callable): A callable that takes features and rois as inputs
-            and returns bounding box deltas and class scores as outputs.
+            :class:`chainercv.links.RegionProposalNetwork`. Please refer to
+            the documentation found there.
+        head (callable): A callable that takes tuple of BCHW array,
+            RoIs and batch indices for RoIs. This returns class dependent
+            localization paramters and class scores.
         n_class (int): The number of classes including the background.
         mean (numpy.ndarray): A value to be subtracted from an image
             in :func:`prepare`.
@@ -132,17 +134,35 @@ class FasterRCNNBase(chainer.Chain):
                  layers=['rois', 'roi_cls_locs', 'roi_scores'], test=True):
         """Computes all the values specified by :obj:`layers`.
 
-        Here are list of the names of layers that can be collected.
+        Here are notations used.
 
-        * features: Feature extractor output (e.g. conv5\_3 for VGG16).
-        * rpn_locs: Bounding box offsets for each anchor.
-        * rpn_scores: Confidence scores for each anchor to be a foreground \
-            anchor.
-        * rois: RoIs produced by RPN.
-        * batch_indices: Batch indices of RoIs.
-        * anchor: Anchors used by RPN.
-        * roi_cls_locs: Bounding box offsets for RoIs.
-        * roi_scores: Class predictions for RoIs.
+        * :math:`N` is the number of batch size
+        * :math:`H, W` are the height and the width of the features extracted \
+            by :obj:`feature`.
+        * :math:`R'` is the total number of RoIs produced across batches.
+        * :math:`C` is the number of feature channels.
+        * :math:`L` is the number of classes
+        * :math:`A` is the number of anchors per pixel.
+
+        Here are list of the names, types and descriptions of values that can
+        be collected.
+
+        * **features** (*Variable*): Feature extractor output \
+            (e.g. conv5\_3 for VGG16). Its shape is :math:`(N, C, H, W)`.
+        * **rpn_locs** (*Variable*): Bounding box offsets for each anchor. \
+            Its shape is :math:`(N, HWA, 4)`.
+        * **rpn_scores** (*Variable*): Confidence scores for each anchor to \
+            be a foreground anchor. Its shape is :math:`(N, HWA, 2)`.
+        * **rois** (*array*): RoIs produced by RPN. Its shape is \
+            :math:`(R', 4)`.
+        * **batch_indices** (*array*): Batch indices of RoIs. Its shape is \
+            :math:`(R',)`.
+        * **anchor** (*array*): Anchors used by RPN. Its shape is \
+            :math:`(HWA, 4)`.
+        * **roi_cls_locs** (*Variable*): Bounding box offsets for RoIs. \
+            Its shape is :math:`(R', L4)`.
+        * **roi_scores** (*Variable*): Class predictions for RoIs. \
+            Its shape is :math:`(R', L)`.
 
         If none of the features need to be collected after RPN,
         the function returns after finish calling RPN without using the head

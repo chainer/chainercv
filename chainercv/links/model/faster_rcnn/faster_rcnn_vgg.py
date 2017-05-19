@@ -47,6 +47,12 @@ class FasterRCNNVGG16(FasterRCNNBase):
     For descriptions on the interface of this model, please refer to
     :class:`chainercv.links.FasterRCNNBase`.
 
+    :obj:`FasterRCNNVGG16` supports finer control on random initialization of
+    weights by arguments
+    :obj:`vgg_initialW, rpn_initialW, loc_initialW, score_initialW`.
+    It accepts callable that takes an array and edits its values.
+    If :obj:`None` is passed, the default initializer is used.
+
     Args:
         n_class (int): The number of classes. This counts the background.
         pretrained_model (str): the destination of the pre-trained
@@ -69,6 +75,12 @@ class FasterRCNNVGG16(FasterRCNNBase):
             of possibly generated anchors. Those areas will be square of an
             element in :obj:`scales` times the original area of the
             reference window.
+        vgg_initialW (callable): Initializer for the layers corresponding to
+            VGG16 layers.
+        rpn_initialW (callable): Initializer for Region Proposal Network
+            layers.
+        loc_initialW (callable): Initializer for the localization head.
+        score_initialW (callable): Initializer for the score head.
         proposal_creator_params (dict): Key valued paramters for
             :obj:`chainercv.links.ProposalCreator`.
 
