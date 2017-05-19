@@ -11,16 +11,16 @@ from chainercv.links import SSD512
 
 @testing.parameterize(*testing.product({
     'insize': [300, 512],
-    'n_class': [1, 5, 20],
+    'n_fg_class': [1, 5, 20],
 }))
 class TestSSD(unittest.TestCase):
 
     def setUp(self):
         if self.insize == 300:
-            self.link = SSD300(n_class=self.n_class)
+            self.link = SSD300(self.n_fg_class)
             self.n_bbox = 8732
         elif self.insize == 512:
-            self.link = SSD512(n_class=self.n_class)
+            self.link = SSD512(self.n_fg_class)
             self.n_bbox = 24564
 
     def test_prepare(self):
@@ -40,7 +40,7 @@ class TestSSD(unittest.TestCase):
         self.assertEqual(loc.shape, (1, self.n_bbox, 4))
         self.assertIsInstance(conf, chainer.Variable)
         self.assertIsInstance(conf.data, self.link.xp.ndarray)
-        self.assertEqual(conf.shape, (1, self.n_bbox, self.n_class + 1))
+        self.assertEqual(conf.shape, (1, self.n_bbox, self.n_fg_class + 1))
 
     @attr.slow
     def test_call_cpu(self):

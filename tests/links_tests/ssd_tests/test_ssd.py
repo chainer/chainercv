@@ -30,9 +30,9 @@ class DummyExtractor(chainer.Link):
 
 class DummySSD(SSD):
 
-    def __init__(self, n_class):
+    def __init__(self, n_fg_class):
         super(DummySSD, self).__init__(
-            n_class=n_class,
+            n_fg_class,
             extractor=DummyExtractor(),
             aspect_ratios=((2,), (2, 3), (2,)),
             steps=(0.1, 0.25, 1),
@@ -40,12 +40,12 @@ class DummySSD(SSD):
 
 
 @testing.parameterize(*testing.product({
-    'n_class': [1, 5, 20],
+    'n_fg_class': [1, 5, 20],
 }))
 class TestSSD(unittest.TestCase):
 
     def setUp(self):
-        self.link = DummySSD(n_class=self.n_class)
+        self.link = DummySSD(n_fg_class=self.n_fg_class)
         self.n_bbox = 10 * 10 * 4 + 4 * 4 * 6 + 1 * 1 * 4
 
     def _check_default_bbox(self):
@@ -62,14 +62,15 @@ class TestSSD(unittest.TestCase):
 
     def _check_decode(self):
         loc = _random_array(self.link.xp, (1, self.n_bbox, 4))
-        conf = _random_array(self.link.xp, (1, self.n_bbox, self.n_class + 1))
+        conf = _random_array(
+            self.link.xp, (1, self.n_bbox, self.n_fg_class + 1))
 
         bboxes, scores = self.link._decode(loc, conf)
 
         self.assertIsInstance(bboxes, self.link.xp.ndarray)
         self.assertEqual(bboxes.shape, (1, self.n_bbox, 4))
         self.assertIsInstance(scores, self.link.xp.ndarray)
-        self.assertEqual(scores.shape, (1, self.n_bbox, self.n_class + 1))
+        self.assertEqual(scores.shape, (1, self.n_bbox, self.n_fg_class + 1))
 
     def test_decode_cpu(self):
         self._check_decode()
@@ -89,7 +90,7 @@ class TestSSD(unittest.TestCase):
         self.assertEqual(loc.shape, (1, self.n_bbox, 4))
         self.assertIsInstance(conf, chainer.Variable)
         self.assertIsInstance(conf.data, self.link.xp.ndarray)
-        self.assertEqual(conf.shape, (1, self.n_bbox, self.n_class + 1))
+        self.assertEqual(conf.shape, (1, self.n_bbox, self.n_fg_class + 1))
 
     def test_call_cpu(self):
         self._check_call()
@@ -102,13 +103,13 @@ class TestSSD(unittest.TestCase):
     def _check_suppress(self):
         raw_bbox = _random_array(self.link.xp, (self.n_bbox, 4))
         raw_score = _random_array(
-            self.link.xp, (self.n_bbox, self.n_class + 1))
+            self.link.xp, (self.n_bbox, self.n_fg_class + 1))
 
         bbox, label, score = self.link._suppress(raw_bbox, raw_score)
 
         self.assertIsInstance(bbox, self.link.xp.ndarray)
         self.assertEqual(bbox.ndim, 2)
-        self.assertLessEqual(bbox.shape[0], self.n_bbox * self.n_class)
+        self.assertLessEqual(bbox.shape[0], self.n_bbox * self.n_fg_class)
         self.assertEqual(bbox.shape[1], 4)
 
         self.assertIsInstance(label, self.link.xp.ndarray)
@@ -141,7 +142,7 @@ class TestSSD(unittest.TestCase):
         for bbox, label, score in zip(bboxes, labels, scores):
             self.assertIsInstance(bbox, self.link.xp.ndarray)
             self.assertEqual(bbox.ndim, 2)
-            self.assertLessEqual(bbox.shape[0], self.n_bbox * self.n_class)
+            self.assertLessEqual(bbox.shape[0], self.n_bbox * self.n_fg_class)
             self.assertEqual(bbox.shape[1], 4)
 
             self.assertIsInstance(label, self.link.xp.ndarray)

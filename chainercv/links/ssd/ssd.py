@@ -23,7 +23,7 @@ class SSD(chainer.Chain):
     SSD: Single Shot MultiBox Detector. ECCV 2016.
 
     Args:
-        n_class (int): The number of classes.
+        n_fg_class (int): The number of classes excluding the background.
         extractor: A link which extract feature maps.
             This link must have :obj:`grid`, :meth:`prepare` and
             :meth:`__call__`.
@@ -56,13 +56,13 @@ class SSD(chainer.Chain):
     """
 
     def __init__(
-            self, n_class,
+            self, n_fg_class,
             extractor,
             aspect_ratios, steps, sizes,
             variance=(0.1, 0.2),
             initialW=initializers.GlorotUniform(),
             initial_bias=initializers.Zero()):
-        self.n_class = n_class
+        self.n_fg_class = n_fg_class
 
         super(SSD, self).__init__(
             extractor=extractor,
@@ -74,7 +74,7 @@ class SSD(chainer.Chain):
             n = (len(ar) + 1) * 2
             self.loc.add_link(L.Convolution2D(None, n * 4, 3, pad=1, **init))
             self.conf.add_link(L.Convolution2D(
-                None, n * (self.n_class + 1), 3, pad=1, **init))
+                None, n * (self.n_fg_class + 1), 3, pad=1, **init))
 
         # the format of default_bbox is (center_x, center_y, width, height)
         self._default_bbox = list()
@@ -122,7 +122,7 @@ class SSD(chainer.Chain):
             conf = self.conf[i](x)
             conf = F.transpose(conf, (0, 2, 3, 1))
             conf = F.reshape(
-                conf, (conf.shape[0], -1, self.n_class + 1))
+                conf, (conf.shape[0], -1, self.n_fg_class + 1))
             ys_conf.append(conf)
 
         y_loc = F.concat(ys_loc, axis=1)
@@ -175,7 +175,7 @@ class SSD(chainer.Chain):
         bbox = list()
         label = list()
         score = list()
-        for l in range(1, 1 + self.n_class):
+        for l in range(1, 1 + self.n_fg_class):
             bbox_l = raw_bbox
             score_l = raw_score[:, l]
 

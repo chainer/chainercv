@@ -193,9 +193,9 @@ class SSD300(SSD):
     SSD: Single Shot MultiBox Detector. ECCV 2016.
     """
 
-    def __init__(self, n_class):
+    def __init__(self, n_fg_class):
         super(SSD300, self).__init__(
-            n_class,
+            n_fg_class,
             extractor=VGG16Extractor300(),
             aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2,), (2,)),
             steps=[s / 300 for s in (8, 16, 32, 64, 100, 300)],
@@ -215,9 +215,8 @@ class SSD512(SSD):
     SSD: Single Shot MultiBox Detector. ECCV 2016.
     """
 
-    def __init__(self, n_class):
         super(SSD512, self).__init__(
-            n_class,
+            n_fg_class,
             extractor=VGG16Extractor512(),
             aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2, 3), (2,), (2,)),
             steps=[s / 512 for s in (8, 16, 32, 64, 128, 256, 512)],
