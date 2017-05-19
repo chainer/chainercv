@@ -1,8 +1,13 @@
 # Examples of Single Shot Multibox Detector
 
 ## Demo
+Detect objects in an given image. This demo downloads Pascal VOC pretrained model automatically.
 ```
-# Download Pascal VOC pre-trained model.
-$ curl -LO <URL of distributing server>/VGG_VOC0712_SSD_300.npz
-$ ./demo.py VGG_VOC0712_SSD_300.npz [image]
+$ python demo.py [--model ssd300|ssd512] <image>.jpg
+```
+
+## Convert Caffe model
+Convert `*.caffemodel` to `*.npz`. Some layers are renamed to fit ChainerCV. SSD300 and SSD512 are supported.
+```
+$ python caffe2npz <source>.caffemodel <target>.npz
 ```
