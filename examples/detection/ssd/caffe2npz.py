@@ -1,7 +1,6 @@
 import argparse
 import numpy as np
 import re
-import sys
 
 import chainer.links.caffe.caffe_function as caffe
 from chainer import serializers
@@ -44,15 +43,13 @@ def rename(name):
 class SSDCaffeFunction(caffe.CaffeFunction):
 
     def __init__(self, model_path):
-        print(
-            'loading weights from {:s} ... '.format(model_path),
-            file=sys.stderr)
+        print('loading weights from {:s} ... '.format(model_path))
         super(SSDCaffeFunction, self).__init__(model_path)
 
     def add_link(self, name, link):
         new_name = rename(name)
-        print('{:s} -> {:s}'.format(name, new_name), file=sys.stderr)
-        super().add_link(new_name, link)
+        print('{:s} -> {:s}'.format(name, new_name))
+        super(SSDCaffeFunction, self).add_link(new_name, link)
 
     @caffe._layer('Normalize', None)
     def _setup_normarize(self, layer):
