@@ -23,10 +23,10 @@ def _generate_bbox(xp, n, img_size, min_length, max_length):
     return bbox
 
 
-class DummyFeature(chainer.Link):
+class DummyExtractor(chainer.Link):
 
     def __init__(self, feat_stride):
-        super(DummyFeature, self).__init__()
+        super(DummyExtractor, self).__init__()
         self.feat_stride = feat_stride
 
     def __call__(self, x, train=False):
@@ -81,13 +81,17 @@ class DummyRegionProposalNetwork(chainer.Chain):
 
 class DummyFasterRCNN(FasterRCNNBase):
 
-    def __init__(self, n_anchor, feat_stride, n_class, n_roi):
+    def __init__(self, n_anchor, feat_stride, n_fg_class, n_roi,
+                 min_size, max_size
+                 ):
         super(DummyFasterRCNN, self).__init__(
-            DummyFeature(feat_stride),
+            DummyExtractor(feat_stride),
             DummyRegionProposalNetwork(n_anchor, n_roi),
-            DummyHead(n_class),
-            n_class=n_class,
+            DummyHead(n_fg_class + 1),
+            n_fg_class=n_fg_class,
             mean=np.array([[[100]], [[122.5]], [[145]]]),
+            min_size=min_size,
+            max_size=max_size
         )
 
 
@@ -96,24 +100,37 @@ class TestFasterRCNNBase(unittest.TestCase):
     def setUp(self):
         self.n_anchor = 6
         self.feat_stride = 4
-        self.n_class = 4
+        n_fg_class = 4
+        self.n_class = n_fg_class + 1
         self.n_roi = 24
         self.link = DummyFasterRCNN(
             n_anchor=self.n_anchor,
             feat_stride=self.feat_stride,
-            n_class=self.n_class,
-            n_roi=self.n_roi
+            n_fg_class=n_fg_class,
+            n_roi=self.n_roi,
+            min_size=600,
+            max_size=1000,
         )
 
     def check_call(self):
         xp = self.link.xp
 
         x1 = chainer.Variable(_random_array(xp, (1, 3, 600, 800)))
-        y1 = self.link(x1)
-        roi_cls_locs = y1['roi_cls_locs']
-        roi_scores = y1['roi_scores']
+        roi_cls_locs, roi_scores, rois, roi_indices = self.link(x1)
+
+        self.assertIsInstance(roi_cls_locs, chainer.Variable)
+        self.assertIsInstance(roi_cls_locs.data, xp.ndarray)
         self.assertEqual(roi_cls_locs.shape, (self.n_roi, self.n_class * 4))
+
+        self.assertIsInstance(roi_scores, chainer.Variable)
+        self.assertIsInstance(roi_scores.data, xp.ndarray)
         self.assertEqual(roi_scores.shape, (self.n_roi, self.n_class))
+
+        self.assertIsInstance(rois, xp.ndarray)
+        self.assertEqual(rois.shape, (self.n_roi, 4))
+
+        self.assertIsInstance(roi_indices, xp.ndarray)
+        self.assertEqual(roi_indices.shape, (self.n_roi,))
 
     def test_call_cpu(self):
         self.check_call()

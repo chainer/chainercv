@@ -16,6 +16,7 @@ from chainercv.links import FasterRCNNVGG16
 class TestFasterRCNNVGG16(unittest.TestCase):
 
     B = 2
+    n_fg_class = 20
     n_class = 21
     n_anchor = 9
     n_train_post_nms = 12
@@ -28,60 +29,38 @@ class TestFasterRCNNVGG16(unittest.TestCase):
             'n_test_post_nms': self.n_test_post_nms
         }
         self.link = FasterRCNNVGG16(
-            self.n_class, pretrained_model=None,
+            self.n_fg_class, pretrained_model=None,
             proposal_creator_params=proposal_creator_params)
 
     def check_call(self):
         xp = self.link.xp
 
         feat_size = (12, 16)
-        hwa = feat_size[1] * feat_size[0] * self.n_anchor
         x = chainer.Variable(
             xp.random.uniform(
                 low=-1., high=1.,
                 size=(self.B, 3, feat_size[1] * 16, feat_size[0] * 16)
             ).astype(np.float32), volatile=chainer.flag.ON)
-        y = self.link(
-            x,
-            layers=['features', 'rpn_locs', 'rpn_scores',
-                    'rois', 'roi_indices', 'anchor',
-                    'roi_cls_locs', 'roi_scores'],
-            test=not self.train
-        )
+        roi_cls_locs, roi_scores, rois, roi_indices = self.link(
+            x, test=not self.train)
         if self.train:
             n_roi = self.B * self.n_train_post_nms
         else:
             n_roi = self.B * self.n_test_post_nms
 
-        self.assertIsInstance(y['features'], chainer.Variable)
-        self.assertIsInstance(y['features'].data, xp.ndarray)
-        self.assertEqual(
-            y['features'].shape,
-            (self.B, self.n_conv5_3_channel, feat_size[1], feat_size[0]))
+        self.assertIsInstance(roi_cls_locs, chainer.Variable)
+        self.assertIsInstance(roi_cls_locs.data, xp.ndarray)
+        self.assertEqual(roi_cls_locs.shape, (n_roi, self.n_class * 4))
 
-        self.assertIsInstance(y['rpn_locs'], chainer.Variable)
-        self.assertIsInstance(y['rpn_locs'].data, xp.ndarray)
-        self.assertEqual(y['rpn_locs'].shape, (self.B, hwa, 4))
+        self.assertIsInstance(roi_scores, chainer.Variable)
+        self.assertIsInstance(roi_scores.data, xp.ndarray)
+        self.assertEqual(roi_scores.shape, (n_roi, self.n_class))
 
-        self.assertIsInstance(y['rpn_scores'], chainer.Variable)
-        self.assertIsInstance(y['rpn_scores'].data, xp.ndarray)
-        self.assertEqual(y['rpn_scores'].shape, (self.B, hwa, 2))
+        self.assertIsInstance(rois, xp.ndarray)
+        self.assertEqual(rois.shape, (n_roi, 4))
 
-        self.assertIsInstance(y['rois'], xp.ndarray)
-        self.assertEqual(y['rois'].shape, (n_roi, 4))
-
-        self.assertIsInstance(y['anchor'], xp.ndarray)
-        self.assertEqual(y['anchor'].shape, (hwa, 4))
-
-        self.assertIsInstance(y['roi_cls_locs'], chainer.Variable)
-        self.assertIsInstance(y['roi_cls_locs'].data, xp.ndarray)
-        self.assertEqual(
-            y['roi_cls_locs'].shape, (n_roi, self.n_class * 4))
-
-        self.assertIsInstance(y['roi_scores'], chainer.Variable)
-        self.assertIsInstance(y['roi_scores'].data, xp.ndarray)
-        self.assertEqual(
-            y['roi_scores'].shape, (n_roi, self.n_class))
+        self.assertIsInstance(roi_indices, xp.ndarray)
+        self.assertEqual(roi_indices.shape, (n_roi,))
 
     def test_call_cpu(self):
         self.check_call()

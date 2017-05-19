@@ -19,7 +19,6 @@
 
 from __future__ import division
 
-import copy
 import numpy as np
 
 import chainer
@@ -62,7 +61,7 @@ class FasterRCNNBase(chainer.Chain):
     Region Proposal Networks. NIPS 2015.
 
     Args:
-        feature (callable): A callable that takes BCHW image array and option
+        extractor (callable): A callable that takes BCHW image array and option
             :obj:`train` as arguments, and returns a BCHW feature.
         rpn (callable): A callable that has same interface as
             :class:`chainercv.links.RegionProposalNetwork`. Please refer to
@@ -70,7 +69,7 @@ class FasterRCNNBase(chainer.Chain):
         head (callable): A callable that takes tuple of BCHW array,
             RoIs and batch indices for RoIs. This returns class dependent
             localization paramters and class scores.
-        n_class (int): The number of classes including the background.
+        n_fg_class (int): The number of classes excluding the background.
         mean (numpy.ndarray): A value to be subtracted from an image
             in :func:`prepare`.
         nms_thresh (float): Threshold value used when calling non maximum
@@ -87,8 +86,8 @@ class FasterRCNNBase(chainer.Chain):
     """
 
     def __init__(
-            self, feature, rpn, head,
-            n_class, mean,
+            self, extractor, rpn, head,
+            n_fg_class, mean,
             nms_thresh=0.3,
             score_thresh=0.7,
             min_size=600,
@@ -97,11 +96,11 @@ class FasterRCNNBase(chainer.Chain):
             loc_normalize_std=(0.1, 0.1, 0.2, 0.2),
     ):
         super(FasterRCNNBase, self).__init__(
-            feature=feature,
+            extractor=extractor,
             rpn=rpn,
             head=head,
         )
-        self.n_class = n_class
+
         self.mean = mean
         self.nms_thresh = nms_thresh
         self.score_thresh = score_thresh
@@ -110,67 +109,20 @@ class FasterRCNNBase(chainer.Chain):
         self.loc_normalize_mean = loc_normalize_mean
         self.loc_normalize_std = loc_normalize_std
 
-    def _decide_when_to_stop(self, layers):
-        layers = copy.copy(layers)
-        if len(layers) == 0:
-            return 'start'
+        self._n_class = n_fg_class + 1
 
-        rpn_outs = [
-            'features', 'rpn_locs', 'rpn_scores',
-            'rois', 'roi_indices', 'anchor']
-        for layer in rpn_outs:
-            layers.pop(layer, None)
-
-        if len(layers) == 0:
-            return 'rpn'
-        return 'head'
-
-    def _update_if_specified(self, target, source):
-        for key in source.keys():
-            if key in target:
-                target[key] = source[key]
-
-    def __call__(self, x, scale=1.,
-                 layers=['rois', 'roi_cls_locs', 'roi_scores'], test=True):
-        """Computes all the values specified by :obj:`layers`.
-
-        Here are notations used.
-
-        * :math:`N` is the number of batch size
-        * :math:`H, W` are the height and the width of the features extracted \
-            by :obj:`feature`.
-        * :math:`R'` is the total number of RoIs produced across batches.
-        * :math:`C` is the number of feature channels.
-        * :math:`L` is the number of classes
-        * :math:`A` is the number of anchors per pixel.
-
-        Here are list of the names, types and descriptions of values that can
-        be collected.
-
-        * **features** (*Variable*): Feature extractor output \
-            (e.g. conv5\_3 for VGG16). Its shape is :math:`(N, C, H, W)`.
-        * **rpn_locs** (*Variable*): Bounding box offsets for each anchor. \
-            Its shape is :math:`(N, HWA, 4)`.
-        * **rpn_scores** (*Variable*): Confidence scores for each anchor to \
-            be a foreground anchor. Its shape is :math:`(N, HWA, 2)`.
-        * **rois** (*array*): RoIs produced by RPN. Its shape is \
-            :math:`(R', 4)`.
-        * **roi_indices** (*array*): Batch indices of RoIs. Its shape is \
-            :math:`(R',)`.
-        * **anchor** (*array*): Anchors used by RPN. Its shape is \
-            :math:`(HWA, 4)`.
-        * **roi_cls_locs** (*Variable*): Bounding box offsets for RoIs. \
-            Its shape is :math:`(R', L4)`.
-        * **roi_scores** (*Variable*): Class predictions for RoIs. \
-            Its shape is :math:`(R', L)`.
-
-        If none of the features need to be collected after RPN,
-        the function returns after finish calling RPN without using the head
-        of the network.
+    def __call__(self, x, scale=1., test=True):
+        """Forward Faster RCNN.
 
         Scaling paramter :obj:`scale` is used by RPN to determine the
         threshold to select small objects, which are going to be
         rejected irrespective of their confidence scores.
+
+        Here are notations used.
+
+        * :math:`N` is the number of batch size
+        * :math:`R'` is the total number of RoIs produced across batches.
+        * :math:`L` is the number of classes excluding the background.
 
         Args:
             x (~chainer.Variable): 4D image variable.
@@ -181,47 +133,34 @@ class FasterRCNNBase(chainer.Chain):
             test (bool): If :obj:`True`, test time behavior is used.
 
         Returns:
-            Dictionary of variables and arrays:
-            A directory whose key corresponds to the layer name specified by \
-            :obj:`layers`.
+            Variable, Variable, array, array:
+            Returns tuple of four values listed below.
+
+            * **roi_cls_locs**: Bounding box offsets for RoIs. \
+                Its shape is :math:`(R', (L + 1) \\times 4)`.
+            * **roi_scores**: Class predictions for RoIs. \
+                Its shape is :math:`(R', L + 1)`.
+            * **rois**: RoIs produced by RPN. Its shape is \
+                :math:`(R', 4)`.
+            * **roi_indices**: Batch indices of RoIs. Its shape is \
+                :math:`(R',)`.
 
         """
-        activations = {key: None for key in layers}
-        stop_at = self._decide_when_to_stop(activations)
-        if stop_at == 'start':
-            return {}
-
         img_size = x.shape[2:][::-1]
 
-        h = self.feature(x, train=not test)
+        h = self.extractor(x, train=not test)
         rpn_locs, rpn_scores, rois, roi_indices, anchor =\
             self.rpn(h, img_size, scale, train=not test)
-
-        self._update_if_specified(
-            activations,
-            {'features': h,
-             'rpn_locs': rpn_locs,
-             'rpn_scores': rpn_scores,
-             'rois': rois,
-             'roi_indices': roi_indices,
-             'anchor': anchor})
-        if stop_at == 'rpn':
-            return activations
-
         roi_cls_locs, roi_scores = self.head(
             h, rois, roi_indices, train=not test)
-        self._update_if_specified(
-            activations,
-            {'roi_cls_locs': roi_cls_locs,
-             'roi_scores': roi_scores})
-        return activations
+        return roi_cls_locs, roi_scores, rois, roi_indices
 
     def _suppress(self, raw_cls_bbox, raw_prob):
         bbox = list()
         label = list()
         score = list()
         # skip cls_id = 0 because it is the background class
-        for l in range(1, self.n_class):
+        for l in range(1, self._n_class):
             cls_bbox_l = raw_cls_bbox[:, l * 4: (l + 1) * 4]
             prob_l = raw_prob[:, l]
             mask = prob_l > self.score_thresh
@@ -279,26 +218,24 @@ class FasterRCNNBase(chainer.Chain):
             img_var = chainer.Variable(
                 self.xp.asarray(img[None]), volatile=chainer.flag.ON)
             H, W = img_var.shape[2:]
-            out = self.__call__(
-                img_var, scale=scale,
-                layers=['rois', 'roi_cls_locs', 'roi_scores'],
-                test=True)
+            roi_cls_locs, roi_scores, rois, _ = self.__call__(
+                img_var, scale=scale, test=True)
             # We are assuming that batch size is 1.
-            roi_cls_loc = out['roi_cls_locs'].data
-            roi_score = out['roi_scores'].data
-            roi = out['rois'] / scale
+            roi_cls_loc = roi_cls_locs.data
+            roi_score = roi_scores.data
+            roi = rois / scale
 
             # Convert predictions to bounding boxes in image coordinates.
             # Bounding boxes are scaled to the scale of the input images.
             mean = self.xp.tile(self.xp.asarray(self.loc_normalize_mean),
-                                self.n_class)
+                                self._n_class)
             std = self.xp.tile(self.xp.asarray(self.loc_normalize_std),
-                               self.n_class)
+                               self._n_class)
             roi_cls_loc = (roi_cls_loc * std + mean).astype(np.float32)
-            roi_cls_loc = roi_cls_loc.reshape(-1, self.n_class, 4)
+            roi_cls_loc = roi_cls_loc.reshape(-1, self._n_class, 4)
             roi = self.xp.broadcast_to(roi[:, None], roi_cls_loc.shape)
             cls_bbox = loc2bbox(roi.reshape(-1, 4), roi_cls_loc.reshape(-1, 4))
-            cls_bbox = cls_bbox.reshape(-1, self.n_class * 4)
+            cls_bbox = cls_bbox.reshape(-1, self._n_class * 4)
             # clip bounding box
             cls_bbox[:, slice(0, 4, 2)] = self.xp.clip(
                 cls_bbox[:, slice(0, 4, 2)], 0, W / scale)
@@ -340,11 +277,11 @@ class FasterRCNNBase(chainer.Chain):
         _, H, W = img.shape
 
         scale = 1.
-        if min(H, W) < self.min_size:
-            scale = self.min_size / min(H, W)
+
+        scale = self.min_size / min(H, W)
 
         if scale * max(H, W) > self.max_size:
-            scale = max(H, W) * scale / self.max_size
+            scale = self.max_size / max(H, W)
 
         img = resize(img, (int(W * scale), int(H * scale)))
 
