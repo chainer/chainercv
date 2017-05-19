@@ -101,7 +101,7 @@ class FasterRCNNBase(chainer.Chain):
             rpn=rpn,
             head=head,
         )
-
+        self.n_fg_class = n_fg_class
         self.mean = mean
         self.nms_thresh = nms_thresh
         self.score_thresh = score_thresh
@@ -109,8 +109,6 @@ class FasterRCNNBase(chainer.Chain):
         self.max_size = max_size
         self.loc_normalize_mean = loc_normalize_mean
         self.loc_normalize_std = loc_normalize_std
-
-        self._n_class = n_fg_class + 1
 
     def __call__(self, x, scale=1., test=True):
         """Forward Faster RCNN.
@@ -164,7 +162,7 @@ class FasterRCNNBase(chainer.Chain):
         label = list()
         score = list()
         # skip cls_id = 0 because it is the background class
-        for l in range(1, self._n_class):
+        for l in range(1, self.n_fg_class + 1):
             cls_bbox_l = raw_cls_bbox[:, l * 4: (l + 1) * 4]
             prob_l = raw_prob[:, l]
             mask = prob_l > self.score_thresh
@@ -234,14 +232,14 @@ class FasterRCNNBase(chainer.Chain):
             # Convert predictions to bounding boxes in image coordinates.
             # Bounding boxes are scaled to the scale of the input images.
             mean = self.xp.tile(self.xp.asarray(self.loc_normalize_mean),
-                                self._n_class)
+                                self.n_fg_class + 1)
             std = self.xp.tile(self.xp.asarray(self.loc_normalize_std),
-                               self._n_class)
+                               self.n_fg_class + 1)
             roi_cls_loc = (roi_cls_loc * std + mean).astype(np.float32)
-            roi_cls_loc = roi_cls_loc.reshape(-1, self._n_class, 4)
+            roi_cls_loc = roi_cls_loc.reshape(-1, self.n_fg_class + 1, 4)
             roi = self.xp.broadcast_to(roi[:, None], roi_cls_loc.shape)
             cls_bbox = loc2bbox(roi.reshape(-1, 4), roi_cls_loc.reshape(-1, 4))
-            cls_bbox = cls_bbox.reshape(-1, self._n_class * 4)
+            cls_bbox = cls_bbox.reshape(-1, (self.n_fg_class + 1) * 4)
             # clip bounding box
             cls_bbox[:, slice(0, 4, 2)] = self.xp.clip(
                 cls_bbox[:, slice(0, 4, 2)], 0, W / scale)
