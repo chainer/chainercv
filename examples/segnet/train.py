@@ -29,17 +29,18 @@ class_weight = [
     0.6823,
     6.2478,
     7.3614,
-    0.0
 ]
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=-1)
 parser.add_argument('--batchsize', type=int, default=12)
-parser.add_argument('--drop_iter', type=int, default=5000)
+parser.add_argument('--mean_file', type=str, default=None)
+parser.add_argument('--std_file', type=str, default=None)
 args = parser.parse_args()
 
 # Dataset
-train = CamVidDataset(mode='train')
+train = CamVidDataset(mode='train', mean_file=args.mean_file,
+                      std_file=args.std_file)
 
 
 def transform(in_data):
@@ -58,8 +59,8 @@ train_iter = iterators.MultiprocessIterator(train, args.batchsize)
 val_iter = iterators.MultiprocessIterator(val, args.batchsize, False, False)
 
 # Model
-model = segnet_basic.SegNetBasic(out_ch=12)
-model = PixelwiseSoftmaxLossWithWeight(model, 12, 11, class_weight)
+model = segnet_basic.SegNetBasic(out_ch=11)
+model = PixelwiseSoftmaxLossWithWeight(model, 11, 11, class_weight)
 
 # Optimizer
 optimizer = optimizers.MomentumSGD(lr=0.1, momentum=0.9)
@@ -84,11 +85,6 @@ class TestModeEvaluator(extensions.Evaluator):
         ret = super(TestModeEvaluator, self).evaluate()
         model.train = True
         return ret
-
-
-@training.make_extension(trigger=(args.drop_iter, 'iteration'))
-def drop_lr(trainer):
-    trainer.updater.get_optimizer('main').lr *= 0.1
 
 
 report_trigger = (1, 'epoch')
@@ -118,7 +114,6 @@ trainer.extend(extensions.snapshot(
 trainer.extend(extensions.snapshot_object(
     model.predictor, filename='model_iteration-{.updater.iteration}',
     trigger=(1000, 'iteration')))
-trainer.extend(extensions.ProgressBar())
-trainer.extend(drop_lr)
+trainer.extend(extensions.ProgressBar(), trigger=report_trigger)
 
 trainer.run()
