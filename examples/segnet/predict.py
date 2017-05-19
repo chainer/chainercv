@@ -4,9 +4,10 @@ from chainer import cuda
 from chainer.dataset import concat_examples
 import chainer.functions as F
 from chainer import serializers
-
+import numpy as np
 from chainercv.datasets import CamVidDataset
 from chainercv.links.model import SegNetBasic
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=-1)
@@ -23,11 +24,18 @@ if args.gpu >= 0:
 
 test = CamVidDataset(mode='test')
 
-n_positive = [0 for _ in range(len(args.n_class))]
-n_true = [0 for _ in range(len(args.n_class))]
-n_true_positive = [0 for _ in range(len(args.n_class))]
-for i in range(0, len(test), args.batchsize):
+n_positive = [0 for _ in range(args.n_class)]
+n_true = [0 for _ in range(args.n_class)]
+n_true_positive = [0 for _ in range(args.n_class)]
+for i in tqdm(range(0, len(test), args.batchsize)):
     img, lbl = concat_examples(test[i:i + args.batchsize], args.gpu)
     y = F.argmax(F.softmax(model(img)), axis=1)
-    y, t = cuda.to_cpu(y.data), cuda.to_cpu(lbl.data)
-    break
+    y, t = cuda.to_cpu(y.data), cuda.to_cpu(lbl)
+    for cls_i in range(args.n_class):
+        n_positive[cls_i] += np.sum(y == cls_i)
+        n_true[cls_i] += np.sum(t == cls_i)
+        n_true_positive[cls_i] += np.sum((y == cls_i) *  (t == cls_i))
+
+for cls_i in range(args.n_class):
+    iou = n_true_positive[cls_i] / float(n_positive[cls_i] + n_true[cls_i] - n_true_positive[cls_i])
+    print('{} - {}'.format(i, cls_i), iou)

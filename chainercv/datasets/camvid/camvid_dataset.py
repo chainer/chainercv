@@ -38,10 +38,15 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/camvid`.
         mode ({'train', 'val', 'test'}): Select from dataset splits used
             in VOC.
+        mean_file (string): Path to the NPY file of mean image whose shape is
+            ``(3, 360, 480)``.
+        std_file (string): Path to the NPY file of stddev image file whose shape
+            is ``(3, 360, 480)``.
 
     """
 
-    def __init__(self, data_dir='auto', mode='train'):
+    def __init__(self, data_dir='auto', mode='train', mean_file=None,
+                std_file=None):
         if mode not in ['train', 'val', 'test']:
             raise ValueError(
                 'Please pick mode from \'train\', \'val\', \'test\'')
@@ -52,6 +57,10 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
         img_list_fn = osp.join(data_dir, '{}.txt'.format(mode))
         self.fns = [[osp.join(data_dir, fn.replace('/SegNet/CamVid/', ''))
                      for fn in line.split()] for line in open(img_list_fn)]
+
+        self.mean = np.load(mean_file) if mean_file is not None else None
+        self.std= np.load(std_file) if std_file is not None else None
+
 
     def __len__(self):
         return len(self.fns)
@@ -76,5 +85,9 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
             raise IndexError('index is too large')
         image_fn, label_fn = self.fns[i]
         image = read_image(image_fn, color=True)
+        if self.mean is not None:
+            image -= self.mean
+        if self.std is not None:
+            image /= self.std
         label = read_image(label_fn, dtype=np.int32, color=False)[0]
         return image, label
