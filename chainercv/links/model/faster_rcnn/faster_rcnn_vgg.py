@@ -50,9 +50,11 @@ class FasterRCNNVGG16(FasterRCNNBase):
 
     :obj:`FasterRCNNVGG16` supports finer control on random initialization of
     weights by arguments
-    :obj:`vgg_initialW, rpn_initialW, loc_initialW, score_initialW`.
-    It accepts callable that takes an array and edits its values.
-    If :obj:`None` is passed, the default initializer is used.
+    :obj:`vgg_initialW`, :obj:`rpn_initialW`, :obj:`loc_initialW` and
+    :obj:`score_initialW`.
+    It accepts a callable that takes an array and edits its values.
+    If :obj:`None` is passed as an initializer, the default initializer is
+    used.
 
     Args:
         n_fg_class (int): The number of classes excluding the background.

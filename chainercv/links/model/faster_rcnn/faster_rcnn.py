@@ -45,8 +45,8 @@ class FasterRCNNBase(chainer.Chain):
         to the proposed RoIs, classify the categories of the objects in the \
         RoIs and improve localizations.
 
-    Each stage is carried out by one of the callable objects: :obj:`feature`,
-    :obj:`rpn` and :obj:`head`.
+    Each stage is carried out by one of the callable
+    :class:`chainer.Chain` objects :obj:`feature`, :obj:`rpn` and :obj:`head`.
 
     There are two functions :func:`predict` and :func:`__call__` to conduct
     object detection.
@@ -61,14 +61,15 @@ class FasterRCNNBase(chainer.Chain):
     Region Proposal Networks. NIPS 2015.
 
     Args:
-        extractor (callable): A callable that takes BCHW image array and option
-            :obj:`train` as arguments, and returns a BCHW feature.
-        rpn (callable): A callable that has same interface as
+        extractor (callable Chain): A callable that takes BCHW image
+            array and option :obj:`train` as arguments, and returns a BCHW
+            feature.
+        rpn (callable Chain): A callable that has same interface as
             :class:`chainercv.links.RegionProposalNetwork`. Please refer to
             the documentation found there.
-        head (callable): A callable that takes tuple of BCHW array,
-            RoIs and batch indices for RoIs. This returns class dependent
-            localization paramters and class scores.
+        head (callable Chain): A callable that takes tuple of
+            BCHW array, RoIs and batch indices for RoIs. This returns class
+            dependent localization paramters and class scores.
         n_fg_class (int): The number of classes excluding the background.
         mean (numpy.ndarray): A value to be subtracted from an image
             in :func:`prepare`.
@@ -123,6 +124,9 @@ class FasterRCNNBase(chainer.Chain):
         * :math:`N` is the number of batch size
         * :math:`R'` is the total number of RoIs produced across batches.
         * :math:`L` is the number of classes excluding the background.
+
+        Classes are ordered by the background, the first class, ..., and
+        the :math:`L` th class.
 
         Args:
             x (~chainer.Variable): 4D image variable.
@@ -197,7 +201,9 @@ class FasterRCNNBase(chainer.Chain):
                :obj:`(x_min, y_min, x_max, y_max)` \
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
-               Each value indicates the class of the bounding box.
+               Each value indicates the class of the bounding box. \
+               Values are in range :math:`[1, L]`, where :math:`L` is the \
+               number of the foreground classes.
            * **scores** : A list of float arrays of shape :math:`(R,)`. \
                Each value indicates how confident the prediction is.
 
