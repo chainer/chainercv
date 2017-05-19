@@ -46,7 +46,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
             # the ground truth
             vis_bbox(img, gt_bbox, gt_label)
             # the prediction
-            vis_bbox(img, pred_bbox, pred_label, pred_scores)
+            vis_bbox(img, pred_bbox, pred_label, pred_score)
 
     .. note::
         :obj:`gt_bbox` and :obj:`pred_bbox` are float arrays
