@@ -42,7 +42,7 @@ class DummyHead(chainer.Chain):
         super(DummyHead, self).__init__()
         self.n_class = n_class
 
-    def __call__(self, x, rois, batch_indices, train=False):
+    def __call__(self, x, rois, roi_indices, train=False):
         n_roi = len(rois)
         locs = chainer.Variable(
             _random_array(self.xp, (n_roi, self.n_class * 4)))
@@ -72,11 +72,11 @@ class DummyRegionProposalNetwork(chainer.Chain):
             self.xp, (B, 2 * self.n_anchor, H, W))
         rois = _generate_bbox(
             self.xp, self.n_roi, img_size[::-1], 16, min(img_size))
-        batch_indices = self.xp.zeros((len(rois),), dtype=np.int32)
+        roi_indices = self.xp.zeros((len(rois),), dtype=np.int32)
         anchor = _generate_bbox(
             self.xp, self.n_anchor * H * W, img_size[::-1], 16, min(img_size))
         return (chainer.Variable(rpn_locs),
-                chainer.Variable(rpn_cls_scores), rois, batch_indices, anchor)
+                chainer.Variable(rpn_cls_scores), rois, roi_indices, anchor)
 
 
 class DummyFasterRCNN(FasterRCNNBase):

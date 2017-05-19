@@ -102,7 +102,7 @@ class RegionProposalNetwork(chainer.Chain):
                 Its shape is :math:`(R', 4)`. Given :math:`R_i` predicted \
                 bounding boxes from the :math:`i` th image, \
                 :math:`R' = \\sum _{i=1} ^ N R_i`.
-            * **batch_indices**: An array containing indices of images to \
+            * **roi_indices**: An array containing indices of images to \
                 which bounding boxes correspond to. Its shape is :math:`(R',)`.
             * **anchor**: Coordinates of enumerated shifted anchors. \
                 Its shape is :math:`(H W A, 4)`.
@@ -125,18 +125,18 @@ class RegionProposalNetwork(chainer.Chain):
         rpn_scores = rpn_scores.reshape(n, -1, 2)
 
         rois = []
-        batch_indices = []
+        roi_indices = []
         for i in range(n):
             roi = self.proposal_layer(
                 rpn_locs[i].data, rpn_fg_scores[i].data, anchor, img_size,
                 scale=scale, train=train)
             batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
             rois.append(roi)
-            batch_indices.append(batch_index)
+            roi_indices.append(batch_index)
 
         rois = self.xp.concatenate(rois, axis=0)
-        batch_indices = self.xp.concatenate(batch_indices, axis=0)
-        return rpn_locs, rpn_scores, rois, batch_indices, anchor
+        roi_indices = self.xp.concatenate(roi_indices, axis=0)
+        return rpn_locs, rpn_scores, rois, roi_indices, anchor
 
 
 def _enumerate_shifted_anchor(anchor_base, feat_stride, width, height):

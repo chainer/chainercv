@@ -188,10 +188,10 @@ class VGG16RoIPoolingHead(chainer.Chain):
         self.roi_size = roi_size
         self.spatial_scale = spatial_scale
 
-    def __call__(self, x, rois, batch_indices, train=False):
-        batch_indices = batch_indices.astype(np.float32)
+    def __call__(self, x, rois, roi_indices, train=False):
+        roi_indices = roi_indices.astype(np.float32)
         rois = self.xp.concatenate(
-            (batch_indices[:, None], rois), axis=1)
+            (roi_indices[:, None], rois), axis=1)
         pool = F.roi_pooling_2d(
             x, rois, self.roi_size, self.roi_size, self.spatial_scale)
 

@@ -44,7 +44,7 @@ class TestFasterRCNNVGG16(unittest.TestCase):
         y = self.link(
             x,
             layers=['features', 'rpn_locs', 'rpn_scores',
-                    'rois', 'batch_indices', 'anchor',
+                    'rois', 'roi_indices', 'anchor',
                     'roi_cls_locs', 'roi_scores'],
             test=not self.train
         )

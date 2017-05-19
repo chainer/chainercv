@@ -117,7 +117,7 @@ class FasterRCNNBase(chainer.Chain):
 
         rpn_outs = [
             'features', 'rpn_locs', 'rpn_scores',
-            'rois', 'batch_indices', 'anchor']
+            'rois', 'roi_indices', 'anchor']
         for layer in rpn_outs:
             layers.pop(layer, None)
 
@@ -155,7 +155,7 @@ class FasterRCNNBase(chainer.Chain):
             be a foreground anchor. Its shape is :math:`(N, HWA, 2)`.
         * **rois** (*array*): RoIs produced by RPN. Its shape is \
             :math:`(R', 4)`.
-        * **batch_indices** (*array*): Batch indices of RoIs. Its shape is \
+        * **roi_indices** (*array*): Batch indices of RoIs. Its shape is \
             :math:`(R',)`.
         * **anchor** (*array*): Anchors used by RPN. Its shape is \
             :math:`(HWA, 4)`.
@@ -194,7 +194,7 @@ class FasterRCNNBase(chainer.Chain):
         img_size = x.shape[2:][::-1]
 
         h = self.feature(x, train=not test)
-        rpn_locs, rpn_scores, rois, batch_indices, anchor =\
+        rpn_locs, rpn_scores, rois, roi_indices, anchor =\
             self.rpn(h, img_size, scale, train=not test)
 
         self._update_if_specified(
@@ -203,13 +203,13 @@ class FasterRCNNBase(chainer.Chain):
              'rpn_locs': rpn_locs,
              'rpn_scores': rpn_scores,
              'rois': rois,
-             'batch_indices': batch_indices,
+             'roi_indices': roi_indices,
              'anchor': anchor})
         if stop_at == 'rpn':
             return activations
 
         roi_cls_locs, roi_scores = self.head(
-            h, rois, batch_indices, train=not test)
+            h, rois, roi_indices, train=not test)
         self._update_if_specified(
             activations,
             {'roi_cls_locs': roi_cls_locs,
