@@ -39,9 +39,11 @@ class DummySSD(SSD):
             sizes=(0.1, 0.25, 1, 1.2))
 
 
-@testing.parameterize(*testing.product({
-    'n_fg_class': [1, 5, 20],
-}))
+@testing.parameterize(
+    {'n_fg_class': 1},
+    {'n_fg_class': 5},
+    {'n_fg_class': 20},
+)
 class TestSSD(unittest.TestCase):
 
     def setUp(self):
