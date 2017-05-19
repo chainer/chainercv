@@ -12,11 +12,12 @@ from tqdm import tqdm
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=-1)
 parser.add_argument('--snapshot', type=str)
-parser.add_argument('--batchsize', type=int, default=12)
+parser.add_argument('--batchsize', type=int, default=24)
 parser.add_argument('--n_class', type=int, default=11)
+parser.add_argument('--ignore_labels', type=int, nargs='*', default=[11])
 args = parser.parse_args()
 
-model = SegNetBasic(12)
+model = SegNetBasic(args.n_class)
 model.train = False
 serializers.load_npz(args.snapshot, model)
 if args.gpu >= 0:
@@ -32,10 +33,17 @@ for i in tqdm(range(0, len(test), args.batchsize)):
     y = F.argmax(F.softmax(model(img)), axis=1)
     y, t = cuda.to_cpu(y.data), cuda.to_cpu(lbl)
     for cls_i in range(args.n_class):
+        if cls_i in args.ignore_labels:
+            continue
         n_positive[cls_i] += np.sum(y == cls_i)
         n_true[cls_i] += np.sum(t == cls_i)
         n_true_positive[cls_i] += np.sum((y == cls_i) *  (t == cls_i))
 
+ious = []
 for cls_i in range(args.n_class):
+    if cls_i in args.ignore_labels:
+        continue
     iou = n_true_positive[cls_i] / float(n_positive[cls_i] + n_true[cls_i] - n_true_positive[cls_i])
-    print('{} - {}'.format(i, cls_i), iou)
+    ious.append(iou)
+    print('{}:'.format(cls_i), iou)
+print('mean:', np.mean(ious))

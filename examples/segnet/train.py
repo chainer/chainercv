@@ -73,7 +73,7 @@ updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
 
 # Trainer
 trainer = training.Trainer(
-    updater, (1000, 'epoch'),
+    updater, (140000, 'iteration'),
     out='results/{}'.format(time.strftime('%Y-%m-%d_%H-%M-%S')))
 
 
@@ -87,12 +87,12 @@ class TestModeEvaluator(extensions.Evaluator):
         return ret
 
 
-report_trigger = (1, 'epoch')
+report_trigger = (1000, 'iteration')
 trainer.extend(extensions.LogReport(trigger=report_trigger))
 trainer.extend(extensions.observe_lr(), trigger=report_trigger)
 trainer.extend(extensions.dump_graph('main/loss'))
 trainer.extend(TestModeEvaluator(val_iter, model,
-                                 device=args.gpu), trigger=(1, 'epoch'))
+                                 device=args.gpu), trigger=report_trigger)
 trainer.extend(extensions.PrintReport(
     ['epoch', 'iteration', 'main/loss', 'main/mean_iou',
      'main/mean_pixel_accuracy', 'validation/main/loss',
@@ -110,10 +110,10 @@ trainer.extend(extensions.PlotReport(
     x_key='iteration', file_name='mean_pixel_accuracy.png'))
 trainer.extend(extensions.snapshot(
     filename='snapshot_iteration-{.updater.iteration}'),
-    trigger=(1000, 'iteration'))
+    trigger=report_trigger)
 trainer.extend(extensions.snapshot_object(
     model.predictor, filename='model_iteration-{.updater.iteration}',
-    trigger=(1000, 'iteration')))
+    trigger=report_trigger))
 trainer.extend(extensions.ProgressBar(), trigger=report_trigger)
 
 trainer.run()
