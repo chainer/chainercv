@@ -12,6 +12,7 @@ dist/
 .cache/
 check_autopep8
 .sync-config.cson
+.idea/
 
 examples/segnet/results/
 examples/image_retrieval/triplet/result/
