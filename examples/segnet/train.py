@@ -37,8 +37,7 @@ parser.add_argument('--batchsize', type=int, default=12)
 args = parser.parse_args()
 
 # Dataset
-train = CamVidDataset(mode='train', mean_file=args.mean_file,
-                      std_file=args.std_file)
+train = CamVidDataset(mode='train')
 
 
 def transform(in_data):
