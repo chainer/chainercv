@@ -67,7 +67,7 @@ class RegionProposalNetwork(chainer.Chain):
                 mid_channels, n_anchor * 4, 1, 1, 0, initialW=initialW)
         )
 
-    def __call__(self, x, img_size, scale=1., train=False):
+    def __call__(self, x, img_size, scale=1., test=True):
         """Forward Region Proposal Network.
 
         Here are notations.
@@ -129,7 +129,7 @@ class RegionProposalNetwork(chainer.Chain):
         for i in range(n):
             roi = self.proposal_layer(
                 rpn_locs[i].data, rpn_fg_scores[i].data, anchor, img_size,
-                scale=scale, train=train)
+                scale=scale, train=not test)
             batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
             rois.append(roi)
             roi_indices.append(batch_index)

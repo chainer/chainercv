@@ -29,7 +29,7 @@ class DummyExtractor(chainer.Link):
         super(DummyExtractor, self).__init__()
         self.feat_stride = feat_stride
 
-    def __call__(self, x, train=False):
+    def __call__(self, x, test=False):
         _, _, H, W = x.shape
         return _random_array(
             self.xp,
@@ -38,56 +38,56 @@ class DummyExtractor(chainer.Link):
 
 class DummyHead(chainer.Chain):
 
-    def __init__(self, n_class):
+    def __init__(self, n_fg_class):
         super(DummyHead, self).__init__()
-        self.n_class = n_class
+        self.n_fg_class = n_fg_class
 
-    def __call__(self, x, rois, roi_indices, train=False):
+    def __call__(self, x, rois, roi_indices, test=False):
         n_roi = len(rois)
-        locs = chainer.Variable(
-            _random_array(self.xp, (n_roi, self.n_class * 4)))
+        cls_locs = chainer.Variable(
+            _random_array(self.xp, (n_roi, (self.n_fg_class + 1) * 4)))
         # For each bbox, the score for a selected class is
         # overwhelmingly higher than the scores for the other classes.
         score_idx = np.random.randint(
-            low=0, high=self.n_class, size=(n_roi,))
-        scores = self.xp.zeros((n_roi, self.n_class), dtype=np.float32)
+            low=0, high=self.n_fg_class + 1, size=(n_roi,))
+        scores = self.xp.zeros((n_roi, self.n_fg_class + 1), dtype=np.float32)
         scores[np.arange(n_roi), score_idx] = 100
         scores = chainer.Variable(scores)
 
-        return locs, scores
+        return cls_locs, scores
 
 
 class DummyRegionProposalNetwork(chainer.Chain):
 
-    def __init__(self, n_anchor, n_roi):
+    def __init__(self, n_anchor_base, n_roi):
         super(DummyRegionProposalNetwork, self).__init__()
-        self.n_anchor = n_anchor
+        self.n_anchor_base = n_anchor_base
         self.n_roi = n_roi
 
-    def __call__(self, x, img_size, scale, train=False):
+    def __call__(self, x, img_size, scale, test=False):
         B, _, H, W = x.shape
-        rpn_locs = _random_array(
-            self.xp, (B, 4 * self.n_anchor, H, W))
-        rpn_cls_scores = _random_array(
-            self.xp, (B, 2 * self.n_anchor, H, W))
+        n_anchor = self.n_anchor_base * H * W
+
+        rpn_locs = _random_array(self.xp, (B, n_anchor, 4))
+        rpn_cls_scores = _random_array(self.xp, (B, n_anchor))
         rois = _generate_bbox(
             self.xp, self.n_roi, img_size[::-1], 16, min(img_size))
         roi_indices = self.xp.zeros((len(rois),), dtype=np.int32)
         anchor = _generate_bbox(
-            self.xp, self.n_anchor * H * W, img_size[::-1], 16, min(img_size))
+            self.xp, n_anchor, img_size[::-1], 16, min(img_size))
         return (chainer.Variable(rpn_locs),
                 chainer.Variable(rpn_cls_scores), rois, roi_indices, anchor)
 
 
 class DummyFasterRCNN(FasterRCNNBase):
 
-    def __init__(self, n_anchor, feat_stride, n_fg_class, n_roi,
+    def __init__(self, n_anchor_base, feat_stride, n_fg_class, n_roi,
                  min_size, max_size
                  ):
         super(DummyFasterRCNN, self).__init__(
             DummyExtractor(feat_stride),
-            DummyRegionProposalNetwork(n_anchor, n_roi),
-            DummyHead(n_fg_class + 1),
+            DummyRegionProposalNetwork(n_anchor_base, n_roi),
+            DummyHead(n_fg_class),
             n_fg_class=n_fg_class,
             mean=np.array([[[100]], [[122.5]], [[145]]]),
             min_size=min_size,
@@ -98,13 +98,13 @@ class DummyFasterRCNN(FasterRCNNBase):
 class TestFasterRCNNBase(unittest.TestCase):
 
     def setUp(self):
-        self.n_anchor = 6
+        self.n_anchor_base = 6
         self.feat_stride = 4
         n_fg_class = 4
         self.n_class = n_fg_class + 1
         self.n_roi = 24
         self.link = DummyFasterRCNN(
-            n_anchor=self.n_anchor,
+            n_anchor_base=self.n_anchor_base,
             feat_stride=self.feat_stride,
             n_fg_class=n_fg_class,
             n_roi=self.n_roi,
@@ -189,7 +189,7 @@ class TestFasterRCNNPrepare(unittest.TestCase):
 
     def setUp(self):
         self.link = DummyFasterRCNN(
-            n_anchor=1,
+            n_anchor_base=1,
             feat_stride=16,
             n_fg_class=21,
             n_roi=1,

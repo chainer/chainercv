@@ -10,8 +10,8 @@ from chainercv.links import RegionProposalNetwork
 
 
 @testing.parameterize(
-    {'train': True},
-    {'train': False},
+    {'test': True},
+    {'test': False},
 )
 class TestRegionProposalNetwork(unittest.TestCase):
 
@@ -35,10 +35,10 @@ class TestRegionProposalNetwork(unittest.TestCase):
         self.x = np.random.uniform(size=(self.B, C, H, W)).astype(np.float32)
         self.img_size = (W * feat_stride, H * feat_stride)
 
-    def _check_call(self, x, img_size, train):
+    def _check_call(self, x, img_size, test):
         _, _, H, W = x.shape
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.link(
-            chainer.Variable(x), img_size, train=train)
+            chainer.Variable(x), img_size, test=test)
         self.assertIsInstance(rpn_locs, chainer.Variable)
         self.assertIsInstance(rpn_locs.data, type(x))
         self.assertIsInstance(rpn_scores, chainer.Variable)
@@ -48,12 +48,13 @@ class TestRegionProposalNetwork(unittest.TestCase):
         self.assertEqual(rpn_locs.shape, (self.B, H * W * A, 4))
         self.assertEqual(rpn_scores.shape, (self.B, H * W * A, 2))
 
-        if train:
-            roi_size = self.proposal_creator_params[
-                'n_train_post_nms']
-        else:
+        if test:
             roi_size = self.proposal_creator_params[
                 'n_test_post_nms']
+        else:
+            roi_size = self.proposal_creator_params[
+                'n_train_post_nms']
+
         self.assertIsInstance(rois, type(x))
         self.assertIsInstance(roi_indices, type(x))
         self.assertLessEqual(rois.shape[0], self.B * roi_size)
@@ -71,13 +72,13 @@ class TestRegionProposalNetwork(unittest.TestCase):
         self.assertEqual(anchor.shape, (A * H * W, 4))
 
     def test_call_cpu(self):
-        self._check_call(self.x, self.img_size, self.train)
+        self._check_call(self.x, self.img_size, self.test)
 
     @attr.gpu
     def test_call_gpu(self):
         self.link.to_gpu()
         self._check_call(
-            chainer.cuda.to_gpu(self.x), self.img_size, self.train)
+            chainer.cuda.to_gpu(self.x), self.img_size, self.test)
 
 
 testing.run_module(__name__, __file__)

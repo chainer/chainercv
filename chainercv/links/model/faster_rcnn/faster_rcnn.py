@@ -150,11 +150,11 @@ class FasterRCNNBase(chainer.Chain):
         """
         img_size = x.shape[2:][::-1]
 
-        h = self.extractor(x, train=not test)
+        h = self.extractor(x, test=test)
         rpn_locs, rpn_scores, rois, roi_indices, anchor =\
-            self.rpn(h, img_size, scale, train=not test)
+            self.rpn(h, img_size, scale, test=test)
         roi_cls_locs, roi_scores = self.head(
-            h, rois, roi_indices, train=not test)
+            h, rois, roi_indices, test=test)
         return roi_cls_locs, roi_scores, rois, roi_indices
 
     def _suppress(self, raw_cls_bbox, raw_prob):
