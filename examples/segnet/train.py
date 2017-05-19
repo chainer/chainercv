@@ -34,8 +34,6 @@ class_weight = [
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=-1)
 parser.add_argument('--batchsize', type=int, default=12)
-parser.add_argument('--mean_file', type=str, default=None)
-parser.add_argument('--std_file', type=str, default=None)
 args = parser.parse_args()
 
 # Dataset
