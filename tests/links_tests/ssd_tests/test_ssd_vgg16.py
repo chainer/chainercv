@@ -5,6 +5,7 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
+from chainercv.links.ssd import SSD
 from chainercv.links import SSD300
 from chainercv.links import SSD512
 
@@ -13,14 +14,14 @@ from chainercv.links import SSD512
     'insize': [300, 512],
     'n_fg_class': [1, 5, 20],
 }))
-class TestSSD(unittest.TestCase):
+class TestSSDVGG16(unittest.TestCase):
 
     def setUp(self):
         if self.insize == 300:
-            self.link = SSD300(self.n_fg_class)
+            self.link = SSD300(n_fg_class=self.n_fg_class)
             self.n_bbox = 8732
         elif self.insize == 512:
-            self.link = SSD512(self.n_fg_class)
+            self.link = SSD512(n_fg_class=self.n_fg_class)
             self.n_bbox = 24564
 
     def test_prepare(self):
@@ -52,5 +53,34 @@ class TestSSD(unittest.TestCase):
         self.link.to_gpu()
         self._check_call()
 
+
+@testing.parameterize(
+    {'insize': 300},
+    {'insize': 512},
+)
+class TestSSDVGG16Pretrained(unittest.TestCase):
+
+    @attr.slow
+    def test_pretrained(self):
+        if self.insize == 300:
+            link = SSD300(pretrained_model='voc0712')
+        elif self.insize == 512:
+            link = SSD512(pretrained_model='voc0712')
+        self.assertIsInstance(link, SSD)
+
+    @attr.slow
+    def test_pretrained_n_fg_class(self):
+        if self.insize == 300:
+            link = SSD300(n_fg_class=20, pretrained_model='voc0712')
+        elif self.insize == 512:
+            link = SSD512(n_fg_class=20, pretrained_model='voc0712')
+        self.assertIsInstance(link, SSD)
+
+    def test_pretrained_wrong_n_fg_class(self):
+        with self.assertRaises(ValueError):
+            if self.insize == 300:
+                SSD300(n_fg_class=10, pretrained_model='voc0712')
+            elif self.insize == 512:
+                SSD512(n_fg_class=10, pretrained_model='voc0712')
 
 testing.run_module(__name__, __file__)

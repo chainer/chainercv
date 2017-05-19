@@ -1,7 +1,9 @@
 import numpy as np
+import os
 import six
 
 import chainer
+from chainer.dataset.download import get_dataset_directory
 import chainer.functions as F
 from chainer import initializers
 import chainer.links as L
@@ -9,6 +11,7 @@ import chainer.links as L
 from chainercv.links.ssd import Normalize
 from chainercv.links.ssd import SSD
 from chainercv import transforms
+from chainercv.utils import download
 
 
 class VGG16Extractor(chainer.Chain):
@@ -193,13 +196,41 @@ class SSD300(SSD):
     SSD: Single Shot MultiBox Detector. ECCV 2016.
     """
 
-    def __init__(self, n_fg_class):
+    _models = {
+        'voc0712': {
+            'n_fg_class': 20,
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.1/ssd300_voc0712.npz'
+        }
+    }
+
+    def __init__(self, n_fg_class=None, pretrained_model=None):
+        if pretrained_model in self._models:
+            model = self._models[pretrained_model]
+            if n_fg_class and not n_fg_class == model['n_fg_class']:
+                raise ValueError('n_fg_class mismatch')
+            n_fg_class = model['n_fg_class']
+
+            root = get_dataset_directory('pfnet/chainercv/models')
+            basename = os.path.basename(model['url'])
+            path = os.path.join(root, basename)
+            if not os.path.exists(path):
+                download_file = download.cached_download(model['url'])
+                os.rename(download_file, path)
+        elif pretrained_model:
+            path = pretrained_model
+        else:
+            path = None
+
         super(SSD300, self).__init__(
             n_fg_class,
             extractor=VGG16Extractor300(),
             aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2,), (2,)),
             steps=[s / 300 for s in (8, 16, 32, 64, 100, 300)],
             sizes=[s / 300 for s in (30, 60, 111, 162, 213, 264, 315)])
+
+        if path:
+            chainer.serializers.load_npz(path, self)
 
 
 class SSD512(SSD):
@@ -215,6 +246,37 @@ class SSD512(SSD):
     SSD: Single Shot MultiBox Detector. ECCV 2016.
     """
 
+    _models = {
+        'voc0712': {
+            'n_fg_class': 20,
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.1/ssd512_voc0712.npz'
+        }
+    }
+
+    _urls = {
+        'voc0712': 'https://github.com/yuyu2172/share-weights/releases/'
+        'download/0.0.1/ssd300_voc07127.npz'
+    }
+
+    def __init__(self, n_fg_class=None, pretrained_model=None):
+        if pretrained_model in self._models:
+            model = self._models[pretrained_model]
+            if n_fg_class and not n_fg_class == model['n_fg_class']:
+                raise ValueError('n_fg_class mismatch')
+            n_fg_class = model['n_fg_class']
+
+            root = get_dataset_directory('pfnet/chainercv/models')
+            basename = os.path.basename(model['url'])
+            path = os.path.join(root, basename)
+            if not os.path.exists(path):
+                download_file = download.cached_download(model['url'])
+                os.rename(download_file, path)
+        elif pretrained_model:
+            path = pretrained_model
+        else:
+            path = None
+
         super(SSD512, self).__init__(
             n_fg_class,
             extractor=VGG16Extractor512(),
@@ -222,3 +284,6 @@ class SSD512(SSD):
             steps=[s / 512 for s in (8, 16, 32, 64, 128, 256, 512)],
             sizes=[s / 512 for s in
                    (35.84, 76.8, 153.6, 230.4, 307.2, 384.0, 460.8, 537.6)])
+
+        if path:
+            chainer.serializers.load_npz(path, self)
