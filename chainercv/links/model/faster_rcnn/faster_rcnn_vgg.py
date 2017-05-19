@@ -18,6 +18,7 @@ urls = {
     'voc07': 'https://github.com/yuyu2172/share-weights/releases/'
     'download/0.0.1/faster_rcnn_vgg_voc07.npz'
 }
+n_fg_classes = {'voc07': 20}
 
 
 def _relu(x):
@@ -89,7 +90,7 @@ class FasterRCNNVGG16(FasterRCNNBase):
     feat_stride = 16
 
     def __init__(self,
-                 n_fg_class,
+                 n_fg_class=None,
                  pretrained_model='voc07',
                  nms_thresh=0.3, score_thresh=0.7,
                  min_size=600, max_size=1000,
@@ -98,13 +99,18 @@ class FasterRCNNVGG16(FasterRCNNBase):
                  loc_initialW=None, score_initialW=None,
                  proposal_creator_params={}
                  ):
+        if n_fg_class is None:
+            if pretrained_model not in n_fg_classes:
+                raise ValueError(
+                    'The n_fg_class needs to be supplied as an argument')
+            n_fg_class = n_fg_classes[pretrained_model]
+
         if loc_initialW is None:
             loc_initialW = chainer.initializers.Normal(0.001)
         if score_initialW is None:
             score_initialW = chainer.initializers.Normal(0.01)
         if rpn_initialW is None:
             rpn_initialW = chainer.initializers.Normal(0.01)
-
         if vgg_initialW is None and pretrained_model:
             vgg_initialW = chainer.initializers.constant.Zero()
 
