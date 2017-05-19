@@ -165,35 +165,35 @@ class SSD(chainer.Chain):
         # convert the format of bbox to (x_min, y_min, x_max, y_max)
         bboxes[:, :, :2] -= bboxes[:, :, 2:] / 2
         bboxes[:, :, 2:] += bboxes[:, :, :2]
-        confs = xp.exp(conf)
-        confs /= confs.sum(axis=2, keepdims=True)
-        return bboxes, confs
+        scores = xp.exp(conf)
+        scores /= scores.sum(axis=2, keepdims=True)
+        return bboxes, scores
 
-    def _suppress(self, bbox, conf):
+    def _suppress(self, raw_bbox, raw_score):
         xp = self.xp
 
-        suppressed_bbox = list()
+        bbox = list()
         label = list()
         score = list()
         for l in range(1, 1 + self.n_class):
-            l_bbox = bbox
-            l_score = conf[:, l]
+            bbox_l = raw_bbox
+            score_l = raw_score[:, l]
 
-            mask = l_score >= self.score_threshold
-            l_bbox = l_bbox[mask]
-            l_score = l_score[mask]
+            mask = score_l >= self.score_threshold
+            bbox_l = bbox_l[mask]
+            score_l = score_l[mask]
 
             if self.nms_threshold is not None:
                 indices = utils.non_maximum_suppression(
-                    l_bbox, self.nms_threshold, l_score)
-                l_bbox = l_bbox[indices]
-                l_score = l_score[indices]
+                    bbox_l, self.nms_threshold, score_l)
+                bbox_l = bbox_l[indices]
+                score_l = score_l[indices]
 
-            suppressed_bbox.append(l_bbox)
-            label.append((l,) * len(l_bbox))
-            score.append(l_score)
+            bbox.append(bbox_l)
+            label.append((l,) * len(bbox_l))
+            score.append(score_l)
 
-        bbox = xp.vstack(suppressed_bbox)
+        bbox = xp.vstack(bbox)
         label = xp.hstack(label)
         score = xp.hstack(score)
 
