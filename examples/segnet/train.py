@@ -17,23 +17,10 @@ from chainercv.links.model.segnet import segnet_basic
 from chainercv.transforms import random_flip
 
 
-class_weight = [
-    0.2595,
-    0.1826,
-    4.5640,
-    0.1417,
-    0.9051,
-    0.3826,
-    9.6446,
-    1.8418,
-    0.6823,
-    6.2478,
-    7.3614,
-]
-
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=-1)
 parser.add_argument('--batchsize', type=int, default=12)
+parser.add_argument('--class_weight', type=str, default='class_weight.npy')
 args = parser.parse_args()
 
 # Dataset
@@ -56,6 +43,7 @@ train_iter = iterators.MultiprocessIterator(train, args.batchsize)
 val_iter = iterators.MultiprocessIterator(val, args.batchsize, False, False)
 
 # Model
+class_weight = np.load(args.class_weight)[:11]
 model = segnet_basic.SegNetBasic(out_ch=11)
 model = PixelwiseSoftmaxLossWithWeight(model, 11, 11, class_weight)
 
