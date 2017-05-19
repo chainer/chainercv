@@ -35,6 +35,7 @@ class TestFasterRCNNVGG16(unittest.TestCase):
         xp = self.link.xp
 
         feat_size = (12, 16)
+        hwa = feat_size[1] * feat_size[0] * self.n_anchor
         x = chainer.Variable(
             xp.random.uniform(
                 low=-1., high=1.,
@@ -60,23 +61,17 @@ class TestFasterRCNNVGG16(unittest.TestCase):
 
         self.assertIsInstance(y['rpn_locs'], chainer.Variable)
         self.assertIsInstance(y['rpn_locs'].data, xp.ndarray)
-        self.assertEqual(
-            y['rpn_locs'].shape,
-            (self.B, self.n_anchor * 4, feat_size[1], feat_size[0]))
+        self.assertEqual(y['rpn_locs'].shape, (self.B, hwa, 4))
 
         self.assertIsInstance(y['rpn_scores'], chainer.Variable)
         self.assertIsInstance(y['rpn_scores'].data, xp.ndarray)
-        self.assertEqual(
-            y['rpn_scores'].shape,
-            (self.B, self.n_anchor * 2, feat_size[1], feat_size[0]))
+        self.assertEqual(y['rpn_scores'].shape, (self.B, hwa, 2))
 
         self.assertIsInstance(y['rois'], xp.ndarray)
         self.assertEqual(y['rois'].shape, (n_roi, 4))
 
         self.assertIsInstance(y['anchor'], xp.ndarray)
-        self.assertEqual(
-            y['anchor'].shape,
-            (self.n_anchor * feat_size[1] * feat_size[0], 4))
+        self.assertEqual(y['anchor'].shape, (hwa, 4))
 
         self.assertIsInstance(y['roi_cls_locs'], chainer.Variable)
         self.assertIsInstance(y['roi_cls_locs'].data, xp.ndarray)

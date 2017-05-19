@@ -63,9 +63,9 @@ class RegionProposalNetwork(chainer.Chain):
             conv1=L.Convolution2D(
                 in_channels, mid_channels, 3, 1, 1, initialW=initialW),
             score=L.Convolution2D(
-                mid_channels, 2 * n_anchor, 1, 1, 0, initialW=initialW),
+                mid_channels, n_anchor * 2, 1, 1, 0, initialW=initialW),
             loc=L.Convolution2D(
-                mid_channels, 4 * n_anchor, 1, 1, 0, initialW=initialW)
+                mid_channels, n_anchor * 4, 1, 1, 0, initialW=initialW)
         )
 
     def __call__(self, x, img_size, scale=1., train=False):
@@ -94,9 +94,9 @@ class RegionProposalNetwork(chainer.Chain):
             This is a tuple of five following values.
 
             * **rpn_locs**: Predicted bounding box offsets and scales for \
-                anchors. Its shape is :math:`(N, 4 A, H, W)`.
+                anchors. Its shape is :math:`(N, H W A, 4)`.
             * **rpn_scores**:  Predicted foreground scores for \
-                anchors. Its shape is :math:`(N, 2 A, H, W)`.
+                anchors. Its shape is :math:`(N, H W A, 2)`.
             * **rois**: A bounding box array containing coordinates of \
                 proposal boxes.  This is a concatenation of bounding box \
                 arrays from multiple images in the batch. \
@@ -109,26 +109,27 @@ class RegionProposalNetwork(chainer.Chain):
                 Its shape is :math:`(H W A, 4)`.
 
         """
-        h = F.relu(self.conv1(x))
-        rpn_scores = self.score(h)
-        n, c, hh, ww = rpn_scores.shape
-        rpn_probs = F.softmax(rpn_scores.reshape(n, 2, -1))
-        rpn_probs = rpn_probs.reshape(n, c, hh, ww)
-        rpn_locs = self.loc(h)
-
+        n, _, hh, ww = x.shape
         anchor = _enumerate_shifted_anchor(
             self.xp.array(self.anchor_base), self.feat_stride, ww, hh)
-        rpn_locs_reshaped = rpn_locs.transpose(
-            (0, 2, 3, 1)).reshape(n, -1, 4).data
-        n_anchor = c // 2
-        rpn_fg_probs = rpn_probs[:, n_anchor:].data
-        rpn_fg_probs = rpn_fg_probs.transpose(0, 2, 3, 1).reshape(n, -1)
+        n_anchor = anchor.shape[0] // (ww * hh)
+        h = F.relu(self.conv1(x))
+
+        rpn_locs = self.loc(h)
+        rpn_locs = rpn_locs.transpose((0, 2, 3, 1)).reshape(n, -1, 4)
+
+        rpn_scores = self.score(h)
+        rpn_scores = rpn_scores.transpose(0, 2, 3, 1)
+        rpn_fg_scores =\
+            rpn_scores.reshape(n, hh, ww, n_anchor, 2)[:, :, :, :, 1]
+        rpn_fg_scores = rpn_fg_scores.reshape(n, -1)
+        rpn_scores = rpn_scores.reshape(n, -1, 2)
 
         rois = []
         batch_indices = []
         for i in range(n):
             roi = self.proposal_layer(
-                rpn_locs_reshaped[i], rpn_fg_probs[i], anchor, img_size,
+                rpn_locs[i].data, rpn_fg_scores[i].data, anchor, img_size,
                 scale=scale, train=train)
             batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
             rois.append(roi)
