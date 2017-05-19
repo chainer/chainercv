@@ -83,4 +83,5 @@ class TestSSDVGG16Pretrained(unittest.TestCase):
             elif self.insize == 512:
                 SSD512(n_fg_class=10, pretrained_model='voc0712')
 
+
 testing.run_module(__name__, __file__)
