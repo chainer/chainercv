@@ -1,5 +1,6 @@
 import argparse
 
+import chainer
 from chainer import cuda
 from chainer.dataset import concat_examples
 import chainer.functions as F
@@ -30,6 +31,7 @@ n_true = [0 for _ in range(args.n_class)]
 n_true_positive = [0 for _ in range(args.n_class)]
 for i in tqdm(range(0, len(test), args.batchsize)):
     img, lbl = concat_examples(test[i:i + args.batchsize], args.gpu)
+    img = chainer.Variable(img, volatile=True)
     y = F.argmax(F.softmax(model(img)), axis=1)
     y, t = cuda.to_cpu(y.data), cuda.to_cpu(lbl)
     for cls_i in range(args.n_class):
