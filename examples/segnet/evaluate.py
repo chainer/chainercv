@@ -39,13 +39,14 @@ for i in tqdm(range(0, len(test), args.batchsize)):
             continue
         n_positive[cls_i] += np.sum(y == cls_i)
         n_true[cls_i] += np.sum(t == cls_i)
-        n_true_positive[cls_i] += np.sum((y == cls_i) *  (t == cls_i))
+        n_true_positive[cls_i] += np.sum((y == cls_i) * (t == cls_i))
 
 ious = []
 for cls_i in range(args.n_class):
     if cls_i in args.ignore_labels:
         continue
-    iou = n_true_positive[cls_i] / float(n_positive[cls_i] + n_true[cls_i] - n_true_positive[cls_i])
+    iou = n_true_positive[cls_i] / float(
+            n_positive[cls_i] + n_true[cls_i] - n_true_positive[cls_i])
     ious.append(iou)
     print('{}:'.format(cls_i), iou)
 print('mean:', np.mean(ious))

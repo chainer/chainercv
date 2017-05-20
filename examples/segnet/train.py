@@ -1,11 +1,12 @@
-import matplotlib  # isort:skip
-matplotlib.use('Agg')
+import matplotlib  # isort:skip # NOQA
+matplotlib.use('Agg')  # isort:skiip # NOQA
 
 import argparse
 import time
 
 import chainer
 import numpy as np
+
 from chainer import iterators
 from chainer import optimizers
 from chainer import training
@@ -14,7 +15,6 @@ from chainercv.datasets import CamVidDataset
 from chainercv.datasets import TransformDataset
 from chainercv.links.loss import PixelwiseSoftmaxLossWithWeight
 from chainercv.links.model.segnet import segnet_basic
-from chainercv.transforms import random_flip
 
 
 parser = argparse.ArgumentParser()

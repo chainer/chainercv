@@ -19,4 +19,3 @@ freq = np.array(freq)
 median_freq = np.median(freq)
 
 np.save('class_weight', median_freq / freq)
-
