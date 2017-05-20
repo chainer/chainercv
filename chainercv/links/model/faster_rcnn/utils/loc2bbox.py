@@ -4,7 +4,7 @@ from chainer import cuda
 def loc2bbox(src_bbox, loc):
     """Decode bounding boxes from bounding box offsets and scales.
 
-    Given bounding box offsets and scales (loc) computed by
+    Given bounding box offsets and scales computed by
     :meth:`bbox2loc`, this function decodes the representation to
     coordinates in 2D image space.
 

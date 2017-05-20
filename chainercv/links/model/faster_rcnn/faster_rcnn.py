@@ -53,6 +53,7 @@ class FasterRCNNBase(chainer.Chain):
     :func:`predict` takes images and returns bounding boxes that are converted
     to image coordinates. This will be useful for a scenario when
     Faster RCNN is treated as a black box function, for instance.
+    Internally, image preprocessing is carried out.
     :func:`__call__` is provided for a scnerario when intermediate outputs
     are needed, for instance in training and debugging.
 

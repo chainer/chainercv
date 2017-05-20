@@ -74,10 +74,10 @@ class FasterRCNNVGG16(FasterRCNNBase):
         max_size (int): A preprocessing paramter for :func:`prepare`.
         ratios (list of floats): Anchors with ratios contained in this list
             will be generated. Ratio is the ratio of the height by the width.
-        anchor_scales (list of numbers): Values in :obj:`scales` determine area
-            of possibly generated anchors. Those areas will be square of an
-            element in :obj:`scales` times the original area of the
-            reference window.
+        anchor_scales (list of numbers): Values in :obj:`anchor_scales`
+            determine area of possibly generated anchors. Those areas will be
+            square of an element in :obj:`anchor_scales` times the original
+            area of the reference window.
         vgg_initialW (callable): Initializer for the layers corresponding to
             VGG16 layers.
         rpn_initialW (callable): Initializer for Region Proposal Network

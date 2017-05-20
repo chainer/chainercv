@@ -64,12 +64,12 @@ class ProposalCreator(object):
 
     def __call__(self, loc, score,
                  anchor, img_size, scale=1., train=False):
-        """Generate deterministic proposal regions.
+        """Propose RoIs.
 
         Inputs :obj:`loc, score, anchor` refer to the same anchor when indexed
-        by the them index.
+        by the same index.
 
-        On notations, :math:`A` is the total number of anchors. This is equal
+        On notations, :math:`R` is the total number of anchors. This is equal
         to product of height and width of an image and number of
         anchor bases per pixel.
 
@@ -77,11 +77,11 @@ class ProposalCreator(object):
 
         Args:
             loc (array): Predicted offsets and scaling to anchors.
-                Its shape is :math:`(A, 4)`.
+                Its shape is :math:`(R, 4)`.
             score (array): Predicted foreground probability for anchors.
-                Its shape is :math:`(A,)`.
+                Its shape is :math:`(R,)`.
             anchor (array): Coordinates of anchors. Its shape is
-                :math:`(A, 4)`.
+                :math:`(R, 4)`.
             img_size (tuple of ints): A tuple :obj:`width, height`,
                 which contains image size after scaling if any.
             scale (float): The scaling factor used to scale an image after
@@ -92,9 +92,9 @@ class ProposalCreator(object):
         Returns:
             array:
             An array of coordinates of proposal boxes.
-            Its shape is :math:`(R, 4)`. :math:`R` is less than
+            Its shape is :math:`(S, 4)`. :math:`S` is less than
             :obj:`self.n_test_post_nms` in test time and less than
-            :obj:`self.n_train_post_nms` in train time. :math:`R` depends on
+            :obj:`self.n_train_post_nms` in train time. :math:`S` depends on
             the size of the predicted bounding boxes and the number of
             bounding boxes discarded by NMS.
 

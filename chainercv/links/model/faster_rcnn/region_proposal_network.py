@@ -28,10 +28,10 @@ class RegionProposalNetwork(chainer.Chain):
         mid_channels (int): The channel size of the intermediate tensor.
         ratios (list of floats): Anchors with ratios contained in this list
             will be generated. Ratio is the height divided by the width.
-        anchor_scales (list of numbers): Values in :obj:`scales` determine area
-            of possibly generated anchors. Those areas will be square of an
-            element in :obj:`scales` times the original area of the
-            reference window.
+        anchor_scales (list of numbers): Values in :obj:`anchor_scales`
+            determine area of possibly generated anchors. Those areas will
+            be square of an element in :obj:`anchor_scales` times the original
+            area of the reference window.
         feat_stride (int): Stride size after extracting features from an
             image.
         initialW (callable): Initial weight value. If :obj:`None` then this
