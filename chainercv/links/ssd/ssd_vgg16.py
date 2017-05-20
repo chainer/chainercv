@@ -189,11 +189,24 @@ class SSD300(SSD):
     This is a model of Single Shot Multibox Detector.
     This model is based on VGG-16 and takes 300x300 images as inputs.
 
-    This model is proposed in [1].
+    This model is proposed in [#]_.
 
-    [1] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
-    Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
-    SSD: Single Shot MultiBox Detector. ECCV 2016.
+    Args:
+       n_fg_class (int): The number of classes excluding the background.
+       pretrained_model (str): The weight file to be loaded.
+           This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
+           The default value is :obj:`None`.
+
+            * :obj:`'voc0712'`: Load weights trained on Pascal VOC 2007 and \
+                2012. The weight file is downloaded and cached automatically. \
+                :obj:`n_fg_class` must be :obj:`20` or :obj:`None`.
+            * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
+                must be specified properly.
+            * :obj:`None`: Do not load weights.
+
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
+       Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
     """
 
     _models = {
@@ -239,11 +252,25 @@ class SSD512(SSD):
     This is a model of Single Shot Multibox Detector.
     This model is based on VGG-16 and takes 512x512 images as inputs.
 
-    This model is proposed in [1].
+    This model is proposed in [#]_.
 
-    [1] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
-    Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
-    SSD: Single Shot MultiBox Detector. ECCV 2016.
+    Args:
+       n_fg_class (int): The number of classes excluding the background.
+       pretrained_model (str): The weight file to be loaded.
+           This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
+           The default value is :obj:`None`.
+
+            * :obj:`'voc0712'`: Load weights trained on Pascal VOC 2007 and \
+                2012. The weight file is downloaded and cached automatically. \
+                :obj:`n_fg_class` must be :obj:`20` or :obj:`None`.
+            * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
+                must be specified properly.
+            * :obj:`None`: Do not load weights.
+
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
+       Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
+
     """
 
     _models = {

@@ -13,14 +13,14 @@ from chainercv import utils
 
 
 class SSD(chainer.Chain):
-    """Base class of Single Shot Multibox Detector [1].
+    """Base class of Single Shot Multibox Detector.
 
-    This is a base class of Single Shot Multibox Detector.
+    This is a base class of Single Shot Multibox Detector [1]_.
     It requires a feature extraction method and a preprocessing method.
 
-    [1] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
-    Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
-    SSD: Single Shot MultiBox Detector. ECCV 2016.
+    .. [1] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
+       Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
 
     Args:
         n_fg_class (int): The number of classes excluding the background.
@@ -47,12 +47,13 @@ class SSD(chainer.Chain):
     Parameters:
         nms_threshold (float): The threshold value
             for :meth:`chainercv.transfroms.non_maximum_suppression`.
-            The default value is 0.45.
+            The default value is :obj:`0.45`.
         score_threshold (float): The threshold value for confidence score.
             If a bounding box whose confidence score is lower than this value,
-            the bounding box will be suppressed. The default value is 0.6.
+            the bounding box will be suppressed.
+            The default value is :obj:`0.6`.
             This value is optimized for visualization.
-            For evaluation, the optimized value is 0.01.
+            For evaluation, the optimized value is :obj:`0.01`.
     """
 
     def __init__(
@@ -148,8 +149,7 @@ class SSD(chainer.Chain):
             * **loc**: A variable of float arrays of shape :math:`(K, 4)`, \
                 where :math:`K` is the number of default bounding boxes.
             * **conf**: A variable of float arrays of shape \
-                :math:`(K, n\_class + 1)`, \
-                where :math:`K` is the number of default bounding boxes.
+                :math:`(K, n\_fg\_class)`.
         """
 
         return self._multibox(self.extractor(x))
