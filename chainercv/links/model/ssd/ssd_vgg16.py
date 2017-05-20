@@ -213,8 +213,8 @@ class SSD300(SSD):
                 must be specified properly.
             * :obj:`None`: Do not load weights.
 
-    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
-       Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
        SSD: Single Shot MultiBox Detector. ECCV 2016.
     """
 
@@ -277,8 +277,8 @@ class SSD512(SSD):
                 must be specified properly.
             * :obj:`None`: Do not load weights.
 
-    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
-       Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
        SSD: Single Shot MultiBox Detector. ECCV 2016.
 
     """

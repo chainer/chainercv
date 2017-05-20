@@ -14,8 +14,8 @@ class SSD(chainer.Chain):
 
     This is a base class of Single Shot Multibox Detector [#]_.
 
-    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
-       Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
        SSD: Single Shot MultiBox Detector. ECCV 2016.
 
     Args:
@@ -128,10 +128,11 @@ class SSD(chainer.Chain):
             tuple of chainer.Variable:
             This method returns two variables, :obj:`loc` and :obj:`conf`.
 
-            * **loc**: A variable of float arrays of shape :math:`(K, 4)`, \
-                where :math:`K` is the number of default bounding boxes.
+            * **loc**: A variable of float arrays of shape :math:`(B, K, 4)`, \
+                where :math:`B` is the number of samples in the batch and \
+                ::math:`K` is the number of default bounding boxes.
             * **conf**: A variable of float arrays of shape \
-                :math:`(K, n\_fg\_class)`.
+                :math:`(B, K, n\_fg\_class)`.
         """
 
         return self.multibox(self.extractor(x))
@@ -203,7 +204,7 @@ class SSD(chainer.Chain):
         This method predicts objects for each image.
 
         Args:
-            imgs (iterable of ~numpy.ndarray): Arrays holding images.
+            imgs (iterable of numpy.ndarray): Arrays holding images.
                 All images are in CHW and BGR format
                 and the range of their value is :math:`[0, 255]`.
 
