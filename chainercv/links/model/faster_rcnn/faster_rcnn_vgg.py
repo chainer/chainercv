@@ -212,7 +212,7 @@ class VGG16RoIPoolingHead(chainer.Chain):
 
 
 class VGG16FeatureExtractor(chainer.Chain):
-    """Truncated VGG that extracts an conv5_3 features.
+    """Truncated VGG that extracts a conv5_3 features.
 
     """
 
