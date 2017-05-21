@@ -11,10 +11,6 @@ center_crop
 ~~~~~~~~~~~
 .. autofunction:: center_crop
 
-chw_to_pil_image
-~~~~~~~~~~~~~~~~
-.. autofunction:: chw_to_pil_image
-
 flip
 ~~~~
 .. autofunction:: flip
@@ -62,10 +58,6 @@ Bounding Box
 flip_bbox
 ~~~~~~~~~
 .. autofunction:: flip_bbox
-
-non_maximum_suppression
-~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: non_maximum_suppression
 
 resize_bbox
 ~~~~~~~~~~~

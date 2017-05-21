@@ -46,16 +46,13 @@ class CUBLabelDataset(CUBDatasetBase):
             tuple of an image and its label.
 
         """
-        img = utils.read_image_as_array(
-            osp.join(self.data_dir, 'images', self.fns[i]))  # RGB
-        if img.ndim == 2:
-            img = utils.gray2rgb(img)
+        img = utils.read_image(
+            osp.join(self.data_dir, 'images', self.fns[i]), color=True)
 
         if self.crop_bbox:
             bbox = self.bboxes[i]  # (x, y, width, height)
-            img = img[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
+            img = img[:,
+                      bbox[1]: bbox[1] + bbox[3],
+                      bbox[0]: bbox[0] + bbox[2]]
         label = self._data_labels[i]
-
-        img = img[:, :, ::-1]  # RGB to BGR
-        img = img.transpose(2, 0, 1)
         return img, label

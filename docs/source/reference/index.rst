@@ -16,4 +16,5 @@ ChainerCV Reference Manual
 .. toctree::
    :maxdepth: 1
 
-   tasks
+   visualizations
+   utils
