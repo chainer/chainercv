@@ -10,12 +10,13 @@ import chainer.links as L
 
 from chainercv.links.ssd import Normalize
 from chainercv.links.ssd import SSD
-from chainercv import transforms
 from chainercv.utils import download
 
 
+_imagenet_mean = (104, 117, 123)
+
+
 class VGG16Extractor(chainer.Chain):
-    mean = (104, 117, 123)
 
     def __init__(self, **links):
         super(VGG16Extractor, self).__init__(
@@ -43,12 +44,6 @@ class VGG16Extractor(chainer.Chain):
         )
         for name, link in six.iteritems(links):
             self.add_link(name, link)
-
-    def prepare(self, img):
-        img = img.astype(np.float32)
-        img = transforms.resize(img, (self.insize, self.insize))
-        img -= np.array(self.mean)[:, np.newaxis, np.newaxis]
-        return img
 
     def __call__(self, x):
         ys = list()
@@ -209,6 +204,7 @@ class SSD300(SSD):
        SSD: Single Shot MultiBox Detector. ECCV 2016.
     """
 
+    mean = _imagenet_mean
     _models = {
         'voc0712': {
             'n_fg_class': 20,
@@ -273,17 +269,13 @@ class SSD512(SSD):
 
     """
 
+    mean = _imagenet_mean
     _models = {
         'voc0712': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.1/ssd512_voc0712.npz'
         }
-    }
-
-    _urls = {
-        'voc0712': 'https://github.com/yuyu2172/share-weights/releases/'
-        'download/0.0.1/ssd300_voc07127.npz'
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):

@@ -25,7 +25,7 @@ class SSD(chainer.Chain):
     Args:
         n_fg_class (int): The number of classes excluding the background.
         extractor: A link which extract feature maps.
-            This link must have :obj:`grid`, :meth:`prepare` and
+            This link must have :obj:`insize`, :obj:`grids` and
             :meth:`__call__`.
         aspect_ratios (iterable of tuple or int): The aspect ratios of
             default bounding boxes for each feature map.
@@ -45,15 +45,16 @@ class SSD(chainer.Chain):
             The default value is :class:`chainer.initializers.Zero`.
 
     Parameters:
-        nms_threshold (float): The threshold value
+        nms_thresh (float): The threshold value
             for :meth:`chainercv.transfroms.non_maximum_suppression`.
             The default value is :obj:`0.45`.
-        score_threshold (float): The threshold value for confidence score.
+            This value can be changed directly or by using :meth:`use_preset`.
+        score_thresh (float): The threshold value for confidence score.
             If a bounding box whose confidence score is lower than this value,
             the bounding box will be suppressed.
             The default value is :obj:`0.6`.
-            This value is optimized for visualization.
-            For evaluation, the optimized value is :obj:`0.01`.
+            This value can be changed directly or by using :meth:`use_preset`.
+
     """
 
     def __init__(
@@ -62,8 +63,12 @@ class SSD(chainer.Chain):
             aspect_ratios, steps, sizes,
             variance=(0.1, 0.2),
             initialW=initializers.GlorotUniform(),
-            initial_bias=initializers.Zero()):
+            initial_bias=initializers.Zero(),
+            mean=0):
         self.n_fg_class = n_fg_class
+        self.variance = variance
+        self.mean = mean
+        self.use_preset('visualize')
 
         super(SSD, self).__init__(
             extractor=extractor,
@@ -98,10 +103,9 @@ class SSD(chainer.Chain):
                         (cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
         self._default_bbox = np.stack(self._default_bbox)
 
-        self.variance = variance
-
-        self.nms_threshold = 0.45
-        self.score_threshold = 0.6
+    @property
+    def insize(self):
+        return self.extractor.insize
 
     def to_cpu(self):
         super(SSD, self).to_cpu()
@@ -140,7 +144,7 @@ class SSD(chainer.Chain):
 
         Args:
             x (chainer.Variable): A variable holding a batch of images.
-                The images are preprocessed by :meth:`prepare` if needed.
+                The images are preprocessed by :meth:`_prepare`.
 
         Returns:
             tuple of chainer.Variable:
@@ -179,13 +183,13 @@ class SSD(chainer.Chain):
             bbox_l = raw_bbox
             score_l = raw_score[:, l]
 
-            mask = score_l >= self.score_threshold
+            mask = score_l >= self.score_thresh
             bbox_l = bbox_l[mask]
             score_l = score_l[mask]
 
-            if self.nms_threshold is not None:
+            if self.nms_thresh is not None:
                 indices = utils.non_maximum_suppression(
-                    bbox_l, self.nms_threshold, score_l)
+                    bbox_l, self.nms_thresh, score_l)
                 bbox_l = bbox_l[indices]
                 score_l = score_l[indices]
 
@@ -198,6 +202,22 @@ class SSD(chainer.Chain):
         score = xp.hstack(score)
 
         return bbox, label, score
+
+    def _prepare(self, img):
+        img = img.astype(np.float32)
+        img = transforms.resize(img, (self.insize, self.insize))
+        img -= np.array(self.mean)[:, np.newaxis, np.newaxis]
+        return img
+
+    def use_preset(self, preset):
+        if preset == 'visualize':
+            self.nms_thresh = 0.45
+            self.score_thresh = 0.6
+        elif preset == 'evaluate':
+            self.nms_thresh = 0.45
+            self.score_thresh = 0.01
+        else:
+            raise ValueError('preset must be visualize or evaluate')
 
     def predict(self, imgs):
         """Detect objects from images
@@ -229,7 +249,7 @@ class SSD(chainer.Chain):
         sizes = list()
         for img in imgs:
             _, H, W = img.shape
-            img = self.extractor.prepare(img.astype(np.float32))
+            img = self._prepare(img)
             prepared_imgs.append(img)
             sizes.append((W, H))
 

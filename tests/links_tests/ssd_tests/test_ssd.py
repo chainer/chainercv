@@ -14,10 +14,8 @@ def _random_array(xp, shape):
 
 
 class DummyExtractor(chainer.Link):
+    insize = 32
     grids = (10, 4, 1)
-
-    def prepare(self, img):
-        return _random_array(self.xp, (3, 32, 32))
 
     def __call__(self, x):
         n_sample = x.shape[0]
@@ -36,7 +34,8 @@ class DummySSD(SSD):
             extractor=DummyExtractor(),
             aspect_ratios=((2,), (2, 3), (2,)),
             steps=(0.1, 0.25, 1),
-            sizes=(0.1, 0.25, 1, 1.2))
+            sizes=(0.1, 0.25, 1, 1.2),
+            mean=(0, 1, 2))
 
 
 @testing.parameterize(
@@ -129,6 +128,29 @@ class TestSSD(unittest.TestCase):
     def test_suppress_gpu(self):
         self.link.to_gpu()
         self._check_suppress()
+
+    def test_prepare(self):
+        img = np.random.randint(0, 255, size=(3, 480, 640))
+        img = self.link._prepare(img)
+        self.assertEqual(img.shape, (3, self.link.insize, self.link.insize))
+
+    def test_use_preset(self):
+        self.link.nms_thresh = 0
+        self.link.score_thresh = 0
+
+        self.link.use_preset('visualize')
+        self.assertEqual(self.link.nms_thresh, 0.45)
+        self.assertEqual(self.link.score_thresh, 0.6)
+
+        self.link.nms_thresh = 0
+        self.link.score_thresh = 0
+
+        self.link.use_preset('evaluate')
+        self.assertEqual(self.link.nms_thresh, 0.45)
+        self.assertEqual(self.link.score_thresh, 0.01)
+
+        with self.assertRaises(ValueError):
+            self.link.use_preset('unknown')
 
     def _check_predict(self):
         imgs = [
