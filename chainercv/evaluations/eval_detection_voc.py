@@ -150,10 +150,10 @@ def _pred_and_rec_cls(
 
     npos = 0
     selec = [None for _ in six.moves.range(len(gt_bboxes))]
-    for i in six.moves.range(len(gt_bboxes)):
-        n_gt_bbox = len(gt_bboxes[i])
-        selec[i] = np.zeros(n_gt_bbox, dtype=np.bool)
-        npos += np.sum(np.logical_not(gt_difficults[i]))
+    for n in six.moves.range(len(gt_bboxes)):
+        n_gt_bbox = len(gt_bboxes[n])
+        selec[n] = np.zeros(n_gt_bbox, dtype=np.bool)
+        npos += np.sum(np.logical_not(gt_difficults[n]))
 
     # Make list of arrays into one array.
     # Example:
@@ -161,9 +161,9 @@ def _pred_and_rec_cls(
     # bbox = array([bbox00, bbox01, bbox10])
     # index = [0, 0, 1]
     index = []
-    for i in six.moves.range(len(scores)):
-        for j in six.moves.range(len(scores[i])):
-            index.append(i)
+    for n in six.moves.range(len(scores)):
+        for r in six.moves.range(len(scores[n])):
+            index.append(n)
     index = np.array(index, dtype=np.int)
     conf = np.concatenate(scores)
     bbox = np.concatenate(bboxes)
