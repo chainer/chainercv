@@ -5,7 +5,7 @@ import six
 
 
 def eval_detection_voc(
-        bboxes, labels, scores, gt_bboxes, gt_labels, n_class,
+        bboxes, labels, scores, gt_bboxes, gt_labels,
         gt_difficults=None,
         min_iou=0.5, use_07_metric=False):
     """Calculate detection metrics based on evaluation code of PASCAL VOC.
@@ -44,7 +44,6 @@ def eval_detection_voc(
             of corresponding predicted boxes.
         gt_labels (list of numpy.ndarray): List of ground truth labels which
             are organized similarly to :obj:`labels`.
-        n_class (int): Number of classes.
         gt_difficults (list of numpy.ndarray): List of boolean arrays which
             is organized similarly to :obj:`labels`. This tells whether the
             corresponding ground truth bounding box is difficult or not.
@@ -73,73 +72,72 @@ def eval_detection_voc(
             == len(gt_bboxes) == len(gt_labels)):
         raise ValueError('Length of list inputs need to be same')
 
-    valid_cls = np.zeros((n_class,), dtype=np.bool)
+    valid_label = np.union1d(
+        np.unique(np.concatenate(labels)),
+        np.unique(np.concatenate(gt_labels))).astype(np.int32)
     n_img = len(bboxes)
 
-    # Organize predictions into List[n_class][n_img]
-    bboxes_list = [[np.zeros((0, 4)) for _ in six.moves.range(n_img)]
-                   for _ in six.moves.range(n_class)]
-    scores_list = [[np.zeros((0,)) for _ in six.moves.range(n_img)]
-                   for _ in six.moves.range(n_class)]
-    for i in six.moves.range(n_img):
-        for cls in six.moves.range(n_class):
-            bboxes_cls = []
-            scores_cls = []
-            for j in six.moves.range(bboxes[i].shape[0]):
-                if cls == labels[i][j]:
-                    bboxes_cls.append(bboxes[i][j])
-                    scores_cls.append(scores[i][j])
-            if len(bboxes_cls) > 0:
-                bboxes_list[cls][i] = np.stack(bboxes_cls)
-                scores_list[cls][i] = np.stack(scores_cls)
-                valid_cls[cls] = True
+    # Organize predictions into Dict[l, List[bbox]]
+    bboxes_list = {l: [np.zeros((0, 4)) for _ in six.moves.range(n_img)]
+                   for l in valid_label}
+    scores_list = {l: [np.zeros((0,)) for _ in six.moves.range(n_img)]
+                   for l in valid_label}
+    for n in six.moves.range(n_img):
+        for l in valid_label:
+            bboxes_l = []
+            scores_l = []
+            for r in six.moves.range(bboxes[n].shape[0]):
+                if l == labels[n][r]:
+                    bboxes_l.append(bboxes[n][r])
+                    scores_l.append(scores[n][r])
+            if len(bboxes_l) > 0:
+                bboxes_list[l][n] = np.stack(bboxes_l)
+                scores_list[l][n] = np.stack(scores_l)
 
-    # Organize ground truths into List[n_class][n_img]
-    gt_bboxes_list = [[np.zeros((0, 4)) for _ in six.moves.range(n_img)]
-                      for _ in six.moves.range(n_class)]
-    gt_difficults_list =\
-        [[np.zeros((0,), dtype=np.bool) for _ in six.moves.range(n_img)]
-         for _ in six.moves.range(n_class)]
-    for i in six.moves.range(n_img):
-        for cls in six.moves.range(n_class):
-            gt_bboxes_cls = []
-            gt_difficults_cls = []
-            for j in six.moves.range(gt_bboxes[i].shape[0]):
-                if cls == gt_labels[i][j]:
-                    gt_bboxes_cls.append(gt_bboxes[i][j])
+    # Organize ground truths into Dict[l, List[bbox]]
+    empty_bbox = np.zeros((0, 4), dtype=np.float32)
+    empty_label = np.zeros((0,), dtype=np.bool)
+    gt_bboxes_list = {l: [empty_bbox for _ in six.moves.range(n_img)]
+                      for l in valid_label}
+    gt_difficults_list = {l: [empty_label for _ in six.moves.range(n_img)]
+                          for l in valid_label}
+    for n in six.moves.range(n_img):
+        for l in valid_label:
+            gt_bboxes_l = []
+            gt_difficults_l = []
+            for r in six.moves.range(gt_bboxes[n].shape[0]):
+                if l == gt_labels[n][r]:
+                    gt_bboxes_l.append(gt_bboxes[n][r])
                     if gt_difficults is not None:
-                        gt_difficults_cls.append(gt_difficults[i][j])
+                        gt_difficults_l.append(gt_difficults[n][r])
                     else:
-                        gt_difficults_cls.append(
+                        gt_difficults_l.append(
                             np.array(False, dtype=np.bool))
-            if len(gt_bboxes_cls) > 0:
-                gt_bboxes_list[cls][i] = np.stack(gt_bboxes_cls)
-                gt_difficults_list[cls][i] = np.stack(gt_difficults_cls)
-                valid_cls[cls] = True
+            if len(gt_bboxes_l) > 0:
+                gt_bboxes_list[l][n] = np.stack(gt_bboxes_l)
+                gt_difficults_list[l][n] = np.stack(gt_difficults_l)
 
     # Accumulate recacall, precison and ap
     results = {}
-    valid_cls_index = np.where(valid_cls)[0]
-    for cls in valid_cls_index:
+    for l in valid_label:
         rec, prec = _pred_and_rec_cls(
-            bboxes_list[cls],
-            scores_list[cls],
-            gt_bboxes_list[cls],
-            gt_difficults_list[cls],
+            bboxes_list[l],
+            scores_list[l],
+            gt_bboxes_list[l],
+            gt_difficults_list[l],
             min_iou)
         ap = _voc_ap(rec, prec, use_07_metric=use_07_metric)
-        results[cls] = {}
-        results[cls]['recall'] = rec
-        results[cls]['precision'] = prec
-        results[cls]['ap'] = ap
+        results[l] = {}
+        results[l]['recall'] = rec
+        results[l]['precision'] = prec
+        results[l]['ap'] = ap
     results['map'] = np.asscalar(np.mean(
-        [results[cls]['ap'] for cls in valid_cls_index]))
+        [results[l]['ap'] for l in valid_label]))
     return results
 
 
 def _pred_and_rec_cls(
-        bboxes, scores, gt_bboxes, gt_difficults,
-        min_iou=0.5):
+        bboxes, scores, gt_bboxes, gt_difficults, min_iou=0.5):
     # Calculate detection metrics with respect to a class.
     # This function is called only when there is at least one
     # prediction or ground truth box which is labeled as the class.
@@ -169,7 +167,7 @@ def _pred_and_rec_cls(
     bbox = np.concatenate(bboxes)
 
     if npos == 0 or len(conf) == 0:
-        return np.zeros((len(conf),)), np.zeros((len(conf),)), 0.
+        return np.zeros((len(conf),)), np.zeros((len(conf),))
 
     # Reorder arrays by scores in descending order.
     si = np.argsort(-conf)

@@ -28,7 +28,7 @@ class TestEvalDetectionVOCOneBbox(unittest.TestCase):
 
         results = eval_detection_voc(
             bboxes, labels, scores, gt_bboxes, gt_labels,
-            n_class=1, min_iou=self.min_iou)
+            min_iou=self.min_iou)
         np.testing.assert_equal(results[0]['recall'], self.rec)
         np.testing.assert_equal(results[0]['precision'], self.prec)
 
@@ -64,7 +64,7 @@ class TestEvalDetectionVOCMultipleBboxes(unittest.TestCase):
 
         results = eval_detection_voc(
             bboxes, labels, scores, gt_bboxes, gt_labels,
-            n_class=3, min_iou=self.min_iou,
+            min_iou=self.min_iou,
             use_07_metric=self.use_07_metric)
         np.testing.assert_equal(results[0]['recall'], self.rec0)
         np.testing.assert_equal(results[0]['precision'], self.prec0)
@@ -94,6 +94,6 @@ class TestEvalDetectionVOCDifficults(unittest.TestCase):
 
         results = eval_detection_voc(
             bboxes, labels, scores, gt_bboxes, gt_labels,
-            n_class=1, gt_difficults=gt_difficults, min_iou=self.min_iou)
+            gt_difficults=gt_difficults, min_iou=self.min_iou)
         np.testing.assert_equal(results[0]['recall'], self.rec)
         np.testing.assert_equal(results[0]['precision'], self.prec)
