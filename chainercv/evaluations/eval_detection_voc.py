@@ -5,7 +5,7 @@ import six
 
 
 def eval_detection_voc(
-        bboxes, labels, scores, gt_bboxes, gt_labels,
+        pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
         gt_difficults=None,
         min_iou=0.5, use_07_metric=False):
     """Calculate detection metrics based on evaluation code of PASCAL VOC.
@@ -21,20 +21,20 @@ def eval_detection_voc(
     The code is based on the evaluation code used in PASCAL VOC Challenge.
 
     Args:
-        bboxes (list of numpy.ndarray): A list of bounding boxes.
+        pred_bboxes (list of numpy.ndarray): A list of bounding boxes.
             The index to this list corresponds to the index of the data
             obtained from the base dataset. Length of the list is :math:`N`.
-            The element of :obj:`bboxes` is coordinates of bounding
+            The element of :obj:`pred_bboxes` is coordinates of bounding
             boxes. This is an array whose shape is :math:`(R, 4)`,
             where :math:`R` corresponds
             to the number of bounding boxes, which may vary among boxes.
             The second axis corresponds to :obj:`x_min, y_min, x_max, y_max`
             of a box.
-        labels (list of numpy.ndarray): A list of labels.
-            Similar to :obj:`bboxes`, its index corresponds to an
+        pred_labels (list of numpy.ndarray): A list of labels.
+            Similar to :obj:`pred_bboxes`, its index corresponds to an
             index for the base dataset. Its length is :math:`N`.
-        scores (list of numpy.ndarray): A list of confidence scores for
-            predicted bounding boxes. Similar to :obj:`bboxes`,
+        pred_scores (list of numpy.ndarray): A list of confidence scores for
+            predicted bounding boxes. Similar to :obj:`pred_bboxes`,
             its index corresponds to an index for the base dataset.
             Its length is :math:`N`.
         gt_bboxes (list of numpy.ndarray): List of ground truth bounding boxes
@@ -68,35 +68,37 @@ def eval_detection_voc(
             to the class id **i**.
 
     """
-    if not (len(bboxes) == len(labels) == len(scores)
+    if not (len(pred_bboxes) == len(pred_labels) == len(pred_scores)
             == len(gt_bboxes) == len(gt_labels)):
         raise ValueError('Length of list inputs need to be same')
+    n_img = len(pred_bboxes)
 
     valid_label = np.union1d(
-        np.unique(np.concatenate(labels)),
+        np.unique(np.concatenate(pred_labels)),
         np.unique(np.concatenate(gt_labels))).astype(np.int32)
-    n_img = len(bboxes)
+
+    # Initial values stored in the dictionaries.
+    empty_bbox = np.zeros((0, 4), dtype=np.float32)
+    empty_label = np.zeros((0,), dtype=np.bool)
 
     # Organize predictions into Dict[l, List[bbox]]
-    bboxes_list = {l: [np.zeros((0, 4)) for _ in six.moves.range(n_img)]
-                   for l in valid_label}
-    scores_list = {l: [np.zeros((0,)) for _ in six.moves.range(n_img)]
-                   for l in valid_label}
+    pred_bboxes_list = {l: [empty_bbox for _ in six.moves.range(n_img)]
+                        for l in valid_label}
+    pred_scores_list = {l: [empty_label for _ in six.moves.range(n_img)]
+                        for l in valid_label}
     for n in six.moves.range(n_img):
         for l in valid_label:
             bboxes_l = []
             scores_l = []
-            for r in six.moves.range(bboxes[n].shape[0]):
-                if l == labels[n][r]:
-                    bboxes_l.append(bboxes[n][r])
-                    scores_l.append(scores[n][r])
+            for r in six.moves.range(pred_bboxes[n].shape[0]):
+                if l == pred_labels[n][r]:
+                    bboxes_l.append(pred_bboxes[n][r])
+                    scores_l.append(pred_scores[n][r])
             if len(bboxes_l) > 0:
-                bboxes_list[l][n] = np.stack(bboxes_l)
-                scores_list[l][n] = np.stack(scores_l)
+                pred_bboxes_list[l][n] = np.stack(bboxes_l)
+                pred_scores_list[l][n] = np.stack(scores_l)
 
     # Organize ground truths into Dict[l, List[bbox]]
-    empty_bbox = np.zeros((0, 4), dtype=np.float32)
-    empty_label = np.zeros((0,), dtype=np.bool)
     gt_bboxes_list = {l: [empty_bbox for _ in six.moves.range(n_img)]
                       for l in valid_label}
     gt_difficults_list = {l: [empty_label for _ in six.moves.range(n_img)]
@@ -121,8 +123,8 @@ def eval_detection_voc(
     results = {}
     for l in valid_label:
         rec, prec = _pred_and_rec_cls(
-            bboxes_list[l],
-            scores_list[l],
+            pred_bboxes_list[l],
+            pred_scores_list[l],
             gt_bboxes_list[l],
             gt_difficults_list[l],
             min_iou)
