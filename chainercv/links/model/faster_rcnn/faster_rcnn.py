@@ -32,10 +32,10 @@ from chainercv.transforms.image.resize import resize
 
 class FasterRCNNBase(chainer.Chain):
 
-    """Base class for Faster RCNN.
+    """Base class for Faster R-CNN.
 
-    This is a base class for Faster RCNN [1].
-    The following three stages constitute Faster RCNN.
+    This is a base class for Faster R-CNN [1].
+    The following three stages constitute Faster R-CNN.
 
     1. **Feature extraction**: Images are taken and their \
         feature maps are calculated.
@@ -52,7 +52,7 @@ class FasterRCNNBase(chainer.Chain):
     object detection.
     :func:`predict` takes images and returns bounding boxes that are converted
     to image coordinates. This will be useful for a scenario when
-    Faster RCNN is treated as a black box function, for instance.
+    Faster R-CNN is treated as a black box function, for instance.
     Internally, image preprocessing is carried out.
     :func:`__call__` is provided for a scnerario when intermediate outputs
     are needed, for instance in training and debugging.
@@ -112,7 +112,7 @@ class FasterRCNNBase(chainer.Chain):
         self.loc_normalize_std = loc_normalize_std
 
     def __call__(self, x, scale=1., test=True):
-        """Forward Faster RCNN.
+        """Forward Faster R-CNN.
 
         Scaling paramter :obj:`scale` is used by RPN to determine the
         threshold to select small objects, which are going to be

@@ -29,7 +29,7 @@ def _relu(x):
 
 class FasterRCNNVGG16(FasterRCNNBase):
 
-    """FasterRCNN based on VGG16.
+    """Faster R-CNN based on VGG16.
 
     When you specify the path of the pre-trained chainer model serialized as
     a :obj:`.npz` file in the constructor, this chain model automatically
@@ -46,7 +46,7 @@ class FasterRCNNVGG16(FasterRCNNBase):
         will be randomly initialized.
 
     For descriptions on the interface of this model, please refer to
-    :class:`chainercv.links.FasterRCNNBase`.
+    :class:`chainercv.links.model.faster_rcnn.FasterRCNNBase`.
 
     :obj:`FasterRCNNVGG16` supports finer control on random initialization of
     weights by arguments
@@ -85,7 +85,7 @@ class FasterRCNNVGG16(FasterRCNNBase):
         loc_initialW (callable): Initializer for the localization head.
         score_initialW (callable): Initializer for the score head.
         proposal_creator_params (dict): Key valued paramters for
-            :obj:`chainercv.links.ProposalCreator`.
+            :obj:`chainercv.links.model.faster_rcnn.ProposalCreator`.
 
     """
 
@@ -126,7 +126,7 @@ class FasterRCNNVGG16(FasterRCNNBase):
             proposal_creator_params=proposal_creator_params,
         )
         head = VGG16RoIPoolingHead(
-            n_fg_class + 1,
+            n_fg_class,
             roi_size=7, spatial_scale=1. / self.feat_stride,
             vgg_initialW=vgg_initialW,
             loc_initialW=loc_initialW,
@@ -181,38 +181,72 @@ class FasterRCNNVGG16(FasterRCNNBase):
 
 class VGG16RoIPoolingHead(chainer.Chain):
 
-    """Regress and classify bounding boxes based on RoI pooled features.
+    """Faster R-CNN Head for VGG16 based implementation.
+
+    This class is used as a head for Faster R-CNN.
+    This outputs class-wise localizations and classification based on RoI features.
+
+    Args:
+        n_fg_class (int): The number of classes excluding the background.
+        roi_size (int): Height and width of the features after RoI-pooled.
+        spatial_scale (float): Scale of the roi is resized.
 
     """
 
-    def __init__(self, n_class, roi_size, spatial_scale,
+    def __init__(self, n_fg_class, roi_size, spatial_scale,
                  vgg_initialW=None, loc_initialW=None, score_initialW=None):
         # n_class includes the background
         super(VGG16RoIPoolingHead, self).__init__(
             fc6=L.Linear(25088, 4096, initialW=vgg_initialW),
             fc7=L.Linear(4096, 4096, initialW=vgg_initialW),
-            cls_loc=L.Linear(4096, n_class * 4, initialW=loc_initialW),
-            score=L.Linear(4096, n_class, initialW=score_initialW)
+            cls_loc=L.Linear(4096, (n_fg_class + 1) * 4, initialW=loc_initialW),
+            score=L.Linear(4096, n_fg_class + 1, initialW=score_initialW)
         )
         self.roi_size = roi_size
         self.spatial_scale = spatial_scale
 
     def __call__(self, x, rois, roi_indices, test=True):
+        """Forward the chain.
+
+        We assume that there are :math:`N` batches.
+
+        Args:
+            x (~chainer.Variable): 4D image variable.
+            rois (array): A bounding box array containing coordinates of
+                proposal boxes.  This is a concatenation of bounding box
+                arrays from multiple images in the batch.
+                Its shape is :math:`(R', 4)`. Given :math:`R_i` predicted
+                bounding boxes from the :math:`i` th image,
+                :math:`R' = \\sum _{i=1} ^ N R_i`.
+            roi_indices (array): An array containing indices of images to
+                which bounding boxes correspond to. Its shape is :math:`(R',)`.
+            test (bool): Whether in test mode or not. This has no effect in
+                the current implementation.
+
+        """
         roi_indices = roi_indices.astype(np.float32)
         rois = self.xp.concatenate(
             (roi_indices[:, None], rois), axis=1)
         pool = F.roi_pooling_2d(
             x, rois, self.roi_size, self.roi_size, self.spatial_scale)
 
-        fc6 = F.dropout(_relu(self.fc6(pool)), train=False)
-        fc7 = F.dropout(_relu(self.fc7(fc6)), train=False)
+        fc6 = _relu(self.fc6(pool))
+        fc7 = _relu(self.fc7(fc6))
         roi_cls_locs = self.cls_loc(fc7)
         roi_scores = self.score(fc7)
         return roi_cls_locs, roi_scores
 
 
 class VGG16FeatureExtractor(chainer.Chain):
-    """Truncated VGG that extracts a conv5_3 features.
+    """Truncated VGG16 that extracts a conv5_3 feature.
+
+    :obj:`initialW` accepts a callable that takes an array and edits its
+    values.
+    If :obj:`None` is passed as an initializer, the default initializer is
+    used.
+
+    Args:
+        initialW (callable): Initializer for weights.
 
     """
 

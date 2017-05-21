@@ -13,9 +13,9 @@ from chainercv.links.model.faster_rcnn.utils.proposal_creator import \
 
 class RegionProposalNetwork(chainer.Chain):
 
-    """Region Proposal Networks introduced in Faster RCNN.
+    """Region Proposal Networks introduced in Faster R-CNN.
 
-    This is Region Proposal Networks introduced in Faster RCNN [1].
+    This is Region Proposal Networks introduced in Faster R-CNN [1].
     This takes features extracted from images and predicts
     class agnostic bounding boxes around "objects".
 
@@ -39,10 +39,10 @@ class RegionProposalNetwork(chainer.Chain):
             initialize weight.
             May also be a callable that takes an array and edits its values.
         proposal_creator_params (dict): Key valued paramters for
-            :obj:`chainercv.links.ProposalCreator`.
+            :obj:`chainercv.links.model.faster_rcnn.ProposalCreator`.
 
     .. seealso::
-        :obj:`chainercv.links.ProposalCreator`
+        :obj:`chainercv.links.model.faster_rcnn.ProposalCreator`
 
     """
 
