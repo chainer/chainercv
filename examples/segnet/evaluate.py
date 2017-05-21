@@ -5,9 +5,10 @@ from chainer import cuda
 from chainer.dataset import concat_examples
 import chainer.functions as F
 from chainer import serializers
-import numpy as np
 from chainercv.datasets import CamVidDataset
 from chainercv.links.model import SegNetBasic
+
+import numpy as np
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
@@ -45,8 +46,8 @@ ious = []
 for cls_i in range(args.n_class):
     if cls_i in args.ignore_labels:
         continue
-    iou = n_true_positive[cls_i] / float(
-            n_positive[cls_i] + n_true[cls_i] - n_true_positive[cls_i])
+    deno = float(n_positive[cls_i] + n_true[cls_i] - n_true_positive[cls_i])
+    iou = n_true_positive[cls_i] / deno
     ious.append(iou)
     print('{}:'.format(cls_i), iou)
 print('mean:', np.mean(ious))

@@ -1,6 +1,6 @@
-from tqdm import tqdm
-import numpy as np
 from chainercv.datasets import CamVidDataset
+import numpy as np
+from tqdm import tqdm
 
 n_class = 12
 d = CamVidDataset(mode='train')
