@@ -6,7 +6,7 @@ import numpy as np
 
 from chainer import testing
 
-from chainercv.links import generate_anchor_base
+from chainercv.links.model.faster_rcnn import generate_anchor_base
 
 
 class TestGenerateAnchorBase(unittest.TestCase):

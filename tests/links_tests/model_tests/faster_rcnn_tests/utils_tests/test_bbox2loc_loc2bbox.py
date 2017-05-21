@@ -6,8 +6,8 @@ from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links import bbox2loc
-from chainercv.links import loc2bbox
+from chainercv.links.model.faster_rcnn import bbox2loc
+from chainercv.links.model.faster_rcnn import loc2bbox
 
 
 def generate_bbox(n, img_size, min_length, max_length):

@@ -5,7 +5,7 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links import FasterRCNNBase
+from chainercv.links.model.faster_rcnn import FasterRCNNBase
 
 
 def _random_array(xp, shape):

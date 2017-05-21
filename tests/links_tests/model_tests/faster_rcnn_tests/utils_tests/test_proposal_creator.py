@@ -6,7 +6,7 @@ from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links import ProposalCreator
+from chainercv.links.model.faster_rcnn import ProposalCreator
 
 
 def _generate_bbox(n, img_size, min_length, max_length):
