@@ -3,7 +3,7 @@ from __future__ import division
 import numpy as np
 import six
 
-from chainercv.utils import bbox_overlap
+from chainercv.utils.bbox.bbox_iou import bbox_iou
 
 
 def eval_detection_voc(
@@ -193,7 +193,7 @@ def _pred_and_rec_cls(
                                        axis=1)
             bb_int = np.concatenate((bb[None][:, :2], bb[None][:, 2:] + 1),
                                     axis=1)
-            iou = bbox_overlap(gt_bb_int, bb_int)[:, 0]
+            iou = bbox_iou(gt_bb_int, bb_int)[:, 0]
             ioumax = np.max(iou)
             jmax = np.argmax(iou)
 
