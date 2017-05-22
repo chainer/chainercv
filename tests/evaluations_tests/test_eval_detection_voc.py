@@ -8,10 +8,10 @@ from chainer import testing
 
 
 @testing.parameterize(
-    {'min_iou': 0.5,
+    {'iou_thresh': 0.5,
      'rec': np.array([0., 0., 1.]),
      'prec': np.array([0., 0., 1. / 3.])},
-    {'min_iou': 0.97,
+    {'iou_thresh': 0.97,
      'rec': np.array([0., 0., 0.]),
      'prec': np.array([0., 0., 0.])}
 )
@@ -28,7 +28,7 @@ class TestEvalDetectionVOCOneBbox(unittest.TestCase):
 
         results = eval_detection_voc(
             pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
-            min_iou=self.min_iou)
+            iou_thresh=self.iou_thresh)
         np.testing.assert_equal(results[0]['recall'], self.rec)
         np.testing.assert_equal(results[0]['precision'], self.prec)
 
@@ -43,7 +43,7 @@ class TestEvalDetectionVOCOneBbox(unittest.TestCase):
 )
 class TestEvalDetectionVOCMultipleBboxes(unittest.TestCase):
 
-    min_iou = 0.4
+    iou_thresh = 0.4
     rec0 = np.array([0.0, 0.5, 0.5])
     prec0 = np.array([0., 0.5, 1. / 3.])
     rec1 = np.array([0., 1.])
@@ -64,7 +64,7 @@ class TestEvalDetectionVOCMultipleBboxes(unittest.TestCase):
 
         results = eval_detection_voc(
             pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
-            min_iou=self.min_iou,
+            iou_thresh=self.iou_thresh,
             use_07_metric=self.use_07_metric)
         np.testing.assert_equal(results[0]['recall'], self.rec0)
         np.testing.assert_equal(results[0]['precision'], self.prec0)
@@ -78,7 +78,7 @@ class TestEvalDetectionVOCMultipleBboxes(unittest.TestCase):
 
 class TestEvalDetectionVOCDifficults(unittest.TestCase):
 
-    min_iou = 0.5
+    iou_thresh = 0.5
     rec = np.array([0., 0., 1.])
     prec = np.array([0., 0., 1. / 3.])
 
@@ -94,6 +94,6 @@ class TestEvalDetectionVOCDifficults(unittest.TestCase):
 
         results = eval_detection_voc(
             pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
-            gt_difficults=gt_difficults, min_iou=self.min_iou)
+            gt_difficults=gt_difficults, iou_thresh=self.iou_thresh)
         np.testing.assert_equal(results[0]['recall'], self.rec)
         np.testing.assert_equal(results[0]['precision'], self.prec)

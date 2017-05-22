@@ -7,7 +7,7 @@ import six
 def eval_detection_voc(
         pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
         gt_difficults=None,
-        min_iou=0.5, use_07_metric=False):
+        iou_thresh=0.5, use_07_metric=False):
     """Calculate detection metrics based on evaluation code of PASCAL VOC.
 
     This function evaluates recall, precison and average precision with
@@ -49,7 +49,7 @@ def eval_detection_voc(
             corresponding ground truth bounding box is difficult or not.
             By default, this is :obj:`None`. In that case, this function
             consider all bounding boxes to be not difficult.
-        min_iou (float): A prediction is correct if its Intersection over
+        iou_thresh (float): A prediction is correct if its Intersection over
             Union with the ground truth is above this value.
         use_07_metric (bool): Whether to use Pascal VOC 2007 evaluation metric
             for calculating average precision. The default value is
@@ -127,7 +127,7 @@ def eval_detection_voc(
             pred_scores_list[l],
             gt_bboxes_list[l],
             gt_difficults_list[l],
-            min_iou)
+            iou_thresh)
         ap = _voc_ap(rec, prec, use_07_metric=use_07_metric)
         results[l] = {}
         results[l]['recall'] = rec
@@ -139,7 +139,7 @@ def eval_detection_voc(
 
 
 def _pred_and_rec_cls(
-        bboxes, scores, gt_bboxes, gt_difficults, min_iou=0.5):
+        bboxes, scores, gt_bboxes, gt_difficults, iou_thresh=0.5):
     # Calculate detection metrics with respect to a class.
     # This function is called only when there is at least one
     # prediction or ground truth box which is labeled as the class.
@@ -197,7 +197,7 @@ def _pred_and_rec_cls(
             ioumax = np.max(iou)
             jmax = np.argmax(iou)
 
-        if ioumax > min_iou:
+        if ioumax > iou_thresh:
             if not gt_difficults[idx][jmax]:
                 if not selec[idx][jmax]:
                     tp[d] = 1
