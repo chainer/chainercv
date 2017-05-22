@@ -203,6 +203,40 @@ class FasterRCNNBase(chainer.Chain):
         else:
             raise ValueError('preset must be visualize or evaluate')
 
+    def prepare(self, img):
+        """Preprocess an image for feature extraction.
+
+        The length of the shorter edge is scaled to :obj:`self.min_size`.
+        After that, if the length of the longer edge is longer than
+        :obj:`self.max_size`, the image is scaled to fit the longer edge
+        to :obj:`self.max_size`.
+
+        After resizing, image is subtracted by a mean image value
+        :obj:`self.mean`.
+
+        Args:
+            img (~numpy.ndarray): An image. This is in CHW and BGR format.
+                The range of its value is :math:`[0, 255]`.
+
+        Returns:
+            ~numpy.ndarray:
+            A preprocessed image.
+
+        """
+        _, H, W = img.shape
+
+        scale = 1.
+
+        scale = self.min_size / min(H, W)
+
+        if scale * max(H, W) > self.max_size:
+            scale = self.max_size / max(H, W)
+
+        img = resize(img, (int(W * scale), int(H * scale)))
+
+        img = (img - self.mean).astype(np.float32, copy=False)
+        return img
+
     def predict(self, imgs):
         """Detect objects from images.
 
@@ -282,37 +316,3 @@ class FasterRCNNBase(chainer.Chain):
             scores.append(score)
 
         return bboxes, labels, scores
-
-    def prepare(self, img):
-        """Preprocess an image for feature extraction.
-
-        The length of the shorter edge is scaled to :obj:`self.min_size`.
-        After that, if the length of the longer edge is longer than
-        :obj:`self.max_size`, the image is scaled to fit the longer edge
-        to :obj:`self.max_size`.
-
-        After resizing, image is subtracted by a mean image value
-        :obj:`self.mean`.
-
-        Args:
-            img (~numpy.ndarray): An image. This is in CHW and BGR format.
-                The range of its value is :math:`[0, 255]`.
-
-        Returns:
-            ~numpy.ndarray:
-            A preprocessed image.
-
-        """
-        _, H, W = img.shape
-
-        scale = 1.
-
-        scale = self.min_size / min(H, W)
-
-        if scale * max(H, W) > self.max_size:
-            scale = self.max_size / max(H, W)
-
-        img = resize(img, (int(W * scale), int(H * scale)))
-
-        img = (img - self.mean).astype(np.float32, copy=False)
-        return img
