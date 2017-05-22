@@ -11,7 +11,8 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
         >>> dataset = chainercv.datasets.VOCDetectionDataset()
         >>> img, bbox, label = dataset[60]
         >>> chainercv.visualizations.vis_bbox(
-                img, bbox, label, label_names=dataset.labels)
+        ...         img, bbox, label,
+        ...         label_names=chainercv.datasets.voc_detection_label_names)
         >>> plot.show()
 
     Args:

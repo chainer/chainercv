@@ -35,7 +35,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
     :math:`R` is the number of bounding boxes in the image. These are integers
     that correspond to object ID which are listed in
-    :obj:`VOCDetectionDataset.labels`.
+    :obj:`chainercv.datasets.voc_detection_label_names`.
 
     The array :obj:`difficult` is a one dimensional boolean array of shape
     :math:`(R,)`. :math:`R` is the number of bounding boxes in the image.
@@ -63,8 +63,6 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             or not. The default value is :obj:`False`.
 
     """
-
-    labels = voc_utils.pascal_voc_labels
 
     def __init__(self, data_dir='auto', split='train', year='2012',
                  use_difficult=False, return_difficult=False):
@@ -123,7 +121,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
                 int(bndbox_anno.find(tag).text) - 1
                 for tag in ('xmin', 'ymin', 'xmax', 'ymax')])
             name = obj.find('name').text.lower().strip()
-            label.append(self.labels.index(name))
+            label.append(voc_utils.voc_detection_label_names.index(name))
         bbox = np.stack(bbox).astype(np.float32)
         label = np.stack(label).astype(np.int32)
         difficult = np.array(difficult, dtype=np.bool)
