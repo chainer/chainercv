@@ -233,8 +233,9 @@ class SSD300(SSD):
            This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
            The default value is :obj:`None`.
 
-            * :obj:`'voc0712'`: Load weights trained on Pascal VOC 2007 and \
-                2012. The weight file is downloaded and cached automatically. \
+            * :obj:`'voc0712'`: Load weights trained on trainval split of \
+                PASCAL VOC 2007 and 2012. \
+                The weight file is downloaded and cached automatically. \
                 :obj:`n_fg_class` must be :obj:`20` or :obj:`None`.
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
@@ -304,8 +305,9 @@ class SSD512(SSD):
            This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
            The default value is :obj:`None`.
 
-            * :obj:`'voc0712'`: Load weights trained on Pascal VOC 2007 and \
-                2012. The weight file is downloaded and cached automatically. \
+            * :obj:`'voc0712'`: Load weights trained on trainval split of \
+                PASCAL VOC 2007 and 2012. \
+                The weight file is downloaded and cached automatically. \
                 :obj:`n_fg_class` must be :obj:`20` or :obj:`None`.
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
