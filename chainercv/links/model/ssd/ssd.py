@@ -4,9 +4,6 @@ import itertools
 import numpy as np
 
 import chainer
-import chainer.functions as F
-from chainer import initializers
-import chainer.links as L
 
 from chainercv import transforms
 from chainercv import utils
@@ -23,12 +20,12 @@ class SSD(chainer.Chain):
        SSD: Single Shot MultiBox Detector. ECCV 2016.
 
     Args:
-        n_fg_class (int): The number of classes excluding the background.
-        extractor: A link which extract feature maps.
+        extractor: A link which extracts feature maps.
             This link must have :obj:`insize`, :obj:`grids` and
             :meth:`__call__`.
-        aspect_ratios (iterable of tuple or int): The aspect ratios of
-            default bounding boxes for each feature map.
+        multibox: A link which computes loc and conf from feature maps.
+            This link must have :obj:`n_class`, :obj:`aspect_ratios` and
+            :meth:`__call__`.
         steps (iterable of float): The step size for each feature map.
         sizes (iterable of float): The base size of default bounding boxes
             for each feature map.
@@ -37,12 +34,6 @@ class SSD(chainer.Chain):
             encode coordinates of the centers. The second value is used to
             encode the sizes of bounding boxes.
             The default value is :obj:`(0.1, 0.2)`.
-        initialW: An initializer used in
-            :meth:`chainer.links.Convolution2d.__init__`.
-            The default value is :class:`chainer.initializers.GlorotUniform`.
-        initial_bias: An initializer used in
-            :meth:`chainer.links.Convolution2d.__init__`.
-            The default value is :class:`chainer.initializers.Zero`.
 
     Parameters:
         nms_thresh (float): The threshold value
@@ -58,29 +49,14 @@ class SSD(chainer.Chain):
     """
 
     def __init__(
-            self, n_fg_class,
-            extractor,
-            aspect_ratios, steps, sizes,
-            variance=(0.1, 0.2),
-            initialW=initializers.GlorotUniform(),
-            initial_bias=initializers.Zero(),
+            self, extractor, multibox,
+            steps, sizes, variance=(0.1, 0.2),
             mean=0):
-        self.n_fg_class = n_fg_class
         self.variance = variance
         self.mean = mean
         self.use_preset('visualize')
 
-        super(SSD, self).__init__(
-            extractor=extractor,
-            loc=chainer.ChainList(),
-            conf=chainer.ChainList(),
-        )
-        init = {'initialW': initialW, 'initial_bias': initial_bias}
-        for ar in aspect_ratios:
-            n = (len(ar) + 1) * 2
-            self.loc.add_link(L.Convolution2D(None, n * 4, 3, pad=1, **init))
-            self.conf.add_link(L.Convolution2D(
-                None, n * (self.n_fg_class + 1), 3, pad=1, **init))
+        super(SSD, self).__init__(extractor=extractor, multibox=multibox)
 
         # the format of default_bbox is (center_x, center_y, width, height)
         self._default_bbox = list()
@@ -96,7 +72,7 @@ class SSD(chainer.Chain):
                 self._default_bbox.append((cx, cy, s, s))
 
                 s = sizes[k]
-                for ar in aspect_ratios[k]:
+                for ar in self.multibox.aspect_ratios[k]:
                     self._default_bbox.append(
                         (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
                     self._default_bbox.append(
@@ -107,6 +83,10 @@ class SSD(chainer.Chain):
     def insize(self):
         return self.extractor.insize
 
+    @property
+    def n_fg_class(self):
+        return self.multibox.n_class - 1
+
     def to_cpu(self):
         super(SSD, self).to_cpu()
         self._default_bbox = chainer.cuda.to_cpu(self._default_bbox)
@@ -114,26 +94,6 @@ class SSD(chainer.Chain):
     def to_gpu(self):
         super(SSD, self).to_gpu()
         self._default_bbox = chainer.cuda.to_gpu(self._default_bbox)
-
-    def _multibox(self, xs):
-        ys_loc = list()
-        ys_conf = list()
-        for i, x in enumerate(xs):
-            loc = self.loc[i](x)
-            loc = F.transpose(loc, (0, 2, 3, 1))
-            loc = F.reshape(loc, (loc.shape[0], -1, 4))
-            ys_loc.append(loc)
-
-            conf = self.conf[i](x)
-            conf = F.transpose(conf, (0, 2, 3, 1))
-            conf = F.reshape(
-                conf, (conf.shape[0], -1, self.n_fg_class + 1))
-            ys_conf.append(conf)
-
-        y_loc = F.concat(ys_loc, axis=1)
-        y_conf = F.concat(ys_conf, axis=1)
-
-        return y_loc, y_conf
 
     def __call__(self, x):
         """Compute localization and classification from a batch of images.
@@ -156,7 +116,7 @@ class SSD(chainer.Chain):
                 :math:`(K, n\_fg\_class)`.
         """
 
-        return self._multibox(self.extractor(x))
+        return self.multibox(self.extractor(x))
 
     def _decode(self, loc, conf):
         xp = self.xp

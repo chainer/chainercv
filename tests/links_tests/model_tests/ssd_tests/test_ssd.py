@@ -5,6 +5,7 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
+from chainercv.links.model.ssd import Multibox
 from chainercv.links.model.ssd import SSD
 
 
@@ -30,9 +31,10 @@ class DummySSD(SSD):
 
     def __init__(self, n_fg_class):
         super(DummySSD, self).__init__(
-            n_fg_class,
             extractor=DummyExtractor(),
-            aspect_ratios=((2,), (2, 3), (2,)),
+            multibox=Multibox(
+                n_class=n_fg_class + 1,
+                aspect_ratios=((2,), (2, 3), (2,))),
             steps=(0.1, 0.25, 1),
             sizes=(0.1, 0.25, 1, 1.2),
             mean=(0, 1, 2))

@@ -25,17 +25,17 @@ def rename(name):
 
     m = re.match(r'^conv4_3_norm_mbox_(loc|conf)$', name)
     if m:
-        return '{:s}/0'.format(m.group(1))
+        return 'multibox/{:s}/0'.format(m.group(1))
 
     m = re.match(r'^fc7_mbox_(loc|conf)$', name)
     if m:
-        return ('{:s}/1'.format(m.group(1)))
+        return ('multibox/{:s}/1'.format(m.group(1)))
 
     m = re.match(r'^conv(\d+)_2_mbox_(loc|conf)$', name)
     if m:
         i, type_ = int(m.group(1)), m.group(2)
         if i >= 6:
-            return '{:s}/{:d}'.format(type_, i - 4)
+            return 'multibox/{:s}/{:d}'.format(type_, i - 4)
 
     return name
 

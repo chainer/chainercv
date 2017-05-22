@@ -7,6 +7,7 @@ import chainer.functions as F
 from chainer import initializers
 import chainer.links as L
 
+from chainercv.links.model.ssd import Multibox
 from chainercv.links.model.ssd import Normalize
 from chainercv.links.model.ssd import SSD
 from chainercv.utils import download
@@ -231,9 +232,10 @@ class SSD300(SSD):
             path = None
 
         super(SSD300, self).__init__(
-            n_fg_class,
             extractor=VGG16Extractor300(),
-            aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2,), (2,)),
+            multibox=Multibox(
+                n_class=n_fg_class + 1,
+                aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))),
             steps=[s / 300 for s in (8, 16, 32, 64, 100, 300)],
             sizes=[s / 300 for s in (30, 60, 111, 162, 213, 264, 315)])
 
@@ -296,9 +298,11 @@ class SSD512(SSD):
             path = None
 
         super(SSD512, self).__init__(
-            n_fg_class,
             extractor=VGG16Extractor512(),
-            aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2, 3), (2,), (2,)),
+            multibox=Multibox(
+                n_class=n_fg_class + 1,
+                aspect_ratios=(
+                    (2,), (2, 3), (2, 3), (2, 3), (2, 3), (2,), (2,))),
             steps=[s / 512 for s in (8, 16, 32, 64, 128, 256, 512)],
             sizes=[s / 512 for s in
                    (35.84, 76.8, 153.6, 230.4, 307.2, 384.0, 460.8, 537.6)])
