@@ -11,14 +11,16 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
 
     """Dataset class for the semantic segmantion task of Pascal `VOC2012`_.
 
+    The class name of the label :math:`l` is :math:`l` th element of
+    :obj:`chainercv.datasets.voc_semantic_segmentation_label_names`.
+
     .. _`VOC2012`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc`.
-        mode ({'train', 'val', 'trainval'}): Select from dataset splits used
-            in VOC.
+        split ({'train', 'val', 'trainval'}): Select a split of the dataset.
         year ({'2007', '2012'}): Use a dataset prepared for a challenge
             held in :obj:`year`.
         use_difficult (bool): If true, use images that are labeled as
@@ -26,18 +28,16 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
 
     """
 
-    labels = voc_utils.pascal_voc_labels
-
-    def __init__(self, data_dir='auto', mode='train'):
-        if mode not in ['train', 'trainval', 'val']:
+    def __init__(self, data_dir='auto', split='train'):
+        if split not in ['train', 'trainval', 'val']:
             raise ValueError(
-                'please pick mode from \'train\', \'trainval\', \'val\'')
+                'please pick split from \'train\', \'trainval\', \'val\'')
 
         if data_dir == 'auto':
-            data_dir = voc_utils.get_pascal_voc('2012', mode)
+            data_dir = voc_utils.get_pascal_voc('2012', split)
 
         id_list_file = osp.join(
-            data_dir, 'ImageSets/Segmentation/{0}.txt'.format(mode))
+            data_dir, 'ImageSets/Segmentation/{0}.txt'.format(split))
         self.ids = [id_.strip() for id_ in open(id_list_file)]
 
         self.data_dir = data_dir

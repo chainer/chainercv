@@ -33,9 +33,9 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     vertices.
 
     The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
-    :math:`R` is the number of bounding boxes in the image. These are integers
-    that correspond to object ID which are listed in
-    :obj:`VOCDetectionDataset.labels`.
+    :math:`R` is the number of bounding boxes in the image.
+    The class name of the label :math:`l` is :math:`l` th element of
+    :obj:`chainercv.datasets.voc_detection_label_names`.
 
     The array :obj:`difficult` is a one dimensional boolean array of shape
     :math:`(R,)`. :math:`R` is the number of bounding boxes in the image.
@@ -51,8 +51,9 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc`.
-        mode ({'train', 'val', 'trainval', 'test'}): Select from dataset splits
-            used in VOC. :obj:`test` mode is only available for 2007 dataset.
+        split ({'train', 'val', 'trainval', 'test'}): Select a split of the
+            dataset. :obj:`test` split is only available for
+            2007 dataset.
         year ({'2007', '2012'}): Use a dataset prepared for a challenge
             held in :obj:`year`.
         use_difficult (bool): If true, use images that are labeled as
@@ -63,23 +64,21 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     """
 
-    labels = voc_utils.pascal_voc_labels
-
-    def __init__(self, data_dir='auto', mode='train', year='2012',
+    def __init__(self, data_dir='auto', split='train', year='2012',
                  use_difficult=False, return_difficult=False):
         if data_dir == 'auto' and year in ['2007', '2012']:
-            data_dir = voc_utils.get_pascal_voc(year, mode)
+            data_dir = voc_utils.get_pascal_voc(year, split)
 
-        if mode not in ['train', 'trainval', 'val']:
-            if not (mode == 'test' and year == '2007'):
+        if split not in ['train', 'trainval', 'val']:
+            if not (split == 'test' and year == '2007'):
                 warnings.warn(
-                    'please pick mode from \'train\', \'trainval\', \'val\''
+                    'please pick split from \'train\', \'trainval\', \'val\''
                     'for 2012 dataset. For 2007 dataset, you can pick \'test\''
-                    ' in addition to the above mentioned modes.'
+                    ' in addition to the above mentioned splits.'
                 )
 
         id_list_file = os.path.join(
-            data_dir, 'ImageSets/Main/{0}.txt'.format(mode))
+            data_dir, 'ImageSets/Main/{0}.txt'.format(split))
 
         self.ids = [id_.strip() for id_ in open(id_list_file)]
 
@@ -110,7 +109,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         label = []
         difficult = []
         for obj in anno.findall('object'):
-            # when in not using difficult mode, and the object is
+            # when in not using difficult split, and the object is
             # difficult, skipt it.
             difficult.append(int(obj.find('difficult').text))
             if not self.use_difficult and int(obj.find('difficult').text) == 1:
@@ -122,7 +121,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
                 int(bndbox_anno.find(tag).text) - 1
                 for tag in ('xmin', 'ymin', 'xmax', 'ymax')])
             name = obj.find('name').text.lower().strip()
-            label.append(self.labels.index(name))
+            label.append(voc_utils.voc_detection_label_names.index(name))
         bbox = np.stack(bbox).astype(np.float32)
         label = np.stack(label).astype(np.int32)
         difficult = np.array(difficult, dtype=np.bool)
