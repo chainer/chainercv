@@ -3,6 +3,8 @@ from __future__ import division
 import numpy as np
 import six
 
+from chainercv.utils import bbox_overlap
+
 
 def eval_detection_voc(
         pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
@@ -180,20 +182,19 @@ def _pred_and_rec_cls(
     tp = np.zeros(nd)
     fp = np.zeros(nd)
 
-    bbox_area = np.prod(bbox[:, 2:] - bbox[:, :2] + 1., axis=1)
     for d in six.moves.range(nd):
         idx = index[d]
         bb = bbox[d]
         ioumax = -np.inf
         gt_bb = gt_bboxes[idx]
-        # VOC evaluation follows integer typed bounding boxes.
-        gt_bb_area = np.prod(gt_bb[:, 2:] - gt_bb[:, :2] + 1., axis=1)
 
         if gt_bb.size > 0:
-            lt = np.maximum(gt_bb[:, :2], bb[:2])
-            rb = np.minimum(gt_bb[:, 2:], bb[2:])
-            area = np.prod(np.maximum(rb - lt + 1, 0), axis=1)
-            iou = area / (bbox_area[d] + gt_bb_area - area)
+            # VOC evaluation follows integer typed bounding boxes.
+            gt_bb_int = np.concatenate((gt_bb[:, :2], gt_bb[:, 2:] + 1),
+                                       axis=1)
+            bb_int = np.concatenate((bb[None][:, :2], bb[None][:, 2:] + 1),
+                                    axis=1)
+            iou = bbox_overlap(gt_bb_int, bb_int)[:, 0]
             ioumax = np.max(iou)
             jmax = np.argmax(iou)
 
