@@ -8,7 +8,7 @@ import chainer.functions as F
 import chainer.links as L
 from chainer.links import VGG16Layers
 
-from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNNBase
+from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNN
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 from chainercv.utils import download
@@ -20,7 +20,7 @@ def _relu(x):
     return F.relu(x, use_cudnn=False)
 
 
-class FasterRCNNVGG16(FasterRCNNBase):
+class FasterRCNNVGG16(FasterRCNN):
 
     """Faster R-CNN based on VGG16.
 
@@ -39,7 +39,7 @@ class FasterRCNNVGG16(FasterRCNNBase):
         will be randomly initialized.
 
     For descriptions on the interface of this model, please refer to
-    :class:`chainercv.links.model.faster_rcnn.FasterRCNNBase`.
+    :class:`chainercv.links.model.faster_rcnn.FasterRCNN`.
 
     :obj:`FasterRCNNVGG16` supports finer control on random initialization of
     weights by arguments

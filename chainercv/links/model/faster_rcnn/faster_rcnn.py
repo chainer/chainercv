@@ -30,7 +30,7 @@ from chainercv.utils import non_maximum_suppression
 from chainercv.transforms.image.resize import resize
 
 
-class FasterRCNNBase(chainer.Chain):
+class FasterRCNN(chainer.Chain):
 
     """Base class for Faster R-CNN.
 
@@ -91,7 +91,7 @@ class FasterRCNNBase(chainer.Chain):
             loc_normalize_mean=(0., 0., 0., 0.),
             loc_normalize_std=(0.1, 0.1, 0.2, 0.2),
     ):
-        super(FasterRCNNBase, self).__init__(
+        super(FasterRCNN, self).__init__(
             extractor=extractor,
             rpn=rpn,
             head=head,

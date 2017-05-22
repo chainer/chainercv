@@ -4,9 +4,9 @@ Faster RCNN
 .. module:: chainercv.links.model.faster_rcnn
 
 
-FasterRCNNBase
---------------
-.. autoclass:: FasterRCNNBase
+FasterRCNN
+----------
+.. autoclass:: FasterRCNN
    :members:
    :special-members:  __call__
 

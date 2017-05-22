@@ -5,7 +5,7 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links.model.faster_rcnn import FasterRCNNBase
+from chainercv.links.model.faster_rcnn import FasterRCNN
 
 
 def _random_array(xp, shape):
@@ -79,7 +79,7 @@ class DummyRegionProposalNetwork(chainer.Chain):
                 chainer.Variable(rpn_cls_scores), rois, roi_indices, anchor)
 
 
-class DummyFasterRCNN(FasterRCNNBase):
+class DummyFasterRCNN(FasterRCNN):
 
     def __init__(self, n_anchor_base, feat_stride, n_fg_class, n_roi,
                  min_size, max_size
@@ -95,7 +95,7 @@ class DummyFasterRCNN(FasterRCNNBase):
         )
 
 
-class TestFasterRCNNBase(unittest.TestCase):
+class TestFasterRCNN(unittest.TestCase):
 
     def setUp(self):
         self.n_anchor_base = 6
