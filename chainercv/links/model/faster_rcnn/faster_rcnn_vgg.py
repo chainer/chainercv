@@ -126,7 +126,7 @@ class FasterRCNNVGG16(FasterRCNNBase):
             proposal_creator_params=proposal_creator_params,
         )
         head = VGG16RoIPoolingHead(
-            n_fg_class,
+            n_fg_class + 1,
             roi_size=7, spatial_scale=1. / self.feat_stride,
             vgg_initialW=vgg_initialW,
             loc_initialW=loc_initialW,
@@ -188,21 +188,21 @@ class VGG16RoIPoolingHead(chainer.Chain):
     features.
 
     Args:
-        n_fg_class (int): The number of classes excluding the background.
+        n_class (int): The number of classes possibly including the background.
         roi_size (int): Height and width of the features after RoI-pooled.
         spatial_scale (float): Scale of the roi is resized.
 
     """
 
-    def __init__(self, n_fg_class, roi_size, spatial_scale,
+    def __init__(self, n_class, roi_size, spatial_scale,
                  vgg_initialW=None, loc_initialW=None, score_initialW=None):
         # n_class includes the background
         super(VGG16RoIPoolingHead, self).__init__(
             fc6=L.Linear(25088, 4096, initialW=vgg_initialW),
             fc7=L.Linear(4096, 4096, initialW=vgg_initialW),
-            cls_loc=L.Linear(4096, (n_fg_class + 1) * 4,
+            cls_loc=L.Linear(4096, n_class * 4,
                              initialW=loc_initialW),
-            score=L.Linear(4096, n_fg_class + 1, initialW=score_initialW)
+            score=L.Linear(4096, n_class, initialW=score_initialW)
         )
         self.roi_size = roi_size
         self.spatial_scale = spatial_scale
