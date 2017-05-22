@@ -63,7 +63,7 @@ class ProposalCreator(object):
         self.min_size = min_size
 
     def __call__(self, loc, score,
-                 anchor, img_size, scale=1., train=False):
+                 anchor, img_size, scale=1., test=True):
         """Propose RoIs.
 
         Inputs :obj:`loc, score, anchor` refer to the same anchor when indexed
@@ -86,8 +86,8 @@ class ProposalCreator(object):
                 which contains image size after scaling if any.
             scale (float): The scaling factor used to scale an image after
                 reading it from a file.
-            train (bool): If this is in train mode or not.
-                Default value is :obj:`False`.
+            test (bool): Execute in test mode or not.
+                Default value is :obj:`True`.
 
         Returns:
             array:
@@ -99,8 +99,8 @@ class ProposalCreator(object):
             bounding boxes discarded by NMS.
 
         """
-        n_pre_nms = self.n_train_pre_nms if train else self.n_test_pre_nms
-        n_post_nms = self.n_train_post_nms if train else self.n_test_post_nms
+        n_pre_nms = self.n_test_pre_nms if test else self.n_train_pre_nms
+        n_post_nms = self.n_test_post_nms if test else self.n_train_post_nms
 
         xp = cuda.get_array_module(loc)
         loc = cuda.to_cpu(loc)

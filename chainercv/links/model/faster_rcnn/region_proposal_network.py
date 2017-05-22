@@ -84,8 +84,8 @@ class RegionProposalNetwork(chainer.Chain):
                 which contains image size after scaling if any.
             scale (float): The scaling factor used to scale an image after
                 reading it from a file.
-            train (bool): If this is in train mode or not.
-                Default value is :obj:`False`.
+            test (bool): Execute in test mode or not.
+                Default value is :obj:`True`.
 
         Returns:
             (~chainer.Variable, ~chainer.Variable, array, array, array):
@@ -129,7 +129,7 @@ class RegionProposalNetwork(chainer.Chain):
         for i in range(n):
             roi = self.proposal_layer(
                 rpn_locs[i].data, rpn_fg_scores[i].data, anchor, img_size,
-                scale=scale, train=not test)
+                scale=scale, test=test)
             batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
             rois.append(roi)
             roi_indices.append(batch_index)
