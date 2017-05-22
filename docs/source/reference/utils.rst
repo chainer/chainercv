@@ -7,9 +7,9 @@ Utils
 Bounding Box Utilities
 ----------------------
 
-bbox_overlap
-~~~~~~~~~~~~
-.. autofunction:: bbox_overlap
+bbox_iou
+~~~~~~~~
+.. autofunction:: bbox_iou
 
 non_maximum_suppression
 ~~~~~~~~~~~~~~~~~~~~~~~
