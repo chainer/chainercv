@@ -16,7 +16,7 @@ def main():
     parser.add_argument('image')
     args = parser.parse_args()
 
-    model = FasterRCNNVGG16(n_class=21, pretrained_model='voc07')
+    model = FasterRCNNVGG16(pretrained_model='voc07')
     if args.gpu >= 0:
         model.to_gpu(args.gpu)
         chainer.cuda.get_device(args.gpu).use()
