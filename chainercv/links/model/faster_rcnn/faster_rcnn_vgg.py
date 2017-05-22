@@ -14,13 +14,6 @@ from chainercv.links.model.faster_rcnn.region_proposal_network import \
 from chainercv.utils import download
 
 
-urls = {
-    'voc07': 'https://github.com/yuyu2172/share-weights/releases/'
-    'download/0.0.1/faster_rcnn_vgg_voc07.npz'
-}
-n_fg_classes = {'voc07': 20}
-
-
 def _relu(x):
     # use_cudnn = False is sometimes x3 faster than otherwise.
     # This will be the default mode in Chainer v2.
@@ -89,6 +82,13 @@ class FasterRCNNVGG16(FasterRCNNBase):
 
     """
 
+    _models = {
+        'voc07': {
+            'n_fg_class': 20,
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.1/faster_rcnn_vgg_voc07.npz'
+        }
+    }
     feat_stride = 16
 
     def __init__(self,
@@ -102,10 +102,10 @@ class FasterRCNNVGG16(FasterRCNNBase):
                  proposal_creator_params={}
                  ):
         if n_fg_class is None:
-            if pretrained_model not in n_fg_classes:
+            if pretrained_model not in self._models:
                 raise ValueError(
                     'The n_fg_class needs to be supplied as an argument')
-            n_fg_class = n_fg_classes[pretrained_model]
+            n_fg_class = self._models[pretrained_model]['n_fg_class']
 
         if loc_initialW is None:
             loc_initialW = chainer.initializers.Normal(0.001)
@@ -146,9 +146,9 @@ class FasterRCNNVGG16(FasterRCNNBase):
             max_size=max_size
         )
 
-        if pretrained_model in urls:
+        if pretrained_model in self._models:
             data_root = get_dataset_directory('pfnet/chainercv/models')
-            url = urls[pretrained_model]
+            url = self._models[pretrained_model]['url']
             fn = url.rsplit('/', 1)[-1]
             dest_fn = os.path.join(data_root, fn)
             if not os.path.exists(dest_fn):
