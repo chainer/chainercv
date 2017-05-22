@@ -221,7 +221,7 @@ class VGG16Extractor512(VGG16):
 
 
 class SSD300(SSD):
-    """Single Shot Multibox Detector.
+    """Single Shot Multibox Detector with 300x300 inputs.
 
     This is a model of Single Shot Multibox Detector [#]_.
     This model uses :class:`~chainercv.links.model.ssd.VGG16Extractor300` as
@@ -292,7 +292,7 @@ class SSD300(SSD):
 
 
 class SSD512(SSD):
-    """Single Shot Multibox Detector.
+    """Single Shot Multibox Detector with 512x512 inputs.
 
     This is a model of Single Shot Multibox Detector [#]_.
     This model uses :class:`~chainercv.links.model.ssd.VGG16Extractor512` as
