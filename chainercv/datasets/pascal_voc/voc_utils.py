@@ -16,18 +16,18 @@ urls = {
 }
 
 
-def get_pascal_voc(year, mode):
+def get_pascal_voc(year, split):
     if year not in urls:
         raise ValueError
     key = year
 
-    if mode == 'test' and year == '2007':
+    if split == 'test' and year == '2007':
         key = '2007_test'
 
     data_root = download.get_dataset_directory(root)
     base_path = os.path.join(data_root, 'VOCdevkit/VOC{}'.format(year))
-    mode_file = os.path.join(base_path, 'ImageSets/Main/{}.txt'.format(mode))
-    if os.path.exists(mode_file):
+    split_file = os.path.join(base_path, 'ImageSets/Main/{}.txt'.format(split))
+    if os.path.exists(split_file):
         # skip downloading
         return base_path
 
@@ -37,8 +37,7 @@ def get_pascal_voc(year, mode):
     return base_path
 
 
-pascal_voc_labels = (
-    'background',
+voc_detection_label_names = (
     'aeroplane',
     'bicycle',
     'bird',
@@ -59,3 +58,6 @@ pascal_voc_labels = (
     'sofa',
     'train',
     'tvmonitor')
+
+voc_semantic_segmentation_label_names = (('background',) +
+                                         voc_detection_label_names)

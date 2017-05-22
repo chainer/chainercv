@@ -11,7 +11,8 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
         >>> dataset = chainercv.datasets.VOCDetectionDataset()
         >>> img, bbox, label = dataset[60]
         >>> chainercv.visualizations.vis_bbox(
-                img, bbox, label, label_names=dataset.labels)
+        ...         img, bbox, label,
+        ...         label_names=chainercv.datasets.voc_detection_label_names)
         >>> plot.show()
 
     Args:
@@ -52,26 +53,26 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
     if len(bbox) == 0:
         return ax
 
-    for i, bbox_elem in enumerate(bbox):
-        xy = (bbox_elem[0], bbox_elem[1])
-        width = bbox_elem[2] - bbox_elem[0]
-        height = bbox_elem[3] - bbox_elem[1]
+    for i, bb in enumerate(bbox):
+        xy = (bb[0], bb[1])
+        width = bb[2] - bb[0]
+        height = bb[3] - bb[1]
         ax.add_patch(plot.Rectangle(
             xy, width, height, fill=False, edgecolor='red', linewidth=3))
 
         caption = list()
 
         if label is not None and label_names is not None:
-            label_elem = label[i]
-            if not (0 <= label_elem < len(label_names)):
+            lb = label[i]
+            if not (0 <= lb < len(label_names)):
                 raise ValueError('No corresponding name is given')
-            caption.append(label_names[label_elem])
+            caption.append(label_names[lb])
         if score is not None:
-            score_elem = score[i]
-            caption.append('{:.2f}'.format(score_elem))
+            sc = score[i]
+            caption.append('{:.2f}'.format(sc))
 
         if len(caption) > 0:
-            ax.text(bbox_elem[0], bbox_elem[1],
+            ax.text(bb[0], bb[1],
                     ': '.join(caption),
                     style='italic',
                     bbox={'facecolor': 'white', 'alpha': 0.7, 'pad': 10})
