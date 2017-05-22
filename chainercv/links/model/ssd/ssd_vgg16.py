@@ -16,10 +16,25 @@ from chainercv.utils import download
 _imagenet_mean = (104, 117, 123)
 
 
-class VGG16Extractor(chainer.Chain):
+class VGG16(chainer.Chain):
+    """An extended VGG-16 model for SSD300 and SSD512.
+
+    This is an extended VGG-16 model proposed in [#_].
+    The differences from original VGG-16 [#_] are shown below.
+
+    * :obj:`conv5_1`, :obj:`conv5_2` and :obj:`conv5_3` are changed from \
+    :class:`~chainer.links.Convolution2d` to \
+    :class:`~chainer.links.DilatedConvolution2d`
+    * :class:`~chainercv.links.model.ssd.Normalize` is \
+    inserted after :obj:`conv4_3`
+
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
+       Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
+    """
 
     def __init__(self, **links):
-        super(VGG16Extractor, self).__init__(
+        super(VGG16, self).__init__(
             conv1_1=L.Convolution2D(None, 64, 3, pad=1),
             conv1_2=L.Convolution2D(None, 64, 3, pad=1),
 
@@ -79,7 +94,7 @@ class VGG16Extractor(chainer.Chain):
         return ys
 
 
-class VGG16Extractor300(VGG16Extractor):
+class VGG16Extractor300(VGG16):
     insize = 300
     grids = (38, 19, 10, 5, 3, 1)
 
@@ -127,7 +142,7 @@ class VGG16Extractor300(VGG16Extractor):
         return ys
 
 
-class VGG16Extractor512(VGG16Extractor):
+class VGG16Extractor512(VGG16):
     insize = 512
     grids = (64, 32, 16, 8, 4, 2, 1)
 
@@ -181,10 +196,9 @@ class VGG16Extractor512(VGG16Extractor):
 class SSD300(SSD):
     """Single Shot Multibox Detector.
 
-    This is a model of Single Shot Multibox Detector.
-    This model is based on VGG-16 and takes 300x300 images as inputs.
-
-    This model is proposed in [#]_.
+    This is a model of Single Shot Multibox Detector [#]_.
+    This model uses :class:`~chainercv.links.model.ssd.VGG16Extractor300` as
+    its feature extractor.
 
     Args:
        n_fg_class (int): The number of classes excluding the background.
@@ -246,10 +260,9 @@ class SSD300(SSD):
 class SSD512(SSD):
     """Single Shot Multibox Detector.
 
-    This is a model of Single Shot Multibox Detector.
-    This model is based on VGG-16 and takes 512x512 images as inputs.
-
-    This model is proposed in [#]_.
+    This is a model of Single Shot Multibox Detector [#]_.
+    This model uses :class:`~chainercv.links.model.ssd.VGG16Extractor512` as
+    its feature extractor.
 
     Args:
        n_fg_class (int): The number of classes excluding the background.

@@ -12,10 +12,9 @@ from chainercv import utils
 class SSD(chainer.Chain):
     """Base class of Single Shot Multibox Detector.
 
-    This is a base class of Single Shot Multibox Detector [1]_.
-    It requires a feature extraction method and a preprocessing method.
+    This is a base class of Single Shot Multibox Detector [#]_.
 
-    .. [1] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
        Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
        SSD: Single Shot MultiBox Detector. ECCV 2016.
 
@@ -23,9 +22,28 @@ class SSD(chainer.Chain):
         extractor: A link which extracts feature maps.
             This link must have :obj:`insize`, :obj:`grids` and
             :meth:`__call__`.
+
+            * :obj:`insize`: An integer which indicates \
+            the size of input images. Images are resized to this size before \
+            feature extraction.
+            * :obj:`grids`: An iterable of integer. Each integer indicates \
+            the size of feature map.
+            * :meth:`__call_`: A method which computes feature maps. \
+            It must take a batched images and return batched feature maps.
         multibox: A link which computes loc and conf from feature maps.
             This link must have :obj:`n_class`, :obj:`aspect_ratios` and
             :meth:`__call__`.
+
+            * :obj:`n_class`: An integer which indicates the number of \
+            classes. \
+            This value should include the background class.
+            * :obj:`aspect_ratios`: An iterable of tuple of integer. \
+            Each tuple indicates the aspect ratios of default bounding boxes \
+            at each feature maps.
+            * :meth:`__call__`: A method which computes \
+            :obj:`loc` and :obj:`conf`.
+            It must take a batched feature maps and \
+            return :obj:`loc` and :obj:`conf`.
         steps (iterable of float): The step size for each feature map.
         sizes (iterable of float): The base size of default bounding boxes
             for each feature map.

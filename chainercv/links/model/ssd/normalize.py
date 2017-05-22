@@ -6,12 +6,12 @@ from chainer import initializers
 
 
 class Normalize(chainer.Link):
-    """Learnable L2 normalization [1].
+    """Learnable L2 normalization [#]_.
 
     This link normalizes input along the channel axis and scales it.
     The scale factors are trained channel-wise.
 
-    [1] Wei Liu, Andrew Rabinovich, Alexander C. Berg.
+    [#] Wei Liu, Andrew Rabinovich, Alexander C. Berg.
     ParseNet: Looking Wider to See Better. ICLR 2016.
 
     Args:

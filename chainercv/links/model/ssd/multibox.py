@@ -5,7 +5,16 @@ import chainer.links as L
 
 
 class Multibox(chainer.Chain):
-    """
+    """Multibox head of Single Shot Multibox Detector.
+
+    This is a head part of Single Shot Multibox Detector [#]_.
+    This link computes :obj:`loc` and :obj:`conf` from feature maps.
+    :obj:`loc` contains information of the coordinates of bounding boxes
+    and :obj:`conf` contains that of classes.
+
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
+       Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
 
     Args:
         n_class (int): The number of classes.
@@ -43,6 +52,24 @@ class Multibox(chainer.Chain):
                 None, n * self.n_class, 3, pad=1, **init))
 
     def __call__(self, xs):
+        """Compute loc and conf from feature maps
+
+        This method computes :obj:`loc` and :obj:`conf`
+        from given feature maps.
+
+        Args:
+            xs (iterable of chainer.Variable): An iterable of feature maps.
+                The number of feature maps must be same as the number of
+                :obj:`aspect_ratios`.
+
+        Returns:
+            tuple of chainer.Variable:
+            This method returns two :obj:`chainer.Variable`, :obj:`loc` and
+            :obj:`conf`. :obj:`loc` is an array whose shape is :math:`(R, 4)`,
+            where :math:`R` is the number of default bounding boxes.
+            :obj:`conf` is an array whose shape is :math:`(R, n\_class)`
+        """
+
         ys_loc = list()
         ys_conf = list()
         for i, x in enumerate(xs):
