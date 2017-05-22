@@ -35,7 +35,6 @@ class Normalize(chainer.Link):
 
         Args:
             x (chainer.Variable): A variable holding 4-dimensional array.
-                The dimensions is :math:`(batch, channel, height, width)`.
                 Its :obj:`dtype` is :obj:`numpy.float32`.
 
         Returns:
