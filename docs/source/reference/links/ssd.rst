@@ -39,7 +39,7 @@ SSD
    :special-members:  __call__
 
 VGG16
-~~~~~~~~~~~~~~
+~~~~~
 .. autoclass:: VGG16
    :members:
    :special-members:  __call__
