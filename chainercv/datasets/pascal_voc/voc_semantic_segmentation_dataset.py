@@ -11,7 +11,7 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
 
     """Dataset class for the semantic segmantion task of Pascal `VOC2012`_.
 
-    Class names for ids can be found at
+    The class name of the label :math:`l` is :math:`l` th element of
     :obj:`chainercv.datasets.voc_semantic_segmentation_label_names`.
 
     .. _`VOC2012`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/

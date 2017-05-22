@@ -33,8 +33,8 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     vertices.
 
     The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
-    :math:`R` is the number of bounding boxes in the image. These are integers
-    that correspond to object ID which are listed in
+    :math:`R` is the number of bounding boxes in the image.
+    The class name of the label :math:`l` is :math:`l` th element of
     :obj:`chainercv.datasets.voc_detection_label_names`.
 
     The array :obj:`difficult` is a one dimensional boolean array of shape
