@@ -49,7 +49,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/online_products`.
-        split ({'train', 'test'}): split of the dataset.
+        split ({'train', 'test'}): Select a split of the dataset.
 
     """
 
