@@ -34,8 +34,8 @@ class FasterRCNN(chainer.Chain):
 
     """Base class for Faster R-CNN.
 
-    This is a base class for Faster R-CNN [#]_.
-    The following three stages constitute Faster R-CNN.
+    This is a base class for Faster R-CNN links supporting object detection
+    API [#]_. The following three stages constitute Faster R-CNN.
 
     1. **Feature extraction**: Images are taken and their \
         feature maps are calculated.
@@ -53,28 +53,31 @@ class FasterRCNN(chainer.Chain):
     :func:`predict` takes images and returns bounding boxes that are converted
     to image coordinates. This will be useful for a scenario when
     Faster R-CNN is treated as a black box function, for instance.
-    Internally, image preprocessing is carried out.
     :func:`__call__` is provided for a scnerario when intermediate outputs
-    are needed, for instance in training and debugging.
+    are needed, for instance, for training and debugging.
+
+    Links that support obejct detection API have method :func:`predict` with
+    the same interface. Please refer to :func:`FasterRCNN.predict` for
+    further details.
 
     .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
     Faster R-CNN: Towards Real-Time Object Detection with \
     Region Proposal Networks. NIPS 2015.
 
     Args:
-        extractor (callable Chain): A callable that takes BCHW image
-            array and option :obj:`train` as arguments, and returns a BCHW
-            feature.
-        rpn (callable Chain): A callable that has same interface as
+        extractor (callable Chain): A callable that takes a BCHW image
+            array and returns a feature.
+        rpn (callable Chain): A callable that has the same interface as
             :class:`chainercv.links.RegionProposalNetwork`. Please refer to
             the documentation found there.
-        head (callable Chain): A callable that takes tuple of
-            BCHW array, RoIs and batch indices for RoIs. This returns class
+        head (callable Chain): A callable that takes
+            a BCHW array, RoIs and batch indices for RoIs. This returns class
             dependent localization paramters and class scores.
         n_fg_class (int): The number of classes excluding the background.
         mean (numpy.ndarray): A value to be subtracted from an image
             in :func:`prepare`.
-        min_size (int): A preprocessing paramter for :func:`prepare`.
+        min_size (int): A preprocessing paramter for :func:`prepare`. Please
+            refer to a docstring found for :func:`prepare`.
         max_size (int): A preprocessing paramter for :func:`prepare`.
         loc_normalize_mean (tuple of four floats): Mean values of
             localization estimates.
@@ -117,7 +120,9 @@ class FasterRCNN(chainer.Chain):
         Here are notations used.
 
         * :math:`N` is the number of batch size
-        * :math:`R'` is the total number of RoIs produced across batches.
+        * :math:`R'` is the total number of RoIs produced across batches. \
+            Given :math:`R_i` proposed RoIs from the :math:`i` th image, \
+            :math:`R' = \\sum _{i=1} ^ N R_i`.
         * :math:`L` is the number of classes excluding the background.
 
         Classes are ordered by the background, the first class, ..., and
@@ -126,20 +131,18 @@ class FasterRCNN(chainer.Chain):
         Args:
             x (~chainer.Variable): 4D image variable.
             scale (float): Amount of scaling applied to the raw image
-                in preprocessing.
-            layers (list of str): The list of the names of the values to be
-                collected.
-            test (bool): If :obj:`True`, test time behavior is used.
+                during preprocessing.
+            test (bool): If :obj:`True`, the test time behavior is used.
 
         Returns:
             Variable, Variable, array, array:
             Returns tuple of four values listed below.
 
-            * **roi_cls_locs**: Bounding box offsets for RoIs. \
+            * **roi_cls_locs**: Offsets and scalings for the proposed RoIs. \
                 Its shape is :math:`(R', (L + 1) \\times 4)`.
-            * **roi_scores**: Class predictions for RoIs. \
+            * **roi_scores**: Class predictions for the proposed RoIs. \
                 Its shape is :math:`(R', L + 1)`.
-            * **rois**: RoIs produced by RPN. Its shape is \
+            * **rois**: RoIs proposed by RPN. Its shape is \
                 :math:`(R', 4)`.
             * **roi_indices**: Batch indices of RoIs. Its shape is \
                 :math:`(R',)`.
@@ -154,30 +157,8 @@ class FasterRCNN(chainer.Chain):
             h, rois, roi_indices, test=test)
         return roi_cls_locs, roi_scores, rois, roi_indices
 
-    def _suppress(self, raw_cls_bbox, raw_prob):
-        bbox = list()
-        label = list()
-        score = list()
-        # skip cls_id = 0 because it is the background class
-        for l in range(1, self._n_class):
-            cls_bbox_l = raw_cls_bbox[:, l * 4: (l + 1) * 4]
-            prob_l = raw_prob[:, l]
-            mask = prob_l > self.score_thresh
-            cls_bbox_l = cls_bbox_l[mask]
-            prob_l = prob_l[mask]
-            keep = non_maximum_suppression(
-                cls_bbox_l, self.nms_thresh, prob_l)
-            bbox.append(cls_bbox_l[keep])
-            # The labels are in [0, self.n_fg_class - 1].
-            label.append((l - 1) * np.ones((len(keep),)))
-            score.append(prob_l[keep])
-        bbox = np.concatenate(bbox, axis=0).astype(np.float32)
-        label = np.concatenate(label, axis=0).astype(np.int32)
-        score = np.concatenate(score, axis=0).astype(np.float32)
-        return bbox, label, score
-
     def use_preset(self, preset):
-        """Use given preset during prediction.
+        """Use the given preset during prediction.
 
         This method changes values of :obj:`self.nms_thresh` and
         :obj:`self.score_thresh`. These values are a threshold value
@@ -207,11 +188,11 @@ class FasterRCNN(chainer.Chain):
         """Preprocess an image for feature extraction.
 
         The length of the shorter edge is scaled to :obj:`self.min_size`.
-        After that, if the length of the longer edge is longer than
+        After the scaling, if the length of the longer edge is longer than
         :obj:`self.max_size`, the image is scaled to fit the longer edge
         to :obj:`self.max_size`.
 
-        After resizing, image is subtracted by a mean image value
+        After resizing the image, the image is subtracted by a mean image value
         :obj:`self.mean`.
 
         Args:
@@ -236,6 +217,28 @@ class FasterRCNN(chainer.Chain):
 
         img = (img - self.mean).astype(np.float32, copy=False)
         return img
+
+    def _suppress(self, raw_cls_bbox, raw_prob):
+        bbox = list()
+        label = list()
+        score = list()
+        # skip cls_id = 0 because it is the background class
+        for l in range(1, self._n_class):
+            cls_bbox_l = raw_cls_bbox[:, l * 4: (l + 1) * 4]
+            prob_l = raw_prob[:, l]
+            mask = prob_l > self.score_thresh
+            cls_bbox_l = cls_bbox_l[mask]
+            prob_l = prob_l[mask]
+            keep = non_maximum_suppression(
+                cls_bbox_l, self.nms_thresh, prob_l)
+            bbox.append(cls_bbox_l[keep])
+            # The labels are in [0, self.n_fg_class - 1].
+            label.append((l - 1) * np.ones((len(keep),)))
+            score.append(prob_l[keep])
+        bbox = np.concatenate(bbox, axis=0).astype(np.float32)
+        label = np.concatenate(label, axis=0).astype(np.int32)
+        score = np.concatenate(score, axis=0).astype(np.float32)
+        return bbox, label, score
 
     def predict(self, imgs):
         """Detect objects from images.

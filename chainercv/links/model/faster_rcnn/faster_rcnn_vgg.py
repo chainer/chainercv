@@ -24,24 +24,24 @@ class FasterRCNNVGG16(FasterRCNN):
 
     """Faster R-CNN based on VGG16.
 
-    When you specify the path of the pre-trained chainer model serialized as
+    When you specify the path of a pre-trained chainer model serialized as
     a :obj:`.npz` file in the constructor, this chain model automatically
     initializes all the parameters with it.
     When a string in prespecified set is provided, a pretrained model is
     loaded from weights distributed on the Internet.
-    The list of pretrained models supported are as follows.
+    The list of pretrained models supported are as follows:
 
-    * :obj:`voc07`: Loads weights trained with trainval split of \
+    * :obj:`voc07`: Loads weights trained with the trainval split of \
         PASCAL VOC2007 Detection Dataset.
     * :obj:`imagenet`: Loads weights trained with ImageNet Classfication \
         task for the feature extractor and the head modules. \
-        Weights that do not have a corresponding layer in VGG16 network \
+        Weights that do not have a corresponding layer in VGG16 \
         will be randomly initialized.
 
     For descriptions on the interface of this model, please refer to
     :class:`chainercv.links.model.faster_rcnn.FasterRCNN`.
 
-    :obj:`FasterRCNNVGG16` supports finer control on random initialization of
+    :obj:`FasterRCNNVGG16` supports finer control on random initializations of
     weights by arguments
     :obj:`vgg_initialW`, :obj:`rpn_initialW`, :obj:`loc_initialW` and
     :obj:`score_initialW`.
@@ -51,9 +51,9 @@ class FasterRCNNVGG16(FasterRCNN):
 
     Args:
         n_fg_class (int): The number of classes excluding the background.
-        pretrained_model (str): the destination of the pre-trained
+        pretrained_model (str): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
-            If this argument is specified as in one of the strings described
+            If this is one of the strings described
             above, it automatically loads weights stored under a directory
             :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/models/`,
             where :obj:`$CHAINER_DATASET_ROOT` is set as
@@ -61,12 +61,12 @@ class FasterRCNNVGG16(FasterRCNN):
             by modifying the environment variable.
         min_size (int): A preprocessing paramter for :func:`prepare`.
         max_size (int): A preprocessing paramter for :func:`prepare`.
-        ratios (list of floats): Anchors with ratios contained in this list
-            will be generated. Ratio is the ratio of the height by the width.
-        anchor_scales (list of numbers): Values in :obj:`anchor_scales`
-            determine area of possibly generated anchors. Those areas will be
-            square of an element in :obj:`anchor_scales` times the original
-            area of the reference window.
+        ratios (list of floats): This is ratios of width to height of
+            the anchors.
+        anchor_scales (list of numbers): This is areas of anchors.
+            Those areas will be the product of the square of an element in
+            :obj:`anchor_scales` and the original area of the reference
+            window.
         vgg_initialW (callable): Initializer for the layers corresponding to
             the VGG16 layers.
         rpn_initialW (callable): Initializer for Region Proposal Network
@@ -120,7 +120,7 @@ class FasterRCNNVGG16(FasterRCNN):
             initialW=rpn_initialW,
             proposal_creator_params=proposal_creator_params,
         )
-        head = VGG16RoIPoolingHead(
+        head = VGG16RoIHead(
             n_fg_class + 1,
             roi_size=7, spatial_scale=1. / self.feat_stride,
             vgg_initialW=vgg_initialW,
@@ -172,7 +172,7 @@ class FasterRCNNVGG16(FasterRCNN):
         self.head.fc7.copyparams(pretrained_model.fc7)
 
 
-class VGG16RoIPoolingHead(chainer.Chain):
+class VGG16RoIHead(chainer.Chain):
 
     """Faster R-CNN Head for VGG16 based implementation.
 
@@ -194,7 +194,7 @@ class VGG16RoIPoolingHead(chainer.Chain):
     def __init__(self, n_class, roi_size, spatial_scale,
                  vgg_initialW=None, loc_initialW=None, score_initialW=None):
         # n_class includes the background
-        super(VGG16RoIPoolingHead, self).__init__(
+        super(VGG16RoIHead, self).__init__(
             fc6=L.Linear(25088, 4096, initialW=vgg_initialW),
             fc7=L.Linear(4096, 4096, initialW=vgg_initialW),
             cls_loc=L.Linear(4096, n_class * 4, initialW=loc_initialW),
@@ -213,8 +213,8 @@ class VGG16RoIPoolingHead(chainer.Chain):
             rois (array): A bounding box array containing coordinates of
                 proposal boxes.  This is a concatenation of bounding box
                 arrays from multiple images in the batch.
-                Its shape is :math:`(R', 4)`. Given :math:`R_i` predicted
-                bounding boxes from the :math:`i` th image,
+                Its shape is :math:`(R', 4)`. Given :math:`R_i` proposed
+                RoIs from the :math:`i` th image,
                 :math:`R' = \\sum _{i=1} ^ N R_i`.
             roi_indices (array): An array containing indices of images to
                 which bounding boxes correspond to. Its shape is :math:`(R',)`.

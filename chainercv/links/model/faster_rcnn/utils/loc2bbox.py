@@ -6,7 +6,7 @@ def loc2bbox(src_bbox, loc):
 
     Given bounding box offsets and scales computed by
     :meth:`bbox2loc`, this function decodes the representation to
-    coordinates in 2D image space.
+    coordinates in 2D image coordinates.
 
     Given scales and offsets :math:`t_x, t_y, t_w, t_h` and a bounding
     box whose center is :math:`p_x, p_y` and size :math:`p_w, p_h`,

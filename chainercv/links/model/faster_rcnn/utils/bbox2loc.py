@@ -2,10 +2,10 @@ from chainer import cuda
 
 
 def bbox2loc(src_bbox, dst_bbox):
-    """Encodes bboxes into offsets and scales of the base bboxes.
+    """Encodes the source and the destination bounding boxes to "loc".
 
-    Given bounding boxes, this function computes offsets and scales (loc)
-    to match the boxes to the target boxes.
+    Given bounding boxes, this function computes offsets and scales
+    to match the source bounding boxes to the target bounding boxes.
     Mathematcially, given a bounding box whose center is :math:`p_x, p_y` and
     size :math:`p_w, p_h` and the target bounding box whose center is
     :math:`g_x, g_y` and size :math:`g_w, g_h`, the offsets and scales

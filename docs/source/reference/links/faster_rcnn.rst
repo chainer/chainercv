@@ -19,9 +19,9 @@ VGG16FeatureExtractor
 ---------------------
 .. autoclass:: VGG16FeatureExtractor
 
-VGG16RoIPoolingHead
--------------------
-.. autoclass:: VGG16RoIPoolingHead
+VGG16RoIHead
+------------
+.. autoclass:: VGG16RoIHead
 
 
 RegionProposalNetwork

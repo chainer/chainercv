@@ -24,10 +24,10 @@ class TestGenerateAnchorBase(unittest.TestCase):
              [-120., -504., 136., 520.]])
 
         base_size = 16
-        scales = [8, 16, 32]
+        anchor_scales = [8, 16, 32]
         ratios = [0.25, 1, 4]
         out = generate_anchor_base(base_size=base_size,
-                                   scales=scales,
+                                   anchor_scales=anchor_scales,
                                    ratios=ratios)
         np.testing.assert_equal(gt, out)
 

@@ -13,10 +13,10 @@ from chainercv.links.model.faster_rcnn.utils.proposal_creator import \
 
 class RegionProposalNetwork(chainer.Chain):
 
-    """Region Proposal Networks introduced in Faster R-CNN.
+    """Region Proposal Network introduced in Faster R-CNN.
 
-    This is Region Proposal Networks introduced in Faster R-CNN [#]_.
-    This takes features extracted from images and predicts
+    This is Region Proposal Network introduced in Faster R-CNN [#]_.
+    This takes features extracted from images and propose
     class agnostic bounding boxes around "objects".
 
     .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
@@ -26,12 +26,12 @@ class RegionProposalNetwork(chainer.Chain):
     Args:
         in_channels (int): The channel size of input.
         mid_channels (int): The channel size of the intermediate tensor.
-        ratios (list of floats): Anchors with ratios contained in this list
-            will be generated. Ratio is the height divided by the width.
-        anchor_scales (list of numbers): Values in :obj:`anchor_scales`
-            determine area of possibly generated anchors. Those areas will
-            be square of an element in :obj:`anchor_scales` times the original
-            area of the reference window.
+        ratios (list of floats): This is ratios of width to height of
+            the anchors.
+        anchor_scales (list of numbers): This is areas of anchors.
+            Those areas will be the product of the square of an element in
+            :obj:`anchor_scales` and the original area of the reference
+            window.
         feat_stride (int): Stride size after extracting features from an
             image.
         initialW (callable): Initial weight value. If :obj:`None` then this
@@ -53,7 +53,7 @@ class RegionProposalNetwork(chainer.Chain):
             proposal_creator_params={},
     ):
         self.anchor_base = generate_anchor_base(
-            scales=np.array(anchor_scales), ratios=ratios)
+            anchor_scales=anchor_scales, ratios=ratios)
         self.feat_stride = feat_stride
         self.proposal_layer = ProposalCreator(**proposal_creator_params)
 
@@ -78,12 +78,12 @@ class RegionProposalNetwork(chainer.Chain):
         * :math:`A` is number of anchors assigned to each pixel.
 
         Args:
-            x (~chainer.Variable): Feature extracted from an image.
+            x (~chainer.Variable): The Features extracted from images.
                 Its shape is :math:`(N, C, H, W)`.
             img_size (tuple of ints): A tuple :obj:`width, height`,
-                which contains image size after scaling if any.
-            scale (float): The scaling factor used to scale an image after
-                reading it from a file.
+                which contains image size after scaling.
+            scale (float): The amount of scaling done to the input images after
+                reading them from files.
             test (bool): Execute in test mode or not.
                 Default value is :obj:`True`.
 
@@ -103,7 +103,7 @@ class RegionProposalNetwork(chainer.Chain):
                 bounding boxes from the :math:`i` th image, \
                 :math:`R' = \\sum _{i=1} ^ N R_i`.
             * **roi_indices**: An array containing indices of images to \
-                which bounding boxes correspond to. Its shape is :math:`(R',)`.
+                which RoIs correspond to. Its shape is :math:`(R',)`.
             * **anchor**: Coordinates of enumerated shifted anchors. \
                 Its shape is :math:`(H W A, 4)`.
 
