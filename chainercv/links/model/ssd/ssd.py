@@ -139,9 +139,9 @@ class SSD(chainer.Chain):
         bbox = list()
         label = list()
         score = list()
-        for l in range(1, 1 + self.n_fg_class):
+        for l in range(self.n_fg_class):
             bbox_l = raw_bbox
-            score_l = raw_score[:, l]
+            score_l = raw_score[:, l + 1]
 
             mask = score_l >= self.score_thresh
             bbox_l = bbox_l[mask]
