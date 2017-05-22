@@ -175,7 +175,7 @@ class SSD(chainer.Chain):
                 score_l = score_l[indices]
 
             bbox.append(bbox_l)
-            label.append((l,) * len(bbox_l))
+            label.append(xp.array((l,) * len(bbox_l)))
             score.append(score_l)
 
         bbox = xp.vstack(bbox)
