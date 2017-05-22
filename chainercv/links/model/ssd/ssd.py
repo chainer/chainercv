@@ -72,7 +72,7 @@ class SSD(chainer.Chain):
                 self._default_bbox.append((cx, cy, s, s))
 
                 s = sizes[k]
-                for ar in self.multibox.aspect_ratios[k]:
+                for ar in multibox.aspect_ratios[k]:
                     self._default_bbox.append(
                         (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
                     self._default_bbox.append(
