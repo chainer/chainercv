@@ -74,10 +74,6 @@ class FasterRCNNBase(chainer.Chain):
         n_fg_class (int): The number of classes excluding the background.
         mean (numpy.ndarray): A value to be subtracted from an image
             in :func:`prepare`.
-        nms_thresh (float): Threshold value used when calling non maximum
-            suppression in :func:`predict`.
-        score_thresh (float): Threshold value used to discard low
-            confidence proposals in :func:`predict`.
         min_size (int): A preprocessing paramter for :func:`prepare`.
         max_size (int): A preprocessing paramter for :func:`prepare`.
         loc_normalize_mean (tuple of four floats): Mean values of
@@ -90,8 +86,6 @@ class FasterRCNNBase(chainer.Chain):
     def __init__(
             self, extractor, rpn, head,
             n_fg_class, mean,
-            nms_thresh=0.3,
-            score_thresh=0.7,
             min_size=600,
             max_size=1000,
             loc_normalize_mean=(0., 0., 0., 0.),
@@ -106,12 +100,12 @@ class FasterRCNNBase(chainer.Chain):
         # Total number of classes including the background.
         self._n_class = n_fg_class + 1
         self.mean = mean
-        self.nms_thresh = nms_thresh
-        self.score_thresh = score_thresh
         self.min_size = min_size
         self.max_size = max_size
         self.loc_normalize_mean = loc_normalize_mean
         self.loc_normalize_std = loc_normalize_std
+
+        self.use_preset('visualize')
 
     def __call__(self, x, scale=1., test=True):
         """Forward Faster R-CNN.
@@ -181,6 +175,33 @@ class FasterRCNNBase(chainer.Chain):
         label = np.concatenate(label, axis=0).astype(np.int32)
         score = np.concatenate(score, axis=0).astype(np.float32)
         return bbox, label, score
+
+    def use_preset(self, preset):
+        """Use given preset during prediction.
+
+        This method changes values of :obj:`self.nms_thresh` and
+        :obj:`self.score_thresh`. These values are a threshold value
+        used for non maximum suppression and a threshold value
+        to discard low confidence proposals in :func:`self.predict`,
+        respectively.
+
+        If the attributes need to be changed to something
+        other than the values provided in the presets, please modify
+        them by directly accessing the public attributes.
+
+        Args:
+            preset ({'visualize', 'evaluate'): A string to determine the
+                preset to use.
+
+        """
+        if preset == 'visualize':
+            self.nms_thresh = 0.3
+            self.score_thresh = 0.7
+        elif preset == 'evaluate':
+            self.nms_thresh = 0.3
+            self.score_thresh = 0.05
+        else:
+            raise ValueError('preset must be visualize or evaluate')
 
     def predict(self, imgs):
         """Detect objects from images.

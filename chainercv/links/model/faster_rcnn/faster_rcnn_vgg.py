@@ -59,10 +59,6 @@ class FasterRCNNVGG16(FasterRCNNBase):
             where :obj:`$CHAINER_DATASET_ROOT` is set as
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
-        nms_thresh (float): Threshold value used when calling NMS in
-            :func:`predict`.
-        score_thresh (float): Threshold value used to discard low
-            confidence proposals in :func:`predict`.
         min_size (int): A preprocessing paramter for :func:`prepare`.
         max_size (int): A preprocessing paramter for :func:`prepare`.
         ratios (list of floats): Anchors with ratios contained in this list
@@ -94,7 +90,6 @@ class FasterRCNNVGG16(FasterRCNNBase):
     def __init__(self,
                  n_fg_class=None,
                  pretrained_model='voc07',
-                 nms_thresh=0.3, score_thresh=0.7,
                  min_size=600, max_size=1000,
                  ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
                  vgg_initialW=None, rpn_initialW=None,
@@ -140,8 +135,6 @@ class FasterRCNNVGG16(FasterRCNNBase):
             n_fg_class=n_fg_class,
             mean=np.array([102.9801, 115.9465, 122.7717],
                           dtype=np.float32)[:, None, None],
-            nms_thresh=nms_thresh,
-            score_thresh=score_thresh,
             min_size=min_size,
             max_size=max_size
         )
