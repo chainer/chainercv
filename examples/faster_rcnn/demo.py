@@ -26,7 +26,8 @@ def main():
     bbox, label, score = bboxes[0], labels[0], scores[0]
 
     vis_bbox(
-        img, bbox, label, score, label_names=voc_utils.pascal_voc_labels)
+        img, bbox, label, score,
+        label_names=voc_utils.voc_detection_label_names)
     plot.show()
 
 

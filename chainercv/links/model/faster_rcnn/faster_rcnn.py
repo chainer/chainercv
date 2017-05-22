@@ -172,7 +172,8 @@ class FasterRCNNBase(chainer.Chain):
             keep = non_maximum_suppression(
                 cls_bbox_l, self.nms_thresh, prob_l)
             bbox.append(cls_bbox_l[keep])
-            label.append(l * np.ones((len(keep),)))
+            # The labels are in [0, self.n_fg_class - 1].
+            label.append((l - 1) * np.ones((len(keep),)))
             score.append(prob_l[keep])
         bbox = np.concatenate(bbox, axis=0).astype(np.float32)
         label = np.concatenate(label, axis=0).astype(np.int32)
@@ -201,7 +202,7 @@ class FasterRCNNBase(chainer.Chain):
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
                Each value indicates the class of the bounding box. \
-               Values are in range :math:`[1, L]`, where :math:`L` is the \
+               Values are in range :math:`[0, L - 1]`, where :math:`L` is the \
                number of the foreground classes.
            * **scores** : A list of float arrays of shape :math:`(R,)`. \
                Each value indicates how confident the prediction is.
