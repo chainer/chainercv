@@ -23,7 +23,7 @@ cmdclass = {'build_ext': build_ext}
 
 setup(
     name='chainercv',
-    version='0.4.5',
+    version='0.4.6',
     packages=find_packages(),
     author='Yusuke Niitani',
     author_email='yuyuniitani@gmail.com',
