@@ -161,6 +161,7 @@ class SSD(chainer.Chain):
         score = list()
         for l in range(self.n_fg_class):
             bbox_l = raw_bbox
+            # the l-th class corresponds for the (l + 1)-th column.
             score_l = raw_score[:, l + 1]
 
             mask = score_l >= self.score_thresh
