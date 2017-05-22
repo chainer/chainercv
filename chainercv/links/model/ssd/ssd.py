@@ -248,7 +248,7 @@ class SSD(chainer.Chain):
         for img in imgs:
             _, H, W = img.shape
             img = self._prepare(img)
-            prepared_imgs.append(img)
+            prepared_imgs.append(self.xp.array(img))
             sizes.append((W, H))
 
         prepared_imgs = self.xp.stack(prepared_imgs)
