@@ -2,7 +2,7 @@ import argparse
 import matplotlib.pyplot as plot
 import numpy as np
 
-from chainercv.datasets.pascal_voc import voc_utils
+from chainercv.datasets import voc_detection_label_names
 from chainercv.links import SSD300
 from chainercv.links import SSD512
 from chainercv import utils
@@ -26,7 +26,7 @@ def main():
     bbox, label, score = bboxes[0], labels[0], scores[0]
 
     vis_bbox(
-        img, bbox, label, score, label_names=voc_utils.pascal_voc_labels)
+        img, bbox, label, score, label_names=voc_detection_label_names)
     plot.show()
 
 
