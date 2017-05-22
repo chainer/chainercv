@@ -117,7 +117,8 @@ class SSD(chainer.Chain):
         """Compute localization and classification from a batch of images.
 
         This method computes two variables, :obj:`loc` and :obj:`conf`.
-        :meth:`_decode` converts these variables to prediction.
+        :meth:`_decode` converts these variables to bounding box coordinates
+        and confidence scores.
         These variables are also used in training SSD.
 
         Args:
@@ -189,6 +190,23 @@ class SSD(chainer.Chain):
         return img
 
     def use_preset(self, preset):
+        """Use the given preset during prediction.
+
+        This method changes values of :obj:`nms_thresh` and
+        :obj:`score_thresh`. These values are a threshold value
+        used for non maximum suppression and a threshold value
+        to discard low confidence proposals in :meth:`predict`,
+        respectively.
+
+        If the attributes need to be changed to something
+        other than the values provided in the presets, please modify
+        them by directly accessing the public attributes.
+
+        Args:
+            preset ({'visualize', 'evaluate'}): A string to determine the
+                preset to use.
+        """
+
         if preset == 'visualize':
             self.nms_thresh = 0.45
             self.score_thresh = 0.6
