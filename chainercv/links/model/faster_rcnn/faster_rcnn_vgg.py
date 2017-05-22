@@ -68,7 +68,7 @@ class FasterRCNNVGG16(FasterRCNN):
             square of an element in :obj:`anchor_scales` times the original
             area of the reference window.
         vgg_initialW (callable): Initializer for the layers corresponding to
-            VGG16 layers.
+            the VGG16 layers.
         rpn_initialW (callable): Initializer for Region Proposal Network
             layers.
         loc_initialW (callable): Initializer for the localization head.
@@ -184,6 +184,10 @@ class VGG16RoIPoolingHead(chainer.Chain):
         n_class (int): The number of classes possibly including the background.
         roi_size (int): Height and width of the features after RoI-pooled.
         spatial_scale (float): Scale of the roi is resized.
+        vgg_initialW (callable): Initializer for the layers corresponding to
+            the VGG16 layers.
+        loc_initialW (callable): Initializer for the localization head.
+        score_initialW (callable): Initializer for the score head.
 
     """
 
@@ -193,8 +197,7 @@ class VGG16RoIPoolingHead(chainer.Chain):
         super(VGG16RoIPoolingHead, self).__init__(
             fc6=L.Linear(25088, 4096, initialW=vgg_initialW),
             fc7=L.Linear(4096, 4096, initialW=vgg_initialW),
-            cls_loc=L.Linear(4096, n_class * 4,
-                             initialW=loc_initialW),
+            cls_loc=L.Linear(4096, n_class * 4, initialW=loc_initialW),
             score=L.Linear(4096, n_class, initialW=score_initialW)
         )
         self.roi_size = roi_size
@@ -235,13 +238,8 @@ class VGG16RoIPoolingHead(chainer.Chain):
 class VGG16FeatureExtractor(chainer.Chain):
     """Truncated VGG16 that extracts a conv5_3 feature.
 
-    :obj:`initialW` accepts a callable that takes an array and edits its
-    values.
-    If :obj:`None` is passed as an initializer, the default initializer is
-    used.
-
     Args:
-        initialW (callable): Initializer for weights.
+        initialW (callable): Initializer for the weights.
 
     """
 
