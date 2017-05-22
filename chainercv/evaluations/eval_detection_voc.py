@@ -51,7 +51,7 @@ def eval_detection_voc(
             consider all bounding boxes to be not difficult.
         iou_thresh (float): A prediction is correct if its Intersection over
             Union with the ground truth is above this value.
-        use_07_metric (bool): Whether to use Pascal VOC 2007 evaluation metric
+        use_07_metric (bool): Whether to use PASCAL VOC 2007 evaluation metric
             for calculating average precision. The default value is
             :obj:`False`.
 
