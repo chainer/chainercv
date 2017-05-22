@@ -17,7 +17,7 @@ class Multibox(chainer.Chain):
        SSD: Single Shot MultiBox Detector. ECCV 2016.
 
     Args:
-        n_class (int): The number of classes.
+        n_class (int): The number of classes possibly including the background.
         aspect_ratios (iterable of tuple or int): The aspect ratios of
             default bounding boxes for each feature map.
         initialW: An initializer used in
