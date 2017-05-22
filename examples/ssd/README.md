@@ -1,4 +1,12 @@
-# Examples of Single Shot Multibox Detector
+# Examples of Single Shot Multibox Detector [1]
+
+## Performance
+PASCAL VOC2007 Test
+
+| Model | Original | ChainerCV |
+|:-:|:-:|:-:|:-:|
+| SSD300 | 77.5 % [2] | 77.5 % |
+| SSD512 | 79.5 % [2] | 79.6 % |
 
 ## Demo
 Detect objects in an given image. This demo downloads Pascal VOC pretrained model automatically.
@@ -11,3 +19,7 @@ Convert `*.caffemodel` to `*.npz`. Some layers are renamed to fit ChainerCV. SSD
 ```
 $ python caffe2npz <source>.caffemodel <target>.npz
 ```
+
+## References
+- [1]: Wei Liu, et al. "SSD: Single shot multibox detector" ECCV 2016.
+- [2]: Cheng-Yang Fu, et al. "[DSSD : Deconvolutional Single Shot Detector](https://arxiv.org/abs/1701.06659)" arXiv 2017.
