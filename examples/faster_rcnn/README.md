@@ -3,7 +3,7 @@
 ### Demo
 
 ```
-python demo.py GPU_ID PATH_TO_IMAGE
+$ python demo.py [--model ssd300|ssd512] [--gpu <gpu>] <image>.jpg
 ```
 
 This example will automatically download a pretrained weights from the internet when executed.
