@@ -5,7 +5,7 @@ import re
 import chainer.links.caffe.caffe_function as caffe
 from chainer import serializers
 
-from chainercv.links.ssd import Normalize
+from chainercv.links.model.ssd import Normalize
 
 
 def rename(name):
