@@ -148,12 +148,12 @@ def _pred_and_rec_cls(
     # gt_bboxes: List[numpy.ndarray]
     # gt_difficults: List[numpy.ndarray]
 
-    npos = 0
+    n_pos = 0  # The number of non difficult objects.
     selec = [None for _ in six.moves.range(len(gt_bboxes))]
     for n in six.moves.range(len(gt_bboxes)):
         n_gt_bbox = len(gt_bboxes[n])
         selec[n] = np.zeros(n_gt_bbox, dtype=np.bool)
-        npos += np.sum(np.logical_not(gt_difficults[n]))
+        n_pos += np.sum(np.logical_not(gt_difficults[n]))
 
     # Make list of arrays into one array.
     # Example:
@@ -168,7 +168,7 @@ def _pred_and_rec_cls(
     conf = np.concatenate(scores)
     bbox = np.concatenate(bboxes)
 
-    if npos == 0 or len(conf) == 0:
+    if n_pos == 0 or len(conf) == 0:
         return np.zeros((len(conf),)), np.zeros((len(conf),))
 
     # Reorder arrays by scores in descending order.
@@ -211,7 +211,7 @@ def _pred_and_rec_cls(
     # compute precision/recall
     fp = np.cumsum(fp)
     tp = np.cumsum(tp)
-    rec = tp / float(npos)
+    rec = tp / float(n_pos)
     prec = tp / np.maximum(fp + tp, np.finfo(np.float64).eps)
     return rec, prec
 
