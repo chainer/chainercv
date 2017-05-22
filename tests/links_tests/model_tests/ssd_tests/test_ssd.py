@@ -156,8 +156,8 @@ class TestSSD(unittest.TestCase):
 
     def _check_predict(self):
         imgs = [
-            _random_array(self.link.xp, (3, 640, 480)),
-            _random_array(self.link.xp, (3, 320, 320))]
+            _random_array(np, (3, 640, 480)),
+            _random_array(np, (3, 320, 320))]
 
         bboxes, labels, scores = self.link.predict(imgs)
 
