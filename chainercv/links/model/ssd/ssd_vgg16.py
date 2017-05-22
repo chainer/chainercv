@@ -21,18 +21,24 @@ _imagenet_mean = (104, 117, 123)
 class VGG16(chainer.Chain):
     """An extended VGG-16 model for SSD300 and SSD512.
 
-    This is an extended VGG-16 model proposed in [#_].
-    The differences from original VGG-16 [#_] are shown below.
+    This is an extended VGG-16 model proposed in [#]_.
+    The differences from original VGG-16 [#]_ are shown below.
 
     * :obj:`conv5_1`, :obj:`conv5_2` and :obj:`conv5_3` are changed from \
     :class:`~chainer.links.Convolution2d` to \
     :class:`~chainer.links.DilatedConvolution2d`
     * :class:`~chainercv.links.model.ssd.Normalize` is \
-    inserted after :obj:`conv4_3`
+    inserted after :obj:`conv4_3`.
+    :class:`~chainer.links.DilatedConvolution2d`
+    * The parameters of max pooling after :obj:`conv5_3` is changed.
+    * :obj:`fc6` and :obj:`fc7` are converted to :obj:`conv6` and ;obj`conv7`.
 
     .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
        Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
        SSD: Single Shot MultiBox Detector. ECCV 2016.
+    .. [#] Karen Simonyan, Andrew Zisserman.
+       Very Deep Convolutional Networks for Large-Scale Image Recognition.
+       ICLR 2015.
     """
 
     def __init__(self, **links):
@@ -97,6 +103,12 @@ class VGG16(chainer.Chain):
 
 
 class VGG16Extractor300(VGG16):
+    """A VGG-16 based feature extractor for SSD300.
+
+    This is a feature extractor for :class:`~chainercv.links.model.ssd.SSD300`.
+    This extractor is based on :class:`~chainercv.links.model.ssd.VGG16`.
+    """
+
     insize = 300
     grids = (38, 19, 10, 5, 3, 1)
 
@@ -145,6 +157,12 @@ class VGG16Extractor300(VGG16):
 
 
 class VGG16Extractor512(VGG16):
+    """A VGG-16 based feature extractor for SSD512.
+
+    This is a feature extractor for :class:`~chainercv.links.model.ssd.SSD512`.
+    This extractor is based on :class:`~chainercv.links.model.ssd.VGG16`.
+    """
+
     insize = 512
     grids = (64, 32, 16, 8, 4, 2, 1)
 
