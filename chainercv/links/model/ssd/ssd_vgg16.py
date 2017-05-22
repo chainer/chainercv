@@ -2,6 +2,7 @@ from __future__ import division
 
 import os
 import six
+import warnings
 
 import chainer
 from chainer.dataset.download import get_dataset_directory
@@ -13,6 +14,12 @@ from chainercv.links.model.ssd import Multibox
 from chainercv.links.model.ssd import Normalize
 from chainercv.links.model.ssd import SSD
 from chainercv.utils import download
+
+try:
+    import cv2  # NOQA
+    _available = True
+except ImportError:
+    _available = False
 
 
 _imagenet_mean = (104, 117, 123)
@@ -259,6 +266,13 @@ class SSD300(SSD):
             if not os.path.exists(path):
                 download_file = download.cached_download(model['url'])
                 os.rename(download_file, path)
+
+            if not _available:
+                warnings.warn(
+                    'cv2 is not installed on your environment. '
+                    'Pretrained models are trained with cv2.'
+                    'The performace may change with Pillow backend.',
+                    RuntimeWarning)
         elif pretrained_model:
             path = pretrained_model
         else:
@@ -324,6 +338,13 @@ class SSD512(SSD):
             if not os.path.exists(path):
                 download_file = download.cached_download(model['url'])
                 os.rename(download_file, path)
+
+            if not _available:
+                warnings.warn(
+                    'cv2 is not installed on your environment. '
+                    'Pretrained models are trained with cv2.'
+                    'The performace may change with Pillow backend.',
+                    RuntimeWarning)
         elif pretrained_model:
             path = pretrained_model
         else:
