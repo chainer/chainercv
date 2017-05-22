@@ -4,7 +4,7 @@
 PASCAL VOC2007 Test
 
 | Model | Original | ChainerCV |
-|:-:|:-:|:-:|:-:|
+|:-:|:-:|:-:|
 | SSD300 | 77.5 % [2] | 77.5 % |
 | SSD512 | 79.5 % [2] | 79.6 % |
 
