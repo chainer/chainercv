@@ -37,8 +37,7 @@ def get_pascal_voc(year, split):
     return base_path
 
 
-pascal_voc_labels = (
-    'background',
+voc_detection_label_names = (
     'aeroplane',
     'bicycle',
     'bird',
@@ -59,3 +58,6 @@ pascal_voc_labels = (
     'sofa',
     'train',
     'tvmonitor')
+
+voc_semantic_segmentation_label_names = (('background',) +
+                                         voc_detection_label_names)

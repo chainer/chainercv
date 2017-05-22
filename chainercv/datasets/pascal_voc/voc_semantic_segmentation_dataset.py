@@ -11,6 +11,9 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
 
     """Dataset class for the semantic segmantion task of Pascal `VOC2012`_.
 
+    The class name of the label :math:`l` is :math:`l` th element of
+    :obj:`chainercv.datasets.voc_semantic_segmentation_label_names`.
+
     .. _`VOC2012`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
     Args:
@@ -24,8 +27,6 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
             difficult in the original annotation.
 
     """
-
-    labels = voc_utils.pascal_voc_labels
 
     def __init__(self, data_dir='auto', split='train'):
         if split not in ['train', 'trainval', 'val']:
