@@ -184,7 +184,8 @@ class VGG16RoIPoolingHead(chainer.Chain):
     """Faster R-CNN Head for VGG16 based implementation.
 
     This class is used as a head for Faster R-CNN.
-    This outputs class-wise localizations and classification based on RoI features.
+    This outputs class-wise localizations and classification based on RoI
+    features.
 
     Args:
         n_fg_class (int): The number of classes excluding the background.
@@ -199,7 +200,8 @@ class VGG16RoIPoolingHead(chainer.Chain):
         super(VGG16RoIPoolingHead, self).__init__(
             fc6=L.Linear(25088, 4096, initialW=vgg_initialW),
             fc7=L.Linear(4096, 4096, initialW=vgg_initialW),
-            cls_loc=L.Linear(4096, (n_fg_class + 1) * 4, initialW=loc_initialW),
+            cls_loc=L.Linear(4096, (n_fg_class + 1) * 4,
+                             initialW=loc_initialW),
             score=L.Linear(4096, n_fg_class + 1, initialW=score_initialW)
         )
         self.roi_size = roi_size
