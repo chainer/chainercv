@@ -11,7 +11,7 @@ PASCAL VOC2007 Test
 ## Demo
 Detect objects in an given image. This demo downloads Pascal VOC pretrained model automatically.
 ```
-$ python demo.py [--model ssd300|ssd512] <image>.jpg
+$ python demo.py [--model ssd300|ssd512] [--gpu <gpu>] <image>.jpg
 ```
 
 ## Convert Caffe model
