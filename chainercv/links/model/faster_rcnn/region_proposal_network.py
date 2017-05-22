@@ -15,11 +15,11 @@ class RegionProposalNetwork(chainer.Chain):
 
     """Region Proposal Networks introduced in Faster R-CNN.
 
-    This is Region Proposal Networks introduced in Faster R-CNN [1].
+    This is Region Proposal Networks introduced in Faster R-CNN [#]_.
     This takes features extracted from images and predicts
     class agnostic bounding boxes around "objects".
 
-    .. [1] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
+    .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
     Faster R-CNN: Towards Real-Time Object Detection with \
     Region Proposal Networks. NIPS 2015.
 

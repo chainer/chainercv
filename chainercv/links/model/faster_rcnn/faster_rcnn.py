@@ -34,7 +34,7 @@ class FasterRCNNBase(chainer.Chain):
 
     """Base class for Faster R-CNN.
 
-    This is a base class for Faster R-CNN [1].
+    This is a base class for Faster R-CNN [#]_.
     The following three stages constitute Faster R-CNN.
 
     1. **Feature extraction**: Images are taken and their \
@@ -57,7 +57,7 @@ class FasterRCNNBase(chainer.Chain):
     :func:`__call__` is provided for a scnerario when intermediate outputs
     are needed, for instance in training and debugging.
 
-    .. [1] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
+    .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
     Faster R-CNN: Towards Real-Time Object Detection with \
     Region Proposal Networks. NIPS 2015.
 

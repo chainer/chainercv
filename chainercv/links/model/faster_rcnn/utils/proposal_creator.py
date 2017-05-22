@@ -20,9 +20,9 @@ class ProposalCreator(object):
     or keep all the bounding boxes returned by NMS.
 
     This class is used for Region Proposal Networks introduced in
-    Faster R-CNN [1].
+    Faster R-CNN [#]_.
 
-    .. [1] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
+    .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
     Faster R-CNN: Towards Real-Time Object Detection with \
     Region Proposal Networks. NIPS 2015.
 

@@ -19,9 +19,9 @@ def loc2bbox(src_bbox, loc):
     * :math:`\\hat{g}_w = p_w \\exp(t_w)`
     * :math:`\\hat{g}_h = p_h \\exp(t_h)`
 
-    The decoding formulas are used in works such as R-CNN [1].
+    The decoding formulas are used in works such as R-CNN [#]_.
 
-    .. [1] Ross Girshick, Jeff Donahue, Trevor Darrell, Jitendra Malik. \
+    .. [#] Ross Girshick, Jeff Donahue, Trevor Darrell, Jitendra Malik. \
     Rich feature hierarchies for accurate object detection and semantic \
     segmentation. CVPR 2014.
 
