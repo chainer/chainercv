@@ -8,8 +8,8 @@ import chainer.functions as F
 from chainer import initializers
 import chainer.links as L
 
-from chainercv.links.ssd import Normalize
-from chainercv.links.ssd import SSD
+from chainercv.links.model.ssd import Normalize
+from chainercv.links.model.ssd import SSD
 from chainercv.utils import download
 
 

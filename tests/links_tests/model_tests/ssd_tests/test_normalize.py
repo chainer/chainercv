@@ -6,7 +6,7 @@ from chainer import initializers
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links.ssd import Normalize
+from chainercv.links.model.ssd import Normalize
 
 
 @testing.parameterize(*testing.product({

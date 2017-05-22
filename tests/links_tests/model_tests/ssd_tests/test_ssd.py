@@ -5,7 +5,7 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links.ssd import SSD
+from chainercv.links.model.ssd import SSD
 
 
 def _random_array(xp, shape):

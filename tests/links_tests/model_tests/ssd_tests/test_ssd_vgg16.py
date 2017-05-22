@@ -5,7 +5,7 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links.ssd import SSD
+from chainercv.links.model.ssd import SSD
 from chainercv.links import SSD300
 from chainercv.links import SSD512
 
