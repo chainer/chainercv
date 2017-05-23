@@ -46,7 +46,7 @@ class CUBKeypointDataset(CUBDatasetBase):
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
         split ({`train`, `test`}): Select train or test split used in
-            [Kanazawa]_.
+            [#]_.
         crop_bbox (bool): If true, this class returns an image cropped
             by the bounding box of the bird inside it.
         mask_dir (string): Path to the root of the mask data. If this is
@@ -55,9 +55,10 @@ class CUBKeypointDataset(CUBDatasetBase):
         return_mask (bool): Decide whether to include mask image of the bird
             in a tuple served for a query.
 
-    .. [Kanazawa] Angjoo Kanazawa, David W. Jacobs, \
-       Manmohan Chandraker. WarpNet: Weakly Supervised Matching for \
-       Single-view Reconstruction. https://arxiv.org/abs/1604.05592.
+    .. [#] Angjoo Kanazawa, David W. Jacobs, \
+       `Manmohan Chandraker. WarpNet: Weakly Supervised Matching for \
+       Single-view Reconstruction <https://arxiv.org/abs/1604.05592>`_. \
+       arXiv 2016.
 
     """
 
