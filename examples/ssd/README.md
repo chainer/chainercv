@@ -8,6 +8,8 @@ PASCAL VOC2007 Test
 | SSD300 | 77.5 % [2] | 77.5 % |
 | SSD512 | 79.5 % [2] | 79.6 % |
 
+Scores are mean Average Precision (mAP) with PASCAL VOC2007 metric.
+
 ## Demo
 Detect objects in an given image. This demo downloads Pascal VOC pretrained model automatically.
 ```
