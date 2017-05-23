@@ -12,10 +12,6 @@ class Multibox(chainer.Chain):
     :obj:`loc` contains information of the coordinates of bounding boxes
     and :obj:`conf` contains that of classes.
 
-    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
-       Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
-       SSD: Single Shot MultiBox Detector. ECCV 2016.
-
     Args:
         n_class (int): The number of classes possibly including the background.
         aspect_ratios (iterable of tuple or int): The aspect ratios of
@@ -26,6 +22,11 @@ class Multibox(chainer.Chain):
         initial_bias: An initializer used in
             :meth:`chainer.links.Convolution2d.__init__`.
             The default value is :class:`chainer.initializers.Zero`.
+
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
+       Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
+
     """
 
     def __init__(
