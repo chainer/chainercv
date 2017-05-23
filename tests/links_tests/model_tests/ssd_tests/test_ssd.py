@@ -166,16 +166,16 @@ class TestSSD(unittest.TestCase):
         self.assertEqual(len(scores), len(imgs))
 
         for bbox, label, score in zip(bboxes, labels, scores):
-            self.assertIsInstance(bbox, self.link.xp.ndarray)
+            self.assertIsInstance(bbox, np.ndarray)
             self.assertEqual(bbox.ndim, 2)
             self.assertLessEqual(bbox.shape[0], self.n_bbox * self.n_fg_class)
             self.assertEqual(bbox.shape[1], 4)
 
-            self.assertIsInstance(label, self.link.xp.ndarray)
+            self.assertIsInstance(label, np.ndarray)
             self.assertEqual(label.ndim, 1)
             self.assertEqual(label.shape[0], bbox.shape[0])
 
-            self.assertIsInstance(score, self.link.xp.ndarray)
+            self.assertIsInstance(score, np.ndarray)
             self.assertEqual(score.ndim, 1)
             self.assertEqual(score.shape[0], bbox.shape[0])
 

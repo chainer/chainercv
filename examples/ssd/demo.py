@@ -30,9 +30,7 @@ def main():
 
     img = utils.read_image(args.image, color=True)
     bboxes, labels, scores = model.predict(img[np.newaxis])
-    bbox = cuda.to_cpu(bboxes[0])
-    label = cuda.to_cpu(labels[0])
-    score = cuda.to_cpu(scores[0])
+    bbox, label, score = bboxes[0], labels[0], scores[0]
 
     vis_bbox(
         img, bbox, label, score, label_names=voc_detection_label_names)

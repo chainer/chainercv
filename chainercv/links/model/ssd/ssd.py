@@ -261,8 +261,8 @@ class SSD(chainer.Chain):
         for raw_bbox, raw_score, size in zip(raw_bboxes, raw_scores, sizes):
             raw_bbox = transforms.resize_bbox(raw_bbox, (1, 1), size)
             bbox, label, score = self._suppress(raw_bbox, raw_score)
-            bboxes.append(bbox)
-            labels.append(label)
-            scores.append(score)
+            bboxes.append(chainer.cuda.to_cpu(bbox))
+            labels.append(chainer.cuda.to_cpu(label))
+            scores.append(chainer.cuda.to_cpu(score))
 
         return bboxes, labels, scores
