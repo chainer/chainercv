@@ -46,12 +46,12 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
         {\\sum_{j=1}^k N_{ij} + \\sum_{j=1}^k N_{ji} - N_{ii}}`
 
     The more detailed descriptions on the above metrics can be found at a
-    review on semantic segmentation[1].
+    review on semantic segmentation [#]_.
 
-    .. [1] Alberto Garcia-Garcia, Sergio Orts-Escolano, Sergiu Oprea, \
+    .. [#] Alberto Garcia-Garcia, Sergio Orts-Escolano, Sergiu Oprea, \
     Victor Villena-Martinez, Jose Garcia-Rodriguez. \
-    A Review on Deep Learning Techniques Applied to Semantic Segmentation. \
-    https://arxiv.org/abs/1704.06857
+    `A Review on Deep Learning Techniques Applied to Semantic Segmentation \
+    <https://arxiv.org/abs/1704.06857>`_. arXiv 2017.
 
     Types of :obj:`pred_label` and :obj:`gt_label` need to be same.
     The outputs are same type as the inputs.
