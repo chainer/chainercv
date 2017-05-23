@@ -63,7 +63,8 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
         """
         if i >= len(self):
             raise IndexError('index is too large')
-        img_file = os.path.join(self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
+        img_file = os.path.join(
+            self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
         img = read_image(img_file, color=True)
         label = self._load_label(self.data_dir, self.ids[i])
         label = label[None]
