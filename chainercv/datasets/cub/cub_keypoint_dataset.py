@@ -61,8 +61,6 @@ class CUBKeypointDataset(CUBDatasetBase):
             data_dir=data_dir, crop_bbox=crop_bbox)
         self.return_mask = return_mask
 
-        self.indices = np.arange(len(self.fns))
-
         # load keypoint
         parts_loc_file = os.path.join(self.data_dir, 'parts/part_locs.txt')
         self.kp_dict = collections.OrderedDict()
@@ -83,19 +81,18 @@ class CUBKeypointDataset(CUBDatasetBase):
             self.kp_mask_dict[id_].append(kp_mask)
 
     def __len__(self):
-        return len(self.indices)
+        return len(self.fns)
 
     def get_example(self, i):
         # this i is transformed to id for the entire dataset
-        original_idx = self.indices[i]
         img = utils.read_image(
-            os.path.join(self.data_dir, 'images', self.fns[original_idx]),
+            os.path.join(self.data_dir, 'images', self.fns[i]),
             color=True)
-        keypoint = np.array(self.kp_dict[original_idx], dtype=np.float32)
-        kp_mask = np.array(self.kp_mask_dict[original_idx], dtype=np.bool)
+        keypoint = np.array(self.kp_dict[i], dtype=np.float32)
+        kp_mask = np.array(self.kp_mask_dict[i], dtype=np.bool)
 
         if self.crop_bbox:
-            bbox = self.bboxes[original_idx]  # (x, y, width, height)
+            bbox = self.bboxes[i]  # (x, y, width, height)
             img = img[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
             keypoint[:, :2] = keypoint[:, :2] - np.array([bbox[0], bbox[1]])
 
@@ -103,7 +100,7 @@ class CUBKeypointDataset(CUBDatasetBase):
             return img, keypoint, kp_mask
 
         mask = utils.read_image(
-            os.path.join(self.mask_dir, self.fns[original_idx][:-4] + '.png'),
+            os.path.join(self.mask_dir, self.fns[i][:-4] + '.png'),
             dtype=np.uint8,
             color=False)
         if self.crop_bbox:
