@@ -7,8 +7,6 @@ from Cython.Distutils import build_ext
 from distutils.extension import Extension
 import numpy as np
 
-import os
-
 
 description = """
 Collection of Deep Learning Computer Vision Algorithms implemented in Chainer
