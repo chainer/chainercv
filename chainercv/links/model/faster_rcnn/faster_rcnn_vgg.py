@@ -132,7 +132,6 @@ class FasterRCNNVGG16(FasterRCNN):
             extractor,
             rpn,
             head,
-            n_fg_class=n_fg_class,
             mean=np.array([102.9801, 115.9465, 122.7717],
                           dtype=np.float32)[:, None, None],
             min_size=min_size,
@@ -200,6 +199,7 @@ class VGG16RoIHead(chainer.Chain):
             cls_loc=L.Linear(4096, n_class * 4, initialW=loc_initialW),
             score=L.Linear(4096, n_class, initialW=score_initialW)
         )
+        self.n_class = n_class
         self.roi_size = roi_size
         self.spatial_scale = spatial_scale
 

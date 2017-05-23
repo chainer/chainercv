@@ -38,19 +38,19 @@ class DummyExtractor(chainer.Link):
 
 class DummyHead(chainer.Chain):
 
-    def __init__(self, n_fg_class):
+    def __init__(self, n_class):
         super(DummyHead, self).__init__()
-        self.n_fg_class = n_fg_class
+        self.n_class = n_class
 
     def __call__(self, x, rois, roi_indices, test=False):
         n_roi = len(rois)
         cls_locs = chainer.Variable(
-            _random_array(self.xp, (n_roi, (self.n_fg_class + 1) * 4)))
+            _random_array(self.xp, (n_roi, self.n_class * 4)))
         # For each bbox, the score for a selected class is
         # overwhelmingly higher than the scores for the other classes.
         score_idx = np.random.randint(
-            low=0, high=self.n_fg_class + 1, size=(n_roi,))
-        scores = self.xp.zeros((n_roi, self.n_fg_class + 1), dtype=np.float32)
+            low=0, high=self.n_class, size=(n_roi,))
+        scores = self.xp.zeros((n_roi, self.n_class), dtype=np.float32)
         scores[np.arange(n_roi), score_idx] = 100
         scores = chainer.Variable(scores)
 
@@ -87,8 +87,7 @@ class DummyFasterRCNN(FasterRCNN):
         super(DummyFasterRCNN, self).__init__(
             DummyExtractor(feat_stride),
             DummyRegionProposalNetwork(n_anchor_base, n_roi),
-            DummyHead(n_fg_class),
-            n_fg_class=n_fg_class,
+            DummyHead(n_fg_class + 1),
             mean=np.array([[[100]], [[122.5]], [[145]]]),
             min_size=min_size,
             max_size=max_size

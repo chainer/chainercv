@@ -73,7 +73,6 @@ class FasterRCNN(chainer.Chain):
         head (callable Chain): A callable that takes
             a BCHW array, RoIs and batch indices for RoIs. This returns class
             dependent localization paramters and class scores.
-        n_fg_class (int): The number of classes excluding the background.
         mean (numpy.ndarray): A value to be subtracted from an image
             in :meth:`prepare`.
         min_size (int): A preprocessing paramter for :meth:`prepare`. Please
@@ -88,7 +87,7 @@ class FasterRCNN(chainer.Chain):
 
     def __init__(
             self, extractor, rpn, head,
-            n_fg_class, mean,
+            mean,
             min_size=600,
             max_size=1000,
             loc_normalize_mean=(0., 0., 0., 0.),
@@ -99,9 +98,6 @@ class FasterRCNN(chainer.Chain):
             rpn=rpn,
             head=head,
         )
-        self.n_fg_class = n_fg_class
-        # Total number of classes including the background.
-        self._n_class = n_fg_class + 1
         self.mean = mean
         self.min_size = min_size
         self.max_size = max_size
@@ -109,6 +105,11 @@ class FasterRCNN(chainer.Chain):
         self.loc_normalize_std = loc_normalize_std
 
         self.use_preset('visualize')
+
+    @property
+    def n_class(self):
+        # Total number of classes including the background.
+        return self.head.n_class
 
     def __call__(self, x, scale=1., test=True):
         """Forward Faster R-CNN.
@@ -223,8 +224,8 @@ class FasterRCNN(chainer.Chain):
         label = list()
         score = list()
         # skip cls_id = 0 because it is the background class
-        for l in range(1, self._n_class):
-            cls_bbox_l = raw_cls_bbox.reshape(-1, self._n_class, 4)[:, l, :]
+        for l in range(1, self.n_class):
+            cls_bbox_l = raw_cls_bbox.reshape(-1, self.n_class, 4)[:, l, :]
             prob_l = raw_prob[:, l]
             mask = prob_l > self.score_thresh
             cls_bbox_l = cls_bbox_l[mask]
@@ -232,7 +233,7 @@ class FasterRCNN(chainer.Chain):
             keep = non_maximum_suppression(
                 cls_bbox_l, self.nms_thresh, prob_l)
             bbox.append(cls_bbox_l[keep])
-            # The labels are in [0, self.n_fg_class - 1].
+            # The labels are in [0, self.n_class - 2].
             label.append((l - 1) * np.ones((len(keep),)))
             score.append(prob_l[keep])
         bbox = np.concatenate(bbox, axis=0).astype(np.float32)
@@ -294,14 +295,14 @@ class FasterRCNN(chainer.Chain):
             # Convert predictions to bounding boxes in image coordinates.
             # Bounding boxes are scaled to the scale of the input images.
             mean = self.xp.tile(self.xp.asarray(self.loc_normalize_mean),
-                                self._n_class)
+                                self.n_class)
             std = self.xp.tile(self.xp.asarray(self.loc_normalize_std),
-                               self._n_class)
+                               self.n_class)
             roi_cls_loc = (roi_cls_loc * std + mean).astype(np.float32)
-            roi_cls_loc = roi_cls_loc.reshape(-1, self._n_class, 4)
+            roi_cls_loc = roi_cls_loc.reshape(-1, self.n_class, 4)
             roi = self.xp.broadcast_to(roi[:, None], roi_cls_loc.shape)
             cls_bbox = loc2bbox(roi.reshape(-1, 4), roi_cls_loc.reshape(-1, 4))
-            cls_bbox = cls_bbox.reshape(-1, self._n_class * 4)
+            cls_bbox = cls_bbox.reshape(-1, self.n_class * 4)
             # clip bounding box
             cls_bbox[:, slice(0, 4, 2)] = self.xp.clip(
                 cls_bbox[:, slice(0, 4, 2)], 0, W / scale)
