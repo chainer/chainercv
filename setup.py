@@ -20,6 +20,11 @@ ext_modules = [
 ]
 cmdclass = {'build_ext': build_ext}
 
+install_requires = [
+    'chainer==1.24',
+    'cython',
+    'numpy'
+]
 
 setup(
     name='chainercv',
@@ -29,7 +34,7 @@ setup(
     author_email='yuyuniitani@gmail.com',
     license='MIT',
     description=description,
-    install_requires=open('requirements.txt').readlines(),
+    install_requires=install_requires,
     include_package_data=True,
     data_files=[
         ('chainercv/datasets/data',
