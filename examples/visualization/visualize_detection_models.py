@@ -1,6 +1,5 @@
 from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plot
-import numpy as np
 
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
@@ -23,7 +22,7 @@ fig = plot.figure(figsize=(30, 30))
 for i, idx in enumerate(indices):
     for j, (name, model) in enumerate(models):
         img, _, _ = dataset[idx]
-        bboxes, labels, scores = model.predict(img[np.newaxis])
+        bboxes, labels, scores = model.predict([img])
         bbox, label, score = bboxes[0], labels[0], scores[0]
 
         ax = fig.add_subplot(4, 3, i * 3 + j + 1)
