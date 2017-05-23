@@ -28,7 +28,7 @@ install_requires = [
 
 setup(
     name='chainercv',
-    version='0.4.6',
+    version='0.4.7',
     packages=find_packages(),
     author='Yusuke Niitani',
     author_email='yuyuniitani@gmail.com',
