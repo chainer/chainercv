@@ -61,9 +61,10 @@ The convenient interface coupled with this functionality allows users to execute
 
 ```python
 from chainercv.links import FasterRCNNVGG16, SSD300
-# You can use SSD instead of Faster R-CNN.
-# model = SSD300(pretrained_model='voc0712')
-model = FasterRCNNVGG16(pretrained_model='voc07')
+# You can use Faster R-CNN instead of SSD.
+# model = FasterRCNNVGG16(pretrained_model='voc07')
+model = SSD300(pretrained_model='voc0712')
+
 
 # `bboxes` is a list of numpy arrays containing coordinates of boundnig boxes
 # around objects. `labels` and `confs` are class ids and confidence scores for
@@ -74,7 +75,7 @@ bboxes, labels, confs = model.predict(imgs)  # imgs is a list of image
 With the following commands, you can run a visualization demo.
 
 ```
-$ cd examples/faster_rcnn  # or cd examples/ssd
+$ cd examples/ssd  # or cd examples/faster_rcnn
 $ wget https://cloud.githubusercontent.com/assets/2062128/26187667/9cb236da-3bd5-11e7-8bcf-7dbd4302e2dc.jpg -O sample.jpg
 $ python demo.py sample.jpg
 ```
