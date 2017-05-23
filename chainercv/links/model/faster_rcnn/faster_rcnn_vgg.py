@@ -59,8 +59,8 @@ class FasterRCNNVGG16(FasterRCNN):
             where :obj:`$CHAINER_DATASET_ROOT` is set as
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
-        min_size (int): A preprocessing paramter for :func:`prepare`.
-        max_size (int): A preprocessing paramter for :func:`prepare`.
+        min_size (int): A preprocessing paramter for :meth:`prepare`.
+        max_size (int): A preprocessing paramter for :meth:`prepare`.
         ratios (list of floats): This is ratios of width to height of
             the anchors.
         anchor_scales (list of numbers): This is areas of anchors.

@@ -48,15 +48,15 @@ class FasterRCNN(chainer.Chain):
     Each stage is carried out by one of the callable
     :class:`chainer.Chain` objects :obj:`feature`, :obj:`rpn` and :obj:`head`.
 
-    There are two functions :func:`predict` and :func:`__call__` to conduct
+    There are two functions :meth:`predict` and :meth:`__call__` to conduct
     object detection.
-    :func:`predict` takes images and returns bounding boxes that are converted
+    :meth:`predict` takes images and returns bounding boxes that are converted
     to image coordinates. This will be useful for a scenario when
     Faster R-CNN is treated as a black box function, for instance.
-    :func:`__call__` is provided for a scnerario when intermediate outputs
+    :meth:`__call__` is provided for a scnerario when intermediate outputs
     are needed, for instance, for training and debugging.
 
-    Links that support obejct detection API have method :func:`predict` with
+    Links that support obejct detection API have method :meth:`predict` with
     the same interface. Please refer to :func:`FasterRCNN.predict` for
     further details.
 
@@ -75,10 +75,10 @@ class FasterRCNN(chainer.Chain):
             dependent localization paramters and class scores.
         n_fg_class (int): The number of classes excluding the background.
         mean (numpy.ndarray): A value to be subtracted from an image
-            in :func:`prepare`.
-        min_size (int): A preprocessing paramter for :func:`prepare`. Please
-            refer to a docstring found for :func:`prepare`.
-        max_size (int): A preprocessing paramter for :func:`prepare`.
+            in :meth:`prepare`.
+        min_size (int): A preprocessing paramter for :meth:`prepare`. Please
+            refer to a docstring found for :meth:`prepare`.
+        max_size (int): A preprocessing paramter for :meth:`prepare`.
         loc_normalize_mean (tuple of four floats): Mean values of
             localization estimates.
         loc_normalize_std (tupler of four floats): Standard deviation
@@ -163,7 +163,7 @@ class FasterRCNN(chainer.Chain):
         This method changes values of :obj:`self.nms_thresh` and
         :obj:`self.score_thresh`. These values are a threshold value
         used for non maximum suppression and a threshold value
-        to discard low confidence proposals in :func:`self.predict`,
+        to discard low confidence proposals in :meth:`predict`,
         respectively.
 
         If the attributes need to be changed to something
