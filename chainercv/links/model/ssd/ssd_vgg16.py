@@ -220,6 +220,34 @@ class VGG16Extractor512(VGG16):
         return ys
 
 
+def _check_pretrained_model(n_fg_class, pretrained_model, models):
+    if pretrained_model in models:
+        model = models[pretrained_model]
+        if n_fg_class and not n_fg_class == model['n_fg_class']:
+            raise ValueError('n_fg_class mismatch')
+        n_fg_class = model['n_fg_class']
+
+        root = get_dataset_directory('pfnet/chainercv/models')
+        basename = os.path.basename(model['url'])
+        path = os.path.join(root, basename)
+        if not os.path.exists(path):
+            download_file = download.cached_download(model['url'])
+            os.rename(download_file, path)
+
+        if not _available:
+            warnings.warn(
+                'cv2 is not installed on your environment. '
+                'Pretrained models are trained with cv2. '
+                'The performace may change with Pillow backend.',
+                RuntimeWarning)
+    elif pretrained_model:
+        path = pretrained_model
+    else:
+        path = None
+
+    return n_fg_class, path
+
+
 class SSD300(SSD):
     """Single Shot Multibox Detector with 300x300 inputs.
 
@@ -255,29 +283,8 @@ class SSD300(SSD):
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        if pretrained_model in self._models:
-            model = self._models[pretrained_model]
-            if n_fg_class and not n_fg_class == model['n_fg_class']:
-                raise ValueError('n_fg_class mismatch')
-            n_fg_class = model['n_fg_class']
-
-            root = get_dataset_directory('pfnet/chainercv/models')
-            basename = os.path.basename(model['url'])
-            path = os.path.join(root, basename)
-            if not os.path.exists(path):
-                download_file = download.cached_download(model['url'])
-                os.rename(download_file, path)
-
-            if not _available:
-                warnings.warn(
-                    'cv2 is not installed on your environment. '
-                    'Pretrained models are trained with cv2. '
-                    'The performace may change with Pillow backend.',
-                    RuntimeWarning)
-        elif pretrained_model:
-            path = pretrained_model
-        else:
-            path = None
+        n_fg_class, path = _check_pretrained_model(
+            n_fg_class, pretrained_model, self._models)
 
         super(SSD300, self).__init__(
             extractor=VGG16Extractor300(),
@@ -328,29 +335,8 @@ class SSD512(SSD):
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        if pretrained_model in self._models:
-            model = self._models[pretrained_model]
-            if n_fg_class and not n_fg_class == model['n_fg_class']:
-                raise ValueError('n_fg_class mismatch')
-            n_fg_class = model['n_fg_class']
-
-            root = get_dataset_directory('pfnet/chainercv/models')
-            basename = os.path.basename(model['url'])
-            path = os.path.join(root, basename)
-            if not os.path.exists(path):
-                download_file = download.cached_download(model['url'])
-                os.rename(download_file, path)
-
-            if not _available:
-                warnings.warn(
-                    'cv2 is not installed on your environment. '
-                    'Pretrained models are trained with cv2. '
-                    'The performace may change with Pillow backend.',
-                    RuntimeWarning)
-        elif pretrained_model:
-            path = pretrained_model
-        else:
-            path = None
+        n_fg_class, path = _check_pretrained_model(
+            n_fg_class, pretrained_model, self._models)
 
         super(SSD512, self).__init__(
             extractor=VGG16Extractor512(),
