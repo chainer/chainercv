@@ -5,6 +5,23 @@ import chainer.links as L
 
 class SegNetBasic(chainer.Chain):
 
+    """SegNet Basic for semantic segmentation.
+
+    This is a SegNet [#]_ model for semantic segmenation. This is based on
+    SegNetBasic model that is found here_.
+
+    .. [#] Vijay Badrinarayanan, Alex Kendall and Roberto Cipolla "SegNet: A \
+    Deep Convolutional Encoder-Decoder Architecture for Image Segmentation." \
+    PAMI, 2017 
+
+    .. _here: http://github.com/alexgkendall/SegNet-Tutorial
+
+    Args:
+        out_ch (int): The number of channels for the final convolutional layer.
+            SegNetBasic basically takes the number of target classes as this
+            argment.
+    """
+
     def __init__(self, out_ch):
         w = chainer.initializers.HeNormal()
         super(SegNetBasic, self).__init__(
