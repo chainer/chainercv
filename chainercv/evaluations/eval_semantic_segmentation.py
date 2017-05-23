@@ -48,13 +48,13 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
     The more detailed descriptions on the above metrics can be found at a
     review on semantic segmentation [#]_.
 
+    Types of :obj:`pred_label` and :obj:`gt_label` need to be same.
+    The outputs are same type as the inputs.
+
     .. [#] Alberto Garcia-Garcia, Sergio Orts-Escolano, Sergiu Oprea, \
     Victor Villena-Martinez, Jose Garcia-Rodriguez. \
     `A Review on Deep Learning Techniques Applied to Semantic Segmentation \
     <https://arxiv.org/abs/1704.06857>`_. arXiv 2017.
-
-    Types of :obj:`pred_label` and :obj:`gt_label` need to be same.
-    The outputs are same type as the inputs.
 
     Args:
         pred_label (array): An integer array of image containing
