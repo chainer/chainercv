@@ -2,12 +2,15 @@
 
 ### Performance
 
+| Training Setting | Evaluation | Reference Implementation | ChainerCV |
+|:-:|:-:|:-:|:-:|
+| VOC 2007 trainval | VOC 2007 test|  69.9 mAP [1] | 70.5 mAP |
 
 
 ### Demo
 
 ```
-$ python demo.py [--model ssd300|ssd512] [--gpu <gpu>] <image>.jpg
+$ python demo.py [--gpu <gpu>] <image>.jpg
 ```
 
 This example will automatically download a pretrained weights from the internet when executed.
