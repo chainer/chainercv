@@ -9,13 +9,15 @@ ChainerCV is a collection of tools to train and run neural networks for computer
 
 You can find the documentation [here](http://chainercv.readthedocs.io/en/latest/).
 
+![Example are outputs of detection models supported by ChainerCV](https://cloud.githubusercontent.com/assets/2062128/26337670/44a2a202-3fb5-11e7-8b88-6eb9886a9915.png)
+These are the outputs of the detection models supported by ChainerCV.
+
 
 # Installation
 
 ```
-pip install chainercv
+$ pip install chainercv
 ```
-
 
 ### Requirements
 
@@ -59,6 +61,8 @@ The convenient interface coupled with this functionality allows users to execute
 
 ```python
 from chainercv.links import FasterRCNNVGG16, SSD300
+# You can use SSD instead of Faster R-CNN.
+# model = SSD300(pretrained_model='voc0712')
 model = FasterRCNNVGG16(pretrained_model='voc07')
 
 # `bboxes` is a list of numpy arrays containing coordinates of boundnig boxes
@@ -70,9 +74,16 @@ bboxes, labels, confs = model.predict(imgs)  # imgs is a list of image
 With the following commands, you can run a visualization demo.
 
 ```
-cd examples/faster_rcnn  # or cd examples/ssd
-wget https://cloud.githubusercontent.com/assets/2062128/26187667/9cb236da-3bd5-11e7-8bcf-7dbd4302e2dc.jpg -O sample.jpg
-python demo.py sample.jpg
+$ cd examples/faster_rcnn  # or cd examples/ssd
+$ wget https://cloud.githubusercontent.com/assets/2062128/26187667/9cb236da-3bd5-11e7-8bcf-7dbd4302e2dc.jpg -O sample.jpg
+$ python demo.py sample.jpg
+```
+
+With the following commands, the visualizations on the top of this page can be produced.
+
+```
+$ cd examples/visualization
+$ python visualize_detection_models.py
 ```
 
 
