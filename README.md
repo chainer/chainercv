@@ -44,7 +44,7 @@ Our implementations include:
 
 Detection Models
 
-+ **Faster RCNN**
++ **Faster R-CNN**
 + **Single Shot Multibox Detector (SSD)**
 
 <!--Semantic Segmentation 
