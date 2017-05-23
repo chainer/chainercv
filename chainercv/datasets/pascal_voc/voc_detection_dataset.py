@@ -61,6 +61,8 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         return_difficult (bool): If true, this dataset returns a boolean array
             that indicates whether bounding boxes are labeled as difficult
             or not. The default value is :obj:`False`.
+            If :obj:`use_difficult` is :obj:`False`, this has to be
+            :obj:`False`.
 
     """
 
@@ -76,6 +78,9 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
                     'for 2012 dataset. For 2007 dataset, you can pick \'test\''
                     ' in addition to the above mentioned splits.'
                 )
+        if not use_difficult and return_difficult:
+            raise ValueError('If use_difficult is False, return_difficult has '
+                             'to be False.')
 
         id_list_file = os.path.join(
             data_dir, 'ImageSets/Main/{0}.txt'.format(split))
