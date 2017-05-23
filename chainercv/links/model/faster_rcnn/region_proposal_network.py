@@ -19,10 +19,6 @@ class RegionProposalNetwork(chainer.Chain):
     This takes features extracted from images and propose
     class agnostic bounding boxes around "objects".
 
-    .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
-    Faster R-CNN: Towards Real-Time Object Detection with \
-    Region Proposal Networks. NIPS 2015.
-
     Args:
         in_channels (int): The channel size of input.
         mid_channels (int): The channel size of the intermediate tensor.
@@ -43,6 +39,10 @@ class RegionProposalNetwork(chainer.Chain):
 
     .. seealso::
         :obj:`chainercv.links.model.faster_rcnn.ProposalCreator`
+
+    .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
+    Faster R-CNN: Towards Real-Time Object Detection with \
+    Region Proposal Networks. NIPS 2015.
 
     """
 

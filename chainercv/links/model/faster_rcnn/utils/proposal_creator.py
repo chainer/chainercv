@@ -22,10 +22,6 @@ class ProposalCreator(object):
     This class is used for Region Proposal Networks introduced in
     Faster R-CNN [#]_.
 
-    .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
-    Faster R-CNN: Towards Real-Time Object Detection with \
-    Region Proposal Networks. NIPS 2015.
-
     Args:
         nms_thresh (float): Threshold value used when calling NMS.
         n_train_pre_nms (int): Number of top scored bounding boxes
@@ -41,6 +37,10 @@ class ProposalCreator(object):
             the NMS mode is selected based on the type of inputs.
         min_size (int): A paramter to determine the threshold on
             discarding bounding boxes based on their sizes.
+
+    .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
+    Faster R-CNN: Towards Real-Time Object Detection with \
+    Region Proposal Networks. NIPS 2015.
 
     """
 

@@ -19,10 +19,6 @@ def bbox2loc(src_bbox, dst_bbox):
     The output is same type as the type of the inputs.
     The encoding formulas are used in works such as R-CNN [#]_.
 
-    .. [#] Ross Girshick, Jeff Donahue, Trevor Darrell, Jitendra Malik. \
-    Rich feature hierarchies for accurate object detection and semantic \
-    segmentation. CVPR 2014.
-
     Args:
         src_bbox (array): An image coordinate array whose shape is
             :math:`(R, 4)`. :math:`R` is the number of bounding boxes.
@@ -37,6 +33,10 @@ def bbox2loc(src_bbox, dst_bbox):
         to :obj:`dst_bbox`. \
         This has shape :math:`(R, 4)`.
         The second axis contains four values :math:`t_x, t_y, t_w, t_h`.
+
+    .. [#] Ross Girshick, Jeff Donahue, Trevor Darrell, Jitendra Malik. \
+    Rich feature hierarchies for accurate object detection and semantic \
+    segmentation. CVPR 2014.
 
     """
     xp = cuda.get_array_module(src_bbox)

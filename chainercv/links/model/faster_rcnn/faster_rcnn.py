@@ -60,10 +60,6 @@ class FasterRCNN(chainer.Chain):
     the same interface. Please refer to :func:`FasterRCNN.predict` for
     further details.
 
-    .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
-    Faster R-CNN: Towards Real-Time Object Detection with \
-    Region Proposal Networks. NIPS 2015.
-
     Args:
         extractor (callable Chain): A callable that takes a BCHW image
             array and returns feature maps.
@@ -82,6 +78,11 @@ class FasterRCNN(chainer.Chain):
             localization estimates.
         loc_normalize_std (tupler of four floats): Standard deviation
             of localization estimates.
+
+    .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
+    Faster R-CNN: Towards Real-Time Object Detection with \
+    Region Proposal Networks. NIPS 2015.
+
 
     """
 
