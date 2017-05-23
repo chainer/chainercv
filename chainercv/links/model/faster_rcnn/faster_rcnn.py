@@ -224,7 +224,7 @@ class FasterRCNN(chainer.Chain):
         score = list()
         # skip cls_id = 0 because it is the background class
         for l in range(1, self._n_class):
-            cls_bbox_l = raw_cls_bbox[:, l * 4: (l + 1) * 4]
+            cls_bbox_l = raw_cls_bbox.reshape(-1, self._n_class, 4)[:, l, :]
             prob_l = raw_prob[:, l]
             mask = prob_l > self.score_thresh
             cls_bbox_l = cls_bbox_l[mask]
