@@ -23,6 +23,10 @@ def loc2bbox(src_bbox, loc):
 
     The output is same type as the type of the inputs.
 
+    .. [#] Ross Girshick, Jeff Donahue, Trevor Darrell, Jitendra Malik. \
+    Rich feature hierarchies for accurate object detection and semantic \
+    segmentation. CVPR 2014.
+
     Args:
         src_bbox (array): A coordinates of bounding boxes.
             Its shape is :math:`(R, 4)`. These coordinates are used to
@@ -36,10 +40,6 @@ def loc2bbox(src_bbox, loc):
         Decoded bounding box coordinates. Its shape is :math:`(R, 4)`. \
         The second axis contains four values \
         :math:`\\hat{g}_x, \\hat{g}_y, \\hat{g}_w, \\hat{g}_h`.
-
-    .. [#] Ross Girshick, Jeff Donahue, Trevor Darrell, Jitendra Malik. \
-    Rich feature hierarchies for accurate object detection and semantic \
-    segmentation. CVPR 2014.
 
     """
     xp = cuda.get_array_module(src_bbox)
