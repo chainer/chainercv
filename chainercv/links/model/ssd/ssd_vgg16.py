@@ -271,7 +271,7 @@ class SSD300(SSD):
             if not _available:
                 warnings.warn(
                     'cv2 is not installed on your environment. '
-                    'Pretrained models are trained with cv2.'
+                    'Pretrained models are trained with cv2. '
                     'The performace may change with Pillow backend.',
                     RuntimeWarning)
         elif pretrained_model:
@@ -344,7 +344,7 @@ class SSD512(SSD):
             if not _available:
                 warnings.warn(
                     'cv2 is not installed on your environment. '
-                    'Pretrained models are trained with cv2.'
+                    'Pretrained models are trained with cv2. '
                     'The performace may change with Pillow backend.',
                     RuntimeWarning)
         elif pretrained_model:
