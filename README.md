@@ -67,9 +67,9 @@ model = SSD300(pretrained_model='voc0712')
 
 
 # `bboxes` is a list of numpy arrays containing coordinates of boundnig boxes
-# around objects. `labels` and `confs` are class ids and confidence scores for
+# around objects. `labels` and `scores` are class ids and confidence scores for
 # the boxes.
-bboxes, labels, confs = model.predict(imgs)  # imgs is a list of image
+bboxes, labels, scores = model.predict(imgs)  # imgs is a list of image
 ```
 
 With the following commands, you can run a visualization demo.
