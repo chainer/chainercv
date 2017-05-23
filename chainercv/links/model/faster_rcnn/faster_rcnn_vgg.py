@@ -22,7 +22,7 @@ def _relu(x):
 
 class FasterRCNNVGG16(FasterRCNN):
 
-    """Faster R-CNN based on VGG16.
+    """Faster R-CNN based on VGG-16.
 
     When you specify the path of a pre-trained chainer model serialized as
     a :obj:`.npz` file in the constructor, this chain model automatically
@@ -35,7 +35,7 @@ class FasterRCNNVGG16(FasterRCNN):
         PASCAL VOC2007 Detection Dataset.
     * :obj:`imagenet`: Loads weights trained with ImageNet Classfication \
         task for the feature extractor and the head modules. \
-        Weights that do not have a corresponding layer in VGG16 \
+        Weights that do not have a corresponding layer in VGG-16 \
         will be randomly initialized.
 
     For descriptions on the interface of this model, please refer to
@@ -68,7 +68,7 @@ class FasterRCNNVGG16(FasterRCNN):
             :obj:`anchor_scales` and the original area of the reference
             window.
         vgg_initialW (callable): Initializer for the layers corresponding to
-            the VGG16 layers.
+            the VGG-16 layers.
         rpn_initialW (callable): Initializer for Region Proposal Network
             layers.
         loc_initialW (callable): Initializer for the localization head.
@@ -174,7 +174,7 @@ class FasterRCNNVGG16(FasterRCNN):
 
 class VGG16RoIHead(chainer.Chain):
 
-    """Faster R-CNN Head for VGG16 based implementation.
+    """Faster R-CNN Head for VGG-16 based implementation.
 
     This class is used as a head for Faster R-CNN.
     This outputs class-wise localizations and classification based on RoI
@@ -185,7 +185,7 @@ class VGG16RoIHead(chainer.Chain):
         roi_size (int): Height and width of the features after RoI-pooled.
         spatial_scale (float): Scale of the roi is resized.
         vgg_initialW (callable): Initializer for the layers corresponding to
-            the VGG16 layers.
+            the VGG-16 layers.
         loc_initialW (callable): Initializer for the localization head.
         score_initialW (callable): Initializer for the score head.
 
@@ -236,7 +236,7 @@ class VGG16RoIHead(chainer.Chain):
 
 
 class VGG16FeatureExtractor(chainer.Chain):
-    """Truncated VGG16 that extracts a conv5_3 feature.
+    """Truncated VGG-16 that extracts a conv5_3 feature.
 
     Args:
         initialW (callable): Initializer for the weights.
