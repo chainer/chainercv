@@ -36,10 +36,6 @@ setup(
     description=description,
     install_requires=install_requires,
     include_package_data=True,
-    data_files=[
-        ('chainercv/datasets/data',
-         [os.path.join('chainercv/datasets/data', fn) for fn
-          in os.listdir('chainercv/datasets/data')])],
     # for Cython
     ext_modules=ext_modules,
     cmdclass=cmdclass,
