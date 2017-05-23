@@ -33,7 +33,6 @@ class TestNormalize(unittest.TestCase):
         x = chainer.cuda.to_cpu(x)
         y = chainer.cuda.to_cpu(y.data)
         scale = chainer.cuda.to_cpu(self.link.scale.data)
-        print(scale)
 
         norm = np.linalg.norm(x, axis=1, keepdims=True) + self.eps
         expect = x / norm * scale[:, np.newaxis, np.newaxis]
