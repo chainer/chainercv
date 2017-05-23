@@ -41,9 +41,9 @@ class FasterRCNN(chainer.Chain):
         feature maps are calculated.
     2. **Region Proposal Networks**: Given the feature maps calculated in \
         the previous stage, produce set of RoIs around objects.
-    3. **Localization and Classification Heads**: Using features that belong \
-        to the proposed RoIs, classify the categories of the objects in the \
-        RoIs and improve localizations.
+    3. **Localization and Classification Heads**: Using feature maps that \
+        belong to the proposed RoIs, classify the categories of the objects \
+        in the RoIs and improve localizations.
 
     Each stage is carried out by one of the callable
     :class:`chainer.Chain` objects :obj:`feature`, :obj:`rpn` and :obj:`head`.
@@ -66,7 +66,7 @@ class FasterRCNN(chainer.Chain):
 
     Args:
         extractor (callable Chain): A callable that takes a BCHW image
-            array and returns a feature.
+            array and returns feature maps.
         rpn (callable Chain): A callable that has the same interface as
             :class:`chainercv.links.RegionProposalNetwork`. Please refer to
             the documentation found there.

@@ -177,12 +177,12 @@ class VGG16RoIHead(chainer.Chain):
     """Faster R-CNN Head for VGG-16 based implementation.
 
     This class is used as a head for Faster R-CNN.
-    This outputs class-wise localizations and classification based on RoI
-    features.
+    This outputs class-wise localizations and classification based on feature
+    maps in the given RoIs.
 
     Args:
         n_class (int): The number of classes possibly including the background.
-        roi_size (int): Height and width of the features after RoI-pooled.
+        roi_size (int): Height and width of the feature maps after RoI-pooling.
         spatial_scale (float): Scale of the roi is resized.
         vgg_initialW (callable): Initializer for the layers corresponding to
             the VGG-16 layers.
@@ -236,7 +236,7 @@ class VGG16RoIHead(chainer.Chain):
 
 
 class VGG16FeatureExtractor(chainer.Chain):
-    """Truncated VGG-16 that extracts a conv5_3 feature.
+    """Truncated VGG-16 that extracts a conv5_3 feature map.
 
     Args:
         initialW (callable): Initializer for the weights.
