@@ -1,5 +1,5 @@
-Faster RCNN
-===========
+Faster R-CNN
+============
 
 .. module:: chainercv.links.model.faster_rcnn
 
