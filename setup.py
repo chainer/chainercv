@@ -23,7 +23,7 @@ cmdclass = {'build_ext': build_ext}
 install_requires = [
     'chainer==1.24',
     'cython',
-    'numpy'
+    'pillow'
 ]
 
 setup(
