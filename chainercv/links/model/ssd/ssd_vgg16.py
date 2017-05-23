@@ -33,12 +33,11 @@ class VGG16(chainer.Chain):
 
     * :obj:`conv5_1`, :obj:`conv5_2` and :obj:`conv5_3` are changed from \
     :class:`~chainer.links.Convolution2d` to \
-    :class:`~chainer.links.DilatedConvolution2d`
+    :class:`~chainer.links.DilatedConvolution2d`.
     * :class:`~chainercv.links.model.ssd.Normalize` is \
     inserted after :obj:`conv4_3`.
-    :class:`~chainer.links.DilatedConvolution2d`
-    * The parameters of max pooling after :obj:`conv5_3` is changed.
-    * :obj:`fc6` and :obj:`fc7` are converted to :obj:`conv6` and ;obj`conv7`.
+    * The parameters of max pooling after :obj:`conv5_3` are changed.
+    * :obj:`fc6` and :obj:`fc7` are converted to :obj:`conv6` and :obj:`conv7`.
 
     .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
        Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
@@ -147,7 +146,7 @@ class VGG16Extractor300(VGG16):
 
         Args:
             x (ndarray): An array holding a batch of images.
-                The images should be resized and rescaled by :meth:`prepare`.
+                The images should be resized to :math:`300\\times 300`.
 
         Returns:
             list of Variable:
@@ -204,7 +203,7 @@ class VGG16Extractor512(VGG16):
 
         Args:
             x (ndarray): An array holding a batch of images.
-                The images should be resized and rescaled by :meth:`prepare`.
+                The images should be resized to :math:`512\\times 512`.
 
         Returns:
             list of Variable:
