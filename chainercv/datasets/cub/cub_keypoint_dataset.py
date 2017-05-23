@@ -41,6 +41,11 @@ class CUBKeypointDataset(CUBDatasetBase):
     where :math:`H` and :math:`W` are height and width of the image
     respectively.
 
+    .. [#] Angjoo Kanazawa, David W. Jacobs, \
+       `Manmohan Chandraker. WarpNet: Weakly Supervised Matching for \
+       Single-view Reconstruction <https://arxiv.org/abs/1604.05592>`_. \
+       arXiv 2016.
+
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
@@ -54,11 +59,6 @@ class CUBKeypointDataset(CUBDatasetBase):
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
         return_mask (bool): Decide whether to include mask image of the bird
             in a tuple served for a query.
-
-    .. [#] Angjoo Kanazawa, David W. Jacobs, \
-       `Manmohan Chandraker. WarpNet: Weakly Supervised Matching for \
-       Single-view Reconstruction <https://arxiv.org/abs/1604.05592>`_. \
-       arXiv 2016.
 
     """
 
