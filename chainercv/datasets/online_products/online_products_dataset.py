@@ -38,12 +38,12 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     Class ids start from 0.
 
     The :obj:`split` selects train and test split of the dataset as done in
-    [Song]_. The train split contains the first 11318 classes and the test
+    [#]_. The train split contains the first 11318 classes and the test
     split contains the remaining 11316 classes.
 
-    .. [Song] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
-        Deep Metric Learning via Lifted Structured Feature Embedding.
-        https://arxiv.org/abs/1511.06452.
+    .. [#] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
+        `Deep Metric Learning via Lifted Structured Feature Embedding\
+        <https://arxiv.org/abs/1511.06452>`_. arXiv 2015.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is

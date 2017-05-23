@@ -41,7 +41,7 @@ class SSD(chainer.Chain):
             Each tuple indicates the aspect ratios of default bounding boxes \
             at each feature maps.
             * :meth:`__call__`: A method which computes \
-            :obj:`loc` and :obj:`conf`.
+            :obj:`loc` and :obj:`conf`. \
             It must take a batched feature maps and \
             return :obj:`loc` and :obj:`conf`.
         steps (iterable of float): The step size for each feature map.

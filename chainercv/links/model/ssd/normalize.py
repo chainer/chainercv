@@ -21,6 +21,7 @@ class Normalize(chainer.Link):
             is 0.
         eps (float): A small value to avoid zero-division. The default value
             is :math:`1e-5`.
+
     """
 
     def __init__(self, n_channel, initial=0, eps=1e-5):

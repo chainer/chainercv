@@ -26,6 +26,7 @@ class Multibox(chainer.Chain):
         initial_bias: An initializer used in
             :meth:`chainer.links.Convolution2d.__init__`.
             The default value is :class:`chainer.initializers.Zero`.
+
     """
 
     def __init__(
