@@ -142,7 +142,7 @@ class FasterRCNNVGG16(FasterRCNN):
         if pretrained_model in self._models:
             data_root = get_dataset_directory('pfnet/chainercv/models')
             url = self._models[pretrained_model]['url']
-            fn = url.rsplit('/', 1)[-1]
+            fn = os.path.basename(url)
             dest_fn = os.path.join(data_root, fn)
             if not os.path.exists(dest_fn):
                 download_file = download.cached_download(url)
