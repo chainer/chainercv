@@ -1,10 +1,10 @@
 from chainer import cuda
 
 
-def bbox_overlap(bbox_a, bbox_b):
-    """Calculate Jaccard overlap between bounding boxes.
+def bbox_iou(bbox_a, bbox_b):
+    """Calculate the Intersection of Unions (IoUs) between bounding boxes.
 
-    Jaccard overlap is calculated as a ratio of area of the intersection
+    IoU is calculated as a ratio of area of the intersection
     and area of the union.
 
     This function accepts both :obj:`numpy.ndarray` and :obj:`cupy.ndarray` as
@@ -23,7 +23,7 @@ def bbox_overlap(bbox_a, bbox_b):
     Returns:
         array:
         An array whose shape is :math:`(N, K)`. \
-        An element at index :math:`(n, k)` contains overlap between \
+        An element at index :math:`(n, k)` contains IoUs between \
         :math:`n` th bounding box in :obj:`bbox_a` and :math:`k` th bounding \
         box in :obj:`bbox_b`.
 
