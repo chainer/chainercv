@@ -1,8 +1,7 @@
 import argparse
 import matplotlib.pyplot as plot
-import numpy as np
 
-from chainer import cuda
+import chainer
 
 from chainercv.datasets import voc_detection_label_names
 from chainercv.links import SSD300
@@ -25,11 +24,11 @@ def main():
         model = SSD512(pretrained_model='voc0712')
 
     if args.gpu >= 0:
-        cuda.get_device(args.gpu).use()
+        chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
 
     img = utils.read_image(args.image, color=True)
-    bboxes, labels, scores = model.predict(img[np.newaxis])
+    bboxes, labels, scores = model.predict([img])
     bbox, label, score = bboxes[0], labels[0], scores[0]
 
     vis_bbox(
