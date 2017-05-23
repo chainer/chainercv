@@ -14,6 +14,10 @@ class SSD(chainer.Chain):
 
     This is a base class of Single Shot Multibox Detector [#]_.
 
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
+
     Args:
         extractor: A link which extracts feature maps.
             This link must have :obj:`insize`, :obj:`grids` and
@@ -59,10 +63,6 @@ class SSD(chainer.Chain):
             the bounding box will be suppressed.
             The default value is :obj:`0.6`.
             This value can be changed directly or by using :meth:`use_preset`.
-
-    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
-       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
-       SSD: Single Shot MultiBox Detector. ECCV 2016.
 
     """
 

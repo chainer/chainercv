@@ -254,6 +254,10 @@ class SSD300(SSD):
     This model uses :class:`~chainercv.links.model.ssd.VGG16Extractor300` as
     its feature extractor.
 
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
+
     Args:
        n_fg_class (int): The number of classes excluding the background.
        pretrained_model (str): The weight file to be loaded.
@@ -268,9 +272,6 @@ class SSD300(SSD):
                 must be specified properly.
             * :obj:`None`: Do not load weights.
 
-    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
-       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
-       SSD: Single Shot MultiBox Detector. ECCV 2016.
     """
 
     _models = {
@@ -305,6 +306,10 @@ class SSD512(SSD):
     This model uses :class:`~chainercv.links.model.ssd.VGG16Extractor512` as
     its feature extractor.
 
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
+
     Args:
        n_fg_class (int): The number of classes excluding the background.
        pretrained_model (str): The weight file to be loaded.
@@ -318,10 +323,6 @@ class SSD512(SSD):
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
-
-    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
-       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
-       SSD: Single Shot MultiBox Detector. ECCV 2016.
 
     """
 
