@@ -34,40 +34,44 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 # Features
 
 ## Models
-Currently, ChainerCV supports networks for object detection and image segmentation for 2D images.
-Image detection is the task of finding where objects are in an image, and classify the class to which the object belongs to.
-Semantic segmentation is the task of segmentingimages into pieces and assigning object labels to them.
+Currently, ChainerCV supports networks for object detection and semantic segmentation.
+Image detection is the task of finding objects in an image and classifying the objects.
+<!--Semantic segmentation is the task of segmenting an image into pieces and assigning object labels to them. -->
 Our implementations include:
+
+Detection Models
 
 + **Faster RCNN**
 + **Single Shot Multibox Detector (SSD)**
-+ **SegNet**
 
-The models support common interface across architectures among each task.
+<!--Semantic Segmentation 
++ **SegNet** -->
+
+Models for certain tasks are designed to have common interfaces.
 For example, detection models support method that takes images and outputs coordinates, class labels and confidence scores of bounding boxes predicted around estimated regions of objects.
 The common interface allows users to swap different models easily inside their code.
 On top of that, the utilitiy codes build on top of this interface.
-For example, there is an extension `chainercv.extensions.detection_vis_report` that visualizes outputs during training for models that previously stated common interface.
+For example, there is an extension of `chainer.training.Trainer` called `chainercv.extensions.DetectionVisReport` that visualizes outputs during training for models that previously stated common interface.
 
-It is inconvenient to manually download pretrained models from the internet and passing file paths to Python objects to load them.
-ChainerCV alleviates this problem by internally downloading and storing files in a file system using Chainer's downloading mechanism.
+ChainerCV internally downloads and stores files in a file system using Chainer's downloading mechanism to conveniently download pretrained models from the internet automatically.
 The convenient interface coupled with this functionality allows users to execute algorithms in two lines of code:
 
 ```python
 from chainercv.links import FasterRCNNVGG16, SSD300
-model = FasterRCNNVGG16()  # or SSD300()
+model = FasterRCNNVGG16(pretrained_model='voc07')
+
 # `bboxes` is a list of numpy arrays containing coordinates of boundnig boxes
 # around objects. `labels` and `confs` are class ids and confidence scores for
 # the boxes.
 bboxes, labels, confs = model.predict(imgs)  # imgs is a list of image
 ```
 
-You can run a demo with a visualization with the commands below.
+With the following commands, you can run a visualization demo.
 
 ```
 cd examples/faster_rcnn  # or cd examples/ssd
 wget https://cloud.githubusercontent.com/assets/2062128/26187667/9cb236da-3bd5-11e7-8bcf-7dbd4302e2dc.jpg -O sample.jpg
-python demo.py -1 sample.jpg
+python demo.py sample.jpg
 ```
 
 
