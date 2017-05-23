@@ -36,8 +36,9 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 
 ## Models
 Currently, ChainerCV supports networks for object detection and semantic segmentation.
+We are planning to support networks with different tasks in the future.
 Image detection is the task of finding objects in an image and classifying the objects.
-<!--Semantic segmentation is the task of segmenting an image into pieces and assigning object labels to them. -->
+Semantic segmentation is the task of segmenting an image into pieces and assigning object labels to them.
 Our implementations include:
 
 Detection Models
@@ -45,8 +46,8 @@ Detection Models
 + **Faster RCNN**
 + **Single Shot Multibox Detector (SSD)**
 
-<!--Semantic Segmentation 
-+ **SegNet** -->
+Semantic Segmentation 
++ **SegNet**
 
 Models for certain tasks are designed to have common interfaces.
 For example, detection models support method that takes images and outputs coordinates, class labels and confidence scores of bounding boxes predicted around estimated regions of objects.
