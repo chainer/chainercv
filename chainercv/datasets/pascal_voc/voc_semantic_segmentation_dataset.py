@@ -1,5 +1,5 @@
 import numpy as np
-import os.path as osp
+import os
 
 import chainer
 
@@ -36,7 +36,7 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
         if data_dir == 'auto':
             data_dir = voc_utils.get_pascal_voc('2012', split)
 
-        id_list_file = osp.join(
+        id_list_file = os.path.join(
             data_dir, 'ImageSets/Segmentation/{0}.txt'.format(split))
         self.ids = [id_.strip() for id_ in open(id_list_file)]
 
@@ -63,14 +63,15 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
         """
         if i >= len(self):
             raise IndexError('index is too large')
-        img_file = osp.join(self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
+        img_file = os.path.join(
+            self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
         img = read_image(img_file, color=True)
         label = self._load_label(self.data_dir, self.ids[i])
         label = label[None]
         return img, label
 
     def _load_label(self, data_dir, id_):
-        label_file = osp.join(
+        label_file = os.path.join(
             data_dir, 'SegmentationClass', id_ + '.png')
         label = read_image(label_file, dtype=np.int32, color=False)
         label[label == 255] = -1
