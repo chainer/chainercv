@@ -61,7 +61,7 @@ The convenient interface coupled with this functionality allows users to execute
 
 ```python
 from chainercv.links import FasterRCNNVGG16, SSD300
-# You can use Faster-RCNN instead of SSD.
+# You can use Faster R-CNN instead of SSD.
 # model = FasterRCNNVGG16(pretrained_model='voc07')
 model = SSD300(pretrained_model='voc0712')
 
