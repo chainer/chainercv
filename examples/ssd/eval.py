@@ -7,8 +7,8 @@ import time
 import chainer
 from chainer import iterators
 
-from chainercv.datasets import VOCDetectionDataset
 from chainercv.datasets import voc_detection_label_names
+from chainercv.datasets import VOCDetectionDataset
 from chainercv.evaluations import eval_detection_voc
 from chainercv.links import SSD300
 from chainercv.links import SSD512
