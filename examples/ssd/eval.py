@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 import chainer
 from chainer import iterators
@@ -54,7 +55,8 @@ def main():
         pred_labels.extend(labels)
         pred_scores.extend(scores)
 
-        print(len(gt_bboxes))
+        sys.stdout.write('\r{:d} images'.format(len(gt_bboxes)))
+        sys.stdout.flush()
 
     eval_ = eval_detection_voc(
         pred_bboxes, pred_labels, pred_scores,
