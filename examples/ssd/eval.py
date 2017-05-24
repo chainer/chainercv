@@ -5,6 +5,7 @@ import chainer
 from chainer import iterators
 
 from chainercv.datasets import VOCDetectionDataset
+from chainercv.datasets import voc_detection_label_names
 from chainercv.evaluations import eval_detection_voc
 from chainercv.links import SSD300
 from chainercv.links import SSD512
@@ -57,7 +58,8 @@ def main():
         pred_labels.extend(labels)
         pred_scores.extend(scores)
 
-        sys.stdout.write('\r{:d} images'.format(len(gt_bboxes)))
+        sys.stdout.write(
+            '\r{:d} images / {:d} images'.format(len(gt_bboxes), len(dataset)))
         sys.stdout.flush()
 
     eval_ = eval_detection_voc(
@@ -65,7 +67,13 @@ def main():
         gt_bboxes, gt_labels, gt_difficults,
         use_07_metric=True)
 
-    print('mAP: ', eval_['map'])
+    print()
+    print('mAP: {:f}'.format(eval_['map']))
+    for l, name in enumerate(voc_detection_label_names):
+        if l in eval_:
+            print('{:s}: {;f}'.format(name, eval_[l]))
+        else:
+            print('{:s}: -'.format(name))
 
 
 if __name__ == '__main__':
