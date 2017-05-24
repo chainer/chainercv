@@ -14,7 +14,7 @@ def _random_array(xp, shape):
 
 
 def _generate_bbox(xp, n, img_size, min_length, max_length):
-    W, H = img_size
+    H, W = img_size
     x_min = xp.random.uniform(0, W - max_length, size=(n,))
     y_min = xp.random.uniform(0, H - max_length, size=(n,))
     x_max = x_min + xp.random.uniform(min_length, max_length, size=(n,))
@@ -71,10 +71,10 @@ class DummyRegionProposalNetwork(chainer.Chain):
         rpn_locs = _random_array(self.xp, (B, n_anchor, 4))
         rpn_cls_scores = _random_array(self.xp, (B, n_anchor))
         rois = _generate_bbox(
-            self.xp, self.n_roi, img_size[::-1], 16, min(img_size))
+            self.xp, self.n_roi, img_size, 16, min(img_size))
         roi_indices = self.xp.zeros((len(rois),), dtype=np.int32)
         anchor = _generate_bbox(
-            self.xp, n_anchor, img_size[::-1], 16, min(img_size))
+            self.xp, n_anchor, img_size, 16, min(img_size))
         return (chainer.Variable(rpn_locs),
                 chainer.Variable(rpn_cls_scores), rois, roi_indices, anchor)
 

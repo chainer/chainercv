@@ -10,7 +10,7 @@ from chainercv.links.model.faster_rcnn import ProposalCreator
 
 
 def _generate_bbox(n, img_size, min_length, max_length):
-    W, H = img_size
+    H, W = img_size
     x_min = np.random.uniform(0, W - max_length, size=(n,))
     y_min = np.random.uniform(0, H - max_length, size=(n,))
     x_max = x_min + np.random.uniform(min_length, max_length, size=(n,))

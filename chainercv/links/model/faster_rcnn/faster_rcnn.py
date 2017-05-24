@@ -149,7 +149,7 @@ class FasterRCNN(chainer.Chain):
                 :math:`(R',)`.
 
         """
-        img_size = x.shape[2:][::-1]
+        img_size = x.shape[2:]
 
         h = self.extractor(x, test=test)
         rpn_locs, rpn_scores, rois, roi_indices, anchor =\
