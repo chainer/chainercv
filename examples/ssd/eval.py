@@ -78,7 +78,7 @@ def main():
     print('mAP: {:f}'.format(eval_['map']))
     for l, name in enumerate(voc_detection_label_names):
         if l in eval_:
-            print('{:s}: {:f}'.format(name, eval_[l]))
+            print('{:s}: {:f}'.format(name, eval_[l]['ap']))
         else:
             print('{:s}: -'.format(name))
 
