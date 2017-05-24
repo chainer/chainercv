@@ -27,6 +27,8 @@ def main():
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
 
+    model.use_preset('evaluate')
+
     dataset = VOCDetectionDataset(
         year='2007', split='test', use_difficult=True, return_difficult=True)
     iterator = iterators.SerialIterator(
