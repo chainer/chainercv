@@ -18,6 +18,13 @@ CamVidDataset
 ~~~~~~~~~~~~~
 .. autoclass:: CamVidDataset
 
+COCO
+----
+
+COCODetectionDataset
+~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: COCODetectionDataset
+
 CUB
 ---
 
