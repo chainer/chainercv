@@ -54,6 +54,8 @@ def main():
         pred_labels.extend(labels)
         pred_scores.extend(scores)
 
+        print(len(gt_bboxes))
+
     eval_ = eval_detection_voc(
         pred_bboxes, pred_labels, pred_scores,
         gt_bboxes, gt_labels, gt_difficults,
