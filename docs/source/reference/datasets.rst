@@ -32,8 +32,8 @@ OnlineProductsDataset
 .. autofunction:: OnlineProductsDataset
 
 
-PASCAL VOC
-----------
+VOC
+---
 
 VOCDetectionDataset
 ~~~~~~~~~~~~~~~~~~~
