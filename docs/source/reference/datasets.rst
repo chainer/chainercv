@@ -12,6 +12,13 @@ TransformDataset
 .. autofunction:: TransformDataset
 
 
+COCO
+----
+
+COCODetectionDataset
+~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: COCODetectionDataset
+
 CUB
 ---
 
