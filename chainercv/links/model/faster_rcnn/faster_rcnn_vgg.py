@@ -132,7 +132,7 @@ class FasterRCNNVGG16(FasterRCNN):
             extractor,
             rpn,
             head,
-            mean=np.array([102.9801, 115.9465, 122.7717],
+            mean=np.array([122.7717, 115.9465, 102.9801],
                           dtype=np.float32)[:, None, None],
             min_size=min_size,
             max_size=max_size

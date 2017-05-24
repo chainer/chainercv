@@ -22,7 +22,7 @@ except ImportError:
     _available = False
 
 
-_imagenet_mean = (104, 117, 123)
+_imagenet_mean = (123, 117, 104)  # RGB order
 
 
 class VGG16(chainer.Chain):
