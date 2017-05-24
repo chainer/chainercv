@@ -1,5 +1,8 @@
+from __future__ import division
+
 import argparse
 import sys
+import time
 
 import chainer
 from chainer import iterators
@@ -35,6 +38,8 @@ def main():
     iterator = iterators.SerialIterator(
         dataset, args.batchsize, repeat=False, shuffle=False)
 
+    start_time = time.time()
+
     pred_bboxes = list()
     pred_labels = list()
     pred_scores = list()
@@ -58,8 +63,10 @@ def main():
         pred_labels.extend(labels)
         pred_scores.extend(scores)
 
+        fps = len(gt_bboxes) / (time.time() - start_time)
         sys.stdout.write(
-            '\r{:d} images / {:d} images'.format(len(gt_bboxes), len(dataset)))
+            '\r{:d} of {:d} images, {:.2f} FPS'.format(
+                len(gt_bboxes), len(dataset), fps))
         sys.stdout.flush()
 
     eval_ = eval_detection_voc(
