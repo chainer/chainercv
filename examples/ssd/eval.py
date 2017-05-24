@@ -4,7 +4,7 @@ import chainer
 from chainer import iterators
 
 from chainercv.datasets import VOCDetectionDataset
-from chainercv.evaluations import voc_detection_eval
+from chainercv.evaluations import eval_detection_voc
 from chainercv.links import SSD300
 from chainercv.links import SSD512
 
@@ -54,7 +54,7 @@ def main():
         pred_labels.extend(labels)
         pred_scores.extend(scores)
 
-    eval_ = voc_detection_eval(
+    eval_ = eval_detection_voc(
         pred_bboxes, pred_labels, pred_scores,
         gt_bboxes, gt_labels, gt_difficults,
         use_07_metric=True)
