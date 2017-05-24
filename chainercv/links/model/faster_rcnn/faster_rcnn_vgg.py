@@ -82,7 +82,7 @@ class FasterRCNNVGG16(FasterRCNN):
         'voc07': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.1/faster_rcnn_vgg16_voc07.npz'
+            'download/0.0.2/faster_rcnn_vgg16_voc07_2017_05_24.npz'
         }
     }
     feat_stride = 16
@@ -155,6 +155,10 @@ class FasterRCNNVGG16(FasterRCNN):
     def _copy_imagenet_pretrained_vgg16(self):
         pretrained_model = VGG16Layers()
         self.extractor.conv1_1.copyparams(pretrained_model.conv1_1)
+        # The pretrained weights are trained to accept BGR images.
+        # Convert weights so that they accept RGB images.
+        self.extractor.conv1_1.W.data[:] =\
+            self.extractor.conv1_1.W.data[:, ::-1]
         self.extractor.conv1_2.copyparams(pretrained_model.conv1_2)
         self.extractor.conv2_1.copyparams(pretrained_model.conv2_1)
         self.extractor.conv2_2.copyparams(pretrained_model.conv2_2)
