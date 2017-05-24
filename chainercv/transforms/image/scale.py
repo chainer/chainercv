@@ -34,12 +34,12 @@ def scale(img, size, fit_short=True):
 
     if fit_short:
         if W < H:
-            out_size = (size, int(size * H / W))
+            out_size = (int(size * H / W), size)
         else:
-            out_size = (int(size * W / H), size)
+            out_size = (size, int(size * W / H))
     else:
         if W < H:
-            out_size = (int(size * W / H), size)
+            out_size = (size, int(size * W / H))
         else:
-            out_size = (size, int(size * H / W))
+            out_size = (int(size * H / W), size)
     return resize(img, out_size)
