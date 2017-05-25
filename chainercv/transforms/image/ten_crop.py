@@ -34,7 +34,7 @@ def ten_crop(img, size):
     H, W = size
     iH, iW = img.shape[1:3]
 
-    if iW < W or iH < H:
+    if iH < H or iW < W:
         raise ValueError('shape of image is larger than output shape')
 
     crops = np.stack((
