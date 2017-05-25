@@ -68,7 +68,7 @@ def _get_pad_slice(img, size):
 
     Args:
         img (~numpy.ndarray): This image is in format CHW.
-        size (tuple of two ints): (max_W, max_H).
+        size (tuple of two ints): (max_H, max_W).
     """
     _, H, W = img.shape
 
