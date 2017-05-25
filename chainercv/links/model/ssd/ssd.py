@@ -224,7 +224,7 @@ class SSD(chainer.Chain):
 
         Args:
             imgs (iterable of numpy.ndarray): Arrays holding images.
-                All images are in CHW and BGR format
+                All images are in CHW and RGB format
                 and the range of their value is :math:`[0, 255]`.
 
         Returns:

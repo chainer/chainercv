@@ -22,7 +22,7 @@ except ImportError:
     _available = False
 
 
-_imagenet_mean = (104, 117, 123)
+_imagenet_mean = (123, 117, 104)  # RGB order
 
 
 class VGG16(chainer.Chain):
@@ -282,7 +282,7 @@ class SSD300(SSD):
         'voc0712': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.1/ssd300_voc0712.npz'
+            'download/0.0.1/ssd300_voc0712_2017_05_24.npz'
         }
     }
 
@@ -338,7 +338,7 @@ class SSD512(SSD):
         'voc0712': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.1/ssd512_voc0712.npz'
+            'download/0.0.1/ssd512_voc0712_2017_05_24.npz'
         }
     }
 

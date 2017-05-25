@@ -13,7 +13,7 @@ class CUBLabelDataset(CUBDatasetBase):
 
     When queried by an index, this dataset returns a corresponding
     :obj:`img, label`, a tuple of an image and class id.
-    The image is in BGR and CHW format.
+    The image is in RGB and CHW format.
     The class id are between 0 and 199.
 
     There are 200 labels of birds in total.

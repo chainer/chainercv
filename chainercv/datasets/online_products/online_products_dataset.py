@@ -34,7 +34,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     When queried by an index, this dataset returns a corresponding
     :obj:`img, class_id, super_class_id`, a tuple of an image, a class id and
     a coarse level class id.
-    Images are in BGR and CHW format.
+    Images are in RGB and CHW format.
     Class ids start from 0.
 
     The :obj:`split` selects train and test split of the dataset as done in
@@ -77,7 +77,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
         Returns a color image, class_id and super_class_id. The image is in CHW
         format.
-        The returned image is BGR.
+        The returned image is RGB.
 
         Args:
             i (int): The index of the example.
