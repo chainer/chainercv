@@ -12,6 +12,7 @@ from chainercv.datasets import VOCDetectionDataset
 from chainercv.evaluations import eval_detection_voc
 from chainercv.links import SSD300
 from chainercv.links import SSD512
+from chainercv.utils import apply_detection_link
 
 
 def main():
@@ -39,35 +40,21 @@ def main():
         dataset, args.batchsize, repeat=False, shuffle=False)
 
     start_time = time.time()
+    processed = 0
 
-    pred_bboxes = list()
-    pred_labels = list()
-    pred_scores = list()
-    gt_bboxes = list()
-    gt_labels = list()
-    gt_difficults = list()
-
-    while True:
-        try:
-            batch = next(iterator)
-        except StopIteration:
-            break
-
-        imgs, bboxes, labels, difficults = zip(*batch)
-        gt_bboxes.extend(bboxes)
-        gt_labels.extend(labels)
-        gt_difficults.extend(difficults)
-
-        bboxes, labels, scores = model.predict(imgs)
-        pred_bboxes.extend(bboxes)
-        pred_labels.extend(labels)
-        pred_scores.extend(scores)
-
-        fps = len(gt_bboxes) / (time.time() - start_time)
+    def hook(
+            pred_bboxes, pred_labels, pred_scores, gt_values):
+        global processed
+        processed += len(pred_bboxes)
+        fps = len(processed) / (time.time() - start_time)
         sys.stdout.write(
             '\r{:d} of {:d} images, {:.2f} FPS'.format(
-                len(gt_bboxes), len(dataset), fps))
+                len(processed), len(dataset), fps))
         sys.stdout.flush()
+
+    pred_bboxes, pred_labels, pred_scores, gt_values = \
+        apply_detection_link(model, iterator, hook=hook)
+    gt_bboxes, gt_labels, gt_difficults = gt_values
 
     eval_ = eval_detection_voc(
         pred_bboxes, pred_labels, pred_scores,
