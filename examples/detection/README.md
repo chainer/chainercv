@@ -5,6 +5,8 @@
 - SSD300
 - SSD512
 
+For the details, please check the documents and examples of each model.
+
 ## Performances
 
 ### PASCAL VOC2007 Test
