@@ -23,9 +23,9 @@ def apply_detection_link(target, iterator, hook=None):
             :obj:`gt_values` are passed. Note that these values do not contain
             the data of previous iterations.
 
-    returns:
+    Returns:
         tuple of list:
-        This function returns four lists, :obj:`pred_bboxes`,
+        This function returns four lists: :obj:`pred_bboxes`,
         :obj:`pred_labels`, :obj:`pred_scores` and :obj:`gt_values`.
         :obj:`gt_values` is a tuple of lists. Each list corresponds to an value
         of samples from the iterator. For example, if the iterator returns
