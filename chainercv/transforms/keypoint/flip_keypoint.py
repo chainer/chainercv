@@ -7,7 +7,7 @@ def flip_keypoint(keypoint, size, x_flip=False, y_flip=False):
             of keypoints in the image.
             The last dimension is composed of :math:`x` and :math:`y`
             coordinates of the keypoints.
-        size (tuple): A tuple of length 2. The width and the height
+        size (tuple): A tuple of length 2. The height and the width
             of the image which is associated with the keypoints.
         x_flip (bool): Modify keypoints according to a horizontal flip of
             an image.
@@ -19,7 +19,7 @@ def flip_keypoint(keypoint, size, x_flip=False, y_flip=False):
         Keypoints modified according to image flips.
 
     """
-    W, H = size
+    H, W = size
     keypoint = keypoint.copy()
     if x_flip:
         keypoint[:, 0] = W - 1 - keypoint[:, 0]
