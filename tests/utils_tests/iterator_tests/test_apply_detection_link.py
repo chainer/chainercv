@@ -2,8 +2,8 @@ import numpy as np
 import unittest
 
 import chainer
-from chainer import testing
 from chainer.iterators import SerialIterator
+from chainer import testing
 
 from chainercv.utils import apply_detection_link
 

@@ -3,5 +3,5 @@ from chainercv.utils.bbox.non_maximum_suppression import non_maximum_suppression
 from chainercv.utils.download import cached_download  # NOQA
 from chainercv.utils.download import extractall  # NOQA
 from chainercv.utils.image import read_image  # NOQA
-from chainercv.utils.testing import apply_detection_link  # NOQA
+from chainercv.utils.iterator import apply_detection_link  # NOQA
 from chainercv.utils.testing import ConstantStubLink  # NOQA
