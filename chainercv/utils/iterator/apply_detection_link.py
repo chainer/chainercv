@@ -21,7 +21,7 @@ def apply_detection_link(target, iterator, hook=None):
         hook: An callable which is called after each iteration.
             :obj:`pred_bboxes`, :obj:`pred_labels`, :obj:`pred_scores` and
             :obj:`gt_values` are passed. Note that these values do not contain
-            the data of previous iterations.
+            data from the previous iterations
 
     Returns:
         tuple of list:
