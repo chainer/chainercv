@@ -15,6 +15,22 @@ from chainercv.links import SSD512
 from chainercv.utils import apply_detection_link
 
 
+class ProgressHook(object):
+
+    def __init__(self, n_total):
+        self.n_total = n_total
+        self.start = time.time()
+        self.n_processed = 0
+
+    def __call__(self, pred_bboxes, pred_labels, pred_scores, gt_values):
+        self.n_processed += len(pred_bboxes)
+        fps = self.n_processed / (time.time() - self.start)
+        sys.stdout.write(
+            '\r{:d} of {:d} images, {:.2f} FPS'.format(
+                self.n_processed, self.n_total, fps))
+        sys.stdout.flush()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -39,21 +55,8 @@ def main():
     iterator = iterators.SerialIterator(
         dataset, args.batchsize, repeat=False, shuffle=False)
 
-    start_time = time.time()
-    processed = 0
-
-    def hook(
-            pred_bboxes, pred_labels, pred_scores, gt_values):
-        global processed
-        processed += len(pred_bboxes)
-        fps = len(processed) / (time.time() - start_time)
-        sys.stdout.write(
-            '\r{:d} of {:d} images, {:.2f} FPS'.format(
-                len(processed), len(dataset), fps))
-        sys.stdout.flush()
-
     pred_bboxes, pred_labels, pred_scores, gt_values = \
-        apply_detection_link(model, iterator, hook=hook)
+        apply_detection_link(model, iterator, hook=ProgressHook(len(dataset)))
     gt_bboxes, gt_labels, gt_difficults = gt_values
 
     eval_ = eval_detection_voc(
