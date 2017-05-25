@@ -14,7 +14,11 @@ class FasterRCNNTrainChain(chainer.Chain):
 
     """Calculate Faster R-CNN losses and report them.
 
-    This is used to train Faster R-CNN in the joint training scheme.
+    This is used to train Faster R-CNN in the joint training scheme [#]_.
+
+    .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
+    Faster R-CNN: Towards Real-Time Object Detection with \
+    Region Proposal Networks. NIPS 2015.
 
     Args:
         faster_rcnn (~chainercv.links.model.faster_rcnn.FasterRCNN):
@@ -59,12 +63,13 @@ class FasterRCNNTrainChain(chainer.Chain):
     def __call__(self, imgs, bboxes, labels, scale):
         """Forward Faster R-CNN and calculate losses.
 
-        Currently only inputs with batchsize one are supported.
-
         Here are notations used.
 
         * :math:`N` is the number of batch size.
         * :math:`R` is the number of bounding boxes per image.
+
+        Currently only :math:`N=1` is supported.
+
 
         Args:
             imgs (~chainer.Variable): 4D image variable.
@@ -72,8 +77,8 @@ class FasterRCNNTrainChain(chainer.Chain):
                 Its shape is :math:`(N, R, 4)`.
             labels (~chainer.Variable): Batched labels.
                 Its shape is :math:`(N, R)`.
-            scale (float): Amount of scaling applied to the raw image
-                during preprocessing.
+            scale (float or ~chainer.Variable): Amount of scaling applied to
+                the raw image during preprocessing.
 
         Returns:
             chainer.Variable:

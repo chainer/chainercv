@@ -13,6 +13,8 @@ FasterRCNN
 FasterRCNNTrainChain
 --------------------
 .. autoclass:: FasterRCNNTrainChain
+   :members:
+   :special-members:  __call__
 
 FasterRCNNVGG16
 ---------------
