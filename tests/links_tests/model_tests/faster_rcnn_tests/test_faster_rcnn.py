@@ -6,6 +6,7 @@ from chainer import testing
 from chainer.testing import attr
 
 from chainercv.links.model.faster_rcnn import FasterRCNN
+from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 
 
 def _random_array(xp, shape):
@@ -69,7 +70,7 @@ class DummyRegionProposalNetwork(chainer.Chain):
         n_anchor = self.n_anchor_base * H * W
 
         rpn_locs = _random_array(self.xp, (B, n_anchor, 4))
-        rpn_cls_scores = _random_array(self.xp, (B, n_anchor))
+        rpn_cls_scores = _random_array(self.xp, (B, n_anchor, 2))
         rois = _generate_bbox(
             self.xp, self.n_roi, img_size[::-1], 16, min(img_size))
         roi_indices = self.xp.zeros((len(rois),), dtype=np.int32)
@@ -172,6 +173,44 @@ class TestFasterRCNN(unittest.TestCase):
     def test_predict_gpu(self):
         self.link.to_gpu()
         self.check_predict()
+
+
+class TestFasterRCNNTrainChain(unittest.TestCase):
+
+    def setUp(self):
+        self.n_anchor_base = 6
+        self.feat_stride = 4
+        self.n_fg_class = 3
+        self.n_roi = 24
+        self.link = FasterRCNNTrainChain(DummyFasterRCNN(
+            n_anchor_base=self.n_anchor_base,
+            feat_stride=self.feat_stride,
+            n_fg_class=self.n_fg_class,
+            n_roi=self.n_roi,
+            min_size=600,
+            max_size=800,
+        ))
+
+    def check_call(self):
+        xp = self.link.xp
+
+        n_bbox = 3
+        imgs = chainer.Variable(_random_array(xp, (1, 3, 600, 800)))
+        bboxes = chainer.Variable(
+            _generate_bbox(xp, n_bbox, (600, 800), 16, 350)[np.newaxis])
+        labels = xp.random.randint(0, self.n_fg_class + 1, size=(n_bbox,))
+        labels = chainer.Variable(labels[np.newaxis].astype(np.int32))
+        scale = chainer.Variable(xp.array(1.))
+        loss = self.link(imgs, bboxes, labels, scale)
+        self.assertEqual(loss.shape, ())
+
+    def test_call_cpu(self):
+        self.check_call()
+
+    @attr.gpu
+    def test_call_gpu(self):
+        self.link.to_gpu()
+        self.check_call()
 
 
 @testing.parameterize(
