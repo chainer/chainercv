@@ -7,15 +7,15 @@
 
 For the details, please check the documents and examples of each model.
 
-## Performances
+## Performance
 
 ### PASCAL VOC2007 Test
 
 | Model | FPS | mAP (PASCAL VOC2007 metric) |
 |:-:|:-:|:-:|
 | Faster R-CNN | | 70.5 % |
-| SSD300 | | 77.5 % |
-| SSD512 | | 79.6 % |
+| SSD300 | | 77.8 % |
+| SSD512 | | 79.7 % |
 
 You can reproduce these scores by the following command.
 ```
