@@ -11,6 +11,8 @@ from chainercv.datasets import voc_detection_label_names
 from chainercv.datasets import VOCDetectionDataset
 from chainercv.evaluations import eval_detection_voc
 from chainercv.links import FasterRCNNVGG16
+from chainercv.links import SSD300
+from chainercv.links import SSD512
 from chainercv.utils import apply_detection_link
 
 
@@ -32,11 +34,19 @@ class ProgressHook(object):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--model', choices=('faster_rcnn', 'ssd300', 'ssd512'),
+        default='ssd300')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
     args = parser.parse_args()
 
-    model = FasterRCNNVGG16(pretrained_model='voc07')
+    if args.model == 'faster_rcnn':
+        model = FasterRCNNVGG16(pretrained_model='voc07')
+    elif args.model == 'ssd300':
+        model = SSD300(pretrained_model='voc0712')
+    elif args.model == 'ssd512':
+        model = SSD512(pretrained_model='voc0712')
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
