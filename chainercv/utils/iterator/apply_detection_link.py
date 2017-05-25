@@ -25,7 +25,7 @@ def apply_detection_link(target, iterator, hook=None):
             iterations
 
     Returns:
-        tuple of list:
+        tuple of lists:
         This function returns four lists: :obj:`pred_bboxes`,
         :obj:`pred_labels`, :obj:`pred_scores` and :obj:`gt_values`.
         :obj:`gt_values` is a tuple of lists. Each list corresponds to an value
