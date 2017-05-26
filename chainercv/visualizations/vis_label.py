@@ -5,13 +5,15 @@ def vis_label(label, alpha=1, label_names=None, ax=None):
 
         >>> from chainercv.datasets import VOCSemanticSegmentationDataset
         >>> from chainercv.datasets \
-                import voc_semantic_segmentation_label_names
+        ...     import voc_semantic_segmentation_label_names
+        >>> from chainercv.visualizations import vis_image
         >>> from chainercv.visualizations import vis_label
         >>> import matplotlib.pyplot as plot
         >>> dataset = VOCSemanticSegmentationDataset()
-        >>> _, label = dataset[60]
-        >>> vis_label(label,
-        ...         label_names=voc_semantic segmentation_label_names)
+        >>> img, label = dataset[60]
+        >>> ax = vis_image(img)
+        >>> vis_label(label, alpha=0.75,
+        ...         label_names=voc_semantic segmentation_label_names, ax=ax)
         >>> plot.show()
 
     Args:
