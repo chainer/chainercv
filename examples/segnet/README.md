@@ -18,22 +18,33 @@ CHAINER_TYPE_CHECK=0 python -OO -W ignore train.py --gpu 0
 # Evaluation
 
 ```
-python evaluate.py --gpu 0 --snapshot results/2017-05-01_09-00-00/model_iteratioin_9000
+bash evaluate.sh [GPU ID] [MODEL SNAPSHOT]
 ```
 
-You will see the values of mean intersection over union (mIoU) for each class and the average mIoU:
+e.g.,
 
 ```
-0: 0.879126693456
-1: 0.703081561862
-2: 0.198033822079
-3: 0.8427641436
-4: 0.607411863769
-5: 0.628452506525
-6: 0.209502780697
-7: 0.241587759845
-8: 0.615301416933
-9: 0.326346484168
-10: 0.302901995467
-mean: 0.504955548036
+bash evaluate.sh 0 result/result/2017-05-26_23-01-06/model_iteration-10000
+```
+
+You will see the values of intersection over union (IoU) for each class,
+the mean IoU over all the classes, class average accuracy, and global average
+accuracy like this:
+
+```
+                    Sky : 0.8525
+               Building : 0.6406
+                   Pole : 0.1531
+           Road_marking : 0.8231
+                   Road : 0.5541
+               Pavement : 0.5396
+                   Tree : 0.1528
+             SignSymbol : 0.1899
+              Fence,Car : 0.5955
+             Pedestrian : 0.2392
+              Bicyclist : 0.1846
+================================
+               mean IoU : 0.4477
+ Class average accuracy : 0.6456
+Global average accuracy : 0.8059
 ```
