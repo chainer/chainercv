@@ -11,7 +11,6 @@ from chainercv.datasets import CamVidDataset
 from chainercv.links import SegNetBasic
 
 import numpy as np
-from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=-1)
