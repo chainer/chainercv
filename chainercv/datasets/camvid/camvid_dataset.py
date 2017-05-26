@@ -37,20 +37,20 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/camvid`.
-        mode ({'train', 'val', 'test'}): Select from dataset splits used
+        split ({'train', 'val', 'test'}): Select from dataset splits used
             in VOC.
 
     """
 
-    def __init__(self, data_dir='auto', mode='train'):
-        if mode not in ['train', 'val', 'test']:
+    def __init__(self, data_dir='auto', split='train'):
+        if split not in ['train', 'val', 'test']:
             raise ValueError(
-                'Please pick mode from \'train\', \'val\', \'test\'')
+                'Please pick split from \'train\', \'val\', \'test\'')
 
         if data_dir == 'auto':
             data_dir = get_camvid()
 
-        img_list_filename = os.path.join(data_dir, '{}.txt'.format(mode))
+        img_list_filename = os.path.join(data_dir, '{}.txt'.format(split))
         self.filenames = [
             [os.path.join(data_dir, fn.replace('/SegNet/CamVid/', ''))
              for fn in line.split()] for line in open(img_list_filename)]
