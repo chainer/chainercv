@@ -89,6 +89,8 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
         gt_label = gt_label[None]
     elif ndim < 2:
         raise ValueError('Input images need to be at least two dimensional.')
+    if len(pred_label) != len(gt_label):
+        raise ValueError('Batch dimension of inputs are different')
 
     N = len(pred_label)
     acc = np.zeros((N,))
