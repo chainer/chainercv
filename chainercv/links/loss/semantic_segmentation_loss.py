@@ -14,7 +14,8 @@ def _segmentation_accuracies(y, t, n_class):
         y = y[:, None, :, :]
     if t.ndim == 3:
         t = t[:, None, :, :]
-    return [np.mean(ret)
+    xp = cuda.get_array_module(y.data, t.data)
+    return [xp.mean(ret)
             for ret in eval_semantic_segmentation(y.data, t.data, n_class)]
 
 
