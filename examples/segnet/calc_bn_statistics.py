@@ -20,7 +20,7 @@ serializers.load_npz(args.snapshot, model)
 model.to_gpu(args.gpu)
 
 d = CamVidDataset(split='train')
-it = iterators.SerialIterator(d, 24, repeat=False, shuffle=False)
+it = iterators.SerialIterator(d, 12, repeat=False, shuffle=False)
 bn_params = {}
 num_iterations = 0
 for batch in it:
