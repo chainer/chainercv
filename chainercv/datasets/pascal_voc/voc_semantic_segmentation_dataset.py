@@ -9,7 +9,7 @@ from chainercv.utils import read_image
 
 class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
 
-    """Dataset class for the semantic segmantion task of Pascal `VOC2012`_.
+    """Dataset class for the semantic segmantion task of PASCAL `VOC2012`_.
 
     The class name of the label :math:`l` is :math:`l` th element of
     :obj:`chainercv.datasets.voc_semantic_segmentation_label_names`.
@@ -21,10 +21,6 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc`.
         split ({'train', 'val', 'trainval'}): Select a split of the dataset.
-        year ({'2007', '2012'}): Use a dataset prepared for a challenge
-            held in :obj:`year`.
-        use_difficult (bool): If true, use images that are labeled as
-            difficult in the original annotation.
 
     """
 
