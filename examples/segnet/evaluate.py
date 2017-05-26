@@ -1,3 +1,5 @@
+from __future__ import division
+
 import argparse
 
 import chainer
@@ -30,7 +32,7 @@ test = CamVidDataset(mode='test')
 n_positive = [0 for _ in range(args.n_class)]
 n_true = [0 for _ in range(args.n_class)]
 n_true_positive = [0 for _ in range(args.n_class)]
-for i in tqdm(range(0, len(test), args.batchsize)):
+for i in range(0, len(test), args.batchsize):
     img, lbl = concat_examples(test[i:i + args.batchsize], args.gpu)
     img = chainer.Variable(img, volatile=True)
     y = F.argmax(F.softmax(model(img)), axis=1)
@@ -46,7 +48,7 @@ ious = []
 for cls_i in range(args.n_class):
     if cls_i in args.ignore_labels:
         continue
-    deno = float(n_positive[cls_i] + n_true[cls_i] - n_true_positive[cls_i])
+    deno = n_positive[cls_i] + n_true[cls_i] - n_true_positive[cls_i]
     iou = n_true_positive[cls_i] / deno
     ious.append(iou)
     print('{}:'.format(cls_i), iou)
