@@ -26,7 +26,8 @@ def main():
             bboxes, labels, scores = model.predict([img])
             bbox, label, score = bboxes[0], labels[0], scores[0]
 
-            ax = fig.add_subplot(4, 3, i * 3 + j + 1)
+            ax = fig.add_subplot(
+                len(indices), len(models), i * len(models) + j + 1)
             vis_bbox(
                 img, bbox, label, score,
                 label_names=voc_detection_label_names, ax=ax
