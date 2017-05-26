@@ -63,7 +63,6 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
             self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
         img = read_image(img_file, color=True)
         label = self._load_label(self.data_dir, self.ids[i])
-        label = label[None]
         return img, label
 
     def _load_label(self, data_dir, id_):
