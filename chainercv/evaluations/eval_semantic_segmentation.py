@@ -64,10 +64,8 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
             and :math:`W` is the width.
         gt_label (array): An integer array of image containing
             the ground truth class labels as values. A pixel with value
-            "-1" will be ignored during evaluation. Its shape is similar
-            to :obj:`pred_label`.
-            Its image size is equal to that of :obj:`pred_label`.
-            This should be a one channel CHW formatted image.
+            "-1" will be ignored during evaluation. Its shape is
+            :math:`(N, H, W)`.
         n_class (int): Number of classes.
 
     Returns:
