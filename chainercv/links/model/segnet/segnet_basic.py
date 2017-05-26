@@ -17,12 +17,12 @@ class SegNetBasic(chainer.Chain):
     .. _here: http://github.com/alexgkendall/SegNet-Tutorial
 
     Args:
-        out_ch (int): The number of channels for the final convolutional layer.
-            SegNetBasic basically takes the number of target classes as this
-            argment.
+        out_channel (int): The number of channels for the final convolutional
+            layer. SegNetBasic basically takes the number of target classes as
+            this argment.
     """
 
-    def __init__(self, out_ch):
+    def __init__(self, out_channel):
         w = chainer.initializers.HeNormal()
         super(SegNetBasic, self).__init__(
             conv1=L.Convolution2D(None, 64, 7, 1, 3, nobias=True, initialW=w),
@@ -45,7 +45,8 @@ class SegNetBasic(chainer.Chain):
             conv_decode1=L.Convolution2D(
                 64, 64, 7, 1, 3, nobias=True, initialW=w),
             conv_decode1_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv_classifier=L.Convolution2D(64, out_ch, 1, 1, 0, initialW=w)
+            conv_classifier=L.Convolution2D(
+                64, out_channel, 1, 1, 0, initialW=w)
         )
         self.train = True
 
