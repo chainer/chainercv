@@ -15,7 +15,7 @@ def vis_label(label, alpha=1, ax=None):
 
     Args:
         label (~numpy.ndarray): An integer array of shape
-            :math:`(1, height, width)`.
+            :math:`(height, width)`.
             The values correspond to id for label names stored in
             :obj:`label_names`.
         alpha (float): The value which determines transparency of the figure.
@@ -37,6 +37,6 @@ def vis_label(label, alpha=1, ax=None):
         fig = plot.figure()
         ax = fig.add_subplot(1, 1, 1)
 
-    ax.imshow(label[0], vmin=-1, vmax=label.max(), alpha=alpha)
+    ax.imshow(label, vmin=-1, vmax=label.max(), alpha=alpha)
 
     return ax

@@ -17,7 +17,7 @@ class TestVisLabel(unittest.TestCase):
     def test_vis_image(self):
         if optional_modules:
             img = np.random.randint(
-                -1, 21, size=(1, 32, 32)).astype(np.int32)
+                -1, 21, size=(32, 32)).astype(np.int32)
             ax = vis_label(img)
 
             self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
