@@ -31,7 +31,7 @@ def transform(in_data):
     x, t = in_data
     if np.random.rand() > 0.5:
         x = x[:, :, ::-1]
-        t = t[:, ::-1]
+        t = t[:, :, ::-1]
     return x, t
 
 

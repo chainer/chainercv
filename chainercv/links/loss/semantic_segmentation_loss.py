@@ -20,16 +20,16 @@ def _segmentation_accuracies(y, t, n_class):
 
 class PixelwiseSigmoidClassifier(chainer.Chain):
 
-    def __init__(self, model, n_class, calc_accuracy=True):
+    def __init__(self, model, n_class, compute_accuracy=True):
         super(PixelwiseSigmoidLoss, self).__init__(predictor=model)
         self.n_class = n_class
-        self.calc_accuracy = calc_accuracy
+        self.compute_accuracy = compute_accuracy
 
     def __call__(self, x, t):
         self.y = self.predictor(x)
         self.loss = F.sigmoid_cross_entropy(self.y, t)
         reporter.report({'loss': self.loss}, self)
-        if self.calc_accuracy:
+        if self.compute_accuracy:
             pa, mpa, miou, fwiou = _segmentation_accuracies(
                 self.y, t, self.n_class)
             reporter.report({
@@ -43,18 +43,19 @@ class PixelwiseSigmoidClassifier(chainer.Chain):
 
 class PixelwiseSoftmaxClassifier(chainer.Chain):
 
-    def __init__(self, model, n_class, ignore_label=-1, calc_accuracy=True):
+    def __init__(self, model, n_class, ignore_label=-1, compute_accuracy=True):
         super(PixelwiseSoftmaxLoss, self).__init__(predictor=model)
         self.n_class = n_class
         self.ignore_label = ignore_label
-        self.calc_accuracy = calc_accuracy
+        self.compute_accuracy = compute_accuracy
 
     def __call__(self, x, t):
         self.y = self.predictor(x)
+        t = t.reshape(
         self.loss = F.softmax_cross_entropy(
             self.y, t, ignore_label=self.ignore_label)
         reporter.report({'loss': self.loss}, self)
-        if self.calc_accuracy:
+        if self.compute_accuracy:
             pa, mpa, miou, fwiou = _segmentation_accuracies(
                 self.y, t, self.n_class)
             reporter.report({
@@ -69,12 +70,12 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
 class PixelwiseSoftmaxWithWeightClassifier(chainer.Chain):
 
     def __init__(self, model, n_class, ignore_label=-1, class_weight=None,
-                 calc_accuracy=True):
+                 compute_accuracy=True):
         super(PixelwiseSoftmaxLossWithWeight, self).__init__(predictor=model)
         self.n_class = n_class
         self.ignore_label = ignore_label
         self.class_weight = np.asarray(class_weight, dtype=np.float32)
-        self.calc_accuracy = calc_accuracy
+        self.compute_accuracy = compute_accuracy
 
     def __call__(self, x, t):
         if not hasattr(self.class_weight, 'device'):
@@ -84,7 +85,7 @@ class PixelwiseSoftmaxWithWeightClassifier(chainer.Chain):
             self.y, t, class_weight=self.class_weight,
             ignore_label=self.ignore_label)
         reporter.report({'loss': self.loss}, self)
-        if self.calc_accuracy:
+        if self.compute_accuracy:
             pa, mpa, miou, fwiou = _segmentation_accuracies(
                 self.y, t, self.n_class)
             reporter.report({
