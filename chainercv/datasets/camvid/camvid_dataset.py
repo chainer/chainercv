@@ -101,8 +101,8 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
 
         Returns:
             tuple of color image and label whose shapes are (3, H, W) and
-            (1, H, W) respectively. H and W are height and width of the
-            images. The dtype of the color image is :obj:`numpy.float32` and
+            (H, W) respectively. H and W are height and width of the images.
+            The dtype of the color image is :obj:`numpy.float32` and
             the dtype of the label image is :obj:`numpy.int32`.
 
         """
@@ -110,5 +110,5 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
             raise IndexError('index is too large')
         image_fn, label_fn = self.filenames[i]
         img = read_image(image_fn, color=True)
-        label_map = read_image(label_fn, dtype=np.int32, color=False)
+        label_map = read_image(label_fn, dtype=np.int32, color=False)[0]
         return img, label_map

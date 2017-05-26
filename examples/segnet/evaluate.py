@@ -8,7 +8,7 @@ from chainer.dataset import concat_examples
 import chainer.functions as F
 from chainer import serializers
 from chainercv.datasets import CamVidDataset
-from chainercv.links.model import SegNetBasic
+from chainercv.links import SegNetBasic
 
 import numpy as np
 from tqdm import tqdm
@@ -27,7 +27,7 @@ serializers.load_npz(args.snapshot, model)
 if args.gpu >= 0:
     model.to_gpu(args.gpu)
 
-test = CamVidDataset(mode='test')
+test = CamVidDataset(split='test')
 
 n_positive = [0 for _ in range(args.n_class)]
 n_true = [0 for _ in range(args.n_class)]

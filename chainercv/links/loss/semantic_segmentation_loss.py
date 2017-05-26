@@ -52,7 +52,6 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
 
     def __call__(self, x, t):
         self.y = self.predictor(x)
-        t = t.reshape(
         self.loss = F.softmax_cross_entropy(
             self.y, t, ignore_label=self.ignore_label)
         reporter.report({'loss': self.loss}, self)
