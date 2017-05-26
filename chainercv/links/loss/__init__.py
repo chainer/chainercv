@@ -1,3 +1,3 @@
-from chainercv.links.loss.semantic_segmentation_loss import PixelwiseSigmoidLoss  # NOQA
-from chainercv.links.loss.semantic_segmentation_loss import PixelwiseSoftmaxLoss  # NOQA
-from chainercv.links.loss.semantic_segmentation_loss import PixelwiseSoftmaxLossWithWeight  # NOQA
+from chainercv.links.loss.semantic_segmentation_loss import PixelwiseSigmoidClassifier  # NOQA
+from chainercv.links.loss.semantic_segmentation_loss import PixelwiseSoftmaxClassifier  # NOQA
+from chainercv.links.loss.semantic_segmentation_loss import PixelwiseSoftmaxWithWeightClassifier  # NOQA

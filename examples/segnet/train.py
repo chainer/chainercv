@@ -13,7 +13,7 @@ from chainer import training
 from chainer.training import extensions
 from chainercv.datasets import CamVidDataset
 from chainercv.datasets import TransformDataset
-from chainercv.links.loss import PixelwiseSoftmaxLossWithWeight
+from chainercv.links.loss import PixelwiseSoftmaxWithWeightClassifier
 from chainercv.links.model.segnet import segnet_basic
 
 
@@ -40,12 +40,13 @@ val = CamVidDataset(mode='val')
 
 # Iterator
 train_iter = iterators.MultiprocessIterator(train, args.batchsize)
-val_iter = iterators.MultiprocessIterator(val, args.batchsize, False, False)
+val_iter = iterators.MultiprocessIterator(
+    val, args.batchsize, shuffle=False, repeat=False)
 
 # Model
 class_weight = np.load(args.class_weight)[:11]
 model = segnet_basic.SegNetBasic(out_ch=11)
-model = PixelwiseSoftmaxLossWithWeight(model, 11, 11, class_weight)
+model = PixelwiseSoftmaxWithWeightClassifier(model, 11, 11, class_weight)
 
 # Optimizer
 optimizer = optimizers.MomentumSGD(lr=0.1, momentum=0.9)
