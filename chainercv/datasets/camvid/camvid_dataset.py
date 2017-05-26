@@ -53,10 +53,10 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
         img_list_filename = os.path.join(data_dir, '{}.txt'.format(mode))
         self.filenames = [
             [os.path.join(data_dir, fn.replace('/SegNet/CamVid/', ''))
-             for fn in line.split()] for line in open(img_list_fn)]
+             for fn in line.split()] for line in open(img_list_filename)]
 
     def __len__(self):
-        return len(self.fns)
+        return len(self.filenames)
 
     def get_example(self, i):
         """Returns the i-th example.

@@ -16,7 +16,7 @@ check_autopep8
 
 chainercv/utils/bbox/_nms_gpu_post.c
 
-examples/segnet/results/
+examples/segnet/result/
 examples/segnet/class_weight.npy
 
 examples/image_retrieval/triplet/result/

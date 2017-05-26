@@ -48,7 +48,7 @@ model = segnet_basic.SegNetBasic(out_ch=11)
 model = PixelwiseSoftmaxLossWithWeight(model, 11, 11, class_weight)
 
 # Optimizer
-optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
+optimizer = optimizers.MomentumSGD(lr=0.1, momentum=0.9)
 optimizer.setup(model)
 optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
@@ -59,7 +59,7 @@ updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
 # Trainer
 trainer = training.Trainer(
     updater, (140000, 'iteration'),
-    out='results/{}'.format(time.strftime('%Y-%m-%d_%H-%M-%S')))
+    out='result/{}'.format(time.strftime('%Y-%m-%d_%H-%M-%S')))
 
 
 class TestModeEvaluator(extensions.Evaluator):
