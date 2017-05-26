@@ -52,7 +52,7 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
 
         Returns:
             tuple of color image and label whose shapes are (3, H, W) and
-            (1, H, W) respectively. H and W are height and width of the
+            (H, W) respectively. H and W are height and width of the
             images. The dtype of the color image is :obj:`numpy.float32` and
             the dtype of the label image is :obj:`numpy.int32`.
 
@@ -70,4 +70,5 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
             data_dir, 'SegmentationClass', id_ + '.png')
         label = read_image(label_file, dtype=np.int32, color=False)
         label[label == 255] = -1
-        return label
+        # (1, H, W) -> (H, W)
+        return label[0]
