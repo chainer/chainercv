@@ -7,9 +7,9 @@ Utils
 Bounding Box Utilities
 ----------------------
 
-bbox_overlap
-~~~~~~~~~~~~
-.. autofunction:: bbox_overlap
+bbox_iou
+~~~~~~~~
+.. autofunction:: bbox_iou
 
 non_maximum_suppression
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -22,6 +22,14 @@ Image Utilities
 read_image
 ~~~~~~~~~~
 .. autofunction:: read_image
+
+
+Iterator Utilities
+------------------
+
+apply_detection_link
+~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: apply_detection_link
 
 
 Testing Utilities

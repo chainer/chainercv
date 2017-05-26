@@ -8,7 +8,7 @@ from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.utils import bbox_overlap
+from chainercv.utils import bbox_iou
 
 
 @testing.parameterize(
@@ -29,21 +29,21 @@ from chainercv.utils import bbox_overlap
      'expected': np.zeros((0, 1), dtype=np.float32)
      },
 )
-class TestBboxOverlap(unittest.TestCase):
+class TestBboxIou(unittest.TestCase):
 
     def check(self, bbox_a, bbox_b, expected):
-        overlap = bbox_overlap(bbox_a, bbox_b)
+        iou = bbox_iou(bbox_a, bbox_b)
 
-        self.assertIsInstance(overlap, type(expected))
+        self.assertIsInstance(iou, type(expected))
         np.testing.assert_equal(
-            cuda.to_cpu(overlap),
+            cuda.to_cpu(iou),
             cuda.to_cpu(expected))
 
-    def test_bbox_overlap_cpu(self):
+    def test_bbox_iou_cpu(self):
         self.check(self.bbox_a, self.bbox_b, self.expected)
 
     @attr.gpu
-    def test_bbox_overlap_gpu(self):
+    def test_bbox_iou_gpu(self):
         self.check(
             cuda.to_gpu(self.bbox_a),
             cuda.to_gpu(self.bbox_b),
@@ -56,14 +56,14 @@ class TestBboxOverlap(unittest.TestCase):
     {'bbox_a': [[0, 0, 8, 8]], 'bbox_b': [[1, 1, 9]]},
     {'bbox_a': [[0, 0, 8, 8]], 'bbox_b': [[1, 1, 9, 9, 10]]}
 )
-class TestBboxOverlapInvalidShape(unittest.TestCase):
+class TestBboxIouInvalidShape(unittest.TestCase):
 
-    def test_bbox_overlap_invalid(self):
+    def test_bbox_iou_invalid(self):
         bbox_a = np.array(self.bbox_a, dtype=np.float32)
         bbox_b = np.array(self.bbox_b, dtype=np.float32)
 
         with self.assertRaises(IndexError):
-            bbox_overlap(bbox_a, bbox_b)
+            bbox_iou(bbox_a, bbox_b)
 
 
 testing.run_module(__name__, __file__)

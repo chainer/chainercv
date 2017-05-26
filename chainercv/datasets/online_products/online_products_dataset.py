@@ -34,26 +34,26 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     When queried by an index, this dataset returns a corresponding
     :obj:`img, class_id, super_class_id`, a tuple of an image, a class id and
     a coarse level class id.
-    Images are in BGR and CHW format.
+    Images are in RGB and CHW format.
     Class ids start from 0.
 
-    The :obj:`mode` selects train and test split of the dataset as done in
-    [Song]_. The train split contains the first 11318 classes and the test
+    The :obj:`split` selects train and test split of the dataset as done in
+    [#]_. The train split contains the first 11318 classes and the test
     split contains the remaining 11316 classes.
 
-    .. [Song] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
-        Deep Metric Learning via Lifted Structured Feature Embedding.
-        https://arxiv.org/abs/1511.06452.
+    .. [#] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
+        `Deep Metric Learning via Lifted Structured Feature Embedding\
+        <https://arxiv.org/abs/1511.06452>`_. arXiv 2015.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/online_products`.
-        mode ({'train', 'test'}): Mode of the dataset.
+        split ({'train', 'test'}): Select a split of the dataset.
 
     """
 
-    def __init__(self, data_dir='auto', mode='train'):
+    def __init__(self, data_dir='auto', split='train'):
         if data_dir == 'auto':
             data_dir = _get_online_products()
         self.data_dir = data_dir
@@ -61,8 +61,8 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
         self.class_ids = []
         self.super_class_ids = []
         self.paths = []
-        # for mode in ['train', 'test']:
-        id_list_file = os.path.join(data_dir, 'Ebay_{}.txt'.format(mode))
+        # for split in ['train', 'test']:
+        id_list_file = os.path.join(data_dir, 'Ebay_{}.txt'.format(split))
         ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
         # ids start from 0
         self.class_ids += [int(id_[1]) - 1 for id_ in ids_tmp]
@@ -77,7 +77,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
         Returns a color image, class_id and super_class_id. The image is in CHW
         format.
-        The returned image is BGR.
+        The returned image is RGB.
 
         Args:
             i (int): The index of the example.

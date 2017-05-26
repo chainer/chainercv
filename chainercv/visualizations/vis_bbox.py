@@ -6,17 +6,19 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
 
     Example:
 
-        >>> import chainercv
+        >>> from chainercv.datasets import VOCDetectionDataset
+        >>> from chainercv.datasets import voc_detection_label_names
+        >>> from chainercv.visualizations import vis_bbox
         >>> import matplotlib.pyplot as plot
-        >>> dataset = chainercv.datasets.VOCDetectionDataset()
+        >>> dataset = VOCDetectionDataset()
         >>> img, bbox, label = dataset[60]
-        >>> chainercv.visualizations.vis_bbox(
-                img, bbox, label, label_names=dataset.labels)
+        >>> vis_bbox(img, bbox, label,
+        ...         label_names=voc_detection_label_names)
         >>> plot.show()
 
     Args:
         img (~numpy.ndarray): An array of shape :math:`(3, height, width)`.
-            This is in BGR format and the range of its value is
+            This is in RGB format and the range of its value is
             :math:`[0, 255]`.
         bbox (~numpy.ndarray): An array of shape :math:`(R, 4)`, where
             :math:`R` is the number of bounding boxes in the image.
