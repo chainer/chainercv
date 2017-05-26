@@ -12,7 +12,7 @@ python calc_weight.py
 # Start training
 
 ```
-CHAINER_TYPE_CHECK=0 python -OO -W ignore train.py --gpu 0
+CHAINER_SEED=0 CHAINER_TYPE_CHECK=0 python -OO -W ignore train.py --gpu 0
 ```
 
 # Evaluation
