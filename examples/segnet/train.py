@@ -24,19 +24,19 @@ parser.add_argument('--class_weight', type=str, default='class_weight.npy')
 args = parser.parse_args()
 
 # Dataset
-train = CamVidDataset(mode='train')
+train = CamVidDataset(split='train')
 
 
 def transform(in_data):
     img, label = in_data
     if np.random.rand() > 0.5:
         img = img[:, :, ::-1]
-        label = label[:, :, ::-1]
+        label = label[:, ::-1]
     return img, label
 
 
 train = TransformDataset(train, transform)
-val = CamVidDataset(mode='val')
+val = CamVidDataset(split='val')
 
 # Iterator
 train_iter = iterators.MultiprocessIterator(train, args.batchsize)
@@ -45,11 +45,11 @@ val_iter = iterators.MultiprocessIterator(
 
 # Model
 class_weight = np.load(args.class_weight)[:11]
-model = SegNetBasic(out_ch=11)
+model = SegNetBasic(out_channel=11)
 model = PixelwiseSoftmaxWithWeightClassifier(model, 11, 11, class_weight)
 
 # Optimizer
-optimizer = optimizers.MomentumSGD(lr=0.1, momentum=0.9)
+optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
 optimizer.setup(model)
 optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 

@@ -66,7 +66,7 @@ class SegNetBasic(chainer.Chain):
         p2 = F.MaxPooling2D(2, 2, use_cudnn=False)
         p3 = F.MaxPooling2D(2, 2, use_cudnn=False)
         p4 = F.MaxPooling2D(2, 2, use_cudnn=False)
-        h = F.local_response_normalization(x, 5, 1, 1e-4 / 5, 0.75)
+        h = F.local_response_normalization(x, 5, 1, 1e-4 / (5 ** 2), 0.75)
         h = p1(F.relu(self.conv1_bn(self.conv1(h), test=not self.train)))
         h = p2(F.relu(self.conv2_bn(self.conv2(h), test=not self.train)))
         h = p3(F.relu(self.conv3_bn(self.conv3(h), test=not self.train)))

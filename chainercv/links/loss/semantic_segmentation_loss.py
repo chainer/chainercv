@@ -22,7 +22,7 @@ def _segmentation_accuracies(y, t, n_class):
 class PixelwiseSigmoidClassifier(chainer.Chain):
 
     def __init__(self, model, n_class, compute_accuracy=True):
-        super(PixelwiseSigmoidLoss, self).__init__(predictor=model)
+        super(PixelwiseSigmoidClassifier, self).__init__(predictor=model)
         self.n_class = n_class
         self.compute_accuracy = compute_accuracy
 
@@ -45,7 +45,7 @@ class PixelwiseSigmoidClassifier(chainer.Chain):
 class PixelwiseSoftmaxClassifier(chainer.Chain):
 
     def __init__(self, model, n_class, ignore_label=-1, compute_accuracy=True):
-        super(PixelwiseSoftmaxLoss, self).__init__(predictor=model)
+        super(PixelwiseSoftmaxClassifier, self).__init__(predictor=model)
         self.n_class = n_class
         self.ignore_label = ignore_label
         self.compute_accuracy = compute_accuracy
@@ -71,7 +71,7 @@ class PixelwiseSoftmaxWithWeightClassifier(chainer.Chain):
 
     def __init__(self, model, n_class, ignore_label=-1, class_weight=None,
                  compute_accuracy=True):
-        super(PixelwiseSoftmaxLossWithWeight, self).__init__(predictor=model)
+        super(PixelwiseSoftmaxWithWeightClassifier, self).__init__(predictor=model)
         self.n_class = n_class
         self.ignore_label = ignore_label
         self.class_weight = np.asarray(class_weight, dtype=np.float32)
