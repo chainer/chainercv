@@ -31,6 +31,9 @@ apply_detection_link
 ~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: apply_detection_link
 
+apply_semantic_segmentation_link
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: apply_semantic_segmentation_link
 
 Testing Utilities
 -----------------
