@@ -9,7 +9,7 @@ from chainercv.utils import apply_semantic_segmentation_link
 
 
 class DummySemanticSegmentationLink(chainer.Link):
-    n_class = 20
+    n_class = 21
 
     def predict(self, imgs):
         scores = list()
