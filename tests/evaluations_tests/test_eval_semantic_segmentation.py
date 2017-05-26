@@ -16,15 +16,15 @@ from chainercv.evaluations import eval_semantic_segmentation
     # p_01 = 1
     # p_10 = 0
     # p_11 = 2
-    {'pred_label': [[[1, 1, 0], [0, 0, 1]]],
-     'gt_label': [[[1, 0, 0], [0, -1, 1]]],
+    {'pred_label': [[1, 1, 0], [0, 0, 1]],
+     'gt_label': [[1, 0, 0], [0, -1, 1]],
      'acc': [4. / 5.],
      'acc_cls': [1. / 2. * (1. + 2. / 3.)],
      'mean_iu': [1. / 2. * (1. / 3. + 1.)],
      'fwavacc': [1. / 5. * (2. + 4. / 3.)]
      },
-    {'pred_label': np.repeat([[[[1, 1, 0], [0, 0, 1]]]], 2, axis=0),
-     'gt_label': np.repeat([[[[1, 0, 0], [0, -1, 1]]]], 2, axis=0),
+    {'pred_label': np.repeat([[[1, 1, 0], [0, 0, 1]]], 2, axis=0),
+     'gt_label': np.repeat([[[1, 0, 0], [0, -1, 1]]], 2, axis=0),
      'acc': [4. / 5., 4. / 5.],
      'acc_cls': [1. / 2. * (1. + 2. / 3.),
                  1. / 2. * (1. + 2. / 3.)],
@@ -33,8 +33,8 @@ from chainercv.evaluations import eval_semantic_segmentation
      'fwavacc': [1. / 5. * (2. + 4. / 3.),
                  1. / 5. * (2. + 4. / 3.)]
      },
-    {'pred_label': [[[0, 0, 0], [0, 0, 0]]],
-     'gt_label': [[[1, 1, 1], [1, 1, 1]]],
+    {'pred_label': [[0, 0, 0], [0, 0, 0]],
+     'gt_label': [[1, 1, 1], [1, 1, 1]],
      'acc': [0.],
      'acc_cls': [0.],
      'mean_iu': [0.],
