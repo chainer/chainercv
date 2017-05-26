@@ -7,6 +7,9 @@ from chainer import serializers
 from chainer import iterators
 from chainer.dataset import concat_examples
 
+import numpy as np
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=-1)
 parser.add_argument('--snapshot', type=str)
