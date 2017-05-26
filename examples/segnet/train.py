@@ -28,11 +28,11 @@ train = CamVidDataset(mode='train')
 
 
 def transform(in_data):
-    x, t = in_data
+    img, label = in_data
     if np.random.rand() > 0.5:
-        x = x[:, :, ::-1]
-        t = t[:, :, ::-1]
-    return x, t
+        img = img[:, :, ::-1]
+        label = label[:, :, ::-1]
+    return img, label
 
 
 train = TransformDataset(train, transform)
