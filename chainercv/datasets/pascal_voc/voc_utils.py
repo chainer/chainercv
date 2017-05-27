@@ -86,3 +86,4 @@ voc_semantic_segmentation_label_colors = (
     (128, 192, 0),
     (0, 64, 128),
 )
+voc_semantic_segmentation_ignore_label_color = (224, 224, 192)
