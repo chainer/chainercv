@@ -36,18 +36,21 @@ def main():
     args = parser.parse_args()
 
     # Triggers
+    log_trigger = (10, 'iteration')
     report_trigger = (1000, 'iteration')
     validation_trigger = (2000, 'iteration')
     end_trigger = (16000, 'iteration')
 
     # Dataset
     train = CamVidDataset(split='train')
+
     def transform(in_data):
         img, label = in_data
         if np.random.rand() > 0.5:
             img = img[:, :, ::-1]
             label = label[:, ::-1]
         return img, label
+
     train = TransformDataset(train, transform)
     val = CamVidDataset(split='val')
 
@@ -73,18 +76,17 @@ def main():
     # Trainer
     trainer = training.Trainer(updater, end_trigger, out=args.out)
 
-    trainer.extend(extensions.LogReport(trigger=report_trigger))
-    trainer.extend(extensions.observe_lr(), trigger=report_trigger)
+    trainer.extend(extensions.LogReport(trigger=log_trigger))
+    trainer.extend(extensions.observe_lr(), trigger=log_trigger)
     trainer.extend(extensions.dump_graph('main/loss'))
     trainer.extend(TestModeEvaluator(val_iter, model,
                                      device=args.gpu),
                    trigger=validation_trigger)
     trainer.extend(extensions.PrintReport(
-        ['epoch', 'iteration', 'main/loss', 'main/mean_iou',
+        ['epoch', 'iteration', 'elapsed_time', 'lr', 'main/loss', 'main/mean_iou',
          'main/mean_pixel_accuracy', 'validation/main/loss',
-         'validation/main/mean_iou', 'validation/main/mean_pixel_accuracy',
-         'elapsed_time', 'lr']),
-        trigger=report_trigger)
+         'validation/main/mean_iou', 'validation/main/mean_pixel_accuracy']),
+        trigger=log_trigger)
     trainer.extend(extensions.PlotReport(
         ['main/loss', 'validation/main/loss'], x_key='iteration',
         file_name='loss.png'))
@@ -100,7 +102,7 @@ def main():
     trainer.extend(extensions.snapshot_object(
         model.predictor, filename='model_iteration-{.updater.iteration}',
         trigger=report_trigger))
-    trainer.extend(extensions.ProgressBar(), trigger=report_trigger)
+    trainer.extend(extensions.ProgressBar(update_interval=10))
 
     trainer.run()
 
