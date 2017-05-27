@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     # Model
     class_weight = np.load(args.class_weight)[:11]
-    model = SegNetBasic(out_channel=11)
+    model = SegNetBasic(n_class=11)
     model = PixelwiseSoftmaxClassifier(model, 11, 11, class_weight)
 
     # Optimizer
