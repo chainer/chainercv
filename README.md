@@ -83,8 +83,8 @@ $ python demo.py sample.jpg
 With the following commands, the visualizations on the top of this page can be produced.
 
 ```
-$ cd examples/visualization
-$ python visualize_detection_models.py
+$ cd examples/detection
+$ python visualize_models.py
 ```
 
 

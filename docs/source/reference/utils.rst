@@ -24,6 +24,14 @@ read_image
 .. autofunction:: read_image
 
 
+Iterator Utilities
+------------------
+
+apply_detection_link
+~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: apply_detection_link
+
+
 Testing Utilities
 -----------------
 

@@ -24,7 +24,7 @@ class TestReadImage(unittest.TestCase):
         if self.color:
             self.img = np.random.randint(
                 0, 255, size=(3,) + self.size, dtype=np.uint8)
-            Image.fromarray(self.img[::-1].transpose(1, 2, 0)).save(self.path)
+            Image.fromarray(self.img.transpose(1, 2, 0)).save(self.path)
         else:
             self.img = np.random.randint(
                 0, 255, size=(1,) + self.size, dtype=np.uint8)

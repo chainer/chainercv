@@ -18,7 +18,7 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
 
     Args:
         img (~numpy.ndarray): An image of shape :math:`(3, height, width)`.
-            This is in BGR format and the range of its value is
+            This is in RGB format and the range of its value is
             :math:`[0, 255]`. This should be visualizable using
             :obj:`matplotlib.pyplot.imshow(img)`
         keypoint (~numpy.ndarray): An array with keypoint pairs whose shape is
