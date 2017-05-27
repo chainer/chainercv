@@ -10,10 +10,28 @@ from chainercv.evaluations import eval_semantic_segmentation
 
 class PixelwiseSoftmaxClassifier(chainer.Chain):
 
-    def __init__(self, model, ignore_label=-1, class_weight=None,
+    """A pixel-wise classifier.
+
+    It computes the loss and accuracy based on a given input/label pair for
+    semantic segmentation.
+
+    Args:
+        predictor (~chainer.Link): Predictor network.
+        ignore_label (int): A class id that is going to be ignored in
+            evaluation.
+        class_weight (array): An array
+            that contains constant weights that will be multiplied with the
+            loss values along with the channel dimension. This will be
+            used in :func:`chainer.functions.softmax_cross_entropy`.
+        compute_accuracy (bool): If :obj:`True`, compute accuracy on the
+            forward computation. The default value is :obj:`True`.
+
+    """
+
+    def __init__(self, predictor, ignore_label=-1, class_weight=None,
                  compute_accuracy=True):
-        super(PixelwiseSoftmaxClassifier, self).__init__(predictor=model)
-        self.n_class = model.n_class
+        super(PixelwiseSoftmaxClassifier, self).__init__(predictor=predictor)
+        self.n_class = predictor.n_class
         self.ignore_label = ignore_label
         if class_weight is not None:
             self.class_weight = np.asarray(class_weight, dtype=np.float32)
@@ -33,6 +51,19 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
                 self.class_weight = cuda.to_gpu(self.class_weight)
 
     def __call__(self, x, t):
+        """Computes the loss value for an input and label pair.
+
+        It also computes accuracy and stores it to the attribute.
+
+        Args:
+            x (~chainer.Variable): A variable with a 4D image array.
+            t (~chainer.Variable): A variable with the ground truth
+                image-wise label.
+
+        Returns:
+            ~chainer.Variable: Loss value.
+
+        """
         self.y = self.predictor(x)
         self.loss = F.softmax_cross_entropy(
             self.y, t, class_weight=self.class_weight,

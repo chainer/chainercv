@@ -68,6 +68,16 @@ class SegNetBasic(chainer.Chain):
             stride=(pool.sy, pool.sx), pad=(pool.ph, pool.pw), outsize=outsize)
 
     def __call__(self, x):
+        """Compute an image-wise score from a batch of images
+
+        Args:
+            x (chainer.Variable): A variable with 4D image array.
+
+        Returns:
+            chainer.Variable:
+            An image-wise score. Its channel size is :obj:`self.n_class`.
+
+        """
         p1 = F.MaxPooling2D(2, 2, use_cudnn=False)
         p2 = F.MaxPooling2D(2, 2, use_cudnn=False)
         p3 = F.MaxPooling2D(2, 2, use_cudnn=False)
@@ -89,6 +99,20 @@ class SegNetBasic(chainer.Chain):
         return score
 
     def predict(self, imgs):
+        """Conduct semantic segmentations from images.
+
+        Args:
+            imgs (iterable of numpy.ndarray): Arrays holding images.
+                All images are in CHW and RGB format
+                and the range of their values are :math:`[0, 255]`.
+
+        Returns:
+            list of numpy.ndarray:
+
+            List of integer labels predicted from each image in the input \
+            list.
+
+        """
         labels = []
         for img in imgs:
             C, H, W = img.shape
