@@ -42,12 +42,12 @@ def vis_label(label, label_names=None, alpha=1, ax=None):
         Returns the Axes object with the plot for further tweaking.
 
     """
+    from matplotlib.patches import Patch
     from matplotlib import pyplot as plot
 
     if label_names is None:
-        n_class = label.max()
-    else:
-        n_class = len(label_names) + 1
+        label_names = [str(l) for l in range(label.max() + 1)]
+    n_class = len(label_names) + 1
 
     cmap = plot.get_cmap()
 
@@ -62,4 +62,9 @@ def vis_label(label, label_names=None, alpha=1, ax=None):
 
     ax.imshow(img)
 
-    return ax
+    legend_handles = list()
+    for l, label_name in enumerate(label_names):
+        legend_handles.append(
+            Patch(color=cmap(l / (n_class - 1)), label=label_name))
+
+    return ax, legend_handles
