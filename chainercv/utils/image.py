@@ -26,7 +26,7 @@ def read_image(path, dtype=np.float32, color=True):
         if color:
             img = f.convert('RGB')
         else:
-            img = f.convert('L')
+            img = f.convert('P')
         img = np.asarray(img, dtype=dtype)
     finally:
         if hasattr(f, 'close'):
