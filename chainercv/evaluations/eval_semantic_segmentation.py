@@ -11,8 +11,8 @@ def _to_cpu(arrays, xp):
         out_arrays = cuda.to_cpu(arrays)
     else:
         out_arrays = []
-        for i in six.moves.range(len(arrays)):
-            out_arrays.append(cuda.to_cpu(arrays[i]))
+        for array in arrays:
+            out_arrays.append(cuda.to_cpu(array))
     return out_arrays
 
 
@@ -42,16 +42,16 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
         :math:`PA = \\frac
         {\\sum_{i=1}^k N_{ii}}
         {\\sum_{i=1}^k \\sum_{j=1}^k N_{ij}}`
-    * Mean Pixel Accuracy (MPA)
-        :math:`MPA = \\frac{1}{k}
+    * Mean Pixel Accuracy (mPA)
+        :math:`mPA = \\frac{1}{k}
         \\sum_{i=1}^k
         \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij}}`
-    * Mean Intersection over Union (MIoU)
-        :math:`MIoU = \\frac{1}{k}
+    * Mean Intersection over Union (mIoU)
+        :math:`mIoU = \\frac{1}{k}
         \\sum_{i=1}^k
         \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij} + \\sum_{j=1}^k N_{ji} - N_{ii}}`
-    * Frequency Weighted Intersection over Union (FWIoU)
-        :math:`FWIoU = \\frac{1}{\\sum_{i=1}^k \\sum_{j=1}^k N_{ij}}
+    * Frequency Weighted Intersection over Union (fwIoU)
+        :math:`fwIoU = \\frac{1}{\\sum_{i=1}^k \\sum_{j=1}^k N_{ij}}
         \\sum_{i=1}^k \\frac{\\sum_{j=1}^k N_{ij}N_{ii}}
         {\\sum_{j=1}^k N_{ij} + \\sum_{j=1}^k N_{ji} - N_{ii}}`
 
@@ -67,13 +67,14 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
     <https://arxiv.org/abs/1704.06857>`_. arXiv 2017.
 
     Args:
-        pred_label (iterable of arrays): A collection of predicted labels.
-            This is an interable of labels or a single label.
-            An array of label has shape :math:`H, W)`.
+        pred_label (iterable of arrays or array): A collection of predicted
+            labels. This is an interable of labels or a single label.
+            An array of label has shape :math:`H, W`.
             :math:`H` and :math:`W`
             are height and width of the images. We assume that there are
             :math:`N` labels.
-        gt_label (iterable of arrays): A collection of the ground truth labels.
+        gt_label (iterable of arrays or array): A collection of the ground
+            truth labels. This is an iterable of labels or a single label.
             Its organized similarly to :obj:`pred_label`. A pixel with value
             "-1" will be ignored during evaluation.
             We assume that there are :math:`N` labels.
@@ -81,7 +82,7 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
 
     Returns:
         (array, array, array, array):
-        A tuple of pixel accuracy, mean pixel accuracy, MIoU and FWIoU.
+        A tuple of pixel accuracy, mean pixel accuracy, mIoU and fwIoU.
         These arrays have shape :math:`(N,)`, where :math:`N` is
         the number of images in the input.
 
