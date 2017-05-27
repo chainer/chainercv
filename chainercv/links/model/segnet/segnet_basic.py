@@ -1,6 +1,10 @@
+import numpy as np
+
 import chainer
 import chainer.functions as F
 import chainer.links as L
+
+from chainercv.transforms import resize
 
 
 class SegNetBasic(chainer.Chain):
@@ -12,7 +16,7 @@ class SegNetBasic(chainer.Chain):
 
     .. [#] Vijay Badrinarayanan, Alex Kendall and Roberto Cipolla "SegNet: A \
     Deep Convolutional Encoder-Decoder Architecture for Image Segmentation." \
-    PAMI, 2017 
+    PAMI, 2017
 
     .. _here: http://github.com/alexgkendall/SegNet-Tutorial
 
@@ -20,6 +24,7 @@ class SegNetBasic(chainer.Chain):
         n_class (int): The number of channels for the final convolutional
             layer. SegNetBasic basically takes the number of target classes as
             this argment.
+
     """
 
     def __init__(self, n_class):
@@ -80,4 +85,20 @@ class SegNetBasic(chainer.Chain):
         h = self.conv_decode2_bn(self.conv_decode2(h), test=not self.train)
         h = self._upsampling_2d(h, p1)
         h = self.conv_decode1_bn(self.conv_decode1(h), test=not self.train)
-        return self.conv_classifier(h)
+        score = self.conv_classifier(h)
+        return score
+
+    def predict(self, imgs):
+        labels = []
+        for img in imgs:
+            C, H, W = img.shape
+            x = chainer.Variable(
+                self.xp.asarray(img[np.newaxis]), volatile=chainer.flag.ON)
+            score = self.__call__(x)[0].data
+            if score.shape != (C, H, W):
+                dtype = score.dtype
+                score = resize(score, (W, H)).astype(dtype)
+
+            label = self.xp.argmax(score, axis=0)
+            labels.append(label)
+        return labels
