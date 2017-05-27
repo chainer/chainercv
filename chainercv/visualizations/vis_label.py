@@ -41,7 +41,10 @@ def vis_label(label, alpha=1, label_names=None, ax=None):
     """
     from matplotlib import pyplot as plot
 
-    vmax = label.max()
+    if label_names is None:
+        vmax = label.max()
+    else:
+        vmax = len(label_names) + 1
 
     cmap = plot.get_cmap()
 
