@@ -16,14 +16,14 @@ def _to_cpu(arrays, xp):
     return out_arrays
 
 
-def _fast_hist(pred_labels, gt_labels, n_class):
+def _fast_hist(pred_label, gt_label, n_class):
     # Construct histogram for label evaluation.
 
-    mask = (gt_labels >= 0) & (gt_labels < n_class)
+    mask = (gt_label >= 0) & (gt_label < n_class)
     # an array of shape (n_class, n_class)
     hist = np.bincount(
-        n_class * gt_labels[mask].astype(int) +
-        pred_labels[mask], minlength=n_class**2).reshape(n_class, n_class)
+        n_class * gt_label[mask].astype(int) +
+        pred_label[mask], minlength=n_class**2).reshape(n_class, n_class)
     return hist
 
 
