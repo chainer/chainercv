@@ -15,7 +15,10 @@ from chainercv.links import SegNetBasic
 import numpy as np
 
 
-if __name__ == '__main__':
+def main():
+    # This follows evaluation code used in SegNet.
+    # https://github.com/alexgkendall/SegNet-Tutorial/blob/master/
+    # # Scripts/compute_test_results.m
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--snapshot', type=str)
@@ -70,3 +73,7 @@ if __name__ == '__main__':
     global_ave_acc = global_ave_acc[:, 0].sum() / global_ave_acc[:, 1].sum()
     print('{:>23} : {:.4f}'.format(
         'Global average accuracy', global_ave_acc))
+
+
+if __name__ == '__main__':
+    main()
