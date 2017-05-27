@@ -38,14 +38,16 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
             ignore_label=self.ignore_label)
 
         reporter.report({'loss': self.loss}, self)
+
+        self.accuracy = None
         if self.compute_accuracy:
             label = self.xp.argmax(self.y.data, axis=1)
-            pas, mpas, mious, fwious =\
-                eval_semantic_segmentation(label, t.data, self.n_class)
+            self.accuracy = eval_semantic_segmentation(
+                label, t.data, self.n_class)
             reporter.report({
-                'pixel_accuracy': self.xp.mean(pas),
-                'mean_pixel_accuracy': self.xp.mean(mpas),
-                'mean_iou': self.xp.mean(mious),
-                'frequency_weighted_iou': self.xp.mean(fwious)
+                'pixel_accuracy': self.xp.mean(self.accuracy[0]),
+                'mean_pixel_accuracy': self.xp.mean(self.accuracy[1]),
+                'mean_iou': self.xp.mean(self.accuracy[2]),
+                'frequency_weighted_iou': self.xp.mean(self.accuracy[3])
             }, self)
         return self.loss
