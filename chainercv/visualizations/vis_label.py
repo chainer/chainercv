@@ -21,7 +21,7 @@ def vis_label(
         >>> dataset = VOCSemanticSegmentationDataset()
         >>> img, label = dataset[60]
         >>> ax = vis_image(img)
-        >>> _, legned_handles = vis_label(
+        >>> _, legend_handles = vis_label(
         ...     label,
         ...     label_names=voc_semantic_segmentation_label_names,
         ...     label_colors=voc_semantic_segmentation_label_colors,
