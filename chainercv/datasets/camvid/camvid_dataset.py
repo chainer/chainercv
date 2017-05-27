@@ -9,10 +9,11 @@ from chainer.dataset import download
 from chainercv import utils
 from chainercv.utils import read_image
 
+
 root = 'pfnet/chainercv/camvid'
 url = 'https://github.com/alexgkendall/SegNet-Tutorial/archive/master.zip'
 
-camvid_label_names = [
+camvid_label_names = (
     'Sky',
     'Building',
     'Pole',
@@ -26,23 +27,23 @@ camvid_label_names = [
     'Pedestrian',
     'Bicyclist',
     'Unlabelled',
-]
+)
 
-camvid_label_colors = [
-    [128, 128, 128],
-    [128, 0, 0],
-    [192, 192, 128],
-    [255, 69, 0],
-    [128, 64, 128],
-    [60, 40, 222],
-    [128, 128, 0],
-    [192, 128, 128],
-    [64, 64, 128],
-    [64, 0, 128],
-    [64, 64, 0],
-    [0, 128, 192],
-    [0, 0, 0],
-]
+camvid_label_colors = (
+    (128, 128, 128),
+    (128, 0, 0),
+    (192, 192, 128),
+    (255, 69, 0),
+    (128, 64, 128),
+    (60, 40, 222),
+    (128, 128, 0),
+    (192, 128, 128),
+    (64, 64, 128),
+    (64, 0, 128),
+    (64, 64, 0),
+    (0, 128, 192),
+    (0, 0, 0),
+)
 
 
 def get_camvid():
