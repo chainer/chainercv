@@ -8,10 +8,10 @@ from chainer.testing import attr
 from chainercv.links import PixelwiseSoftmaxClassifier
 
 
-class DummyCNN(chainer.Chain):
+class DummySemanticSegmentationModel(chainer.Chain):
 
     def __init__(self, n_class):
-        super(DummyCNN, self).__init__()
+        super(DummySemanticSegmentationModel, self).__init__()
         self.n_class = n_class
 
     def __call__(self, x):
@@ -29,7 +29,7 @@ class DummyCNN(chainer.Chain):
 class TestPixelwiseSoftmaxClassifier(unittest.TestCase):
 
     def setUp(self):
-        model = DummyCNN(self.n_class)
+        model = DummySemanticSegmentationModel(self.n_class)
         if self.class_weight:
             self.class_weight = [0.1 * i for i in range(self.n_class)]
         self.link = PixelwiseSoftmaxClassifier(
