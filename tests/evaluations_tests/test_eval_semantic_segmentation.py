@@ -87,4 +87,53 @@ class TestEvalSemanticSegmentation(unittest.TestCase):
             self.n_class)
 
 
+class TestEvalSemanticSegmentationListInput(unittest.TestCase):
+
+    n_class = 2
+
+    def setUp(self):
+        self.pred_label = np.array([[1, 1, 0], [0, 0, 1]])
+        self.gt_label = np.array([[1, 0, 0], [0, -1, 1]])
+        self.acc = np.repeat([4. / 5.], 2)
+        self.acc_cls = np.repeat([1. / 2. * (1. + 2. / 3.)], 2)
+        self.mean_iou = np.repeat([1. / 2. * (1. / 3. + 1)], 2)
+        self.fwavacc = np.repeat([1. / 5. * (2. + 4. / 3.)], 2)
+
+    def check_eval_semantic_segmentation_list_input(
+            self, pred_label, gt_label, acc,
+            acc_cls, mean_iu, fwavacc, n_class):
+        with warnings.catch_warnings(record=True) as w:
+            acc_o, acc_cls_o, mean_iu_o, fwavacc_o =\
+                eval_semantic_segmentation(
+                    pred_label, gt_label, n_class=n_class)
+
+        self.assertIsInstance(acc_o, type(acc))
+        self.assertIsInstance(acc_cls_o, type(acc_cls))
+        self.assertIsInstance(mean_iu_o, type(mean_iu))
+        self.assertIsInstance(fwavacc_o, type(fwavacc))
+
+        np.testing.assert_equal(cuda.to_cpu(acc_o), cuda.to_cpu(acc))
+        np.testing.assert_equal(cuda.to_cpu(acc_cls_o), cuda.to_cpu(acc_cls))
+        np.testing.assert_equal(cuda.to_cpu(mean_iu_o), cuda.to_cpu(mean_iu))
+        np.testing.assert_equal(cuda.to_cpu(fwavacc_o), cuda.to_cpu(fwavacc))
+
+        # test that no warning has been created
+        self.assertEqual(len(w), 0)
+
+    def test_eval_semantic_segmentation_list_input_cpu(self):
+        self.check_eval_semantic_segmentation_list_input(
+            [self.pred_label, self.pred_label],
+            [self.gt_label, self.gt_label],
+            self.acc, self.acc_cls, self.mean_iou, self.fwavacc, self.n_class)
+
+    @attr.gpu
+    def test_eval_semantic_segmentation_list_input_gpu(self):
+        self.check_eval_semantic_segmentation_list_input(
+            [cuda.to_gpu(self.pred_label), cuda.to_gpu(self.pred_label)],
+            [cuda.to_gpu(self.gt_label), cuda.to_gpu(self.gt_label)],
+            cuda.to_gpu(self.acc), cuda.to_gpu(self.acc_cls),
+            cuda.to_gpu(self.mean_iou), cuda.to_gpu(self.fwavacc),
+            self.n_class)
+
+
 testing.run_module(__name__, __file__)
