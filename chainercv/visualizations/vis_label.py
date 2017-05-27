@@ -28,7 +28,7 @@ def vis_label(label, label_names=None, alpha=1, ax=None):
             The values correspond to id for label names stored in
             :obj:`label_names`.
         label_names (iterable of strings): Name of labels ordered according
-            to label ids. If this is :obj:`None`, labels will be skipped.
+            to label ids.
         alpha (float): The value which determines transparency of the figure.
             The range of this value is :math:`[0, 1]`. If this
             value is :obj:`0`, the figure will be completely transparent.
