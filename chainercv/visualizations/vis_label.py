@@ -12,6 +12,8 @@ def vis_label(
 
         >>> from chainercv.datasets import VOCSemanticSegmentationDataset
         >>> from chainercv.datasets \
+        ...     import voc_semantic_segmentation_label_colors
+        >>> from chainercv.datasets \
         ...     import voc_semantic_segmentation_label_names
         >>> from chainercv.visualizations import vis_image
         >>> from chainercv.visualizations import vis_label
@@ -20,7 +22,9 @@ def vis_label(
         >>> img, label = dataset[60]
         >>> ax = vis_image(img)
         >>> _, legned_handles = vis_label(
-        ...     label, label_names=voc_semantic_segmentation_label_names,
+        ...     label,
+        ...     label_names=voc_semantic_segmentation_label_names,
+        ...     label_colors=voc_semantic_segmentation_label_colors,
         ...     alpha=0.9, ax=ax)
         >>> ax.legend(handles=legend_handles, bbox_to_anchor=(1, 1), loc=2)
         >>> plot.show()
