@@ -44,8 +44,8 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
     def get_example(self, i):
         """Returns the i-th example.
 
-        Returns a color image and a label image. Both of them are in CHW
-        format.
+        Returns a color image and a label image. The color image is in CHW
+        format and the label image is in HW format.
 
         Args:
             i (int): The index of the example.
