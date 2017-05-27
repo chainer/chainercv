@@ -36,7 +36,7 @@ def main():
     args = parser.parse_args()
 
     # Triggers
-    log_trigger = (10, 'iteration')
+    log_trigger = (20, 'iteration')
     report_trigger = (1000, 'iteration')
     validation_trigger = (2000, 'iteration')
     end_trigger = (16000, 'iteration')
@@ -100,12 +100,9 @@ def main():
     trainer.extend(extensions.PlotReport(
         ['main/mean_pixel_accuracy', 'validation/main/mean_pixel_accuracy'],
         x_key='iteration', file_name='mean_pixel_accuracy.png'))
-    trainer.extend(extensions.snapshot(
-        filename='snapshot_iteration-{.updater.iteration}'),
-        trigger=end_trigger)
     trainer.extend(extensions.snapshot_object(
         model.predictor, filename='model_iteration-{.updater.iteration}',
-        trigger=report_trigger))
+        trigger=end_trigger))
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
     trainer.run()
