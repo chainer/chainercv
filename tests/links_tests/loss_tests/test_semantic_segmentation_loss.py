@@ -38,7 +38,8 @@ class TestPixelwiseSigmoidClassifier(unittest.TestCase):
 
     def _check_call(self):
         xp = self.link.xp
-        loss = self.link(xp.asarray(self.x), xp.asarray(self.t))
+        loss = self.link(chainer.Variable(xp.asarray(self.x)),
+                         chainer.Variable(xp.asarray(self.t)))
         self.assertIsInstance(loss, chainer.Variable)
         self.assertIsInstance(loss.data, self.link.xp.ndarray)
         self.assertEqual(loss.shape, ())
