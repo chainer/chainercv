@@ -24,7 +24,7 @@ class FasterRCNNTrainChain(chainer.Chain):
         faster_rcnn (~chainercv.links.model.faster_rcnn.FasterRCNN):
             A Faster R-CNN model to train.
         rpn_sigma (float): Sigma parameter for localization loss
-            of RPN.
+            of Region Proposal Network (RPN).
         sigma (float): Sigma paramter for localization loss of
             calculated from the output of the head.
         anchor_target_creator: An instantiation of
@@ -62,7 +62,7 @@ class FasterRCNNTrainChain(chainer.Chain):
 
 
         Args:
-            imgs (~chainer.Variable): 4D image variable.
+            imgs (~chainer.Variable): A variable with a batch of images.
             bboxes (~chainer.Variable): Batched bounding boxes.
                 Its shape is :math:`(N, R, 4)`.
             labels (~chainer.Variable): Batched labels.
@@ -88,7 +88,8 @@ class FasterRCNNTrainChain(chainer.Chain):
         if n != 1:
             raise ValueError('currently only batch size 1 is supported')
 
-        img_size = imgs.shape[2:][::-1]
+        _, _, H, W = imgs.shape
+        img_size = (W, H)
 
         features = self.faster_rcnn.extractor(imgs, test=not self.train)
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.faster_rcnn.rpn(
