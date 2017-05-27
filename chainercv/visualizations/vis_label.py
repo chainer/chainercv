@@ -4,7 +4,7 @@ import numpy as np
 
 
 def vis_label(label, label_names=None, alpha=1, ax=None):
-    """Visualize label of semantic segmentation.
+    """Visualize a label for semantic segmentation.
 
     Example:
 
@@ -34,7 +34,7 @@ def vis_label(label, label_names=None, alpha=1, ax=None):
             The range of this value is :math:`[0, 1]`. If this
             value is :obj:`0`, the figure will be completely transparent.
             The default value is :obj:`1`. This option is useful for
-            overlaying labels on the source images.
+            overlaying the label on the source image.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
 
