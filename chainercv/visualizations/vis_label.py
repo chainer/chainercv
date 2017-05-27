@@ -5,7 +5,7 @@ import numpy as np
 
 def vis_label(
         label, label_names=None,
-        label_colors=None, ignore_color=(0, 0, 0), alpha=1, ax=None):
+        label_colors=None, ignore_label_color=(0, 0, 0), alpha=1, ax=None):
     """Visualize a label for semantic segmentation.
 
     Example:
@@ -38,7 +38,7 @@ def vis_label(
             :math:`[0, 255]`.
             If :obj:`colors` is :obj:`None`, the default color map
             returned from :func:`matplotlib.pyplot.get_cmap` is used.
-        ignore_color (tuple): Color for ignored label.
+        ignore_label_color (tuple): Color for ignored label.
             This is RGB format and the range of its values is :math:`[0, 255]`.
             The default value is :obj:`(0, 0, 0)`.
         alpha (float): The value which determines transparency of the figure.
@@ -88,8 +88,8 @@ def vis_label(
     img = cmap(label / (n_class - 1), alpha=alpha)
 
     # [0, 255] -> [0, 1]
-    ignore_color = np.array(ignore_color) / 255,
-    img[label < 0, :3] = ignore_color
+    ignore_label_color = np.array(ignore_label_color) / 255,
+    img[label < 0, :3] = ignore_label_color
 
     if ax is None:
         fig = plot.figure()
