@@ -67,13 +67,13 @@ def vis_label(
     elif label_colors is not None:
         n_class = len(label_colors)
     else:
-        n_class = label.max()
+        n_class = label.max() + 1
 
     if label_colors is not None and not len(label_colors) == n_class:
-        ValueError(
+        raise ValueError(
             'The size of label_colors is not same as the number of classes')
     if label.max() >= n_class:
-        ValueError('The values of label exceed the number of classes')
+        raise ValueError('The values of label exceed the number of classes')
 
     if label_names is None:
         label_names = [str(l) for l in range(label.max() + 1)]
