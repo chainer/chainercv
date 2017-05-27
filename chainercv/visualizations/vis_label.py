@@ -52,8 +52,8 @@ def vis_label(label, label_names=None, alpha=1, ax=None):
     cmap = plot.get_cmap()
 
     img = cmap(label / (n_class - 1))
-    # If label is invalid, alpha = 0.
-    # Otherwise, alpha = alpha
+    # if label is invalid, alpha = 0
+    # otherwise, alpha = alpha
     img[:, :, 3] = np.where(label >= 0, alpha, 0)
 
     if ax is None:
