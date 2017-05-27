@@ -64,6 +64,9 @@ def main():
     model = SegNetBasic(n_class=11)
     model = PixelwiseSoftmaxClassifier(
         model, ignore_label=11, class_weight=class_weight)
+    if args.gpu >= 0:
+        chainer.cuda.get_device(args.gpu).use()  # Make a specified GPU current
+        model.to_gpu()  # Copy the model to the GPU
 
     # Optimizer
     optimizer = optimizers.MomentumSGD(lr=0.1, momentum=0.9)
