@@ -1,6 +1,5 @@
 import numpy as np
 import unittest
-from unittest.mock import MagicMock
 
 import chainer
 from chainer import testing
@@ -33,11 +32,11 @@ class TestPixelwiseSoftmaxClassifier(unittest.TestCase):
         if self.class_weight:
             self.class_weight = [0.1 * i for i in range(self.n_class)]
         self.link = PixelwiseSoftmaxClassifier(
-            model, self.n_class, self.ignore_label, self.class_weight,
+            model, self.ignore_label, self.class_weight,
             self.compute_accuracy)
         self.x = np.random.rand(2, 3, 16, 16).astype(np.float32)
         self.t = np.random.randint(
-                    self.n_class, size=(2, 16, 16)).astype(np.int32)
+            self.n_class, size=(2, 16, 16)).astype(np.int32)
 
     def _check_call(self):
         xp = self.link.xp
@@ -46,6 +45,18 @@ class TestPixelwiseSoftmaxClassifier(unittest.TestCase):
         self.assertIsInstance(loss, chainer.Variable)
         self.assertIsInstance(loss.data, self.link.xp.ndarray)
         self.assertEqual(loss.shape, ())
+
+        self.assertTrue(hasattr(self.link, 'y'))
+        self.assertIsNotNone(self.link.y)
+
+        self.assertTrue(hasattr(self.link, 'loss'))
+        xp.testing.assert_allclose(self.link.loss.data, loss.data)
+
+        self.assertTrue(hasattr(self.link, 'accuracy'))
+        if self.compute_accuracy:
+            self.assertIsNotNone(self.link.accuracy)
+        else:
+            self.assertIsNone(self.link.accuracy)
 
     @attr.gpu
     def test_call_gpu(self):
