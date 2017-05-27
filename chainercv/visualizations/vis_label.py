@@ -5,7 +5,7 @@ import numpy as np
 
 def vis_label(
         label, label_names=None,
-        colors=None, ignore_color=(0, 0, 0), alpha=1, ax=None):
+        label_colors=None, ignore_color=(0, 0, 0), alpha=1, ax=None):
     """Visualize a label for semantic segmentation.
 
     Example:
@@ -32,7 +32,8 @@ def vis_label(
             :obj:`label_names`.
         label_names (iterable of strings): Name of labels ordered according
             to label ids.
-        colors: (iterable of tuple): An iterable of colors for regular labels.
+        label_colors: (iterable of tuple): An iterable of colors for regular
+            labels.
             Each color is RGB format and the range of its values is
             :math:`[0, 255]`.
             If :obj:`colors` is :obj:`None`, the default color map
@@ -63,25 +64,26 @@ def vis_label(
 
     if label_names is not None:
         n_class = len(label_names)
-    elif colors is not None:
-        n_class = len(colors)
+    elif label_colors is not None:
+        n_class = len(label_colors)
     else:
         n_class = label.max()
 
-    if colors is not None and not len(colors) == n_class:
-        ValueError('The size of colors is not same as the number of classes')
+    if label_colors is not None and not len(label_colors) == n_class:
+        ValueError(
+            'The size of label_colors is not same as the number of classes')
     if label.max() >= n_class:
         ValueError('The values of label exceed the number of classes')
 
     if label_names is None:
         label_names = [str(l) for l in range(label.max() + 1)]
 
-    if colors is None:
+    if label_colors is None:
         cmap = plot.get_cmap()
     else:
         # [0, 255] -> [0, 1]
-        colors = [(r / 255, g / 255, b / 255) for r, g, b in colors]
-        cmap = matplotlib.colors.ListedColormap(colors)
+        label_colors = np.array(label_colors) / 255
+        cmap = matplotlib.colors.ListedColormap(label_colors)
 
     img = cmap(label / (n_class - 1), alpha=alpha)
 
