@@ -1,16 +1,19 @@
-def vis_label(label, alpha=1, ax=None):
+def vis_label(label, alpha=1, label_names=None, ax=None):
     """Visualize label of semantic segmentation.
 
     Example:
 
         >>> from chainercv.datasets import VOCSemanticSegmentationDataset
+        >>> from chainercv.datasets \
+        ...     import voc_semantic_segmentation_label_names
         >>> from chainercv.visualizations import vis_image
         >>> from chainercv.visualizations import vis_label
         >>> import matplotlib.pyplot as plot
         >>> dataset = VOCSemanticSegmentationDataset()
         >>> img, label = dataset[60]
         >>> ax = vis_image(img)
-        >>> vis_label(label, alpha=0.75, ax=ax)
+        >>> vis_label(label, alpha=0.75,
+        ...         label_names=voc_semantic segmentation_label_names, ax=ax)
         >>> plot.show()
 
     Args:
@@ -23,6 +26,8 @@ def vis_label(label, alpha=1, ax=None):
             value is :obj:`0`, the figure will be completely transparent.
             The default value is :obj:`1`. This option is useful for
             overlaying labels on the source images.
+        label_names (iterable of strings): Name of labels ordered according
+            to label ids. If this is :obj:`None`, labels will be skipped.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
 
