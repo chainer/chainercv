@@ -71,7 +71,7 @@ def eval_semantic_segmentation(pred_labels, gt_labels, n_class):
             labels. This is a batch of labels whose shape is :math:`(N, H, W)`
             or a list containing :math:`N` labels. An array of label has shape
             :math:`H, W`. :math:`H` and :math:`W`
-            are height and width of the images. We assume that there are
+            are height and width of the label. We assume that there are
             :math:`N` labels.
         gt_labels (iterable of arrays): A collection of the ground
             truth labels.
@@ -103,7 +103,7 @@ def eval_semantic_segmentation(pred_labels, gt_labels, n_class):
                          'ground truth labels are different')
     for i in six.moves.range(N):
         if pred_labels[i].shape != gt_labels[i].shape:
-            raise ValueError('Shape of a prediction and'
+            raise ValueError('Shape of the prediction and'
                              'the ground truth should match')
 
     acc = np.zeros((N,))
