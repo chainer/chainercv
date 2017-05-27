@@ -86,6 +86,9 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
         the number of images in the input.
 
     """
+    # Evaluation code is based on 
+    # https://github.com/shelhamer/fcn.berkeleyvision.org/blob/master/
+    # score.py#L37
     xp = cuda.get_array_module(pred_label[0], gt_label[0])
     if isinstance(pred_label, xp.ndarray) and pred_label.ndim == 2:
         pred_label = [pred_label]
