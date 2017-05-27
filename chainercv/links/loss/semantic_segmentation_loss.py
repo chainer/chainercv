@@ -8,23 +8,12 @@ import numpy as np
 from chainercv.evaluations import eval_semantic_segmentation
 
 
-def _segmentation_accuracies(y, t, n_class):
-    y = F.argmax(F.softmax(y), axis=1)
-    if y.ndim == 3:
-        y = y[:, None, :, :]
-    if t.ndim == 3:
-        t = t[:, None, :, :]
-    xp = cuda.get_array_module(y.data, t.data)
-    return [xp.mean(ret)
-            for ret in eval_semantic_segmentation(y.data, t.data, n_class)]
-
-
 class PixelwiseSoftmaxClassifier(chainer.Chain):
 
-    def __init__(self, model, n_class, ignore_label=-1, class_weight=None,
+    def __init__(self, model, ignore_label=-1, class_weight=None,
                  compute_accuracy=True):
         super(PixelwiseSoftmaxClassifier, self).__init__(predictor=model)
-        self.n_class = n_class
+        self.n_class = model.n_class
         self.ignore_label = ignore_label
         if class_weight is not None:
             self.class_weight = np.asarray(class_weight, dtype=np.float32)
@@ -32,29 +21,31 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
             self.class_weight = class_weight
         self.compute_accuracy = compute_accuracy
 
+    def to_cpu(self):
+        super(PixelwiseSoftmaxClassifier, self).to_cpu()
+        if self.class_weight is not None:
+            self.class_weight = cuda.to_cpu(self.class_weight)
+
+    def to_gpu(self):
+        super(PixelwiseSoftmaxClassifier, self).to_gpu()
+        if self.class_weight is not None:
+            self.class_weight = cuda.to_gpu(self.class_weight)
+
     def __call__(self, x, t):
         self.y = self.predictor(x)
+        self.loss = F.softmax_cross_entropy(
+            self.y, t, class_weight=self.class_weight,
+            ignore_label=self.ignore_label)
 
-        if self.class_weight is not None:
-            if hasattr(x.data, 'device') \
-                    and not hasattr(self.class_weight, 'device'):
-                self.class_weight = cuda.to_gpu(
-                    self.class_weight, x.data.device)
-            self.loss = F.softmax_cross_entropy(
-                self.y, t, class_weight=self.class_weight,
-                ignore_label=self.ignore_label)
-        else:
-            self.loss = F.softmax_cross_entropy(
-                self.y, t, ignore_label=self.ignore_label)
-        
         reporter.report({'loss': self.loss}, self)
         if self.compute_accuracy:
-            pa, mpa, miou, fwiou = _segmentation_accuracies(
-                self.y, t, self.n_class)
+            label = self.xp.argmax(self.y.data, axis=1)
+            pas, mpas, mious, fwious =\
+                eval_semantic_segmentation(label, t.data, self.n_class)
             reporter.report({
-                'pixel_accuracy': pa,
-                'mean_pixel_accuracy': mpa,
-                'mean_iou': miou,
-                'frequency_weighted_iou': fwiou
+                'pixel_accuracy': self.xp.mean(pas),
+                'mean_pixel_accuracy': self.xp.mean(mpas),
+                'mean_iou': self.xp.mean(mious),
+                'frequency_weighted_iou': self.xp.mean(fwious)
             }, self)
         return self.loss
