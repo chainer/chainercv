@@ -45,10 +45,9 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
             self.class_weight = cuda.to_cpu(self.class_weight)
 
     def to_gpu(self, device=None):
-        with cuda.get_device(device):
-            super(PixelwiseSoftmaxClassifier, self).to_gpu()
-            if self.class_weight is not None:
-                self.class_weight = cuda.to_gpu(self.class_weight)
+        super(PixelwiseSoftmaxClassifier, self).to_gpu(device)
+        if self.class_weight is not None:
+            self.class_weight = cuda.to_gpu(self.class_weight, device)
 
     def __call__(self, x, t):
         """Computes the loss value for an input and label pair.
