@@ -1,13 +1,12 @@
 import argparse
 
-from chainercv.links import SegNetBasic
-from chainercv.datasets import CamVidDataset
 from chainer import cuda
-from chainer import serializers
-from chainer import iterators
 from chainer.dataset import concat_examples
+from chainer import iterators
+from chainer import serializers
 
-import numpy as np
+from chainercv.datasets import CamVidDataset
+from chainercv.links import SegNetBasic
 
 
 parser = argparse.ArgumentParser()
@@ -15,7 +14,7 @@ parser.add_argument('--gpu', type=int, default=-1)
 parser.add_argument('--snapshot', type=str)
 args = parser.parse_args()
 
-model = SegNetBasic(11)
+model = SegNetBasic(n_class=11)
 serializers.load_npz(args.snapshot, model)
 model.to_gpu(args.gpu)
 
