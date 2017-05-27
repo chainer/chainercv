@@ -86,7 +86,7 @@ def vis_label(
     img = cmap(label / (n_class - 1))
 
     # [0, 255] -> [0, 1]
-    ignore_color = np.array(ignored_color) / 255
+    ignore_color = np.array(ignore_color) / 255
     img[label < 0] = ignore_color
 
     if ax is None:
