@@ -13,7 +13,7 @@ from chainer import training
 from chainer.training import extensions
 from chainercv.datasets import CamVidDataset
 from chainercv.datasets import TransformDataset
-from chainercv.links import PixelwiseSoftmaxWithWeightClassifier
+from chainercv.links import PixelwiseSoftmaxClassifier
 from chainercv.links import SegNetBasic
 
 if __name__ == '__main__':
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     # Model
     class_weight = np.load(args.class_weight)[:11]
     model = SegNetBasic(out_channel=11)
-    model = PixelwiseSoftmaxWithWeightClassifier(model, 11, 11, class_weight)
+    model = PixelwiseSoftmaxClassifier(model, 11, 11, class_weight)
 
     # Optimizer
     optimizer = optimizers.MomentumSGD(lr=0.1, momentum=0.9)
