@@ -9,13 +9,13 @@ from chainer import testing
 from chainercv.extensions import DetectionVOCEvaluator
 
 
-def _generate_bbox(xp, n, img_size, min_length, max_length):
+def _generate_bbox(n, img_size, min_length, max_length):
     W, H = img_size
-    x_min = xp.random.uniform(0, W - max_length, size=(n,))
-    y_min = xp.random.uniform(0, H - max_length, size=(n,))
-    x_max = x_min + xp.random.uniform(min_length, max_length, size=(n,))
-    y_max = y_min + xp.random.uniform(min_length, max_length, size=(n,))
-    bbox = xp.stack((x_min, y_min, x_max, y_max), axis=1).astype(np.float32)
+    x_min = np.random.uniform(0, W - max_length, size=(n,))
+    y_min = np.random.uniform(0, H - max_length, size=(n,))
+    x_max = x_min + np.random.uniform(min_length, max_length, size=(n,))
+    y_max = y_min + np.random.uniform(min_length, max_length, size=(n,))
+    bbox = np.stack((x_min, y_min, x_max, y_max), axis=1).astype(np.float32)
     return bbox
 
 
@@ -41,7 +41,7 @@ class _DetectionStubLink(chainer.Link):
 class TestDetectionVOCEvaluator(unittest.TestCase):
 
     def setUp(self):
-        bboxes = [_generate_bbox(np, 5, (256, 324), 24, 120)
+        bboxes = [_generate_bbox(5, (256, 324), 24, 120)
                   for _ in range(10)]
         labels = np.ones((10, 5))
         self.dataset = TupleDataset(
