@@ -83,9 +83,10 @@ def main():
                                      device=args.gpu),
                    trigger=validation_trigger)
     trainer.extend(extensions.PrintReport(
-        ['epoch', 'iteration', 'elapsed_time', 'lr', 'main/loss', 'main/mean_iou',
-         'main/mean_pixel_accuracy', 'validation/main/loss',
-         'validation/main/mean_iou', 'validation/main/mean_pixel_accuracy']),
+        ['epoch', 'iteration', 'elapsed_time', 'lr',
+         'main/loss', 'main/mean_iou', 'main/acc',
+         'validation/main/loss',
+         'validation/main/mean_iou', 'validation/main/acc']),
         trigger=log_trigger)
     trainer.extend(extensions.PlotReport(
         ['main/loss', 'validation/main/loss'], x_key='iteration',
