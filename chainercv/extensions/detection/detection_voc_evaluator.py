@@ -11,7 +11,7 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
 
     """An extension that evaluates a detection model by PASCAL VOC metric.
 
-    This extension iterates over an iterator and evaluate the prediction
+    This extension iterates over an iterator and evaluates the prediction
     results of the model by PASCAL VOC's mAP metrics.
 
     Args:
