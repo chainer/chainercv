@@ -9,7 +9,7 @@ from chainercv.utils.bbox.bbox_iou import bbox_iou
 
 class AnchorTargetCreator(object):
 
-    """Assign anchors to the ground-truth targets.
+    """Assign anchors to the ground truth targets.
 
     Assigns anchors to ground-truth targets to train Region Proposal Networks
     introduced in Faster R-CNN [#]_.
@@ -23,9 +23,9 @@ class AnchorTargetCreator(object):
 
     Args:
         n_sample (int): Number of regions to produce.
-        positive_iou (float): Anchors with IoU above this
+        positive_iou_thresh (float): Anchors with IoU above this
             threshold will be assigned as positive.
-        negative_iou (float): Anchors with IoU below this
+        negative_iou_thresh (float): Anchors with IoU below this
             threshold will be assigned as negative.
         fg_fraction (float): Fraction of positive regions in the
             set of all regions produced.
@@ -36,12 +36,12 @@ class AnchorTargetCreator(object):
 
     def __init__(self,
                  n_sample=256,
-                 positive_iou=0.7, negative_iou=0.3,
+                 positive_iou_thresh=0.7, negative_iou_thresh=0.3,
                  fg_fraction=0.5,
                  loc_in_weight=(1., 1., 1., 1.)):
         self.n_sample = n_sample
-        self.positive_iou = positive_iou
-        self.negative_iou = negative_iou
+        self.positive_iou_thresh = positive_iou_thresh
+        self.negative_iou_thresh = negative_iou_thresh
         self.fg_fraction = fg_fraction
         self.loc_in_weight = loc_in_weight
 
@@ -122,13 +122,13 @@ class AnchorTargetCreator(object):
             self._calc_ious(anchor, bbox, inside_index)
 
         # assign bg labels first so that positive labels can clobber them
-        label[max_ious < self.negative_iou] = 0
+        label[max_ious < self.negative_iou_thresh] = 0
 
         # fg label: for each gt, anchor with highest iou
         label[gt_argmax_ious] = 1
 
         # fg label: above threshold IOU
-        label[max_ious >= self.positive_iou] = 1
+        label[max_ious >= self.positive_iou_thresh] = 1
 
         # subsample positive labels if we have too many
         num_fg = int(self.fg_fraction * self.n_sample)
