@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def vis_label(label, alpha=1, label_names=None, ax=None):
     """Visualize label of semantic segmentation.
 
@@ -38,10 +41,19 @@ def vis_label(label, alpha=1, label_names=None, ax=None):
     """
     from matplotlib import pyplot as plot
 
+    vmax = label.max()
+
+    cmap = plot.get_cmap()
+
+    img = cmap(label / (vmax - 1))
+    # If label is invalid, alpha = 0.
+    # Otherwise, alpha = alpha
+    img[:, :, 3] = np.where(label >= 0, alpha, 0)
+
     if ax is None:
         fig = plot.figure()
         ax = fig.add_subplot(1, 1, 1)
 
-    ax.imshow(label, vmin=-1, vmax=label.max(), alpha=alpha)
+    ax.imshow(img)
 
     return ax
