@@ -69,10 +69,10 @@ Global average accuracy : 0.8266
 
 ## Comparizon with the paper results
 
-| Implementation | Global accuracy | Class accuracy | mean IoU |
-|:--------------:|:---------------:|:--------------:|:--------:|
-| ChainerCV      | 82.7 %          | *67.1 %*       | *47.2 %* |
-| Official       | *82.8 %*        | 62.3%          | 46.3 %   |
+| Implementation | Global accuracy | Class accuracy | mean IoU   |
+|:--------------:|:---------------:|:--------------:|:----------:|
+| ChainerCV      | 82.7 %          | **67.1 %**     | **47.2 %** |
+| Official       | **82.8 %**      | 62.3%          | 46.3 %     |
 
 The above values of the official implementation is found here: [Getting Started with SegNet](http://mi.eng.cam.ac.uk/projects/segnet/tutorial.html)
 
