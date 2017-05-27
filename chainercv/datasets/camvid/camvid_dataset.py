@@ -71,7 +71,7 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/camvid`.
         split ({'train', 'val', 'test'}): Select from dataset splits used
-            in VOC.
+            in CamVid Dataset.
 
     """
 
@@ -94,7 +94,8 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
     def get_example(self, i):
         """Returns the i-th example.
 
-        Returns a color image and a label image.
+        Returns a color image and a label image. The color image is in CHW
+        format and the label image is in HW format.
 
         Args:
             i (int): The index of the example.
@@ -110,5 +111,5 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
             raise IndexError('index is too large')
         image_fn, label_fn = self.filenames[i]
         img = read_image(image_fn, color=True)
-        label_map = read_image(label_fn, dtype=np.int32, color=False)[0]
-        return img, label_map
+        label = read_image(label_fn, dtype=np.int32, color=False)[0]
+        return img, label
