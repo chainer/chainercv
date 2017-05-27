@@ -3,7 +3,9 @@ from __future__ import division
 import numpy as np
 
 
-def vis_label(label, label_names=None, alpha=1, ax=None):
+def vis_label(
+        label, label_names=None,
+        colors=None, ignore_color=(0, 0, 0), alpha=1, ax=None):
     """Visualize a label for semantic segmentation.
 
     Example:
@@ -30,6 +32,14 @@ def vis_label(label, label_names=None, alpha=1, ax=None):
             :obj:`label_names`.
         label_names (iterable of strings): Name of labels ordered according
             to label ids.
+        colors: (iterable of tuple): An iterable of colors for regular labels.
+            Each color is RGB format and the range of its values is
+            :math:`[0, 255]`.
+            If :obj:`colors` is :obj:`None`, the default color map
+            returned from :func:`matplotlib.pyplot.get_cmap` is used.
+        ignore_color (tuple): Color for ignored label.
+            This is RGB format and the range of its values is :math:`[0, 255]`.
+            The default value is :obj:`(0, 0, 0)`.
         alpha (float): The value which determines transparency of the figure.
             The range of this value is :math:`[0, 1]`. If this
             value is :obj:`0`, the figure will be completely transparent.
@@ -47,19 +57,37 @@ def vis_label(label, label_names=None, alpha=1, ax=None):
         :func:`matploblib.pyplot.legend` to show a legend.
 
     """
+    import matplotlib
     from matplotlib.patches import Patch
     from matplotlib import pyplot as plot
 
+    if label_names is not None:
+        n_class = len(label_names)
+    elif colors is not None:
+        n_class = len(colors)
+    else:
+        n_class = label.max()
+
+    if colors is not None and not len(colors) == n_class:
+        ValueError('The size of colors is not same as the number of classes')
+    if label.max() >= n_class:
+        ValueError('The values of label exceed the number of classes')
+
     if label_names is None:
         label_names = [str(l) for l in range(label.max() + 1)]
-    n_class = len(label_names) + 1
 
-    cmap = plot.get_cmap()
+    if colors is None:
+        cmap = plot.get_cmap()
+    else:
+        # [0, 255] -> [0, 1]
+        colors = [(r / 255, g / 255, b / 255) for r, g, b in colors]
+        cmap = matplotlib.colors.ListedColormap(colors)
 
     img = cmap(label / (n_class - 1))
-    # if label is invalid, alpha = 0
-    # otherwise, alpha = alpha
-    img[:, :, 3] = np.where(label >= 0, alpha, 0)
+
+    # [0, 255] -> [0, 1]
+    ignore_color = np.array(ignored_color) / 255
+    img[label < 0] = ignore_color
 
     if ax is None:
         fig = plot.figure()
