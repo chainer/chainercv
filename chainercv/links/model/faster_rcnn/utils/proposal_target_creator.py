@@ -18,12 +18,7 @@ class ProposalTargetCreator(object):
     Region Proposal Networks. NIPS 2015.
 
     Args:
-        n_class (int): Number of classes possibly including the background.
         batch_size (int): Number of regions to produce.
-        loc_normalize_mean (tuple of four floats): Mean values to normalize
-            coordinates of bouding boxes.
-        loc_normalize_std (tupler of four floats): Standard deviation of
-            the coordinates of bounding boxes.
         loc_in_weight (tuple of four floats): Weights applied to
             :obj:`loc` used by Faster R-CNN.
         fg_fraction (float): Fraction of regions that is labeled foreground.
@@ -35,25 +30,22 @@ class ProposalTargetCreator(object):
 
     """
 
-    def __init__(self, n_class,
+    def __init__(self,
                  batch_size=128,
-                 loc_normalize_mean=(0., 0., 0., 0.),
-                 loc_normalize_std=(0.1, 0.1, 0.2, 0.2),
                  loc_in_weight=(1., 1., 1., 1.),
                  fg_fraction=0.25,
                  fg_thresh=0.5, bg_thresh_hi=0.5, bg_thresh_lo=0.0
                  ):
-        self.n_class = n_class
         self.batch_size = batch_size
         self.fg_fraction = fg_fraction
         self.loc_in_weight = loc_in_weight
-        self.loc_normalize_mean = loc_normalize_mean
-        self.loc_normalize_std = loc_normalize_std
         self.fg_thresh = fg_thresh
         self.bg_thresh_hi = bg_thresh_hi
         self.bg_thresh_lo = bg_thresh_lo
 
-    def __call__(self, roi, bbox, label):
+    def __call__(self, roi, bbox, label, n_class,
+                 loc_normalize_mean=(0., 0., 0., 0.),
+                 loc_normalize_std=(0.1, 0.1, 0.2, 0.2)):
         """Assigns labels to sampled proposals from RPN.
 
         This samples total of :obj:`self.batch_size` RoIs from concatenated
@@ -84,6 +76,11 @@ class ProposalTargetCreator(object):
                 :math:`(R', 4)`.
             label (array): The ground truth bounding box labels. Its shape \
                 is :math:`(R',)`.
+            n_class (int): Number of classes possibly including the background.
+            loc_normalize_mean (tuple of four floats): Mean values to normalize
+                coordinates of bouding boxes.
+            loc_normalize_std (tupler of four floats): Standard deviation of
+                the coordinates of bounding boxes.
 
         Returns:
             (array, array, array, array, array):
@@ -119,12 +116,12 @@ class ProposalTargetCreator(object):
 
         # Sample rois with classification labels and offsets/scales to the GTs.
         sample_roi, gt_roi_loc, gt_roi_label = self._sample_roi(
-            roi, bbox, label)
+            roi, bbox, label, loc_normalize_mean, loc_normalize_std)
 
         # Convert loc (R, 4) and cls (R,) to obtain cls_loc (R, L * 4)
         gt_roi_cls_loc, roi_loc_in_weight =\
             self._get_bbox_regression_label(
-                gt_roi_loc, gt_roi_label, self.n_class)
+                gt_roi_loc, gt_roi_label, n_class)
 
         roi_loc_out_weight = (roi_loc_in_weight > 0).astype(np.float32)
 
@@ -137,7 +134,8 @@ class ProposalTargetCreator(object):
         return sample_roi, gt_roi_cls_loc, gt_roi_label,\
             roi_loc_in_weight, roi_loc_out_weight
 
-    def _sample_roi(self, roi, bbox, label):
+    def _sample_roi(self, roi, bbox, label,
+                    loc_normalize_mean, loc_normalize_std):
         fg_roi_per_image = np.round(self.batch_size * self.fg_fraction)
         iou = bbox_iou(roi, bbox)
         gt_assignment = iou.argmax(axis=1)
@@ -168,8 +166,8 @@ class ProposalTargetCreator(object):
 
         # Compute offsets and scales to match sampled RoIs to the GTs.
         gt_roi_loc = bbox2loc(sample_roi, bbox[gt_assignment[keep_index]])
-        gt_roi_loc = ((gt_roi_loc - np.array(self.loc_normalize_mean)
-                       ) / np.array(self.loc_normalize_std))
+        gt_roi_loc = ((gt_roi_loc - np.array(loc_normalize_mean)
+                       ) / np.array(loc_normalize_std))
         return sample_roi, gt_roi_loc, gt_roi_label
 
     def _get_bbox_regression_label(self, loc, label, n_class):

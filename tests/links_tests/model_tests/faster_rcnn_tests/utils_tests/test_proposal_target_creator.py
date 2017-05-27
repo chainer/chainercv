@@ -37,7 +37,6 @@ class TestProposalTargetCreator(unittest.TestCase):
             0, self.n_class, size=(n_bbox,), dtype=np.int32)
 
         self.proposal_target_creator = ProposalTargetCreator(
-            n_class=self.n_class,
             batch_size=self.batch_size,
             fg_fraction=self.fg_fraction,
             loc_in_weight=self.loc_in_weight,
@@ -48,7 +47,7 @@ class TestProposalTargetCreator(unittest.TestCase):
         xp = cuda.get_array_module(roi)
         (sample_roi, roi_bbox_target, roi_gt_label, roi_loc_in_weight,
          roi_bbox_outside_weight) =\
-            proposal_target_creator(roi, bbox, label)
+            proposal_target_creator(roi, bbox, label, self.n_class)
 
         # Test types
         self.assertIsInstance(sample_roi, xp.ndarray)

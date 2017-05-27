@@ -27,36 +27,26 @@ class FasterRCNNTrainChain(chainer.Chain):
             of RPN.
         sigma (float): Sigma paramter for localization loss of
             calculated from the output of the head.
-        anchor_target_creator_params (dict): Key valued paramters for
+        anchor_target_creator: An instantiation of
             :obj:`chainercv.links.model.faster_rcnn.AnchorTargetCreator`.
-        proposal_target_creator_params (dict): Key valued paramters for
+        proposal_target_creator_params: An instantiation of
             :obj:`chainercv.links.model.faster_rcnn.ProposalTargetCreator`.
 
     """
 
     def __init__(self, faster_rcnn, rpn_sigma=3., sigma=1.,
-                 anchor_target_creator_params={},
-                 proposal_target_creator_params={},
-                 ):
+                 anchor_target_creator=AnchorTargetCreator(),
+                 proposal_target_creator=ProposalTargetCreator()):
         super(FasterRCNNTrainChain, self).__init__(faster_rcnn=faster_rcnn)
         self.rpn_sigma = rpn_sigma
         self.sigma = sigma
 
-        faster_rcnn_params = {
-            'n_class': faster_rcnn.n_class,
-            'loc_normalize_mean': faster_rcnn.loc_normalize_mean,
-            'loc_normalize_std': faster_rcnn.loc_normalize_std}
-        for key, val in faster_rcnn_params.items():
-            if (key in proposal_target_creator_params and
-                    proposal_target_creator_params[key] != val):
-                raise ValueError(
-                    '{} is incosistent with the paramter'
-                    'of FasterRCNN'.format(key))
-        proposal_target_creator_params.update(faster_rcnn_params)
-        self.proposal_target_creator = ProposalTargetCreator(
-            **proposal_target_creator_params)
-        self.anchor_target_creator = AnchorTargetCreator(
-            **anchor_target_creator_params)
+        self.anchor_target_creator = anchor_target_creator
+        self.proposal_target_creator = proposal_target_creator
+
+        self.n_class = faster_rcnn.n_class
+        self.loc_normalize_mean = faster_rcnn.loc_normalize_mean
+        self.loc_normalize_std = faster_rcnn.loc_normalize_std
 
         self.train = True
 
@@ -113,7 +103,9 @@ class FasterRCNNTrainChain(chainer.Chain):
 
         # Sample RoIs and forward
         sample_roi, gt_roi_cls_loc, gt_roi_label, roi_loc_in_weight, \
-            roi_loc_out_weight = self.proposal_target_creator(roi, bbox, label)
+            roi_loc_out_weight = self.proposal_target_creator(
+                roi, bbox, label, self.n_class,
+                self.loc_normalize_mean, self.loc_normalize_std)
         sample_roi_index = self.xp.zeros((len(sample_roi),), dtype=np.int32)
         roi_cls_loc, roi_score = self.faster_rcnn.head(
             features, sample_roi, sample_roi_index, test=not self.train)
