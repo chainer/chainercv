@@ -14,13 +14,17 @@ except ImportError:
 
 class TestVisLabel(unittest.TestCase):
 
-    def test_vis_image(self):
-        if optional_modules:
-            img = np.random.randint(
-                -1, 21, size=(32, 32)).astype(np.int32)
-            ax = vis_label(img)
+    def setUp(self):
+        self.label = np.random.randint(
+            -1, 21, size=(48, 64)).astype(np.int32)
 
-            self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
+    def test_vis_label(self):
+        if optional_modules:
+            ax, legend_handles = vis_label(self.label)
+
+            self.assertIsInstance(ax, matplotlib.axes.Axes)
+            for handle in legend_handles:
+                self.assertIsInstance(handle, matplotlib.patches.Patch)
 
 
 testing.run_module(__name__, __file__)
