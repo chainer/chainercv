@@ -109,9 +109,10 @@ class SSD(chainer.Chain):
         super(SSD, self).to_cpu()
         self._default_bbox = chainer.cuda.to_cpu(self._default_bbox)
 
-    def to_gpu(self):
-        super(SSD, self).to_gpu()
-        self._default_bbox = chainer.cuda.to_gpu(self._default_bbox)
+    def to_gpu(self, device=None):
+        super(SSD, self).to_gpu(device)
+        self._default_bbox = chainer.cuda.to_gpu(
+            self._default_bbox, device=device)
 
     def __call__(self, x):
         """Compute localization and classification from a batch of images.
