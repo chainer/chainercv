@@ -83,11 +83,11 @@ def vis_label(
         colors = [(r / 255, g / 255, b / 255) for r, g, b in colors]
         cmap = matplotlib.colors.ListedColormap(colors)
 
-    img = cmap(label / (n_class - 1))
+    img = cmap(label / (n_class - 1), alpha=alpha)
 
     # [0, 255] -> [0, 1]
-    ignore_color = np.array(ignore_color) / 255
-    img[label < 0] = ignore_color
+    ignore_color = np.array(ignore_color) / 255,
+    img[label < 0, :3] = ignore_color
 
     if ax is None:
         fig = plot.figure()
