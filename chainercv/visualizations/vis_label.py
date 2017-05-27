@@ -17,9 +17,10 @@ def vis_label(label, label_names=None, alpha=1, ax=None):
         >>> dataset = VOCSemanticSegmentationDataset()
         >>> img, label = dataset[60]
         >>> ax = vis_image(img)
-        >>> vis_label(
+        >>> _, legned_handles = vis_label(
         ...     label, label_names=voc_semantic_segmentation_label_names,
-        ...     alpha=0.75, ax=ax)
+        ...     alpha=0.9, ax=ax)
+        >>> ax.legend(handles=legend_handles, bbox_to_anchor=(1, 1), loc=2)
         >>> plot.show()
 
     Args:
@@ -38,8 +39,12 @@ def vis_label(label, label_names=None, alpha=1, ax=None):
             axis. If this is :obj:`None` (default), a new axis is created.
 
     Returns:
-        ~matploblib.axes.Axes:
-        Returns the Axes object with the plot for further tweaking.
+        matploblib.axes.Axes and list of matplotlib.patches.Patch:
+        Returns :obj:`ax` and :obj:`legend_handles`.
+        :obj:`ax` is an :class:`matploblib.axes.Axes` with the plot.
+        It can be used for further tweaking.
+        :obj:`legend_handles` is a list of legends. It can be passed
+        :func:`matploblib.pyplot.legend` to show a legend.
 
     """
     from matplotlib.patches import Patch
