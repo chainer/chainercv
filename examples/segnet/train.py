@@ -2,7 +2,6 @@ import matplotlib  # isort:skip # NOQA
 matplotlib.use('Agg')  # isort:skiip # NOQA
 
 import argparse
-import time
 
 import chainer
 import numpy as np
@@ -36,9 +35,13 @@ def main():
     parser.add_argument('--out', type=str, default='result')
     args = parser.parse_args()
 
+    # Triggers
+    report_trigger = (1000, 'iteration')
+    validation_trigger = (2000, 'iteration')
+    end_trigger = (16000, 'iteration')
+
     # Dataset
     train = CamVidDataset(split='train')
-
     def transform(in_data):
         img, label = in_data
         if np.random.rand() > 0.5:
@@ -68,16 +71,14 @@ def main():
     updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
 
     # Trainer
-    trainer = training.Trainer(
-        updater, (140000, 'iteration'),
-        out='{}/{}'.format(args.out, time.strftime('%Y-%m-%d_%H-%M-%S')))
+    trainer = training.Trainer(updater, end_trigger, out=args.out)
 
-    report_trigger = (1000, 'iteration')
     trainer.extend(extensions.LogReport(trigger=report_trigger))
     trainer.extend(extensions.observe_lr(), trigger=report_trigger)
     trainer.extend(extensions.dump_graph('main/loss'))
     trainer.extend(TestModeEvaluator(val_iter, model,
-                                     device=args.gpu), trigger=report_trigger)
+                                     device=args.gpu),
+                   trigger=validation_trigger)
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', 'main/loss', 'main/mean_iou',
          'main/mean_pixel_accuracy', 'validation/main/loss',
@@ -95,7 +96,7 @@ def main():
         x_key='iteration', file_name='mean_pixel_accuracy.png'))
     trainer.extend(extensions.snapshot(
         filename='snapshot_iteration-{.updater.iteration}'),
-        trigger=report_trigger)
+        trigger=end_trigger)
     trainer.extend(extensions.snapshot_object(
         model.predictor, filename='model_iteration-{.updater.iteration}',
         trigger=report_trigger))
