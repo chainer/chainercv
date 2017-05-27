@@ -29,7 +29,7 @@ We used the completely same parameters for all settings.
 | Implementation | Optimizer   | Learning rage | Momentum | Weight decay | Model code |
 |:--------------:|:-----------:|:-------------:|:--------:|:------------:|:----------:|
 | ChainerCV      | MomentumSGD | 0.1           | 0.9      | 0.0005       | [segnet_basic.py](https://github.com/pfnet/chainercv/tree/master/chainercv/links/model/segnet/segnet_basic.py) |
-| Official       | MomentumSGD | 0.1           | 0.9      | 0.0005       | [segnet_basic_train.prototxt](https://github.com/alexgkendall/SegNet-Tutorial/blob/master/Models/segnet_basic_train.prototxt) | 
+| Official       | MomentumSGD | 0.1           | 0.9      | 0.0005       | [segnet_basic_train.prototxt](https://github.com/alexgkendall/SegNet-Tutorial/blob/master/Models/segnet_basic_train.prototxt) |
 
 # Evaluation
 
@@ -75,3 +75,8 @@ Global average accuracy : 0.8266
 | Official       | *82.8 %*        | 62.3%          | 46.3 %   |
 
 The above values of the official implementation is found here: [Getting Started with SegNet](http://mi.eng.cam.ac.uk/projects/segnet/tutorial.html)
+
+# Reference
+
+- Vijay Badrinarayanan, Alex Kendall and Roberto Cipolla "SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation." PAMI, 2017. 
+- Vijay Badrinarayanan, Ankur Handa and Roberto Cipolla "SegNet: A Deep Convolutional Encoder-Decoder Architecture for Robust Semantic Pixel-Wise Labelling." arXiv preprint arXiv:1505.07293, 2015.
