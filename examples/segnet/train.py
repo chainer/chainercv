@@ -11,12 +11,24 @@ from chainer import iterators
 from chainer import optimizers
 from chainer import training
 from chainer.training import extensions
+
 from chainercv.datasets import CamVidDataset
 from chainercv.datasets import TransformDataset
 from chainercv.links import PixelwiseSoftmaxClassifier
 from chainercv.links import SegNetBasic
 
-if __name__ == '__main__':
+
+class TestModeEvaluator(extensions.Evaluator):
+
+    def evaluate(self):
+        model = self.get_target('main')
+        model.train = False
+        ret = super(TestModeEvaluator, self).evaluate()
+        model.train = True
+        return ret
+
+
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=12)
@@ -27,15 +39,12 @@ if __name__ == '__main__':
     # Dataset
     train = CamVidDataset(split='train')
 
-
     def transform(in_data):
         img, label = in_data
         if np.random.rand() > 0.5:
             img = img[:, :, ::-1]
             label = label[:, ::-1]
         return img, label
-
-
     train = TransformDataset(train, transform)
     val = CamVidDataset(split='val')
 
@@ -47,7 +56,8 @@ if __name__ == '__main__':
     # Model
     class_weight = np.load(args.class_weight)[:11]
     model = SegNetBasic(n_class=11)
-    model = PixelwiseSoftmaxClassifier(model, 11, 11, class_weight)
+    model = PixelwiseSoftmaxClassifier(
+        model, ignore_label=11, class_weight=class_weight)
 
     # Optimizer
     optimizer = optimizers.MomentumSGD(lr=0.1, momentum=0.9)
@@ -57,34 +67,22 @@ if __name__ == '__main__':
     # Updater
     updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
 
-
     # Trainer
     trainer = training.Trainer(
         updater, (140000, 'iteration'),
         out='{}/{}'.format(args.out, time.strftime('%Y-%m-%d_%H-%M-%S')))
-
-
-    class TestModeEvaluator(extensions.Evaluator):
-
-        def evaluate(self):
-            model = self.get_target('main')
-            model.train = False
-            ret = super(TestModeEvaluator, self).evaluate()
-            model.train = True
-            return ret
-
 
     report_trigger = (1000, 'iteration')
     trainer.extend(extensions.LogReport(trigger=report_trigger))
     trainer.extend(extensions.observe_lr(), trigger=report_trigger)
     trainer.extend(extensions.dump_graph('main/loss'))
     trainer.extend(TestModeEvaluator(val_iter, model,
-                                    device=args.gpu), trigger=report_trigger)
+                                     device=args.gpu), trigger=report_trigger)
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', 'main/loss', 'main/mean_iou',
-        'main/mean_pixel_accuracy', 'validation/main/loss',
-        'validation/main/mean_iou', 'validation/main/mean_pixel_accuracy',
-        'elapsed_time', 'lr']),
+         'main/mean_pixel_accuracy', 'validation/main/loss',
+         'validation/main/mean_iou', 'validation/main/mean_pixel_accuracy',
+         'elapsed_time', 'lr']),
         trigger=report_trigger)
     trainer.extend(extensions.PlotReport(
         ['main/loss', 'validation/main/loss'], x_key='iteration',
@@ -104,3 +102,7 @@ if __name__ == '__main__':
     trainer.extend(extensions.ProgressBar(), trigger=report_trigger)
 
     trainer.run()
+
+
+if __name__ == '__main__':
+    main()
