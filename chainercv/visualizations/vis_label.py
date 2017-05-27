@@ -13,7 +13,7 @@ def vis_label(label, alpha=1, label_names=None, ax=None):
         >>> img, label = dataset[60]
         >>> ax = vis_image(img)
         >>> vis_label(label, alpha=0.75,
-        ...         label_names=voc_semantic segmentation_label_names, ax=ax)
+        ...           label_names=voc_semantic_segmentation_label_names, ax=ax)
         >>> plot.show()
 
     Args:
