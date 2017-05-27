@@ -3,6 +3,21 @@ from __future__ import division
 import numpy as np
 
 
+def _default_cmap(label):
+    """Color map used in PASCAL VOC"""
+    r, g, b = 0, 0, 0
+    i = label
+    for j in range(8):
+        if i & (1 << 0):
+            r |= 1 << (7 - j)
+        if i & (1 << 1):
+            g |= 1 << (7 - j)
+        if i & (1 << 2):
+            b |= 1 << (7 - j)
+        i >>= 3
+    return r, g, b
+
+
 def vis_label(
         label, label_names=None,
         label_colors=None, ignore_label_color=(0, 0, 0), alpha=1, ax=None):
@@ -40,8 +55,7 @@ def vis_label(
             labels.
             Each color is RGB format and the range of its values is
             :math:`[0, 255]`.
-            If :obj:`colors` is :obj:`None`, the default color map
-            returned from :func:`matplotlib.pyplot.get_cmap` is used.
+            If :obj:`colors` is :obj:`None`, the default color map used.
         ignore_label_color (tuple): Color for ignored label.
             This is RGB format and the range of its values is :math:`[0, 255]`.
             The default value is :obj:`(0, 0, 0)`.
@@ -83,11 +97,10 @@ def vis_label(
         label_names = [str(l) for l in range(label.max() + 1)]
 
     if label_colors is None:
-        cmap = plot.get_cmap()
-    else:
-        # [0, 255] -> [0, 1]
-        label_colors = np.array(label_colors) / 255
-        cmap = matplotlib.colors.ListedColormap(label_colors)
+        label_colors = [_default_cmap(l) for l in range(n_class)]
+    # [0, 255] -> [0, 1]
+    label_colors = np.array(label_colors) / 255
+    cmap = matplotlib.colors.ListedColormap(label_colors)
 
     img = cmap(label / (n_class - 1), alpha=alpha)
 
