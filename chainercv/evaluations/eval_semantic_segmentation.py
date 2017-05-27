@@ -59,15 +59,13 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
     Args:
         pred_label (array): An integer array of image containing
             class labels as values, which is obtained from inference.
-            This has shape :math:`(N, 1, H, W)` or :math:`(1, H, W)`,
+            This has shape :math:`(N, H, W)` or :math:`(H, W)`,
             where :math:`N` is size of the batch, :math:`H` is the height
             and :math:`W` is the width.
         gt_label (array): An integer array of image containing
             the ground truth class labels as values. A pixel with value
-            "-1" will be ignored during evaluation. Its shape is similar
-            to :obj:`pred_label`.
-            Its image size is equal to that of :obj:`pred_label`.
-            This should be a one channel CHW formatted image.
+            "-1" will be ignored during evaluation. Its shape is
+            :math:`(N, H, W)`.
         n_class (int): Number of classes.
 
     Returns:
@@ -86,14 +84,13 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
         raise ValueError(
             'Ground truth and predicted label map should have same number '
             'of dimensions.')
-    if ndim == 3:
+    if ndim == 2:
         pred_label = pred_label[None]
         gt_label = gt_label[None]
-    elif ndim < 3:
-        raise ValueError('Input images need to be at least three dimensional.')
-
-    if pred_label.shape[1] != 1 or gt_label.shape[1] != 1:
-        raise ValueError('Channel sizes of inputs need to be one.')
+    elif ndim < 2:
+        raise ValueError('Input images need to be at least two dimensional.')
+    if len(pred_label) != len(gt_label):
+        raise ValueError('Batch dimension of inputs are different')
 
     N = len(pred_label)
     acc = np.zeros((N,))
