@@ -16,7 +16,7 @@ urls = {
 }
 
 
-def get_pascal_voc(year, split):
+def get_voc(year, split):
     if year not in urls:
         raise ValueError
     key = year

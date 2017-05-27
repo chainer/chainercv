@@ -67,7 +67,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     def __init__(self, data_dir='auto', split='train', year='2012',
                  use_difficult=False, return_difficult=False):
         if data_dir == 'auto' and year in ['2007', '2012']:
-            data_dir = voc_utils.get_pascal_voc(year, split)
+            data_dir = voc_utils.get_voc(year, split)
 
         if split not in ['train', 'trainval', 'val']:
             if not (split == 'test' and year == '2007'):

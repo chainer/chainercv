@@ -30,7 +30,7 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
                 'please pick split from \'train\', \'trainval\', \'val\'')
 
         if data_dir == 'auto':
-            data_dir = voc_utils.get_pascal_voc('2012', split)
+            data_dir = voc_utils.get_voc('2012', split)
 
         id_list_file = os.path.join(
             data_dir, 'ImageSets/Segmentation/{0}.txt'.format(split))
