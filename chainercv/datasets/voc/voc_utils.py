@@ -5,7 +5,7 @@ from chainer.dataset import download
 from chainercv import utils
 
 
-root = 'pfnet/chainercv/pascal_voc'
+root = 'pfnet/chainercv/voc'
 urls = {
     '2012': 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/'
     'VOCtrainval_11-May-2012.tar',
@@ -16,7 +16,7 @@ urls = {
 }
 
 
-def get_pascal_voc(year, split):
+def get_voc(year, split):
     if year not in urls:
         raise ValueError
     key = year

@@ -3,7 +3,7 @@ import os
 
 import chainer
 
-from chainercv.datasets.pascal_voc import voc_utils
+from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
 
 
@@ -19,7 +19,7 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
-            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc`.
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/voc`.
         split ({'train', 'val', 'trainval'}): Select a split of the dataset.
 
     """
@@ -30,7 +30,7 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
                 'please pick split from \'train\', \'trainval\', \'val\'')
 
         if data_dir == 'auto':
-            data_dir = voc_utils.get_pascal_voc('2012', split)
+            data_dir = voc_utils.get_voc('2012', split)
 
         id_list_file = os.path.join(
             data_dir, 'ImageSets/Segmentation/{0}.txt'.format(split))
