@@ -73,7 +73,7 @@ def eval_semantic_segmentation(pred_labels, gt_labels, n_class):
             :math:`H, W`. :math:`H` and :math:`W`
             are height and width of the images. We assume that there are
             :math:`N` labels.
-        gt_labels (iterable of arrays or array): A collection of the ground
+        gt_labels (iterable of arrays): A collection of the ground
             truth labels.
             Its organized similarly to :obj:`pred_labels`. A pixel with value
             "-1" will be ignored during evaluation.
