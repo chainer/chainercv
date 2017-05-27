@@ -50,7 +50,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
-            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc`.
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/voc`.
         split ({'train', 'val', 'trainval', 'test'}): Select a split of the
             dataset. :obj:`test` split is only available for
             2007 dataset.
