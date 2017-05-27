@@ -42,13 +42,13 @@ def vis_label(label, alpha=1, label_names=None, ax=None):
     from matplotlib import pyplot as plot
 
     if label_names is None:
-        vmax = label.max()
+        n_class = label.max()
     else:
-        vmax = len(label_names) + 1
+        n_class = len(label_names) + 1
 
     cmap = plot.get_cmap()
 
-    img = cmap(label / (vmax - 1))
+    img = cmap(label / (n_class - 1))
     # If label is invalid, alpha = 0.
     # Otherwise, alpha = alpha
     img[:, :, 3] = np.where(label >= 0, alpha, 0)
