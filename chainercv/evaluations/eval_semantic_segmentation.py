@@ -16,18 +16,18 @@ def _to_cpu(arrays, xp):
     return out_arrays
 
 
-def _fast_hist(pred_label, gt_label, n_class):
+def _fast_hist(pred_labels, gt_labels, n_class):
     # Construct histogram for label evaluation.
 
-    mask = (gt_label >= 0) & (gt_label < n_class)
+    mask = (gt_labels >= 0) & (gt_labels < n_class)
     # an array of shape (n_class, n_class)
     hist = np.bincount(
-        n_class * gt_label[mask].astype(int) +
-        pred_label[mask], minlength=n_class**2).reshape(n_class, n_class)
+        n_class * gt_labels[mask].astype(int) +
+        pred_labels[mask], minlength=n_class**2).reshape(n_class, n_class)
     return hist
 
 
-def eval_semantic_segmentation(pred_label, gt_label, n_class):
+def eval_semantic_segmentation(pred_labels, gt_labels, n_class):
     """Evaluate results of semantic segmentation.
 
     This function measures four metrics: pixel accuracy,
@@ -58,7 +58,7 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
     The more detailed descriptions on the above metrics can be found at a
     review on semantic segmentation [#]_.
 
-    Types of :obj:`pred_label` and :obj:`gt_label` need to be same.
+    Types of :obj:`pred_labels` and :obj:`gt_labels` need to be same.
     The outputs are same type as the inputs.
 
     .. [#] Alberto Garcia-Garcia, Sergio Orts-Escolano, Sergiu Oprea, \
@@ -67,17 +67,16 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
     <https://arxiv.org/abs/1704.06857>`_. arXiv 2017.
 
     Args:
-        pred_label (iterable of arrays or array): A collection of predicted
-            labels. This is an interable of labels or a single label.
-            An array of label has shape :math:`H, W`.
-            :math:`H` and :math:`W`
+        pred_labels (iterable of arrays): A collection of predicted
+            labels. This is a batch of labels whose shape is :math:`(N, H, W)`
+            or a list containing :math:`N` labels. An array of label has shape
+            :math:`H, W`. :math:`H` and :math:`W`
             are height and width of the images. We assume that there are
             :math:`N` labels.
-        gt_label (iterable of arrays or array): A collection of the ground
-            truth labels. This is an iterable of labels or a single label.
-            Its organized similarly to :obj:`pred_label`. A pixel with value
+        gt_labels (iterable of arrays or array): A collection of the ground
+            truth labels.
+            Its organized similarly to :obj:`pred_labels`. A pixel with value
             "-1" will be ignored during evaluation.
-            We assume that there are :math:`N` labels.
         n_class (int): Number of classes.
 
     Returns:
@@ -90,20 +89,20 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
     # Evaluation code is based on
     # https://github.com/shelhamer/fcn.berkeleyvision.org/blob/master/
     # score.py#L37
-    xp = cuda.get_array_module(pred_label[0], gt_label[0])
-    if isinstance(pred_label, xp.ndarray) and pred_label.ndim == 2:
-        pred_label = [pred_label]
-    if isinstance(gt_label, xp.ndarray) and gt_label.ndim == 2:
-        gt_label = [gt_label]
-    pred_label = _to_cpu(pred_label, xp)
-    gt_label = _to_cpu(gt_label, xp)
-    N = len(pred_label)
+    xp = cuda.get_array_module(pred_labels[0], gt_labels[0])
+    if (isinstance(pred_labels, xp.ndarray) and pred_labels.ndim != 3
+            or isinstance(gt_labels, xp.ndarray) and gt_labels.ndim != 3):
+        raise ValueError('If batch of arrays are given, they have '
+                         'to have dimension 3')
+    pred_labels = _to_cpu(pred_labels, xp)
+    gt_labels = _to_cpu(gt_labels, xp)
+    N = len(pred_labels)
 
-    if len(pred_label) != len(gt_label):
+    if len(pred_labels) != len(gt_labels):
         raise ValueError('Number of the predicted labels and the'
                          'ground truth labels are different')
     for i in six.moves.range(N):
-        if pred_label[i].shape != gt_label[i].shape:
+        if pred_labels[i].shape != gt_labels[i].shape:
             raise ValueError('Shape of a prediction and'
                              'the ground truth should match')
 
@@ -113,7 +112,7 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
     fwavacc = np.zeros((N,))
     for i in six.moves.range(N):
         hist = _fast_hist(
-            pred_label[i].flatten(), gt_label[i].flatten(), n_class)
+            pred_labels[i].flatten(), gt_labels[i].flatten(), n_class)
         acc[i] = np.diag(hist).sum() / hist.sum()
         with np.errstate(divide='ignore', invalid='ignore'):
             acc_cls_i = np.diag(hist) / hist.sum(axis=1)
