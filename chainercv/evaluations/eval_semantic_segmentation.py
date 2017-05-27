@@ -69,13 +69,13 @@ def eval_semantic_segmentation(pred_labels, gt_labels, n_class):
     Args:
         pred_labels (iterable of arrays): A collection of predicted
             labels. This is a batch of labels whose shape is :math:`(N, H, W)`
-            or a list containing :math:`N` labels. An array of label has shape
-            :math:`H, W`. :math:`H` and :math:`W`
+            or a list containing :math:`N` labels. The shape of a label array
+            is :math:`(H, W)`. :math:`H` and :math:`W`
             are height and width of the label. We assume that there are
             :math:`N` labels.
         gt_labels (iterable of arrays): A collection of the ground
             truth labels.
-            Its organized similarly to :obj:`pred_labels`. A pixel with value
+            It is organized similarly to :obj:`pred_labels`. A pixel with value
             "-1" will be ignored during evaluation.
         n_class (int): Number of classes.
 
