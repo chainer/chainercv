@@ -2,6 +2,7 @@
 *.egg-info/
 *.egg/
 *.pyc
+*.c
 *.cpp
 *.so
 build
@@ -11,15 +12,5 @@ build
 dist/
 .cache/
 check_autopep8
-.sync-config.cson
-.idea/
-
-chainercv/utils/bbox/_nms_gpu_post.c
-
-examples/segnet/result/
-examples/segnet/class_weight.npy
-
-examples/image_retrieval/triplet/result/
-examples/image_classification/tensorboard/result/
 
 tests/bin/
