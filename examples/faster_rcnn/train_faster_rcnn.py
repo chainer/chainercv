@@ -93,7 +93,6 @@ def main():
          'main/roi_cls_loss',
          'main/rpn_loc_loss',
          'main/rpn_cls_loss',
-         'map'
          ]), trigger=print_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
