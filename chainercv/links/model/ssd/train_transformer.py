@@ -15,6 +15,8 @@ class TrainTransformer(object):
     def __call__(self, in_data):
         img, bbox, label = in_data
 
+        # a lot of augmentations come here
+
         _, H, W = img.shape
         x = transforms.resize(img, (self.insize, self.insize))
         x -= np.array(self.mean)[:, np.newaxis, np.newaxis]
