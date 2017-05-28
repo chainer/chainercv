@@ -34,21 +34,25 @@ def main():
         model.to_gpu(args.gpu)
 
     test = CamVidDataset(split='test')
+    it = chainer.iterators.SerialIterator(test, batch_size=args.batchsize,
+                                          repeat=False, shuffle=False)
 
     n_positive = [0 for _ in range(n_class)]
     n_true = [0 for _ in range(n_class)]
     n_true_positive = [0 for _ in range(n_class)]
-    for i in range(0, len(test), args.batchsize):
-        img, label = concat_examples(test[i:i + args.batchsize], args.gpu)
+    for batch in it:
+        img, gt_label = concat_examples(batch, args.gpu)
         img = chainer.Variable(img, volatile=True)
-        y = F.argmax(F.softmax(model(img)), axis=1)
-        y, t = cuda.to_cpu(y.data), cuda.to_cpu(label)
+        pred_label = F.argmax(F.softmax(model(img)), axis=1)
+        pred_label = cuda.to_cpu(pred_label.data)
+        gt_label = cuda.to_cpu(gt_label)
         for cls_i in range(n_class):
             if cls_i in ignore_labels:
                 continue
-            n_positive[cls_i] += np.sum(y == cls_i)
-            n_true[cls_i] += np.sum(t == cls_i)
-            n_true_positive[cls_i] += np.sum((y == cls_i) * (t == cls_i))
+            n_positive[cls_i] += np.sum(pred_label == cls_i)
+            n_true[cls_i] += np.sum(gt_label == cls_i)
+            n_true_positive[cls_i] += np.sum(
+                (pred_label == cls_i) * (gt_label == cls_i))
 
     ious = []
     class_ave_acc = []
