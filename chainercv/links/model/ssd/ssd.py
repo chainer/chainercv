@@ -4,6 +4,7 @@ import numpy as np
 
 import chainer
 
+from chainercv.links.model.ssd import decode_with_default_bbox
 from chainercv.links.model.ssd import generate_default_bbox
 from chainercv import transforms
 from chainercv import utils
@@ -81,7 +82,7 @@ class SSD(chainer.Chain):
 
         super(SSD, self).__init__(extractor=extractor, multibox=multibox)
 
-        self._default_bbox = generate_default_bbox(
+        self.default_bbox = generate_default_bbox(
             extractor.grids, multibox.aspect_ratios, steps, sizes)
 
     @property
@@ -94,17 +95,17 @@ class SSD(chainer.Chain):
 
     def to_cpu(self):
         super(SSD, self).to_cpu()
-        self._default_bbox = chainer.cuda.to_cpu(self._default_bbox)
+        self.default_bbox = chainer.cuda.to_cpu(self.default_bbox)
 
     def to_gpu(self, device=None):
         super(SSD, self).to_gpu(device)
-        self._default_bbox = chainer.cuda.to_gpu(
-            self._default_bbox, device=device)
+        self.default_bbox = chainer.cuda.to_gpu(
+            self.default_bbox, device=device)
 
     def __call__(self, x):
         """Compute localization and classification from a batch of images.
 
-        This method computes two variables, :obj:`loc` and :obj:`conf`.
+        This method computes two variables, :obj:`locs` and :obj:`confs`.
         :meth:`_decode` converts these variables to bounding box coordinates
         and confidence scores.
         These variables are also used in training SSD.
@@ -115,62 +116,17 @@ class SSD(chainer.Chain):
 
         Returns:
             tuple of chainer.Variable:
-            This method returns two variables, :obj:`loc` and :obj:`conf`.
+            This method returns two variables, :obj:`locs` and :obj:`confs`.
 
-            * **loc**: A variable of float arrays of shape :math:`(B, K, 4)`, \
+            * **locs**: A variable of float arrays of shape \
+                :math:`(B, K, 4)`, \
                 where :math:`B` is the number of samples in the batch and \
                 ::math:`K` is the number of default bounding boxes.
-            * **conf**: A variable of float arrays of shape \
+            * **confs**: A variable of float arrays of shape \
                 :math:`(B, K, n\_fg\_class + 1)`.
         """
 
         return self.multibox(self.extractor(x))
-
-    def _decode(self, loc, conf):
-        xp = self.xp
-        # the format of bbox is (center_x, center_y, width, height)
-        bboxes = xp.dstack((
-            self._default_bbox[:, :2] +
-            loc[:, :, :2] * self.variance[0] * self._default_bbox[:, 2:],
-            self._default_bbox[:, 2:] *
-            xp.exp(loc[:, :, 2:] * self.variance[1])))
-        # convert the format of bbox to (x_min, y_min, x_max, y_max)
-        bboxes[:, :, :2] -= bboxes[:, :, 2:] / 2
-        bboxes[:, :, 2:] += bboxes[:, :, :2]
-        scores = xp.exp(conf)
-        scores /= scores.sum(axis=2, keepdims=True)
-        return bboxes, scores
-
-    def _suppress(self, raw_bbox, raw_score):
-        xp = self.xp
-
-        bbox = list()
-        label = list()
-        score = list()
-        for l in range(self.n_fg_class):
-            bbox_l = raw_bbox
-            # the l-th class corresponds for the (l + 1)-th column.
-            score_l = raw_score[:, l + 1]
-
-            mask = score_l >= self.score_thresh
-            bbox_l = bbox_l[mask]
-            score_l = score_l[mask]
-
-            if self.nms_thresh is not None:
-                indices = utils.non_maximum_suppression(
-                    bbox_l, self.nms_thresh, score_l)
-                bbox_l = bbox_l[indices]
-                score_l = score_l[indices]
-
-            bbox.append(bbox_l)
-            label.append(xp.array((l,) * len(bbox_l)))
-            score.append(score_l)
-
-        bbox = xp.vstack(bbox)
-        label = xp.hstack(label).astype(int)
-        score = xp.hstack(score)
-
-        return bbox, label, score
 
     def _prepare(self, img):
         img = img.astype(np.float32)
@@ -243,15 +199,17 @@ class SSD(chainer.Chain):
             sizes.append((W, H))
 
         x = chainer.Variable(self.xp.stack(x), volatile=chainer.flag.ON)
-        loc, conf = self(x)
-        raw_bboxes, raw_scores = self._decode(loc.data, conf.data)
+        locs, confs = self(x)
+        locs, confs = locs.data, confs.data
 
         bboxes = list()
         labels = list()
         scores = list()
-        for raw_bbox, raw_score, size in zip(raw_bboxes, raw_scores, sizes):
-            raw_bbox = transforms.resize_bbox(raw_bbox, (1, 1), size)
-            bbox, label, score = self._suppress(raw_bbox, raw_score)
+        for loc, conf, size in zip(locs, confs, sizes):
+            bbox, label, score = decode_with_default_bbox(
+                loc, conf, self.default_bbox,
+                self.variance, self.nms_thresh, self.score_thresh)
+            bbox = transforms.resize_bbox(bbox, (1, 1), size)
             bboxes.append(chainer.cuda.to_cpu(bbox))
             labels.append(chainer.cuda.to_cpu(label))
             scores.append(chainer.cuda.to_cpu(score))

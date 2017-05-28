@@ -3,6 +3,10 @@ from __future__ import division
 import itertools
 import numpy as np
 
+import chainer
+
+from chainercv import utils
+
 
 def generate_default_bbox(grids, aspect_ratios, steps, sizes):
     """Generate a set of default bounding boxes.
@@ -64,3 +68,46 @@ def generate_default_bbox(grids, aspect_ratios, steps, sizes):
 
     default_bbox = np.stack(default_bbox)
     return default_bbox
+
+
+def decode_with_default_bbox(
+        loc, conf, default_bbox, variance, nms_thresh, score_thresh):
+    xp = chainer.cuda.get_array_module(loc, conf, default_bbox)
+
+    # the format of raw_bbox is (center_x, center_y, width, height)
+    raw_bbox = xp.hstack((
+        default_bbox[:, :2] + loc[:, :2] * variance[0] * default_bbox[:, 2:],
+        default_bbox[:, 2:] * xp.exp(loc[:, 2:] * variance[1])))
+    # convert the format of raw_bbox to (x_min, y_min, x_max, y_max)
+    raw_bbox[:, :2] -= raw_bbox[:, 2:] / 2
+    raw_bbox[:, 2:] += raw_bbox[:, :2]
+    raw_score = xp.exp(conf)
+    raw_score /= raw_score.sum(axis=1, keepdims=True)
+
+    bbox = list()
+    label = list()
+    score = list()
+    for l in range(conf.shape[1] - 1):
+        bbox_l = raw_bbox
+        # the l-th class corresponds for the (l + 1)-th column.
+        score_l = raw_score[:, l + 1]
+
+        mask = score_l >= score_thresh
+        bbox_l = bbox_l[mask]
+        score_l = score_l[mask]
+
+        if nms_thresh is not None:
+            indices = utils.non_maximum_suppression(
+                bbox_l, nms_thresh, score_l)
+            bbox_l = bbox_l[indices]
+            score_l = score_l[indices]
+
+        bbox.append(bbox_l)
+        label.append(xp.array((l,) * len(bbox_l)))
+        score.append(score_l)
+
+    bbox = xp.vstack(bbox)
+    label = xp.hstack(label).astype(int)
+    score = xp.hstack(score)
+
+    return bbox, label, score
