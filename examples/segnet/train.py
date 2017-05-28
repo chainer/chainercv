@@ -62,10 +62,10 @@ def main():
         val, args.batchsize, shuffle=False, repeat=False)
 
     # Model
-    class_weight = np.load(args.class_weight)[:11]
+    class_weight = np.load(args.class_weight)
     model = SegNetBasic(n_class=11)
     model = PixelwiseSoftmaxClassifier(
-        model, ignore_label=11, class_weight=class_weight)
+        model, class_weight=class_weight)
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()  # Make a specified GPU current
         model.to_gpu()  # Copy the model to the GPU

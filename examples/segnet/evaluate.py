@@ -59,9 +59,9 @@ def main():
     args = parser.parse_args()
 
     n_class = 11
-    ignore_labels = [11]
+    ignore_labels = [-1]
 
-    model = SegNetBasic(n_class=11)
+    model = SegNetBasic(n_class=n_class)
     serializers.load_npz(args.snapshot, model)
     model = calc_bn_statistics(model, args.gpu)
     model.train = False
