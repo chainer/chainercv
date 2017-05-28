@@ -1,3 +1,5 @@
+from chainercv.datasets.coco.coco_detection_dataset import coco_detection_label_names  # NOQA
+from chainercv.datasets.coco.coco_detection_dataset import COCODetectionDataset  # NOQA
 from chainercv.datasets.cub.cub_keypoint_dataset import CUBKeypointDataset  # NOQA
 from chainercv.datasets.cub.cub_label_dataset import CUBLabelDataset  # NOQA
 from chainercv.datasets.online_products.online_products_dataset import OnlineProductsDataset  # NOQA
