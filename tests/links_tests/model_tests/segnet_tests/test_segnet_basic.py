@@ -32,6 +32,7 @@ class TestSegNetBasic(unittest.TestCase):
     def test_call_cpu(self):
         self.check_call()
 
+    @attr.gpu
     def test_call_gpu(self):
         self.link.to_gpu()
         self.check_call()
@@ -55,9 +56,10 @@ class TestSegNetBasic(unittest.TestCase):
     def test_predict_cpu(self):
         self.check_predict()
 
+    @attr.gpu
     def test_predict_gpu(self):
         self.link.to_gpu()
-        self.check_call()
+        self.check_predict()
 
 
 testing.run_module(__name__, __file__)

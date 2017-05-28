@@ -174,10 +174,11 @@ class SegNetBasic(chainer.Chain):
             x = chainer.Variable(
                 self.xp.asarray(img[np.newaxis]), volatile=chainer.flag.ON)
             score = self.__call__(x)[0].data
+            score = chainer.cuda.to_cpu(score)
             if score.shape != (C, H, W):
                 dtype = score.dtype
                 score = resize(score, (W, H)).astype(dtype)
 
-            label = self.xp.argmax(score, axis=0)
+            label = np.argmax(score, axis=0)
             labels.append(label)
         return labels
