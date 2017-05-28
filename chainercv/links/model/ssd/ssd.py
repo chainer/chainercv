@@ -134,7 +134,7 @@ class SSD(chainer.Chain):
                 where :math:`B` is the number of samples in the batch and \
                 ::math:`K` is the number of default bounding boxes.
             * **conf**: A variable of float arrays of shape \
-                :math:`(B, K, n\_fg\_class)`.
+                :math:`(B, K, n\_fg\_class + 1)`.
         """
 
         return self.multibox(self.extractor(x))
