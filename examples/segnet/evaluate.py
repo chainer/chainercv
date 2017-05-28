@@ -55,8 +55,8 @@ def main():
                 (pred_label == cls_i) * (gt_label == cls_i))
 
     ious = []
-    class_ave_acc = []
-    global_ave_acc = []
+    mean_accs = []
+    pixel_accs = []
     for cls_i in range(n_class):
         if cls_i in ignore_labels:
             continue
@@ -65,17 +65,17 @@ def main():
         ious.append(iou)
         print('{:>23} : {:.4f}'.format(camvid_label_names[cls_i], iou))
 
-        class_ave_acc.append(n_true_positive[cls_i] / n_true[cls_i])
-        global_ave_acc.append([n_true_positive[cls_i], n_true[cls_i]])
+        mean_accs.append(n_true_positive[cls_i] / n_true[cls_i])
+        pixel_accs.append([n_true_positive[cls_i], n_true[cls_i]])
 
     print('=' * 34)
     print('{:>23} : {:.4f}'.format('mean IoU', np.mean(ious)))
     print('{:>23} : {:.4f}'.format(
-        'Class average accuracy', np.mean(class_ave_acc)))
-    global_ave_acc = np.asarray(global_ave_acc)
-    global_ave_acc = global_ave_acc[:, 0].sum() / global_ave_acc[:, 1].sum()
+        'Class average accuracy', np.mean(mean_accs)))
+    pixel_accs = np.asarray(pixel_accs)
+    pixel_accs = pixel_accs[:, 0].sum() / pixel_accs[:, 1].sum()
     print('{:>23} : {:.4f}'.format(
-        'Global average accuracy', global_ave_acc))
+        'Global average accuracy', pixel_accs))
 
 
 if __name__ == '__main__':
