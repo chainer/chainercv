@@ -47,6 +47,7 @@ class SegNetBasic(chainer.Chain):
             where :obj:`$CHAINER_DATASET_ROOT` is set as
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
+        initialW (callable): Initializer for convolution layers.
 
     """
 
