@@ -1,12 +1,13 @@
 import argparse
 
 import chainer
+from chainer.datasets import TransformDataset
 from chainer import training
 from chainer.training import extensions
 from chainer.training import triggers
 
-from chainercv.datasets import TransformDataset
 from chainercv.datasets import VOCDetectionDataset
+from chainercv.links.model.ssd import ConcatenatedDataset
 from chainercv.links.model.ssd import MultiboxTrainChain
 from chainercv.links.model.ssd import TrainTransformer
 from chainercv.links import SSD300
@@ -31,7 +32,10 @@ def main():
         model.variance)
 
     dataset = TransformDataset(
-        VOCDetectionDataset(year='2012', split='trainval'),
+        ConcatenatedDataset(
+            VOCDetectionDataset(year='2007', split='trainval'),
+            VOCDetectionDataset(year='2012', split='trainval')
+        ),
         transformer)
 
     iterator = chainer.iterators.MultiprocessIterator(
