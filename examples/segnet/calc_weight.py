@@ -8,17 +8,14 @@ from chainercv.datasets import CamVidDataset
 n_class = 12
 dataset = CamVidDataset(split='train')
 
-n_cls_pixels = [0 for _ in range(n_class)]
-n_img_pixels = [0 for _ in range(n_class)]
+n_cls_pixels = np.zeros((n_class,))
+n_img_pixels = np.zeros((n_class,))
 
-for img, lbl in dataset:
-    for cls_i in np.unique(lbl):
-        n_cls_pixels[cls_i] += np.sum(lbl == cls_i)
-        n_img_pixels[cls_i] += lbl.size
-freq = []
-for n_cls_pixel, n_img_pixel in zip(n_cls_pixels, n_img_pixels):
-    freq.append(n_cls_pixel / n_img_pixel)
-freq = np.array(freq)
+for img, label in dataset:
+    for cls_i in np.unique(label):
+        n_cls_pixels[cls_i] += np.sum(label == cls_i)
+        n_img_pixels[cls_i] += label.size
+freq = n_cls_pixels / n_img_pixels
 median_freq = np.median(freq)
 
 np.save('class_weight', median_freq / freq)
