@@ -22,7 +22,7 @@ camvid_label_names = (
     'Pavement',
     'Tree',
     'SignSymbol',
-    'Fence,'
+    'Fence',
     'Car',
     'Pedestrian',
     'Bicyclist',
