@@ -53,7 +53,6 @@ class TestSSD(unittest.TestCase):
 
     def _check_default_bbox(self):
         self.assertIsInstance(self.link._default_bbox, self.link.xp.ndarray)
-        self.assertEqual(self.link._default_bbox.shape, (self.n_bbox, 4))
 
     def test_default_bbox_cpu(self):
         self._check_default_bbox()

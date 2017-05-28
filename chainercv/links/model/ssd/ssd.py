@@ -5,6 +5,7 @@ import numpy as np
 
 import chainer
 
+from chainercv.links.model.ssd import generate_default_bbox
 from chainercv import transforms
 from chainercv import utils
 
@@ -27,7 +28,8 @@ class SSD(chainer.Chain):
             the size of input images. Images are resized to this size before \
             feature extraction.
             * :obj:`grids`: An iterable of integer. Each integer indicates \
-            the size of feature map.
+            the size of feature map. This value is used by
+            :func:`~chainercv.links.model.ssd.generate_default_bbox`.
             * :meth:`__call_`: A method which computes feature maps. \
             It must take a batched images and return batched feature maps.
         multibox: A link which computes loc and conf from feature maps.
@@ -39,14 +41,18 @@ class SSD(chainer.Chain):
             This value should include the background class.
             * :obj:`aspect_ratios`: An iterable of tuple of integer. \
             Each tuple indicates the aspect ratios of default bounding boxes \
-            at each feature maps.
+            at each feature maps. This value is used by
+            :func:`~chainercv.links.model.ssd.generate_default_bbox`.
             * :meth:`__call__`: A method which computes \
             :obj:`loc` and :obj:`conf`. \
             It must take a batched feature maps and \
             return :obj:`loc` and :obj:`conf`.
         steps (iterable of float): The step size for each feature map.
+            This value is used by
+            :func:`~chainercv.links.model.ssd.generate_default_bbox`.
         sizes (iterable of float): The base size of default bounding boxes
-            for each feature map.
+            for each feature map. This value is used by
+            :func:`~chainercv.links.model.ssd.generate_default_bbox`.
         variance (tuple of float): Two coefficients for encoding
             the locations of bounding boxe. The first value is used to
             encode coordinates of the centers. The second value is used to
@@ -76,26 +82,8 @@ class SSD(chainer.Chain):
 
         super(SSD, self).__init__(extractor=extractor, multibox=multibox)
 
-        # the format of default_bbox is (center_x, center_y, width, height)
-        self._default_bbox = list()
-        for k, grid in enumerate(extractor.grids):
-            for v, u in itertools.product(range(grid), repeat=2):
-                cx = (u + 0.5) * steps[k]
-                cy = (v + 0.5) * steps[k]
-
-                s = sizes[k]
-                self._default_bbox.append((cx, cy, s, s))
-
-                s = np.sqrt(sizes[k] * sizes[k + 1])
-                self._default_bbox.append((cx, cy, s, s))
-
-                s = sizes[k]
-                for ar in multibox.aspect_ratios[k]:
-                    self._default_bbox.append(
-                        (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
-                    self._default_bbox.append(
-                        (cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
-        self._default_bbox = np.stack(self._default_bbox)
+        self._default_bbox = generate_default_bbox(
+            extractor.grids, multibox.aspect_ratios, steps, sizes)
 
     @property
     def insize(self):
