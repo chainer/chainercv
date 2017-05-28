@@ -128,8 +128,8 @@ class ProposalTargetCreator(object):
 
         # Compute offsets and scales to match sampled RoIs to the GTs.
         gt_roi_loc = bbox2loc(sample_roi, bbox[gt_assignment[keep_index]])
-        gt_roi_loc = ((gt_roi_loc - np.array(loc_normalize_mean)
-                       ) / np.array(loc_normalize_std))
+        gt_roi_loc = ((gt_roi_loc - np.array(loc_normalize_mean, np.float32)
+                       ) / np.array(loc_normalize_std, np.float32))
 
         if xp != np:
             sample_roi = cuda.to_gpu(sample_roi)
