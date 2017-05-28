@@ -44,7 +44,6 @@ class FasterRCNNTrainChain(chainer.Chain):
         self.anchor_target_creator = anchor_target_creator
         self.proposal_target_creator = proposal_target_creator
 
-        self.n_class = faster_rcnn.n_class
         self.loc_normalize_mean = faster_rcnn.loc_normalize_mean
         self.loc_normalize_std = faster_rcnn.loc_normalize_std
 
