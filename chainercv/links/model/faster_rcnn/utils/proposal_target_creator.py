@@ -18,7 +18,7 @@ class ProposalTargetCreator(object):
     Region Proposal Networks. NIPS 2015.
 
     Args:
-        batch_size (int): Number of regions to produce.
+        n_sample (int): Number of regions to produce.
         fg_fraction (float): Fraction of regions that is labeled foreground.
         fg_thresh (float): IoU threshold for a ROI to be considered
             foreground.
@@ -29,11 +29,11 @@ class ProposalTargetCreator(object):
     """
 
     def __init__(self,
-                 batch_size=128,
+                 n_sample=128,
                  fg_fraction=0.25,
                  fg_thresh=0.5, bg_thresh_hi=0.5, bg_thresh_lo=0.0
                  ):
-        self.batch_size = batch_size
+        self.n_sample = n_sample
         self.fg_fraction = fg_fraction
         self.fg_thresh = fg_thresh
         self.bg_thresh_hi = bg_thresh_hi
@@ -44,11 +44,11 @@ class ProposalTargetCreator(object):
                  loc_normalize_std=(0.1, 0.1, 0.2, 0.2)):
         """Assigns labels to sampled proposals from RPN.
 
-        This samples total of :obj:`self.batch_size` RoIs from concatenated
+        This samples total of :obj:`self.n_sample` RoIs from concatenated
         list of bounding boxes from :obj:`roi` and :obj:`bbox`.
         The RoIs are assigned with the ground truth class labels and bounding
         box offsets.
-        As many as :obj:`fg_fraction * self.batch_size` RoIs are
+        As many as :obj:`fg_fraction * self.n_sample` RoIs are
         sampled with foreground label assignments.
 
         The second axis of the bounding box arrays contain coordinates
@@ -61,7 +61,7 @@ class ProposalTargetCreator(object):
         Here are notations.
 
         * :math:`S` is the total number of sampled RoIs, which equals \
-            :obj:`self.batch_size`.
+            :obj:`self.n_sample`.
         * :math:`L` is number of object classes possibly including the \
             background.
 
@@ -98,7 +98,7 @@ class ProposalTargetCreator(object):
 
         roi = np.concatenate((roi, bbox), axis=0)
 
-        fg_roi_per_image = np.round(self.batch_size * self.fg_fraction)
+        fg_roi_per_image = np.round(self.n_sample * self.fg_fraction)
         iou = bbox_iou(roi, bbox)
         gt_assignment = iou.argmax(axis=1)
         max_iou = iou.max(axis=1)
@@ -114,7 +114,7 @@ class ProposalTargetCreator(object):
         # Select background RoIs as those within [BG_THRESH_LO, BG_THRESH_HI).
         bg_index = np.where((max_iou < self.bg_thresh_hi) &
                             (max_iou >= self.bg_thresh_lo))[0]
-        bg_roi_per_this_image = self.batch_size - fg_roi_per_this_image
+        bg_roi_per_this_image = self.n_sample - fg_roi_per_this_image
         bg_roi_per_this_image = int(min(bg_roi_per_this_image, bg_index.size))
         if bg_index.size > 0:
             bg_index = np.random.choice(

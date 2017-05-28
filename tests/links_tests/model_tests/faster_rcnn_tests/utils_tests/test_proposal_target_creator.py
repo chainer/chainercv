@@ -22,7 +22,7 @@ def _generate_bbox(n, img_size, min_length, max_length):
 
 class TestProposalTargetCreator(unittest.TestCase):
 
-    batch_size = 128
+    n_sample = 128
     n_class = 21
     fg_fraction = 0.25
 
@@ -36,7 +36,7 @@ class TestProposalTargetCreator(unittest.TestCase):
             0, self.n_class, size=(n_bbox,), dtype=np.int32)
 
         self.proposal_target_creator = ProposalTargetCreator(
-            batch_size=self.batch_size,
+            n_sample=self.n_sample,
             fg_fraction=self.fg_fraction,
         )
 
@@ -56,16 +56,16 @@ class TestProposalTargetCreator(unittest.TestCase):
         gt_roi_label = cuda.to_cpu(gt_roi_label)
 
         # Test shapes
-        self.assertEqual(sample_roi.shape, (self.batch_size, 4))
-        self.assertEqual(gt_roi_loc.shape, (self.batch_size, 4))
-        self.assertEqual(gt_roi_label.shape, (self.batch_size,))
+        self.assertEqual(sample_roi.shape, (self.n_sample, 4))
+        self.assertEqual(gt_roi_loc.shape, (self.n_sample, 4))
+        self.assertEqual(gt_roi_label.shape, (self.n_sample,))
 
         # Test foreground and background labels
-        np.testing.assert_equal(np.sum(gt_roi_label >= 0), self.batch_size)
+        np.testing.assert_equal(np.sum(gt_roi_label >= 0), self.n_sample)
         n_fg = np.sum(gt_roi_label >= 1)
         n_bg = np.sum(gt_roi_label == 0)
-        self.assertLessEqual(n_fg, self.batch_size * self.fg_fraction)
-        self.assertLessEqual(n_bg, self.batch_size - n_fg)
+        self.assertLessEqual(n_fg, self.n_sample * self.fg_fraction)
+        self.assertLessEqual(n_bg, self.n_sample - n_fg)
 
     def test_proposal_target_creator_cpu(self):
         self.check_proposal_target_creator(
