@@ -31,18 +31,18 @@ class TestMultibox(unittest.TestCase):
         self.n_bbox = n_bbox
 
     def _check_forward(self, xs):
-        loc, conf = self.link(xs)
+        locs, confs = self.link(xs)
 
-        self.assertIsInstance(loc, chainer.Variable)
-        self.assertIsInstance(loc.data, type(xs[0]))
-        self.assertEqual(loc.shape, (self.batchsize, self.n_bbox, 4))
-        self.assertEqual(loc.dtype, xs[0].dtype)
+        self.assertIsInstance(locs, chainer.Variable)
+        self.assertIsInstance(locs.data, type(xs[0]))
+        self.assertEqual(locs.shape, (self.batchsize, self.n_bbox, 4))
+        self.assertEqual(locs.dtype, xs[0].dtype)
 
-        self.assertIsInstance(conf, chainer.Variable)
-        self.assertIsInstance(conf.data, type(xs[0]))
+        self.assertIsInstance(confs, chainer.Variable)
+        self.assertIsInstance(confs.data, type(xs[0]))
         self.assertEqual(
-            conf.shape, (self.batchsize, self.n_bbox, self.n_class))
-        self.assertEqual(conf.dtype, xs[0].dtype)
+            confs.shape, (self.batchsize, self.n_bbox, self.n_class))
+        self.assertEqual(confs.dtype, xs[0].dtype)
 
     def test_forward_cpu(self):
         self._check_forward(self.xs)

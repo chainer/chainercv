@@ -22,61 +22,61 @@ from chainercv.links.model.ssd import multibox_loss
 class TestMultiboxLoss(unittest.TestCase):
 
     def setUp(self):
-        self.x_loc = np.random.uniform(
+        self.x_locs = np.random.uniform(
             -10, 10, size=(self.batchsize, self.n_bbox, 4)) \
             .astype(np.float32)
-        self.x_conf = np.random.uniform(
+        self.x_confs = np.random.uniform(
             -50, 50, size=(self.batchsize, self.n_bbox, self.n_class)) \
             .astype(np.float32)
 
-        self.t_loc = np.random.uniform(
+        self.t_locs = np.random.uniform(
             -10, 10, size=(self.batchsize, self.n_bbox, 4)) \
             .astype(np.float32)
-        self.t_conf = np.random.randint(
+        self.t_confs = np.random.randint(
             self.n_class, size=(self.batchsize, self.n_bbox)) \
             .astype(np.int32)
         # increase negative samples
-        self.t_conf[np.random.uniform(size=self.t_conf.shape) > 0.1] = 0
+        self.t_confs[np.random.uniform(size=self.t_confs.shape) > 0.1] = 0
 
-    def _check_forward(self, x_loc, x_conf, t_loc, t_conf, k):
-        x_loc = chainer.Variable(x_loc)
-        x_conf = chainer.Variable(x_conf)
-        t_loc = chainer.Variable(t_loc)
-        t_conf = chainer.Variable(t_conf)
+    def _check_forward(self, x_locs, x_confs, t_locs, t_confs, k):
+        x_locs = chainer.Variable(x_locs)
+        x_confs = chainer.Variable(x_confs)
+        t_locs = chainer.Variable(t_locs)
+        t_confs = chainer.Variable(t_confs)
 
         loc_loss, conf_loss = multibox_loss(
-            x_loc, x_conf, t_loc, t_conf, k)
+            x_locs, x_confs, t_locs, t_confs, k)
 
         self.assertIsInstance(loc_loss, chainer.Variable)
-        self.assertIsInstance(loc_loss.data, type(x_loc.data))
+        self.assertIsInstance(loc_loss.data, type(x_locs.data))
         self.assertEqual(loc_loss.shape, ())
-        self.assertEqual(loc_loss.dtype, x_loc.dtype)
+        self.assertEqual(loc_loss.dtype, x_locs.dtype)
 
         self.assertIsInstance(conf_loss, chainer.Variable)
-        self.assertIsInstance(conf_loss.data, type(x_conf.data))
+        self.assertIsInstance(conf_loss.data, type(x_confs.data))
         self.assertEqual(conf_loss.shape, ())
-        self.assertEqual(conf_loss.dtype, x_conf.dtype)
+        self.assertEqual(conf_loss.dtype, x_confs.dtype)
 
-        x_loc = cuda.to_cpu(x_loc.data)
-        x_conf = cuda.to_cpu(x_conf.data)
-        t_loc = cuda.to_cpu(t_loc.data)
-        t_conf = cuda.to_cpu(t_conf.data)
+        x_locs = cuda.to_cpu(x_locs.data)
+        x_confs = cuda.to_cpu(x_confs.data)
+        t_locs = cuda.to_cpu(t_locs.data)
+        t_confs = cuda.to_cpu(t_confs.data)
         loc_loss = cuda.to_cpu(loc_loss.data)
         conf_loss = cuda.to_cpu(conf_loss.data)
 
         n_positive_total = 0
         expect_loc_loss = 0
         expect_conf_loss = 0
-        for i in six.moves.xrange(t_conf.shape[0]):
+        for i in six.moves.xrange(t_confs.shape[0]):
             n_positive = 0
             negatives = list()
-            for j in six.moves.xrange(t_conf.shape[1]):
+            for j in six.moves.xrange(t_confs.shape[1]):
                 loc = F.huber_loss(
-                    x_loc[np.newaxis, i, j], t_loc[np.newaxis, i, j], 1).data
+                    x_locs[np.newaxis, i, j], t_locs[np.newaxis, i, j], 1).data
                 conf = F.softmax_cross_entropy(
-                    x_conf[np.newaxis, i, j], t_conf[np.newaxis, i, j]).data
+                    x_confs[np.newaxis, i, j], t_confs[np.newaxis, i, j]).data
 
-                if t_conf[i, j] > 0:
+                if t_confs[i, j] > 0:
                     n_positive += 1
                     expect_loc_loss += loc
                     expect_conf_loss += conf
@@ -101,13 +101,13 @@ class TestMultiboxLoss(unittest.TestCase):
 
     def test_forward_cpu(self):
         self._check_forward(
-            self.x_loc, self.x_conf, self.t_loc, self.t_conf, self.k)
+            self.x_locs, self.x_confs, self.t_locs, self.t_confs, self.k)
 
     @attr.gpu
     def test_forward_gpu(self):
         self._check_forward(
-            cuda.to_gpu(self.x_loc), cuda.to_gpu(self.x_conf),
-            cuda.to_gpu(self.t_loc), cuda.to_gpu(self.t_conf),
+            cuda.to_gpu(self.x_locs), cuda.to_gpu(self.x_confs),
+            cuda.to_gpu(self.t_locs), cuda.to_gpu(self.t_confs),
             self.k)
 
 
