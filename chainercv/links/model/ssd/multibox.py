@@ -71,21 +71,21 @@ class Multibox(chainer.Chain):
             :obj:`conf` is an array whose shape is :math:`(R, n\_class)`
         """
 
-        ys_loc = list()
-        ys_conf = list()
+        locs = list()
+        confs = list()
         for i, x in enumerate(xs):
             loc = self.loc[i](x)
             loc = F.transpose(loc, (0, 2, 3, 1))
             loc = F.reshape(loc, (loc.shape[0], -1, 4))
-            ys_loc.append(loc)
+            locs.append(loc)
 
             conf = self.conf[i](x)
             conf = F.transpose(conf, (0, 2, 3, 1))
             conf = F.reshape(
                 conf, (conf.shape[0], -1, self.n_class))
-            ys_conf.append(conf)
+            confs.append(conf)
 
-        y_loc = F.concat(ys_loc, axis=1)
-        y_conf = F.concat(ys_conf, axis=1)
+        loc = F.concat(locs, axis=1)
+        conf = F.concat(confs, axis=1)
 
-        return y_loc, y_conf
+        return loc, conf
