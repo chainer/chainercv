@@ -123,12 +123,13 @@ class FasterRCNNTrainChain(chainer.Chain):
         rpn_cls_loss = F.softmax_cross_entropy(rpn_score, gt_rpn_label)
 
         # Losses for outputs of the head.
-        gt_roi_cls_loc, roi_loc_in_weight = _loc2cls_loc(
+        gt_roi_cls_loc, roi_loc_weight = _loc2cls_loc(
             gt_roi_loc, gt_roi_label, self.n_class)
         loc_loss = _smooth_l1_loss(
             roi_cls_loc, gt_roi_cls_loc,
-            roi_loc_in_weight, self.sigma)
-        loc_loss /= roi_score.shape[0]
+            roi_loc_weight, self.sigma)
+        # This is equivalent to /= sum(gt_roi_label > 0)
+        loc_loss /= roi_cls_loc.shape[0]  
         cls_loss = F.softmax_cross_entropy(roi_score, gt_roi_label)
 
         loss = rpn_loc_loss + rpn_cls_loss + loc_loss + cls_loss
