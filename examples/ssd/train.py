@@ -9,6 +9,7 @@ from chainer.training import triggers
 from chainercv.datasets import VOCDetectionDataset
 from chainercv.links.model.ssd import ConcatenatedDataset
 from chainercv.links.model.ssd import MultiboxTrainChain
+from chainercv.links.model.ssd import SelectiveWeightDecay
 from chainercv.links.model.ssd import TrainTransformer
 from chainercv.links import SSD300
 
@@ -43,6 +44,7 @@ def main():
 
     optimizer = chainer.optimizers.MomentumSGD()
     optimizer.setup(train_chain)
+    optimizer.add_hook(SelectiveWeightDecay(0.0005, b={'lr': 2, 'decay': 0}))
 
     updater = training.StandardUpdater(iterator, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
