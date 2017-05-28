@@ -111,22 +111,25 @@ class FasterRCNNTrainChain(chainer.Chain):
             features, sample_roi, sample_roi_index, test=not self.train)
 
         # RPN losses
-        gt_rpn_loc, gt_rpn_label, rpn_loc_in_weight =\
-            self.anchor_target_creator(bbox, anchor, img_size)
+        gt_rpn_loc, gt_rpn_label = self.anchor_target_creator(
+            bbox, anchor, img_size)
 
-        rpn_cls_loss = F.softmax_cross_entropy(rpn_score, gt_rpn_label)
+        rpn_loc_weight = self.xp.zeros_like(gt_rpn_loc)
+        rpn_loc_weight[gt_rpn_label == 1] = 1
         rpn_loc_loss = _smooth_l1_loss(
             rpn_loc, gt_rpn_loc,
-            rpn_loc_in_weight, self.rpn_sigma)
+            rpn_loc_weight, self.rpn_sigma)
         rpn_loc_loss  /= self.xp.sum(gt_rpn_label >= 0)
+        rpn_cls_loss = F.softmax_cross_entropy(rpn_score, gt_rpn_label)
 
         # Losses for outputs of the head.
-        cls_loss = F.softmax_cross_entropy(roi_score, gt_roi_label)
         gt_roi_cls_loc, roi_loc_in_weight = _loc2cls_loc(
             gt_roi_loc, gt_roi_label, self.n_class)
         loc_loss = _smooth_l1_loss(
             roi_cls_loc, gt_roi_cls_loc,
             roi_loc_in_weight, self.sigma)
+        loc_loss /= roi_score.shape[0]
+        cls_loss = F.softmax_cross_entropy(roi_score, gt_roi_label)
 
         loss = rpn_loc_loss + rpn_cls_loss + loc_loss + cls_loss
         chainer.reporter.report({'rpn_loc_loss': rpn_loc_loss,
@@ -147,7 +150,6 @@ def _smooth_l1_loss(x, t, in_weight, sigma):
     y = (flag * (sigma2 / 2.) * F.square(diff) +
          (1 - flag) * (abs_diff - 0.5 / sigma2))
 
-    y /= y.shape[0]
     return F.sum(y)
 
 

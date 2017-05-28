@@ -29,21 +29,17 @@ class AnchorTargetCreator(object):
             threshold will be assigned as negative.
         fg_fraction (float): Fraction of positive regions in the
             set of all regions produced.
-        loc_in_weight_base (tuple of four floats): Four coefficients
-            used to calculate loc_in_weight.
 
     """
 
     def __init__(self,
                  n_sample=256,
                  positive_iou_thresh=0.7, negative_iou_thresh=0.3,
-                 fg_fraction=0.5,
-                 loc_in_weight_base=(1., 1., 1., 1.)):
+                 fg_fraction=0.5):
         self.n_sample = n_sample
         self.positive_iou_thresh = positive_iou_thresh
         self.negative_iou_thresh = negative_iou_thresh
         self.fg_fraction = fg_fraction
-        self.loc_in_weight_base = loc_in_weight_base
 
     def __call__(self, bbox, anchor, img_size):
         """Calculate targets of classification labels and bbox regressions.
@@ -71,8 +67,6 @@ class AnchorTargetCreator(object):
             * **label**: Labels of bounding boxes with values \
                 :obj:`(1=foreground, 0=background, -1=ignore)`. Its shape \
                 is :math:`(S,)`.
-            * **loc_in_weight**: Inside weight used to compute losses \
-                for Faster R-CNN. Its shape is :math:`(S, 4)`.
 
         """
         xp = cuda.get_array_module(bbox)
@@ -90,22 +84,14 @@ class AnchorTargetCreator(object):
         # compute bounding box regression targets
         loc = bbox2loc(anchor, bbox[argmax_ious])
 
-        # calculate inside and outside weights weights
-        loc_in_weight = np.zeros((len(inside_index), 4), dtype=np.float32)
-        loc_in_weight[label == 1, :] = np.array(
-            self.loc_in_weight_base)
-
         # map up to original set of anchors
         label = _unmap(label, n_anchor, inside_index, fill=-1)
         loc = _unmap(loc, n_anchor, inside_index, fill=0)
-        loc_in_weight = _unmap(
-            loc_in_weight, n_anchor, inside_index, fill=0)
 
         if xp != np:
             loc = chainer.cuda.to_gpu(loc)
             label = chainer.cuda.to_gpu(label)
-            loc_in_weight = chainer.cuda.to_gpu(loc_in_weight)
-        return loc, label, loc_in_weight
+        return loc, label
 
     def _create_label(self, inside_index, anchor, bbox):
         # label: 1 is positive, 0 is negative, -1 is dont care
