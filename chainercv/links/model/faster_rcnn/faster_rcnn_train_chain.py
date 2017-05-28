@@ -147,8 +147,10 @@ def _bbox_loss(pred_loc, pred_score, gt_loc, gt_label, sigma):
     xp = chainer.cuda.get_array_module(pred_loc)
 
     in_weight = xp.zeros_like(pred_loc)
+    # Localization loss is calculated only for fg rois.
     in_weight[gt_label > 0] = 1
     loc_loss = _smooth_l1_loss(pred_loc, gt_loc, in_weight, sigma)
+    # Normalize by total number of bg and fg rois.
     loc_loss /= xp.sum(gt_label >= 0)
 
     cls_loss = F.softmax_cross_entropy(pred_score, gt_label)
