@@ -121,7 +121,7 @@ class SSD(chainer.Chain):
             * **locs**: A variable of float arrays of shape \
                 :math:`(B, K, 4)`, \
                 where :math:`B` is the number of samples in the batch and \
-                ::math:`K` is the number of default bounding boxes.
+                :math:`K` is the number of default bounding boxes.
             * **confs**: A variable of float arrays of shape \
                 :math:`(B, K, n\_fg\_class + 1)`.
         """
