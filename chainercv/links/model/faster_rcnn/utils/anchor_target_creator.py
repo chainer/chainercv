@@ -11,8 +11,8 @@ class AnchorTargetCreator(object):
 
     """Assign anchors to the ground truth targets.
 
-    Assigns anchors to ground-truth targets to train Region Proposal Networks
-    introduced in Faster R-CNN [#]_.
+    Assigns anchors to ground-truth bounding boxes to train Region
+    Proposal Networks introduced in Faster R-CNN [#]_.
 
     Bounding regression targets are computed using encoding scheme
     found in :obj:`chainercv.links.model.faster_rcnn.bbox2loc`.
@@ -42,12 +42,12 @@ class AnchorTargetCreator(object):
         self.fg_fraction = fg_fraction
 
     def __call__(self, bbox, anchor, img_size):
-        """Calculate targets of classification labels and bbox regressions.
+        """Assign ground truth supervision to sampled subset of anchors.
 
         Here are notations.
 
-        * :math:`S` is number of anchors.
-        * :math:`R` is number of bounding boxes.
+        * :math:`S` is the number of anchors.
+        * :math:`R` is the number of bounding boxes.
 
         Args:
             bbox (array): Coodinates of bounding boxes. Its shape is
@@ -60,11 +60,9 @@ class AnchorTargetCreator(object):
         Returns:
             (array, array):
 
-            Tuple of two arrays which contains the following elements.
-
-            * **loc**: Bounding boxes encoded into regression \
-                targets. This is an array of shape :math:`(S, 4)`.
-            * **label**: Labels of bounding boxes with values \
+            * **loc**: Offsets and scales to match the anchors to \
+                the ground truth bounding boxes. Its shape is :math:`(S, 4)`.
+            * **label**: Labels of anchors with values \
                 :obj:`(1=foreground, 0=background, -1=ignore)`. Its shape \
                 is :math:`(S,)`.
 

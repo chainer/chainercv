@@ -20,9 +20,9 @@ class ProposalTargetCreator(object):
     Args:
         n_sample (int): Number of regions to produce.
         fg_fraction (float): Fraction of regions that is labeled foreground.
-        fg_thresh (float): IoU threshold for a ROI to be considered
+        fg_thresh (float): IoU threshold for a RoI to be considered
             foreground.
-        bg_thresh_hi (float): ROI is considered to be background if IoU is
+        bg_thresh_hi (float): RoI is considered to be background if IoU is
             in [:obj:`bg_thresh_hi`, :obj:`bg_thresh_hi`).
         bg_thresh_lo (float): See above.
 
@@ -44,19 +44,16 @@ class ProposalTargetCreator(object):
                  loc_normalize_std=(0.1, 0.1, 0.2, 0.2)):
         """Assigns labels to sampled proposals from RPN.
 
-        This samples total of :obj:`self.n_sample` RoIs from concatenated
-        list of bounding boxes from :obj:`roi` and :obj:`bbox`.
-        The RoIs are assigned with the ground truth class labels and bounding
-        box offsets.
-        As many as :obj:`fg_fraction * self.n_sample` RoIs are
+        This function samples total of :obj:`self.n_sample` RoIs from
+        from :obj:`roi` and :obj:`bbox` combined.
+        The RoIs are assigned with the ground truth class labels as well as
+        bounding box offsets and scales to match the ground truth bounding
+        boxes. As many as :obj:`fg_fraction * self.n_sample` RoIs are
         sampled with foreground label assignments.
 
-        The second axis of the bounding box arrays contain coordinates
-        of bounding boxes which are ordered by
-        :obj:`(x_min, y_min, x_max, y_max)`.
-        Offsets of bounding boxes are calculated using
+        Offsets and scalings of bounding boxes are calculated using
         :func:`chainercv.links.model.faster_rcnn.bbox2loc`.
-        Also, types of inputs and outputs are same.
+        Also, types of input arrays and output arrays are same.
 
         Here are notations.
 
@@ -68,9 +65,9 @@ class ProposalTargetCreator(object):
         Args:
             roi (array): Region of interests from which we sample.
                 This is an array whose shape is :math:`(R, 4)`
-            bbox (array): The ground truth bounding boxes. Its shape is \
-                :math:`(R', 4)`.
-            label (array): The ground truth bounding box labels. Its shape \
+            bbox (array): The ground truth bounding box coordinates.
+                Its shape is :math:`(R', 4)`.
+            label (array): The ground truth bounding box labels. Its shape
                 is :math:`(R',)`.
             loc_normalize_mean (tuple of four floats): Mean values to normalize
                 coordinates of bouding boxes.
@@ -82,7 +79,7 @@ class ProposalTargetCreator(object):
 
             * **sample_roi**: Regions of interests that are sampled. \
                 Its shape is :math:`(S, 4)`.
-            * **gt_roi_loc**: Ground truth offsets and scales to match \
+            * **gt_roi_loc**: Offsets and scales to match \
                 the sampled RoIs to the ground truth bounding boxes. \
                 Its shape is :math:`(S, 4)`.
             * **gt_roi_label**: Labels sampled for training. Its shape is \
