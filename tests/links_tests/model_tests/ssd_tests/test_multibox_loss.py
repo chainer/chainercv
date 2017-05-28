@@ -48,12 +48,10 @@ class TestMultiboxLoss(unittest.TestCase):
             x_locs, x_confs, t_locs, t_confs, k)
 
         self.assertIsInstance(loc_loss, chainer.Variable)
-        self.assertIsInstance(loc_loss.data, type(x_locs.data))
         self.assertEqual(loc_loss.shape, ())
         self.assertEqual(loc_loss.dtype, x_locs.dtype)
 
         self.assertIsInstance(conf_loss, chainer.Variable)
-        self.assertIsInstance(conf_loss.data, type(x_confs.data))
         self.assertEqual(conf_loss.shape, ())
         self.assertEqual(conf_loss.dtype, x_confs.dtype)
 
