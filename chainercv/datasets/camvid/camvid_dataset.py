@@ -101,8 +101,8 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
             i (int): The index of the example.
 
         Returns:
-            tuple of color image and label whose shapes are (3, H, W) and
-            (H, W) respectively. H and W are height and width of the images.
+            tuple of a color image and a label whose shapes are (3, H, W) and
+            (H, W) respectively. H and W are height and width of the image.
             The dtype of the color image is :obj:`numpy.float32` and
             the dtype of the label image is :obj:`numpy.int32`.
 
