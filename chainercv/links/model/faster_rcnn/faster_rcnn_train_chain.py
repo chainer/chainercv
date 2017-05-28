@@ -113,31 +113,21 @@ class FasterRCNNTrainChain(chainer.Chain):
         # RPN losses
         gt_rpn_loc, gt_rpn_label = self.anchor_target_creator(
             bbox, anchor, img_size)
-
-        rpn_loc_weight = self.xp.zeros_like(gt_rpn_loc)
-        rpn_loc_weight[gt_rpn_label == 1] = 1
-        rpn_loc_loss = _smooth_l1_loss(
-            rpn_loc, gt_rpn_loc,
-            rpn_loc_weight, self.rpn_sigma)
-        rpn_loc_loss /= self.xp.sum(gt_rpn_label >= 0)
-        rpn_cls_loss = F.softmax_cross_entropy(rpn_score, gt_rpn_label)
+        rpn_loc_loss, rpn_cls_loss = _bbox_loss(
+            rpn_loc, rpn_score, gt_rpn_loc, gt_rpn_label, self.rpn_sigma)
 
         # Losses for outputs of the head.
         n_sample = roi_cls_loc.shape[0]
         roi_cls_loc = roi_cls_loc.reshape(n_sample, -1, 4)
         roi_loc = roi_cls_loc[self.xp.arange(n_sample), gt_roi_label]
-        in_weight = self.xp.zeros_like(roi_loc)
-        in_weight[gt_roi_label > 0] = 1
-        loc_loss = _smooth_l1_loss(
-            roi_loc, gt_roi_loc, in_weight, self.sigma)
-        loc_loss /= n_sample
-        cls_loss = F.softmax_cross_entropy(roi_score, gt_roi_label)
+        roi_loc_loss, roi_cls_loss = _bbox_loss(
+            roi_loc, roi_score, gt_roi_loc, gt_roi_label, self.sigma)
 
-        loss = rpn_loc_loss + rpn_cls_loss + loc_loss + cls_loss
+        loss = rpn_loc_loss + rpn_cls_loss + roi_loc_loss + roi_cls_loss
         chainer.reporter.report({'rpn_loc_loss': rpn_loc_loss,
                                  'rpn_cls_loss': rpn_cls_loss,
-                                 'loc_loss': loc_loss,
-                                 'cls_loss': cls_loss,
+                                 'roi_loc_loss': roi_loc_loss,
+                                 'roi_cls_loss': roi_cls_loss,
                                  'loss': loss},
                                 self)
         return loss
@@ -153,3 +143,15 @@ def _smooth_l1_loss(x, t, in_weight, sigma):
          (1 - flag) * (abs_diff - 0.5 / sigma2))
 
     return F.sum(y)
+
+
+def _bbox_loss(pred_loc, pred_score, gt_loc, gt_label, sigma):
+    xp = chainer.cuda.get_array_module(pred_loc)
+
+    in_weight = xp.zeros_like(pred_loc)
+    in_weight[gt_label > 0] = 1
+    loc_loss = _smooth_l1_loss(pred_loc, gt_loc, in_weight, sigma)
+    loc_loss /= xp.sum(gt_label >= 0)
+
+    cls_loss = F.softmax_cross_entropy(pred_score, gt_label)
+    return loc_loss, cls_loss

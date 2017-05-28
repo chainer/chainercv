@@ -85,8 +85,8 @@ def main():
     trainer.extend(extensions.PrintReport(
         ['iteration', 'epoch', 'elapsed_time', 'lr',
          'main/loss',
-         'main/loc_loss',
-         'main/cls_loss',
+         'main/roi_loc_loss',
+         'main/roi_cls_loss',
          'main/rpn_loc_loss',
          'main/rpn_cls_loss',
          'map'
