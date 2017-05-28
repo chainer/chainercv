@@ -66,9 +66,11 @@ class Multibox(chainer.Chain):
         Returns:
             tuple of chainer.Variable:
             This method returns two :obj:`chainer.Variable`, :obj:`loc` and
-            :obj:`conf`. :obj:`loc` is an array whose shape is :math:`(R, 4)`,
-            where :math:`R` is the number of default bounding boxes.
-            :obj:`conf` is an array whose shape is :math:`(R, n\_class)`
+            :obj:`conf`. :obj:`loc` is an array whose shape is
+            :math:`(B, R, 4)`,
+            where :math:`B` is the number of samples in the batch and :math:`R`
+            is the number of default bounding boxes.
+            :obj:`conf` is an array whose shape is :math:`(B, R, n\_class)`
         """
 
         locs = list()
