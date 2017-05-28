@@ -78,7 +78,7 @@ class ProposalTargetCreator(object):
                 the coordinates of bounding boxes.
 
         Returns:
-        (array, array, array):
+            (array, array, array):
 
             * **sample_roi**: Regions of interests that are sampled. \
                 Its shape is :math:`(S, 4)`.
