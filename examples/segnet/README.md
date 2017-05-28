@@ -31,9 +31,19 @@ We used the completely same parameters for all settings.
 | ChainerCV      | MomentumSGD | 0.1           | 0.9      | 0.0005       | [segnet_basic.py](https://github.com/pfnet/chainercv/tree/master/chainercv/links/model/segnet/segnet_basic.py) |
 | Official       | MomentumSGD | 0.1           | 0.9      | 0.0005       | [segnet_basic_train.prototxt](https://github.com/alexgkendall/SegNet-Tutorial/blob/master/Models/segnet_basic_train.prototxt) |
 
+# Quick Demo
+
+Here is a quick demo using our pretrained weights.
+
+```
+wget https://www.dropbox.com/s/exas66necaqbxyw/model_iteration-16000
+wget https://raw.githubusercontent.com/alexgkendall/SegNet-Tutorial/master/CamVid/test/0001TP_008550.png
+python demo.py 0001TP_008550.png model_iteration-16000
+```
+
 # Evaluation
 
-The trained weights to replicate the same results as below is here: [model_iteration-16000](https://www.dropbox.com/s/exas66necaqbxyw/model_iteration-16000?dl=1)
+The trained weights to replicate the same results as below is here: [model_iteration-16000](https://www.dropbox.com/s/exas66necaqbxyw/model_iteration-16000).
 
 ```
 bash evaluate.sh [GPU ID] [MODEL SNAPSHOT]
