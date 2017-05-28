@@ -1,5 +1,8 @@
-import matplotlib  # isort:skip # NOQA
-matplotlib.use('Agg')  # isort:skiip # NOQA
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+except ImportError:
+    pass
 
 import argparse
 
@@ -36,8 +39,7 @@ def main():
     args = parser.parse_args()
 
     # Triggers
-    log_trigger = (20, 'iteration')
-    report_trigger = (1000, 'iteration')
+    log_trigger = (50, 'iteration')
     validation_trigger = (2000, 'iteration')
     end_trigger = (16000, 'iteration')
 
@@ -85,24 +87,26 @@ def main():
     trainer.extend(TestModeEvaluator(val_iter, model,
                                      device=args.gpu),
                    trigger=validation_trigger)
+
+    if extensions.PlotReport.available():
+        trainer.extend(extensions.PlotReport(
+            ['main/loss', 'validation/main/loss'], x_key='iteration',
+            file_name='loss.png'))
+        trainer.extend(extensions.PlotReport(
+            ['main/mean_iou', 'validation/main/mean_iou'], x_key='iteration',
+            file_name='mean_iou.png'))
+        trainer.extend(extensions.PlotReport(
+            ['main/mean_accuracy', 'validation/main/mean_accuracy'],
+            x_key='iteration', file_name='mean_accuracy.png'))
+        trainer.extend(extensions.snapshot_object(
+            model.predictor, filename='model_iteration-{.updater.iteration}',
+            trigger=end_trigger))
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', 'elapsed_time', 'lr',
-         'main/loss', 'main/mean_iou', 'main/acc',
+         'main/loss', 'main/mean_iou', 'main/mean_accuracy',
          'validation/main/loss',
-         'validation/main/mean_iou', 'validation/main/acc']),
+         'validation/main/mean_iou', 'validation/main/mean_accuracy']),
         trigger=log_trigger)
-    trainer.extend(extensions.PlotReport(
-        ['main/loss', 'validation/main/loss'], x_key='iteration',
-        file_name='loss.png'))
-    trainer.extend(extensions.PlotReport(
-        ['main/mean_iou', 'validation/main/mean_iou'], x_key='iteration',
-        file_name='mean_iou.png'))
-    trainer.extend(extensions.PlotReport(
-        ['main/mean_pixel_accuracy', 'validation/main/mean_pixel_accuracy'],
-        x_key='iteration', file_name='mean_pixel_accuracy.png'))
-    trainer.extend(extensions.snapshot_object(
-        model.predictor, filename='model_iteration-{.updater.iteration}',
-        trigger=end_trigger))
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
     trainer.run()
