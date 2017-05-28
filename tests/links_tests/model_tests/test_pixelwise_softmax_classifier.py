@@ -58,10 +58,10 @@ class TestPixelwiseSoftmaxClassifier(unittest.TestCase):
         else:
             self.assertIsNone(self.link.accuracy)
 
+    def test_call_cpu(self):
+        self._check_call()
+
     @attr.gpu
     def test_call_gpu(self):
         self.link.to_gpu()
-        self._check_call()
-
-    def test_call_cpu(self):
         self._check_call()
