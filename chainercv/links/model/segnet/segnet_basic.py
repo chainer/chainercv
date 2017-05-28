@@ -19,7 +19,7 @@ class SegNetBasic(chainer.Chain):
     This is a SegNet [#]_ model for semantic segmenation. This is based on
     SegNetBasic model that is found here_.
 
-    When you specify the path of a pre-trained chainer model serialized as
+    When you specify the path of a pretrained chainer model serialized as
     a :obj:`.npz` file in the constructor, this chain model automatically
     initializes all the parameters with it.
     When a string in prespecified set is provided, a pretrained model is
@@ -38,7 +38,7 @@ class SegNetBasic(chainer.Chain):
     Args:
         n_class (int): The number of classes. If :obj:`None`, it can
             be infered if :obj:`pretrained_model` is given.
-        pretrained_model (str): The destination of the pre-trained
+        pretrained_model (str): The destination of the pretrained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
             above, it automatically loads weights stored under a directory

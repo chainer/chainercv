@@ -50,12 +50,12 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
             self.class_weight = cuda.to_gpu(self.class_weight, device)
 
     def __call__(self, x, t):
-        """Computes the loss value for an input and label pair.
+        """Computes the loss value for an image and label pair.
 
         It also computes accuracy and stores it to the attribute.
 
         Args:
-            x (~chainer.Variable): A variable with a 4D image array.
+            x (~chainer.Variable): A variable with a batch of images.
             t (~chainer.Variable): A variable with the ground truth
                 image-wise label.
 
