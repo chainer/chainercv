@@ -36,9 +36,8 @@ class SegNetBasic(chainer.Chain):
     .. _here: http://github.com/alexgkendall/SegNet-Tutorial
 
     Args:
-        n_class (int): The number of channels for the final convolutional
-            layer. SegNetBasic basically takes the number of target classes as
-            this argment.
+        n_class (int): The number of classes. If :obj:`None`, it can
+            be infered if :obj:`pretrained_model` is given.
         pretrained_model (str): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
