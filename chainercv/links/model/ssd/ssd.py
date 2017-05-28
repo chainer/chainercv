@@ -244,16 +244,16 @@ class SSD(chainer.Chain):
                 Each value indicates how confident the prediction is.
         """
 
-        prepared_imgs = list()
+        x = list()
         sizes = list()
         for img in imgs:
             _, H, W = img.shape
             img = self._prepare(img)
-            prepared_imgs.append(self.xp.array(img))
+            x.append(self.xp.array(img))
             sizes.append((W, H))
 
-        prepared_imgs = self.xp.stack(prepared_imgs)
-        loc, conf = self(prepared_imgs)
+        x = chainer.Variable(self.xp.stack(x), volatile=chainer.flag.ON)
+        loc, conf = self(x)
         raw_bboxes, raw_scores = self._decode(loc.data, conf.data)
 
         bboxes = list()
