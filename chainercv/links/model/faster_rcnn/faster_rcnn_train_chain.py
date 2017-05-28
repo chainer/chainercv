@@ -60,7 +60,6 @@ class FasterRCNNTrainChain(chainer.Chain):
 
         Currently only :math:`N=1` is supported.
 
-
         Args:
             imgs (~chainer.Variable): A variable with a batch of images.
             bboxes (~chainer.Variable): Batched bounding boxes.

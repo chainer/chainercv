@@ -61,7 +61,7 @@ ProposalCreator
    :special-members:  __call__
 
 ProposalTargetCreator
-"""""""""""""""""""""
+---------------------
 .. autoclass:: ProposalTargetCreator
    :members:
    :special-members:  __call__

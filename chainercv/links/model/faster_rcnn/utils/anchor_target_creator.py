@@ -58,9 +58,9 @@ class AnchorTargetCreator(object):
                 is a tuple of height and width of an image.
 
         Returns:
-            (array, array, array, array):
+            (array, array):
 
-            Tuple of four arrays which contains the following elements.
+            Tuple of two arrays which contains the following elements.
 
             * **loc**: Bounding boxes encoded into regression \
                 targets. This is an array of shape :math:`(S, 4)`.
