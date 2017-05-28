@@ -27,7 +27,6 @@ camvid_label_names = (
     'Car',
     'Pedestrian',
     'Bicyclist',
-    'Unlabelled'
 )
 
 camvid_label_colors = (
@@ -42,7 +41,6 @@ camvid_label_colors = (
     (64, 0, 128),
     (64, 64, 0),
     (0, 128, 192),
-    (0, 0, 0)
 )
 
 
@@ -112,4 +110,6 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
         img_filename, label_filename = self.filenames[i]
         img = read_image(img_filename, color=True)
         label = read_image(label_filename, dtype=np.int32, color=False)[0]
+        # Label id 11 is for unlabeled pixels.
+        label[label == 11] = -1
         return img, label
