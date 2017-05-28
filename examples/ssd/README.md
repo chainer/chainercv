@@ -23,5 +23,5 @@ $ python caffe2npz <source>.caffemodel <target>.npz
 ```
 
 ## References
-- [1]: Wei Liu, et al. "SSD: Single shot multibox detector" ECCV 2016.
-- [2]: Cheng-Yang Fu, et al. "[DSSD : Deconvolutional Single Shot Detector](https://arxiv.org/abs/1701.06659)" arXiv 2017.
+1. Wei Liu, et al. "SSD: Single shot multibox detector" ECCV 2016.
+2. Cheng-Yang Fu, et al. "[DSSD : Deconvolutional Single Shot Detector](https://arxiv.org/abs/1701.06659)" arXiv 2017.
