@@ -9,26 +9,27 @@ from chainercv.utils.bbox.bbox_iou import bbox_iou
 
 class AnchorTargetCreator(object):
 
-    """Assign anchors to the ground truth targets.
+    """Assign the ground truth bounding boxes to anchors.
 
-    Assigns anchors to ground-truth bounding boxes to train Region
+    Assigns the ground-truth bounding boxes to anchors for training Region
     Proposal Networks introduced in Faster R-CNN [#]_.
 
-    Bounding regression targets are computed using encoding scheme
-    found in :obj:`chainercv.links.model.faster_rcnn.bbox2loc`.
+    Offsets and scales to match anchors to the ground truth are
+    calculated using the encoding scheme of
+    :obj:`chainercv.links.model.faster_rcnn.bbox2loc`.
 
     .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
     Faster R-CNN: Towards Real-Time Object Detection with \
     Region Proposal Networks. NIPS 2015.
 
     Args:
-        n_sample (int): Number of regions to produce.
+        n_sample (int): The number of regions to produce.
         positive_iou_thresh (float): Anchors with IoU above this
             threshold will be assigned as positive.
         negative_iou_thresh (float): Anchors with IoU below this
             threshold will be assigned as negative.
         fg_fraction (float): Fraction of positive regions in the
-            set of all regions produced.
+            sampled regions.
 
     """
 
@@ -43,6 +44,8 @@ class AnchorTargetCreator(object):
 
     def __call__(self, bbox, anchor, img_size):
         """Assign ground truth supervision to sampled subset of anchors.
+
+        Types of input arrays and output arrays are same.
 
         Here are notations.
 

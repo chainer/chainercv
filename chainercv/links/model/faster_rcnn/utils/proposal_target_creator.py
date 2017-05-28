@@ -7,9 +7,9 @@ from chainercv.utils.bbox.bbox_iou import bbox_iou
 
 
 class ProposalTargetCreator(object):
-    """Assign proposals to ground-truth targets.
+    """Assign ground truth bounding boxes to given RoIs.
 
-    The :meth:`__call__` of this class generates training targets/labels
+    The :meth:`__call__` of this class generates training targets
     for each object proposal.
     This is used to train Faster RCNN [#]_.
 
@@ -18,12 +18,13 @@ class ProposalTargetCreator(object):
     Region Proposal Networks. NIPS 2015.
 
     Args:
-        n_sample (int): Number of regions to produce.
-        fg_fraction (float): Fraction of regions that is labeled foreground.
-        fg_thresh (float): IoU threshold for a RoI to be considered
+        n_sample (int): The number of sampled regions.
+        fg_fraction (float): Fraction of regions that is labeled as a
             foreground.
-        bg_thresh_hi (float): RoI is considered to be background if IoU is
-            in [:obj:`bg_thresh_hi`, :obj:`bg_thresh_hi`).
+        fg_thresh (float): IoU threshold for a RoI to be considered as a
+            foreground.
+        bg_thresh_hi (float): RoI is considered to be the background if IoU
+            is in [:obj:`bg_thresh_hi`, :obj:`bg_thresh_hi`).
         bg_thresh_lo (float): See above.
 
     """
@@ -42,16 +43,16 @@ class ProposalTargetCreator(object):
     def __call__(self, roi, bbox, label,
                  loc_normalize_mean=(0., 0., 0., 0.),
                  loc_normalize_std=(0.1, 0.1, 0.2, 0.2)):
-        """Assigns labels to sampled proposals from RPN.
+        """Assigns ground truth to sampled proposals.
 
-        This function samples total of :obj:`self.n_sample` RoIs from
-        from :obj:`roi` and :obj:`bbox` combined.
+        This function samples total of :obj:`self.n_sample` RoIs
+        from the combination of :obj:`roi` and :obj:`bbox`.
         The RoIs are assigned with the ground truth class labels as well as
         bounding box offsets and scales to match the ground truth bounding
         boxes. As many as :obj:`fg_fraction * self.n_sample` RoIs are
-        sampled with foreground label assignments.
+        sampled as foregrounds.
 
-        Offsets and scalings of bounding boxes are calculated using
+        Offsets and scales of bounding boxes are calculated using
         :func:`chainercv.links.model.faster_rcnn.bbox2loc`.
         Also, types of input arrays and output arrays are same.
 
@@ -64,10 +65,10 @@ class ProposalTargetCreator(object):
 
         Args:
             roi (array): Region of interests from which we sample.
-                This is an array whose shape is :math:`(R, 4)`
-            bbox (array): The ground truth bounding box coordinates.
+                Its shape is :math:`(R, 4)`
+            bbox (array): The coordinates of ground truth bounding boxes.
                 Its shape is :math:`(R', 4)`.
-            label (array): The ground truth bounding box labels. Its shape
+            label (array): Ground truth bounding box labels. Its shape
                 is :math:`(R',)`.
             loc_normalize_mean (tuple of four floats): Mean values to normalize
                 coordinates of bouding boxes.
@@ -82,7 +83,7 @@ class ProposalTargetCreator(object):
             * **gt_roi_loc**: Offsets and scales to match \
                 the sampled RoIs to the ground truth bounding boxes. \
                 Its shape is :math:`(S, 4)`.
-            * **gt_roi_label**: Labels sampled for training. Its shape is \
+            * **gt_roi_label**: Labels assigned to sampled RoIs. Its shape is \
                 :math:`(S,)`.
 
         """

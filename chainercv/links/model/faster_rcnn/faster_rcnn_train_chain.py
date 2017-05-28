@@ -12,7 +12,7 @@ from chainercv.links.model.faster_rcnn.utils.proposal_target_creator import \
 
 class FasterRCNNTrainChain(chainer.Chain):
 
-    """Calculate Faster R-CNN losses and report them.
+    """Calculate losses for Faster R-CNN and report them.
 
     This is used to train Faster R-CNN in the joint training scheme [#]_.
 
@@ -22,11 +22,11 @@ class FasterRCNNTrainChain(chainer.Chain):
 
     Args:
         faster_rcnn (~chainercv.links.model.faster_rcnn.FasterRCNN):
-            A Faster R-CNN model to train.
-        rpn_sigma (float): Sigma parameter for localization loss
+            A Faster R-CNN model that is going to be trained.
+        rpn_sigma (float): Sigma parameter for the localization loss
             of Region Proposal Network (RPN).
-        sigma (float): Sigma paramter for localization loss of
-            calculated from the output of the head.
+        sigma (float): Sigma paramter for the localization loss of
+            the calculated from the output of the head.
         anchor_target_creator: An instantiation of
             :obj:`chainercv.links.model.faster_rcnn.AnchorTargetCreator`.
         proposal_target_creator_params: An instantiation of
@@ -54,24 +54,24 @@ class FasterRCNNTrainChain(chainer.Chain):
 
         Here are notations used.
 
-        * :math:`N` is the number of batch size.
+        * :math:`N` is the batch size.
         * :math:`R` is the number of bounding boxes per image.
 
-        Currently only :math:`N=1` is supported.
+        Currently, only :math:`N=1` is supported.
 
         Args:
             imgs (~chainer.Variable): A variable with a batch of images.
-            bboxes (~chainer.Variable): Batched bounding boxes.
+            bboxes (~chainer.Variable): A batch of bounding boxes.
                 Its shape is :math:`(N, R, 4)`.
-            labels (~chainer.Variable): Batched labels.
+            labels (~chainer.Variable): A batch of labels.
                 Its shape is :math:`(N, R)`.
             scale (float or ~chainer.Variable): Amount of scaling applied to
                 the raw image during preprocessing.
 
         Returns:
             chainer.Variable:
-            Loss scalar variable.
-            This is a sum of losses for Region Proposal Network and
+            Scalar loss variable.
+            This is the sum of losses for Region Proposal Network and
             the head module.
 
         """
@@ -84,7 +84,7 @@ class FasterRCNNTrainChain(chainer.Chain):
         scale = np.asscalar(cuda.to_cpu(scale))
         n = bboxes.shape[0]
         if n != 1:
-            raise ValueError('currently only batch size 1 is supported')
+            raise ValueError('Currently only batch size 1 is supported.')
 
         _, _, H, W = imgs.shape
         img_size = (W, H)
