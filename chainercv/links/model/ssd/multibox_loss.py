@@ -25,7 +25,7 @@ def _hard_negative(x, positive, k):
 
 
 def multibox_loss(x_loc, x_conf, t_loc, t_conf, k):
-    """Computes multibox loss
+    """Computes multibox losses
 
     This is a loss function used in [#]_.
 
