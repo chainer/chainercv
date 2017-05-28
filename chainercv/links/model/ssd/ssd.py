@@ -7,7 +7,6 @@ import chainer
 from chainercv.links.model.ssd import decode_with_default_bbox
 from chainercv.links.model.ssd import generate_default_bbox
 from chainercv import transforms
-from chainercv import utils
 
 
 class SSD(chainer.Chain):
