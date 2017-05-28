@@ -30,9 +30,9 @@ def generate_default_bbox(grids, aspect_ratios, steps, sizes):
 
     Returns:
         ~numpy.ndarray:
-            An array whose shape is :math:`(K, 4)`, where :math:`K` is
-            the number of default bounding boxes. Each bounding box is
-            organized by :obj:`(center_x, center_y, width, height)`.
+        An array whose shape is :math:`(K, 4)`, where :math:`K` is
+        the number of default bounding boxes. Each bounding box is
+        organized by :obj:`(center_x, center_y, width, height)`.
     """
 
     if not len(aspect_ratios) == len(grids):
