@@ -52,8 +52,8 @@ def multibox_loss(x_loc, x_conf, t_loc, t_conf, k):
 
     Returns:
         tuple of chainer.Variable:
-        This function returns two :obj:`chainer.Variable`: :obj:`loss_loc` and
-        :obj:`loss_conf`.
+        This function returns two :obj:`chainer.Variable`: :obj:`loc_loss` and
+        :obj:`conf_loss`.
     """
     xp = chainer.cuda.get_array_module(t_conf.data)
 
@@ -63,14 +63,14 @@ def multibox_loss(x_loc, x_conf, t_loc, t_conf, k):
         z = chainer.Variable(np.zeros((), dtype=np.float32))
         return z, z
 
-    loss_loc = F.huber_loss(x_loc, t_loc, 1, reduce='no')
-    loss_loc = F.sum(loss_loc, axis=2)
-    loss_loc *= positive.astype(loss_loc.dtype)
-    loss_loc = F.sum(loss_loc) / n_positive
+    loc_loss = F.huber_loss(x_loc, t_loc, 1, reduce='no')
+    loc_loss = F.sum(loc_loss, axis=2)
+    loc_loss *= positive.astype(loc_loss.dtype)
+    loc_loss = F.sum(loc_loss) / n_positive
 
-    loss_conf = _elementwise_softmax_cross_entropy(x_conf, t_conf)
-    hard_negative = _hard_negative(loss_conf.data, positive, k)
-    loss_conf *= xp.logical_or(positive, hard_negative).astype(loss_conf.dtype)
-    loss_conf = F.sum(loss_conf) / n_positive
+    conf_loss = _elementwise_softmax_cross_entropy(x_conf, t_conf)
+    hard_negative = _hard_negative(conf_loss.data, positive, k)
+    conf_loss *= xp.logical_or(positive, hard_negative).astype(conf_loss.dtype)
+    conf_loss = F.sum(conf_loss) / n_positive
 
-    return loss_loc, loss_conf
+    return loc_loss, conf_loss

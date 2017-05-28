@@ -44,29 +44,29 @@ class TestMultiboxLoss(unittest.TestCase):
         t_loc = chainer.Variable(t_loc)
         t_conf = chainer.Variable(t_conf)
 
-        loss_loc, loss_conf = multibox_loss(
+        loc_loss, conf_loss = multibox_loss(
             x_loc, x_conf, t_loc, t_conf, k)
 
-        self.assertIsInstance(loss_loc, chainer.Variable)
-        self.assertIsInstance(loss_loc.data, type(x_loc.data))
-        self.assertEqual(loss_loc.shape, ())
-        self.assertEqual(loss_loc.dtype, x_loc.dtype)
+        self.assertIsInstance(loc_loss, chainer.Variable)
+        self.assertIsInstance(loc_loss.data, type(x_loc.data))
+        self.assertEqual(loc_loss.shape, ())
+        self.assertEqual(loc_loss.dtype, x_loc.dtype)
 
-        self.assertIsInstance(loss_conf, chainer.Variable)
-        self.assertIsInstance(loss_conf.data, type(x_conf.data))
-        self.assertEqual(loss_conf.shape, ())
-        self.assertEqual(loss_conf.dtype, x_conf.dtype)
+        self.assertIsInstance(conf_loss, chainer.Variable)
+        self.assertIsInstance(conf_loss.data, type(x_conf.data))
+        self.assertEqual(conf_loss.shape, ())
+        self.assertEqual(conf_loss.dtype, x_conf.dtype)
 
         x_loc = cuda.to_cpu(x_loc.data)
         x_conf = cuda.to_cpu(x_conf.data)
         t_loc = cuda.to_cpu(t_loc.data)
         t_conf = cuda.to_cpu(t_conf.data)
-        loss_loc = cuda.to_cpu(loss_loc.data)
-        loss_conf = cuda.to_cpu(loss_conf.data)
+        loc_loss = cuda.to_cpu(loc_loss.data)
+        conf_loss = cuda.to_cpu(conf_loss.data)
 
         n_positive_total = 0
-        expect_loss_loc = 0
-        expect_loss_conf = 0
+        expect_loc_loss = 0
+        expect_conf_loss = 0
         for i in six.moves.xrange(t_conf.shape[0]):
             n_positive = 0
             negatives = list()
@@ -78,26 +78,26 @@ class TestMultiboxLoss(unittest.TestCase):
 
                 if t_conf[i, j] > 0:
                     n_positive += 1
-                    expect_loss_loc += loc
-                    expect_loss_conf += conf
+                    expect_loc_loss += loc
+                    expect_conf_loss += conf
                 else:
                     negatives.append(conf)
 
             n_positive_total += n_positive
             if n_positive > 0:
-                expect_loss_conf += sum(sorted(negatives)[-n_positive * k:])
+                expect_conf_loss += sum(sorted(negatives)[-n_positive * k:])
 
         if n_positive_total == 0:
-            expect_loss_loc = 0
-            expect_loss_conf = 0
+            expect_loc_loss = 0
+            expect_conf_loss = 0
         else:
-            expect_loss_loc /= n_positive_total
-            expect_loss_conf /= n_positive_total
+            expect_loc_loss /= n_positive_total
+            expect_conf_loss /= n_positive_total
 
         np.testing.assert_almost_equal(
-            loss_loc, expect_loss_loc, decimal=2)
+            loc_loss, expect_loc_loss, decimal=2)
         np.testing.assert_almost_equal(
-            loss_conf, expect_loss_conf, decimal=2)
+            conf_loss, expect_conf_loss, decimal=2)
 
     def test_forward_cpu(self):
         self._check_forward(
