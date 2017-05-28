@@ -31,15 +31,15 @@ class MultiboxTrainChain(chainer.Chain):
         self.alpha = alpha
         self.k = k
 
-    def __call__(self, x, t_loc, t_conf):
+    def __call__(self, x, t_locs, t_confs):
         """Forward SSD and calculate losses.
 
         Args:
              x (~chainer.Variable): A variable holding a batch of images.
                  The sizes of all images should be :obj:`model.insize`.
-             t_loc (~chainer.Variable): A variable holding the locations of
+             locs (~chainer.Variable): A variable holding the locations of
                  ground truth.
-             t_loc (~chainer.Variable): A variable holding the classes of
+             confs (~chainer.Variable): A variable holding the classes of
                  ground truth.
 
         Returns:
@@ -47,9 +47,9 @@ class MultiboxTrainChain(chainer.Chain):
             A scalar variable holding the loss value.
         """
 
-        x_loc, x_conf = self.model(x)
+        x_locs, x_confs = self.model(x)
         loc_loss, conf_loss = multibox_loss(
-            x_loc, x_conf, t_loc, t_conf, self.k)
+            x_locs, x_confs, t_locs, t_confs, self.k)
         loss = loc_loss * self.alpha + conf_loss
 
         chainer.reporter.report(
