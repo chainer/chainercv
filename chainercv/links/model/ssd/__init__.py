@@ -10,3 +10,4 @@ from chainercv.links.model.ssd.ssd_vgg16 import SSD512  # NOQA
 from chainercv.links.model.ssd.ssd_vgg16 import VGG16  # NOQA
 from chainercv.links.model.ssd.ssd_vgg16 import VGG16Extractor300  # NOQA
 from chainercv.links.model.ssd.ssd_vgg16 import VGG16Extractor512  # NOQA
+from chainercv.links.model.train_transformer import TrainTransformer  # NOQA
