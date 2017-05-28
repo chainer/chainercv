@@ -45,13 +45,13 @@ python demo.py 0001TP_008550.png
 The trained weights to replicate the same results as below is here: [model_iteration-16000](https://www.dropbox.com/s/exas66necaqbxyw/model_iteration-16000).
 
 ```
-bash evaluate.sh [GPU ID] [MODEL SNAPSHOT]
+python evaluate.py [GPU ID] [MODEL SNAPSHOT]
 ```
 
 e.g.,
 
 ```
-bash evaluate.sh 0 result/2017-05-27_02-18-07/model_iteration-16000
+python evaluate.py 0 result/model_iteration-16000
 ```
 
 # Results

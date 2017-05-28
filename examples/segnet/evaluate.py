@@ -15,20 +15,55 @@ from chainercv.links import SegNetBasic
 import numpy as np
 
 
+def calc_bn_statistics(model, gpu):
+    model.to_gpu(gpu)
+
+    d = CamVidDataset(split='train')
+    it = chainer.iterators.SerialIterator(d, 24, repeat=False, shuffle=False)
+    bn_params = {}
+    num_iterations = 0
+    for batch in it:
+        imgs, labels = concat_examples(batch, device=gpu)
+        model(imgs)
+        for name, link in model.namedlinks():
+            if name.endswith('_bn'):
+                if name not in bn_params:
+                    bn_params[name] = [cuda.to_cpu(link.avg_mean),
+                                       cuda.to_cpu(link.avg_var)]
+                else:
+                    bn_params[name][0] += cuda.to_cpu(link.avg_mean)
+                    bn_params[name][1] += cuda.to_cpu(link.avg_var)
+        num_iterations += 1
+
+    for name, params in bn_params.items():
+        bn_params[name][0] /= num_iterations
+        bn_params[name][1] /= num_iterations
+
+    for name, link in model.namedlinks():
+        if name.endswith('_bn'):
+            link.avg_mean = bn_params[name][0]
+            link.avg_var = bn_params[name][1]
+
+    model.to_cpu()
+    return model
+
+
 def main():
     # This follows evaluation code used in SegNet.
     # https://github.com/alexgkendall/SegNet-Tutorial/blob/master/
     # # Scripts/compute_test_results.m
     parser = argparse.ArgumentParser()
-    parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--snapshot', type=str)
+    parser.add_argument('gpu', type=int, default=-1)
+    parser.add_argument('snapshot', type=str)
     parser.add_argument('--batchsize', type=int, default=24)
     args = parser.parse_args()
 
     n_class = 11
     ignore_labels = [11]
 
-    model = SegNetBasic(n_class, args.snapshot)
+    model = SegNetBasic(n_class=11)
+    serializers.load_npz(args.snapshot, model)
+    model = calc_bn_statistics(model, args.gpu)
     model.train = False
     if args.gpu >= 0:
         model.to_gpu(args.gpu)
