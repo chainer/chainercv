@@ -1,3 +1,4 @@
+from chainercv.datasets.camvid.camvid_dataset import camvid_ignore_label_color  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import camvid_label_colors  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import camvid_label_names  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import CamVidDataset  # NOQA

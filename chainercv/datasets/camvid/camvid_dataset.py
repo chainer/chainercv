@@ -42,6 +42,7 @@ camvid_label_colors = (
     (64, 64, 0),
     (0, 128, 192),
 )
+camvid_ignore_label_color = (0, 0, 0)
 
 
 def get_camvid():
