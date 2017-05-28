@@ -104,6 +104,46 @@ def encode_with_default_bbox(
 
 def decode_with_default_bbox(
         loc, conf, default_bbox, variance, nms_thresh, score_thresh):
+    """Decode coordinates and classes of bounding boxes.
+
+    This function decodes :obj:`loc` and :obj:`conf` returned
+    by a SSD network.
+
+    Args:
+        loc (array): A float array whose shape is
+            :math:`(K, 4)`, :math:`K` is the number of default bounding boxes.
+        conf (array): A float array whose shape is
+            :math:`(K, n\_fg\_class + 1)`.
+        default_bbox (array): An array holding coordinates of the default
+            bounding boxes. Its shape is :math:`(K, 4)`. Each bounding box is
+            organized by :obj:`(center_x, center_y, width, height)`.
+        variance (tuple of floats): Two coefficients for decoding
+            the locations of bounding boxe. The first value is used to
+            decode coordinates of the centers. The second value is used to
+            decode the sizes of bounding boxes.
+        nms_thresh (float): The threshold value
+            for :meth:`chainercv.transfroms.non_maximum_suppression`.
+        score_thresh (float): The threshold value for confidence score.
+            If a bounding box whose confidence score is lower than this value,
+            the bounding box will be suppressed.
+
+    Returns:
+        tuple of three arrays:
+        This method returns a tuple of three arrays,
+        :obj:`(bbox, label, score)`.
+
+         * **bbox**: A float array of shape :math:`(R, 4)`, \
+              where :math:`R` is the number of bounding boxes in a image. \
+              Each bouding box is organized by \
+              :obj:`(x_min, y_min, x_max, y_max)` \
+              in the second axis.
+         * **label** : An integer array of shape :math:`(R,)`. \
+              Each value indicates the class of the bounding box.
+         * **score** : A float array of shape :math:`(R,)`. \
+              Each value indicates how confident the prediction is.
+
+    """
+
     xp = chainer.cuda.get_array_module(loc, conf, default_bbox)
 
     # the format of raw_bbox is (center_x, center_y, width, height)

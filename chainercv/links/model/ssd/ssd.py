@@ -53,10 +53,10 @@ class SSD(chainer.Chain):
         sizes (iterable of float): The base size of default bounding boxes
             for each feature map. This value is used by
             :func:`~chainercv.links.model.ssd.generate_default_bbox`.
-        variance (tuple of float): Two coefficients for encoding
+        variance (tuple of floats): Two coefficients for decoding
             the locations of bounding boxe. The first value is used to
-            encode coordinates of the centers. The second value is used to
-            encode the sizes of bounding boxes.
+            decode coordinates of the centers. The second value is used to
+            decode the sizes of bounding boxes.
             The default value is :obj:`(0.1, 0.2)`.
 
     Parameters:
