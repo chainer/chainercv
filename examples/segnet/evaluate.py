@@ -28,9 +28,8 @@ def main():
     n_class = 11
     ignore_labels = [11]
 
-    model = SegNetBasic(n_class)
+    model = SegNetBasic(n_class, args.snapshot)
     model.train = False
-    serializers.load_npz(args.snapshot, model)
     if args.gpu >= 0:
         model.to_gpu(args.gpu)
 

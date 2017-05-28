@@ -15,11 +15,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('image')
-    parser.add_argument('snapshot')
     args = parser.parse_args()
 
-    model = SegNetBasic(n_class=11)
-    chainer.serializers.load_npz(args.snapshot, model)
+    model = SegNetBasic(n_class=11, pretrained_model='camvid')
 
     if args.gpu >= 0:
         model.to_gpu(args.gpu)

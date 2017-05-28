@@ -33,12 +33,11 @@ We used the completely same parameters for all settings.
 
 # Quick Demo
 
-Here is a quick demo using our pretrained weights.
+Here is a quick demo using our pretrained weights. The pretrained model is automatically downloaded from the internet.
 
 ```
-wget https://www.dropbox.com/s/exas66necaqbxyw/model_iteration-16000
 wget https://raw.githubusercontent.com/alexgkendall/SegNet-Tutorial/master/CamVid/test/0001TP_008550.png
-python demo.py 0001TP_008550.png model_iteration-16000
+python demo.py 0001TP_008550.png
 ```
 
 # Evaluation
