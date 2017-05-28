@@ -13,11 +13,12 @@ from chainercv.utils import read_image
 root = 'pfnet/chainercv/camvid'
 url = 'https://github.com/alexgkendall/SegNet-Tutorial/archive/master.zip'
 
+# https://github.com/alexgkendall/SegNet-Tutorial/blob/master/
+# Scripts/test_segmentation_camvid.py#L62
 camvid_label_names = (
     'Sky',
     'Building',
     'Pole',
-    'Road_marking',
     'Road',
     'Pavement',
     'Tree',
@@ -26,14 +27,13 @@ camvid_label_names = (
     'Car',
     'Pedestrian',
     'Bicyclist',
-    'Unlabelled',
+    'Unlabelled'
 )
 
 camvid_label_colors = (
     (128, 128, 128),
     (128, 0, 0),
     (192, 192, 128),
-    (255, 69, 0),
     (128, 64, 128),
     (60, 40, 222),
     (128, 128, 0),
@@ -42,7 +42,7 @@ camvid_label_colors = (
     (64, 0, 128),
     (64, 64, 0),
     (0, 128, 192),
-    (0, 0, 0),
+    (0, 0, 0)
 )
 
 
