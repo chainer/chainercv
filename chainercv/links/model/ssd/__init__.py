@@ -3,6 +3,7 @@ from chainercv.links.model.ssd.default_bbox_utils import encode_with_default_bbo
 from chainercv.links.model.ssd.default_bbox_utils import generate_default_bbox  # NOQA
 from chainercv.links.model.ssd.multibox import Multibox  # NOQA
 from chainercv.links.model.ssd.multibox_loss import multibox_loss  # NOQA
+from chainercv.links.model.ssd.multibox_train_chain import MultiboxTrainChain  # NOQA
 from chainercv.links.model.ssd.normalize import Normalize  # NOQA
 from chainercv.links.model.ssd.ssd import SSD  # NOQA
 from chainercv.links.model.ssd.ssd_vgg16 import SSD300  # NOQA
@@ -10,4 +11,4 @@ from chainercv.links.model.ssd.ssd_vgg16 import SSD512  # NOQA
 from chainercv.links.model.ssd.ssd_vgg16 import VGG16  # NOQA
 from chainercv.links.model.ssd.ssd_vgg16 import VGG16Extractor300  # NOQA
 from chainercv.links.model.ssd.ssd_vgg16 import VGG16Extractor512  # NOQA
-from chainercv.links.model.train_transformer import TrainTransformer  # NOQA
+from chainercv.links.model.ssd.train_transformer import TrainTransformer  # NOQA

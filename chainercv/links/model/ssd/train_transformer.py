@@ -12,10 +12,15 @@ class TrainTransformer(object):
         self.default_bbox = default_bbox
         self.variance = variance
 
-    def __call__(self, img, bbox, label):
+    def __call__(self, in_data):
+        img, bbox, label = in_data
+
+        _, H, W = img.shape
         x = transforms.resize(img, (self.insize, self.insize))
         x -= np.array(self.mean)[:, np.newaxis, np.newaxis]
-
+        bbox = bbox.copy()
+        bbox[:, 0::2] /= W
+        bbox[:, 1::2] /= H
         loc, conf = encode_with_default_bbox(
             bbox, label,
             self.default_bbox, self.variance, 0.5)
