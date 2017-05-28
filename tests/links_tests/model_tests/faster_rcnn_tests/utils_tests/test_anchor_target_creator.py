@@ -33,29 +33,29 @@ class TestAnchorTargetCreator(unittest.TestCase):
         self.n_anchor = self.n_anchor_base * np.prod(feat_size)
 
         self.anchor = _generate_bbox(self.n_anchor, self.img_size, 16, 200)
-        self.raw_bbox = _generate_bbox(n_bbox, self.img_size, 16, 200)
+        self.bbox = _generate_bbox(n_bbox, self.img_size, 16, 200)
         self.anchor_target_layer = AnchorTargetCreator(
             self.n_sample, fg_fraction=self.fg_fraction,
         )
 
     def check_anchor_target_creator(
             self, anchor_target_layer,
-            raw_bbox, anchor, img_size):
-        xp = cuda.get_array_module(raw_bbox)
+            bbox, anchor, img_size):
+        xp = cuda.get_array_module(bbox)
 
-        bbox_target, label = self.anchor_target_layer(
-            raw_bbox, anchor, img_size)
+        loc, label = self.anchor_target_layer(
+            bbox, anchor, img_size)
 
         # Test types
-        self.assertIsInstance(bbox_target, xp.ndarray)
+        self.assertIsInstance(loc, xp.ndarray)
         self.assertIsInstance(label, xp.ndarray)
 
         # Test shapes
-        self.assertEqual(bbox_target.shape, (self.n_anchor, 4))
+        self.assertEqual(loc.shape, (self.n_anchor, 4))
         self.assertEqual(label.shape, (self.n_anchor,))
 
         # Test dtype
-        self.assertEqual(bbox_target.dtype, np.float32)
+        self.assertEqual(loc.dtype, np.float32)
         self.assertEqual(label.dtype, np.int32)
 
         # Test ratio of foreground and background labels
@@ -71,7 +71,7 @@ class TestAnchorTargetCreator(unittest.TestCase):
     def test_anchor_target_creator_cpu(self):
         self.check_anchor_target_creator(
             self.anchor_target_layer,
-            self.raw_bbox,
+            self.bbox,
             self.anchor,
             self.img_size)
 
@@ -79,7 +79,7 @@ class TestAnchorTargetCreator(unittest.TestCase):
     def test_anchor_target_creator_gpu(self):
         self.check_anchor_target_creator(
             self.anchor_target_layer,
-            cuda.to_gpu(self.raw_bbox),
+            cuda.to_gpu(self.bbox),
             cuda.to_gpu(self.anchor),
             self.img_size)
 

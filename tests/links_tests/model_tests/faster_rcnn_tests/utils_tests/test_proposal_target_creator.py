@@ -43,27 +43,27 @@ class TestProposalTargetCreator(unittest.TestCase):
     def check_proposal_target_creator(
             self, bbox, label, roi, proposal_target_creator):
         xp = cuda.get_array_module(roi)
-        sample_roi, roi_gt_loc, roi_gt_label =\
+        sample_roi, gt_roi_loc, gt_roi_label =\
             proposal_target_creator(roi, bbox, label)
 
         # Test types
         self.assertIsInstance(sample_roi, xp.ndarray)
-        self.assertIsInstance(roi_gt_loc, xp.ndarray)
-        self.assertIsInstance(roi_gt_label, xp.ndarray)
+        self.assertIsInstance(gt_roi_loc, xp.ndarray)
+        self.assertIsInstance(gt_roi_label, xp.ndarray)
 
         sample_roi = cuda.to_cpu(sample_roi)
-        roi_gt_loc = cuda.to_cpu(roi_gt_loc)
-        roi_gt_label = cuda.to_cpu(roi_gt_label)
+        gt_roi_loc = cuda.to_cpu(gt_roi_loc)
+        gt_roi_label = cuda.to_cpu(gt_roi_label)
 
         # Test shapes
         self.assertEqual(sample_roi.shape, (self.batch_size, 4))
-        self.assertEqual(roi_gt_loc.shape, (self.batch_size, 4))
-        self.assertEqual(roi_gt_label.shape, (self.batch_size,))
+        self.assertEqual(gt_roi_loc.shape, (self.batch_size, 4))
+        self.assertEqual(gt_roi_label.shape, (self.batch_size,))
 
         # Test foreground and background labels
-        np.testing.assert_equal(np.sum(roi_gt_label >= 0), self.batch_size)
-        n_fg = np.sum(roi_gt_label >= 1)
-        n_bg = np.sum(roi_gt_label == 0)
+        np.testing.assert_equal(np.sum(gt_roi_label >= 0), self.batch_size)
+        n_fg = np.sum(gt_roi_label >= 1)
+        n_bg = np.sum(gt_roi_label == 0)
         self.assertLessEqual(n_fg, self.batch_size * self.fg_fraction)
         self.assertLessEqual(n_bg, self.batch_size - n_fg)
 
