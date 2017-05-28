@@ -109,7 +109,7 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
         """
         if i >= len(self):
             raise IndexError('index is too large')
-        image_fn, label_fn = self.filenames[i]
-        img = read_image(image_fn, color=True)
-        label = read_image(label_fn, dtype=np.int32, color=False)[0]
+        img_filename, label_filename = self.filenames[i]
+        img = read_image(img_filename, color=True)
+        label = read_image(label_filename, dtype=np.int32, color=False)[0]
         return img, label
