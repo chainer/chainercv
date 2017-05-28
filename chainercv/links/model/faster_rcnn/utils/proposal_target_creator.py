@@ -82,22 +82,11 @@ class ProposalTargetCreator(object):
 
             * **sample_roi**: Regions of interests that are sampled. \
                 Its shape is :math:`(S, 4)`.
-            * **gt_roi_cls_loc**: Ground truth offsets and scales to match \
+            * **gt_roi_loc**: Ground truth offsets and scales to match \
                 the sampled RoIs to the ground truth bounding boxes. \
-                Its shape is :math:`(S, L \\times 4)`. The last \
-                axis represents bounding box offsets for each of the \
-                :math:`L` classes. The coordinates for the same class is \
-                contiguous in this array.
+                Its shape is :math:`(S, 4)`.
             * **gt_roi_label**: Labels sampled for training. Its shape is \
                 :math:`(S,)`.
-            * **roi_loc_in_weight**: Inside weights used to \
-                compute losses for Faster RCNN. Its shape is \
-                :math:`(S, L \\times 4)`. The second axis is organized \
-                similarly to :obj:`gt_roi_cls_loc`.
-            * **roi_loc_out_weight**: Outside weights used to compute \
-                losses for Faster RCNN. Its shape is \
-                :math:`(S, L \\times 4)`. The second axis is organized \
-                similarly to :obj:`gt_roi_cls_loc`.
 
         """
         xp = cuda.get_array_module(roi)
@@ -109,18 +98,6 @@ class ProposalTargetCreator(object):
 
         roi = np.concatenate((roi, bbox), axis=0)
 
-        # Sample rois with classification labels and offsets/scales to the GTs.
-        sample_roi, gt_roi_loc, gt_roi_label = self._sample_roi(
-            roi, bbox, label, loc_normalize_mean, loc_normalize_std)
-
-        if xp != np:
-            sample_roi = cuda.to_gpu(sample_roi)
-            gt_roi_loc = cuda.to_gpu(gt_roi_loc)
-            gt_roi_label = cuda.to_gpu(gt_roi_label)
-        return sample_roi, gt_roi_loc, gt_roi_label
-
-    def _sample_roi(self, roi, bbox, label,
-                    loc_normalize_mean, loc_normalize_std):
         fg_roi_per_image = np.round(self.batch_size * self.fg_fraction)
         iou = bbox_iou(roi, bbox)
         gt_assignment = iou.argmax(axis=1)
@@ -153,4 +130,9 @@ class ProposalTargetCreator(object):
         gt_roi_loc = bbox2loc(sample_roi, bbox[gt_assignment[keep_index]])
         gt_roi_loc = ((gt_roi_loc - np.array(loc_normalize_mean)
                        ) / np.array(loc_normalize_std))
+
+        if xp != np:
+            sample_roi = cuda.to_gpu(sample_roi)
+            gt_roi_loc = cuda.to_gpu(gt_roi_loc)
+            gt_roi_label = cuda.to_gpu(gt_roi_label)
         return sample_roi, gt_roi_loc, gt_roi_label
