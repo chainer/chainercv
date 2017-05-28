@@ -103,10 +103,9 @@ class FasterRCNNTrainChain(chainer.Chain):
         roi = rois
 
         # Sample RoIs and forward
-        sample_roi, gt_roi_cls_loc, gt_roi_label, roi_loc_in_weight =\
-            self.proposal_target_creator(
-                roi, bbox, label, self.n_class,
-                self.loc_normalize_mean, self.loc_normalize_std)
+        sample_roi, gt_roi_loc, gt_roi_label = self.proposal_target_creator(
+            roi, bbox, label,
+            self.loc_normalize_mean, self.loc_normalize_std)
         sample_roi_index = self.xp.zeros((len(sample_roi),), dtype=np.int32)
         roi_cls_loc, roi_score = self.faster_rcnn.head(
             features, sample_roi, sample_roi_index, test=not self.train)
@@ -123,6 +122,8 @@ class FasterRCNNTrainChain(chainer.Chain):
 
         # Losses for outputs of the head.
         cls_loss = F.softmax_cross_entropy(roi_score, gt_roi_label)
+        gt_roi_cls_loc, roi_loc_in_weight = _loc2cls_loc(
+            gt_roi_loc, gt_roi_label, self.n_class)
         loc_loss = _smooth_l1_loss(
             roi_cls_loc, gt_roi_cls_loc,
             roi_loc_in_weight, self.sigma)
@@ -148,3 +149,21 @@ def _smooth_l1_loss(x, t, in_weight, sigma):
 
     y /= y.shape[0]
     return F.sum(y)
+
+
+def _loc2cls_loc(loc, label, n_class):
+    # From loc (R, 4) and label (R,), this function computes
+    # cls_loc (R, L * 4).
+    # Only one class has non-zero targets in this representation.
+    xp = cuda.get_array_module(loc)
+    n_bbox = label.shape[0]
+    cls_loc = xp.zeros((n_bbox, n_class * 4), dtype=np.float32)
+    loc_in_weight = xp.zeros_like(cls_loc)
+    index = xp.where(label > 0)[0]
+    for ind in index:
+        l = int(label[ind])
+        start = int(4 * l)
+        end = int(start + 4)
+        cls_loc[ind, start:end] = loc[ind]
+        loc_in_weight[ind, start:end] = 1
+    return cls_loc, loc_in_weight

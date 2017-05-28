@@ -19,8 +19,6 @@ class ProposalTargetCreator(object):
 
     Args:
         batch_size (int): Number of regions to produce.
-        loc_in_weight_base (tuple of four floats): Weights applied to
-            :obj:`loc` used by Faster R-CNN.
         fg_fraction (float): Fraction of regions that is labeled foreground.
         fg_thresh (float): IoU threshold for a ROI to be considered
             foreground.
@@ -32,18 +30,16 @@ class ProposalTargetCreator(object):
 
     def __init__(self,
                  batch_size=128,
-                 loc_in_weight_base=(1., 1., 1., 1.),
                  fg_fraction=0.25,
                  fg_thresh=0.5, bg_thresh_hi=0.5, bg_thresh_lo=0.0
                  ):
         self.batch_size = batch_size
         self.fg_fraction = fg_fraction
-        self.loc_in_weight_base = loc_in_weight_base
         self.fg_thresh = fg_thresh
         self.bg_thresh_hi = bg_thresh_hi
         self.bg_thresh_lo = bg_thresh_lo
 
-    def __call__(self, roi, bbox, label, n_class,
+    def __call__(self, roi, bbox, label,
                  loc_normalize_mean=(0., 0., 0., 0.),
                  loc_normalize_std=(0.1, 0.1, 0.2, 0.2)):
         """Assigns labels to sampled proposals from RPN.
@@ -76,7 +72,6 @@ class ProposalTargetCreator(object):
                 :math:`(R', 4)`.
             label (array): The ground truth bounding box labels. Its shape \
                 is :math:`(R',)`.
-            n_class (int): Number of classes possibly including the background.
             loc_normalize_mean (tuple of four floats): Mean values to normalize
                 coordinates of bouding boxes.
             loc_normalize_std (tupler of four floats): Standard deviation of
@@ -118,18 +113,11 @@ class ProposalTargetCreator(object):
         sample_roi, gt_roi_loc, gt_roi_label = self._sample_roi(
             roi, bbox, label, loc_normalize_mean, loc_normalize_std)
 
-        # Convert loc (R, 4) and cls (R,) to obtain cls_loc (R, L * 4)
-        gt_roi_cls_loc, roi_loc_in_weight =\
-            self._get_bbox_regression_label(
-                gt_roi_loc, gt_roi_label, n_class)
-
         if xp != np:
             sample_roi = cuda.to_gpu(sample_roi)
-            gt_roi_cls_loc = cuda.to_gpu(gt_roi_cls_loc)
+            gt_roi_loc = cuda.to_gpu(gt_roi_loc)
             gt_roi_label = cuda.to_gpu(gt_roi_label)
-            roi_loc_in_weight = cuda.to_gpu(roi_loc_in_weight)
-        return sample_roi, gt_roi_cls_loc, gt_roi_label,\
-            roi_loc_in_weight
+        return sample_roi, gt_roi_loc, gt_roi_label
 
     def _sample_roi(self, roi, bbox, label,
                     loc_normalize_mean, loc_normalize_std):
@@ -166,20 +154,3 @@ class ProposalTargetCreator(object):
         gt_roi_loc = ((gt_roi_loc - np.array(loc_normalize_mean)
                        ) / np.array(loc_normalize_std))
         return sample_roi, gt_roi_loc, gt_roi_label
-
-    def _get_bbox_regression_label(self, loc, label, n_class):
-        # From loc (R, 4) and label (R,), this function computes
-        # cls_loc (R, L * 4).
-        # Only one class has non-zero targets in this representation.
-
-        n_bbox = label.shape[0]
-        cls_loc = np.zeros((n_bbox, 4 * n_class), dtype=np.float32)
-        loc_in_weight = np.zeros_like(cls_loc)
-        index = np.where(label > 0)[0]
-        for ind in index:
-            l = int(label[ind])
-            start = int(4 * l)
-            end = int(start + 4)
-            cls_loc[ind, start:end] = loc[ind]
-            loc_in_weight[ind, start:end] = self.loc_in_weight_base
-        return cls_loc, loc_in_weight
