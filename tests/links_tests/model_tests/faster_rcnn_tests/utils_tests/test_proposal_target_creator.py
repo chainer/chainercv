@@ -25,7 +25,7 @@ class TestProposalTargetCreator(unittest.TestCase):
     batch_size = 128
     n_class = 21
     fg_fraction = 0.25
-    loc_in_weight = (0.7, 0.8, 0.9, 1.)
+    loc_in_weight_base = (0.7, 0.8, 0.9, 1.)
 
     def setUp(self):
 
@@ -39,7 +39,7 @@ class TestProposalTargetCreator(unittest.TestCase):
         self.proposal_target_creator = ProposalTargetCreator(
             batch_size=self.batch_size,
             fg_fraction=self.fg_fraction,
-            loc_in_weight=self.loc_in_weight,
+            loc_in_weight_base=self.loc_in_weight_base,
         )
 
     def check_proposal_target_creator(
@@ -94,7 +94,7 @@ class TestProposalTargetCreator(unittest.TestCase):
         bbox_outside_00 = roi_bbox_outside_weight[index_0]
         np.testing.assert_equal(
             bbox_inside_00,
-            np.array(self.loc_in_weight, dtype=np.float32))
+            np.array(self.loc_in_weight_base, dtype=np.float32))
         np.testing.assert_equal(
             bbox_outside_00,
             np.array((1, 1, 1, 1), dtype=np.float32))

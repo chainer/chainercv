@@ -19,7 +19,7 @@ class ProposalTargetCreator(object):
 
     Args:
         batch_size (int): Number of regions to produce.
-        loc_in_weight (tuple of four floats): Weights applied to
+        loc_in_weight_base (tuple of four floats): Weights applied to
             :obj:`loc` used by Faster R-CNN.
         fg_fraction (float): Fraction of regions that is labeled foreground.
         fg_thresh (float): IoU threshold for a ROI to be considered
@@ -32,13 +32,13 @@ class ProposalTargetCreator(object):
 
     def __init__(self,
                  batch_size=128,
-                 loc_in_weight=(1., 1., 1., 1.),
+                 loc_in_weight_base=(1., 1., 1., 1.),
                  fg_fraction=0.25,
                  fg_thresh=0.5, bg_thresh_hi=0.5, bg_thresh_lo=0.0
                  ):
         self.batch_size = batch_size
         self.fg_fraction = fg_fraction
-        self.loc_in_weight = loc_in_weight
+        self.loc_in_weight_base = loc_in_weight_base
         self.fg_thresh = fg_thresh
         self.bg_thresh_hi = bg_thresh_hi
         self.bg_thresh_lo = bg_thresh_lo
@@ -184,5 +184,5 @@ class ProposalTargetCreator(object):
             start = int(4 * l)
             end = int(start + 4)
             cls_loc[ind, start:end] = loc[ind]
-            loc_in_weight[ind, start:end] = self.loc_in_weight
+            loc_in_weight[ind, start:end] = self.loc_in_weight_base
         return cls_loc, loc_in_weight

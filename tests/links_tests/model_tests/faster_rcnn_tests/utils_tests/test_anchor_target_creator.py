@@ -26,7 +26,7 @@ class TestAnchorTargetCreator(unittest.TestCase):
     n_sample = 256
     n_anchor_base = 9
     fg_fraction = 0.5
-    loc_in_weight = (1., 0.9, 0.8, 0.7)
+    loc_in_weight_base = (1., 0.9, 0.8, 0.7)
 
     def setUp(self):
         n_bbox = 8
@@ -37,7 +37,7 @@ class TestAnchorTargetCreator(unittest.TestCase):
         self.raw_bbox = _generate_bbox(n_bbox, self.img_size, 16, 200)
         self.anchor_target_layer = AnchorTargetCreator(
             self.n_sample, fg_fraction=self.fg_fraction,
-            loc_in_weight=self.loc_in_weight
+            loc_in_weight_base=self.loc_in_weight_base
         )
 
     def check_anchor_target_creator(
@@ -79,7 +79,7 @@ class TestAnchorTargetCreator(unittest.TestCase):
         # Test loc_in_weight
         loc_in_weight_masked = loc_in_weight[label == 1]
         loc_in_weight_target = xp.tile(
-            xp.array(self.loc_in_weight),
+            xp.array(self.loc_in_weight_base),
             loc_in_weight_masked.shape[0]).reshape(-1, 4)
         np.testing.assert_almost_equal(
             cuda.to_cpu(loc_in_weight_masked),

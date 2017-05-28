@@ -29,7 +29,7 @@ class AnchorTargetCreator(object):
             threshold will be assigned as negative.
         fg_fraction (float): Fraction of positive regions in the
             set of all regions produced.
-        loc_in_weight (tuple of four floats): Four coefficients
+        loc_in_weight_base (tuple of four floats): Four coefficients
             used to calculate loc_in_weight.
 
     """
@@ -38,12 +38,12 @@ class AnchorTargetCreator(object):
                  n_sample=256,
                  positive_iou_thresh=0.7, negative_iou_thresh=0.3,
                  fg_fraction=0.5,
-                 loc_in_weight=(1., 1., 1., 1.)):
+                 loc_in_weight_base=(1., 1., 1., 1.)):
         self.n_sample = n_sample
         self.positive_iou_thresh = positive_iou_thresh
         self.negative_iou_thresh = negative_iou_thresh
         self.fg_fraction = fg_fraction
-        self.loc_in_weight = loc_in_weight
+        self.loc_in_weight_base = loc_in_weight_base
 
     def __call__(self, bbox, anchor, img_size):
         """Calculate targets of classification labels and bbox regressions.
@@ -95,7 +95,7 @@ class AnchorTargetCreator(object):
         # calculate inside and outside weights weights
         loc_in_weight = np.zeros((len(inside_index), 4), dtype=np.float32)
         loc_in_weight[label == 1, :] = np.array(
-            self.loc_in_weight)
+            self.loc_in_weight_base)
         loc_out_weight = self._calc_outside_weights(inside_index, label)
 
         # map up to original set of anchors
