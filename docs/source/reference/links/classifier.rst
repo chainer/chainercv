@@ -1,10 +1,10 @@
-Loss
-====
+Classifier
+==========
 
 .. module:: chainercv.links
 
-SemanticSegmentationLoss
-------------------------
+PixelwiseSoftmaxClassifier
+--------------------------
 .. autoclass:: PixelwiseSoftmaxClassifier
    :members:
    :special-members:  __call__

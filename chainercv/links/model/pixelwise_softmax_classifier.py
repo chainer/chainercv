@@ -18,7 +18,7 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
     Args:
         predictor (~chainer.Link): Predictor network.
         ignore_label (int): A class id that is going to be ignored in
-            evaluation.
+            evaluation. The default value is -1.
         class_weight (array): An array
             that contains constant weights that will be multiplied with the
             loss values along with the channel dimension. This will be
