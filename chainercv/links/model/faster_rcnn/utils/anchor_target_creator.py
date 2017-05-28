@@ -73,8 +73,6 @@ class AnchorTargetCreator(object):
                 is :math:`(S,)`.
             * **loc_in_weight**: Inside weight used to compute losses \
                 for Faster R-CNN. Its shape is :math:`(S, 4)`.
-            * **loc_out_weight** Outside weight used to compute losses \
-                for Faster R-CNN. Its shape is :math:`(S, 4)`.
 
         """
         xp = cuda.get_array_module(bbox)
@@ -96,22 +94,18 @@ class AnchorTargetCreator(object):
         loc_in_weight = np.zeros((len(inside_index), 4), dtype=np.float32)
         loc_in_weight[label == 1, :] = np.array(
             self.loc_in_weight_base)
-        loc_out_weight = self._calc_outside_weights(inside_index, label)
 
         # map up to original set of anchors
         label = _unmap(label, n_anchor, inside_index, fill=-1)
         loc = _unmap(loc, n_anchor, inside_index, fill=0)
         loc_in_weight = _unmap(
             loc_in_weight, n_anchor, inside_index, fill=0)
-        loc_out_weight = _unmap(
-            loc_out_weight, n_anchor, inside_index, fill=0)
 
         if xp != np:
             loc = chainer.cuda.to_gpu(loc)
             label = chainer.cuda.to_gpu(label)
             loc_in_weight = chainer.cuda.to_gpu(loc_in_weight)
-            loc_out_weight = chainer.cuda.to_gpu(loc_out_weight)
-        return loc, label, loc_in_weight, loc_out_weight
+        return loc, label, loc_in_weight
 
     def _create_label(self, inside_index, anchor, bbox):
         # label: 1 is positive, 0 is negative, -1 is dont care
@@ -158,20 +152,6 @@ class AnchorTargetCreator(object):
         gt_argmax_ious = np.where(ious == gt_max_ious)[0]
 
         return argmax_ious, max_ious, gt_argmax_ious
-
-    def _calc_outside_weights(self, inside_index, label):
-        loc_out_weight = np.zeros(
-            (len(inside_index), 4), dtype=np.float32)
-        # uniform weighting of examples (given non-uniform sampling)
-        n_example = np.sum(label >= 0)
-
-        positive_weight = np.ones((1, 4)) * 1.0 / n_example
-        negative_weight = np.ones((1, 4)) * 1.0 / n_example
-
-        loc_out_weight[label == 1, :] = positive_weight
-        loc_out_weight[label == 0, :] = negative_weight
-
-        return loc_out_weight
 
 
 def _unmap(data, count, index, fill=0):

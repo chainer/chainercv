@@ -123,16 +123,13 @@ class ProposalTargetCreator(object):
             self._get_bbox_regression_label(
                 gt_roi_loc, gt_roi_label, n_class)
 
-        roi_loc_out_weight = (roi_loc_in_weight > 0).astype(np.float32)
-
         if xp != np:
             sample_roi = cuda.to_gpu(sample_roi)
             gt_roi_cls_loc = cuda.to_gpu(gt_roi_cls_loc)
             gt_roi_label = cuda.to_gpu(gt_roi_label)
             roi_loc_in_weight = cuda.to_gpu(roi_loc_in_weight)
-            roi_loc_out_weight = cuda.to_gpu(roi_loc_out_weight)
         return sample_roi, gt_roi_cls_loc, gt_roi_label,\
-            roi_loc_in_weight, roi_loc_out_weight
+            roi_loc_in_weight
 
     def _sample_roi(self, roi, bbox, label,
                     loc_normalize_mean, loc_normalize_std):

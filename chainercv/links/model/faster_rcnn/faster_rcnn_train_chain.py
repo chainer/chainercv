@@ -103,8 +103,8 @@ class FasterRCNNTrainChain(chainer.Chain):
         roi = rois
 
         # Sample RoIs and forward
-        sample_roi, gt_roi_cls_loc, gt_roi_label, roi_loc_in_weight, \
-            roi_loc_out_weight = self.proposal_target_creator(
+        sample_roi, gt_roi_cls_loc, gt_roi_label, roi_loc_in_weight =\
+            self.proposal_target_creator(
                 roi, bbox, label, self.n_class,
                 self.loc_normalize_mean, self.loc_normalize_std)
         sample_roi_index = self.xp.zeros((len(sample_roi),), dtype=np.int32)
@@ -112,19 +112,20 @@ class FasterRCNNTrainChain(chainer.Chain):
             features, sample_roi, sample_roi_index, test=not self.train)
 
         # RPN losses
-        gt_rpn_loc, gt_rpn_label, rpn_loc_in_weight, rpn_loc_out_weight =\
+        gt_rpn_loc, gt_rpn_label, rpn_loc_in_weight =\
             self.anchor_target_creator(bbox, anchor, img_size)
 
         rpn_cls_loss = F.softmax_cross_entropy(rpn_score, gt_rpn_label)
         rpn_loc_loss = _smooth_l1_loss(
             rpn_loc, gt_rpn_loc,
-            rpn_loc_in_weight, rpn_loc_out_weight, self.rpn_sigma)
+            rpn_loc_in_weight, self.rpn_sigma)
+        rpn_loc_loss  /= self.xp.sum(gt_rpn_label >= 0)
 
         # Losses for outputs of the head.
         cls_loss = F.softmax_cross_entropy(roi_score, gt_roi_label)
         loc_loss = _smooth_l1_loss(
             roi_cls_loc, gt_roi_cls_loc,
-            roi_loc_in_weight, roi_loc_out_weight, self.sigma)
+            roi_loc_in_weight, self.sigma)
 
         loss = rpn_loc_loss + rpn_cls_loss + loc_loss + cls_loss
         chainer.reporter.report({'rpn_loc_loss': rpn_loc_loss,
@@ -136,7 +137,7 @@ class FasterRCNNTrainChain(chainer.Chain):
         return loss
 
 
-def _smooth_l1_loss(x, t, in_weight, out_weight, sigma):
+def _smooth_l1_loss(x, t, in_weight, sigma):
     sigma2 = sigma ** 2
     diff = in_weight * (x - t)
     abs_diff = F.absolute(diff)
@@ -145,6 +146,5 @@ def _smooth_l1_loss(x, t, in_weight, out_weight, sigma):
     y = (flag * (sigma2 / 2.) * F.square(diff) +
          (1 - flag) * (abs_diff - 0.5 / sigma2))
 
-    y = y * out_weight
     y /= y.shape[0]
     return F.sum(y)
