@@ -109,7 +109,7 @@ class ProposalTargetCreator(object):
             fg_index = np.random.choice(
                 fg_index, size=fg_roi_per_this_image, replace=False)
 
-        # Select background RoIs as those within [neg_thresh_lo, neg_thresh_hi).
+        # Select background RoIs as those within [neg_thresh_lo, neg_thresh_hi)
         bg_index = np.where((max_iou < self.neg_thresh_hi) &
                             (max_iou >= self.neg_thresh_lo))[0]
         bg_roi_per_this_image = self.n_sample - fg_roi_per_this_image

@@ -14,9 +14,18 @@ class FasterRCNNTrainChain(chainer.Chain):
 
     """Calculate losses for Faster R-CNN and report them.
 
-    This is used to train Faster R-CNN in the joint training scheme [#]_.
+    This is used to train Faster R-CNN in the joint training scheme
+    [#FRCNN]_.
 
-    .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
+    The losses include:
+
+    * :obj:`rpn_loc_loss`: The localization loss for \
+        Region Proposal Network (RPN).
+    * :obj:`rpn_cls_loss`: The classification loss for RPN.
+    * :obj:`roi_loc_loss`: The localization loss for the head module.
+    * :obj:`roi_cls_loss`: The classification loss for the head module.
+
+    .. [#FRCNN] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
     Faster R-CNN: Towards Real-Time Object Detection with \
     Region Proposal Networks. NIPS 2015.
 
@@ -25,10 +34,10 @@ class FasterRCNNTrainChain(chainer.Chain):
             A Faster R-CNN model that is going to be trained.
         rpn_sigma (float): Sigma parameter for the localization loss
             of Region Proposal Network (RPN). The default value is 3,
-            which is the value used in [#]_.
+            which is the value used in [#FRCNN]_.
         sigma (float): Sigma paramter for the localization loss of
-            the calculated from the output of the head. The default
-            value is 1, which is the value used in [#]_.
+            the head. The default value is 1, which is the value used
+            in [#FRCNN]_.
         anchor_target_creator: An instantiation of
             :obj:`chainercv.links.model.faster_rcnn.AnchorTargetCreator`.
         proposal_target_creator_params: An instantiation of
