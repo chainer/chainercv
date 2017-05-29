@@ -75,7 +75,9 @@ class FasterRCNNTrainChain(chainer.Chain):
             bboxes (~chainer.Variable): A batch of bounding boxes.
                 Its shape is :math:`(N, R, 4)`.
             labels (~chainer.Variable): A batch of labels.
-                Its shape is :math:`(N, R)`.
+                Its shape is :math:`(N, R)`. The background is excluded from
+                the definition, which means that the range of the value
+                is :obj:`[0, self.faster_rcnn.n_class - 2]`.
             scale (float or ~chainer.Variable): Amount of scaling applied to
                 the raw image during preprocessing.
 
@@ -110,6 +112,10 @@ class FasterRCNNTrainChain(chainer.Chain):
         rpn_score = rpn_scores[0]
         rpn_loc = rpn_locs[0]
         roi = rois
+
+        # Offset range of classes from [0, n_class - 2] to [1, n_class - 1].
+        # The label with value 0 is the background.
+        label = label + 1
 
         # Sample RoIs and forward
         sample_roi, gt_roi_loc, gt_roi_label = self.proposal_target_creator(
