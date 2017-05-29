@@ -4,9 +4,9 @@ import chainer
 from chainer import cuda
 import chainer.functions as F
 
-from chainercv.links.model.faster_rcnn.utils.anchor_target_creator import \
+from chainercv.links.model.faster_rcnn.utils.anchor_target_creator import\
     AnchorTargetCreator
-from chainercv.links.model.faster_rcnn.utils.proposal_target_creator import \
+from chainercv.links.model.faster_rcnn.utils.proposal_target_creator import\
     ProposalTargetCreator
 
 
