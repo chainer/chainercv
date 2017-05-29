@@ -70,7 +70,8 @@ class ProposalTargetCreator(object):
             bbox (array): The coordinates of ground truth bounding boxes.
                 Its shape is :math:`(R', 4)`.
             label (array): Ground truth bounding box labels. Its shape
-                is :math:`(R',)`.
+                is :math:`(R',)`. Its range is :math:`[0, L - 1]`, where
+                :math:`L` is the number of foreground classes.
             loc_normalize_mean (tuple of four floats): Mean values to normalize
                 coordinates of bouding boxes.
             loc_normalize_std (tupler of four floats): Standard deviation of
@@ -85,7 +86,8 @@ class ProposalTargetCreator(object):
                 the sampled RoIs to the ground truth bounding boxes. \
                 Its shape is :math:`(S, 4)`.
             * **gt_roi_label**: Labels assigned to sampled RoIs. Its shape is \
-                :math:`(S,)`.
+                :math:`(S,)`. Its range is :math:`[0, L]`. The label with \
+                value 0 is the background.
 
         """
         xp = cuda.get_array_module(roi)
@@ -101,7 +103,9 @@ class ProposalTargetCreator(object):
         iou = bbox_iou(roi, bbox)
         gt_assignment = iou.argmax(axis=1)
         max_iou = iou.max(axis=1)
-        gt_roi_label = label[gt_assignment]
+        # Offset range of classes from [0, n_fg_class - 1] to [1, n_fg_class].
+        # The label with value 0 is the background.
+        gt_roi_label = label[gt_assignment] + 1
 
         # Select foreground RoIs as those with >= pos_iou_thresh IoU.
         pos_index = np.where(max_iou >= self.pos_iou_thresh)[0]
