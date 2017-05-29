@@ -25,7 +25,7 @@ class TestAnchorTargetCreator(unittest.TestCase):
     img_size = (320, 240)
     n_sample = 256
     n_anchor_base = 9
-    positive_ratio = 0.5
+    pos_ratio = 0.5
 
     def setUp(self):
         n_bbox = 8
@@ -35,7 +35,7 @@ class TestAnchorTargetCreator(unittest.TestCase):
         self.anchor = _generate_bbox(self.n_anchor, self.img_size, 16, 200)
         self.bbox = _generate_bbox(n_bbox, self.img_size, 16, 200)
         self.anchor_target_layer = AnchorTargetCreator(
-            self.n_sample, positive_ratio=self.positive_ratio,
+            self.n_sample, pos_ratio=self.pos_ratio,
         )
 
     def check_anchor_target_creator(
@@ -65,7 +65,7 @@ class TestAnchorTargetCreator(unittest.TestCase):
         n_pos = cuda.to_cpu(utils.force_array(xp.sum(label == 1)))
         n_neg = cuda.to_cpu(utils.force_array(xp.sum(label == 0)))
         self.assertLessEqual(
-            n_pos, self.n_sample * self.positive_ratio)
+            n_pos, self.n_sample * self.pos_ratio)
         self.assertLessEqual(n_neg, self.n_sample - n_pos)
 
     def test_anchor_target_creator_cpu(self):

@@ -24,23 +24,23 @@ class AnchorTargetCreator(object):
 
     Args:
         n_sample (int): The number of regions to produce.
-        positive_iou_thresh (float): Anchors with IoU above this
+        pos_iou_thresh (float): Anchors with IoU above this
             threshold will be assigned as positive.
-        negative_iou_thresh (float): Anchors with IoU below this
+        neg_iou_thresh (float): Anchors with IoU below this
             threshold will be assigned as negative.
-        positive_ratio (float): Ratio of positive regions in the
+        pos_ratio (float): Ratio of positive regions in the
             sampled regions.
 
     """
 
     def __init__(self,
                  n_sample=256,
-                 positive_iou_thresh=0.7, negative_iou_thresh=0.3,
-                 positive_ratio=0.5):
+                 pos_iou_thresh=0.7, neg_iou_thresh=0.3,
+                 pos_ratio=0.5):
         self.n_sample = n_sample
-        self.positive_iou_thresh = positive_iou_thresh
-        self.negative_iou_thresh = negative_iou_thresh
-        self.positive_ratio = positive_ratio
+        self.pos_iou_thresh = pos_iou_thresh
+        self.neg_iou_thresh = neg_iou_thresh
+        self.pos_ratio = pos_ratio
 
     def __call__(self, bbox, anchor, img_size):
         """Assign ground truth supervision to sampled subset of anchors.
@@ -103,16 +103,16 @@ class AnchorTargetCreator(object):
             self._calc_ious(anchor, bbox, inside_index)
 
         # assign negative labels first so that positive labels can clobber them
-        label[max_ious < self.negative_iou_thresh] = 0
+        label[max_ious < self.neg_iou_thresh] = 0
 
         # positive label: for each gt, anchor with highest iou
         label[gt_argmax_ious] = 1
 
         # positive label: above threshold IOU
-        label[max_ious >= self.positive_iou_thresh] = 1
+        label[max_ious >= self.pos_iou_thresh] = 1
 
         # subsample positive labels if we have too many
-        n_pos = int(self.positive_ratio * self.n_sample)
+        n_pos = int(self.pos_ratio * self.n_sample)
         pos_index = np.where(label == 1)[0]
         if len(pos_index) > n_pos:
             disable_index = np.random.choice(
