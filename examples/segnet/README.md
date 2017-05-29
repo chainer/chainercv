@@ -14,7 +14,7 @@ python calc_weight.py
 First, move to this directory (i.e., `examples/segnet`) and run:
 
 ```
-CHAINER_SEED=2017 CHAINER_TYPE_CHECK=0 python -OO -W ignore train.py --gpu 0
+python train.py --gpu 0
 ```
 
 ## NOTE
