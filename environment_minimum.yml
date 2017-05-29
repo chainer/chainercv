@@ -7,4 +7,4 @@ dependencies:
   - numpy
   - pillow
   - pip:
-    - chainer
+    - chainer=1.24

@@ -9,6 +9,5 @@ dependencies:
   - opencv3=3.2.0
   - matplotlib
   - numpy
-  - scikit-learn
   - pip:
-    - chainer
+    - chainer=1.24
