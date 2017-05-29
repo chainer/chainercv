@@ -64,7 +64,7 @@ class ProposalTargetCreator(object):
             background.
 
         Args:
-            roi (array): Region of interests from which we sample.
+            roi (array): Region of Interests (RoIs) from which we sample.
                 Its shape is :math:`(R, 4)`
             bbox (array): The coordinates of ground truth bounding boxes.
                 Its shape is :math:`(R', 4)`.
