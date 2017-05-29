@@ -114,10 +114,6 @@ class FasterRCNNTrainChain(chainer.Chain):
         rpn_loc = rpn_locs[0]
         roi = rois
 
-        # Offset range of classes from [0, n_class - 2] to [1, n_class - 1].
-        # The label with value 0 is the background.
-        label = label + 1
-
         # Sample RoIs and forward
         sample_roi, gt_roi_loc, gt_roi_label = self.proposal_target_creator(
             roi, bbox, label,
