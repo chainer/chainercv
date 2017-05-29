@@ -74,7 +74,13 @@ class TrainTransformer(object):
     def __call__(self, in_data):
         img, bbox, label = in_data
 
-        # more augmentations here
+        # color augmentations here
+
+        if random.randrange(2):
+            img, param = transforms.random_expand(
+                img, fill=self.mean, return_param=True)
+            bbox = transforms.translate_bbox(
+                bbox, param['x_offset'], param['y_offset'])
 
         img, bbox, label = _random_crop(img, bbox, label)
 
