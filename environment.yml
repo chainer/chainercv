@@ -9,5 +9,6 @@ dependencies:
   - opencv3=3.2.0
   - matplotlib
   - numpy
+  - pillow
   - pip:
     - chainer=1.24
