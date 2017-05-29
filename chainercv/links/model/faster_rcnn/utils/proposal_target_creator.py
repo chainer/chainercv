@@ -70,7 +70,8 @@ class ProposalTargetCreator(object):
             bbox (array): The coordinates of ground truth bounding boxes.
                 Its shape is :math:`(R', 4)`.
             label (array): Ground truth bounding box labels. Its shape
-                is :math:`(R',)`.
+            is :math:`(R',)`. Its range is :math:`[1, L]`, where :math:`L`
+            is the number of foreground classes.
             loc_normalize_mean (tuple of four floats): Mean values to normalize
                 coordinates of bouding boxes.
             loc_normalize_std (tupler of four floats): Standard deviation of
