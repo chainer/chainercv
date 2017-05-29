@@ -14,7 +14,7 @@ python calc_weight.py
 First, move to this directory (i.e., `examples/segnet`) and run:
 
 ```
-python train.py --gpu 0
+python train.py [--gpu <gpu>]
 ```
 
 ## NOTE
