@@ -35,7 +35,7 @@ class FasterRCNNTrainChain(chainer.Chain):
         rpn_sigma (float): Sigma parameter for the localization loss
             of Region Proposal Network (RPN). The default value is 3,
             which is the value used in [#FRCNN]_.
-        sigma (float): Sigma paramter for the localization loss of
+        roi_sigma (float): Sigma paramter for the localization loss of
             the head. The default value is 1, which is the value used
             in [#FRCNN]_.
         anchor_target_creator: An instantiation of
@@ -45,12 +45,12 @@ class FasterRCNNTrainChain(chainer.Chain):
 
     """
 
-    def __init__(self, faster_rcnn, rpn_sigma=3., sigma=1.,
+    def __init__(self, faster_rcnn, rpn_sigma=3., roi_sigma=1.,
                  anchor_target_creator=AnchorTargetCreator(),
                  proposal_target_creator=ProposalTargetCreator()):
         super(FasterRCNNTrainChain, self).__init__(faster_rcnn=faster_rcnn)
         self.rpn_sigma = rpn_sigma
-        self.sigma = sigma
+        self.roi_sigma = roi_sigma
 
         self.anchor_target_creator = anchor_target_creator
         self.proposal_target_creator = proposal_target_creator
@@ -131,7 +131,7 @@ class FasterRCNNTrainChain(chainer.Chain):
         roi_cls_loc = roi_cls_loc.reshape(n_sample, -1, 4)
         roi_loc = roi_cls_loc[self.xp.arange(n_sample), gt_roi_label]
         roi_loc_loss = _fast_rcnn_loc_loss(
-            roi_loc, gt_roi_loc, gt_roi_label, self.sigma)
+            roi_loc, gt_roi_loc, gt_roi_label, self.roi_sigma)
         roi_cls_loss = F.softmax_cross_entropy(roi_score, gt_roi_label)
 
         loss = rpn_loc_loss + rpn_cls_loss + roi_loc_loss + roi_cls_loss
