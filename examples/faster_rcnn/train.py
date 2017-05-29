@@ -18,8 +18,8 @@ from chainercv.datasets import VOCDetectionDataset
 from chainercv import transforms
 
 from chainercv.datasets import voc_detection_label_names
-from chainercv.links import FasterRCNNTrainChain
 from chainercv.links import FasterRCNNVGG16
+from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 
 
 def main():
@@ -36,9 +36,8 @@ def main():
 
     np.random.seed(args.seed)
 
-    labels = voc_detection_label_names
     train_data = VOCDetectionDataset(split='trainval', year='2007')
-    faster_rcnn = FasterRCNNVGG16(n_fg_class=len(labels),
+    faster_rcnn = FasterRCNNVGG16(n_fg_class=len(voc_detection_label_names),
                                   pretrained_model='imagenet')
     faster_rcnn.use_preset('evaluate')
     model = FasterRCNNTrainChain(faster_rcnn)
