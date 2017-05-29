@@ -46,7 +46,7 @@ On top of that, the anchors are not discretized in ChainerCV.
 You can train the model with the following code.
 
 ```
-$ python train.py [--gpu <gpu]
+$ python train.py [--gpu <gpu>]
 ```
 
 
