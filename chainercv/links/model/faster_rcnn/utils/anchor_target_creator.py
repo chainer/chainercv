@@ -11,7 +11,7 @@ class AnchorTargetCreator(object):
 
     """Assign the ground truth bounding boxes to anchors.
 
-    Assigns the ground-truth bounding boxes to anchors for training Region
+    Assigns the ground truth bounding boxes to anchors for training Region
     Proposal Networks introduced in Faster R-CNN [#]_.
 
     Offsets and scales to match anchors to the ground truth are
@@ -28,7 +28,7 @@ class AnchorTargetCreator(object):
             threshold will be assigned as positive.
         negative_iou_thresh (float): Anchors with IoU below this
             threshold will be assigned as negative.
-        fg_fraction (float): Fraction of positive regions in the
+        positive_ratio (float): Ratio of positive regions in the
             sampled regions.
 
     """
@@ -36,11 +36,11 @@ class AnchorTargetCreator(object):
     def __init__(self,
                  n_sample=256,
                  positive_iou_thresh=0.7, negative_iou_thresh=0.3,
-                 fg_fraction=0.5):
+                 positive_ratio=0.5):
         self.n_sample = n_sample
         self.positive_iou_thresh = positive_iou_thresh
         self.negative_iou_thresh = negative_iou_thresh
-        self.fg_fraction = fg_fraction
+        self.positive_ratio = positive_ratio
 
     def __call__(self, bbox, anchor, img_size):
         """Assign ground truth supervision to sampled subset of anchors.
@@ -53,7 +53,7 @@ class AnchorTargetCreator(object):
         * :math:`R` is the number of bounding boxes.
 
         Args:
-            bbox (array): Coodinates of bounding boxes. Its shape is
+            bbox (array): Coordinates of bounding boxes. Its shape is
                 :math:`(R, 4)`.
             anchor (array): Coordinates of anchors. Its shape is
                 :math:`(S, 4)`.
@@ -66,7 +66,7 @@ class AnchorTargetCreator(object):
             * **loc**: Offsets and scales to match the anchors to \
                 the ground truth bounding boxes. Its shape is :math:`(S, 4)`.
             * **label**: Labels of anchors with values \
-                :obj:`(1=foreground, 0=background, -1=ignore)`. Its shape \
+                :obj:`(1=positive, 0=negative, -1=ignore)`. Its shape \
                 is :math:`(S,)`.
 
         """
@@ -102,29 +102,29 @@ class AnchorTargetCreator(object):
         argmax_ious, max_ious, gt_argmax_ious = \
             self._calc_ious(anchor, bbox, inside_index)
 
-        # assign bg labels first so that positive labels can clobber them
+        # assign negative labels first so that positive labels can clobber them
         label[max_ious < self.negative_iou_thresh] = 0
 
-        # fg label: for each gt, anchor with highest iou
+        # positive label: for each gt, anchor with highest iou
         label[gt_argmax_ious] = 1
 
-        # fg label: above threshold IOU
+        # positive label: above threshold IOU
         label[max_ious >= self.positive_iou_thresh] = 1
 
         # subsample positive labels if we have too many
-        num_fg = int(self.fg_fraction * self.n_sample)
-        fg_index = np.where(label == 1)[0]
-        if len(fg_index) > num_fg:
+        n_pos = int(self.positive_ratio * self.n_sample)
+        pos_index = np.where(label == 1)[0]
+        if len(pos_index) > n_pos:
             disable_index = np.random.choice(
-                fg_index, size=(len(fg_index) - num_fg), replace=False)
+                pos_index, size=(len(pos_index) - n_pos), replace=False)
             label[disable_index] = -1
 
         # subsample negative labels if we have too many
-        num_bg = self.n_sample - np.sum(label == 1)
-        bg_index = np.where(label == 0)[0]
-        if len(bg_index) > num_bg:
+        n_neg = self.n_sample - np.sum(label == 1)
+        neg_index = np.where(label == 0)[0]
+        if len(neg_index) > n_neg:
             disable_index = np.random.choice(
-                bg_index, size=(len(bg_index) - num_bg), replace=False)
+                neg_index, size=(len(neg_index) - n_neg), replace=False)
             label[disable_index] = -1
 
         return argmax_ious, label

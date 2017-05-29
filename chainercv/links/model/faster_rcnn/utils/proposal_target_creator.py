@@ -19,26 +19,26 @@ class ProposalTargetCreator(object):
 
     Args:
         n_sample (int): The number of sampled regions.
-        fg_fraction (float): Fraction of regions that is labeled as a
+        pos_fraction (float): Fraction of regions that is labeled as a
             foreground.
-        fg_thresh (float): IoU threshold for a RoI to be considered as a
+        pos_thresh (float): IoU threshold for a RoI to be considered as a
             foreground.
-        bg_thresh_hi (float): RoI is considered to be the background if IoU
-            is in [:obj:`bg_thresh_hi`, :obj:`bg_thresh_hi`).
-        bg_thresh_lo (float): See above.
+        neg_thresh_hi (float): RoI is considered to be the background if IoU
+            is in [:obj:`neg_thresh_hi`, :obj:`neg_thresh_hi`).
+        neg_thresh_lo (float): See above.
 
     """
 
     def __init__(self,
                  n_sample=128,
-                 fg_fraction=0.25,
-                 fg_thresh=0.5, bg_thresh_hi=0.5, bg_thresh_lo=0.0
+                 pos_fraction=0.25,
+                 pos_thresh=0.5, neg_thresh_hi=0.5, neg_thresh_lo=0.0
                  ):
         self.n_sample = n_sample
-        self.fg_fraction = fg_fraction
-        self.fg_thresh = fg_thresh
-        self.bg_thresh_hi = bg_thresh_hi
-        self.bg_thresh_lo = bg_thresh_lo
+        self.pos_fraction = pos_fraction
+        self.pos_thresh = pos_thresh
+        self.neg_thresh_hi = neg_thresh_hi
+        self.neg_thresh_lo = neg_thresh_lo
 
     def __call__(self, roi, bbox, label,
                  loc_normalize_mean=(0., 0., 0., 0.),
@@ -49,7 +49,7 @@ class ProposalTargetCreator(object):
         from the combination of :obj:`roi` and :obj:`bbox`.
         The RoIs are assigned with the ground truth class labels as well as
         bounding box offsets and scales to match the ground truth bounding
-        boxes. As many as :obj:`fg_fraction * self.n_sample` RoIs are
+        boxes. As many as :obj:`pos_fraction * self.n_sample` RoIs are
         sampled as foregrounds.
 
         Offsets and scales of bounding boxes are calculated using
@@ -96,22 +96,22 @@ class ProposalTargetCreator(object):
 
         roi = np.concatenate((roi, bbox), axis=0)
 
-        fg_roi_per_image = np.round(self.n_sample * self.fg_fraction)
+        fg_roi_per_image = np.round(self.n_sample * self.pos_fraction)
         iou = bbox_iou(roi, bbox)
         gt_assignment = iou.argmax(axis=1)
         max_iou = iou.max(axis=1)
         gt_roi_label = label[gt_assignment]
 
-        # Select foreground RoIs as those with >= FG_THRESH IoU.
-        fg_index = np.where(max_iou >= self.fg_thresh)[0]
+        # Select foreground RoIs as those with >= pos_thresh IoU.
+        fg_index = np.where(max_iou >= self.pos_thresh)[0]
         fg_roi_per_this_image = int(min(fg_roi_per_image, fg_index.size))
         if fg_index.size > 0:
             fg_index = np.random.choice(
                 fg_index, size=fg_roi_per_this_image, replace=False)
 
-        # Select background RoIs as those within [BG_THRESH_LO, BG_THRESH_HI).
-        bg_index = np.where((max_iou < self.bg_thresh_hi) &
-                            (max_iou >= self.bg_thresh_lo))[0]
+        # Select background RoIs as those within [neg_thresh_lo, neg_thresh_hi).
+        bg_index = np.where((max_iou < self.neg_thresh_hi) &
+                            (max_iou >= self.neg_thresh_lo))[0]
         bg_roi_per_this_image = self.n_sample - fg_roi_per_this_image
         bg_roi_per_this_image = int(min(bg_roi_per_this_image, bg_index.size))
         if bg_index.size > 0:

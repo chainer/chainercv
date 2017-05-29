@@ -24,9 +24,11 @@ class FasterRCNNTrainChain(chainer.Chain):
         faster_rcnn (~chainercv.links.model.faster_rcnn.FasterRCNN):
             A Faster R-CNN model that is going to be trained.
         rpn_sigma (float): Sigma parameter for the localization loss
-            of Region Proposal Network (RPN).
+            of Region Proposal Network (RPN). The default value is 3,
+            which is the value used in [#]_.
         sigma (float): Sigma paramter for the localization loss of
-            the calculated from the output of the head.
+            the calculated from the output of the head. The default
+            value is 1, which is the value used in [#]_.
         anchor_target_creator: An instantiation of
             :obj:`chainercv.links.model.faster_rcnn.AnchorTargetCreator`.
         proposal_target_creator_params: An instantiation of
@@ -149,9 +151,9 @@ def _fast_rcnn_loc_loss(pred_loc, gt_loc, gt_label, sigma):
     xp = chainer.cuda.get_array_module(pred_loc)
 
     in_weight = xp.zeros_like(gt_loc)
-    # Localization loss is calculated only for fg rois.
+    # Localization loss is calculated only for positive rois.
     in_weight[gt_label > 0] = 1
     loc_loss = _smooth_l1_loss(pred_loc, gt_loc, in_weight, sigma)
-    # Normalize by total number of bg and fg rois.
+    # Normalize by total number of negtive and positive rois.
     loc_loss /= xp.sum(gt_label >= 0)
     return loc_loss

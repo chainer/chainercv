@@ -24,7 +24,7 @@ class TestProposalTargetCreator(unittest.TestCase):
 
     n_sample = 128
     n_class = 21
-    fg_fraction = 0.25
+    pos_fraction = 0.25
 
     def setUp(self):
 
@@ -37,7 +37,7 @@ class TestProposalTargetCreator(unittest.TestCase):
 
         self.proposal_target_creator = ProposalTargetCreator(
             n_sample=self.n_sample,
-            fg_fraction=self.fg_fraction,
+            pos_fraction=self.pos_fraction,
         )
 
     def check_proposal_target_creator(
@@ -62,10 +62,10 @@ class TestProposalTargetCreator(unittest.TestCase):
 
         # Test foreground and background labels
         np.testing.assert_equal(np.sum(gt_roi_label >= 0), self.n_sample)
-        n_fg = np.sum(gt_roi_label >= 1)
-        n_bg = np.sum(gt_roi_label == 0)
-        self.assertLessEqual(n_fg, self.n_sample * self.fg_fraction)
-        self.assertLessEqual(n_bg, self.n_sample - n_fg)
+        n_pos = np.sum(gt_roi_label >= 1)
+        n_neg = np.sum(gt_roi_label == 0)
+        self.assertLessEqual(n_pos, self.n_sample * self.pos_fraction)
+        self.assertLessEqual(n_neg, self.n_sample - n_pos)
 
     def test_proposal_target_creator_cpu(self):
         self.check_proposal_target_creator(
