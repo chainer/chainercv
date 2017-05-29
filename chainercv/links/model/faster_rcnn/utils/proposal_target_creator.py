@@ -95,10 +95,6 @@ class ProposalTargetCreator(object):
         bbox = cuda.to_cpu(bbox)
         label = cuda.to_cpu(label)
 
-        # Offset range of classes from [0, n_class - 2] to [1, n_class - 1].
-        # The label with value 0 is the background.
-        label = label + 1
-
         n_bbox, _ = bbox.shape
 
         roi = np.concatenate((roi, bbox), axis=0)
@@ -107,7 +103,9 @@ class ProposalTargetCreator(object):
         iou = bbox_iou(roi, bbox)
         gt_assignment = iou.argmax(axis=1)
         max_iou = iou.max(axis=1)
-        gt_roi_label = label[gt_assignment]
+        # Offset range of classes from [0, n_fg_class - 1] to [1, n_fg_class].
+        # The label with value 0 is the background.
+        gt_roi_label = label[gt_assignment] + 1
 
         # Select foreground RoIs as those with >= pos_iou_thresh IoU.
         pos_index = np.where(max_iou >= self.pos_iou_thresh)[0]
