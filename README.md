@@ -19,6 +19,8 @@ These are the outputs of the detection models supported by ChainerCV.
 $ pip install chainercv
 ```
 
+The instruction on installation using Anaconda is [here](http://chainercv.readthedocs.io/en/latest/#install-guide) (recommended).
+
 ### Requirements
 
 + [Chainer](https://github.com/pfnet/chainer) and its dependencies
