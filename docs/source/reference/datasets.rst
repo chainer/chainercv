@@ -11,6 +11,12 @@ TransformDataset
 ~~~~~~~~~~~~~~~~
 .. autofunction:: TransformDataset
 
+CamVid
+------
+
+CamVidDataset
+~~~~~~~~~~~~~
+.. autofunction:: CamVidDataset
 
 CUB
 ---
