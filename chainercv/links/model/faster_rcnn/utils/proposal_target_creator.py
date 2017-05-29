@@ -70,8 +70,8 @@ class ProposalTargetCreator(object):
             bbox (array): The coordinates of ground truth bounding boxes.
                 Its shape is :math:`(R', 4)`.
             label (array): Ground truth bounding box labels. Its shape
-                is :math:`(R',)`. Its range is :math:`[0, L - 1]`, where :math:`L`
-                is the number of foreground classes.
+                is :math:`(R',)`. Its range is :math:`[0, L - 1]`, where
+                :math:`L` is the number of foreground classes.
             loc_normalize_mean (tuple of four floats): Mean values to normalize
                 coordinates of bouding boxes.
             loc_normalize_std (tupler of four floats): Standard deviation of
@@ -88,7 +88,6 @@ class ProposalTargetCreator(object):
             * **gt_roi_label**: Labels assigned to sampled RoIs. Its shape is \
                 :math:`(S,)`. Its range is :math:`[0, L]`. The label with \
                 value 0 is the background.
-            
 
         """
         xp = cuda.get_array_module(roi)
