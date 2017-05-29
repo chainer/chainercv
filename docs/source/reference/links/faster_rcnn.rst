@@ -10,6 +10,11 @@ FasterRCNN
    :members:
    :special-members:  __call__
 
+FasterRCNNTrainChain
+--------------------
+.. autoclass:: FasterRCNNTrainChain
+   :members:
+   :special-members:  __call__
 
 FasterRCNNVGG16
 ---------------
@@ -31,6 +36,12 @@ RegionProposalNetwork
    :special-members:  __call__
 
 
+AnchorTargetCreator
+"""""""""""""""""""
+.. autoclass:: AnchorTargetCreator
+   :members:
+   :special-members:  __call__
+
 bbox2loc
 --------
 .. autofunction:: bbox2loc
@@ -46,5 +57,11 @@ loc2bbox
 ProposalCreator
 ---------------
 .. autoclass:: ProposalCreator
+   :members:
+   :special-members:  __call__
+
+ProposalTargetCreator
+---------------------
+.. autoclass:: ProposalTargetCreator
    :members:
    :special-members:  __call__

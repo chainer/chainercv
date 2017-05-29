@@ -41,6 +41,15 @@ The integer convention encodes right below vertex coordinates of bounding boxes 
 On top of that, the anchors are not discretized in ChainerCV.
 
 
+### Train code
+
+You can train the model with the following code.
+
+```
+$ python train.py [--gpu <gpu>]
+```
+
+
 ### References
 This code is based on Caffe implementation by the original authors https://github.com/rbgirshick/py-faster-rcnn and Chainer a re-implementation https://github.com/mitmul/chainer-faster-rcnn .
 
