@@ -77,7 +77,8 @@ class FasterRCNNTrainChain(chainer.Chain):
             labels (~chainer.Variable): A batch of labels.
                 Its shape is :math:`(N, R)`. The background is excluded from
                 the definition, which means that the range of the value
-                is :obj:`[0, self.faster_rcnn.n_class - 2]`.
+                is :math:`[0, L - 1]`. :math:`L` is the number of foreground
+                classes.
             scale (float or ~chainer.Variable): Amount of scaling applied to
                 the raw image during preprocessing.
 
