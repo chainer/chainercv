@@ -16,7 +16,7 @@ class DummySemanticSegmentationLink(chainer.Link):
 
         for img in imgs:
             _, H, W = img.shape
-            label = np.random.randomint(0, self.n_class, size=(H, W))
+            label = np.random.randint(0, self.n_class, size=(H, W))
             labels.append(label)
 
         return labels
