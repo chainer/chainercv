@@ -12,15 +12,14 @@ class DummySemanticSegmentationLink(chainer.Link):
     n_class = 21
 
     def predict(self, imgs):
-        scores = list()
+        labels = list()
 
         for img in imgs:
             _, H, W = img.shape
-            score = np.random.uniform(0, 1, size=(self.n_class, H, W))
-            score /= score.sum(axis=0, keepdims=True)
-            scores.append(score)
+            label = np.random.randomint(0, self.n_class, size=(H, W))
+            labels.append(label)
 
-        return scores
+        return labels
 
 
 @testing.parameterize(
@@ -42,15 +41,15 @@ class TestApplySemanticSegmentationLink(unittest.TestCase):
         iterator = SerialIterator(dataset, 2, repeat=False, shuffle=False)
 
         if self.with_hook:
-            def hook(pred_scores, gt_values):
+            def hook(pred_labels, gt_values):
                 self.assertEqual(len(gt_values), 0)
         else:
             hook = None
 
-        pred_scores, gt_values = apply_semantic_segmentation_link(
+        pred_labels, gt_values = apply_semantic_segmentation_link(
             self.link, iterator, hook=hook)
 
-        self.assertEqual(len(list(pred_scores)), len(dataset))
+        self.assertEqual(len(list(pred_labels)), len(dataset))
         self.assertEqual(len(gt_values), 0)
 
     def test_general_dataset(self):
@@ -62,15 +61,15 @@ class TestApplySemanticSegmentationLink(unittest.TestCase):
         iterator = SerialIterator(dataset, 2, repeat=False, shuffle=False)
 
         if self.with_hook:
-            def hook(pred_scores, gt_values):
+            def hook(pred_labels, gt_values):
                 self.assertEqual(len(gt_values), 3)
         else:
             hook = None
 
-        pred_scores, gt_values = apply_semantic_segmentation_link(
+        pred_labels, gt_values = apply_semantic_segmentation_link(
             self.link, iterator, hook=hook)
 
-        self.assertEqual(len(list(pred_scores)), len(dataset))
+        self.assertEqual(len(list(pred_labels)), len(dataset))
         self.assertEqual(len(gt_values), 3)
         self.assertEqual(list(gt_values[0]), strs)
         self.assertEqual(list(gt_values[1]), nums)

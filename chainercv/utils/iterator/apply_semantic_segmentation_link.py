@@ -8,25 +8,25 @@ def apply_semantic_segmentation_link(target, iterator, hook=None):
 
     This function applies a semantic segmentation link to an iterator.
     It stacks the outputs of the semantic segmentation link
-    into :obj:`pred_scores`.
+    into :obj:`pred_labels`.
     This function also stacks the values returned by the iterator.
     These values can be used for evaluation.
 
     Args:
         target (chainer.Link): An semantic segmentation link. This link must
             have :meth:`predict` method which take a list of images and returns
-            :obj:`scores`.
+            :obj:`labels`.
         iterator (chainer.Iterator): An iterator. Each sample should have
             an image as its first element. This image is passed to
             :obj:`target`. The rests are stacked into :obj:`gt_values`.
         hook: An callable which is called after each iteration.
-            :obj:`pred_scores` and :obj:`gt_values` are passed as arguments.
+            :obj:`pred_labels` and :obj:`gt_values` are passed as arguments.
             Note that these values do not contain data from the previous
             iterations.
 
     Returns:
         An iterator and a list:
-        This function returns :obj:`pred_scores` and :obj:`gt_values`.
+        This function returns :obj:`pred_labels` and :obj:`gt_values`.
         :obj:`gt_values` is a tuple of iterators. Each iterator corresponds
         to an value of samples from the iterator.
         For example, if the iterator returns batches of :obj:`img, val0, val1`,
@@ -34,9 +34,9 @@ def apply_semantic_segmentation_link(target, iterator, hook=None):
     """
 
     iterators = split_iterator(_apply(target, iterator, hook))
-    pred_scores = iterators[0]
+    pred_labels = iterators[0]
     gt_values = iterators[1:]
-    return pred_scores, gt_values
+    return pred_labels, gt_values
 
 
 def _apply(target, iterator, hook):
@@ -57,12 +57,12 @@ def _apply(target, iterator, hook):
                 batch_imgs.append(sample[0])
                 batch_gt_values.append(sample[1:])
 
-        batch_pred_scores = target.predict(batch_imgs)
+        batch_pred_labels = target.predict(batch_imgs)
 
         if hook:
             hook(
-                batch_pred_scores,
+                batch_pred_labels,
                 tuple(list(bv) for bv in zip(*batch_gt_values)))
 
-        for pred_score, gt_value in zip(batch_pred_scores, batch_gt_values):
-            yield (pred_score,) + gt_value
+        for pred_label, gt_value in zip(batch_pred_labels, batch_gt_values):
+            yield (pred_label,) + gt_value
