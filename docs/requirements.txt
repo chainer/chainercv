@@ -1,5 +1,5 @@
 chainer=1.24
 Cython
+matplotlib
 numpy
 pillow
-matplotlib
