@@ -8,7 +8,7 @@ def apply_semantic_segmentation_link(target, iterator, hook=None):
 
     This function applies a semantic segmentation link to an iterator.
     It stacks the outputs of the semantic segmentation link
-    into :obj:`pred_labels`.
+    against :obj:`pred_labels`.
     This function also stacks the values returned by the iterator.
     These values can be used for evaluation.
 
