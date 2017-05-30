@@ -48,7 +48,7 @@ class TestFasterRCNNTrainChain(unittest.TestCase):
         imgs = chainer.Variable(_random_array(xp, (1, 3, 600, 800)))
         bboxes = chainer.Variable(
             _generate_bbox(xp, n_bbox, (600, 800), 16, 350)[np.newaxis])
-        labels = xp.random.randint(0, self.n_fg_class + 1, size=(n_bbox,))
+        labels = xp.random.randint(0, self.n_fg_class, size=(n_bbox,))
         labels = chainer.Variable(labels[np.newaxis].astype(np.int32))
         scale = chainer.Variable(xp.array(1.))
         loss = self.link(imgs, bboxes, labels, scale)
