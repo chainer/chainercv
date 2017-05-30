@@ -7,3 +7,4 @@ from chainercv.utils.iterator import apply_detection_link  # NOQA
 from chainercv.utils.iterator import apply_semantic_segmentation_link  # NOQA
 from chainercv.utils.iterator import split_iterator  # NOQA
 from chainercv.utils.testing import ConstantStubLink  # NOQA
+from chainercv.utils.testing import generate_random_bbox  # NOQA

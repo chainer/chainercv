@@ -12,6 +12,7 @@ from chainer import testing
 from chainer.testing import attr
 
 from chainercv.extensions import DetectionVisReport
+from chainercv.utils import generate_random_bbox
 
 try:
     import matplotlib  # NOQA
@@ -29,7 +30,8 @@ class _RandomDetectionStubLink(chainer.Link):
 
         for _ in imgs:
             n_bbox = np.random.randint(0, 10)
-            bboxes.append(np.random.uniform(size=(n_bbox, 4)))
+            bboxes.append(generate_random_bbox(
+                n_bbox, (48, 32), 4, 12))
             labels.append(np.random.randint(0, 19, size=n_bbox))
             scores.append(np.random.uniform(0, 1, size=n_bbox))
 
