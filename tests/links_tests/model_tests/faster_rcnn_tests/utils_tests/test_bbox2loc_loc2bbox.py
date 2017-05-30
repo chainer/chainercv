@@ -8,7 +8,7 @@ from chainer.testing import attr
 
 from chainercv.links.model.faster_rcnn import bbox2loc
 from chainercv.links.model.faster_rcnn import loc2bbox
-from chainercv.utils import generate_bbox
+from chainercv.utils import generate_random_bbox
 
 
 class TestLocBboxConversions(unittest.TestCase):
@@ -60,7 +60,7 @@ class TestLocBboxConversions(unittest.TestCase):
 class TestDeltaEncodeDecodeConsistency(unittest.TestCase):
 
     def setUp(self):
-        self.src_bbox = generate_bbox(8, (32, 64), 4, 16)
+        self.src_bbox = generate_random_bbox(8, (32, 64), 4, 16)
         self.dst_bbox = self.src_bbox + 1
 
     def check_bbox_loc_conversions_consistency(

@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def generate_bbox(n, img_size, min_length, max_length):
+def generate_random_bbox(n, img_size, min_length, max_length):
     """Generate valid bounding boxes with random position and shape.
 
     Args:

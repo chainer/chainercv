@@ -8,7 +8,7 @@ from chainer.testing import attr
 from chainer import utils
 
 from chainercv.links.model.faster_rcnn import AnchorTargetCreator
-from chainercv.utils import generate_bbox
+from chainercv.utils import generate_random_bbox
 
 
 class TestAnchorTargetCreator(unittest.TestCase):
@@ -23,8 +23,9 @@ class TestAnchorTargetCreator(unittest.TestCase):
         feat_size = (self.img_size[0] // 16, self.img_size[1] // 16)
         self.n_anchor = self.n_anchor_base * np.prod(feat_size)
 
-        self.anchor = generate_bbox(self.n_anchor, self.img_size, 16, 200)
-        self.bbox = generate_bbox(n_bbox, self.img_size, 16, 200)
+        self.anchor = generate_random_bbox(
+            self.n_anchor, self.img_size, 16, 200)
+        self.bbox = generate_random_bbox(n_bbox, self.img_size, 16, 200)
         self.anchor_target_layer = AnchorTargetCreator(
             self.n_sample, pos_ratio=self.pos_ratio,
         )

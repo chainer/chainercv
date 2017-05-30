@@ -7,7 +7,7 @@ from chainer import testing
 from chainer.testing import attr
 
 from chainercv.links.model.faster_rcnn import ProposalCreator
-from chainercv.utils import generate_bbox
+from chainercv.utils import generate_random_bbox
 
 
 @testing.parameterize(
@@ -30,7 +30,7 @@ class TestProposalCreator(unittest.TestCase):
             low=0, high=1, size=(n_anchor,)).astype(np.float32)
         self.bbox_d = np.random.uniform(
             low=-1, high=1., size=(n_anchor, 4)).astype(np.float32)
-        self.anchor = generate_bbox(n_anchor, self.img_size, 16, 200)
+        self.anchor = generate_random_bbox(n_anchor, self.img_size, 16, 200)
         self.proposal_creator = ProposalCreator(
             n_train_post_nms=self.n_train_post_nms,
             n_test_post_nms=self.n_test_post_nms,

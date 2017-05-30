@@ -8,7 +8,7 @@ from chainer import testing
 from chainer.testing import attr
 
 from chainercv.links.model.faster_rcnn import ProposalTargetCreator
-from chainercv.utils import generate_bbox
+from chainercv.utils import generate_random_bbox
 
 
 class TestProposalTargetCreator(unittest.TestCase):
@@ -21,8 +21,8 @@ class TestProposalTargetCreator(unittest.TestCase):
 
         n_roi = 1024
         n_bbox = 10
-        self.roi = generate_bbox(n_roi, (392, 512), 16, 250)
-        self.bbox = generate_bbox(n_bbox, (392, 512), 16, 250)
+        self.roi = generate_random_bbox(n_roi, (392, 512), 16, 250)
+        self.bbox = generate_random_bbox(n_bbox, (392, 512), 16, 250)
         self.label = np.random.randint(
             0, self.n_class - 1, size=(n_bbox,), dtype=np.int32)
 

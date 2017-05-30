@@ -6,7 +6,7 @@ from chainer import testing
 from chainer.testing import attr
 
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
-from chainercv.utils import generate_bbox
+from chainercv.utils import generate_random_bbox
 
 from dummy_faster_rcnn import DummyFasterRCNN
 
@@ -34,7 +34,7 @@ class TestFasterRCNNTrainChain(unittest.TestCase):
         ))
 
         self.bboxes = chainer.Variable(
-            generate_bbox(self.n_bbox, (600, 800), 16, 350)[np.newaxis])
+            generate_random_bbox(self.n_bbox, (600, 800), 16, 350)[np.newaxis])
         _labels = np.random.randint(
             0, self.n_fg_class, size=(1, self.n_bbox)).astype(np.int32)
         self.labels = chainer.Variable(_labels)

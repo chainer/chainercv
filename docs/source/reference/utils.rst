@@ -40,6 +40,6 @@ ConstantStubLink
 .. autoclass:: ConstantStubLink
    :members:
 
-generate_bbox
-~~~~~~~~~~~~~
-.. autofunction:: generate_bbox
+generate_random_bbox
+~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: generate_random_bbox
