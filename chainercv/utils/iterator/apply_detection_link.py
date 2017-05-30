@@ -10,7 +10,8 @@ def apply_detection_link(target, iterator, hook=None):
     It stacks the outputs of the detection link
     against three itarators,
     :obj:`pred_bboxes`, :obj:`pred_labels` and :obj:`pred_scores`.
-    This function also stacks the values returned by the iterator.
+    This function also stacks the values returned by the iterator
+    except the input image.
     These values can be used for evaluation.
 
     Args:
