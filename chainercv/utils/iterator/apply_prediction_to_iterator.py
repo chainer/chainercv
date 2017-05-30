@@ -1,7 +1,7 @@
 from chainercv.utils.iterator.split_iterator import split_iterator
 
 
-def apply_prediction_link(predict, iterator, hook=None):
+def apply_prediction_to_iterator(predict, iterator, hook=None):
     imgs, pred_values, gt_values = split_iterator(
         _apply(predict, iterator, hook))
 
