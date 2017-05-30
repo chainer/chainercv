@@ -1,23 +1,19 @@
 from __future__ import division
 
 import numpy as np
-import six
 
 
-def calc_confusion_matrix(pred_labels, gt_labels, n_class):
+def calc_confusion_matrix(pred_label, gt_label, n_class):
     """Collect confusion matrix.
 
     Args:
-        pred_labels (iterable of numpy.ndarray): A collection of predicted
-            labels. This is a batch of labels whose shape is :math:`(N, H, W)`
-            or a list containing :math:`N` labels. The shape of a label array
+        pred_label (numpy.ndarray): A predicted label.
+            The shape of a label array
             is :math:`(H, W)`. :math:`H` and :math:`W`
-            are height and width of the label. We assume that there are
-            :math:`N` labels.
-        gt_labels (iterable of numpy.ndarray): A collection of the ground
-            truth labels.
-            It is organized similarly to :obj:`pred_labels`. A pixel with value
-            "-1" will be ignored during evaluation.
+            are height and width of the label.
+        gt_label (numpy.ndarray): The ground truth label.
+            Its shape is :math:`(H, W)`.
+            A pixel with value "-1" will be ignored during evaluation.
         n_class (int): The number of classes.
 
     Returns:
@@ -30,32 +26,21 @@ def calc_confusion_matrix(pred_labels, gt_labels, n_class):
     # Evaluation code is based on
     # https://github.com/shelhamer/fcn.berkeleyvision.org/blob/master/
     # score.py#L37
-    if (isinstance(pred_labels, np.ndarray) and pred_labels.ndim != 3
-            or isinstance(gt_labels, np.ndarray) and gt_labels.ndim != 3):
-        raise ValueError('If batch of arrays are given, they have '
-                         'to have dimension 3')
-    N = len(pred_labels)
+    if pred_label.ndim != 2 or gt_label.ndim != 2:
+        raise ValueError('ndim of inputs should be two.')
+    if pred_label.shape != gt_label.shape:
+        raise ValueError('Shapes of inputs should be same.')
 
-    if len(pred_labels) != len(gt_labels):
-        raise ValueError('Number of the predicted labels and the'
-                         'ground truth labels are different')
-    for i in six.moves.range(N):
-        if pred_labels[i].shape != gt_labels[i].shape:
-            raise ValueError('Shape of the prediction and'
-                             'the ground truth should match')
-
-    confusion = np.zeros((n_class, n_class), dtype=np.int64)
-    for i in six.moves.range(N):
-        pred_label = pred_labels[i].flatten()
-        gt_label = gt_labels[i].flatten()
-        mask = (gt_label >= 0) & (gt_label < n_class)
-        confusion += np.bincount(
-            n_class * gt_label[mask].astype(int) +
-            pred_label[mask], minlength=n_class**2).reshape(n_class, n_class)
+    pred_label = pred_label.flatten()
+    gt_label = gt_label.flatten()
+    mask = (gt_label >= 0) & (gt_label < n_class)
+    confusion = np.bincount(
+        n_class * gt_label[mask].astype(int) +
+        pred_label[mask], minlength=n_class**2).reshape(n_class, n_class)
     return confusion
 
 
-def eval_semantic_segmentation(confusion):
+def eval_semantic_segmentation(pred_labels, gt_labels, n_class):
     """Evaluate results of semantic segmentation.
 
     This function calculates Intersection over Union (IoU).
@@ -82,9 +67,9 @@ def eval_semantic_segmentation(confusion):
     <https://arxiv.org/abs/1704.06857>`_. arXiv 2017.
 
     Args:
-        confusion (numpy.ndarray): Confusion matrix calculated by
-            :func:`chainercv.evaluations.calc_confusion_matrix`.
-            Its shape is :math:`(n\_class, n\_class)`.
+        pred_labels (iterator or iterable of numpy.ndarray):
+        gt_labels (iterator or iterable of numpy.ndarray):
+        n_class (int): The number of classes.
 
     Returns:
         numpy.ndarray:
@@ -92,6 +77,18 @@ def eval_semantic_segmentation(confusion):
         Its shape is :math:`(n\_class,)`.
 
     """
+    pred_labels = iter(pred_labels)
+    gt_labels = iter(gt_labels)
+
+    confusion = np.zeros((n_class, n_class), dtype=np.int64)
+    while True:
+        try:
+            pred_label = next(pred_labels)
+            gt_label = next(gt_labels)
+        except StopIteration:
+            break
+        confusion += calc_confusion_matrix(pred_label, gt_label, n_class)
+
     iou_denominator = (confusion.sum(axis=1) + confusion.sum(axis=0)
                        - np.diag(confusion))
     iou = np.diag(confusion) / iou_denominator
