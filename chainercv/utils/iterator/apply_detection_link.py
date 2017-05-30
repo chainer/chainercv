@@ -19,7 +19,8 @@ def apply_detection_link(target, iterator, hook=None):
             :obj:`bboxes`, :obj:`labels` and :obj:`scores`.
         iterator (chainer.Iterator): An iterator. Each sample should have
             an image as its first element. This image is passed to
-            :obj:`target`. The rests are stacked into :obj:`gt_values`.
+            :meth:`target.predict` as an argument.
+            The rests are stacked against :obj:`gt_values`.
         hook: A callable which is called after each iteration.
             :obj:`pred_bboxes`, :obj:`pred_labels`, :obj:`pred_scores` and
             :obj:`gt_values` are passed as arguments.
@@ -31,10 +32,10 @@ def apply_detection_link(target, iterator, hook=None):
         This function returns :obj:`pred_bboxes`,
         :obj:`pred_labels`, :obj:`pred_scores` and :obj:`gt_values`.
         :obj:`gt_values` is a tuple of iterators. Each iterator corresponds
-        to an value of samples from the iterator.
-        For example, if the iterator returns
-        batches of :obj:`img, val0, val1`, :obj:`gt_values` will be
-        :obj:`(iter(val0), iter(val1))`.
+        to a value of a sample from the iterator.
+        For example, if the iterator returns a batch of
+        :obj:`(img, val0, val1)`, :obj:`next(gt_values)` will be
+        :obj:`(val0, val1)`.
     """
 
     iterators = split_iterator(_apply(target, iterator, hook))
