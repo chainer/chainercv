@@ -1,5 +1,7 @@
 import numpy as np
 
+from chainercv.utils.iterator.split_iterator import split_iterator
+
 
 def apply_detection_link(target, iterator, hook=None):
     """Apply a detection link to an iterator
@@ -22,23 +24,28 @@ def apply_detection_link(target, iterator, hook=None):
             :obj:`pred_bboxes`, :obj:`pred_labels`, :obj:`pred_scores` and
             :obj:`gt_values` are passed as arguments.
             Note that these values do not contain data from the previous
-            iterations
+            iterations.
 
     Returns:
-        tuple of lists:
-        This function returns four lists: :obj:`pred_bboxes`,
+        Three iterators and a tuple:
+        This function returns :obj:`pred_bboxes`,
         :obj:`pred_labels`, :obj:`pred_scores` and :obj:`gt_values`.
-        :obj:`gt_values` is a tuple of lists. Each list corresponds to an value
-        of samples from the iterator. For example, if the iterator returns
+        :obj:`gt_values` is a tuple of iterators. Each iterator corresponds
+        to an value of samples from the iterator.
+        For example, if the iterator returns
         batches of :obj:`img, val0, val1`, :obj:`gt_values` will be
-        :obj:`([val0], [val1])`.
+        :obj:`(iter(val0), iter(val1))`.
     """
 
-    pred_bboxes = list()
-    pred_labels = list()
-    pred_scores = list()
-    gt_values = None
+    iterators = split_iterator(_apply(target, iterator, hook))
+    pred_bboxes = iterators[0]
+    pred_labels = iterators[1]
+    pred_scores = iterators[2]
+    gt_values = iterators[3:]
+    return pred_bboxes, pred_labels, pred_scores, gt_values
 
+
+def _apply(target, iterator, hook):
     while True:
         try:
             batch = next(iterator)
@@ -56,24 +63,15 @@ def apply_detection_link(target, iterator, hook=None):
                 batch_imgs.append(sample[0])
                 batch_gt_values.append(sample[1:])
 
-        batch_gt_values = tuple(list(bv) for bv in zip(*batch_gt_values))
-
         batch_pred_bboxes, batch_pred_labels, batch_pred_scores = \
             target.predict(batch_imgs)
 
         if hook:
             hook(
                 batch_pred_bboxes, batch_pred_labels, batch_pred_scores,
-                batch_gt_values)
+                tuple(list(bv) for bv in zip(*batch_gt_values)))
 
-        pred_bboxes.extend(batch_pred_bboxes)
-        pred_labels.extend(batch_pred_labels)
-        pred_scores.extend(batch_pred_scores)
-
-        if gt_values is None:
-            gt_values = batch_gt_values
-        else:
-            for v, bv in zip(gt_values, batch_gt_values):
-                v.extend(bv)
-
-    return pred_bboxes, pred_labels, pred_scores, gt_values
+        for pred_bbox, pred_label, pred_score, gt_value in zip(
+                batch_pred_bboxes, batch_pred_labels, batch_pred_scores,
+                batch_gt_values):
+            yield (pred_bbox, pred_label, pred_score) + gt_value
