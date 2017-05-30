@@ -8,7 +8,7 @@ def apply_detection_link(target, iterator, hook=None):
 
     This function applies a detection link to an iterator.
     It stacks the outputs of the detection link
-    into three lists,
+    against three itarators,
     :obj:`pred_bboxes`, :obj:`pred_labels` and :obj:`pred_scores`.
     This function also stacks the values returned by the iterator.
     These values can be used for evaluation.
