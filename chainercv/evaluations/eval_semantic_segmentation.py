@@ -6,6 +6,16 @@ import six
 from chainer import cuda
 
 
+def _to_cpu(arrays, xp):
+    if isinstance(arrays, xp.ndarray):
+        out_arrays = cuda.to_cpu(arrays)
+    else:
+        out_arrays = []
+        for array in arrays:
+            out_arrays.append(cuda.to_cpu(array))
+    return out_arrays
+
+
 def _fast_hist(pred_label, gt_label, n_class):
     # Construct histogram for label evaluation.
 
@@ -17,7 +27,7 @@ def _fast_hist(pred_label, gt_label, n_class):
     return hist
 
 
-def eval_semantic_segmentation(pred_label, gt_label, n_class):
+def eval_semantic_segmentation(pred_labels, gt_labels, n_class):
     """Evaluate results of semantic segmentation.
 
     This function measures four metrics: pixel accuracy,
@@ -32,23 +42,23 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
         :math:`PA = \\frac
         {\\sum_{i=1}^k N_{ii}}
         {\\sum_{i=1}^k \\sum_{j=1}^k N_{ij}}`
-    * Mean Pixel Accuracy (MPA)
-        :math:`MPA = \\frac{1}{k}
+    * Mean Pixel Accuracy (mPA)
+        :math:`mPA = \\frac{1}{k}
         \\sum_{i=1}^k
         \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij}}`
-    * Mean Intersection over Union (MIoU)
-        :math:`MIoU = \\frac{1}{k}
+    * Mean Intersection over Union (mIoU)
+        :math:`mIoU = \\frac{1}{k}
         \\sum_{i=1}^k
         \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij} + \\sum_{j=1}^k N_{ji} - N_{ii}}`
-    * Frequency Weighted Intersection over Union (FWIoU)
-        :math:`FWIoU = \\frac{1}{\\sum_{i=1}^k \\sum_{j=1}^k N_{ij}}
+    * Frequency Weighted Intersection over Union (fwIoU)
+        :math:`fwIoU = \\frac{1}{\\sum_{i=1}^k \\sum_{j=1}^k N_{ij}}
         \\sum_{i=1}^k \\frac{\\sum_{j=1}^k N_{ij}N_{ii}}
         {\\sum_{j=1}^k N_{ij} + \\sum_{j=1}^k N_{ji} - N_{ii}}`
 
     The more detailed descriptions on the above metrics can be found at a
     review on semantic segmentation [#]_.
 
-    Types of :obj:`pred_label` and :obj:`gt_label` need to be same.
+    Types of :obj:`pred_labels` and :obj:`gt_labels` need to be same.
     The outputs are same type as the inputs.
 
     .. [#] Alberto Garcia-Garcia, Sergio Orts-Escolano, Sergiu Oprea, \
@@ -57,61 +67,61 @@ def eval_semantic_segmentation(pred_label, gt_label, n_class):
     <https://arxiv.org/abs/1704.06857>`_. arXiv 2017.
 
     Args:
-        pred_label (array): An integer array of image containing
-            class labels as values, which is obtained from inference.
-            This has shape :math:`(N, 1, H, W)` or :math:`(1, H, W)`,
-            where :math:`N` is size of the batch, :math:`H` is the height
-            and :math:`W` is the width.
-        gt_label (array): An integer array of image containing
-            the ground truth class labels as values. A pixel with value
-            "-1" will be ignored during evaluation. Its shape is similar
-            to :obj:`pred_label`.
-            Its image size is equal to that of :obj:`pred_label`.
-            This should be a one channel CHW formatted image.
+        pred_labels (iterable of arrays): A collection of predicted
+            labels. This is a batch of labels whose shape is :math:`(N, H, W)`
+            or a list containing :math:`N` labels. The shape of a label array
+            is :math:`(H, W)`. :math:`H` and :math:`W`
+            are height and width of the label. We assume that there are
+            :math:`N` labels.
+        gt_labels (iterable of arrays): A collection of the ground
+            truth labels.
+            It is organized similarly to :obj:`pred_labels`. A pixel with value
+            "-1" will be ignored during evaluation.
         n_class (int): Number of classes.
 
     Returns:
         (array, array, array, array):
-        A tuple of pixel accuracy, mean pixel accuracy, MIoU and FWIoU.
+        A tuple of pixel accuracy, mean pixel accuracy, mIoU and fwIoU.
         These arrays have shape :math:`(N,)`, where :math:`N` is
         the number of images in the input.
 
     """
-    xp = cuda.get_array_module(pred_label)
-    pred_label = cuda.to_cpu(pred_label)
-    gt_label = cuda.to_cpu(gt_label)
+    # Evaluation code is based on
+    # https://github.com/shelhamer/fcn.berkeleyvision.org/blob/master/
+    # score.py#L37
+    xp = cuda.get_array_module(pred_labels[0], gt_labels[0])
+    if (isinstance(pred_labels, xp.ndarray) and pred_labels.ndim != 3
+            or isinstance(gt_labels, xp.ndarray) and gt_labels.ndim != 3):
+        raise ValueError('If batch of arrays are given, they have '
+                         'to have dimension 3')
+    pred_labels = _to_cpu(pred_labels, xp)
+    gt_labels = _to_cpu(gt_labels, xp)
+    N = len(pred_labels)
 
-    ndim = pred_label.ndim
-    if pred_label.ndim != gt_label.ndim:
-        raise ValueError(
-            'Ground truth and predicted label map should have same number '
-            'of dimensions.')
-    if ndim == 3:
-        pred_label = pred_label[None]
-        gt_label = gt_label[None]
-    elif ndim < 3:
-        raise ValueError('Input images need to be at least three dimensional.')
+    if len(pred_labels) != len(gt_labels):
+        raise ValueError('Number of the predicted labels and the'
+                         'ground truth labels are different')
+    for i in six.moves.range(N):
+        if pred_labels[i].shape != gt_labels[i].shape:
+            raise ValueError('Shape of the prediction and'
+                             'the ground truth should match')
 
-    if pred_label.shape[1] != 1 or gt_label.shape[1] != 1:
-        raise ValueError('Channel sizes of inputs need to be one.')
-
-    N = len(pred_label)
     acc = np.zeros((N,))
     acc_cls = np.zeros((N,))
-    mean_iou = np.zeros((N,))
+    miou = np.zeros((N,))
     fwavacc = np.zeros((N,))
-    for i in six.moves.range(len(pred_label)):
+    for i in six.moves.range(N):
         hist = _fast_hist(
-            pred_label[i].flatten(), gt_label[i].flatten(), n_class)
+            pred_labels[i].flatten(), gt_labels[i].flatten(), n_class)
         acc[i] = np.diag(hist).sum() / hist.sum()
         with np.errstate(divide='ignore', invalid='ignore'):
             acc_cls_i = np.diag(hist) / hist.sum(axis=1)
             acc_cls[i] = np.nanmean(acc_cls_i)
         iou_denominator = (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
         iou = np.diag(hist) / iou_denominator
-        mean_iou[i] = np.nanmean(iou)
+        miou[i] = np.nanmean(iou)
         freq = hist.sum(axis=1) / hist.sum()
         fwavacc[i] = (freq[freq > 0] * iou[freq > 0]).sum()
 
     return (xp.asarray(acc), xp.asarray(acc_cls),
-            xp.asarray(mean_iou), xp.asarray(fwavacc))
+            xp.asarray(miou), xp.asarray(fwavacc))

@@ -109,9 +109,10 @@ class SSD(chainer.Chain):
         super(SSD, self).to_cpu()
         self._default_bbox = chainer.cuda.to_cpu(self._default_bbox)
 
-    def to_gpu(self):
-        super(SSD, self).to_gpu()
-        self._default_bbox = chainer.cuda.to_gpu(self._default_bbox)
+    def to_gpu(self, device=None):
+        super(SSD, self).to_gpu(device)
+        self._default_bbox = chainer.cuda.to_gpu(
+            self._default_bbox, device=device)
 
     def __call__(self, x):
         """Compute localization and classification from a batch of images.
@@ -133,7 +134,7 @@ class SSD(chainer.Chain):
                 where :math:`B` is the number of samples in the batch and \
                 ::math:`K` is the number of default bounding boxes.
             * **conf**: A variable of float arrays of shape \
-                :math:`(B, K, n\_fg\_class)`.
+                :math:`(B, K, n\_fg\_class + 1)`.
         """
 
         return self.multibox(self.extractor(x))
@@ -243,16 +244,16 @@ class SSD(chainer.Chain):
                 Each value indicates how confident the prediction is.
         """
 
-        prepared_imgs = list()
+        x = list()
         sizes = list()
         for img in imgs:
             _, H, W = img.shape
             img = self._prepare(img)
-            prepared_imgs.append(self.xp.array(img))
+            x.append(self.xp.array(img))
             sizes.append((W, H))
 
-        prepared_imgs = self.xp.stack(prepared_imgs)
-        loc, conf = self(prepared_imgs)
+        x = chainer.Variable(self.xp.stack(x), volatile=chainer.flag.ON)
+        loc, conf = self(x)
         raw_bboxes, raw_scores = self._decode(loc.data, conf.data)
 
         bboxes = list()

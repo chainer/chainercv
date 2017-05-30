@@ -29,9 +29,9 @@ class _RandomDetectionStubLink(chainer.Link):
 
         for _ in imgs:
             n_bbox = np.random.randint(0, 10)
-            bboxes.append(self.xp.array(np.random.uniform(size=(n_bbox, 4))))
-            labels.append(self.xp.array(np.random.randint(0, 19, size=n_bbox)))
-            scores.append(self.xp.array(np.random.uniform(0, 1, size=n_bbox)))
+            bboxes.append(np.random.uniform(size=(n_bbox, 4)))
+            labels.append(np.random.randint(0, 19, size=n_bbox))
+            scores.append(np.random.uniform(0, 1, size=n_bbox))
 
         return bboxes, labels, scores
 
