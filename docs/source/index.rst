@@ -16,7 +16,7 @@ You can install ChainerCV using `pip`.
 
 .. code-block:: shell
 
-    # If Cython has not been installed yet, install it by commands like
+    # If Cython has not been installed yet, install it by a command like
     # pip install Cython
     pip install chainercv
 
