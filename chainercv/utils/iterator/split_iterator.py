@@ -38,6 +38,18 @@ def split_iterator(iterator):
     """Converts an iterator of tuples into a tuple of iterators.
 
     This function converts an iterator of tuples into a tuple of iterators.
+    This is an inverse function of :func:`zip`.
+
+    >>> input = [(0, 'a'), (1, 'b'), (2, 'c'), (3, 'd'), (4, 'e')]
+    >>> int_iter, str_iter = split_iterator(input)
+    >>>
+    >>> next(int_iter)  # 0
+    >>> next(int_iter)  # 1
+    >>> next(int_iter)  # 2
+    >>>
+    >>> next(str_iter)  # 'a'
+    >>> next(str_iter)  # 'b'
+    >>> next(str_iter)  # 'c'
 
     Args:
         iterator (iterator): An iterator of tuples. All tuples should have same
