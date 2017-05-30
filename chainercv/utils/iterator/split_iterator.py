@@ -35,5 +35,18 @@ class BufferedIterator(object):
 
 
 def split_iterator(iterator):
+    """Converts an iterator of tuples into a tuple of iterators.
+
+    This function converts an iterator of tuples into a tuple of iterators.
+
+    Args:
+        iterator (iterator): An iterator of tuples. All tuples should have same
+            length.
+
+    Returns:
+        tuple of iterators:
+        Each iterator corresponds to each element of input tuple.
+    """
+
     hub = IteratorHub(iterator)
     return hub.children
