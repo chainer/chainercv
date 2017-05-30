@@ -8,8 +8,9 @@ def apply_semantic_segmentation_link(target, iterator, hook=None):
 
     This function applies a semantic segmentation link to an iterator.
     It stacks the outputs of the semantic segmentation link
-    into :obj:`pred_labels`.
-    This function also stacks the values returned by the iterator.
+    against :obj:`pred_labels`.
+    This function also stacks the values returned by the iterator
+    except the input image.
     These values can be used for evaluation.
 
     Args:
@@ -18,7 +19,8 @@ def apply_semantic_segmentation_link(target, iterator, hook=None):
             :obj:`labels`.
         iterator (chainer.Iterator): An iterator. Each sample should have
             an image as its first element. This image is passed to
-            :obj:`target`. The rests are stacked into :obj:`gt_values`.
+            :meth:`target.predict` as an argument.
+            The rests are stacked against :obj:`gt_values`.
         hook: A callable which is called after each iteration.
             :obj:`pred_labels` and :obj:`gt_values` are passed as arguments.
             Note that these values do not contain data from the previous
@@ -28,9 +30,10 @@ def apply_semantic_segmentation_link(target, iterator, hook=None):
         An iterator and a tuple:
         This function returns :obj:`pred_labels` and :obj:`gt_values`.
         :obj:`gt_values` is a tuple of iterators. Each iterator corresponds
-        to an value of samples from the iterator.
-        For example, if the iterator returns batches of :obj:`img, val0, val1`,
-        :obj:`gt_values` will be :obj:`(iter(val0), iter(val1))`.
+        to a value of a sample from the iterator.
+        For example, if the iterator returns a batch of
+        :obj:`(img, val0, val1)`, :obj:`next(gt_values)`
+        will be :obj:`(val0, val1)`.
     """
 
     iterators = split_iterator(_apply(target, iterator, hook))

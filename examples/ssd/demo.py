@@ -15,13 +15,18 @@ def main():
     parser.add_argument(
         '--model', choices=('ssd300', 'ssd512'), default='ssd300')
     parser.add_argument('--gpu', type=int, default=-1)
+    parser.add_argument('--pretrained_model', default='voc0712')
     parser.add_argument('image')
     args = parser.parse_args()
 
     if args.model == 'ssd300':
-        model = SSD300(pretrained_model='voc0712')
+        model = SSD300(
+            n_fg_class=len(voc_detection_label_names),
+            pretrained_model=args.pretrained_model)
     elif args.model == 'ssd512':
-        model = SSD512(pretrained_model='voc0712')
+        model = SSD512(
+            n_fg_class=len(voc_detection_label_names),
+            pretrained_model=args.pretrained_model)
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
