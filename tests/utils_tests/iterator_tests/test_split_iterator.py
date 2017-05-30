@@ -3,7 +3,7 @@ import unittest
 
 from chainer import testing
 
-from chainercv.utils.iterator import split_iterator
+from chainercv.utils import split_iterator
 
 
 class TestSplitIterator(unittest.TestCase):
