@@ -11,12 +11,7 @@ class TestSplitIterator(unittest.TestCase):
     def setUp(self):
         self.ints = list(range(10))
         self.strs = list('abcdefghij')
-
-        def _iterator():
-            for i, s in zip(self.ints, self.strs):
-                yield i, s
-
-        self.iterator = _iterator()
+        self.iterator = zip(self.ints, self.strs):
 
     def test_sequential(self):
         i_iter, s_iter = split_iterator(self.iterator)
