@@ -39,3 +39,7 @@ ConstantStubLink
 ~~~~~~~~~~~~~~~~
 .. autoclass:: ConstantStubLink
    :members:
+
+generate_bbox
+~~~~~~~~~~~~~
+.. autofunction:: generate_bbox
