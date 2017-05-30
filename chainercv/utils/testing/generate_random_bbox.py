@@ -8,16 +8,18 @@ def generate_random_bbox(n, img_size, min_length, max_length):
         n (int): The number of bounding boxes.
         img_size (tuple): A tuple of length 2. The width and the height
             of the image on which bounding boxes locate.
-        min_length (int): The minimum length of edges of bounding boxes.
-        max_length (int): The maximum length of edges of bounding boxes.
+        min_length (float): The minimum length of edges of bounding boxes.
+        max_length (float): The maximum length of edges of bounding boxes.
 
     Return:
         numpy.ndarray:
         Coordinates of bounding boxes. Its shape is :math:`(R, 4)`. \
         Here, :math:`R` equals :obj:`n`.
-        The second axis contains :obj:`x_min, y_min, x_max, y_max`,
-        where :obj:`x_min + min_length <= x_max < x_min + max_length` and
-        :obj:`y_min + min_length <= y_max < y_min + max_length`.
+        The second axis contains :math:`x_{min}, y_{min}, x_{max}, y_{max}`,
+        where
+        :math:`x_{min} + min\_length \\leq x_{max} < x_{min} + max\_length`
+        and
+        :math:`y_{min} + min\_length \\leq y_{max} < y_{min} + max\_length`.
 
     """
     W, H = img_size
