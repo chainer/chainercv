@@ -15,12 +15,11 @@ from chainer.training import extensions
 
 from chainercv.datasets import TransformDataset
 from chainercv.datasets import VOCDetectionDataset
-from chainercv import transforms
-
 from chainercv.datasets import voc_detection_label_names
 from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
+from chainercv import transforms
 
 
 def main():
