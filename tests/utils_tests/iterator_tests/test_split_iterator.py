@@ -43,7 +43,7 @@ class TestSplitIterator(unittest.TestCase):
                     ints.append(next(i_iter))
                 else:
                     strs.append(next(s_iter))
-            except:
+            except StopIteration:
                 break
 
         ints.extend(i_iter)
