@@ -50,7 +50,7 @@ class TestApplySemanticSegmentationLink(unittest.TestCase):
         pred_scores, gt_values = apply_semantic_segmentation_link(
             self.link, iterator, hook=hook)
 
-        self.assertEqual(len(pred_scores), len(dataset))
+        self.assertEqual(len(list(pred_scores)), len(dataset))
         self.assertEqual(len(gt_values), 0)
 
     def test_general_dataset(self):
@@ -70,12 +70,11 @@ class TestApplySemanticSegmentationLink(unittest.TestCase):
         pred_scores, gt_values = apply_semantic_segmentation_link(
             self.link, iterator, hook=hook)
 
-        self.assertEqual(len(pred_scores), len(dataset))
-
+        self.assertEqual(len(list(pred_scores)), len(dataset))
         self.assertEqual(len(gt_values), 3)
-        self.assertEqual(gt_values[0], strs)
-        self.assertEqual(gt_values[1], nums)
-        self.assertEqual(gt_values[2], arrays)
+        self.assertEqual(list(gt_values[0]), strs)
+        self.assertEqual(list(gt_values[1]), nums)
+        self.assertEqual(list(gt_values[2]), arrays)
 
 
 testing.run_module(__name__, __file__)

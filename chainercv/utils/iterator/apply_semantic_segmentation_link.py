@@ -1,5 +1,7 @@
 import numpy as np
 
+from chainercv.utils.iterator.split_iterator import split_iterator
+
 
 def apply_semantic_segmentation_link(target, iterator, hook=None):
     """Apply a semantic segmentation link to an iterator
@@ -20,21 +22,24 @@ def apply_semantic_segmentation_link(target, iterator, hook=None):
         hook: An callable which is called after each iteration.
             :obj:`pred_scores` and :obj:`gt_values` are passed as arguments.
             Note that these values do not contain data from the previous
-            iterations
+            iterations.
 
     Returns:
-        tuple of lists:
-        This function returns two lists: :obj:`pred_scores` and
-        :obj:`gt_values`.
-        :obj:`gt_values` is a tuple of lists. Each list corresponds to an value
-        of samples from the iterator. For example, if the iterator returns
-        batches of :obj:`img, val0, val1`, :obj:`gt_values` will be
-        :obj:`([val0], [val1])`.
+        An iterator and a list:
+        This function returns :obj:`pred_scores` and :obj:`gt_values`.
+        :obj:`gt_values` is a tuple of iterators. Each iterator corresponds
+        to an value of samples from the iterator.
+        For example, if the iterator returns batches of :obj:`img, val0, val1`,
+        :obj:`gt_values` will be :obj:`(iter(val0), iter(val1))`.
     """
 
-    pred_scores = list()
-    gt_values = None
+    iterators = split_iterator(_apply(target, iterator, hook))
+    pred_scores = iterators[0]
+    gt_values = iterators[1:]
+    return pred_scores, gt_values
 
+
+def _apply(target, iterator, hook):
     while True:
         try:
             batch = next(iterator)
@@ -52,19 +57,12 @@ def apply_semantic_segmentation_link(target, iterator, hook=None):
                 batch_imgs.append(sample[0])
                 batch_gt_values.append(sample[1:])
 
-        batch_gt_values = tuple(list(bv) for bv in zip(*batch_gt_values))
-
         batch_pred_scores = target.predict(batch_imgs)
 
         if hook:
-            hook(batch_pred_scores, batch_gt_values)
+            hook(
+                batch_pred_scores,
+                tuple(list(bv) for bv in zip(*batch_gt_values)))
 
-        pred_scores.extend(batch_pred_scores)
-
-        if gt_values is None:
-            gt_values = batch_gt_values
-        else:
-            for v, bv in zip(gt_values, batch_gt_values):
-                v.extend(bv)
-
-    return pred_scores, gt_values
+        for pred_score, gt_value in zip(batch_pred_scores, batch_gt_values):
+            yield (pred_score,) + gt_value
