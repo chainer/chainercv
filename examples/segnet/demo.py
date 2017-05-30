@@ -14,10 +14,13 @@ from chainercv.visualizations import vis_label
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
+    parser.add_argument('--pretrained_model', default='camvid')
     parser.add_argument('image')
     args = parser.parse_args()
 
-    model = SegNetBasic(n_class=11, pretrained_model='camvid')
+    model = SegNetBasic(
+        n_class=len(camvid_label_names),
+        pretrained_model=args.pretrained_model)
 
     if args.gpu >= 0:
         model.to_gpu(args.gpu)
