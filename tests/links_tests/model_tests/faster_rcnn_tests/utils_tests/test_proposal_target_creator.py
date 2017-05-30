@@ -33,7 +33,7 @@ class TestProposalTargetCreator(unittest.TestCase):
         self.roi = _generate_bbox(n_roi, (392, 512), 16, 250)
         self.bbox = _generate_bbox(n_bbox, (392, 512), 16, 250)
         self.label = np.random.randint(
-            0, self.n_class, size=(n_bbox,), dtype=np.int32)
+            0, self.n_class - 1, size=(n_bbox,), dtype=np.int32)
 
         self.proposal_target_creator = ProposalTargetCreator(
             n_sample=self.n_sample,
