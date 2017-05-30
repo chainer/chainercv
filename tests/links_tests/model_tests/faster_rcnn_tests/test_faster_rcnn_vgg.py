@@ -92,11 +92,10 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
         _imgs = np.random.uniform(
             low=-122.5, high=122.5, size=(1, 3, 600, 800)).astype(np.float32)
         self.imgs = chainer.Variable(_imgs)
+        self.scale = chainer.Variable(np.array(1.))
 
     def check_call(self):
-        xp = self.link.xp
-        scale = chainer.Variable(xp.array(1.))
-        loss = self.link(self.imgs, self.bboxes, self.labels, scale)
+        loss = self.link(self.imgs, self.bboxes, self.labels, self.scale)
         self.assertEqual(loss.shape, ())
 
     def test_call_cpu(self):
@@ -108,6 +107,7 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
         self.bboxes.to_gpu()
         self.labels.to_gpu()
         self.imgs.to_gpu()
+        self.scale.to_gpu()
         self.check_call()
 
 
