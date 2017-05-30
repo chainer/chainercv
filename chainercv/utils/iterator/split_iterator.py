@@ -33,6 +33,8 @@ class BufferedIterator(object):
             self.hub.feed()
             return self.buffer.pop(0)
 
+    next = __next__
+
 
 def split_iterator(iterator):
     """Converts an iterator of tuples into a tuple of iterators.
