@@ -46,12 +46,7 @@ def apply_detection_link(target, iterator, hook=None):
 
 
 def _apply(target, iterator, hook):
-    while True:
-        try:
-            batch = next(iterator)
-        except StopIteration:
-            break
-
+    for batch in iterator:
         batch_imgs = list()
         batch_gt_values = list()
 
