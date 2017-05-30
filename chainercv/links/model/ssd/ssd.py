@@ -219,7 +219,7 @@ class SSD(chainer.Chain):
             raise ValueError('preset must be visualize or evaluate')
 
     def predict(self, imgs):
-        """Detect objects from images
+        """Detect objects from images.
 
         This method predicts objects for each image.
 
@@ -229,19 +229,22 @@ class SSD(chainer.Chain):
                 and the range of their value is :math:`[0, 255]`.
 
         Returns:
-            tuple of list:
-            This method returns a tuple of three lists,
-            :obj:`(bboxes, labels, scores)`.
+           tuple of lists:
+           This method returns a tuple of three lists,
+           :obj:`(bboxes, labels, scores)`.
 
-            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
-                where :math:`R` is the number of bounding boxes in a image. \
-                Each bouding box is organized by \
-                :obj:`(x_min, y_min, x_max, y_max)` \
-                in the second axis.
-            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
-                Each value indicates the class of the bounding box.
-            * **scores** : A list of float arrays of shape :math:`(R,)`. \
-                Each value indicates how confident the prediction is.
+           * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
+               where :math:`R` is the number of bounding boxes in a image. \
+               Each bouding box is organized by \
+               :obj:`(x_min, y_min, x_max, y_max)` \
+               in the second axis.
+           * **labels** : A list of integer arrays of shape :math:`(R,)`. \
+               Each value indicates the class of the bounding box. \
+               Values are in range :math:`[0, L - 1]`, where :math:`L` is the \
+               number of the foreground classes.
+           * **scores** : A list of float arrays of shape :math:`(R,)`. \
+               Each value indicates how confident the prediction is.
+
         """
 
         x = list()
