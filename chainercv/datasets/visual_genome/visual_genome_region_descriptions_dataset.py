@@ -58,8 +58,7 @@ class VisualGenomeRegionDescriptionsDataset(VisualGenomeDatasetBase):
 
         self.region_ids = _get_region_ids(region_descriptions)
         self.regions = _get_regions(region_descriptions)
-        self.phrases = _get_phrases(region_descriptions,
-                                    min_token_instances=min_token_instances)
+        self.phrases = _get_phrases(region_descriptions, min_token_instances)
 
     def get_example(self, i):
         img_id = self.get_image_id(i)
