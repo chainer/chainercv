@@ -1,7 +1,6 @@
 from __future__ import division
 
 import numpy as np
-import random
 
 
 def padding(img, size, fill=0, return_param=False):
@@ -10,6 +9,12 @@ def padding(img, size, fill=0, return_param=False):
     This method place the input image at the center of a larger canvas.
     The size of the canvas is :obj:`size`. The canvas is filled by a value
     :obj:`fill` except for the region where the original image is placed.
+
+    This transformation is commonly used a preprocess of random crop [#]_.
+
+    .. [#] Chen-Yu Lee, Saining Xie, Patrick Gallagher, Zhengyou Zhang, \
+    Zhuowen Tu. \
+    Deeply-supervised nets. Artificial Intelligence and Statistics. 2015.
 
     Args:
         img (~numpy.ndarray): An image array to be padded. This is in
