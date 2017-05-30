@@ -31,6 +31,14 @@ apply_detection_link
 ~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: apply_detection_link
 
+apply_semantic_segmentation_link
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: apply_semantic_segmentation_link
+
+split_iterator
+~~~~~~~~~~~~~~
+.. autofunction:: split_iterator
+
 
 Testing Utilities
 -----------------
