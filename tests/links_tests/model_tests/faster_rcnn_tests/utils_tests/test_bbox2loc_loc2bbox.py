@@ -8,16 +8,7 @@ from chainer.testing import attr
 
 from chainercv.links.model.faster_rcnn import bbox2loc
 from chainercv.links.model.faster_rcnn import loc2bbox
-
-
-def generate_bbox(n, img_size, min_length, max_length):
-    W, H = img_size
-    x_min = np.random.uniform(0, W - max_length, size=(n,))
-    y_min = np.random.uniform(0, H - max_length, size=(n,))
-    x_max = x_min + np.random.uniform(min_length, max_length, size=(n,))
-    y_max = y_min + np.random.uniform(min_length, max_length, size=(n,))
-    bbox = np.stack((x_min, y_min, x_max, y_max), axis=1).astype(np.float32)
-    return bbox
+from chainercv.utils import generate_bbox
 
 
 class TestLocBboxConversions(unittest.TestCase):

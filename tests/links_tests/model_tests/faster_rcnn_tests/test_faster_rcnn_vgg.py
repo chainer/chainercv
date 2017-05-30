@@ -7,16 +7,7 @@ from chainer.testing import attr
 
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
-
-
-def _generate_bbox(xp, n, img_size, min_length, max_length):
-    W, H = img_size
-    x_min = xp.random.uniform(0, W - max_length, size=(n,))
-    y_min = xp.random.uniform(0, H - max_length, size=(n,))
-    x_max = x_min + xp.random.uniform(min_length, max_length, size=(n,))
-    y_max = y_min + xp.random.uniform(min_length, max_length, size=(n,))
-    bbox = xp.stack((x_min, y_min, x_max, y_max), axis=1).astype(np.float32)
-    return bbox
+from chainercv.utils import generate_bbox
 
 
 @testing.parameterize(
@@ -92,19 +83,20 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
             n_fg_class=self.n_fg_class, pretrained_model=False)
         self.link = FasterRCNNTrainChain(faster_rcnn)
 
+        self.n_bbox = 3
+        self.bboxes = chainer.Variable(
+            generate_bbox(self.n_bbox, (600, 800), 16, 350)[np.newaxis])
+        _labels = np.random.randint(
+            0, self.n_fg_class, size=(1, self.n_bbox)).astype(np.int32)
+        self.labels = chainer.Variable(_labels)
+        _imgs = np.random.uniform(
+            low=-122.5, high=122.5, size=(1, 3, 600, 800)).astype(np.float32)
+        self.imgs = chainer.Variable(_imgs)
+
     def check_call(self):
         xp = self.link.xp
-
-        n_bbox = 3
-        imgs = xp.random.uniform(
-            low=-122.5, high=122.5, size=(1, 3, 600, 800)).astype(np.float32)
-        imgs = chainer.Variable(imgs)
-        bboxes = chainer.Variable(
-            _generate_bbox(xp, n_bbox, (600, 800), 16, 350)[None])
-        labels = xp.random.randint(0, self.n_fg_class + 1, size=(n_bbox,))
-        labels = chainer.Variable(labels[None].astype(np.int32))
         scale = chainer.Variable(xp.array(1.))
-        loss = self.link(imgs, bboxes, labels, scale)
+        loss = self.link(self.imgs, self.bboxes, self.labels, scale)
         self.assertEqual(loss.shape, ())
 
     def test_call_cpu(self):
@@ -113,6 +105,9 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
     @attr.gpu
     def test_call_gpu(self):
         self.link.to_gpu()
+        self.bboxes.to_gpu()
+        self.labels.to_gpu()
+        self.imgs.to_gpu()
         self.check_call()
 
 
