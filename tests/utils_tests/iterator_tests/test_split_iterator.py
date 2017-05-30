@@ -58,4 +58,41 @@ class TestSplitIterator(unittest.TestCase):
         self.assertEqual(strs, self.strs)
 
 
+class TestSplitIteratorWithInfiniteIterator(unittest.TestCase):
+
+    def setUp(self):
+
+        def _iterator():
+            i = 0
+            while True:
+                yield i, i + 1, i * i
+                i += 1
+
+        self.iterator = _iterator()
+
+    def test_sequential(self):
+        iters = split_iterator(self.iterator)
+
+        self.assertEqual(len(iters), 3)
+
+        for i in range(10):
+            self.assertEqual(next(iters[0]), i)
+
+        for i in range(10):
+            self.assertEqual(next(iters[1]), i + 1)
+
+        for i in range(10):
+            self.assertEqual(next(iters[2]), i * i)
+
+    def test_parallel(self):
+        iters = split_iterator(self.iterator)
+
+        self.assertEqual(len(iters), 3)
+
+        for i in range(10):
+            self.assertEqual(next(iters[0]), i)
+            self.assertEqual(next(iters[1]), i + 1)
+            self.assertEqual(next(iters[2]), i * i)
+
+
 testing.run_module(__name__, __file__)
