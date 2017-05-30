@@ -25,7 +25,7 @@ def apply_semantic_segmentation_link(target, iterator, hook=None):
             iterations.
 
     Returns:
-        An iterator and a list:
+        An iterator and a tuple:
         This function returns :obj:`pred_labels` and :obj:`gt_values`.
         :obj:`gt_values` is a tuple of iterators. Each iterator corresponds
         to an value of samples from the iterator.
