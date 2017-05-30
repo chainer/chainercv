@@ -1,21 +1,25 @@
 class BufferedIterator(object):
 
-    def __init__(self, feed):
-        self.feed = feed
-        self.buffer = list()
+    def __init__(self, iterator, buffers, index):
+        self.iterator = iterator
+        self.buffers = buffers
+        self.index = index
 
-    def push(self, value):
-        self.buffer.append(value)
+    def __del__(self):
+        self.buffers[self.index] = None
 
     def __iter__(self):
         return self
 
     def __next__(self):
         try:
-            return self.buffer.pop(0)
+            return self.buffers[self.index].pop(0)
         except IndexError:
-            self.feed()
-            return self.buffer.pop(0)
+            values = next(self.iterator)
+            for buf, val in zip(self.buffers, values):
+                if buf is not None:
+                    buf.append(val)
+            return self.buffers[self.index].pop(0)
 
     next = __next__
 
@@ -47,14 +51,8 @@ def split_iterator(iterator):
         Each iterator corresponds to each element of input tuple.
     """
 
-    def feed(values=None):
-        if values is None:
-            values = next(iterator)
-        for it, value in zip(iters, values):
-            it.push(value)
-
     values = next(iterator)
-    iters = tuple(BufferedIterator(feed) for _ in values)
-    feed(values)
-
-    return iters
+    buffers = [[val] for val in values]
+    return tuple(
+        BufferedIterator(iterator, buffers, index)
+        for index in range(len(buffers)))
