@@ -26,8 +26,9 @@ def split_iterator(iterator):
     This function converts an iterator of tuples into a tuple of iterators.
     This is an inverse function of :func:`zip`.
 
-    >>> input = [(0, 'a'), (1, 'b'), (2, 'c'), (3, 'd'), (4, 'e')]
-    >>> int_iter, str_iter = split_iterator(input)
+    >>> from chainercv.utils.iterator import split_iterator
+    >>> in_iter = iter([(0, 'a'), (1, 'b'), (2, 'c'), (3, 'd'), (4, 'e')])
+    >>> int_iter, str_iter = split_iterator(in_iter)
     >>>
     >>> next(int_iter)  # 0
     >>> next(int_iter)  # 1
@@ -38,8 +39,8 @@ def split_iterator(iterator):
     >>> next(str_iter)  # 'c'
 
     Args:
-        iterator (iterator): An iterator of tuples. All tuples should have same
-            length.
+        iterator (iterator): An iterator of tuples. All tuples should have
+            the same length.
 
     Returns:
         tuple of iterators:
