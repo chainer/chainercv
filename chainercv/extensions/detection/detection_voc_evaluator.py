@@ -29,6 +29,9 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
         use_07_metric (bool): Whether to use PASCAL VOC 2007 evaluation metric
             for calculating average precision. The default value is
             :obj:`False`.
+        eval_hook: Function to prepare for each evaluation process. It is
+            called at the beginning of the evaluation. The evaluator extension
+            object is passed at each call.
 
     """
 
@@ -36,14 +39,18 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
     default_name = 'validation'
     priority = chainer.training.PRIORITY_WRITER
 
-    def __init__(self, iterator, target, use_07_metric=False):
+    def __init__(self, iterator, target, use_07_metric=False, eval_hook=None):
         super(DetectionVOCEvaluator, self).__init__(
             iterator, target)
         self.use_07_metric = use_07_metric
+        self.eval_hook = eval_hook
 
     def evaluate(self):
         iterator = self._iterators['main']
         target = self._targets['main']
+
+        if self.eval_hook:
+            self.eval_hook(self)
 
         if hasattr(iterator, 'reset'):
             iterator.reset()
