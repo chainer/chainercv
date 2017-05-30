@@ -1,9 +1,9 @@
 from chainercv.utils.iterator.split_iterator import split_iterator
 
 
-def apply_prediction_link(target, iterator, hook=None):
+def apply_prediction_link(predict, iterator, hook=None):
     imgs, pred_values, gt_values = split_iterator(
-        _apply(target, iterator, hook))
+        _apply(predict, iterator, hook))
 
     # imgs: iter of [img] -> iter of img
     imgs = _flatten(imgs)
@@ -19,7 +19,7 @@ def apply_prediction_link(target, iterator, hook=None):
     return imgs, pred_values, gt_values
 
 
-def _apply(target, iterator, hook):
+def _apply(predict, iterator, hook):
     for batch in iterator:
         # batch: [(img, gt_val0, gt_val1, ...)] or [img]
 
@@ -39,7 +39,7 @@ def _apply(target, iterator, hook):
         gt_values = tuple(list(v) for v in zip(*gt_values))
 
         # pred_values: ([pred_val0], [pred_val1], ...) or [pred_val]
-        pred_values = target.predict(imgs)
+        pred_values = predict(imgs)
         if not isinstance(pred_values, tuple):
             # pred_values: [pred_val] -> ([pred_val0], [pred_val1], ...)
             pred_values = pred_values,
