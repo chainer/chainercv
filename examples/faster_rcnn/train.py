@@ -12,10 +12,11 @@ import numpy as np
 import chainer
 from chainer import training
 from chainer.training import extensions
+from chainer.training.triggers import ManualScheduleTrigger
 
 from chainercv.datasets import TransformDataset
-from chainercv.datasets import VOCDetectionDataset
 from chainercv.datasets import voc_detection_label_names
+from chainercv.datasets import VOCDetectionDataset
 from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
@@ -112,7 +113,8 @@ def main():
     trainer.extend(
         DetectionVOCEvaluator(
             test_iter, model.faster_rcnn, use_07_metric=True),
-        trigger=(args.step_size, 'iteration'),
+        trigger=ManualScheduleTrigger(
+            (args.step_size, args.iteration), 'iteration'),
         invoke_before_training=False)
 
     trainer.extend(extensions.dump_graph('main/loss'))
