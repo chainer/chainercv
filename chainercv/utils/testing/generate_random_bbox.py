@@ -17,9 +17,9 @@ def generate_random_bbox(n, img_size, min_length, max_length):
         Here, :math:`R` equals :obj:`n`.
         The second axis contains :math:`x_{min}, y_{min}, x_{max}, y_{max}`,
         where
-        :math:`x_{min} + min\_length \\leq x_{max} < x_{min} + max\_length`
+        :math:`min\_length \\leq x_{max} - x_{min} < max\_length`
         and
-        :math:`y_{min} + min\_length \\leq y_{max} < y_{min} + max\_length`.
+        :math:`min\_length \\leq y_{max} - y_{min} < max\_length`.
 
     """
     W, H = img_size
