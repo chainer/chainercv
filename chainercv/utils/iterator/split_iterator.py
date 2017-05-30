@@ -23,6 +23,9 @@ class BufferedIterator(object):
     def append(self, value):
         self.buffer.append(value)
 
+    def __iter__(self):
+        return self
+
     def __next__(self):
         try:
             return self.buffer.pop(0)
