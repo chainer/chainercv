@@ -40,6 +40,12 @@ wget https://raw.githubusercontent.com/alexgkendall/SegNet-Tutorial/master/CamVi
 python demo.py 0001TP_008550.png
 ```
 
+`demo.py` has the following commandline interface.
+
+```
+python demo.py [--gpu <gpu>] [--pretrained_model <model_path>] <image>.jpg
+```
+
 # Evaluation
 
 The trained weights to replicate the same results as below is here: [model_iteration-16000](https://www.dropbox.com/s/exas66necaqbxyw/model_iteration-16000).
