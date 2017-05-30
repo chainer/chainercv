@@ -13,13 +13,13 @@ def apply_semantic_segmentation_link(target, iterator, hook=None):
     These values can be used for evaluation.
 
     Args:
-        target (chainer.Link): An semantic segmentation link. This link must
+        target (chainer.Link): A semantic segmentation link. This link must
             have :meth:`predict` method which take a list of images and returns
             :obj:`labels`.
         iterator (chainer.Iterator): An iterator. Each sample should have
             an image as its first element. This image is passed to
             :obj:`target`. The rests are stacked into :obj:`gt_values`.
-        hook: An callable which is called after each iteration.
+        hook: A callable which is called after each iteration.
             :obj:`pred_labels` and :obj:`gt_values` are passed as arguments.
             Note that these values do not contain data from the previous
             iterations.
