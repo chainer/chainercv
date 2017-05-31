@@ -51,8 +51,10 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
         else:
             it = copy.copy(iterator)
 
-        _, pred_values, gt_values =\
-            apply_prediction_to_iterator(target.predict, it)
+        imgs, pred_values, gt_values = apply_prediction_to_iterator(
+            target.predict, it)
+        # delete unused iterator explicitly
+        del imgs
 
         pred_bboxes, pred_labels, pred_scores = pred_values
 
