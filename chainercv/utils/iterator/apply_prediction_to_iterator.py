@@ -46,17 +46,18 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
         An iterator and two tuples of iterators:
         This function returns an iterator and two tuples of iterators:
         :obj:`imgs`, :obj:`pred_values` and :obj:`gt_values`.
-        :obj:`imgs` is an iterator which returns an image.
-        :obj:`pred_values` is a tuple of iterators. Each iterator
-        returns a corresponding predicted value.
-        For example, if :func:`predict` returns
-        :obj:`([pred_val0], [pred_val1])`, :obj:`next(pred_values[0])`
-        and :obj:`next(pred_values[1])`
-        will be :obj:`pred_val0` and :obj:`pred_val1`.
-        :obj:`gt_values` is a tuple of iterators. Each iterator
-        returns a corresponding ground truth value. If the input
-        iterator does not give any ground truth values, this tuple
-        will be empty.
+
+        * :obj:`imgs`: An iterator which returns an image.
+        * :obj:`pred_values`: A tuple of iterators. Each iterator \
+            returns a corresponding predicted value. \
+            For example, if :func:`predict` returns \
+            :obj:`([pred_val0], [pred_val1])`, :obj:`next(pred_values[0])` \
+            and :obj:`next(pred_values[1])` will be \
+            :obj:`pred_val0` and :obj:`pred_val1`.
+        * :obj:`gt_values`: A tuple of iterators. Each iterator \
+            returns a corresponding ground truth value. If the input \
+            iterator does not give any ground truth values, this tuple \
+            will be empty.
     """
 
     imgs, pred_values, gt_values = unzip(
