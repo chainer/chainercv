@@ -1,4 +1,28 @@
 class BufferedIterator(object):
+    """Buffered iterator class for unzip.
+
+    This iterator contains :obj:`buffers` and :obj:`index`.
+    The buffers are shared with other :class:`BufferedIterator`s.
+    When :method:`__next__` or :method:`next` is called,
+    this iterator checks :obj:`buffers[index]` fisrt.
+    If :obj:`buffers[index]` has some values, it pops
+    the first value and returns it. Otherwise, it gets
+    a new tuple from the base iterator and store the values
+    in :obj:`buffers`.
+
+    When this iterator is deleted, it marks the corresponding buffer
+    as unused by setting :obj:`buffers[index]` to :obj:`None`.
+    With this mark, other iterators can skip values for this deleted
+    iterator and memory usage can be reduced.
+
+    Args:
+        iterator (iterator): A base iterator of tuples. All tuples should have
+            the same length.
+        buffers (list of lists): A list of lists. The size of the outer list
+            should be same as those of tuples from :obj:`iterator`.
+        index (int): The index of this :class:`BufferedIterator`.
+
+    """
 
     def __init__(self, iterator, buffers, index):
         self.iterator = iterator
