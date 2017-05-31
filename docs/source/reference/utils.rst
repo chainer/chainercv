@@ -31,6 +31,10 @@ apply_detection_link
 ~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: apply_detection_link
 
+apply_prediction_to_iterator
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: apply_prediction_to_iterator
+
 apply_semantic_segmentation_link
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: apply_semantic_segmentation_link
