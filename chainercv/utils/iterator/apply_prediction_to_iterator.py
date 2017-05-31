@@ -98,7 +98,7 @@ def _apply(predict, iterator, hook):
         # pred_values: ([pred_val0], [pred_val1], ...) or [pred_val]
         pred_values = predict(imgs)
         if not isinstance(pred_values, tuple):
-            # pred_values: [pred_val] -> ([pred_val0], [pred_val1], ...)
+            # pred_values: [pred_val] -> ([pred_val],)
             pred_values = pred_values,
 
         if hook:
