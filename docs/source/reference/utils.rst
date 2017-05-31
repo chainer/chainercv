@@ -31,9 +31,9 @@ apply_prediction_to_iterator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: apply_prediction_to_iterator
 
-split_iterator
-~~~~~~~~~~~~~~
-.. autofunction:: split_iterator
+unzip
+~~~~~
+.. autofunction:: unzip
 
 
 Testing Utilities
