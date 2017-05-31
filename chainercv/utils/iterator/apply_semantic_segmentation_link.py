@@ -1,6 +1,6 @@
 import numpy as np
 
-from chainercv.utils.iterator.split_iterator import split_iterator
+from chainercv.utils.iterator.unzip import unzip
 
 
 def apply_semantic_segmentation_link(target, iterator, hook=None):
@@ -36,7 +36,7 @@ def apply_semantic_segmentation_link(target, iterator, hook=None):
         will be :obj:`(val0, val1)`.
     """
 
-    iterators = split_iterator(_apply(target, iterator, hook))
+    iterators = unzip(_apply(target, iterator, hook))
     pred_labels = iterators[0]
     gt_values = iterators[1:]
     return pred_labels, gt_values
