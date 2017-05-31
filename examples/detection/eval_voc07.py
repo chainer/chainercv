@@ -59,9 +59,8 @@ def main():
     iterator = iterators.SerialIterator(
         dataset, args.batchsize, repeat=False, shuffle=False)
 
-    _, pred_values, gt_values = \
-        apply_prediction_to_iterator(
-            model.predict, iterator, hook=ProgressHook(len(dataset)))
+    _, pred_values, gt_values = apply_prediction_to_iterator(
+        model.predict, iterator, hook=ProgressHook(len(dataset)))
     pred_bboxes, pred_labels, pred_scores = pred_values
     gt_bboxes, gt_labels, gt_difficults = gt_values
 
