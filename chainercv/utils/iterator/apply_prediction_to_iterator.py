@@ -2,6 +2,63 @@ from chainercv.utils.iterator.split_iterator import split_iterator
 
 
 def apply_prediction_to_iterator(predict, iterator, hook=None):
+    """Apply a prediction function/method to  an iterator
+
+    This function applies a prediction function/method to an iterator.
+    It assumes that the iterator returns a batch of images or
+    a tuple whose first element is a batch of images. In the case that
+    it returns a tuple, the rests are treated as ground truth
+    values.
+
+    >>> imgs = next(iterator)
+    >>> # imgs: [img]
+    or
+    >>> imgs, gt_vals0, gt_vals1 = next(iterator)
+    >>> # gt_vals0: [gt_val0]
+    >>> # gt_vals1: [gt_val1]
+
+    This function applys :func:`predict` to a batch of images and gets
+    predicted value(s). :func:`predict` should take a batch of images and
+    return a batch of prediction values
+    or a tuple of batches of prediction values.
+
+    >>> pred_vals0 = predict(imgs)
+    >>> # pred_vals0: [pred_val0]
+    or
+    >>> pred_vals0, pred_vals1 = predict(imgs)
+    >>> # pred_vals0: [pred_val0]
+    >>> # pred_vals1: [pred_val1]
+
+    Args:
+        predict: A callable which takes a batch of images and returns
+            prediction.
+        iterator (chainer.Iterator): An iterator. Each sample should have
+            an image as its first element. This image is passed to
+            :func:`predict` as an argument.
+            The rests are treated as ground truth values.
+        hook: A callable which is called after each iteration.
+            :obj:`imgs`, :obj:`pred_labels` and :obj:`gt_values` are passed as
+            arguments.
+            Note that these values do not contain data from the previous
+            iterations.
+
+    Returns:
+        An iterator and two tuples of iterators:
+        This function returns an iterator and two tuples of iterators:
+        :obj:`imgs`, :obj:`pred_values` and :obj:`gt_values`.
+        :obj:`imgs` is an iterator which returns an image.
+        :obj:`pred_values` is a tuple of iterators. Each iterator
+        returns a corresponding predicted value.
+        For example, if :func:`predict` returns
+        :obj:`([pred_val0], [pred_val1])`, :obj:`next(pred_values[0])`
+        and :obj:`next(pred_values[1])`
+        will be :obj:`pred_val0` and :obj:`pred_val1`.
+        :obj:`gt_values` is a tuple of iterators. Each iterator
+        returns a corresponding ground truth value. If the input
+        iterator does not give any ground truth values, this tuple
+        will be empty.
+    """
+
     imgs, pred_values, gt_values = split_iterator(
         _apply(predict, iterator, hook))
 
