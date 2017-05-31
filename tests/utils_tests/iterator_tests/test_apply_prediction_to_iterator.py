@@ -1,5 +1,5 @@
-from itertools import zip_longest
 import numpy as np
+from six.moves import zip_longest
 import unittest
 
 import chainer
