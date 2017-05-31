@@ -2,7 +2,7 @@ from chainercv.utils.iterator.unzip import unzip
 
 
 def apply_prediction_to_iterator(predict, iterator, hook=None):
-    """Apply a prediction function/method to  an iterator
+    """Apply a prediction function/method to an iterator.
 
     This function applies a prediction function/method to an iterator.
     It assumes that the iterator returns a batch of images or
