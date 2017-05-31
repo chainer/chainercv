@@ -1,4 +1,4 @@
-from chainercv.utils.iterator.split_iterator import split_iterator
+from chainercv.utils.iterator.unzip import unzip
 
 
 def apply_prediction_to_iterator(predict, iterator, hook=None):
@@ -59,7 +59,7 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
         will be empty.
     """
 
-    imgs, pred_values, gt_values = split_iterator(
+    imgs, pred_values, gt_values = unzip(
         _apply(predict, iterator, hook))
 
     # imgs: iter of [img] -> iter of img
@@ -67,11 +67,11 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
 
     # pred_values: iter of ([pred_val0], [pred_val1], ...)
     #    -> (iter of pred_val0, iter of pred_val1, ...)
-    pred_values = tuple(map(_flatten, split_iterator(pred_values)))
+    pred_values = tuple(map(_flatten, unzip(pred_values)))
 
     # gt_values: iter of ([gt_val0], [gt_val1], ...)
     #    -> (iter of gt_val0, iter of gt_val1, ...)
-    gt_values = tuple(map(_flatten, split_iterator(gt_values)))
+    gt_values = tuple(map(_flatten, unzip(gt_values)))
 
     return imgs, pred_values, gt_values
 
