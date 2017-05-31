@@ -10,8 +10,8 @@ class BufferedIterator(object):
     this iterator checks :obj:`buffers[index]` fisrt.
     If :obj:`buffers[index]` has some values, it pops
     the first value and returns it. Otherwise, it gets
-    a new tuple from the base iterator and store the values
-    in :obj:`buffers`.
+    a new tuple from the base iterator and pushes the values
+    into :obj:`buffers`.
 
     When this iterator is deleted, it disables the corresponding buffer
     by setting :obj:`buffers[index]` to :obj:`None`.
@@ -21,8 +21,9 @@ class BufferedIterator(object):
     Args:
         iterator (iterator): A base iterator of tuples. All tuples should have
             the same length.
-        buffers (list of lists): A list of lists to store values.
-            The size of the outer list should be same as those of tuples
+        buffers (list of collections.deque): A list of
+            :class:`collections.deque` to buffer values.
+            The size of this list should be same as those of tuples
             from :obj:`iterator`.
         index (int): The index of this :class:`BufferedIterator`.
 
