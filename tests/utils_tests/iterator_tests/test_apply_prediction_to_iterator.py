@@ -32,22 +32,22 @@ class TestApplyDetectionLink(unittest.TestCase):
 
             n_pred_values = 1
 
-        imgs = list()
+        dataset_imgs = list()
         for _ in range(5):
             H, W = np.random.randint(8, 16, size=2)
-            imgs.append(np.random.randint(0, 256, size=(3, H, W)))
-
-        strs = ['a', 'bc', 'def', 'ghij', 'klmno']
-        nums = [0, 1, 2, 3, 4]
-        arrays = [np.random.uniform(size=10) for _ in range(5)]
+            dataset_imgs.append(np.random.randint(0, 256, size=(3, H, W)))
 
         if self.with_gt_values:
+            strs = ['a', 'bc', 'def', 'ghij', 'klmno']
+            nums = [0, 1, 2, 3, 4]
+            arrays = [np.random.uniform(size=10) for _ in range(5)]
+
             dataset = chainer.datasets.TupleDataset(
-                imgs, strs, nums, arrays)
-            n_gt_values = 3
+                dataset_imgs, strs, nums, arrays)
+            dataset_gt_values = (strs, nums, arrays)
         else:
-            dataset = imgs
-            n_gt_values = 0
+            dataset = dataset_imgs
+            dataset_gt_values = tuple()
         iterator = SerialIterator(dataset, 2, repeat=False, shuffle=False)
 
         if self.with_hook:
@@ -56,22 +56,24 @@ class TestApplyDetectionLink(unittest.TestCase):
                 for pred_vals in pred_values:
                     self.assertEqual(len(pred_vals), len(imgs))
 
-                self.assertEqual(len(gt_values), n_gt_values)
+                self.assertEqual(len(gt_values), len(dataset_gt_values))
                 for gt_vals in gt_values:
                     self.assertEqual(len(gt_vals), len(imgs))
         else:
             hook = None
 
-        pred_values, gt_values = apply_prediction_to_iterator(
+        imgs, pred_values, gt_values = apply_prediction_to_iterator(
             predict, iterator, hook=hook)
+
+        self.assertEqual(list(imgs), dataset_imgs)
 
         self.assertEqual(len(pred_values), n_pred_values)
         for pred_vals in pred_values:
-            self.assertEqual(len(list(pred_vals)), len(imgs))
+            self.assertEqual(len(list(pred_vals)), len(dataset_imgs))
 
-        self.assertEqual(len(gt_values), n_gt_values)
-        for gt_vals, expected_gt_vals in zip(gt_values, (strs, nums, arrays)):
-            self.assertEqual(list(gt_vals), expected_gt_vals)
+        self.assertEqual(len(gt_values), len(dataset_gt_values))
+        for gt_vals, dataset_gt_vals in zip(gt_values, dataset_gt_values):
+            self.assertEqual(list(gt_vals), dataset_gt_vals)
 
 
 testing.run_module(__name__, __file__)
