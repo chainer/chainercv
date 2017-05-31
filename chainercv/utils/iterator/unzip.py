@@ -1,5 +1,5 @@
 class BufferedIterator(object):
-    """Buffered iterator class for :func:`unzip`.
+    """Buffered iterator for :func:`unzip`.
 
     This iterator contains :obj:`buffers` and :obj:`index`.
     The buffers are shared with other :class:`BufferedIterator`s.
