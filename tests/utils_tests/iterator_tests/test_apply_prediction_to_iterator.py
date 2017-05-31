@@ -66,19 +66,15 @@ class TestApplyDetectionLink(unittest.TestCase):
         imgs, pred_values, gt_values = apply_prediction_to_iterator(
             predict, iterator, hook=hook)
 
-        for img, dataset_img in zip_longest(imgs, dataset_imgs):
-            np.testing.assert_equal(img, dataset_img)
+        self.assertEqual(list(imgs), dataset_imgs)
 
         self.assertEqual(len(pred_values), n_pred_values)
-        for vals in pred_values:
-            self.assertEqual(len(list(vals)), len(dataset_imgs))
+        for pred_vals in pred_values:
+            self.assertEqual(len(list(pred_vals)), len(dataset_imgs))
 
-        for vals, dataset_vals in zip_longest(gt_values, dataset_gt_values):
-            for val, dataset_val in zip_longest(vals, dataset_vals):
-                if isinstance(dataset_val, np.ndarray):
-                    np.testing.assert_equal(val, dataset_val)
-                else:
-                    self.assertEqual(val, dataset_val)
+        self.assertEqual(len(gt_values), len(dataset_gt_values))
+        for gt_vals, dataset_gt_vals in zip(gt_values, dataset_gt_values):
+            self.assertEqual(list(gt_vals), dataset_gt_vals)
 
 
 testing.run_module(__name__, __file__)
