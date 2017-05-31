@@ -1,5 +1,5 @@
-import random
 import unittest
+import random
 
 from chainer import testing
 
@@ -88,6 +88,48 @@ class TestUnzipWithInfiniteIterator(unittest.TestCase):
             self.assertEqual(next(iters[0]), i)
             self.assertEqual(next(iters[1]), i + 1)
             self.assertEqual(next(iters[2]), i * i)
+
+
+class DummyObject(object):
+
+    def __init__(self, released, id_):
+        self.released = released
+        self.id_ = id_
+
+    def __del__(self):
+        # register id when it is released
+        self.released.add(self.id_)
+
+
+class TestUnzipRelease(unittest.TestCase):
+
+    def setUp(self):
+        self.released = set()
+
+        def _iterator():
+            id_ = 0
+            while True:
+                yield id_, DummyObject(self.released, id_)
+                id_ += 1
+
+        self.iterable = _iterator()
+
+    def test_released(self):
+        iter_0, iter_1 = unzip(self.iterable)
+        del iter_1
+
+        for i in range(20):
+            next(iter_0)
+
+        self.assertEqual(self.released, set(range(20)))
+
+    def test_unreleased(self):
+        iter_0, iter_1 = unzip(self.iterable)
+
+        for i in range(20):
+            next(iter_0)
+
+        self.assertEqual(self.released, set())
 
 
 testing.run_module(__name__, __file__)
