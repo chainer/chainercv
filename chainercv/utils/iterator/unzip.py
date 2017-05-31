@@ -1,5 +1,5 @@
 class BufferedIterator(object):
-    """Buffered iterator class for unzip.
+    """Buffered iterator class for :func:`unzip`.
 
     This iterator contains :obj:`buffers` and :obj:`index`.
     The buffers are shared with other :class:`BufferedIterator`s.
@@ -18,8 +18,9 @@ class BufferedIterator(object):
     Args:
         iterator (iterator): A base iterator of tuples. All tuples should have
             the same length.
-        buffers (list of lists): A list of lists. The size of the outer list
-            should be same as those of tuples from :obj:`iterator`.
+        buffers (list of lists): A list of lists to store values.
+            The size of the outer list should be same as those of tuples
+            from :obj:`iterator`.
         index (int): The index of this :class:`BufferedIterator`.
 
     """
@@ -74,6 +75,8 @@ def unzip(iterable):
     Returns:
         tuple of iterators:
         Each iterator corresponds to each element of input tuple.
+        Note that each iterator stores values until they are popped and
+        comsumes memory space. It is recommended to delete unused iterators.
     """
 
     iterator = iter(iterable)
