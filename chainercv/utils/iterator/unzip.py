@@ -24,15 +24,15 @@ class BufferedIterator(object):
     next = __next__
 
 
-def split_iterator(iterator):
-    """Converts an iterator of tuples into a tuple of iterators.
+def unzip(iterable):
+    """Converts an iterable of tuples into a tuple of iterators.
 
-    This function converts an iterator of tuples into a tuple of iterators.
+    This function converts an iterable of tuples into a tuple of iterators.
     This is an inverse function of :func:`zip`.
 
-    >>> from chainercv.utils.iterator import split_iterator
-    >>> in_iter = iter([(0, 'a'), (1, 'b'), (2, 'c'), (3, 'd'), (4, 'e')])
-    >>> int_iter, str_iter = split_iterator(in_iter)
+    >>> from chainercv.utils import unzip
+    >>> data = [(0, 'a'), (1, 'b'), (2, 'c'), (3, 'd'), (4, 'e')]
+    >>> int_iter, str_iter = unzip(data)
     >>>
     >>> next(int_iter)  # 0
     >>> next(int_iter)  # 1
@@ -43,7 +43,7 @@ def split_iterator(iterator):
     >>> next(str_iter)  # 'c'
 
     Args:
-        iterator (iterator): An iterator of tuples. All tuples should have
+        iterable (iterable): An iterable of tuples. All tuples should have
             the same length.
 
     Returns:
@@ -51,6 +51,7 @@ def split_iterator(iterator):
         Each iterator corresponds to each element of input tuple.
     """
 
+    iterator = iter(iterable)
     values = next(iterator)
     buffers = [[val] for val in values]
     return tuple(
