@@ -41,6 +41,7 @@ class BufferedIterator(object):
         except IndexError:
             values = next(self.iterator)
             for buf, val in zip(self.buffers, values):
+                # skip a value if the correponding iterator is deleted.
                 if buf is not None:
                     buf.append(val)
             return self.buffers[self.index].pop(0)
