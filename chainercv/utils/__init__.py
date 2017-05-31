@@ -5,5 +5,4 @@ from chainercv.utils.download import extractall  # NOQA
 from chainercv.utils.image import read_image  # NOQA
 from chainercv.utils.iterator import apply_detection_link  # NOQA
 from chainercv.utils.iterator import apply_semantic_segmentation_link  # NOQA
-from chainercv.utils.iterator import unzip  # NOQA
 from chainercv.utils.testing import ConstantStubLink  # NOQA
