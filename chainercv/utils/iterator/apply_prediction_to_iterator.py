@@ -1,4 +1,5 @@
-from chainercv.utils.iterator.unzip import unzip
+import itertools
+from operator import itemgetter
 
 
 def apply_prediction_to_iterator(predict, iterator, hook=None):
@@ -59,19 +60,19 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
         will be empty.
     """
 
-    imgs, pred_values, gt_values = unzip(
-        _apply(predict, iterator, hook))
+    imgs, pred_values, gt_values = _unzip(_apply(predict, iterator, hook))
 
     # imgs: iter of [img] -> iter of img
-    imgs = _flatten(imgs)
+    imgs = itertools.chain.from_iterable(imgs)
 
     # pred_values: iter of ([pred_val0], [pred_val1], ...)
     #    -> (iter of pred_val0, iter of pred_val1, ...)
-    pred_values = tuple(map(_flatten, unzip(pred_values)))
+    pred_values = tuple(
+        map(itertools.chain.from_iterable, _unzip(pred_values)))
 
     # gt_values: iter of ([gt_val0], [gt_val1], ...)
     #    -> (iter of gt_val0, iter of gt_val1, ...)
-    gt_values = tuple(map(_flatten, unzip(gt_values)))
+    gt_values = tuple(map(itertools.chain.from_iterable, _unzip(gt_values)))
 
     return imgs, pred_values, gt_values
 
@@ -107,5 +108,11 @@ def _apply(predict, iterator, hook):
         yield imgs, pred_values, gt_values
 
 
-def _flatten(iterator):
-    return (sample for batch in iterator for sample in batch)
+def _unzip(iterable):
+    iterator = iter(iterable)
+    heads = next(iterator)
+    n_item = len(heads)
+    iterator = itertools.chain([heads], iterator)
+    return tuple(
+        map(itemgetter(i), iter_)
+        for i, iter_ in enumerate(itertools.tee(iterator, n_item)))
