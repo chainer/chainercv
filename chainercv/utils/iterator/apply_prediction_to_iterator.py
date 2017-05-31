@@ -110,14 +110,9 @@ def _apply(predict, iterator, hook):
 
 def _unzip(iterable):
     iterator = iter(iterable)
-
-    # to detect the number of items, pop the first sample
     heads = next(iterator)
     n_item = len(heads)
-
-    # concatenate popped sample with the iterator
     iterator = itertools.chain([heads], iterator)
-
     return tuple(
         map(itemgetter(i), iter_)
         for i, iter_ in enumerate(itertools.tee(iterator, n_item)))
