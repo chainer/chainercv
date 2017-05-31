@@ -79,8 +79,8 @@ def unzip(iterable):
     Returns:
         tuple of iterators:
         Each iterator corresponds to each element of input tuple.
-        Note that each iterator stores values until they are popped and
-        comsumes memory space. It is recommended to delete unused iterators.
+        Note that each iterator stores values until they are popped.
+        To reduce memory usage, it is recommended to delete unused iterators.
     """
 
     iterator = iter(iterable)
