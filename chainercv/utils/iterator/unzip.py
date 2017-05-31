@@ -54,7 +54,7 @@ def unzip(iterable):
     """Converts an iterable of tuples into a tuple of iterators.
 
     This function converts an iterable of tuples into a tuple of iterators.
-    This is an inverse function of :func:`zip`.
+    This is an inverse function of :func:`six.moves.zip`.
 
     >>> from chainercv.utils import unzip
     >>> data = [(0, 'a'), (1, 'b'), (2, 'c'), (3, 'd'), (4, 'e')]
