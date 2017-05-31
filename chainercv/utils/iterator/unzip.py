@@ -10,8 +10,8 @@ class BufferedIterator(object):
     a new tuple from the base iterator and store the values
     in :obj:`buffers`.
 
-    When this iterator is deleted, it marks the corresponding buffer
-    as unused by setting :obj:`buffers[index]` to :obj:`None`.
+    When this iterator is deleted, it disables the corresponding buffer
+    by setting :obj:`buffers[index]` to :obj:`None`.
     With this mark, other iterators can skip values for this deleted
     iterator and memory usage can be reduced.
 
