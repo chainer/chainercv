@@ -14,7 +14,7 @@ from chainercv.utils import apply_prediction_to_iterator
     'with_gt_values': [False, True],
     'with_hook': [False, True],
 }))
-class TestApplyDetectionLink(unittest.TestCase):
+class TestApplyPredictionToIterator(unittest.TestCase):
 
     def test_apply_prediction_to_iterator(self):
         if self.multi_pred_values:
