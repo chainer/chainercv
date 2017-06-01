@@ -79,8 +79,8 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
             and :obj:`next(pred_values[1])` will be \
             :obj:`pred_val0` and :obj:`pred_val1`.
         * :obj:`gt_values`: A tuple of iterators. Each iterator \
-            returns a corresponding ground truth value.
-             For example, if the :obj:`iterator` returns \
+            returns a corresponding ground truth value. \
+            For example, if the :obj:`iterator` returns \
             :obj:`[(img, gt_val0, gt_val1)]`, :obj:`next(gt_values[0])` \
             and :obj:`next(gt_values[1])` will be \
             :obj:`gt_val0` and :obj:`gt_val1`. \
