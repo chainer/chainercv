@@ -37,7 +37,7 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
             :func:`predict` as an argument.
             The rests are treated as ground truth values.
         hook: A callable which is called after each iteration.
-            :obj:`imgs`, :obj:`pred_labels` and :obj:`gt_values` are passed as
+            :obj:`imgs`, :obj:`pred_values` and :obj:`gt_values` are passed as
             arguments.
             Note that these values do not contain data from the previous
             iterations.
