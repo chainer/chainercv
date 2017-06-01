@@ -7,17 +7,8 @@ from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
 
+from chainercv.utils import generate_random_bbox
 from chainercv.utils import non_maximum_suppression
-
-
-def _generate_bbox(n, img_size, min_length, max_length):
-    W, H = img_size
-    x_min = np.random.uniform(0, W - max_length, size=(n,))
-    y_min = np.random.uniform(0, H - max_length, size=(n,))
-    x_max = x_min + np.random.uniform(min_length, max_length, size=(n,))
-    y_max = y_min + np.random.uniform(min_length, max_length, size=(n,))
-    bbox = np.stack((x_min, y_min, x_max, y_max), axis=1).astype(np.float32)
-    return bbox
 
 
 @testing.parameterize(
@@ -62,7 +53,7 @@ class TestNonMaximumSuppressionConsistency(unittest.TestCase):
 
     @attr.gpu
     def test_non_maximum_suppression_consistency(self):
-        bbox = _generate_bbox(6000, (600, 800), 32, 512)
+        bbox = generate_random_bbox(6000, (600, 800), 32, 512)
 
         cpu_selec = non_maximum_suppression(bbox, 0.5)
         gpu_selec = non_maximum_suppression(cuda.to_gpu(bbox), 0.5)
@@ -73,7 +64,7 @@ class TestNonMaximumSuppressionConsistency(unittest.TestCase):
 class TestNonMaximumSuppressionOptions(unittest.TestCase):
 
     def setUp(self):
-        self.bbox = _generate_bbox(6000, (600, 800), 32, 512)
+        self.bbox = generate_random_bbox(6000, (600, 800), 32, 512)
         self.score = np.random.uniform(0, 100, size=(len(self.bbox),))
         self.limit = 100
         self.threshold = 0.5

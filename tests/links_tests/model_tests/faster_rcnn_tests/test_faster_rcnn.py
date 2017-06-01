@@ -13,16 +13,6 @@ def _random_array(xp, shape):
         np.random.uniform(-1, 1, size=shape), dtype=np.float32)
 
 
-def _generate_bbox(xp, n, img_size, min_length, max_length):
-    W, H = img_size
-    x_min = xp.random.uniform(0, W - max_length, size=(n,))
-    y_min = xp.random.uniform(0, H - max_length, size=(n,))
-    x_max = x_min + xp.random.uniform(min_length, max_length, size=(n,))
-    y_max = y_min + xp.random.uniform(min_length, max_length, size=(n,))
-    bbox = xp.stack((x_min, y_min, x_max, y_max), axis=1).astype(np.float32)
-    return bbox
-
-
 class TestFasterRCNN(unittest.TestCase):
 
     def setUp(self):

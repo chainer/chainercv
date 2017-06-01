@@ -114,7 +114,7 @@ def main():
         DetectionVOCEvaluator(
             test_iter, model.faster_rcnn, use_07_metric=True),
         trigger=ManualScheduleTrigger(
-            (args.step_size, args.iteration), 'iteration'),
+            [args.step_size, args.iteration], 'iteration'),
         invoke_before_training=False)
 
     trainer.extend(extensions.dump_graph('main/loss'))
