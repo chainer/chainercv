@@ -1,18 +1,18 @@
 from __future__ import division
 
 import argparse
+import numpy as np
 
 import chainer
 from chainer import cuda
 from chainer.dataset import concat_examples
-import chainer.functions as F
-from chainer import serializers
 
 from chainercv.datasets import camvid_label_names
 from chainercv.datasets import CamVidDataset
+from chainercv.evaluations import calc_semantic_segmentation_confusion
+from chainercv.evaluations import calc_semantic_segmentation_iou
 from chainercv.links import SegNetBasic
-
-import numpy as np
+from chainercv.utils import apply_prediction_to_iterator
 
 
 def calc_bn_statistics(model, gpu):
@@ -49,20 +49,16 @@ def calc_bn_statistics(model, gpu):
 
 
 def main():
-    # This follows evaluation code used in SegNet.
-    # https://github.com/alexgkendall/SegNet-Tutorial/blob/master/
-    # # Scripts/compute_test_results.m
     parser = argparse.ArgumentParser()
-    parser.add_argument('gpu', type=int, default=-1)
-    parser.add_argument('snapshot', type=str)
+    parser.add_argument('--gpu', type=int, default=-1)
+    parser.add_argument('--pretrained_model', type=str, default='camvid')
     parser.add_argument('--batchsize', type=int, default=24)
     args = parser.parse_args()
 
     n_class = 11
-    ignore_labels = [-1]
 
-    model = SegNetBasic(n_class=n_class)
-    serializers.load_npz(args.snapshot, model)
+    model = SegNetBasic(
+        n_class=n_class, pretrained_model=args.pretrained_model)
     model = calc_bn_statistics(model, args.gpu)
     model.train = False
     if args.gpu >= 0:
@@ -72,45 +68,27 @@ def main():
     it = chainer.iterators.SerialIterator(test, batch_size=args.batchsize,
                                           repeat=False, shuffle=False)
 
-    n_positive = [0 for _ in range(n_class)]
-    n_true = [0 for _ in range(n_class)]
-    n_true_positive = [0 for _ in range(n_class)]
-    for batch in it:
-        img, gt_label = concat_examples(batch, args.gpu)
-        img = chainer.Variable(img, volatile=True)
-        pred_label = F.argmax(F.softmax(model(img)), axis=1)
-        pred_label = cuda.to_cpu(pred_label.data)
-        gt_label = cuda.to_cpu(gt_label)
-        for cls_i in range(n_class):
-            if cls_i in ignore_labels:
-                continue
-            n_positive[cls_i] += np.sum(pred_label == cls_i)
-            n_true[cls_i] += np.sum(gt_label == cls_i)
-            n_true_positive[cls_i] += np.sum(
-                (pred_label == cls_i) * (gt_label == cls_i))
+    imgs, pred_values, gt_values = apply_prediction_to_iterator(
+        model.predict, it)
+    pred_labels, = pred_values
+    gt_labels, = gt_values
 
-    ious = []
-    mean_accs = []
-    pixel_accs = []
-    for cls_i in range(n_class):
-        if cls_i in ignore_labels:
-            continue
-        deno = n_positive[cls_i] + n_true[cls_i] - n_true_positive[cls_i]
-        iou = n_true_positive[cls_i] / deno
-        ious.append(iou)
-        print('{:>23} : {:.4f}'.format(camvid_label_names[cls_i], iou))
+    confusion = calc_semantic_segmentation_confusion(
+        pred_labels, gt_labels, len(camvid_label_names))
+    ious = calc_semantic_segmentation_iou(confusion)
 
-        mean_accs.append(n_true_positive[cls_i] / n_true[cls_i])
-        pixel_accs.append([n_true_positive[cls_i], n_true[cls_i]])
+    pixel_accuracy = np.diag(confusion).sum() / confusion.size
+    mean_pixel_accuracy = np.mean(
+        np.diag(confusion) / np.sum(confusion, axis=1))
 
+    for iou, label_name in zip(ious, camvid_label_names):
+        print('{:>23} : {:.4f}'.format(label_name, iou))
     print('=' * 34)
-    print('{:>23} : {:.4f}'.format('mean IoU', np.mean(ious)))
+    print('{:>23} : {:.4f}'.format('mean IoU', np.nanmean(ious)))
     print('{:>23} : {:.4f}'.format(
-        'Class average accuracy', np.mean(mean_accs)))
-    pixel_accs = np.asarray(pixel_accs)
-    pixel_accs = pixel_accs[:, 0].sum() / pixel_accs[:, 1].sum()
+        'Class average accuracy', mean_pixel_accuracy))
     print('{:>23} : {:.4f}'.format(
-        'Global average accuracy', pixel_accs))
+        'Global average accuracy', pixel_accuracy))
 
 
 if __name__ == '__main__':
