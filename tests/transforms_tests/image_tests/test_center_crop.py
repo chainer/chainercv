@@ -12,8 +12,8 @@ class TestCenterCrop(unittest.TestCase):
         img = np.random.uniform(size=(3, 48, 32))
 
         out, param = center_crop(img, (24, 16), return_param=True)
-        x_slice = param['x_slice']
         y_slice = param['y_slice']
+        x_slice = param['x_slice']
 
         np.testing.assert_equal(out, img[:, y_slice, x_slice])
         self.assertEqual(x_slice, slice(8, 24))

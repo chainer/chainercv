@@ -33,10 +33,10 @@ def resize_contain(img, size, fill=0, return_param=False):
         contents are listed below with key, value-type and the description
         of the value.
 
-        * **x_offset** (*int*): The x coordinate of the top left corner\
-            of the image after placing on the canvas.
         * **y_offset** (*int*): The y coodinate of the top left corner of\
             the image after placing on the canvas.
+        * **x_offset** (*int*): The x coordinate of the top left corner\
+            of the image after placing on the canvas.
         * **scaled_size** (*tuple*): The size to which the image is scaled\
             to before placing it on a canvas. This is a tuple of two elements:\
             :obj:`height, width`.
@@ -50,13 +50,13 @@ def resize_contain(img, size, fill=0, return_param=False):
     scaled_size = (int(H * scale), int(W * scale))
     if scale < 1.:
         img = resize(img, scaled_size)
-    x_slice, y_slice = _get_pad_slice(img, size=size)
+    y_slice, x_slice = _get_pad_slice(img, size=size)
     out_img = np.empty((C, out_H, out_W), dtype=img.dtype)
     out_img[:] = np.array(fill).reshape(-1, 1, 1)
     out_img[:, y_slice, x_slice] = img
 
     if return_param:
-        param = {'x_offset': x_slice.start, 'y_offset': y_slice.start,
+        param = {'y_offset': y_slice.start, 'x_offset': x_slice.start,
                  'scaled_size': scaled_size}
         return out_img, param
     else:
@@ -92,4 +92,4 @@ def _get_pad_slice(img, size):
     else:
         x_slice = slice(0, int(size[1]))
 
-    return x_slice, y_slice
+    return y_slice, x_slice
