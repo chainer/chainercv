@@ -6,16 +6,15 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
 
     This function applies a prediction function/method to an iterator.
     It assumes that the iterator returns a batch of images or
-    a tuple whose first element is a batch of images. In the case that
-    it returns a tuple, the rests are treated as ground truth
+    a batch of tuples whose first element is an image. In the case that
+    it returns a batch of tuples, the rests are treated as ground truth
     values.
 
     >>> imgs = next(iterator)
     >>> # imgs: [img]
     or
-    >>> imgs, gt_vals0, gt_vals1 = next(iterator)
-    >>> # gt_vals0: [gt_val0]
-    >>> # gt_vals1: [gt_val1]
+    >>> batch = next(iterator)
+    >>> # batch: [(img, gt_val0, gt_val1)]
 
     This function applys :func:`predict` to a batch of images and gets
     predicted value(s). :func:`predict` should take a batch of images and
