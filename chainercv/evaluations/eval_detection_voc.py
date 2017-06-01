@@ -186,9 +186,7 @@ def _voc_ap(rec, prec, use_07_metric=False):
         mrec = np.concatenate(([0.], rec, [1.]))
         mpre = np.concatenate(([0.], prec, [0.]))
 
-        # compute the precision envelope
-        for i in six.moves.range(mpre.size - 1, 0, -1):
-            mpre[i - 1] = np.maximum(mpre[i - 1], mpre[i])
+        mpre = np.maximum.accumulate(mpre[::-1])[::-1]
 
         # to calculate area under PR curve, look for points
         # where X axis (recall) changes value
