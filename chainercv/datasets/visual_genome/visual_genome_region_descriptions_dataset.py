@@ -75,7 +75,6 @@ class VisualGenomeRegionDescriptionsDataset(VisualGenomeDatasetBase):
         regions = np.vstack(regions).astype(np.float32)
         phrases = np.vstack(phrases).astype(np.int32)
 
-
         if self.img_size is not None:
             h_orig, w_orig = img.shape[1:]
             img = resize(img, self.img_size)
