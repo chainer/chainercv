@@ -112,23 +112,26 @@ def eval_detection_voc(
             n_pos[l] += np.logical_not(gt_difficult_l).sum()
             score[l].extend(pred_score_l)
 
+            if len(pred_bbox_l) == 0:
+                continue
+            if len(gt_bbox_l) == 0:
+                match[l].extend((0,) * pred_bbox_l.shape[0])
+                continue
+
             # VOC evaluation follows integer typed bounding boxes.
             pred_bbox_l = pred_bbox_l.copy()
             pred_bbox_l[:, 2:] += 1
             gt_bbox_l = gt_bbox_l.copy()
             gt_bbox_l[:, 2:] += 1
 
+            iou = bbox_iou(pred_bbox_l, gt_bbox_l)
+            gt_index = iou.argmax(axis=1)
+            match_ = iou.max(axis=1) >= iou_thresh
+            del iou
+
             selec = np.zeros(gt_bbox_l.shape[0], dtype=bool)
-
-            for bb in pred_bbox_l:
-                if len(gt_bbox_l) > 0:
-                    iou = bbox_iou(gt_bbox_l, bb[np.newaxis])
-                    gt_idx = iou.argmax()
-                    iou = iou[gt_idx]
-                else:
-                    iou = -np.inf
-
-                if iou >= iou_thresh:
+            for gt_idx, mc in six.moves.zip(gt_index, match_):
+                if mc:
                     if gt_difficult_l[gt_idx]:
                         match[l].append(-1)
                     else:
