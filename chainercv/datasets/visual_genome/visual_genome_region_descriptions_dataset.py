@@ -68,8 +68,9 @@ class VisualGenomeRegionDescriptionsDataset(VisualGenomeDatasetBase):
         regions = []
         phrases = []
         for region_id in self.region_ids[img_id]:
-            phrase = self.phrases[region_id]
-            if phrase is not None:  # If phrase wasn't too long and exlcluded
+            # Phrases that are too long are excluded in the preprocessing,
+            # so only include regions with actual phrases
+            if region_id in self.phrases:
                 regions.append(self.regions[region_id])
                 phrases.append(self.phrases[region_id])
         regions = np.vstack(regions).astype(np.float32)
@@ -171,8 +172,6 @@ def _get_phrases(region_descriptions_path, min_token_instances,
                             token_id = vocab[token]
                             phrase[i] = token_id
                         phrases[region_id] = phrase
-                    else:
-                        phrases[region_id] = None
 
         pickle.dump(phrases, open(base_path, 'wb'))
         return phrases
