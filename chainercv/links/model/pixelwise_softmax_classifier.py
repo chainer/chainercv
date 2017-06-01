@@ -21,13 +21,10 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
             that contains constant weights that will be multiplied with the
             loss values along with the channel dimension. This will be
             used in :func:`chainer.functions.softmax_cross_entropy`.
-        compute_accuracy (bool): If :obj:`True`, compute accuracy on the
-            forward computation. The default value is :obj:`True`.
 
     """
 
-    def __init__(self, predictor, ignore_label=-1, class_weight=None,
-                 compute_accuracy=True):
+    def __init__(self, predictor, ignore_label=-1, class_weight=None):
         super(PixelwiseSoftmaxClassifier, self).__init__(predictor=predictor)
         self.n_class = predictor.n_class
         self.ignore_label = ignore_label
@@ -35,7 +32,6 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
             self.class_weight = np.asarray(class_weight, dtype=np.float32)
         else:
             self.class_weight = class_weight
-        self.compute_accuracy = compute_accuracy
 
     def to_cpu(self):
         super(PixelwiseSoftmaxClassifier, self).to_cpu()
@@ -49,8 +45,6 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
 
     def __call__(self, x, t):
         """Computes the loss value for an image and label pair.
-
-        It also computes accuracy and stores it to the attribute.
 
         Args:
             x (~chainer.Variable): A variable with a batch of images.
