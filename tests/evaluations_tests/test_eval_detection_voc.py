@@ -126,7 +126,7 @@ class TestEvalDetectionVOCConsistencyWithMATLAB(unittest.TestCase):
             gt_bboxes, gt_labels, gt_difficults,
             use_07_metric=True)
 
-        # These scores calculated by MATLAB code
+        # these scores were calculated by MATLAB code
         expected = [
             0.772727,
             0.738780,
