@@ -79,9 +79,10 @@ def calc_semantic_segmentation_iou(confusion):
 
 
 def eval_semantic_segmentation_iou(pred_labels, gt_labels, n_class):
-    """Evaluate results of semantic segmentation.
+    """Evaluate Intersection over Union from labels.
 
-    This function calculates Intersection over Union (IoU).
+    This function calculates Intersection over Union (IoU)
+    for the task of semantic segmentation.
 
     The definition of IoU and a related metric, mean Intersection
     over Union (mIoU), are as follow, where
@@ -94,7 +95,7 @@ def eval_semantic_segmentation_iou(pred_labels, gt_labels, n_class):
         \\sum_{i=1}^k \
         \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij} + \\sum_{j=1}^k N_{ji} - N_{ii}}`
 
-    mIoU can be computed by taking :obj:`numpy.nanmean` of the IoUs calculated
+    mIoU can be computed by taking :obj:`numpy.nanmean` of the IoUs returned
     by this function.
     The more detailed descriptions on the above metric can be found at a
     review on semantic segmentation [#]_.
@@ -118,7 +119,8 @@ def eval_semantic_segmentation_iou(pred_labels, gt_labels, n_class):
 
     Returns:
         numpy.ndarray:
-        IoUs computed as above. Its shape is :math:`(n\_class,)`.
+        An IoU computed as above for each class. Its shape is
+        :math:`(n\_class,)`.
 
     """
     # Evaluation code is based on
