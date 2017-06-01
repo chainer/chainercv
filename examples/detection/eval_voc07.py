@@ -37,16 +37,26 @@ def main():
     parser.add_argument(
         '--model', choices=('faster_rcnn', 'ssd300', 'ssd512'),
         default='ssd300')
+    parser.add_argument('--pretrained_model')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
     args = parser.parse_args()
 
     if args.model == 'faster_rcnn':
-        model = FasterRCNNVGG16(pretrained_model='voc07')
+        if args.pretrained_model:
+            model = FasterRCNNVGG16(pretrained_model=args.pretrained_model)
+        else:
+            model = FasterRCNNVGG16(pretrained_model='voc07')
     elif args.model == 'ssd300':
-        model = SSD300(pretrained_model='voc0712')
+        if args.pretrained_model:
+            model = SSD300(pretrained_model=args.pretrained_model)
+        else:
+            model = SSD300(pretrained_model='voc0712')
     elif args.model == 'ssd512':
-        model = SSD512(pretrained_model='voc0712')
+        if args.pretrained_model:
+            model = SSD512(pretrained_model=args.pretrained_model)
+        else:
+            model = SSD512(pretrained_model='voc0712')
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
