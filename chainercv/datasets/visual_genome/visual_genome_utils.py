@@ -17,14 +17,12 @@ region_descriptions_url = 'http://visualgenome.org/static/data/dataset/' \
 
 
 def get_visual_genome():
-
     """Get the default path to the Visual Genome image directory.
 
     Returns:
         str: A path to the image directory.
 
     """
-
     def move_files(src_dir, dst_dir):
         # Move all files in the src_dir to the dst_dir and remove the src_dir
         for f in os.listdir(src_dir):
@@ -50,7 +48,6 @@ def get_visual_genome():
 
 
 def get_image_data():
-
     """Get the default path to the image data JSON file.
 
     Returns:
@@ -62,7 +59,6 @@ def get_image_data():
 
 
 def get_region_descriptions():
-
     """Get the default path to the region descriptions JSON file.
 
     Returns:
@@ -75,7 +71,6 @@ def get_region_descriptions():
 
 
 class VisualGenomeDatasetBase(chainer.dataset.DatasetMixin):
-
     """Base class for Visual Genome dataset.
 
     """

@@ -19,7 +19,6 @@ from chainercv.transforms import resize_bbox
 
 
 def get_vocabulary(region_descriptions='auto', min_token_instances=15):
-
     """Creates a vocabulary based on the region descriptions of Visual Genome.
 
     A vocabulary is a dictionary that maps each word (str) to its
@@ -40,7 +39,6 @@ def get_vocabulary(region_descriptions='auto', min_token_instances=15):
 
 
 class VisualGenomeRegionDescriptionsDataset(VisualGenomeDatasetBase):
-
     """Region description class for Visual Genome dataset.
 
     """
@@ -86,7 +84,6 @@ class VisualGenomeRegionDescriptionsDataset(VisualGenomeDatasetBase):
 
 
 def _get_region_ids(region_descriptions_path):
-
     """Image ID (int) -> Region IDs (list of int).
 
     """
@@ -113,7 +110,6 @@ def _get_region_ids(region_descriptions_path):
 
 
 def _get_regions(region_descriptions_path):
-
     """Region ID (int) -> Region bounding box (tuple of int).
 
     """
@@ -144,7 +140,6 @@ def _get_regions(region_descriptions_path):
 
 def _get_phrases(region_descriptions_path, min_token_instances,
                  max_token_length):
-
     """Region ID (int) -> Phrase (list of int).
 
     """
@@ -183,7 +178,6 @@ def _get_phrases(region_descriptions_path, min_token_instances,
 
 
 def _create_word_vocabulary(region_descriptions_path, min_token_instances):
-
     """Word (str) -> Word ID (int).
 
     """
