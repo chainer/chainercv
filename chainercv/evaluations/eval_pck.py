@@ -17,8 +17,8 @@ def eval_pck(pred, expected, alpha, L):
     Args:
         pred (~numpy.ndarray): An array of shape :math:`(K, 2)`
             :math:`N` is the number of keypoints to be evaluated. The
-            two elements of the second axis corresponds to :math:`x`
-            and :math:`y` coordinate of the keypoint.
+            two elements of the second axis corresponds to :math:`y`
+            and :math:`x` coordinate of the keypoint.
         expected (~numpy.ndarray): Same kind of array as :obj:`pred`.
             This contains ground truth location of the keypoints that
             the user tries to predict.
