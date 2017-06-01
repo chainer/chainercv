@@ -84,11 +84,9 @@ def eval_detection_voc(
     else:
         gt_difficults = iter(gt_difficults)
 
-    valid_label = set()
-    pred_bboxes_list = defaultdict(list)
-    pred_scores_list = defaultdict(list)
-    gt_bboxes_list = defaultdict(list)
-    gt_difficults_list = defaultdict(list)
+    n_pos = defaultdict(int)
+    score = defaultdict(list)
+    match = defaultdict(list)
 
     for pred_bbox, pred_label, pred_score, gt_bbox, gt_label, gt_difficult in \
         six.moves.zip(
@@ -99,15 +97,49 @@ def eval_detection_voc(
             gt_difficult = np.zeros(gt_bbox.shape[0], dtype=bool)
 
         for l in np.unique(np.concatenate((pred_label, gt_label)).astype(int)):
-            valid_label.add(l)
-
             pred_mask = pred_label == l
-            pred_bboxes_list[l].append(pred_bbox[pred_mask])
-            pred_scores_list[l].append(pred_score[pred_mask])
+            pred_bbox_l = pred_bbox[pred_mask]
+            pred_score_l = pred_score[pred_mask]
+            # sort by score
+            order = pred_score_l.argsort()[::-1]
+            pred_bbox_l = pred_bbox_l[order]
+            pred_score_l = pred_score_l[order]
 
             gt_mask = gt_label == l
-            gt_bboxes_list[l].append(gt_bbox[gt_mask])
-            gt_difficults_list[l].append(gt_difficult[gt_mask])
+            gt_bbox_l = gt_bbox[gt_mask]
+            gt_difficult_l = gt_difficult[gt_mask]
+
+            n_pos[l] += np.logical_not(gt_difficult_l).sum()
+
+            # VOC evaluation follows integer typed bounding boxes.
+            pred_bbox_l = pred_bbox_l.copy()
+            pred_bbox_l[:, 2:] += 1
+            gt_bbox_l = gt_bbox_l.copy()
+            gt_bbox_l[:, 2:] += 1
+
+            selec = np.zeros(gt_bbox_l.shape[0], dtype=bool)
+
+            for bb, sc in six.moves.zip(pred_bbox_l, pred_score_l):
+                score[l].append(sc)
+
+                if len(gt_bbox_l) > 0:
+                    iou = bbox_iou(gt_bbox_l, bb[np.newaxis])
+                    gt_idx = iou.argmax()
+                    iou = iou[gt_idx]
+                else:
+                    iou = -np.inf
+
+                if iou >= iou_thresh:
+                    if not gt_difficult_l[gt_idx]:
+                        if not selec[gt_idx]:
+                            match[l].append(1)
+                            selec[gt_idx] = True
+                        else:
+                            match[l].append(0)
+                    else:
+                        match[l].append(-1)
+                else:
+                    match[l].append(0)
 
     for iter_ in (
             pred_bboxes, pred_labels, pred_scores,
@@ -117,98 +149,26 @@ def eval_detection_voc(
 
     # Accumulate recall, precison and ap
     results = {}
-    for l in valid_label:
-        rec, prec = _pred_and_rec_cls(
-            pred_bboxes_list[l],
-            pred_scores_list[l],
-            gt_bboxes_list[l],
-            gt_difficults_list[l],
-            iou_thresh)
+    for l in n_pos.keys():
+        score_l = np.array(score[l])
+        match_l = np.array(match[l], dtype=np.int8)
+
+        order = score_l.argsort()[::-1]
+        match_l = match_l[order]
+
+        tp = np.cumsum(match_l == 1)
+        fp = np.cumsum(match_l == 0)
+        rec = tp / n_pos[l]
+        prec = tp / np.maximum(fp + tp, np.finfo(np.float64).eps)
+
         ap = _voc_ap(rec, prec, use_07_metric=use_07_metric)
         results[l] = {}
         results[l]['recall'] = rec
         results[l]['precision'] = prec
         results[l]['ap'] = ap
     results['map'] = np.asscalar(np.mean(
-        [results[l]['ap'] for l in valid_label]))
+        [result['ap'] for result in results.values()]))
     return results
-
-
-def _pred_and_rec_cls(
-        bboxes, scores, gt_bboxes, gt_difficults, iou_thresh=0.5):
-    # Calculate detection metrics with respect to a class.
-    # This function is called only when there is at least one
-    # prediction or ground truth box which is labeled as the class.
-    # bboxes: List[numpy.ndarray]
-    # scores: List[numpy.ndarray]
-    # gt_bboxes: List[numpy.ndarray]
-    # gt_difficults: List[numpy.ndarray]
-
-    n_pos = 0  # The number of non difficult objects.
-    selec = [None for _ in six.moves.range(len(gt_bboxes))]
-    for n in six.moves.range(len(gt_bboxes)):
-        n_gt_bbox = len(gt_bboxes[n])
-        selec[n] = np.zeros(n_gt_bbox, dtype=np.bool)
-        n_pos += np.sum(np.logical_not(gt_difficults[n]))
-
-    # Make list of arrays into one array.
-    # Example:
-    # bboxes = [[bbox00, bbox01], [bbox10]]
-    # bbox = array([bbox00, bbox01, bbox10])
-    # index = [0, 0, 1]
-    index = []
-    for n in six.moves.range(len(scores)):
-        for r in six.moves.range(len(scores[n])):
-            index.append(n)
-    index = np.array(index, dtype=np.int)
-    conf = np.concatenate(scores)
-    bbox = np.concatenate(bboxes)
-
-    if n_pos == 0 or len(conf) == 0:
-        return np.zeros((len(conf),)), np.zeros((len(conf),))
-
-    # Reorder arrays by scores in descending order.
-    si = np.argsort(-conf)
-    index = index[si]
-    bbox = bbox[si]
-
-    nd = len(index)
-    tp = np.zeros(nd)
-    fp = np.zeros(nd)
-
-    for d in six.moves.range(nd):
-        idx = index[d]
-        bb = bbox[d]
-        ioumax = -np.inf
-        gt_bb = gt_bboxes[idx]
-
-        if gt_bb.size > 0:
-            # VOC evaluation follows integer typed bounding boxes.
-            gt_bb_int = np.concatenate((gt_bb[:, :2], gt_bb[:, 2:] + 1),
-                                       axis=1)
-            bb_int = np.concatenate((bb[None][:, :2], bb[None][:, 2:] + 1),
-                                    axis=1)
-            iou = bbox_iou(gt_bb_int, bb_int)[:, 0]
-            ioumax = np.max(iou)
-            jmax = np.argmax(iou)
-
-        if ioumax > iou_thresh:
-            if not gt_difficults[idx][jmax]:
-                if not selec[idx][jmax]:
-                    tp[d] = 1
-                    # assign detections to ground truth objects
-                    selec[idx][jmax] = 1
-                else:
-                    fp[d] = 1
-        else:
-            fp[d] = 1
-
-    # compute precision/recall
-    fp = np.cumsum(fp)
-    tp = np.cumsum(tp)
-    rec = tp / float(n_pos)
-    prec = tp / np.maximum(fp + tp, np.finfo(np.float64).eps)
-    return rec, prec
 
 
 def _voc_ap(rec, prec, use_07_metric=False):
