@@ -110,6 +110,7 @@ def eval_detection_voc(
             gt_difficult_l = gt_difficult[gt_mask]
 
             n_pos[l] += np.logical_not(gt_difficult_l).sum()
+            score[l].extend(pred_score_l)
 
             # VOC evaluation follows integer typed bounding boxes.
             pred_bbox_l = pred_bbox_l.copy()
@@ -119,9 +120,7 @@ def eval_detection_voc(
 
             selec = np.zeros(gt_bbox_l.shape[0], dtype=bool)
 
-            for bb, sc in six.moves.zip(pred_bbox_l, pred_score_l):
-                score[l].append(sc)
-
+            for bb in pred_bbox_l:
                 if len(gt_bbox_l) > 0:
                     iou = bbox_iou(gt_bbox_l, bb[np.newaxis])
                     gt_idx = iou.argmax()
