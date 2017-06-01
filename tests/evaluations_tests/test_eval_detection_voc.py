@@ -1,10 +1,11 @@
-import unittest
-
 import numpy as np
-
-from chainercv.evaluations import eval_detection_voc
+import os
+import unittest
+from six.moves.urllib import request
 
 from chainer import testing
+
+from chainercv.evaluations import eval_detection_voc
 
 
 @testing.parameterize(
@@ -97,3 +98,56 @@ class TestEvalDetectionVOCDifficults(unittest.TestCase):
             gt_difficults=gt_difficults, iou_thresh=self.iou_thresh)
         np.testing.assert_equal(results[0]['recall'], self.rec)
         np.testing.assert_equal(results[0]['precision'], self.prec)
+
+
+class TestEvalDetectionVOCConsistencyWithMATLAB(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        base_url = 'https://github.com/yuyu2172/' \
+                   'share-weights/releases/download/0.0.2'
+
+        cls.dataset = np.load(request.urlretrieve(os.path.join(
+            base_url, 'example_detection_dataset_2017_06_01.npz'))[0])
+        cls.result = np.load(request.urlretrieve(os.path.join(
+            base_url, 'example_detection_result_2017_06_01.npz'))[0])
+
+    def test_eval_detection_voc_consistency_with_matlab(self):
+        pred_bboxes = self.result['bboxes']
+        pred_labels = self.result['labels']
+        pred_scores = self.result['scores']
+
+        gt_bboxes = self.dataset['bboxes']
+        gt_labels = self.dataset['labels']
+        gt_difficults = self.dataset['difficults']
+
+        eval_ = eval_detection_voc(
+            pred_bboxes, pred_labels, pred_scores,
+            gt_bboxes, gt_labels, gt_difficults,
+            use_07_metric=True)
+
+        expected = [
+            0.772727,
+            0.738780,
+            0.957576,
+            0.640153,
+            0.579473,
+            1.000000,
+            0.970030,
+            1.000000,
+            0.705931,
+            0.678719,
+            0.863636,
+            1.000000,
+            1.000000,
+            0.561364,
+            0.798813,
+            0.712121,
+            0.939394,
+            0.563636,
+            0.927273,
+            0.654545,
+        ]
+
+        np.testing.assert_almost_equal(
+            [eval_[l]['ap'] for l in range(20)], expected, decimal=5)
