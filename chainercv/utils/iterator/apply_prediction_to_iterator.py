@@ -28,7 +28,7 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
     >>> # pred_vals0: [pred_val0]
     >>> # pred_vals1: [pred_val1]
 
-    Here is an exmple which applies a pretrained Faster R-CNN to
+    Here is an exmple, that applies a pretrained Faster R-CNN to
     PASCAL VOC dataset.
 
     >>> from chainer import iterators
