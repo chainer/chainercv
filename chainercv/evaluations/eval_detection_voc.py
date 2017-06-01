@@ -131,7 +131,7 @@ def eval_detection_voc(
                 gt_bboxes_list[l][n] = np.stack(gt_bboxes_l)
                 gt_difficults_list[l][n] = np.stack(gt_difficults_l)
 
-    # Accumulate recacall, precison and ap
+    # Accumulate recall, precison and ap
     results = {}
     for l in valid_label:
         rec, prec = _pred_and_rec_cls(
