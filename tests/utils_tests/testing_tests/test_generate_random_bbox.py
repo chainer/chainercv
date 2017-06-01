@@ -18,9 +18,9 @@ class TestGenerateRandomBbox(unittest.TestCase):
 
         self.assertIsInstance(bbox, np.ndarray)
         self.assertEqual(bbox.shape, (n, 4))
-        self.assertTrue(np.all(bbox[:, [0, 2]] < img_size[0]))
+        self.assertTrue(np.all(bbox[:, [0, 2]] < img_size[1]))
         self.assertTrue(np.all(bbox[:, [0, 2]] >= 0))
-        self.assertTrue(np.all(bbox[:, [1, 3]] < img_size[1]))
+        self.assertTrue(np.all(bbox[:, [1, 3]] < img_size[0]))
         self.assertTrue(np.all(bbox[:, [1, 3]] >= 0))
 
         w = bbox[:, 2] - bbox[:, 0]
