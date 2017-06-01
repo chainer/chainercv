@@ -1,5 +1,7 @@
 from __future__ import division
 
+from collections import defaultdict
+import itertools
 import numpy as np
 import six
 
@@ -72,64 +74,46 @@ def eval_detection_voc(
             to the class id **i**.
 
     """
-    pred_bboxes = list(pred_bboxes)
-    pred_labels = list(pred_labels)
-    pred_scores = list(pred_scores)
-    gt_bboxes = list(gt_bboxes)
-    gt_labels = list(gt_labels)
-    if gt_difficults is not None:
-        gt_difficults = list(gt_difficults)
+    pred_bboxes = iter(pred_bboxes)
+    pred_labels = iter(pred_labels)
+    pred_scores = iter(pred_scores)
+    gt_bboxes = iter(gt_bboxes)
+    gt_labels = iter(gt_labels)
+    if gt_difficults is None:
+        gt_difficults = itertools.repeat(None)
+    else:
+        gt_difficults = iter(gt_difficults)
 
-    if not (len(pred_bboxes) == len(pred_labels) == len(pred_scores)
-            == len(gt_bboxes) == len(gt_labels)):
-        raise ValueError('Length of list inputs need to be same')
-    n_img = len(pred_bboxes)
+    valid_label = set()
+    pred_bboxes_list = defaultdict(list)
+    pred_scores_list = defaultdict(list)
+    gt_bboxes_list = defaultdict(list)
+    gt_difficults_list = defaultdict(list)
 
-    valid_label = np.union1d(
-        np.unique(np.concatenate(pred_labels)),
-        np.unique(np.concatenate(gt_labels))).astype(np.int32)
+    for pred_bbox, pred_label, pred_score, gt_bbox, gt_label, gt_difficult in \
+        six.moves.zip(
+            pred_bboxes, pred_labels, pred_scores,
+            gt_bboxes, gt_labels, gt_difficults):
 
-    # Initial values stored in the dictionaries.
-    empty_bbox = np.zeros((0, 4), dtype=np.float32)
-    empty_label = np.zeros((0,), dtype=np.bool)
+        if gt_difficult is None:
+            gt_difficult = np.zeros(gt_bbox.shape[0], dtype=bool)
 
-    # Organize predictions into Dict[l, List[bbox]]
-    pred_bboxes_list = {l: [empty_bbox for _ in six.moves.range(n_img)]
-                        for l in valid_label}
-    pred_scores_list = {l: [empty_label for _ in six.moves.range(n_img)]
-                        for l in valid_label}
-    for n in six.moves.range(n_img):
-        for l in valid_label:
-            bboxes_l = []
-            scores_l = []
-            for r in six.moves.range(pred_bboxes[n].shape[0]):
-                if l == pred_labels[n][r]:
-                    bboxes_l.append(pred_bboxes[n][r])
-                    scores_l.append(pred_scores[n][r])
-            if len(bboxes_l) > 0:
-                pred_bboxes_list[l][n] = np.stack(bboxes_l)
-                pred_scores_list[l][n] = np.stack(scores_l)
+        for l in np.unique(np.concatenate((pred_label, gt_label)).astype(int)):
+            valid_label.add(l)
 
-    # Organize ground truths into Dict[l, List[bbox]]
-    gt_bboxes_list = {l: [empty_bbox for _ in six.moves.range(n_img)]
-                      for l in valid_label}
-    gt_difficults_list = {l: [empty_label for _ in six.moves.range(n_img)]
-                          for l in valid_label}
-    for n in six.moves.range(n_img):
-        for l in valid_label:
-            gt_bboxes_l = []
-            gt_difficults_l = []
-            for r in six.moves.range(gt_bboxes[n].shape[0]):
-                if l == gt_labels[n][r]:
-                    gt_bboxes_l.append(gt_bboxes[n][r])
-                    if gt_difficults is not None:
-                        gt_difficults_l.append(gt_difficults[n][r])
-                    else:
-                        gt_difficults_l.append(
-                            np.array(False, dtype=np.bool))
-            if len(gt_bboxes_l) > 0:
-                gt_bboxes_list[l][n] = np.stack(gt_bboxes_l)
-                gt_difficults_list[l][n] = np.stack(gt_difficults_l)
+            pred_mask = pred_label == l
+            pred_bboxes_list[l].append(pred_bbox[pred_mask])
+            pred_scores_list[l].append(pred_score[pred_mask])
+
+            gt_mask = gt_label == l
+            gt_bboxes_list[l].append(gt_bbox[gt_mask])
+            gt_difficults_list[l].append(gt_difficult[gt_mask])
+
+    for iter_ in (
+            pred_bboxes, pred_labels, pred_scores,
+            gt_bboxes, gt_labels, gt_difficults):
+        if next(iter_, None) is not None:
+            raise ValueError('Length of input iterables need to be same.')
 
     # Accumulate recall, precison and ap
     results = {}
