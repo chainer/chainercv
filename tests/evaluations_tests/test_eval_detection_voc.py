@@ -1,7 +1,7 @@
 import numpy as np
 import os
-import unittest
 from six.moves.urllib import request
+import unittest
 
 from chainer import testing
 
