@@ -130,14 +130,14 @@ def eval_detection_voc(
                     iou = -np.inf
 
                 if iou >= iou_thresh:
-                    if not gt_difficult_l[gt_idx]:
+                    if gt_difficult_l[gt_idx]:
+                        match[l].append(-1)
+                    else:
                         if not selec[gt_idx]:
                             match[l].append(1)
-                            selec[gt_idx] = True
                         else:
                             match[l].append(0)
-                    else:
-                        match[l].append(-1)
+                    selec[gt_idx] = True
                 else:
                     match[l].append(0)
 
