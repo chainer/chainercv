@@ -28,6 +28,31 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
     >>> # pred_vals0: [pred_val0]
     >>> # pred_vals1: [pred_val1]
 
+    Here is an exmple which applies a pretrained Faster R-CNN to
+    PASCAL VOC dataset.
+
+    >>> from chainer import iterators
+    >>>
+    >>> from chainercv.datasets import VOCDetectionDataset
+    >>> from chainercv.links import FasterRCNNVGG16
+    >>> from chainercv.utils import apply_prediction_to_iterator
+    >>>
+    >>> dataset = VOCDetectionDataset(year='2007', split='test')
+    >>> # next(iterator) -> [(img, gt_bbox, gt_label)]
+    >>> iterator = iterators.SerialIterator(
+    ...     dataset, 32, repeat=False, shuffle=False)
+    >>>
+    >>> # model.predict([img]) -> ([pred_bbox], [pred_label], [pred_score])
+    >>> model = FasterRCNNVGG16(pretrained_model='voc07')
+    >>>
+    >>> imgs, pred_values, gt_values = apply_prediction_to_iterator(
+    ...     model.predict, iterator)
+    >>>
+    >>> # pred_values contains three iterators
+    >>> pred_bboxes, pred_labels, pred_scores = pred_values
+    >>> # gt_values contains two iterators
+    >>> gt_bboxes, gt_labels = gt_values
+
     Args:
         predict: A callable which takes a batch of images and returns
             prediction.
