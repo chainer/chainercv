@@ -126,12 +126,13 @@ def eval_detection_voc(
 
             iou = bbox_iou(pred_bbox_l, gt_bbox_l)
             gt_index = iou.argmax(axis=1)
-            match_ = iou.max(axis=1) >= iou_thresh
+            # set -1 if there is no matching ground truth
+            gt_index[iou.max(axis=1) < iou_thresh] = -1
             del iou
 
             selec = np.zeros(gt_bbox_l.shape[0], dtype=bool)
-            for gt_idx, mc in six.moves.zip(gt_index, match_):
-                if mc:
+            for gt_idx in gt_index:
+                if gt_idx >= 0:
                     if gt_difficult_l[gt_idx]:
                         match[l].append(-1)
                     else:
