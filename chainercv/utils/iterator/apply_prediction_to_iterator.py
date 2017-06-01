@@ -40,7 +40,7 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
     >>> dataset = VOCDetectionDataset(year='2007', split='test')
     >>> # next(iterator) -> [(img, gt_bbox, gt_label)]
     >>> iterator = iterators.SerialIterator(
-    ...     dataset, 32, repeat=False, shuffle=False)
+    ...     dataset, 2, repeat=False, shuffle=False)
     >>>
     >>> # model.predict([img]) -> ([pred_bbox], [pred_label], [pred_score])
     >>> model = FasterRCNNVGG16(pretrained_model='voc07')
