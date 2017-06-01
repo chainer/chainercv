@@ -47,7 +47,7 @@ class VisualGenomeRegionDescriptionsDataset(VisualGenomeDatasetBase):
 
     def __init__(self, data_dir='auto', image_data='auto',
                  region_descriptions='auto', min_token_instances=15,
-                 img_size=(720, 720)):
+                 max_token_length=15, img_size=(720, 720)):
         super(VisualGenomeRegionDescriptionsDataset, self).__init__(
             data_dir=data_dir, image_data=image_data)
 
@@ -58,7 +58,8 @@ class VisualGenomeRegionDescriptionsDataset(VisualGenomeDatasetBase):
 
         self.region_ids = _get_region_ids(region_descriptions)
         self.regions = _get_regions(region_descriptions)
-        self.phrases = _get_phrases(region_descriptions, min_token_instances)
+        self.phrases = _get_phrases(region_descriptions, min_token_instances,
+                                    max_token_length)
 
     def get_example(self, i):
         img_id = self.get_image_id(i)
@@ -67,9 +68,13 @@ class VisualGenomeRegionDescriptionsDataset(VisualGenomeDatasetBase):
         regions = []
         phrases = []
         for region_id in self.region_ids[img_id]:
-            regions.append(self.regions[region_id])
-            phrases.append(self.phrases[region_id])
-        regions = np.vstack(regions)
+            phrase = self.phrases[region_id]
+            if phrase is not None:  # If phrase wasn't too long and exlcluded
+                regions.append(self.regions[region_id])
+                phrases.append(self.phrases[region_id])
+        regions = np.vstack(regions).astype(np.float32)
+        phrases = np.vstack(phrases).astype(np.int32)
+
 
         if self.img_size is not None:
             h_orig, w_orig = img.shape[1:]
@@ -137,7 +142,8 @@ def _get_regions(region_descriptions_path):
     return download.cache_or_load_file(base_path, creator, loader)
 
 
-def _get_phrases(region_descriptions_path, min_token_instances):
+def _get_phrases(region_descriptions_path, min_token_instances,
+                 max_token_length):
 
     """Region ID (int) -> Phrase (list of int).
 
@@ -156,13 +162,19 @@ def _get_phrases(region_descriptions_path, min_token_instances):
             for region_description in region_descriptions:
                 for region in region_description['regions']:
                     region_id = region['region_id']
-                    phrase = []
-                    for word in _preprocess_phrase(region['phrase']).split():
-                        if word not in vocab:
-                            word = '<unk>'
-                        word_id = vocab[word]
-                        phrase.append(word_id)
-                    phrases[region_id] = phrase
+                    tokens = _preprocess_phrase(region['phrase']).split()
+                    if max_token_length > 0 and \
+                            len(tokens) <= max_token_length:
+                        phrase = np.zeros(max_token_length, dtype=np.int32)
+                        for i, token in enumerate(tokens):
+                            if token not in vocab:
+                                token = '<unk>'
+                            token_id = vocab[token]
+                            phrase[i] = token_id
+                        phrases[region_id] = phrase
+                    else:
+                        phrases[region_id] = None
+
         pickle.dump(phrases, open(base_path, 'wb'))
         return phrases
 
