@@ -197,7 +197,7 @@ class FasterRCNN(chainer.Chain):
         :obj:`self.mean`.
 
         Args:
-            img (~numpy.ndarray): An image. This is in CHW and BGR format.
+            img (~numpy.ndarray): An image. This is in CHW and RGB format.
                 The range of its value is :math:`[0, 255]`.
 
         Returns:
@@ -248,8 +248,8 @@ class FasterRCNN(chainer.Chain):
 
         Args:
             imgs (iterable of numpy.ndarray): Arrays holding images.
-                All images are in CHW and BGR format
-                and the range of their values are :math:`[0, 255]`.
+                All images are in CHW and RGB format
+                and the range of their value is :math:`[0, 255]`.
 
         Returns:
            tuple of lists:

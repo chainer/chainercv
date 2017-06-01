@@ -74,6 +74,10 @@ def main():
     args = parser.parse_args()
 
     model = SSDCaffeFunction(args.caffemodel)
+    # The pretrained weights are trained to accept BGR images.
+    # Convert weights so that they accept RGB images.
+    model['extractor/conv1_1'].W.data[:] =\
+        model['extractor/conv1_1'].W.data[:, ::-1]
     serializers.save_npz(args.output, model)
 
 

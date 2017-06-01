@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 
 import chainer
 
-from chainercv.datasets.pascal_voc import voc_utils
+from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
 
 
@@ -50,7 +50,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
-            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/pascal_voc`.
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/voc`.
         split ({'train', 'val', 'trainval', 'test'}): Select a split of the
             dataset. :obj:`test` split is only available for
             2007 dataset.
@@ -67,7 +67,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     def __init__(self, data_dir='auto', split='train', year='2012',
                  use_difficult=False, return_difficult=False):
         if data_dir == 'auto' and year in ['2007', '2012']:
-            data_dir = voc_utils.get_pascal_voc(year, split)
+            data_dir = voc_utils.get_voc(year, split)
 
         if split not in ['train', 'trainval', 'val']:
             if not (split == 'test' and year == '2007'):
@@ -93,7 +93,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         """Returns the i-th example.
 
         Returns a color image and bounding boxes. The image is in CHW format.
-        The returned image is BGR.
+        The returned image is RGB.
 
         Args:
             i (int): The index of the example.

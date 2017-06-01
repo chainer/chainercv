@@ -5,15 +5,15 @@ PASCAL VOC2007 Test
 
 | Model | Original | ChainerCV |
 |:-:|:-:|:-:|
-| SSD300 | 77.5 % [2] | 77.5 % |
-| SSD512 | 79.5 % [2] | 79.6 % |
+| SSD300 | 77.5 % [2] | 77.8 % |
+| SSD512 | 79.5 % [2] | 79.7 % |
 
 Scores are mean Average Precision (mAP) with PASCAL VOC2007 metric.
 
 ## Demo
-Detect objects in an given image. This demo downloads Pascal VOC pretrained model automatically.
+Detect objects in an given image. This demo downloads Pascal VOC pretrained model automatically if a pretrained model path is not given.
 ```
-$ python demo.py [--model ssd300|ssd512] [--gpu <gpu>] <image>.jpg
+$ python demo.py [--model ssd300|ssd512] [--gpu <gpu>] [--pretrained_model <model_path>] <image>.jpg
 ```
 
 ## Convert Caffe model
@@ -23,5 +23,5 @@ $ python caffe2npz <source>.caffemodel <target>.npz
 ```
 
 ## References
-- [1]: Wei Liu, et al. "SSD: Single shot multibox detector" ECCV 2016.
-- [2]: Cheng-Yang Fu, et al. "[DSSD : Deconvolutional Single Shot Detector](https://arxiv.org/abs/1701.06659)" arXiv 2017.
+1. Wei Liu, et al. "SSD: Single shot multibox detector" ECCV 2016.
+2. Cheng-Yang Fu, et al. "[DSSD : Deconvolutional Single Shot Detector](https://arxiv.org/abs/1701.06659)" arXiv 2017.

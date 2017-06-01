@@ -109,9 +109,10 @@ class SSD(chainer.Chain):
         super(SSD, self).to_cpu()
         self._default_bbox = chainer.cuda.to_cpu(self._default_bbox)
 
-    def to_gpu(self):
-        super(SSD, self).to_gpu()
-        self._default_bbox = chainer.cuda.to_gpu(self._default_bbox)
+    def to_gpu(self, device=None):
+        super(SSD, self).to_gpu(device)
+        self._default_bbox = chainer.cuda.to_gpu(
+            self._default_bbox, device=device)
 
     def __call__(self, x):
         """Compute localization and classification from a batch of images.
@@ -133,7 +134,7 @@ class SSD(chainer.Chain):
                 where :math:`B` is the number of samples in the batch and \
                 ::math:`K` is the number of default bounding boxes.
             * **conf**: A variable of float arrays of shape \
-                :math:`(B, K, n\_fg\_class)`.
+                :math:`(B, K, n\_fg\_class + 1)`.
         """
 
         return self.multibox(self.extractor(x))
@@ -218,41 +219,44 @@ class SSD(chainer.Chain):
             raise ValueError('preset must be visualize or evaluate')
 
     def predict(self, imgs):
-        """Detect objects from images
+        """Detect objects from images.
 
         This method predicts objects for each image.
 
         Args:
             imgs (iterable of numpy.ndarray): Arrays holding images.
-                All images are in CHW and BGR format
+                All images are in CHW and RGB format
                 and the range of their value is :math:`[0, 255]`.
 
         Returns:
-            tuple of list:
-            This method returns a tuple of three lists,
-            :obj:`(bboxes, labels, scores)`.
+           tuple of lists:
+           This method returns a tuple of three lists,
+           :obj:`(bboxes, labels, scores)`.
 
-            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
-                where :math:`R` is the number of bounding boxes in a image. \
-                Each bouding box is organized by \
-                :obj:`(x_min, y_min, x_max, y_max)` \
-                in the second axis.
-            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
-                Each value indicates the class of the bounding box.
-            * **scores** : A list of float arrays of shape :math:`(R,)`. \
-                Each value indicates how confident the prediction is.
+           * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
+               where :math:`R` is the number of bounding boxes in a image. \
+               Each bouding box is organized by \
+               :obj:`(x_min, y_min, x_max, y_max)` \
+               in the second axis.
+           * **labels** : A list of integer arrays of shape :math:`(R,)`. \
+               Each value indicates the class of the bounding box. \
+               Values are in range :math:`[0, L - 1]`, where :math:`L` is the \
+               number of the foreground classes.
+           * **scores** : A list of float arrays of shape :math:`(R,)`. \
+               Each value indicates how confident the prediction is.
+
         """
 
-        prepared_imgs = list()
+        x = list()
         sizes = list()
         for img in imgs:
             _, H, W = img.shape
             img = self._prepare(img)
-            prepared_imgs.append(self.xp.array(img))
+            x.append(self.xp.array(img))
             sizes.append((H, W))
 
-        prepared_imgs = self.xp.stack(prepared_imgs)
-        loc, conf = self(prepared_imgs)
+        x = chainer.Variable(self.xp.stack(x), volatile=chainer.flag.ON)
+        loc, conf = self(x)
         raw_bboxes, raw_scores = self._decode(loc.data, conf.data)
 
         bboxes = list()

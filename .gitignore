@@ -2,6 +2,7 @@
 *.egg-info/
 *.egg/
 *.pyc
+*.c
 *.cpp
 *.so
 build
@@ -11,11 +12,5 @@ build
 dist/
 .cache/
 check_autopep8
-
-examples/semantic_segmentation/result/
-examples/semantic_segmentation/fcn/result/
-examples/semantic_segmentation/result
-examples/image_retrieval/triplet/result/
-examples/image_classification/tensorboard/result/
 
 tests/bin/

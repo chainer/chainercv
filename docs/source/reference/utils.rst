@@ -24,6 +24,18 @@ read_image
 .. autofunction:: read_image
 
 
+Iterator Utilities
+------------------
+
+apply_prediction_to_iterator
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: apply_prediction_to_iterator
+
+unzip
+~~~~~
+.. autofunction:: unzip
+
+
 Testing Utilities
 -----------------
 
@@ -31,3 +43,7 @@ ConstantStubLink
 ~~~~~~~~~~~~~~~~
 .. autoclass:: ConstantStubLink
    :members:
+
+generate_random_bbox
+~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: generate_random_bbox
