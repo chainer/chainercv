@@ -14,10 +14,14 @@ eval_pck
 .. autofunction:: eval_pck
 
 
-calc_confusion_matrix
-~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: calc_confusion_matrix
+eval_semantic_segmentation_iou
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: eval_semantic_segmentation_iou
 
-eval_semantic_segmentation
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: eval_semantic_segmentation
+calc_semantic_segmentation_confusion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: calc_semantic_segmentation_confusion
+
+calc_semantic_segmentation_iou
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: calc_semantic_segmentation_iou

@@ -5,14 +5,12 @@ from chainer import reporter
 
 import numpy as np
 
-from chainercv.evaluations import eval_semantic_segmentation
-
 
 class PixelwiseSoftmaxClassifier(chainer.Chain):
 
     """A pixel-wise classifier.
 
-    It computes the loss and accuracy based on a given input/label pair for
+    It computes the loss based on a given input/label pair for
     semantic segmentation.
 
     Args:
@@ -69,16 +67,4 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
             ignore_label=self.ignore_label)
 
         reporter.report({'loss': self.loss}, self)
-
-        self.accuracy = None
-        if self.compute_accuracy:
-            label = self.xp.argmax(self.y.data, axis=1)
-            self.accuracy = eval_semantic_segmentation(
-                label, t.data, self.n_class)
-            reporter.report({
-                'pixel_accuracy': self.xp.mean(self.accuracy[0]),
-                'mean_accuracy': self.xp.mean(self.accuracy[1]),
-                'mean_iou': self.xp.mean(self.accuracy[2]),
-                'fw_iou': self.xp.mean(self.accuracy[3])
-            }, self)
         return self.loss
