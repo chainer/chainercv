@@ -49,7 +49,7 @@ class TestCalcSemanticSegmentationConfusion(unittest.TestCase):
 
     def test_calc_semantic_segmentation_confusion(self):
         pred_labels = np.random.randint(0, self.n_class, size=(10, 16, 16))
-        gt_labels = np.random.randint(0, self.n_class, size=(10, 16, 16))
+        gt_labels = np.random.randint(-1, self.n_class, size=(10, 16, 16))
         expected = np.zeros((self.n_class, self.n_class), dtype=np.int64)
         expected[0, 0] = np.sum(
             np.logical_and(gt_labels == 0, pred_labels == 0))
