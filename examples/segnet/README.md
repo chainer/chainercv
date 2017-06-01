@@ -37,8 +37,9 @@ Here is a quick demo using our pretrained weights. The pretrained model is autom
 
 ```
 wget https://raw.githubusercontent.com/alexgkendall/SegNet-Tutorial/master/CamVid/test/0001TP_008550.png
-python demo.py 0001TP_008550.png
+python demo.py [--gpu <gpu>] [--pretrained_model <model_path>] 0001TP_008550.png
 ```
+
 
 # Evaluation
 
