@@ -13,7 +13,7 @@ from chainercv.evaluations import eval_detection_voc
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
-from chainercv.utils import apply_detection_link
+from chainercv.utils import apply_prediction_to_iterator
 
 
 class ProgressHook(object):
@@ -23,8 +23,8 @@ class ProgressHook(object):
         self.start = time.time()
         self.n_processed = 0
 
-    def __call__(self, pred_bboxes, pred_labels, pred_scores, gt_values):
-        self.n_processed += len(pred_bboxes)
+    def __call__(self, imgs, pred_values, gt_values):
+        self.n_processed += len(imgs)
         fps = self.n_processed / (time.time() - self.start)
         sys.stdout.write(
             '\r{:d} of {:d} images, {:.2f} FPS'.format(
@@ -69,8 +69,12 @@ def main():
     iterator = iterators.SerialIterator(
         dataset, args.batchsize, repeat=False, shuffle=False)
 
-    pred_bboxes, pred_labels, pred_scores, gt_values = \
-        apply_detection_link(model, iterator, hook=ProgressHook(len(dataset)))
+    imgs, pred_values, gt_values = apply_prediction_to_iterator(
+        model.predict, iterator, hook=ProgressHook(len(dataset)))
+    # delete unused iterator explicitly
+    del imgs
+
+    pred_bboxes, pred_labels, pred_scores = pred_values
     gt_bboxes, gt_labels, gt_difficults = gt_values
 
     eval_ = eval_detection_voc(

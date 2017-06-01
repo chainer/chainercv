@@ -4,7 +4,7 @@ from chainer import reporter
 import chainer.training.extensions
 
 from chainercv.evaluations import eval_detection_voc
-from chainercv.utils import apply_detection_link
+from chainercv.utils import apply_prediction_to_iterator
 
 
 class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
@@ -51,8 +51,13 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
         else:
             it = copy.copy(iterator)
 
-        pred_bboxes, pred_labels, pred_scores, gt_values =\
-            apply_detection_link(target, it)
+        imgs, pred_values, gt_values = apply_prediction_to_iterator(
+            target.predict, it)
+        # delete unused iterator explicitly
+        del imgs
+
+        pred_bboxes, pred_labels, pred_scores = pred_values
+
         if len(gt_values) == 3:
             gt_bboxes, gt_labels, gt_difficults = gt_values
         elif len(gt_values) == 2:

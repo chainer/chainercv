@@ -3,18 +3,18 @@ import unittest
 
 from chainer import testing
 
-from chainercv.utils import split_iterator
+from chainercv.utils import unzip
 
 
-class TestSplitIterator(unittest.TestCase):
+class TestUnzip(unittest.TestCase):
 
     def setUp(self):
         self.ints = list(range(10))
         self.strs = list('abcdefghij')
-        self.iterator = iter(zip(self.ints, self.strs))
+        self.iterable = zip(self.ints, self.strs)
 
     def test_sequential(self):
-        i_iter, s_iter = split_iterator(self.iterator)
+        i_iter, s_iter = unzip(self.iterable)
 
         ints = list(i_iter)
         self.assertEqual(ints, self.ints)
@@ -23,7 +23,7 @@ class TestSplitIterator(unittest.TestCase):
         self.assertEqual(strs, self.strs)
 
     def test_parallel(self):
-        i_iter, s_iter = split_iterator(self.iterator)
+        i_iter, s_iter = unzip(self.iterable)
 
         ints, strs = list(), list()
         for i, s in zip(i_iter, s_iter):
@@ -34,7 +34,7 @@ class TestSplitIterator(unittest.TestCase):
         self.assertEqual(strs, self.strs)
 
     def test_random(self):
-        i_iter, s_iter = split_iterator(self.iterator)
+        i_iter, s_iter = unzip(self.iterable)
 
         ints, strs = list(), list()
         while True:
@@ -53,7 +53,7 @@ class TestSplitIterator(unittest.TestCase):
         self.assertEqual(strs, self.strs)
 
 
-class TestSplitIteratorWithInfiniteIterator(unittest.TestCase):
+class TestUnzipWithInfiniteIterator(unittest.TestCase):
 
     def setUp(self):
 
@@ -63,10 +63,10 @@ class TestSplitIteratorWithInfiniteIterator(unittest.TestCase):
                 yield i, i + 1, i * i
                 i += 1
 
-        self.iterator = _iterator()
+        self.iterable = _iterator()
 
     def test_sequential(self):
-        iters = split_iterator(self.iterator)
+        iters = unzip(self.iterable)
 
         self.assertEqual(len(iters), 3)
 
@@ -80,7 +80,7 @@ class TestSplitIteratorWithInfiniteIterator(unittest.TestCase):
             self.assertEqual(next(iters[2]), i * i)
 
     def test_parallel(self):
-        iters = split_iterator(self.iterator)
+        iters = unzip(self.iterable)
 
         self.assertEqual(len(iters), 3)
 
@@ -88,6 +88,48 @@ class TestSplitIteratorWithInfiniteIterator(unittest.TestCase):
             self.assertEqual(next(iters[0]), i)
             self.assertEqual(next(iters[1]), i + 1)
             self.assertEqual(next(iters[2]), i * i)
+
+
+class DummyObject(object):
+
+    def __init__(self, released, id_):
+        self.released = released
+        self.id_ = id_
+
+    def __del__(self):
+        # register id when it is released
+        self.released.add(self.id_)
+
+
+class TestUnzipRelease(unittest.TestCase):
+
+    def setUp(self):
+        self.released = set()
+
+        def _iterator():
+            id_ = 0
+            while True:
+                yield id_, DummyObject(self.released, id_)
+                id_ += 1
+
+        self.iterable = _iterator()
+
+    def test_released(self):
+        iter_0, iter_1 = unzip(self.iterable)
+        del iter_1
+
+        for i in range(20):
+            next(iter_0)
+
+        self.assertEqual(self.released, set(range(20)))
+
+    def test_unreleased(self):
+        iter_0, iter_1 = unzip(self.iterable)
+
+        for i in range(20):
+            next(iter_0)
+
+        self.assertEqual(self.released, set())
 
 
 testing.run_module(__name__, __file__)

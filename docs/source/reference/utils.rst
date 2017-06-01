@@ -27,17 +27,13 @@ read_image
 Iterator Utilities
 ------------------
 
-apply_detection_link
-~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: apply_detection_link
+apply_prediction_to_iterator
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: apply_prediction_to_iterator
 
-apply_semantic_segmentation_link
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: apply_semantic_segmentation_link
-
-split_iterator
-~~~~~~~~~~~~~~
-.. autofunction:: split_iterator
+unzip
+~~~~~
+.. autofunction:: unzip
 
 
 Testing Utilities

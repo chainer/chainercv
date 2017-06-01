@@ -23,30 +23,33 @@ def eval_detection_voc(
     The code is based on the evaluation code used in PASCAL VOC Challenge.
 
     Args:
-        pred_bboxes (list of numpy.ndarray): A list of :math:`N` bounding
-            boxes. Its index corresponds to an index for the base dataset.
+        pred_bboxes (iterable of numpy.ndarray): An iterable of :math:`N`
+            bounding boxes.
+            Its index corresponds to an index for the base dataset.
             Each element of :obj:`pred_bboxes` is a set of coordinates
             of bounding boxes. This is an array whose shape is :math:`(R, 4)`,
             where :math:`R` corresponds
             to the number of bounding boxes, which may vary among boxes.
             The second axis corresponds to :obj:`x_min, y_min, x_max, y_max`
             of a box.
-        pred_labels (list of numpy.ndarray): A list of labels.
+        pred_labels (iterable of numpy.ndarray): An iterable of labels.
             Similar to :obj:`pred_bboxes`, its index corresponds to an
             index for the base dataset. Its length is :math:`N`.
-        pred_scores (list of numpy.ndarray): A list of confidence scores for
-            predicted bounding boxes. Similar to :obj:`pred_bboxes`,
+        pred_scores (iterable of numpy.ndarray): An iterable of confidence
+            scores for predicted bounding boxes. Similar to :obj:`pred_bboxes`,
             its index corresponds to an index for the base dataset.
             Its length is :math:`N`.
-        gt_bboxes (list of numpy.ndarray): List of ground truth bounding boxes
+        gt_bboxes (iterable of numpy.ndarray): An iterable of ground truth
+            bounding boxes
             whose length is :math:`N`. An element of :obj:`gt_bboxes` is a
             bounding box whose shape is :math:`(R, 4)`. Note that the number of
             bounding boxes in each image does not need to be same as the number
             of corresponding predicted boxes.
-        gt_labels (list of numpy.ndarray): List of ground truth labels which
-            are organized similarly to :obj:`gt_bboxes`.
-        gt_difficults (list of numpy.ndarray): List of boolean arrays which
-            is organized similarly to :obj:`gt_bboxes`. This tells whether the
+        gt_labels (iterable of numpy.ndarray): An iterable of ground truth
+            labels which are organized similarly to :obj:`gt_bboxes`.
+        gt_difficults (iterable of numpy.ndarray): An iterable of boolean
+            arrays which is organized similarly to :obj:`gt_bboxes`.
+            This tells whether the
             corresponding ground truth bounding box is difficult or not.
             By default, this is :obj:`None`. In that case, this function
             considers all bounding boxes to be not difficult.
@@ -69,6 +72,14 @@ def eval_detection_voc(
             to the class id **i**.
 
     """
+    pred_bboxes = list(pred_bboxes)
+    pred_labels = list(pred_labels)
+    pred_scores = list(pred_scores)
+    gt_bboxes = list(gt_bboxes)
+    gt_labels = list(gt_labels)
+    if gt_difficults is not None:
+        gt_difficults = list(gt_difficults)
+
     if not (len(pred_bboxes) == len(pred_labels) == len(pred_scores)
             == len(gt_bboxes) == len(gt_labels)):
         raise ValueError('Length of list inputs need to be same')
