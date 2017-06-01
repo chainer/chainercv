@@ -28,7 +28,7 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
     >>> # pred_vals0: [pred_val0]
     >>> # pred_vals1: [pred_val1]
 
-    Here is an exmple, that applies a pretrained Faster R-CNN to
+    Here is an exmple, which applies a pretrained Faster R-CNN to
     PASCAL VOC dataset.
 
     >>> from chainer import iterators
@@ -54,13 +54,13 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
     >>> gt_bboxes, gt_labels = gt_values
 
     Args:
-        predict: A callable which takes a batch of images and returns
+        predict: A callable that takes a batch of images and returns
             prediction.
         iterator (chainer.Iterator): An iterator. Each sample should have
             an image as its first element. This image is passed to
             :func:`predict` as an argument.
             The rests are treated as ground truth values.
-        hook: A callable which is called after each iteration.
+        hook: A callable that is called after each iteration.
             :obj:`imgs`, :obj:`pred_values` and :obj:`gt_values` are passed as
             arguments.
             Note that these values do not contain data from the previous
@@ -71,7 +71,7 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
         This function returns an iterator and two tuples of iterators:
         :obj:`imgs`, :obj:`pred_values` and :obj:`gt_values`.
 
-        * :obj:`imgs`: An iterator which returns an image.
+        * :obj:`imgs`: An iterator that returns an image.
         * :obj:`pred_values`: A tuple of iterators. Each iterator \
             returns a corresponding predicted value. \
             For example, if :func:`predict` returns \
