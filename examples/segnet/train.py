@@ -98,7 +98,7 @@ def main():
         trigger=end_trigger))
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', 'elapsed_time', 'lr',
-         'main/loss']),
+         'main/loss', 'validation/main/loss']),
         trigger=log_trigger)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
