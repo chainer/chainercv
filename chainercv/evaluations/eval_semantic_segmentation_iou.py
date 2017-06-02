@@ -45,15 +45,15 @@ def calc_semantic_segmentation_confusion(pred_labels, gt_labels):
         # Dynamically expand the confusion matrix if necessary.
         lb_max = np.max((pred_label, gt_label))
         if lb_max >= n_class:
-            expanded_confusion = np.zeros
-            expanded_confusion = np.zeros((lb_max + 1, lb_max + 1))
+            expanded_confusion = np.zeros(
+                (lb_max + 1, lb_max + 1), dtype=np.int64)
             expanded_confusion[0:n_class, 0:n_class] = confusion
 
             n_class = lb_max + 1
             confusion = expanded_confusion
 
         # Count statistics from valid pixels.
-        mask = (gt_label >= 0) & (gt_label < n_class)
+        mask = gt_label >= 0
         confusion += np.bincount(
             n_class * gt_label[mask].astype(int) +
             pred_label[mask], minlength=n_class**2).reshape(n_class, n_class)
