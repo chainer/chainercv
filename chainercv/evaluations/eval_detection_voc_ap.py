@@ -77,7 +77,7 @@ def eval_detection_voc_ap(
         gt_bboxes, gt_labels, gt_difficults,
         iou_thresh=iou_thresh)
 
-    ap = calc_detection_voc_ap(prec, rec)
+    ap = calc_detection_voc_ap(prec, rec, use_07_metric=use_07_metric)
 
     return ap
 
