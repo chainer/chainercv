@@ -8,7 +8,7 @@ from chainercv.evaluations import eval_detection_voc_ap
 from chainercv.utils import apply_prediction_to_iterator
 
 
-class DetectionVOCAPEvaluator(chainer.training.extensions.Evaluator):
+class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
 
     """An extension that evaluates a detection model by PASCAL VOC metric.
 
@@ -42,7 +42,7 @@ class DetectionVOCAPEvaluator(chainer.training.extensions.Evaluator):
 
     def __init__(
             self, iterator, target, use_07_metric=False, label_names=None):
-        super(DetectionVOCAPEvaluator, self).__init__(
+        super(DetectionVOCEvaluator, self).__init__(
             iterator, target)
         self.use_07_metric = use_07_metric
         self.label_names = label_names
