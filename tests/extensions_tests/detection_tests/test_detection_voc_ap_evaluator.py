@@ -74,9 +74,9 @@ class TestDetectionVOCAPEvaluator(unittest.TestCase):
         mean = self.evaluator()
         # name is used as a prefix
         self.assertEqual(mean['eval/main/map'], self.expected_ap)
-        self.assertNotIn('eval/ap/cls0', mean)
-        self.assertEqual(mean['eval/ap/cls1'], self.expected_ap)
-        self.assertNotIn('eval/ap/cls2', mean)
+        self.assertNotIn('eval/main/ap/cls0', mean)
+        self.assertEqual(mean['eval/main/ap/cls1'], self.expected_ap)
+        self.assertNotIn('eval/main/ap/cls2', mean)
 
     def test_current_report(self):
         reporter = chainer.Reporter()
