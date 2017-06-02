@@ -7,8 +7,9 @@ import six
 def calc_semantic_segmentation_confusion(pred_labels, gt_labels):
     """Collect a confusion matrix.
 
-    The number of classes :math:`n\_class` is computed as the maximum
-    class id among :obj:`pred_labels` and :obj:`gt_labels`.
+    The number of classes :math:`n\_class` is
+    :math:`max(pred\_labels, gt\_labels) + 1`, which is
+    the maximum class id of the inputs added by one.
 
     Args:
         pred_labels (iterable of numpy.ndarray): A collection of predicted
@@ -16,8 +17,8 @@ def calc_semantic_segmentation_confusion(pred_labels, gt_labels):
             is :math:`(H, W)`. :math:`H` and :math:`W`
             are height and width of the label.
         gt_labels (iterable of numpy.ndarray): A collection of ground
-            truth label. The shape of a ground truth label array is
-            :math:`(H, W)`. The corresponding prediction label should
+            truth labels. The shape of a ground truth label array is
+            :math:`(H, W)`, and its corresponding prediction label should
             have the same shape.
             A pixel with value :obj:`-1` will be ignored during evaluation.
 
@@ -115,11 +116,12 @@ def eval_semantic_segmentation_iou(pred_labels, gt_labels):
 
     mIoU can be computed by taking :obj:`numpy.nanmean` of the IoUs returned
     by this function.
-    The more detailed descriptions of the above metric can be found in a
+    The more detailed description of the above metric can be found in a
     review on semantic segmentation [#]_.
 
-    The number of classes :math:`n\_class` is computed as the maximum
-    class id among :obj:`pred_labels` and :obj:`gt_labels`.
+    The number of classes :math:`n\_class` is
+    :math:`max(pred\_labels, gt\_labels) + 1`, which is
+    the maximum class id of the inputs added by one.
 
     .. [#] Alberto Garcia-Garcia, Sergio Orts-Escolano, Sergiu Oprea, \
     Victor Villena-Martinez, Jose Garcia-Rodriguez. \
@@ -136,7 +138,7 @@ def eval_semantic_segmentation_iou(pred_labels, gt_labels):
             :obj:`label_i.shape = (H_i, W_i)`.
         gt_labels (iterable of numpy.ndarray): A collection of ground
             truth labels. The shape of a ground truth label array is
-            :math:`(H, W)`. The corresponding prediction label should
+            :math:`(H, W)`, and its corresponding prediction label should
             have the same shape.
             A pixel with value :obj:`-1` will be ignored during evaluation.
 
