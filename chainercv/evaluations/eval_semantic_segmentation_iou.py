@@ -5,7 +5,7 @@ import six
 
 
 def calc_semantic_segmentation_confusion(pred_labels, gt_labels):
-    """Collect confusion matrix.
+    """Collect a confusion matrix.
 
     The number of classes :math:`n\_class` is computed as the maximum
     class id among :obj:`pred_labels` and :obj:`gt_labels`.
@@ -66,7 +66,7 @@ def calc_semantic_segmentation_confusion(pred_labels, gt_labels):
 
 
 def calc_semantic_segmentation_iou(confusion):
-    """Calculate Intersection over Union with given confusion matrix.
+    """Calculate Intersection over Union with a given confusion matrix.
 
     The definition of Intersection over Union (IoU) is as follows,
     where :math:`N_{ij}` is the number of pixels
