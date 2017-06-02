@@ -12,28 +12,22 @@ def eval_detection_voc_ap(
         pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
         gt_difficults=None,
         iou_thresh=0.5, use_07_metric=False):
-    """Calculate detection metrics based on evaluation code of PASCAL VOC.
+    """Calculate average precision based on evaluation code of PASCAL VOC.
 
-    This function evaluates recall, precison and average precision with
-    respect to a class as well as mean average precision.
-    This evaluates predicted bounding boxes obtained from a dataset which
-    has :math:`N` images.
-
-    Mean average precision is calculated by taking a mean of average
-    precisions for all classes which have at least one bounding box
-    assigned by the predictions or the ground truth labels.
+    This function evaluates predicted bounding boxes obtained from a dataset
+    which has :math:`N` images by using average precision for each class.
     The code is based on the evaluation code used in PASCAL VOC Challenge.
 
     Args:
         pred_bboxes (iterable of numpy.ndarray): An iterable of :math:`N`
-            bounding boxes.
+            sets of bounding boxes.
             Its index corresponds to an index for the base dataset.
             Each element of :obj:`pred_bboxes` is a set of coordinates
             of bounding boxes. This is an array whose shape is :math:`(R, 4)`,
             where :math:`R` corresponds
             to the number of bounding boxes, which may vary among boxes.
             The second axis corresponds to :obj:`x_min, y_min, x_max, y_max`
-            of a box.
+            of a bounding box.
         pred_labels (iterable of numpy.ndarray): An iterable of labels.
             Similar to :obj:`pred_bboxes`, its index corresponds to an
             index for the base dataset. Its length is :math:`N`.
@@ -86,28 +80,23 @@ def calc_detection_voc_prec_rec(
         pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
         gt_difficults=None,
         iou_thresh=0.5):
-    """Calculate detection metrics based on evaluation code of PASCAL VOC.
+    """Calculate precision and recall based on evaluation code of PASCAL VOC.
 
-    This function evaluates recall, precison and average precision with
-    respect to a class as well as mean average precision.
-    This evaluates predicted bounding boxes obtained from a dataset which
-    has :math:`N` images.
-
-    Mean average precision is calculated by taking a mean of average
-    precisions for all classes which have at least one bounding box
-    assigned by the predictions or the ground truth labels.
+    This function calculates precision and recall of
+    predicted bounding boxes obtained from a dataset which has :math:`N`
+    images.
     The code is based on the evaluation code used in PASCAL VOC Challenge.
 
     Args:
         pred_bboxes (iterable of numpy.ndarray): An iterable of :math:`N`
-            bounding boxes.
+            sets of bounding boxes.
             Its index corresponds to an index for the base dataset.
             Each element of :obj:`pred_bboxes` is a set of coordinates
             of bounding boxes. This is an array whose shape is :math:`(R, 4)`,
             where :math:`R` corresponds
             to the number of bounding boxes, which may vary among boxes.
             The second axis corresponds to :obj:`x_min, y_min, x_max, y_max`
-            of a box.
+            of a bounding box.
         pred_labels (iterable of numpy.ndarray): An iterable of labels.
             Similar to :obj:`pred_bboxes`, its index corresponds to an
             index for the base dataset. Its length is :math:`N`.
@@ -130,24 +119,24 @@ def calc_detection_voc_prec_rec(
             By default, this is :obj:`None`. In that case, this function
             considers all bounding boxes to be not difficult.
         iou_thresh (float): A prediction is correct if its Intersection over
-            Union with the ground truth is above this value.
-        use_07_metric (bool): Whether to use PASCAL VOC 2007 evaluation metric
-            for calculating average precision. The default value is
-            :obj:`False`.
+            Union with the ground truth is above this value..
 
     Returns:
-        dict:
+        tuple of two lists:
 
-        This function returns a dictionary whose contents are listed
-        below with key, value-type and the description of the value.
+        This function returns two lists: :obj:`prec` and :obj:`rec`.
 
-        * **map** (*float*): Mean Average Prediction.
-        * **i (an integer corresponding to class id)** (*dict*): This is a \
-            dictionary whose keys are :obj:`precision, recall, ap`, which \
-            map to precision, recall and average precision with respect \
-            to the class id **i**.
+        * :obj:`prec`: A list of arrays. :obj:`prec[l]` indicates precision \
+            for class :math:`l`. If class :math:`l` does not exist in \
+            either :obj:`pred_labels` or :obj:`gt_labels`, :obj:`prec[l]` is \
+            set to :obj:`None`.
+        * :obj:`rec`: A list of arrays. :obj:`rec[l]` indicates recall \
+            for class :math:`l`. If class :math:`l` does not exist in \
+            either :obj:`pred_labels` or :obj:`gt_labels`, :obj:`rec[l]` is \
+            set to :obj:`None`.
 
     """
+
     pred_bboxes = iter(pred_bboxes)
     pred_labels = iter(pred_labels)
     pred_scores = iter(pred_scores)
@@ -245,6 +234,34 @@ def calc_detection_voc_prec_rec(
 
 
 def calc_detection_voc_ap(prec, rec, use_07_metric=False):
+    """Calculate average precision based on evaluation code of PASCAL VOC.
+
+    This function calculates average precision from given precision and recall.
+    The code is based on the evaluation code used in PASCAL VOC Challenge.
+
+    Args:
+        prec (list of numpy.array): A list of arrays.
+            :obj:`prec[l]` indicates precision for class :math:`l`.
+            If class :math:`l` is invalid, :obj:`prec[l]` is
+            set to :obj:`None`.
+        rec (list of numpy.array): A list of arrays.
+            :obj:`rec[l]` indicates recall for class :math:`l`.
+            If class :math:`l` is invalid, :obj:`rec[l]` is
+            set to :obj:`None`.
+        use_07_metric (bool): Whether to use PASCAL VOC 2007 evaluation metric
+            for calculating average precision. The default value is
+            :obj:`False`.
+
+    Returns:
+        list:
+
+        This function returns a list of average precisions.
+        The :math:`l`-th value corresponds to the average precision
+        for class :math:`l`. If :obj:`prec[l]` or :obj:`rec[l]` is
+        :obj:`None`, the corresponding value is set to :obj:`None`.
+
+    """
+
     ap = list()
     for prec_l, rec_l in six.moves.zip(prec, rec):
         if prec_l is None or rec_l is None:
