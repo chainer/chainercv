@@ -78,7 +78,8 @@ class DetectionVOCAPEvaluator(chainer.training.extensions.Evaluator):
         report = {'map': map_}
         if self.label_names is not None:
             for l, label_name in enumerate(self.label_names):
-                report['ap/{:s}'.format(label_name)] = ap[l]
+                if ap[l] is not None:
+                    report['ap/{:s}'.format(label_name)] = ap[l]
 
         observation = {}
         with reporter.report_scope(observation):
