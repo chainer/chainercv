@@ -29,6 +29,9 @@ class DetectionVOCAPEvaluator(chainer.training.extensions.Evaluator):
         use_07_metric (bool): Whether to use PASCAL VOC 2007 evaluation metric
             for calculating average precision. The default value is
             :obj:`False`.
+        label_names (iterable of strings): An iterable of names of classes.
+            If this value is specified, average precision for each class is
+            also reported with the key :obj:`'ap/<label_names>'`.
 
     """
 
@@ -36,10 +39,12 @@ class DetectionVOCAPEvaluator(chainer.training.extensions.Evaluator):
     default_name = 'validation'
     priority = chainer.training.PRIORITY_WRITER
 
-    def __init__(self, iterator, target, use_07_metric=False):
+    def __init__(
+            self, iterator, target, use_07_metric=False, label_names=None):
         super(DetectionVOCAPEvaluator, self).__init__(
             iterator, target)
         self.use_07_metric = use_07_metric
+        self.label_names = label_names
 
     def evaluate(self):
         iterator = self._iterators['main']
@@ -70,7 +75,12 @@ class DetectionVOCAPEvaluator(chainer.training.extensions.Evaluator):
             use_07_metric=self.use_07_metric)
         map_ = sum(ap_l for ap_l in ap if ap is not None)
 
+        report = {'map': map_}
+        if self.label_names is not None:
+            for l, label_name in enumerate(self.label_names):
+                report['ap/{:s}'.format(label_name)] = ap[l]
+
         observation = {}
         with reporter.report_scope(observation):
-            reporter.report({'map': map_}, target)
+            reporter.report(report, target)
         return observation
