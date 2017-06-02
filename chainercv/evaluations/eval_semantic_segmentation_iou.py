@@ -4,8 +4,11 @@ import numpy as np
 import six
 
 
-def calc_semantic_segmentation_confusion(pred_labels, gt_labels, n_class):
+def calc_semantic_segmentation_confusion(pred_labels, gt_labels):
     """Collect confusion matrix.
+
+    The number of classes :math:`n\_class` is computed as the maximum
+    class id among :obj:`pred_labels` and :obj:`gt_labels`.
 
     Args:
         pred_labels (iterable of numpy.ndarray): A collection of predicted
@@ -17,7 +20,6 @@ def calc_semantic_segmentation_confusion(pred_labels, gt_labels, n_class):
             :math:`(H, W)`. The corresponding prediction label should
             have the same shape.
             A pixel with value :obj:`-1` will be ignored during evaluation.
-        n_class (int): The number of classes.
 
     Returns:
         numpy.ndarray:
@@ -30,15 +32,27 @@ def calc_semantic_segmentation_confusion(pred_labels, gt_labels, n_class):
     pred_labels = iter(pred_labels)
     gt_labels = iter(gt_labels)
 
+    n_class = 0
     confusion = np.zeros((n_class, n_class), dtype=np.int64)
     for pred_label, gt_label in six.moves.zip(pred_labels, gt_labels):
         if pred_label.ndim != 2 or gt_label.ndim != 2:
             raise ValueError('ndim of inputs should be two.')
         if pred_label.shape != gt_label.shape:
             raise ValueError('Shapes of inputs should be same.')
-
         pred_label = pred_label.flatten()
         gt_label = gt_label.flatten()
+
+        # Dynamically expand the confusion matrix if necessary.
+        lb_max = np.max((pred_label, gt_label))
+        if lb_max >= n_class:
+            expanded_confusion = np.zeros
+            expanded_confusion = np.zeros((lb_max + 1, lb_max + 1))
+            expanded_confusion[0:n_class, 0:n_class] = confusion
+
+            n_class = lb_max + 1
+            confusion = expanded_confusion
+
+        # Count statistics from valid pixels.
         mask = (gt_label >= 0) & (gt_label < n_class)
         confusion += np.bincount(
             n_class * gt_label[mask].astype(int) +
@@ -81,7 +95,7 @@ def calc_semantic_segmentation_iou(confusion):
     return iou
 
 
-def eval_semantic_segmentation_iou(pred_labels, gt_labels, n_class):
+def eval_semantic_segmentation_iou(pred_labels, gt_labels):
     """Evaluate Intersection over Union from labels.
 
     This function calculates Intersection over Union (IoU)
@@ -104,6 +118,9 @@ def eval_semantic_segmentation_iou(pred_labels, gt_labels, n_class):
     The more detailed descriptions of the above metric can be found in a
     review on semantic segmentation [#]_.
 
+    The number of classes :math:`n\_class` is computed as the maximum
+    class id among :obj:`pred_labels` and :obj:`gt_labels`.
+
     .. [#] Alberto Garcia-Garcia, Sergio Orts-Escolano, Sergiu Oprea, \
     Victor Villena-Martinez, Jose Garcia-Rodriguez. \
     `A Review on Deep Learning Techniques Applied to Semantic Segmentation \
@@ -122,7 +139,6 @@ def eval_semantic_segmentation_iou(pred_labels, gt_labels, n_class):
             :math:`(H, W)`. The corresponding prediction label should
             have the same shape.
             A pixel with value :obj:`-1` will be ignored during evaluation.
-        n_class (int): The number of classes.
 
     Returns:
         numpy.ndarray:
@@ -134,6 +150,6 @@ def eval_semantic_segmentation_iou(pred_labels, gt_labels, n_class):
     # https://github.com/shelhamer/fcn.berkeleyvision.org/blob/master/
     # score.py#L37
     confusion = calc_semantic_segmentation_confusion(
-        pred_labels, gt_labels, n_class)
+        pred_labels, gt_labels)
     iou = calc_semantic_segmentation_iou(confusion)
     return iou
