@@ -73,7 +73,7 @@ class DetectionVOCAPEvaluator(chainer.training.extensions.Evaluator):
             pred_bboxes, pred_labels, pred_scores,
             gt_bboxes, gt_labels, gt_difficults,
             use_07_metric=self.use_07_metric)
-        map_ = sum(ap_l for ap_l in ap if ap is not None)
+        map_ = sum(ap_l for ap_l in ap if ap_l is not None)
 
         report = {'map': map_}
         if self.label_names is not None:
