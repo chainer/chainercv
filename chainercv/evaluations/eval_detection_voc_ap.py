@@ -247,7 +247,7 @@ def calc_detection_voc_prec_rec(
 def calc_detection_voc_ap(prec, rec, use_07_metric=False):
     ap = list()
     for prec_l, rec_l in six.moves.zip(prec, rec):
-        if prec is None or rec is None:
+        if prec_l is None or rec_l is None:
             ap.append(None)
             continue
 
@@ -255,16 +255,16 @@ def calc_detection_voc_ap(prec, rec, use_07_metric=False):
             # 11 point metric
             ap_l = 0
             for t in np.arange(0., 1.1, 0.1):
-                if np.sum(rec >= t) == 0:
+                if np.sum(rec_l >= t) == 0:
                     p = 0
                 else:
-                    p = np.max(prec[rec >= t])
+                    p = np.max(prec_l[rec_l >= t])
                 ap_l += p / 11
         else:
             # correct AP calculation
             # first append sentinel values at the end
-            mrec = np.concatenate(([0.], rec, [1.]))
-            mpre = np.concatenate(([0.], prec, [0.]))
+            mrec = np.concatenate(([0.], rec_l, [1.]))
+            mpre = np.concatenate(([0.], prec_l, [0.]))
 
             mpre = np.maximum.accumulate(mpre[::-1])[::-1]
 
