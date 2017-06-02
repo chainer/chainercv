@@ -81,7 +81,7 @@ def main():
         pred_bboxes, pred_labels, pred_scores,
         gt_bboxes, gt_labels, gt_difficults,
         use_07_metric=True)
-    map_ = sum(ap_l for ap_l in ap if ap is not None)
+    map_ = sum(ap_l for ap_l in ap if ap_l is not None)
 
     print()
     print('mAP: {:f}'.format(map_))
