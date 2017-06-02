@@ -1,3 +1,5 @@
+from __future__ import division
+
 import numpy as np
 import os
 from six.moves.urllib import request
@@ -5,107 +7,185 @@ import unittest
 
 from chainer import testing
 
+from chainercv.evaluations import calc_detection_voc_ap
+from chainercv.evaluations import calc_detection_voc_prec_rec
 from chainercv.evaluations import eval_detection_voc_ap
 
 
-@testing.parameterize(
-    {'iou_thresh': 0.5,
-     'rec': np.array([0., 0., 1.]),
-     'prec': np.array([0., 0., 1. / 3.])},
-    {'iou_thresh': 0.97,
-     'rec': np.array([0., 0., 0.]),
-     'prec': np.array([0., 0., 0.])}
-)
-class TestEvalDetectionVOCOneBbox(unittest.TestCase):
+@testing.parameterize(*(
+    testing.product_dict(
+        [{
+            'pred_bboxes': [
+                [[0, 0, 1, 1], [0, 0, 2, 2], [0.3, 0.3, 0.5, 0.5]],
+            ],
+            'pred_labels': [
+                [0, 0, 0],
+            ],
+            'pred_scores': [
+                [0.8, 0.9, 1],
+            ],
+            'gt_bboxes': [
+                [[0, 0, 1, 0.9]],
+            ],
+            'gt_labels': [
+                [0],
+            ],
+        }],
+        [
+            {
+                'iou_thresh': 0.5,
+                'prec': [
+                    [0, 0, 1 / 3],
+                ],
+                'rec': [
+                    [0, 0, 1],
+                ],
+            },
+            {
+                'iou_thresh': 0.97,
+                'prec': [
+                    [0, 0, 0],
+                ],
+                'rec': [
+                    [0, 0, 0],
+                ],
+            },
+        ]
+    ) +
+    [
+        {
+            'pred_bboxes': [
+                [[0, 4, 1, 5], [0, 0, 1, 1]],
+                [[0, 0, 2, 2], [2, 2, 3, 3], [5, 5, 7, 7]],
+            ],
+            'pred_labels': [
+                [0, 0],
+                [0, 2, 2],
+            ],
+            'pred_scores': [
+                [1, 0.9],
+                [0.7, 0.6, 0.8],
+            ],
+            'gt_bboxes': [
+                [[0, 0, 1, 1], [1, 0, 4, 4]],
+                [[2, 2, 3, 3]],
+            ],
+            'gt_labels': [
+                [0, 0],
+                [2],
+            ],
+            'iou_thresh': 0.4,
+            'prec': [
+                [0, 0.5, 1 / 3],
+                None,
+                [0, 0.5],
+            ],
+            'rec': [
+                [0, 0.5, 0.5],
+                None,
+                [0, 1],
+            ],
+        },
+        {
+            'pred_bboxes': [
+                [[0, 0, 1, 1], [0, 0, 2, 2], [0.3, 0.3, 0.5, 0.5]],
+            ],
+            'pred_labels': [
+                [0, 0, 0],
+            ],
+            'pred_scores': [
+                [0.8, 0.9, 1],
+            ],
+            'gt_bboxes': [
+                [[0, 0, 1, 0.9], [1., 1., 2., 2.]],
+            ],
+            'gt_labels': [
+                [0, 0],
+            ],
+            'gt_difficults': [
+                [False, True],
+            ],
+            'iou_thresh': 0.5,
+            'prec': [
+                [0, 0, 1 / 3],
+            ],
+            'rec': [
+                [0, 0, 1],
+            ],
+        },
 
-    def test_eval_detection_voc_one_bbox(self):
-        pred_bboxes = iter([np.array([
-            [0., 0., 1., 1.], [0., 0., 2., 2.], [0.3, 0.3, 0.5, 0.5]])])
-        pred_labels = iter([np.array([0, 0, 0])])
-        pred_scores = iter([np.array([0.8, 0.9, 1.])])
-        gt_bboxes = iter([np.array([[0., 0., 1., 0.9]])])
-        gt_labels = iter([np.array([0])])
-        # iou is [0.95, 0.422, 0.3789]
+    ]
+))
+class TestCalcDetectionVOCPrecRec(unittest.TestCase):
 
-        results = eval_detection_voc_ap(
-            pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
+    def setUp(self):
+        self.pred_bboxes = (np.array(bbox) for bbox in self.pred_bboxes)
+        self.pred_labels = (np.array(label) for label in self.pred_labels)
+        self.pred_scores = (np.array(score) for score in self.pred_scores)
+        self.gt_bboxes = (np.array(bbox) for bbox in self.gt_bboxes)
+        self.gt_labels = (np.array(label) for label in self.gt_labels)
+
+        if hasattr(self, 'gt_difficults'):
+            self.gt_difficults = (
+                np.array(difficult) for difficult in self.gt_difficults)
+        else:
+            self.gt_difficults = None
+
+    def test_calc_detection_voc_prec_rec(self):
+        prec, rec = calc_detection_voc_prec_rec(
+            self.pred_bboxes, self.pred_labels, self.pred_scores,
+            self.gt_bboxes, self.gt_labels, self.gt_difficults,
             iou_thresh=self.iou_thresh)
-        np.testing.assert_equal(results[0]['recall'], self.rec)
-        np.testing.assert_equal(results[0]['precision'], self.prec)
+
+        self.assertEqual(len(prec), len(self.prec))
+        for prec_l, expected_prec_l in zip(prec, self.prec):
+            if prec_l is None and expected_prec_l is None:
+                continue
+            np.testing.assert_equal(prec_l, expected_prec_l)
+
+        self.assertEqual(len(rec), len(self.rec))
+        for rec_l, expected_rec_l in zip(rec, self.rec):
+            if rec_l is None and expected_rec_l is None:
+                continue
+            np.testing.assert_equal(rec_l, expected_rec_l)
 
 
 @testing.parameterize(
     {'use_07_metric': False,
-     'ap0': 0.25,
-     'ap1': 0.5},
+     'ap': [0.25, None, 0.5]},
     {'use_07_metric': True,
-     'ap0': 0.5 / 11. * 6,
-     'ap1': 0.5},
+     'ap': [0.5 / 11 * 6, None, 0.5]},
 )
-class TestEvalDetectionVOCMultipleBboxes(unittest.TestCase):
+class TestCalcDetectionVOCAP(unittest.TestCase):
 
-    iou_thresh = 0.4
-    rec0 = np.array([0.0, 0.5, 0.5])
-    prec0 = np.array([0., 0.5, 1. / 3.])
-    rec1 = np.array([0., 1.])
-    prec1 = np.array([0., 0.5])
+    prec = [[0, 0.5, 1 / 3], None, [0, 0.5]]
+    rec = [[0, 0.5, 0.5], None, [0, 1]]
 
-    def test_eval_detection_voc(self):
-        pred_bboxes = iter([
-            np.array([[0., 4., 1., 5.], [0., 0., 1., 1.]]),
-            np.array([[0., 0., 2., 2.], [2., 2., 3., 3.], [5., 5., 7., 7.]])
-        ])
-        pred_labels = iter([np.array([0, 0]), np.array([0, 1, 1])])
-        pred_scores = iter([np.array([1., 0.9]), np.array([0.7, 0.6, 0.8])])
-        gt_bboxes = iter([
-            np.array([[0., 0., 1., 1.], [1., 0., 4., 4.]]),
-            np.array([[2., 2., 3., 3.]])
-        ])
-        gt_labels = iter([np.array([0, 0]), np.array([1])])
+    def setUp(self):
+        self.prec = [
+            np.array(prec_l) if prec_l is not None else None
+            for prec_l in self.prec]
+        self.rec = [
+            np.array(rec_l) if rec_l is not None else None
+            for rec_l in self.rec]
 
-        results = eval_detection_voc_ap(
-            pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
-            iou_thresh=self.iou_thresh,
-            use_07_metric=self.use_07_metric)
-        np.testing.assert_equal(results[0]['recall'], self.rec0)
-        np.testing.assert_equal(results[0]['precision'], self.prec0)
-        np.testing.assert_almost_equal(results[0]['ap'], self.ap0)
-        np.testing.assert_equal(results[1]['recall'], self.rec1)
-        np.testing.assert_equal(results[1]['precision'], self.prec1)
-        np.testing.assert_almost_equal(results[1]['ap'], self.ap1)
-        np.testing.assert_almost_equal(
-            results['map'], (self.ap0 + self.ap1) / 2)
+    def test_calc_detection_voc_ap(self):
+        ap = calc_detection_voc_ap(
+            self.prec, self.rec, use_07_metric=self.use_07_metric)
+
+        self.assertEqual(len(ap), len(self.ap))
+        for ap_l, expected_ap_l in zip(ap, self.ap):
+            if ap_l is None and expected_ap_l is None:
+                continue
+            self.assertAlmostEqual(ap_l, expected_ap_l)
 
 
-class TestEvalDetectionVOCDifficults(unittest.TestCase):
-
-    iou_thresh = 0.5
-    rec = np.array([0., 0., 1.])
-    prec = np.array([0., 0., 1. / 3.])
-
-    def test_eval_detection_voc_difficult(self):
-        pred_bboxes = iter([np.array([
-            [0., 0., 1., 1.], [0., 0., 2., 2.], [0.3, 0.3, 0.5, 0.5]])])
-        pred_labels = iter([np.array([0, 0, 0])])
-        pred_scores = iter([np.array([0.8, 0.9, 1.])])
-        gt_bboxes = iter([np.array([[0., 0., 1., 0.9], [1., 1., 2., 2.]])])
-        gt_labels = iter([np.array([0, 0])])
-        gt_difficults = iter([np.array([False, True])])
-        # iou is [0.95, 0.422, 0.3789] and [0.142, 0.444, 0.048]
-
-        results = eval_detection_voc_ap(
-            pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
-            gt_difficults=gt_difficults, iou_thresh=self.iou_thresh)
-        np.testing.assert_equal(results[0]['recall'], self.rec)
-        np.testing.assert_equal(results[0]['precision'], self.prec)
-
-
-class TestEvalDetectionVOCConsistencyWithMATLAB(unittest.TestCase):
+class TestEvalDetectionVOCAP(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         base_url = 'https://github.com/yuyu2172/' \
-                   'share-weights/releases/download/0.0.2'
+            'share-weights/releases/download/0.0.2'
 
         cls.dataset = np.load(request.urlretrieve(os.path.join(
             base_url,
@@ -114,7 +194,7 @@ class TestEvalDetectionVOCConsistencyWithMATLAB(unittest.TestCase):
             base_url,
             'voc_detection_result_2007_test_truncated_2017_06_02.npz'))[0])
 
-    def test_eval_detection_voc_consistency_with_matlab(self):
+    def test_eval_detection_voc_ap(self):
         pred_bboxes = self.result['bboxes']
         pred_labels = self.result['labels']
         pred_scores = self.result['scores']
@@ -123,7 +203,7 @@ class TestEvalDetectionVOCConsistencyWithMATLAB(unittest.TestCase):
         gt_labels = self.dataset['labels']
         gt_difficults = self.dataset['difficults']
 
-        eval_ = eval_detection_voc_ap(
+        ap = eval_detection_voc_ap(
             pred_bboxes, pred_labels, pred_scores,
             gt_bboxes, gt_labels, gt_difficults,
             use_07_metric=True)
@@ -152,5 +232,4 @@ class TestEvalDetectionVOCConsistencyWithMATLAB(unittest.TestCase):
             0.654545,
         ]
 
-        np.testing.assert_almost_equal(
-            [eval_[l]['ap'] for l in range(20)], expected, decimal=5)
+        np.testing.assert_almost_equal(ap, expected, decimal=5)
