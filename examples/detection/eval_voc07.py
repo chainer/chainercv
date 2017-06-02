@@ -44,17 +44,23 @@ def main():
 
     if args.model == 'faster_rcnn':
         if args.pretrained_model:
-            model = FasterRCNNVGG16(pretrained_model=args.pretrained_model)
+            model = FasterRCNNVGG16(
+                n_fg_class=20,
+                pretrained_model=args.pretrained_model)
         else:
             model = FasterRCNNVGG16(pretrained_model='voc07')
     elif args.model == 'ssd300':
         if args.pretrained_model:
-            model = SSD300(pretrained_model=args.pretrained_model)
+            model = SSD300(
+                n_fg_class=20,
+                pretrained_model=args.pretrained_model)
         else:
             model = SSD300(pretrained_model='voc0712')
     elif args.model == 'ssd512':
         if args.pretrained_model:
-            model = SSD512(pretrained_model=args.pretrained_model)
+            model = SSD512(
+                n_fg_class=20,
+                pretrained_model=args.pretrained_model)
         else:
             model = SSD512(pretrained_model='voc0712')
 

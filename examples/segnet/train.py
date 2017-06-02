@@ -92,20 +92,13 @@ def main():
         trainer.extend(extensions.PlotReport(
             ['main/loss', 'validation/main/loss'], x_key='iteration',
             file_name='loss.png'))
-        trainer.extend(extensions.PlotReport(
-            ['main/mean_iou', 'validation/main/mean_iou'], x_key='iteration',
-            file_name='mean_iou.png'))
-        trainer.extend(extensions.PlotReport(
-            ['main/mean_accuracy', 'validation/main/mean_accuracy'],
-            x_key='iteration', file_name='mean_accuracy.png'))
-        trainer.extend(extensions.snapshot_object(
-            model.predictor, filename='model_iteration-{.updater.iteration}',
-            trigger=end_trigger))
+
+    trainer.extend(extensions.snapshot_object(
+        model.predictor, filename='model_iteration-{.updater.iteration}',
+        trigger=end_trigger))
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', 'elapsed_time', 'lr',
-         'main/loss', 'main/mean_iou', 'main/mean_accuracy',
-         'validation/main/loss',
-         'validation/main/mean_iou', 'validation/main/mean_accuracy']),
+         'main/loss', 'validation/main/loss']),
         trigger=log_trigger)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
