@@ -6,7 +6,7 @@ from chainer.datasets import TupleDataset
 from chainer.iterators import SerialIterator
 from chainer import testing
 
-from chainercv.extensions import DetectionVOCEvaluator
+from chainercv.extensions import DetectionVOCAPEvaluator
 from chainercv.utils import generate_random_bbox
 
 
@@ -29,7 +29,7 @@ class _DetectionStubLink(chainer.Link):
         return bboxes, labels, scores
 
 
-class TestDetectionVOCEvaluator(unittest.TestCase):
+class TestDetectionVOCAPEvaluator(unittest.TestCase):
 
     def setUp(self):
         bboxes = [generate_random_bbox(5, (256, 324), 24, 120)
@@ -42,7 +42,7 @@ class TestDetectionVOCEvaluator(unittest.TestCase):
         self.link = _DetectionStubLink(bboxes, labels)
         self.iterator = SerialIterator(
             self.dataset, 5, repeat=False, shuffle=False)
-        self.evaluator = DetectionVOCEvaluator(self.iterator, self.link)
+        self.evaluator = DetectionVOCAPEvaluator(self.iterator, self.link)
         self.expect_map = 1
 
     def test_evaluate(self):

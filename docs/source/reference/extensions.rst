@@ -11,6 +11,6 @@ DetectionVisReport
 ~~~~~~~~~~~~~~~~~~
 .. autofunction:: DetectionVisReport
 
-DetectionVOCEvaluator
-~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: DetectionVOCEvaluator
+DetectionVOCAPEvaluator
+~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: DetectionVOCAPEvaluator
