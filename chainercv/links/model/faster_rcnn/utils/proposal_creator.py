@@ -82,7 +82,7 @@ class ProposalCreator(object):
                 Its shape is :math:`(R,)`.
             anchor (array): Coordinates of anchors. Its shape is
                 :math:`(R, 4)`.
-            img_size (tuple of ints): A tuple :obj:`width, height`,
+            img_size (tuple of ints): A tuple :obj:`height, width`,
                 which contains image size after scaling.
             scale (float): The scaling factor used to scale an image after
                 reading it from a file.
@@ -112,9 +112,9 @@ class ProposalCreator(object):
 
         # Clip predicted boxes to image.
         roi[:, slice(0, 4, 2)] = np.clip(
-            roi[:, slice(0, 4, 2)], 0, img_size[0])
+            roi[:, slice(0, 4, 2)], 0, img_size[1])
         roi[:, slice(1, 4, 2)] = np.clip(
-            roi[:, slice(1, 4, 2)], 0, img_size[1])
+            roi[:, slice(1, 4, 2)], 0, img_size[0])
 
         # Remove predicted boxes with either height or width < threshold.
         min_size = self.min_size * scale

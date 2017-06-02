@@ -80,7 +80,7 @@ class RegionProposalNetwork(chainer.Chain):
         Args:
             x (~chainer.Variable): The Features extracted from images.
                 Its shape is :math:`(N, C, H, W)`.
-            img_size (tuple of ints): A tuple :obj:`width, height`,
+            img_size (tuple of ints): A tuple :obj:`height, width`,
                 which contains image size after scaling.
             scale (float): The amount of scaling done to the input images after
                 reading them from files.

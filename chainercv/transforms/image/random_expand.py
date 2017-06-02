@@ -6,7 +6,7 @@ def random_expand(img, max_ratio=4, fill=0, return_param=False):
     """Expand an image randomly.
 
     This method randomly place the input image on a larger canvas. The size of
-    the canvas is :math:`(rW, rH)`, where :math:`(W, H)` is the size of the
+    the canvas is :math:`(rH, rW)`, where :math:`(H, W)` is the size of the
     input image and :math:`r` is a random ratio drawn from
     :math:`[1, max\_ratio]`. The canvas is filled by a value :obj:`fill`
     except for the region where the original image is placed.
