@@ -108,9 +108,11 @@ class TestEvalDetectionVOCConsistencyWithMATLAB(unittest.TestCase):
                    'share-weights/releases/download/0.0.2'
 
         cls.dataset = np.load(request.urlretrieve(os.path.join(
-            base_url, 'example_detection_dataset_2017_06_01.npz'))[0])
+            base_url,
+            'voc_detection_dataset_2007_test_truncated_2017_06_02.npz'))[0])
         cls.result = np.load(request.urlretrieve(os.path.join(
-            base_url, 'example_detection_result_2017_06_01.npz'))[0])
+            base_url,
+            'voc_detection_result_2007_test_truncated_2017_06_02.npz'))[0])
 
     def test_eval_detection_voc_consistency_with_matlab(self):
         pred_bboxes = self.result['bboxes']
