@@ -20,10 +20,8 @@ class DummySemanticSegmentationModel(chainer.Chain):
 
 
 @testing.parameterize(
-    {'n_class': 11, 'compute_accuracy': True, 'ignore_label': -1,
-     'class_weight': True},
-    {'n_class': 11, 'compute_accuracy': False, 'ignore_label': 11,
-     'class_weight': None},
+    {'n_class': 11, 'ignore_label': -1, 'class_weight': True},
+    {'n_class': 11, 'ignore_label': 11, 'class_weight': None},
 )
 class TestPixelwiseSoftmaxClassifier(unittest.TestCase):
 
@@ -32,8 +30,7 @@ class TestPixelwiseSoftmaxClassifier(unittest.TestCase):
         if self.class_weight:
             self.class_weight = [0.1 * i for i in range(self.n_class)]
         self.link = PixelwiseSoftmaxClassifier(
-            model, self.ignore_label, self.class_weight,
-            self.compute_accuracy)
+            model, self.ignore_label, self.class_weight)
         self.x = np.random.rand(2, 3, 16, 16).astype(np.float32)
         self.t = np.random.randint(
             self.n_class, size=(2, 16, 16)).astype(np.int32)
@@ -51,12 +48,6 @@ class TestPixelwiseSoftmaxClassifier(unittest.TestCase):
 
         self.assertTrue(hasattr(self.link, 'loss'))
         xp.testing.assert_allclose(self.link.loss.data, loss.data)
-
-        self.assertTrue(hasattr(self.link, 'accuracy'))
-        if self.compute_accuracy:
-            self.assertIsNotNone(self.link.accuracy)
-        else:
-            self.assertIsNone(self.link.accuracy)
 
     def test_call_cpu(self):
         self._check_call()
