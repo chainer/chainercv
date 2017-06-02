@@ -133,7 +133,7 @@ def eval_semantic_segmentation_iou(pred_labels, gt_labels):
             are height and width of the label.
             For example, this is a list of labels
             :obj:`[label_0, label_1, ...]`, where
-            :obj:`label_i.shape= (H_i, W_i)`.
+            :obj:`label_i.shape = (H_i, W_i)`.
         gt_labels (iterable of numpy.ndarray): A collection of ground
             truth labels. The shape of a ground truth label array is
             :math:`(H, W)`. The corresponding prediction label should
