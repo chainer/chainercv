@@ -37,9 +37,10 @@ def calc_semantic_segmentation_confusion(pred_labels, gt_labels):
     confusion = np.zeros((n_class, n_class), dtype=np.int64)
     for pred_label, gt_label in six.moves.zip(pred_labels, gt_labels):
         if pred_label.ndim != 2 or gt_label.ndim != 2:
-            raise ValueError('ndim of inputs should be two.')
+            raise ValueError('ndim of labels should be two.')
         if pred_label.shape != gt_label.shape:
-            raise ValueError('Shapes of inputs should be same.')
+            raise ValueError('Shape of ground truth and prediction should'
+                             'be same.')
         pred_label = pred_label.flatten()
         gt_label = gt_label.flatten()
 
