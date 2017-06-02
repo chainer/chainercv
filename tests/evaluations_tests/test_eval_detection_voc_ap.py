@@ -5,7 +5,7 @@ import unittest
 
 from chainer import testing
 
-from chainercv.evaluations import eval_detection_voc
+from chainercv.evaluations import eval_detection_voc_ap
 
 
 @testing.parameterize(
@@ -27,7 +27,7 @@ class TestEvalDetectionVOCOneBbox(unittest.TestCase):
         gt_labels = iter([np.array([0])])
         # iou is [0.95, 0.422, 0.3789]
 
-        results = eval_detection_voc(
+        results = eval_detection_voc_ap(
             pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
             iou_thresh=self.iou_thresh)
         np.testing.assert_equal(results[0]['recall'], self.rec)
@@ -63,7 +63,7 @@ class TestEvalDetectionVOCMultipleBboxes(unittest.TestCase):
         ])
         gt_labels = iter([np.array([0, 0]), np.array([1])])
 
-        results = eval_detection_voc(
+        results = eval_detection_voc_ap(
             pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
             iou_thresh=self.iou_thresh,
             use_07_metric=self.use_07_metric)
@@ -93,7 +93,7 @@ class TestEvalDetectionVOCDifficults(unittest.TestCase):
         gt_difficults = iter([np.array([False, True])])
         # iou is [0.95, 0.422, 0.3789] and [0.142, 0.444, 0.048]
 
-        results = eval_detection_voc(
+        results = eval_detection_voc_ap(
             pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
             gt_difficults=gt_difficults, iou_thresh=self.iou_thresh)
         np.testing.assert_equal(results[0]['recall'], self.rec)
@@ -123,7 +123,7 @@ class TestEvalDetectionVOCConsistencyWithMATLAB(unittest.TestCase):
         gt_labels = self.dataset['labels']
         gt_difficults = self.dataset['difficults']
 
-        eval_ = eval_detection_voc(
+        eval_ = eval_detection_voc_ap(
             pred_bboxes, pred_labels, pred_scores,
             gt_bboxes, gt_labels, gt_difficults,
             use_07_metric=True)
