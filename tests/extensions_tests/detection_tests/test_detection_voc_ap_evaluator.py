@@ -42,8 +42,9 @@ class TestDetectionVOCAPEvaluator(unittest.TestCase):
         self.link = _DetectionStubLink(bboxes, labels)
         self.iterator = SerialIterator(
             self.dataset, 5, repeat=False, shuffle=False)
-        self.evaluator = DetectionVOCAPEvaluator(self.iterator, self.link)
-        self.expect_map = 1
+        self.evaluator = DetectionVOCAPEvaluator(
+            self.iterator, self.link, label_names=('cls0', 'cls1', 'cls2'))
+        self.expected_ap = 1
 
     def test_evaluate(self):
         reporter = chainer.Reporter()
@@ -55,19 +56,27 @@ class TestDetectionVOCAPEvaluator(unittest.TestCase):
         # evaluator collect results in order to calculate their mean.
         self.assertEqual(len(reporter.observation), 0)
 
-        self.assertEqual(mean['target/map'], self.expect_map)
+        self.assertEqual(mean['target/map'], self.expected_ap)
+        self.assertNotIn('target/ap/cls0', mean)
+        self.assertEqual(mean['target/ap/cls1'], self.expected_ap)
+        self.assertNotIn('target/ap/cls2', mean)
 
     def test_call(self):
         mean = self.evaluator()
         # main is used as default
-        self.assertEqual(mean['main/map'], self.expect_map)
+        self.assertEqual(mean['main/map'], self.expected_ap)
+        self.assertNotIn('main/ap/cls0', mean)
+        self.assertEqual(mean['main/ap/cls1'], self.expected_ap)
+        self.assertNotIn('main/ap/cls2', mean)
 
     def test_evaluator_name(self):
         self.evaluator.name = 'eval'
         mean = self.evaluator()
         # name is used as a prefix
-        self.assertAlmostEqual(
-            mean['eval/main/map'], self.expect_map)
+        self.assertEqual(mean['eval/main/map'], self.expected_ap)
+        self.assertNotIn('eval/ap/cls0', mean)
+        self.assertEqual(mean['eval/ap/cls1'], self.expected_ap)
+        self.assertNotIn('eval/ap/cls2', mean)
 
     def test_current_report(self):
         reporter = chainer.Reporter()
