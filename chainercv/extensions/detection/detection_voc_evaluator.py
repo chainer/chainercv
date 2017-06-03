@@ -1,6 +1,5 @@
 import copy
 import numpy as np
-import six
 
 from chainer import reporter
 import chainer.training.extensions
@@ -79,9 +78,11 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
         report = {'map': np.nanmean(ap)}
 
         if self.label_names is not None:
-            for ap_l, label_name in six.moves.zip(ap, self.label_names):
-                if ap_l is not None:
-                    report['ap/{:s}'.format(label_name)] = ap_l
+            for l, label_name in enumerate(self.label_names):
+                try:
+                    report['ap/{:s}'.format(label_name)] = ap[l]
+                except IndexError:
+                    report['ap/{:s}'.format(label_name)] = np.nan
 
         observation = {}
         with reporter.report_scope(observation):

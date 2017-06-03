@@ -57,26 +57,26 @@ class TestDetectionVOCEvaluator(unittest.TestCase):
         self.assertEqual(len(reporter.observation), 0)
 
         self.assertEqual(mean['target/map'], self.expected_ap)
-        self.assertNotIn('target/ap/cls0', mean)
+        self.assertIs(mean['target/ap/cls0'], np.nan)
         self.assertEqual(mean['target/ap/cls1'], self.expected_ap)
-        self.assertNotIn('target/ap/cls2', mean)
+        self.assertIs(mean['target/ap/cls2'], np.nan)
 
     def test_call(self):
         mean = self.evaluator()
         # main is used as default
         self.assertEqual(mean['main/map'], self.expected_ap)
-        self.assertNotIn('main/ap/cls0', mean)
+        self.assertIs(mean['main/ap/cls0'], np.nan)
         self.assertEqual(mean['main/ap/cls1'], self.expected_ap)
-        self.assertNotIn('main/ap/cls2', mean)
+        self.assertIs(mean['main/ap/cls2'], np.nan)
 
     def test_evaluator_name(self):
         self.evaluator.name = 'eval'
         mean = self.evaluator()
         # name is used as a prefix
         self.assertEqual(mean['eval/main/map'], self.expected_ap)
-        self.assertNotIn('eval/main/ap/cls0', mean)
+        self.assertIs(mean['eval/main/ap/cls0'], np.nan)
         self.assertEqual(mean['eval/main/ap/cls1'], self.expected_ap)
-        self.assertNotIn('eval/main/ap/cls2', mean)
+        self.assertIs(mean['eval/main/ap/cls2'], np.nan)
 
     def test_current_report(self):
         reporter = chainer.Reporter()
