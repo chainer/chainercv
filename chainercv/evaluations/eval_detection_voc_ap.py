@@ -56,9 +56,8 @@ def eval_detection_voc_ap(
             :obj:`False`.
 
     Returns:
-        list:
-
-        This function returns a list of average precisions.
+        ~numpy.ndarray:
+        This function returns an array of average precisions.
         The :math:`l`-th value corresponds to the average precision
         for class :math:`l`. If class :math:`l` does not exist in
         either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding
@@ -123,7 +122,6 @@ def calc_detection_voc_prec_rec(
 
     Returns:
         tuple of two lists:
-
         This function returns two lists: :obj:`prec` and :obj:`rec`.
 
         * :obj:`prec`: A list of arrays. :obj:`prec[l]` indicates precision \
@@ -254,35 +252,35 @@ def calc_detection_voc_ap(prec, rec, use_07_metric=False):
             :obj:`False`.
 
     Returns:
-        list:
-
-        This function returns a list of average precisions.
+        ~numpy.ndarray:
+        This function returns an array of average precisions.
         The :math:`l`-th value corresponds to the average precision
         for class :math:`l`. If :obj:`prec[l]` or :obj:`rec[l]` is
         :obj:`None`, the corresponding value is set to :obj:`numpy.nan`.
 
     """
 
-    ap = list()
-    for prec_l, rec_l in six.moves.zip(prec, rec):
-        if prec_l is None or rec_l is None:
-            ap.append(np.nan)
+    n_fg_class = len(prec)
+    ap = np.empty(n_fg_class)
+    for l in six.moves.range(n_fg_class):
+        if prec[l] is None or rec[l] is None:
+            ap[l] = np.nan
             continue
 
         if use_07_metric:
             # 11 point metric
-            ap_l = 0
+            ap[l] = 0
             for t in np.arange(0., 1.1, 0.1):
-                if np.sum(rec_l >= t) == 0:
+                if np.sum(rec[l] >= t) == 0:
                     p = 0
                 else:
-                    p = np.max(prec_l[rec_l >= t])
-                ap_l += p / 11
+                    p = np.max(prec[l][rec[l] >= t])
+                ap[l] += p / 11
         else:
             # correct AP calculation
             # first append sentinel values at the end
-            mpre = np.concatenate(([0.], prec_l, [0.]))
-            mrec = np.concatenate(([0.], rec_l, [1.]))
+            mpre = np.concatenate(([0], prec[l], [0]))
+            mrec = np.concatenate(([0], rec[l], [1]))
 
             mpre = np.maximum.accumulate(mpre[::-1])[::-1]
 
@@ -291,8 +289,6 @@ def calc_detection_voc_ap(prec, rec, use_07_metric=False):
             i = np.where(mrec[1:] != mrec[:-1])[0]
 
             # and sum (\Delta recall) * prec
-            ap_l = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
-
-        ap.append(ap_l)
+            ap[l] = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
 
     return ap
