@@ -62,7 +62,7 @@ def eval_detection_voc_ap(
         The :math:`l`-th value corresponds to the average precision
         for class :math:`l`. If class :math:`l` does not exist in
         either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding
-        value is set to :obj:`None`.
+        value is set to :obj:`numpy.nan`.
 
     """
 
@@ -258,14 +258,14 @@ def calc_detection_voc_ap(prec, rec, use_07_metric=False):
         This function returns a list of average precisions.
         The :math:`l`-th value corresponds to the average precision
         for class :math:`l`. If :obj:`prec[l]` or :obj:`rec[l]` is
-        :obj:`None`, the corresponding value is set to :obj:`None`.
+        :obj:`None`, the corresponding value is set to :obj:`numpy.nan`.
 
     """
 
     ap = list()
     for prec_l, rec_l in six.moves.zip(prec, rec):
         if prec_l is None or rec_l is None:
-            ap.append(None)
+            ap.append(np.nan)
             continue
 
         if use_07_metric:
