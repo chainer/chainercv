@@ -1,4 +1,5 @@
 import copy
+import numpy as np
 
 from chainer import reporter
 import chainer.training.extensions
@@ -68,7 +69,7 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
             pred_bboxes, pred_labels, pred_scores,
             gt_bboxes, gt_labels, gt_difficults,
             use_07_metric=self.use_07_metric)
-        map_ = sum(ap_l for ap_l in ap if ap_l is not None)
+        map_ = np.nanmean(ap)
 
         observation = {}
         with reporter.report_scope(observation):
