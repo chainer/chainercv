@@ -1,6 +1,7 @@
 from __future__ import division
 
 import argparse
+import numpy as np
 import sys
 import time
 
@@ -9,7 +10,7 @@ from chainer import iterators
 
 from chainercv.datasets import voc_detection_label_names
 from chainercv.datasets import VOCDetectionDataset
-from chainercv.evaluations import eval_detection_voc
+from chainercv.evaluations import eval_detection_voc_ap
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
@@ -83,16 +84,17 @@ def main():
     pred_bboxes, pred_labels, pred_scores = pred_values
     gt_bboxes, gt_labels, gt_difficults = gt_values
 
-    eval_ = eval_detection_voc(
+    ap = eval_detection_voc_ap(
         pred_bboxes, pred_labels, pred_scores,
         gt_bboxes, gt_labels, gt_difficults,
         use_07_metric=True)
+    map_ = np.nanmean(ap)
 
     print()
-    print('mAP: {:f}'.format(eval_['map']))
+    print('mAP: {:f}'.format(map_))
     for l, name in enumerate(voc_detection_label_names):
-        if l in eval_:
-            print('{:s}: {:f}'.format(name, eval_[l]['ap']))
+        if ap[l]:
+            print('{:s}: {:f}'.format(name, ap[l]))
         else:
             print('{:s}: -'.format(name))
 

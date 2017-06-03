@@ -1,9 +1,10 @@
 import copy
+import numpy as np
 
 from chainer import reporter
 import chainer.training.extensions
 
-from chainercv.evaluations import eval_detection_voc
+from chainercv.evaluations import eval_detection_voc_ap
 from chainercv.utils import apply_prediction_to_iterator
 
 
@@ -64,12 +65,13 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
             gt_bboxes, gt_labels = gt_values
             gt_difficults = None
 
-        eval_ = eval_detection_voc(
+        ap = eval_detection_voc_ap(
             pred_bboxes, pred_labels, pred_scores,
             gt_bboxes, gt_labels, gt_difficults,
             use_07_metric=self.use_07_metric)
+        map_ = np.nanmean(ap)
 
         observation = {}
         with reporter.report_scope(observation):
-            reporter.report({'map': eval_['map']}, target)
+            reporter.report({'map': map_}, target)
         return observation
