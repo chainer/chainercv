@@ -160,17 +160,17 @@ def calc_detection_voc_prec_rec(
             gt_difficult = np.zeros(gt_bbox.shape[0], dtype=bool)
 
         for l in np.unique(np.concatenate((pred_label, gt_label)).astype(int)):
-            pred_mask = pred_label == l
-            pred_bbox_l = pred_bbox[pred_mask]
-            pred_score_l = pred_score[pred_mask]
+            pred_mask_l = pred_label == l
+            pred_bbox_l = pred_bbox[pred_mask_l]
+            pred_score_l = pred_score[pred_mask_l]
             # sort by score
             order = pred_score_l.argsort()[::-1]
             pred_bbox_l = pred_bbox_l[order]
             pred_score_l = pred_score_l[order]
 
-            gt_mask = gt_label == l
-            gt_bbox_l = gt_bbox[gt_mask]
-            gt_difficult_l = gt_difficult[gt_mask]
+            gt_mask_l = gt_label == l
+            gt_bbox_l = gt_bbox[gt_mask_l]
+            gt_difficult_l = gt_difficult[gt_mask_l]
 
             n_pos[l] += np.logical_not(gt_difficult_l).sum()
             score[l].extend(pred_score_l)
