@@ -32,7 +32,7 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
             :obj:`False`.
         label_names (iterable of strings): An iterable of names of classes.
             If this value is specified, average precision for each class is
-            also reported with the key :obj:`'ap/<label_names>'`.
+            also reported with the key :obj:`'ap/<label_names[l]>'`.
 
     """
 
