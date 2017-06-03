@@ -1,6 +1,7 @@
 from __future__ import division
 
 import argparse
+import numpy as np
 import sys
 import time
 
@@ -87,7 +88,7 @@ def main():
         pred_bboxes, pred_labels, pred_scores,
         gt_bboxes, gt_labels, gt_difficults,
         use_07_metric=True)
-    map_ = sum(ap_l for ap_l in ap if ap_l is not None)
+    map_ = np.nanmean(ap)
 
     print()
     print('mAP: {:f}'.format(map_))
