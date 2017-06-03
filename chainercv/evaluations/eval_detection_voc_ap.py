@@ -128,7 +128,7 @@ def calc_detection_voc_prec_rec(
             for class :math:`l`. If class :math:`l` does not exist in \
             either :obj:`pred_labels` or :obj:`gt_labels`, :obj:`prec[l]` is \
             set to :obj:`None`.
-        * :obj:`rec`: A list of arrays. :obj:`rec[l]` iss recall \
+        * :obj:`rec`: A list of arrays. :obj:`rec[l]` is recall \
             for class :math:`l`. If class :math:`l` does not exist in \
             either :obj:`pred_labels` or :obj:`gt_labels`, :obj:`rec[l]` is \
             set to :obj:`None`.
