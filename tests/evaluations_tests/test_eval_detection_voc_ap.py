@@ -152,9 +152,9 @@ class TestCalcDetectionVOCPrecRec(unittest.TestCase):
 
 @testing.parameterize(
     {'use_07_metric': False,
-     'ap': [0.25, None, 0.5]},
+     'ap': [0.25, np.nan, 0.5]},
     {'use_07_metric': True,
-     'ap': [0.5 / 11 * 6, None, 0.5]},
+     'ap': [0.5 / 11 * 6, np.nan, 0.5]},
 )
 class TestCalcDetectionVOCAP(unittest.TestCase):
 
