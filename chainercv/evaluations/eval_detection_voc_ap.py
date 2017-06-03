@@ -124,11 +124,11 @@ def calc_detection_voc_prec_rec(
         tuple of two lists:
         This function returns two lists: :obj:`prec` and :obj:`rec`.
 
-        * :obj:`prec`: A list of arrays. :obj:`prec[l]` indicates precision \
+        * :obj:`prec`: A list of arrays. :obj:`prec[l]` is precision \
             for class :math:`l`. If class :math:`l` does not exist in \
             either :obj:`pred_labels` or :obj:`gt_labels`, :obj:`prec[l]` is \
             set to :obj:`None`.
-        * :obj:`rec`: A list of arrays. :obj:`rec[l]` indicates recall \
+        * :obj:`rec`: A list of arrays. :obj:`rec[l]` iss recall \
             for class :math:`l`. If class :math:`l` does not exist in \
             either :obj:`pred_labels` or :obj:`gt_labels`, :obj:`rec[l]` is \
             set to :obj:`None`.
