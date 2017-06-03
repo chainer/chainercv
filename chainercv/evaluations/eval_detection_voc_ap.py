@@ -280,8 +280,8 @@ def calc_detection_voc_ap(prec, rec, use_07_metric=False):
         else:
             # correct AP calculation
             # first append sentinel values at the end
-            mrec = np.concatenate(([0.], rec_l, [1.]))
             mpre = np.concatenate(([0.], prec_l, [0.]))
+            mrec = np.concatenate(([0.], rec_l, [1.]))
 
             mpre = np.maximum.accumulate(mpre[::-1])[::-1]
 
