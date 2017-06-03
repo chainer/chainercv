@@ -175,7 +175,7 @@ class TestCalcDetectionVOCAP(unittest.TestCase):
 
         self.assertEqual(len(ap), len(self.ap))
         for ap_l, expected_ap_l in zip(ap, self.ap):
-            if ap_l is None and expected_ap_l is None:
+            if ap_l is np.nan and expected_ap_l is np.nan:
                 continue
             self.assertAlmostEqual(ap_l, expected_ap_l)
 
