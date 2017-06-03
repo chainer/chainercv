@@ -1,6 +1,7 @@
 from __future__ import division
 
 import argparse
+import numpy as np
 import sys
 import time
 
@@ -44,17 +45,23 @@ def main():
 
     if args.model == 'faster_rcnn':
         if args.pretrained_model:
-            model = FasterRCNNVGG16(pretrained_model=args.pretrained_model)
+            model = FasterRCNNVGG16(
+                n_fg_class=20,
+                pretrained_model=args.pretrained_model)
         else:
             model = FasterRCNNVGG16(pretrained_model='voc07')
     elif args.model == 'ssd300':
         if args.pretrained_model:
-            model = SSD300(pretrained_model=args.pretrained_model)
+            model = SSD300(
+                n_fg_class=20,
+                pretrained_model=args.pretrained_model)
         else:
             model = SSD300(pretrained_model='voc0712')
     elif args.model == 'ssd512':
         if args.pretrained_model:
-            model = SSD512(pretrained_model=args.pretrained_model)
+            model = SSD512(
+                n_fg_class=20,
+                pretrained_model=args.pretrained_model)
         else:
             model = SSD512(pretrained_model='voc0712')
 
@@ -81,7 +88,7 @@ def main():
         pred_bboxes, pred_labels, pred_scores,
         gt_bboxes, gt_labels, gt_difficults,
         use_07_metric=True)
-    map_ = sum(ap_l for ap_l in ap if ap_l is not None)
+    map_ = np.nanmean(ap)
 
     print()
     print('mAP: {:f}'.format(map_))

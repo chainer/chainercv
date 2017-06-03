@@ -1,4 +1,5 @@
 import copy
+import numpy as np
 import six
 
 from chainer import reporter
@@ -75,7 +76,7 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
             gt_bboxes, gt_labels, gt_difficults,
             use_07_metric=self.use_07_metric)
 
-        report = {'map': sum(ap_l for ap_l in ap if ap_l is not None)}
+        report = {'map': np.nanmean(ap)}
 
         if self.label_names is not None:
             for ap_l, label_name in six.moves.zip(ap, self.label_names):

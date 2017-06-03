@@ -152,9 +152,9 @@ class TestCalcDetectionVOCPrecRec(unittest.TestCase):
 
 @testing.parameterize(
     {'use_07_metric': False,
-     'ap': [0.25, None, 0.5]},
+     'ap': [0.25, np.nan, 0.5]},
     {'use_07_metric': True,
-     'ap': [0.5 / 11 * 6, None, 0.5]},
+     'ap': [0.5 / 11 * 6, np.nan, 0.5]},
 )
 class TestCalcDetectionVOCAP(unittest.TestCase):
 
@@ -175,7 +175,7 @@ class TestCalcDetectionVOCAP(unittest.TestCase):
 
         self.assertEqual(len(ap), len(self.ap))
         for ap_l, expected_ap_l in zip(ap, self.ap):
-            if ap_l is None and expected_ap_l is None:
+            if ap_l is np.nan and expected_ap_l is np.nan:
                 continue
             self.assertAlmostEqual(ap_l, expected_ap_l)
 

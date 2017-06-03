@@ -12,7 +12,7 @@ def eval_detection_voc_ap(
         pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
         gt_difficults=None,
         iou_thresh=0.5, use_07_metric=False):
-    """Calculate average precision based on evaluation code of PASCAL VOC.
+    """Calculate average precisions based on evaluation code of PASCAL VOC.
 
     This function evaluates predicted bounding boxes obtained from a dataset
     which has :math:`N` images by using average precision for each class.
@@ -62,7 +62,7 @@ def eval_detection_voc_ap(
         The :math:`l`-th value corresponds to the average precision
         for class :math:`l`. If class :math:`l` does not exist in
         either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding
-        value is set to :obj:`None`.
+        value is set to :obj:`numpy.nan`.
 
     """
 
@@ -160,17 +160,17 @@ def calc_detection_voc_prec_rec(
             gt_difficult = np.zeros(gt_bbox.shape[0], dtype=bool)
 
         for l in np.unique(np.concatenate((pred_label, gt_label)).astype(int)):
-            pred_mask = pred_label == l
-            pred_bbox_l = pred_bbox[pred_mask]
-            pred_score_l = pred_score[pred_mask]
+            pred_mask_l = pred_label == l
+            pred_bbox_l = pred_bbox[pred_mask_l]
+            pred_score_l = pred_score[pred_mask_l]
             # sort by score
             order = pred_score_l.argsort()[::-1]
             pred_bbox_l = pred_bbox_l[order]
             pred_score_l = pred_score_l[order]
 
-            gt_mask = gt_label == l
-            gt_bbox_l = gt_bbox[gt_mask]
-            gt_difficult_l = gt_difficult[gt_mask]
+            gt_mask_l = gt_label == l
+            gt_bbox_l = gt_bbox[gt_mask_l]
+            gt_difficult_l = gt_difficult[gt_mask_l]
 
             n_pos[l] += np.logical_not(gt_difficult_l).sum()
             score[l].extend(pred_score_l)
@@ -234,20 +234,21 @@ def calc_detection_voc_prec_rec(
 
 
 def calc_detection_voc_ap(prec, rec, use_07_metric=False):
-    """Calculate average precision based on evaluation code of PASCAL VOC.
+    """Calculate average precisions based on evaluation code of PASCAL VOC.
 
-    This function calculates average precision from given precision and recall.
+    This function calculates average precisions
+    from given precisions and recalls.
     The code is based on the evaluation code used in PASCAL VOC Challenge.
 
     Args:
         prec (list of numpy.array): A list of arrays.
             :obj:`prec[l]` indicates precision for class :math:`l`.
-            If class :math:`l` is invalid, :obj:`prec[l]` is
-            set to :obj:`None`.
+            If :obj:`prec[l]` is :obj:`None`, this function returns
+            :obj:`numpy.nan` for class :math:`l`.
         rec (list of numpy.array): A list of arrays.
             :obj:`rec[l]` indicates recall for class :math:`l`.
-            If class :math:`l` is invalid, :obj:`rec[l]` is
-            set to :obj:`None`.
+            If :obj:`rec[l]` is :obj:`None`, this function returns
+            :obj:`numpy.nan` for class :math:`l`.
         use_07_metric (bool): Whether to use PASCAL VOC 2007 evaluation metric
             for calculating average precision. The default value is
             :obj:`False`.
@@ -258,14 +259,14 @@ def calc_detection_voc_ap(prec, rec, use_07_metric=False):
         This function returns a list of average precisions.
         The :math:`l`-th value corresponds to the average precision
         for class :math:`l`. If :obj:`prec[l]` or :obj:`rec[l]` is
-        :obj:`None`, the corresponding value is set to :obj:`None`.
+        :obj:`None`, the corresponding value is set to :obj:`numpy.nan`.
 
     """
 
     ap = list()
     for prec_l, rec_l in six.moves.zip(prec, rec):
         if prec_l is None or rec_l is None:
-            ap.append(None)
+            ap.append(np.nan)
             continue
 
         if use_07_metric:
@@ -280,8 +281,8 @@ def calc_detection_voc_ap(prec, rec, use_07_metric=False):
         else:
             # correct AP calculation
             # first append sentinel values at the end
-            mrec = np.concatenate(([0.], rec_l, [1.]))
             mpre = np.concatenate(([0.], prec_l, [0.]))
+            mrec = np.concatenate(([0.], rec_l, [1.]))
 
             mpre = np.maximum.accumulate(mpre[::-1])[::-1]
 
