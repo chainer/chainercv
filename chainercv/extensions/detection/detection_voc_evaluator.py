@@ -13,7 +13,18 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
     """An extension that evaluates a detection model by PASCAL VOC metric.
 
     This extension iterates over an iterator and evaluates the prediction
-    results of the model by PASCAL VOC's mAP metrics.
+    results by average precisions and mean of them.
+    This extension reports the following values with keys.
+    Please note that :obj`'ap/label_names[l]'` is reported only if
+    :obj:`label_names` is specified.
+
+    * :obj`'map'`: Mean of average precisions.
+    * :obj`'ap/label_names[l]'`: Average precision of class :math:`l`. \
+        For example, this evaluator reports :obj`'ap/aeroplane'`, \
+        :obj`'ap/bicycle'`, etc. if :obj:`label_names` is \
+        :obj:`~chainercv.datasets.voc_detection_label_names`. \
+        If class :math:`l` does not exist in either ground truth or \
+        prediction, it reports :obj:`numpy.nan`.
 
     Args:
         iterator (chainer.Iterator): An iterator. Each sample should be
