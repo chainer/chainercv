@@ -49,6 +49,8 @@ def calc_bn_statistics(model, gpu):
 
 
 def main():
+    chainer.config.train = False
+
     # This follows evaluation code used in SegNet.
     # https://github.com/alexgkendall/SegNet-Tutorial/blob/master/
     # # Scripts/compute_test_results.m
@@ -64,7 +66,6 @@ def main():
     model = SegNetBasic(n_class=n_class)
     serializers.load_npz(args.snapshot, model)
     model = calc_bn_statistics(model, args.gpu)
-    chainer.config.train = False
     if args.gpu >= 0:
         model.to_gpu(args.gpu)
 
