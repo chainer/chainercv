@@ -93,11 +93,12 @@ class FasterRCNN(chainer.Chain):
             loc_normalize_mean=(0., 0., 0., 0.),
             loc_normalize_std=(0.1, 0.1, 0.2, 0.2),
     ):
-        super(FasterRCNN, self).__init__(
-            extractor=extractor,
-            rpn=rpn,
-            head=head,
-        )
+        super(FasterRCNN, self).__init__()
+        with self.init_scope():
+            self.extractor = extractor
+            self.rpn = rpn
+            self.head = head
+
         self.mean = mean
         self.min_size = min_size
         self.max_size = max_size

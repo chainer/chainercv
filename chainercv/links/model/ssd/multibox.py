@@ -35,10 +35,10 @@ class Multibox(chainer.Chain):
         self.n_class = n_class
         self.aspect_ratios = aspect_ratios
 
-        super(Multibox, self).__init__(
-            loc=chainer.ChainList(),
-            conf=chainer.ChainList(),
-        )
+        super(Multibox, self).__init__()
+        with self.init_scope():
+            self.loc = chainer.ChainList()
+            self.conf = chainer.ChainList()
 
         if initialW is None:
             initialW = initializers.GlorotUniform()

@@ -48,7 +48,9 @@ class FasterRCNNTrainChain(chainer.Chain):
     def __init__(self, faster_rcnn, rpn_sigma=3., roi_sigma=1.,
                  anchor_target_creator=AnchorTargetCreator(),
                  proposal_target_creator=ProposalTargetCreator()):
-        super(FasterRCNNTrainChain, self).__init__(faster_rcnn=faster_rcnn)
+        super(FasterRCNNTrainChain, self).__init__()
+        with self.init_scope():
+            self.faster_rcnn = faster_rcnn
         self.rpn_sigma = rpn_sigma
         self.roi_sigma = roi_sigma
 

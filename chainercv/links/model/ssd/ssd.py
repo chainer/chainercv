@@ -74,7 +74,10 @@ class SSD(chainer.Chain):
         self.mean = mean
         self.use_preset('visualize')
 
-        super(SSD, self).__init__(extractor=extractor, multibox=multibox)
+        super(SSD, self).__init__()
+        with self.init_scope():
+            self.extractor = extractor
+            self.multibox = multibox
 
         # the format of default_bbox is (center_x, center_y, width, height)
         self._default_bbox = list()

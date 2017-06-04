@@ -191,12 +191,13 @@ class VGG16RoIHead(chainer.Chain):
     def __init__(self, n_class, roi_size, spatial_scale,
                  vgg_initialW=None, loc_initialW=None, score_initialW=None):
         # n_class includes the background
-        super(VGG16RoIHead, self).__init__(
-            fc6=L.Linear(25088, 4096, initialW=vgg_initialW),
-            fc7=L.Linear(4096, 4096, initialW=vgg_initialW),
-            cls_loc=L.Linear(4096, n_class * 4, initialW=loc_initialW),
-            score=L.Linear(4096, n_class, initialW=score_initialW)
-        )
+        super(VGG16RoIHead, self).__init__()
+        with self.init_scope():
+            self.fc6 = L.Linear(25088, 4096, initialW=vgg_initialW)
+            self.fc7 = L.Linear(4096, 4096, initialW=vgg_initialW)
+            self.cls_loc = L.Linear(4096, n_class * 4, initialW=loc_initialW)
+            self.score = L.Linear(4096, n_class, initialW=score_initialW)
+
         self.n_class = n_class
         self.roi_size = roi_size
         self.spatial_scale = spatial_scale
@@ -240,21 +241,32 @@ class VGG16FeatureExtractor(chainer.Chain):
     """
 
     def __init__(self, initialW=None):
-        super(VGG16FeatureExtractor, self).__init__(
-            conv1_1=L.Convolution2D(3, 64, 3, 1, 1, initialW=initialW),
-            conv1_2=L.Convolution2D(64, 64, 3, 1, 1, initialW=initialW),
-            conv2_1=L.Convolution2D(64, 128, 3, 1, 1, initialW=initialW),
-            conv2_2=L.Convolution2D(128, 128, 3, 1, 1, initialW=initialW),
-            conv3_1=L.Convolution2D(128, 256, 3, 1, 1, initialW=initialW),
-            conv3_2=L.Convolution2D(256, 256, 3, 1, 1, initialW=initialW),
-            conv3_3=L.Convolution2D(256, 256, 3, 1, 1, initialW=initialW),
-            conv4_1=L.Convolution2D(256, 512, 3, 1, 1, initialW=initialW),
-            conv4_2=L.Convolution2D(512, 512, 3, 1, 1, initialW=initialW),
-            conv4_3=L.Convolution2D(512, 512, 3, 1, 1, initialW=initialW),
-            conv5_1=L.Convolution2D(512, 512, 3, 1, 1, initialW=initialW),
-            conv5_2=L.Convolution2D(512, 512, 3, 1, 1, initialW=initialW),
-            conv5_3=L.Convolution2D(512, 512, 3, 1, 1, initialW=initialW),
-        )
+        super(VGG16FeatureExtractor, self).__init__()
+        with self.init_scope():
+            self.conv1_1 = L.Convolution2D(3, 64, 3, 1, 1, initialW=initialW)
+            self.conv1_2 = L.Convolution2D(64, 64, 3, 1, 1, initialW=initialW)
+            self.conv2_1 = L.Convolution2D(64, 128, 3, 1, 1, initialW=initialW)
+            self.conv2_2 = L.Convolution2D(
+                128, 128, 3, 1, 1, initialW=initialW)
+            self.conv3_1 = L.Convolution2D(
+                128, 256, 3, 1, 1, initialW=initialW)
+            self.conv3_2 = L.Convolution2D(
+                256, 256, 3, 1, 1, initialW=initialW)
+            self.conv3_3 = L.Convolution2D(
+                256, 256, 3, 1, 1, initialW=initialW)
+            self.conv4_1 = L.Convolution2D(
+                256, 512, 3, 1, 1, initialW=initialW)
+            self.conv4_2 = L.Convolution2D(
+                512, 512, 3, 1, 1, initialW=initialW)
+            self.conv4_3 = L.Convolution2D(
+                512, 512, 3, 1, 1, initialW=initialW)
+            self.conv5_1 = L.Convolution2D(
+                512, 512, 3, 1, 1, initialW=initialW)
+            self.conv5_2 = L.Convolution2D(
+                512, 512, 3, 1, 1, initialW=initialW)
+            self.conv5_3 = L.Convolution2D(
+                512, 512, 3, 1, 1, initialW=initialW)
+
         self.functions = collections.OrderedDict([
             ('conv1_1', [self.conv1_1, F.relu]),
             ('conv1_2', [self.conv1_2, F.relu]),

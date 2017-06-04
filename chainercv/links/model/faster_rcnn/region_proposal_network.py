@@ -58,14 +58,14 @@ class RegionProposalNetwork(chainer.Chain):
         self.proposal_layer = ProposalCreator(**proposal_creator_params)
 
         n_anchor = self.anchor_base.shape[0]
-        super(RegionProposalNetwork, self).__init__(
-            conv1=L.Convolution2D(
-                in_channels, mid_channels, 3, 1, 1, initialW=initialW),
-            score=L.Convolution2D(
-                mid_channels, n_anchor * 2, 1, 1, 0, initialW=initialW),
-            loc=L.Convolution2D(
+        super(RegionProposalNetwork, self).__init__()
+        with self.init_scope():
+            self.conv1 = L.Convolution2D(
+                in_channels, mid_channels, 3, 1, 1, initialW=initialW)
+            self.score = L.Convolution2D(
+                mid_channels, n_anchor * 2, 1, 1, 0, initialW=initialW)
+            self.loc = L.Convolution2D(
                 mid_channels, n_anchor * 4, 1, 1, 0, initialW=initialW)
-        )
 
     def __call__(self, x, img_size, scale=1.):
         """Forward Region Proposal Network.
