@@ -16,11 +16,11 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
     results by average precisions (APs) and mean of them
     (mean Average Precision, mAP).
     This extension reports the following values with keys.
-    Please note that :obj:`'ap/label_names[l]'` is reported only if
+    Please note that :obj:`'ap/<label_names[l]>'` is reported only if
     :obj:`label_names` is specified.
 
     * :obj:`'map'`: Mean of average precisions (mAP).
-    * :obj:`'ap/label_names[l]'`: Average precision of class :math:`l`. \
+    * :obj:`'ap/<label_names[l]>'`: Average precision of class :math:`l`. \
         For example, this evaluator reports :obj:`'ap/aeroplane'`, \
         :obj:`'ap/bicycle'`, etc. if :obj:`label_names` is \
         :obj:`~chainercv.datasets.voc_detection_label_names`. \
