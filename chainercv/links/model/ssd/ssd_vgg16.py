@@ -1,7 +1,6 @@
 from __future__ import division
 
 import os
-import six
 import warnings
 
 import chainer

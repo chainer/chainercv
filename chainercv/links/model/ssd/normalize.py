@@ -1,9 +1,9 @@
 import numpy as np
 
 import chainer
-from chainer import variable
 import chainer.functions as F
 from chainer import initializers
+from chainer import variable
 
 
 class Normalize(chainer.Link):
