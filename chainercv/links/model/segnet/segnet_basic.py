@@ -71,7 +71,7 @@ class SegNetBasic(chainer.Chain):
         super(SegNetBasic, self).__init__()
         with self.init_scope():
             self.conv1 = L.Convolution2D(
-                None, 64, 7, 1, 3, nobias=True, initialW=initialW)
+                64, 7, 1, 3, nobias=True, initialW=initialW)
             self.conv1_bn = L.BatchNormalization(64, initial_beta=0.001)
             self.conv2 = L.Convolution2D(
                 64, 64, 7, 1, 3, nobias=True, initialW=initialW)

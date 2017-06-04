@@ -50,27 +50,27 @@ class VGG16(chainer.Chain):
     def __init__(self):
         super(VGG16, self).__init__()
         with self.init_scope():
-            self.conv1_1 = L.Convolution2D(None, 64, 3, pad=1)
-            self.conv1_2 = L.Convolution2D(None, 64, 3, pad=1)
+            self.conv1_1 = L.Convolution2D(64, 3, pad=1)
+            self.conv1_2 = L.Convolution2D(64, 3, pad=1)
 
-            self.conv2_1 = L.Convolution2D(None, 128, 3, pad=1)
-            self.conv2_2 = L.Convolution2D(None, 128, 3, pad=1)
+            self.conv2_1 = L.Convolution2D(128, 3, pad=1)
+            self.conv2_2 = L.Convolution2D(128, 3, pad=1)
 
-            self.conv3_1 = L.Convolution2D(None, 256, 3, pad=1)
-            self.conv3_2 = L.Convolution2D(None, 256, 3, pad=1)
-            self.conv3_3 = L.Convolution2D(None, 256, 3, pad=1)
+            self.conv3_1 = L.Convolution2D(256, 3, pad=1)
+            self.conv3_2 = L.Convolution2D(256, 3, pad=1)
+            self.conv3_3 = L.Convolution2D(256, 3, pad=1)
 
-            self.conv4_1 = L.Convolution2D(None, 512, 3, pad=1)
-            self.conv4_2 = L.Convolution2D(None, 512, 3, pad=1)
-            self.conv4_3 = L.Convolution2D(None, 512, 3, pad=1)
+            self.conv4_1 = L.Convolution2D(512, 3, pad=1)
+            self.conv4_2 = L.Convolution2D(512, 3, pad=1)
+            self.conv4_3 = L.Convolution2D(512, 3, pad=1)
             self.norm4 = Normalize(512, initial=initializers.Constant(20))
 
-            self.conv5_1 = L.DilatedConvolution2D(None, 512, 3, pad=1)
-            self.conv5_2 = L.DilatedConvolution2D(None, 512, 3, pad=1)
-            self.conv5_3 = L.DilatedConvolution2D(None, 512, 3, pad=1)
+            self.conv5_1 = L.DilatedConvolution2D(512, 3, pad=1)
+            self.conv5_2 = L.DilatedConvolution2D(512, 3, pad=1)
+            self.conv5_3 = L.DilatedConvolution2D(512, 3, pad=1)
 
-            self.conv6 = L.DilatedConvolution2D(None, 1024, 3, pad=6, dilate=6)
-            self.conv7 = L.Convolution2D(None, 1024, 1)
+            self.conv6 = L.DilatedConvolution2D(1024, 3, pad=6, dilate=6)
+            self.conv7 = L.Convolution2D(1024, 1)
 
     def __call__(self, x):
         ys = list()
@@ -123,19 +123,17 @@ class VGG16Extractor300(VGG16):
         }
         super(VGG16Extractor300, self).__init__()
         with self.init_scope():
-            self.conv8_1 = L.Convolution2D(None, 256, 1, **init)
-            self.conv8_2 = L.Convolution2D(
-                None, 512, 3, stride=2, pad=1, **init)
+            self.conv8_1 = L.Convolution2D(256, 1, **init)
+            self.conv8_2 = L.Convolution2D(512, 3, stride=2, pad=1, **init)
 
-            self.conv9_1 = L.Convolution2D(None, 128, 1, **init)
-            self.conv9_2 = L.Convolution2D(
-                None, 256, 3, stride=2, pad=1, **init)
+            self.conv9_1 = L.Convolution2D(128, 1, **init)
+            self.conv9_2 = L.Convolution2D(256, 3, stride=2, pad=1, **init)
 
-            self.conv10_1 = L.Convolution2D(None, 128, 1, **init)
-            self.conv10_2 = L.Convolution2D(None, 256, 3, **init)
+            self.conv10_1 = L.Convolution2D(128, 1, **init)
+            self.conv10_2 = L.Convolution2D(256, 3, **init)
 
-            self.conv11_1 = L.Convolution2D(None, 128, 1, **init)
-            self.conv11_2 = L.Convolution2D(None, 256, 3, **init)
+            self.conv11_1 = L.Convolution2D(128, 1, **init)
+            self.conv11_2 = L.Convolution2D(256, 3, **init)
 
     def __call__(self, x):
         """Compute feature maps from a batch of images.
@@ -179,24 +177,20 @@ class VGG16Extractor512(VGG16):
         }
         super(VGG16Extractor512, self).__init__()
         with self.init_scope():
-            self.conv8_1 = L.Convolution2D(None, 256, 1, **init)
-            self.conv8_2 = L.Convolution2D(
-                None, 512, 3, stride=2, pad=1, **init)
+            self.conv8_1 = L.Convolution2D(256, 1, **init)
+            self.conv8_2 = L.Convolution2D(512, 3, stride=2, pad=1, **init)
 
-            self.conv9_1 = L.Convolution2D(None, 128, 1, **init)
-            self.conv9_2 = L.Convolution2D(
-                None, 256, 3, stride=2, pad=1, **init)
+            self.conv9_1 = L.Convolution2D(128, 1, **init)
+            self.conv9_2 = L.Convolution2D(256, 3, stride=2, pad=1, **init)
 
-            self.conv10_1 = L.Convolution2D(None, 128, 1, **init)
-            self.conv10_2 = L.Convolution2D(
-                None, 256, 3, stride=2, pad=1, **init)
+            self.conv10_1 = L.Convolution2D(128, 1, **init)
+            self.conv10_2 = L.Convolution2D(256, 3, stride=2, pad=1, **init)
 
-            self.conv11_1 = L.Convolution2D(None, 128, 1, **init)
-            self.conv11_2 = L.Convolution2D(
-                None, 256, 3, stride=2, pad=1, **init)
+            self.conv11_1 = L.Convolution2D(128, 1, **init)
+            self.conv11_2 = L.Convolution2D(256, 3, stride=2, pad=1, **init)
 
-            self.conv12_1 = L.Convolution2D(None, 128, 1, **init)
-            self.conv12_2 = L.Convolution2D(None, 256, 4,  pad=1, **init)
+            self.conv12_1 = L.Convolution2D(128, 1, **init)
+            self.conv12_2 = L.Convolution2D(256, 4,  pad=1, **init)
 
     def __call__(self, x):
         """Compute feature maps from a batch of images.
