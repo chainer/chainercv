@@ -20,12 +20,14 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
     :obj:`label_names` is specified.
 
     * :obj:`'map'`: Mean of average precisions (mAP).
-    * :obj:`'ap/<label_names[l]>'`: Average precision of class :math:`l`. \
+    * :obj:`'ap/<3label_names[l]>'`: Average precision for class \
+        :obj:`label_names[l]`, where :math:`l` is the index of the class. \
         For example, this evaluator reports :obj:`'ap/aeroplane'`, \
         :obj:`'ap/bicycle'`, etc. if :obj:`label_names` is \
         :obj:`~chainercv.datasets.voc_detection_label_names`. \
-        If class :math:`l` does not exist in either ground truth or \
-        prediction, it reports :obj:`numpy.nan` as its average precision. \
+        If there is no bounding box assigned to class :obj:`label_names[l]` \
+        in either ground truth or prediction, it reports :obj:`numpy.nan` as \
+        its average precision. \
         In this case, mAP is computed without this class.
 
     Args:
