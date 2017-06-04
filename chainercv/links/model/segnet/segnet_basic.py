@@ -12,6 +12,11 @@ from chainercv.transforms import resize
 from chainercv.utils import download
 
 
+def _without_cudnn(f, x):
+    with chainer.using_config('use_cudnn', 'never'):
+        return f(x)
+
+
 class SegNetBasic(chainer.Chain):
 
     """SegNet Basic for semantic segmentation.
@@ -138,10 +143,10 @@ class SegNetBasic(chainer.Chain):
         p3 = F.MaxPooling2D(2, 2)
         p4 = F.MaxPooling2D(2, 2)
         h = F.local_response_normalization(x, 5, 1, 1e-4 / 5., 0.75)
-        h = p1(F.relu(self.conv1_bn(self.conv1(h))))
-        h = p2(F.relu(self.conv2_bn(self.conv2(h))))
-        h = p3(F.relu(self.conv3_bn(self.conv3(h))))
-        h = p4(F.relu(self.conv4_bn(self.conv4(h))))
+        h = _without_cudnn(p1, F.relu(self.conv1_bn(self.conv1(h))))
+        h = _without_cudnn(p2, F.relu(self.conv2_bn(self.conv2(h))))
+        h = _without_cudnn(p3, F.relu(self.conv3_bn(self.conv3(h))))
+        h = _without_cudnn(p4, F.relu(self.conv4_bn(self.conv4(h))))
         h = self._upsampling_2d(h, p4)
         h = self.conv_decode4_bn(self.conv_decode4(h))
         h = self._upsampling_2d(h, p3)
