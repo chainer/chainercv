@@ -97,7 +97,6 @@ class SegNetBasic(chainer.Chain):
                 64, n_class, 1, 1, 0, initialW=initialW)
         )
         self.n_class = n_class
-        self.train = True
 
         if pretrained_model in self._models:
             data_root = get_dataset_directory('pfnet/chainercv/models')
@@ -138,18 +137,18 @@ class SegNetBasic(chainer.Chain):
         p3 = F.MaxPooling2D(2, 2)
         p4 = F.MaxPooling2D(2, 2)
         h = F.local_response_normalization(x, 5, 1, 1e-4 / 5., 0.75)
-        h = p1(F.relu(self.conv1_bn(self.conv1(h), test=not self.train)))
-        h = p2(F.relu(self.conv2_bn(self.conv2(h), test=not self.train)))
-        h = p3(F.relu(self.conv3_bn(self.conv3(h), test=not self.train)))
-        h = p4(F.relu(self.conv4_bn(self.conv4(h), test=not self.train)))
+        h = p1(F.relu(self.conv1_bn(self.conv1(h))))
+        h = p2(F.relu(self.conv2_bn(self.conv2(h))))
+        h = p3(F.relu(self.conv3_bn(self.conv3(h))))
+        h = p4(F.relu(self.conv4_bn(self.conv4(h))))
         h = self._upsampling_2d(h, p4)
-        h = self.conv_decode4_bn(self.conv_decode4(h), test=not self.train)
+        h = self.conv_decode4_bn(self.conv_decode4(h))
         h = self._upsampling_2d(h, p3)
-        h = self.conv_decode3_bn(self.conv_decode3(h), test=not self.train)
+        h = self.conv_decode3_bn(self.conv_decode3(h))
         h = self._upsampling_2d(h, p2)
-        h = self.conv_decode2_bn(self.conv_decode2(h), test=not self.train)
+        h = self.conv_decode2_bn(self.conv_decode2(h))
         h = self._upsampling_2d(h, p1)
-        h = self.conv_decode1_bn(self.conv_decode1(h), test=not self.train)
+        h = self.conv_decode1_bn(self.conv_decode1(h))
         score = self.conv_classifier(h)
         return score
 

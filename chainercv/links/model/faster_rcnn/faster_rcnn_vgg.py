@@ -201,7 +201,7 @@ class VGG16RoIHead(chainer.Chain):
         self.roi_size = roi_size
         self.spatial_scale = spatial_scale
 
-    def __call__(self, x, rois, roi_indices, test=True):
+    def __call__(self, x, rois, roi_indices):
         """Forward the chain.
 
         We assume that there are :math:`N` batches.
@@ -216,8 +216,6 @@ class VGG16RoIHead(chainer.Chain):
                 :math:`R' = \\sum _{i=1} ^ N R_i`.
             roi_indices (array): An array containing indices of images to
                 which bounding boxes correspond to. Its shape is :math:`(R',)`.
-            test (bool): Whether in test mode or not. This has no effect in
-                the current implementation.
 
         """
         roi_indices = roi_indices.astype(np.float32)
@@ -277,7 +275,7 @@ class VGG16FeatureExtractor(chainer.Chain):
             ('conv5_3', [self.conv5_3, F.relu]),
         ])
 
-    def __call__(self, x, test=True):
+    def __call__(self, x):
         h = x
         for key, funcs in self.functions.items():
             for func in funcs:

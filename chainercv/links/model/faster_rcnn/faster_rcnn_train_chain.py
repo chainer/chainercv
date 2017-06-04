@@ -58,8 +58,6 @@ class FasterRCNNTrainChain(chainer.Chain):
         self.loc_normalize_mean = faster_rcnn.loc_normalize_mean
         self.loc_normalize_std = faster_rcnn.loc_normalize_std
 
-        self.train = True
-
     def __call__(self, imgs, bboxes, labels, scale):
         """Forward Faster R-CNN and calculate losses.
 
@@ -103,9 +101,9 @@ class FasterRCNNTrainChain(chainer.Chain):
         _, _, H, W = imgs.shape
         img_size = (W, H)
 
-        features = self.faster_rcnn.extractor(imgs, test=not self.train)
+        features = self.faster_rcnn.extractor(imgs)
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.faster_rcnn.rpn(
-            features, img_size, scale, test=not self.train)
+            features, img_size, scale)
 
         # Since batch size is one, convert variables to singular form
         bbox = bboxes[0]
@@ -120,7 +118,7 @@ class FasterRCNNTrainChain(chainer.Chain):
             self.loc_normalize_mean, self.loc_normalize_std)
         sample_roi_index = self.xp.zeros((len(sample_roi),), dtype=np.int32)
         roi_cls_loc, roi_score = self.faster_rcnn.head(
-            features, sample_roi, sample_roi_index, test=not self.train)
+            features, sample_roi, sample_roi_index)
 
         # RPN losses
         gt_rpn_loc, gt_rpn_label = self.anchor_target_creator(

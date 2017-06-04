@@ -64,7 +64,7 @@ def main():
     model = SegNetBasic(n_class=n_class)
     serializers.load_npz(args.snapshot, model)
     model = calc_bn_statistics(model, args.gpu)
-    model.train = False
+    chainer.config.train = False
     if args.gpu >= 0:
         model.to_gpu(args.gpu)
 
