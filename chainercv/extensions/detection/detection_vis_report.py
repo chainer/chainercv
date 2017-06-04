@@ -73,8 +73,6 @@ class DetectionVisReport(chainer.training.extension.Extension):
             :obj:`'detection_iter={iteration}_idx={index}.jpg'`.
     """
 
-    invoke_before_training = False
-
     def __init__(
             self, iterator, target, label_names=None,
             filename='detection_iter={iteration}_idx={index}.jpg'):
