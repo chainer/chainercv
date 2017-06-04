@@ -133,10 +133,10 @@ class SegNetBasic(chainer.Chain):
             An image-wise score. Its channel size is :obj:`self.n_class`.
 
         """
-        p1 = F.MaxPooling2D(2, 2, use_cudnn=False)
-        p2 = F.MaxPooling2D(2, 2, use_cudnn=False)
-        p3 = F.MaxPooling2D(2, 2, use_cudnn=False)
-        p4 = F.MaxPooling2D(2, 2, use_cudnn=False)
+        p1 = F.MaxPooling2D(2, 2)
+        p2 = F.MaxPooling2D(2, 2)
+        p3 = F.MaxPooling2D(2, 2)
+        p4 = F.MaxPooling2D(2, 2)
         h = F.local_response_normalization(x, 5, 1, 1e-4 / 5., 0.75)
         h = p1(F.relu(self.conv1_bn(self.conv1(h), test=not self.train)))
         h = p2(F.relu(self.conv2_bn(self.conv2(h), test=not self.train)))
