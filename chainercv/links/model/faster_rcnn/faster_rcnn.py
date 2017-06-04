@@ -149,7 +149,7 @@ class FasterRCNN(chainer.Chain):
                 :math:`(R',)`.
 
         """
-        img_size = x.shape[2:][::-1]
+        img_size = x.shape[2:]
 
         h = self.extractor(x, test=test)
         rpn_locs, rpn_scores, rois, roi_indices, anchor =\
@@ -214,7 +214,7 @@ class FasterRCNN(chainer.Chain):
         if scale * max(H, W) > self.max_size:
             scale = self.max_size / max(H, W)
 
-        img = resize(img, (int(W * scale), int(H * scale)))
+        img = resize(img, (int(H * scale), int(W * scale)))
 
         img = (img - self.mean).astype(np.float32, copy=False)
         return img

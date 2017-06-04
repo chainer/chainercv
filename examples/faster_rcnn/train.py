@@ -57,12 +57,12 @@ def main():
         img = faster_rcnn.prepare(img)
         _, o_H, o_W = img.shape
         scale = o_H / H
-        bbox = transforms.resize_bbox(bbox, (W, H), (o_W, o_H))
+        bbox = transforms.resize_bbox(bbox, (H, W), (o_H, o_W))
 
         # horizontally flip
         img, params = transforms.random_flip(
             img, x_random=True, return_param=True)
-        bbox = transforms.flip_bbox(bbox, (o_W, o_H), params['x_flip'])
+        bbox = transforms.flip_bbox(bbox, (o_H, o_W), params['x_flip'])
 
         return img, bbox, label, scale
     train_data = TransformDataset(train_data, transform)
