@@ -171,8 +171,8 @@ class SegNetBasic(chainer.Chain):
         labels = []
         for img in imgs:
             C, H, W = img.shape
-            x = chainer.Variable(
-                self.xp.asarray(img[np.newaxis]), volatile=chainer.flag.ON)
+            with chainer.function.no_backprop_mode():
+                x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
             score = self.__call__(x)[0].data
             score = chainer.cuda.to_cpu(score)
             if score.shape != (C, H, W):

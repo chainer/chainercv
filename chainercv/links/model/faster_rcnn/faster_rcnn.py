@@ -282,11 +282,11 @@ class FasterRCNN(chainer.Chain):
         labels = list()
         scores = list()
         for img, scale in zip(prepared_imgs, scales):
-            img_var = chainer.Variable(
-                self.xp.asarray(img[None]), volatile=chainer.flag.ON)
-            H, W = img_var.shape[2:]
-            roi_cls_locs, roi_scores, rois, _ = self.__call__(
-                img_var, scale=scale, test=True)
+            with chainer.function.no_backprop_mode():
+                img_var = chainer.Variable(self.xp.asarray(img[None]))
+                H, W = img_var.shape[2:]
+                roi_cls_locs, roi_scores, rois, _ = self.__call__(
+                    img_var, scale=scale, test=True)
             # We are assuming that batch size is 1.
             roi_cls_loc = roi_cls_locs.data
             roi_score = roi_scores.data

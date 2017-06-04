@@ -255,8 +255,9 @@ class SSD(chainer.Chain):
             x.append(self.xp.array(img))
             sizes.append((W, H))
 
-        x = chainer.Variable(self.xp.stack(x), volatile=chainer.flag.ON)
-        loc, conf = self(x)
+        with chainer.function.no_backprop_mode():
+            x = chainer.Variable(self.xp.stack(x))
+            loc, conf = self(x)
         raw_bboxes, raw_scores = self._decode(loc.data, conf.data)
 
         bboxes = list()
