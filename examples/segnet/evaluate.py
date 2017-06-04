@@ -77,8 +77,9 @@ def main():
     n_true_positive = [0 for _ in range(n_class)]
     for batch in it:
         img, gt_label = concat_examples(batch, args.gpu)
-        img = chainer.Variable(img, volatile=True)
-        pred_label = F.argmax(F.softmax(model(img)), axis=1)
+        with chainer.function.no_backprop_mode():
+            img = chainer.Variable(img)
+            pred_label = F.argmax(F.softmax(model(img)), axis=1)
         pred_label = cuda.to_cpu(pred_label.data)
         gt_label = cuda.to_cpu(gt_label)
         for cls_i in range(n_class):
