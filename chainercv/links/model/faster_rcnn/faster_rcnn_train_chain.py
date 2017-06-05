@@ -101,7 +101,7 @@ class FasterRCNNTrainChain(chainer.Chain):
             raise ValueError('Currently only batch size 1 is supported.')
 
         _, _, H, W = imgs.shape
-        img_size = (W, H)
+        img_size = (H, W)
 
         features = self.faster_rcnn.extractor(imgs, test=not self.train)
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.faster_rcnn.rpn(

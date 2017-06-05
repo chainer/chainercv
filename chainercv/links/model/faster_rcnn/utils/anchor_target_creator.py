@@ -57,7 +57,7 @@ class AnchorTargetCreator(object):
                 :math:`(R, 4)`.
             anchor (array): Coordinates of anchors. Its shape is
                 :math:`(S, 4)`.
-            img_size (tuple of ints): A tuple :obj:`W, H`, which
+            img_size (tuple of ints): A tuple :obj:`H, W`, which
                 is a tuple of height and width of an image.
 
         Returns:
@@ -74,10 +74,10 @@ class AnchorTargetCreator(object):
         bbox = cuda.to_cpu(bbox)
         anchor = cuda.to_cpu(anchor)
 
-        img_W, img_H = img_size
+        img_H, img_W = img_size
 
         n_anchor = len(anchor)
-        inside_index = _get_inside_index(anchor, img_W, img_H)
+        inside_index = _get_inside_index(anchor, img_H, img_W)
         anchor = anchor[inside_index]
         argmax_ious, label = self._create_label(
             inside_index, anchor, bbox)
@@ -156,7 +156,7 @@ def _unmap(data, count, index, fill=0):
     return ret
 
 
-def _get_inside_index(anchor, W, H):
+def _get_inside_index(anchor, H, W):
     # Calc indicies of anchors which are located completely inside of the image
     # whose size is speficied.
     xp = cuda.get_array_module(anchor)

@@ -6,7 +6,7 @@ def generate_random_bbox(n, img_size, min_length, max_length):
 
     Args:
         n (int): The number of bounding boxes.
-        img_size (tuple): A tuple of length 2. The width and the height
+        img_size (tuple): A tuple of length 2. The height and the width
             of the image on which bounding boxes locate.
         min_length (float): The minimum length of edges of bounding boxes.
         max_length (float): The maximum length of edges of bounding boxes.
@@ -22,7 +22,7 @@ def generate_random_bbox(n, img_size, min_length, max_length):
         :math:`min\_length \\leq y_{max} - y_{min} < max\_length`.
 
     """
-    W, H = img_size
+    H, W = img_size
     x_min = np.random.uniform(0, W - max_length, size=(n,))
     y_min = np.random.uniform(0, H - max_length, size=(n,))
     x_max = x_min + np.random.uniform(min_length, max_length, size=(n,))

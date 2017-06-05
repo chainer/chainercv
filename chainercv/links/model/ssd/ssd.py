@@ -253,7 +253,7 @@ class SSD(chainer.Chain):
             _, H, W = img.shape
             img = self._prepare(img)
             x.append(self.xp.array(img))
-            sizes.append((W, H))
+            sizes.append((H, W))
 
         x = chainer.Variable(self.xp.stack(x), volatile=chainer.flag.ON)
         loc, conf = self(x)
