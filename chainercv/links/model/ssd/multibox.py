@@ -8,9 +8,9 @@ class Multibox(chainer.Chain):
     """Multibox head of Single Shot Multibox Detector.
 
     This is a head part of Single Shot Multibox Detector [#]_.
-    This link computes :obj:`loc` and :obj:`conf` from feature maps.
-    :obj:`loc` contains information of the coordinates of bounding boxes
-    and :obj:`conf` contains that of classes.
+    This link computes :obj:`locs` and :objs:`conf` from feature maps.
+    :obj:`locs` contains information of the coordinates of bounding boxes
+    and :obj:`confs` contains that of classes.
 
     .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
        Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
@@ -65,12 +65,12 @@ class Multibox(chainer.Chain):
 
         Returns:
             tuple of chainer.Variable:
-            This method returns two :obj:`chainer.Variable`, :obj:`loc` and
-            :obj:`conf`. :obj:`loc` is an array whose shape is
+            This method returns two :obj:`chainer.Variable`, :obj:`locs` and
+            :obj:`confs`. :obj:`locs` is an array whose shape is
             :math:`(B, K, 4)`,
             where :math:`B` is the number of samples in the batch and :math:`K`
             is the number of default bounding boxes.
-            :obj:`conf` is an array whose shape is :math:`(B, K, n\_class)`
+            :obj:`confs` is an array whose shape is :math:`(B, K, n\_class)`
         """
 
         locs = list()
@@ -87,7 +87,7 @@ class Multibox(chainer.Chain):
                 conf, (conf.shape[0], -1, self.n_class))
             confs.append(conf)
 
-        loc = F.concat(locs, axis=1)
-        conf = F.concat(confs, axis=1)
+        locs = F.concat(locs, axis=1)
+        confs = F.concat(confs, axis=1)
 
-        return loc, conf
+        return locs, confs
