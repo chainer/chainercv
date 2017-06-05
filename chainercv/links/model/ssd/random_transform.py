@@ -62,37 +62,24 @@ def _random_crop(img, bbox, label):
     return img, bbox, label
 
 
-class TrainTransformer(object):
+def random_transform(img, bbox, label, size, mean):
+    # color augmentations here
 
-    def __init__(self, insize, mean, encoder):
-        self.insize = insize
-        self.mean = mean
-        self.encoder = encoder
+    if random.randrange(2):
+        img, param = transforms.random_expand(
+            img, fill=mean, return_param=True)
+        bbox = transforms.translate_bbox(
+            bbox, param['x_offset'], param['y_offset'])
 
-    def __call__(self, in_data):
-        img, bbox, label = in_data
+    img, bbox, label = _random_crop(img, bbox, label)
 
-        # color augmentations here
+    _, H, W = img.shape
+    img = transforms.resize(img, (size, size))
+    bbox = transforms.resize_bbox(bbox, (W, H), (size, size))
 
-        if random.randrange(2):
-            img, param = transforms.random_expand(
-                img, fill=self.mean, return_param=True)
-            bbox = transforms.translate_bbox(
-                bbox, param['x_offset'], param['y_offset'])
+    img, params = transforms.random_flip(
+        img, x_random=True, return_param=True)
+    bbox = transforms.flip_bbox(
+        bbox, (size, size), x_flip=params['x_flip'])
 
-        img, bbox, label = _random_crop(img, bbox, label)
-
-        _, H, W = img.shape
-        img = transforms.resize(img, (self.insize, self.insize))
-        bbox = transforms.resize_bbox(bbox, (W, H), (self.insize, self.insize))
-
-        img, params = transforms.random_flip(
-            img, x_random=True, return_param=True)
-        bbox = transforms.flip_bbox(
-            bbox, (self.insize, self.insize), params['x_flip'])
-
-        img -= np.array(self.mean)[:, np.newaxis, np.newaxis]
-        bbox = transforms.resize_bbox(bbox, (self.insize, self.insize), (1, 1))
-        mb_loc, mb_label = self.encoder.encode(bbox, label)
-
-        return img, mb_loc, mb_label
+    return img, bbox, label

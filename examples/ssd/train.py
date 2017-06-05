@@ -1,4 +1,6 @@
 import argparse
+import copy
+import numpy as np
 
 import chainer
 from chainer.datasets import TransformDataset
@@ -9,9 +11,10 @@ from chainer.training import triggers
 from chainercv.datasets import VOCDetectionDataset
 from chainercv.links.model.ssd import ConcatenatedDataset
 from chainercv.links.model.ssd import multibox_loss
+from chainercv.links.model.ssd import random_transform
 from chainercv.links.model.ssd import SelectiveWeightDecay
-from chainercv.links.model.ssd import TrainTransformer
 from chainercv.links import SSD300
+from chainercv import transforms
 
 
 class MultiboxTrainChain(chainer.Chain):
@@ -47,17 +50,25 @@ def main():
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
 
-    transformer = TrainTransformer(
-        model.insize, model.mean,
-        chainer.cuda.to_cpu(model.default_bbox),
-        model.variance)
+    encoder = copy.copy(model.encoder)
+    encoder.to_cpu()
+    size = model.insize
+    mean = model.mean
+
+    def transform(in_data):
+        img, bbox, label = in_data
+        img, bbox, label = random_transform(img, bbox, label, size, mean)
+        img -= np.array(mean)[:, np.newaxis, np.newaxis]
+        mb_loc, mb_label = encoder.encode(
+            transforms.resize_bbox(bbox, (size, size), (1, 1)), label)
+        return img, mb_loc, mb_label
 
     dataset = TransformDataset(
         ConcatenatedDataset(
             VOCDetectionDataset(year='2007', split='trainval'),
             VOCDetectionDataset(year='2012', split='trainval')
         ),
-        transformer)
+        transform)
 
     iterator = chainer.iterators.MultiprocessIterator(
         dataset, args.batchsize, n_processes=2)
