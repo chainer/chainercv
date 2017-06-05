@@ -1,16 +1,15 @@
 import numpy as np
 import unittest
 
-import chainer
+from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
 
 from chainercv.links.model.ssd import decode_with_default_bbox
 
 
-def _random_array(xp, shape):
-    return xp.array(
-        np.random.uniform(-1, 1, size=shape), dtype=np.float32)
+def _random_array(shape):
+    return np.random.uniform(-1, 1, size=shape).astype(np.float32)
 
 
 @testing.parameterize(*testing.product({
@@ -21,11 +20,13 @@ def _random_array(xp, shape):
 }))
 class TestDecodeWithDefaultBbox(unittest.TestCase):
 
-    def _check_decode_with_default_bbox(self, xp):
-        default_bbox = _random_array(xp, (self.n_bbox, 4))
+    def setUp(self):
+        self.loc = _random_array((self.n_bbox, 4))
+        self.conf = _random_array((self.n_bbox, self.n_fg_class + 1))
+        self.default_bbox = _random_array((self.n_bbox, 4))
 
-        loc = _random_array(xp, (self.n_bbox, 4))
-        conf = _random_array(xp, (self.n_bbox, self.n_fg_class + 1))
+    def _check_decode_with_default_bbox(self, loc, conf, default_bbox):
+        xp = cuda.get_array_module(loc, conf, default_bbox)
 
         bbox, label, score = decode_with_default_bbox(
             loc, conf, default_bbox, (0.1, 0.1),
@@ -45,11 +46,14 @@ class TestDecodeWithDefaultBbox(unittest.TestCase):
         self.assertEqual(score.shape[0], bbox.shape[0])
 
     def test_decode_with_default_bbox_cpu(self):
-        self._check_decode_with_default_bbox(np)
+        self._check_decode_with_default_bbox(
+            self.loc, self.conf, self.default_bbox)
 
     @attr.gpu
     def test_decode_with_default_bbox_gpu(self):
-        self._check_decode_with_default_bbox(chainer.cuda.cupy)
+        self._check_decode_with_default_bbox(
+            cuda.to_gpu(self.loc), cuda.to_gpu(self.conf),
+            cuda.to_gpu(self.default_bbox))
 
 
 testing.run_module(__name__, __file__)
