@@ -1,7 +1,6 @@
 import numpy as np
 import random
 
-from chainercv.links.model.ssd import encode_with_default_bbox
 from chainercv import transforms
 from chainercv import utils
 
@@ -65,11 +64,10 @@ def _random_crop(img, bbox, label):
 
 class TrainTransformer(object):
 
-    def __init__(self, insize, mean, default_bbox, variance):
+    def __init__(self, insize, mean, encoder):
         self.insize = insize
         self.mean = mean
-        self.default_bbox = default_bbox
-        self.variance = variance
+        self.encoder = encoder
 
     def __call__(self, in_data):
         img, bbox, label = in_data
@@ -95,8 +93,6 @@ class TrainTransformer(object):
 
         img -= np.array(self.mean)[:, np.newaxis, np.newaxis]
         bbox = transforms.resize_bbox(bbox, (self.insize, self.insize), (1, 1))
-        loc, conf = encode_with_default_bbox(
-            bbox, label,
-            self.default_bbox, self.variance, 0.5)
+        mb_loc, mb_label = self.encoder.encode(bbox, label)
 
-        return img, loc, conf
+        return img, mb_loc, mb_label

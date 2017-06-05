@@ -24,7 +24,7 @@ def _hard_negative(x, positive, k):
     return xp.array(hard_negative)
 
 
-def multibox_loss(x_locs, x_confs, t_locs, t_confs, k):
+def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
     """Computes multibox losses
 
     This is a loss function used in [#]_.
@@ -34,17 +34,17 @@ def multibox_loss(x_locs, x_confs, t_locs, t_confs, k):
        SSD: Single Shot MultiBox Detector. ECCV 2016.
 
     Args:
-        x_locs (chainer.Variable): A variable which indicates predicted
+        mb_locs (chainer.Variable): A variable which indicates predicted
             locations of bounding boxes. Its shape is :math:`(B, K, 4)`,
             where :math:`B` is the number of samples in the batch and
             :math:`K` is the number of default bounding boxes.
-        x_confs (chainer.Variable): A variable which indicates predicted
+        mb_confs (chainer.Variable): A variable which indicates predicted
             classes of bounding boxes. Its shape is :math:`(B, K, n\_class)`.
             This function assumes the first class is background (negative).
-        t_locs (chainer.Variable): A variable which indicates ground truth
+        gt_mb_locs (chainer.Variable): A variable which indicates ground truth
             locations of bounding boxes. Its shape is :math:`(B, K, 4)`.
-        t_confs (chainer.Variable): A variable which indicates ground truth
-            classes of bounding boxes. Its shape is :math:`(B, K)`.
+        gt_mb_labels (chainer.Variable): A variable which indicates ground
+            truth classes of bounding boxes. Its shape is :math:`(B, K)`.
         k (float): A coefficient which is used to hard negative mining.
             This value determines the ratio between the number of positives
             and that of mined negatives. The value used in the original paper
@@ -55,20 +55,20 @@ def multibox_loss(x_locs, x_confs, t_locs, t_confs, k):
         This function returns two :obj:`chainer.Variable`: :obj:`loc_loss` and
         :obj:`conf_loss`.
     """
-    xp = chainer.cuda.get_array_module(t_confs.data)
+    xp = chainer.cuda.get_array_module(gt_mb_labels.data)
 
-    positive = t_confs.data > 0
+    positive = gt_mb_labels.data > 0
     n_positive = positive.sum()
     if n_positive == 0:
         z = chainer.Variable(np.zeros((), dtype=np.float32))
         return z, z
 
-    loc_loss = F.huber_loss(x_locs, t_locs, 1, reduce='no')
+    loc_loss = F.huber_loss(mb_locs, gt_mb_locs, 1, reduce='no')
     loc_loss = F.sum(loc_loss, axis=2)
     loc_loss *= positive.astype(loc_loss.dtype)
     loc_loss = F.sum(loc_loss) / n_positive
 
-    conf_loss = _elementwise_softmax_cross_entropy(x_confs, t_confs)
+    conf_loss = _elementwise_softmax_cross_entropy(mb_confs, gt_mb_labels)
     hard_negative = _hard_negative(conf_loss.data, positive, k)
     conf_loss *= xp.logical_or(positive, hard_negative).astype(conf_loss.dtype)
     conf_loss = F.sum(conf_loss) / n_positive
