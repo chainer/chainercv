@@ -83,12 +83,79 @@ class MultiboxEncoder(object):
             self._default_bbox, device=device)
 
     def encode(self, bbox, label, iou_thresh=0.5):
-        raise NotImplementedError
+        """Encodes coordinates and classes of bounding boxes.
+
+        This method encodes :obj:`bbox: and :obj:`label` to :obj:`mb_loc`
+        and :obj:`mb_label`, which are used to compute multibox loss.
+
+        Args:
+            bbox (array): A float array of shape :math:`(R, 4)`,
+                where :math:`R` is the number of bounding boxes in a image.
+                Each bouding box is organized by
+                :obj:`(x_min, y_min, x_max, y_max)`
+                in the second axis.
+            label (array) : An integer array of shape :math:`(R,)`.
+                Each value indicates the class of the bounding box.
+            iou_thresh (float): The threshold value to determine
+                a default bounding box is assigned to a ground truth
+                or not. The default value is :obj:`0.5`.
+
+            mb_loc (array): A float array whose shape is
+                :math:`(K, 4)`, :math:`K` is the number of
+                 default bounding boxes.
+            mb_conf (array): A float array whose shape is
+                :math:`(K, n\_fg\_class + 1)`.
+            nms_thresh (float): The threshold value
+                for :meth:`chainercv.transfroms.non_maximum_suppression`.
+            score_thresh (float): The threshold value for confidence score.
+                If a bounding box whose confidence score is lower than
+                this value, the bounding box will be suppressed.
+
+        Returns:
+            tuple of two arrays:
+            This method returns a tuple of two arrays,
+            :obj:`(mb_loc, mb_label)`.
+
+            * **mb_loc**: A float array of shape :math:`(K, 4)`, \
+                where :math:`K` is the number of default bounding boxes.
+            * **mb_label**: An integer array of shape :math:`(K,)`.
+
+        """
+
+        if len(bbox) == 0:
+            return (
+                np.zeros(self._default_bbox.shape, dtype=np.float32),
+                np.zeros(self._default_bbox.shape[:1], dtype=np.int32))
+
+        iou = utils.bbox_iou(
+            np.hstack((
+                self._default_bbox[:, :2] - self._default_bbox[:, 2:] / 2,
+                self._default_bbox[:, :2] + self._default_bbox[:, 2:] / 2)),
+            bbox)
+        idx = iou.argmax(axis=1)
+        iou = iou.max(axis=1)
+
+        mb_bbox = bbox[idx]
+        mb_loc = np.hstack((
+            ((mb_bbox[:, :2] + mb_bbox[:, 2:]) / 2
+             - self._default_bbox[:, :2]) /
+            (self._variance[0] * self._default_bbox[:, 2:]),
+            np.log((mb_bbox[:, 2:] - mb_bbox[:, :2])
+                   / self._default_bbox[:, 2:]) /
+            self._variance[1]))
+
+        mb_label = label[idx]
+        # [0, n_fg_class - 1] -> [1, n_fg_class]
+        mb_label += 1
+        # 0 is for background
+        mb_label[iou < iou_thresh] = 0
+
+        return mb_loc.astype(np.float32), mb_label.astype(np.int32)
 
     def decode(self, mb_loc, mb_conf, nms_thresh, score_thresh):
-        """Decode coordinates and classes of bounding boxes.
+        """Decodes coordinates and classes of bounding boxes.
 
-        This function decodes :obj:`mb_loc` and :obj:`mb_conf` returned
+        This method decodes :obj:`mb_loc` and :obj:`mb_conf` returned
         by a SSD network.
 
         Args:

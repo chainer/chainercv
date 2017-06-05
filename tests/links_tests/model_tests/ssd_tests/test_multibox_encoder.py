@@ -41,6 +41,8 @@ class TestDefaultBboxEncoder(unittest.TestCase):
         self.n_bbox = sum(
             grid * grid * (len(ar) + 1) * 2
             for grid, ar in zip(self.grids, self.aspect_ratios))
+        self.bbox = _random_array((5, 4))
+        self.label = np.random.randint(0, self.n_fg_class, size=5)
         self.mb_loc = _random_array((self.n_bbox, 4))
         self.mb_conf = _random_array((self.n_bbox, self.n_fg_class + 1))
 
@@ -58,6 +60,25 @@ class TestDefaultBboxEncoder(unittest.TestCase):
     def test_dafault_bbox(self):
         self.assertEqual(
             self.encoder._default_bbox.shape, (self.n_bbox, 4))
+
+    def _check_encode(self, bbox, label):
+        xp = self.encoder.xp
+
+        mb_loc, mb_label = self.encoder.encode(bbox, label)
+
+        self.assertIsInstance(mb_loc, xp.ndarray)
+        self.assertEqual(mb_loc.shape, (self.n_bbox, 4))
+
+        self.assertIsInstance(mb_label, xp.ndarray)
+        self.assertEqual(mb_label.shape, (self.n_bbox,))
+
+    def test_encode_cpu(self):
+        self._check_encode(self.bbox, self.label)
+
+    @attr.gpu
+    def test_encode_gpu(self):
+        self.encoder.to_gpu()
+        self._check_encode(cuda.to_gpu(self.bbox), cuda.to_gpu(self.label))
 
     def _check_decode(self, mb_loc, mb_conf):
         xp = self.encoder.xp
@@ -82,7 +103,7 @@ class TestDefaultBboxEncoder(unittest.TestCase):
         self._check_decode(self.mb_loc, self.mb_conf)
 
     @attr.gpu
-    def test_decode_with_default_bbox_gpu(self):
+    def test_decode_gpu(self):
         self.encoder.to_gpu()
         self._check_decode(cuda.to_gpu(self.mb_loc), cuda.to_gpu(self.mb_conf))
 
