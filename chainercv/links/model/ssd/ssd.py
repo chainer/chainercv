@@ -45,7 +45,7 @@ class SSD(chainer.Chain):
             * :meth:`__call__`: A method which computes \
             :obj:`mb_locs` and :obj:`mb_confs`. \
             It must take a batched feature maps and \
-            return :obj:`mb_loc` and :obj:`mb_confs`.
+            return :obj:`mb_locs` and :obj:`mb_confs`.
         steps (iterable of float): The step size for each feature map.
             This value is used by
             :class:`~chainercv.links.model.ssd.MultiboxEncoder`.
@@ -103,8 +103,8 @@ class SSD(chainer.Chain):
         """Compute localization and classification from a batch of images.
 
         This method computes two variables, :obj:`mb_locs` and :obj:`mb_confs`.
-        :meth:`_decode` converts these variables to bounding box coordinates
-        and confidence scores.
+        :func:`self.encoder.decode` converts these variables to bounding box
+        coordinates and confidence scores.
         These variables are also used in training SSD.
 
         Args:
