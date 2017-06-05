@@ -12,9 +12,8 @@ from chainercv.utils import generate_random_bbox
 
 
 @testing.parameterize(
-    *testing.product({
-        'test': [True, False],
-    })
+    {'train': True},
+    {'train': False},
 )
 class TestProposalCreator(unittest.TestCase):
 
@@ -37,7 +36,7 @@ class TestProposalCreator(unittest.TestCase):
             n_test_post_nms=self.n_test_post_nms,
             min_size=0)
 
-        chainer.config.train = not self.test
+        chainer.config.train = self.train
 
     def check_proposal_creator(
             self, proposal_creator,

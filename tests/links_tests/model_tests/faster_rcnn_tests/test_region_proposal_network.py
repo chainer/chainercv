@@ -10,8 +10,8 @@ from chainercv.links.model.faster_rcnn import RegionProposalNetwork
 
 
 @testing.parameterize(
-    {'test': True},
-    {'test': False},
+    {'train': True},
+    {'train': False},
 )
 class TestRegionProposalNetwork(unittest.TestCase):
 
@@ -35,7 +35,7 @@ class TestRegionProposalNetwork(unittest.TestCase):
         self.x = np.random.uniform(size=(self.B, C, H, W)).astype(np.float32)
         self.img_size = (W * feat_stride, H * feat_stride)
 
-        chainer.config.train = not self.test
+        chainer.config.train = self.train
 
     def _check_call(self, x, img_size):
         _, _, H, W = x.shape
