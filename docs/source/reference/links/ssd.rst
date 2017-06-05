@@ -20,6 +20,14 @@ SSD512
 Utility
 -------
 
+decode_with_dafault_bbox
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: decode_with_dafault_bbox
+
+generate_dafault_bbox
+~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: generate_default_bbox
+
 Multibox
 ~~~~~~~~
 .. autoclass:: Multibox
