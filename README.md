@@ -1,11 +1,11 @@
-[![travis](https://travis-ci.org/pfnet/chainercv.svg?branch=master)](https://travis-ci.org/pfnet/chainercv)
+[![travis](https://travis-ci.org/chainer/chainercv.svg?branch=master)](https://travis-ci.org/chainer/chainercv)
 
 <!--[![pypi](https://img.shields.io/pypi/v/chainercv.svg)](https://pypi.python.org/pypi/chainercv)-->
 
 
 # ChainerCV
 
-ChainerCV is a collection of tools to train and run neural networks for computer vision tasks using [Chainer](https://github.com/pfnet/chainer).
+ChainerCV is a collection of tools to train and run neural networks for computer vision tasks using [Chainer](https://github.com/chainer/chainer).
 
 You can find the documentation [here](http://chainercv.readthedocs.io/en/latest/).
 
@@ -19,9 +19,11 @@ These are the outputs of the detection models supported by ChainerCV.
 $ pip install chainercv
 ```
 
+The instruction on installation using Anaconda is [here](http://chainercv.readthedocs.io/en/latest/#install-guide) (recommended).
+
 ### Requirements
 
-+ [Chainer](https://github.com/pfnet/chainer) and its dependencies
++ [Chainer](https://github.com/chainer/chainer) and its dependencies
 + Cython
 + Pillow
 
@@ -38,8 +40,9 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 
 ## Models
 Currently, ChainerCV supports networks for object detection and semantic segmentation.
+We are planning to support networks with different tasks in the future.
 Image detection is the task of finding objects in an image and classifying the objects.
-<!--Semantic segmentation is the task of segmenting an image into pieces and assigning object labels to them. -->
+Semantic segmentation is the task of segmenting an image into pieces and assigning object labels to them.
 Our implementations include:
 
 Detection Models
@@ -47,8 +50,8 @@ Detection Models
 + **Faster R-CNN**
 + **Single Shot Multibox Detector (SSD)**
 
-<!--Semantic Segmentation 
-+ **SegNet** -->
+Semantic Segmentation 
++ **SegNet**
 
 Models for certain tasks are designed to have common interfaces.
 For example, detection models support method that takes images and outputs coordinates, class labels and confidence scores of bounding boxes predicted around estimated regions of objects.

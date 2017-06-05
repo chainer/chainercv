@@ -27,9 +27,13 @@ read_image
 Iterator Utilities
 ------------------
 
-apply_detection_link
-~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: apply_detection_link
+apply_prediction_to_iterator
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: apply_prediction_to_iterator
+
+unzip
+~~~~~
+.. autofunction:: unzip
 
 
 Testing Utilities
@@ -39,3 +43,7 @@ ConstantStubLink
 ~~~~~~~~~~~~~~~~
 .. autoclass:: ConstantStubLink
    :members:
+
+generate_random_bbox
+~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: generate_random_bbox

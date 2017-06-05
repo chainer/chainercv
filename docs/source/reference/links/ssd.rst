@@ -17,14 +17,19 @@ SSD512
 .. autoclass:: SSD512
    :members:
 
-Utility Classes
----------------
+Utility
+-------
 
 Multibox
 ~~~~~~~~
 .. autoclass:: Multibox
    :members:
    :special-members:  __call__
+
+MultiboxEncoder
+~~~~~~~~~~~~~~~
+.. autoclass:: MultiboxEncoder
+   :members:
 
 Normalize
 ~~~~~~~~~

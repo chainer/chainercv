@@ -1,8 +1,6 @@
 from chainercv.links.model.ssd.concatenated_dataset import ConcatenatedDataset  # NOQA
-from chainercv.links.model.ssd.default_bbox_utils import decode_with_default_bbox  # NOQA
-from chainercv.links.model.ssd.default_bbox_utils import encode_with_default_bbox  # NOQA
-from chainercv.links.model.ssd.default_bbox_utils import generate_default_bbox  # NOQA
 from chainercv.links.model.ssd.multibox import Multibox  # NOQA
+from chainercv.links.model.ssd.multibox_encoder import MultiboxEncoder  # NOQA
 from chainercv.links.model.ssd.multibox_loss import multibox_loss  # NOQA
 from chainercv.links.model.ssd.multibox_train_chain import MultiboxTrainChain  # NOQA
 from chainercv.links.model.ssd.normalize import Normalize  # NOQA

@@ -7,16 +7,7 @@ from chainer.iterators import SerialIterator
 from chainer import testing
 
 from chainercv.extensions import DetectionVOCEvaluator
-
-
-def _generate_bbox(n, img_size, min_length, max_length):
-    W, H = img_size
-    x_min = np.random.uniform(0, W - max_length, size=(n,))
-    y_min = np.random.uniform(0, H - max_length, size=(n,))
-    x_max = x_min + np.random.uniform(min_length, max_length, size=(n,))
-    y_max = y_min + np.random.uniform(min_length, max_length, size=(n,))
-    bbox = np.stack((x_min, y_min, x_max, y_max), axis=1).astype(np.float32)
-    return bbox
+from chainercv.utils import generate_random_bbox
 
 
 class _DetectionStubLink(chainer.Link):
@@ -41,7 +32,7 @@ class _DetectionStubLink(chainer.Link):
 class TestDetectionVOCEvaluator(unittest.TestCase):
 
     def setUp(self):
-        bboxes = [_generate_bbox(5, (256, 324), 24, 120)
+        bboxes = [generate_random_bbox(5, (256, 324), 24, 120)
                   for _ in range(10)]
         labels = np.ones((10, 5))
         self.dataset = TupleDataset(
@@ -51,8 +42,9 @@ class TestDetectionVOCEvaluator(unittest.TestCase):
         self.link = _DetectionStubLink(bboxes, labels)
         self.iterator = SerialIterator(
             self.dataset, 5, repeat=False, shuffle=False)
-        self.evaluator = DetectionVOCEvaluator(self.iterator, self.link)
-        self.expect_map = 1
+        self.evaluator = DetectionVOCEvaluator(
+            self.iterator, self.link, label_names=('cls0', 'cls1', 'cls2'))
+        self.expected_ap = 1
 
     def test_evaluate(self):
         reporter = chainer.Reporter()
@@ -64,19 +56,27 @@ class TestDetectionVOCEvaluator(unittest.TestCase):
         # evaluator collect results in order to calculate their mean.
         self.assertEqual(len(reporter.observation), 0)
 
-        self.assertEqual(mean['target/map'], self.expect_map)
+        np.testing.assert_equal(mean['target/map'], self.expected_ap)
+        np.testing.assert_equal(mean['target/ap/cls0'], np.nan)
+        np.testing.assert_equal(mean['target/ap/cls1'], self.expected_ap)
+        np.testing.assert_equal(mean['target/ap/cls2'], np.nan)
 
     def test_call(self):
         mean = self.evaluator()
         # main is used as default
-        self.assertEqual(mean['main/map'], self.expect_map)
+        np.testing.assert_equal(mean['main/map'], self.expected_ap)
+        np.testing.assert_equal(mean['main/ap/cls0'], np.nan)
+        np.testing.assert_equal(mean['main/ap/cls1'], self.expected_ap)
+        np.testing.assert_equal(mean['main/ap/cls2'], np.nan)
 
     def test_evaluator_name(self):
         self.evaluator.name = 'eval'
         mean = self.evaluator()
         # name is used as a prefix
-        self.assertAlmostEqual(
-            mean['eval/main/map'], self.expect_map)
+        np.testing.assert_equal(mean['eval/main/map'], self.expected_ap)
+        np.testing.assert_equal(mean['eval/main/ap/cls0'], np.nan)
+        np.testing.assert_equal(mean['eval/main/ap/cls1'], self.expected_ap)
+        np.testing.assert_equal(mean['eval/main/ap/cls2'], np.nan)
 
     def test_current_report(self):
         reporter = chainer.Reporter()

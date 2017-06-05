@@ -4,8 +4,7 @@ import numpy as np
 
 import chainer
 
-from chainercv.links.model.ssd import decode_with_default_bbox
-from chainercv.links.model.ssd import generate_default_bbox
+from chainercv.links.model.ssd import MultiboxEncoder
 from chainercv import transforms
 
 
@@ -28,10 +27,11 @@ class SSD(chainer.Chain):
             feature extraction.
             * :obj:`grids`: An iterable of integer. Each integer indicates \
             the size of feature map. This value is used by
-            :func:`~chainercv.links.model.ssd.generate_default_bbox`.
+            :class:`~chainercv.links.model.ssd.DefaultBboxencoder`.
             * :meth:`__call_`: A method which computes feature maps. \
             It must take a batched images and return batched feature maps.
-        multibox: A link which computes loc and conf from feature maps.
+        multibox: A link which computes :obj:`mb_locs` and :obj:`mb_confs`
+            from feature maps.
             This link must have :obj:`n_class`, :obj:`aspect_ratios` and
             :meth:`__call__`.
 
@@ -41,21 +41,21 @@ class SSD(chainer.Chain):
             * :obj:`aspect_ratios`: An iterable of tuple of integer. \
             Each tuple indicates the aspect ratios of default bounding boxes \
             at each feature maps. This value is used by
-            :func:`~chainercv.links.model.ssd.generate_default_bbox`.
+            :class:`~chainercv.links.model.ssd.MultiboxEncoder`.
             * :meth:`__call__`: A method which computes \
-            :obj:`loc` and :obj:`conf`. \
+            :obj:`mb_locs` and :obj:`mb_confs`. \
             It must take a batched feature maps and \
-            return :obj:`loc` and :obj:`conf`.
+            return :obj:`mb_locs` and :obj:`mb_confs`.
         steps (iterable of float): The step size for each feature map.
             This value is used by
-            :func:`~chainercv.links.model.ssd.generate_default_bbox`.
+            :class:`~chainercv.links.model.ssd.MultiboxEncoder`.
         sizes (iterable of float): The base size of default bounding boxes
             for each feature map. This value is used by
-            :func:`~chainercv.links.model.ssd.generate_default_bbox`.
+            :class:`~chainercv.links.model.ssd.MultiboxEncoder`.
         variance (tuple of floats): Two coefficients for decoding
-            the locations of bounding boxe. The first value is used to
-            decode coordinates of the centers. The second value is used to
-            decode the sizes of bounding boxes.
+            the locations of bounding boxe.
+            This value is used by
+            :class:`~chainercv.links.model.ssd.MultiboxEncoder`.
             The default value is :obj:`(0.1, 0.2)`.
 
     Parameters:
@@ -75,14 +75,13 @@ class SSD(chainer.Chain):
             self, extractor, multibox,
             steps, sizes, variance=(0.1, 0.2),
             mean=0):
-        self.variance = variance
         self.mean = mean
         self.use_preset('visualize')
 
         super(SSD, self).__init__(extractor=extractor, multibox=multibox)
 
-        self.default_bbox = generate_default_bbox(
-            extractor.grids, multibox.aspect_ratios, steps, sizes)
+        self.encoder = MultiboxEncoder(
+            extractor.grids, multibox.aspect_ratios, steps, sizes, variance)
 
     @property
     def insize(self):
@@ -94,19 +93,18 @@ class SSD(chainer.Chain):
 
     def to_cpu(self):
         super(SSD, self).to_cpu()
-        self.default_bbox = chainer.cuda.to_cpu(self.default_bbox)
+        self.encoder.to_cpu()
 
     def to_gpu(self, device=None):
         super(SSD, self).to_gpu(device)
-        self.default_bbox = chainer.cuda.to_gpu(
-            self.default_bbox, device=device)
+        self.encoder.to_gpu(device=device)
 
     def __call__(self, x):
         """Compute localization and classification from a batch of images.
 
-        This method computes two variables, :obj:`locs` and :obj:`confs`.
-        :meth:`_decode` converts these variables to bounding box coordinates
-        and confidence scores.
+        This method computes two variables, :obj:`mb_locs` and :obj:`mb_confs`.
+        :func:`self.encoder.decode` converts these variables to bounding box
+        coordinates and confidence scores.
         These variables are also used in training SSD.
 
         Args:
@@ -115,13 +113,14 @@ class SSD(chainer.Chain):
 
         Returns:
             tuple of chainer.Variable:
-            This method returns two variables, :obj:`locs` and :obj:`confs`.
+            This method returns two variables, :obj:`mb_locs` and
+            :obj:`mb_confs`.
 
-            * **locs**: A variable of float arrays of shape \
+            * **mb_locs**: A variable of float arrays of shape \
                 :math:`(B, K, 4)`, \
                 where :math:`B` is the number of samples in the batch and \
                 :math:`K` is the number of default bounding boxes.
-            * **confs**: A variable of float arrays of shape \
+            * **mb_confs**: A variable of float arrays of shape \
                 :math:`(B, K, n\_fg\_class + 1)`.
         """
 
@@ -161,7 +160,7 @@ class SSD(chainer.Chain):
             raise ValueError('preset must be visualize or evaluate')
 
     def predict(self, imgs):
-        """Detect objects from images
+        """Detect objects from images.
 
         This method predicts objects for each image.
 
@@ -171,19 +170,22 @@ class SSD(chainer.Chain):
                 and the range of their value is :math:`[0, 255]`.
 
         Returns:
-            tuple of list:
-            This method returns a tuple of three lists,
-            :obj:`(bboxes, labels, scores)`.
+           tuple of lists:
+           This method returns a tuple of three lists,
+           :obj:`(bboxes, labels, scores)`.
 
-            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
-                where :math:`R` is the number of bounding boxes in a image. \
-                Each bouding box is organized by \
-                :obj:`(x_min, y_min, x_max, y_max)` \
-                in the second axis.
-            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
-                Each value indicates the class of the bounding box.
-            * **scores** : A list of float arrays of shape :math:`(R,)`. \
-                Each value indicates how confident the prediction is.
+           * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
+               where :math:`R` is the number of bounding boxes in a image. \
+               Each bouding box is organized by \
+               :obj:`(x_min, y_min, x_max, y_max)` \
+               in the second axis.
+           * **labels** : A list of integer arrays of shape :math:`(R,)`. \
+               Each value indicates the class of the bounding box. \
+               Values are in range :math:`[0, L - 1]`, where :math:`L` is the \
+               number of the foreground classes.
+           * **scores** : A list of float arrays of shape :math:`(R,)`. \
+               Each value indicates how confident the prediction is.
+
         """
 
         x = list()
@@ -195,16 +197,15 @@ class SSD(chainer.Chain):
             sizes.append((W, H))
 
         x = chainer.Variable(self.xp.stack(x), volatile=chainer.flag.ON)
-        locs, confs = self(x)
-        locs, confs = locs.data, confs.data
+        mb_locs, mb_confs = self(x)
+        mb_locs, mb_confs = mb_locs.data, mb_confs.data
 
         bboxes = list()
         labels = list()
         scores = list()
-        for loc, conf, size in zip(locs, confs, sizes):
-            bbox, label, score = decode_with_default_bbox(
-                loc, conf, self.default_bbox,
-                self.variance, self.nms_thresh, self.score_thresh)
+        for mb_loc, mb_conf, size in zip(mb_locs, mb_confs, sizes):
+            bbox, label, score = self.encoder.decode(
+                mb_loc, mb_conf, self.nms_thresh, self.score_thresh)
             bbox = transforms.resize_bbox(bbox, (1, 1), size)
             bboxes.append(chainer.cuda.to_cpu(bbox))
             labels.append(chainer.cuda.to_cpu(label))

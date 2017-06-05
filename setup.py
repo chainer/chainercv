@@ -20,13 +20,13 @@ cmdclass = {'build_ext': build_ext}
 
 install_requires = [
     'chainer==1.24',
-    'cython',
-    'pillow'
+    'Cython',
+    'Pillow'
 ]
 
 setup(
     name='chainercv',
-    version='0.4.7',
+    version='0.4.9',
     packages=find_packages(),
     author='Yusuke Niitani',
     author_email='yuyuniitani@gmail.com',

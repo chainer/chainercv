@@ -5,10 +5,10 @@ channels:
 - !!python/unicode
   'defaults'
 dependencies:
-  - cython
+  - Cython
   - opencv3=3.2.0
   - matplotlib
   - numpy
-  - scikit-learn
+  - Pillow
   - pip:
-    - chainer
+    - chainer=1.24
