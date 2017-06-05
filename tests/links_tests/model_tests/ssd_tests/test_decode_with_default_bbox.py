@@ -17,7 +17,7 @@ def _random_array(xp, shape):
     'n_fg_class': [1, 5, 20],
     'n_bbox': [1, 20, 100],
     'nms_thresh': [None, 0.5, 1],
-    'score_thresh': [0, 0.5, 1],
+    'score_thresh': [0, 0.5, 1, np.inf],
 }))
 class TestDecodeWithDefaultBbox(unittest.TestCase):
 
