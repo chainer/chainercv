@@ -1,6 +1,5 @@
-from chainercv.links.model.ssd.default_bbox_utils import decode_with_default_bbox  # NOQA
-from chainercv.links.model.ssd.default_bbox_utils import generate_default_bbox  # NOQA
 from chainercv.links.model.ssd.multibox import Multibox  # NOQA
+from chainercv.links.model.ssd.multibox_encoder import MultiboxEncoder  # NOQA
 from chainercv.links.model.ssd.normalize import Normalize  # NOQA
 from chainercv.links.model.ssd.ssd import SSD  # NOQA
 from chainercv.links.model.ssd.ssd_vgg16 import SSD300  # NOQA

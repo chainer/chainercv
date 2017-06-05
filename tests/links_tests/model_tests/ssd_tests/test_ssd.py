@@ -51,17 +51,6 @@ class TestSSD(unittest.TestCase):
         self.link = DummySSD(n_fg_class=self.n_fg_class)
         self.n_bbox = 10 * 10 * 4 + 4 * 4 * 6 + 1 * 1 * 4
 
-    def _check_default_bbox(self):
-        self.assertIsInstance(self.link.default_bbox, self.link.xp.ndarray)
-
-    def test_default_bbox_cpu(self):
-        self._check_default_bbox()
-
-    @attr.gpu
-    def test_default_bbox_gpu(self):
-        self.link.to_gpu()
-        self._check_default_bbox()
-
     def _check_call(self):
         x = _random_array(self.link.xp, (1, 3, 32, 32))
 
