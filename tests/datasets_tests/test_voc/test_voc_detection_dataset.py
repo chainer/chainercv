@@ -43,11 +43,11 @@ class TestVOCDetectionDataset(unittest.TestCase):
         self.assertEqual(len(out), self.n_out)
 
         img, bbox, label = out[:3]
+        C, H, W = img.shape
 
         self.assertIsInstance(img, np.ndarray)
         self.assertEqual(img.dtype, np.float32)
-        self.assertEqual(img.shape[0], 3)
-        self.assertEqual(img.ndim, 3)
+        self.assertEqual(C, 3)
         self.assertGreaterEqual(np.min(img), 0)
         self.assertLessEqual(np.max(img), 255)
 
@@ -55,6 +55,8 @@ class TestVOCDetectionDataset(unittest.TestCase):
         self.assertEqual(bbox.dtype, np.float32)
         self.assertEqual(bbox.ndim, 2)
         self.assertEqual(bbox.shape[1], 4)
+        np.testing.assert_array_less(bbox[:, 0], bbox[:, 2])
+        np.testing.assert_array_less(bbox[:, 1], bbox[:, 3])
 
         self.assertIsInstance(label, np.ndarray)
         self.assertEqual(label.dtype, np.int32)
