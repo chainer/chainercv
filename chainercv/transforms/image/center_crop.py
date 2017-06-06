@@ -37,7 +37,7 @@ def center_crop(img, size, return_param=False, copy=False):
     """
     _, H, W = img.shape
     oH, oW = size
-    if oW > W or oH > H:
+    if oH > H or oW > W:
         raise ValueError('shape of image needs to be larger than size')
 
     y_offset = int(round((H - oH) / 2.))
