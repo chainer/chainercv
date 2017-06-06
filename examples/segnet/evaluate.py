@@ -70,11 +70,12 @@ def main():
 
     imgs, pred_values, gt_values = apply_prediction_to_iterator(
         model.predict, it)
+    # Delete an iterator of images to save memory usage.
+    del imgs
     pred_labels, = pred_values
     gt_labels, = gt_values
 
-    confusion = calc_semantic_segmentation_confusion(
-        pred_labels, gt_labels, len(camvid_label_names))
+    confusion = calc_semantic_segmentation_confusion(pred_labels, gt_labels)
     ious = calc_semantic_segmentation_iou(confusion)
 
     pixel_accuracy = np.diag(confusion).sum() / confusion.size
