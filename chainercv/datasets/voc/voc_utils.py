@@ -5,7 +5,7 @@ from chainer.dataset import download
 from chainercv import utils
 
 
-root = 'pfnet/chainercv/pascal_voc'
+root = 'pfnet/chainercv/voc'
 urls = {
     '2012': 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/'
     'VOCtrainval_11-May-2012.tar',
@@ -16,7 +16,7 @@ urls = {
 }
 
 
-def get_pascal_voc(year, split):
+def get_voc(year, split):
     if year not in urls:
         raise ValueError
     key = year
@@ -61,3 +61,29 @@ voc_detection_label_names = (
 
 voc_semantic_segmentation_label_names = (('background',) +
                                          voc_detection_label_names)
+
+# these colors are used in the original MATLAB tools
+voc_semantic_segmentation_label_colors = (
+    (0, 0, 0),
+    (128, 0, 0),
+    (0, 128, 0),
+    (128, 128, 0),
+    (0, 0, 128),
+    (128, 0, 128),
+    (0, 128, 128),
+    (128, 128, 128),
+    (64, 0, 0),
+    (192, 0, 0),
+    (64, 128, 0),
+    (192, 128, 0),
+    (64, 0, 128),
+    (192, 0, 128),
+    (64, 128, 128),
+    (192, 128, 128),
+    (0, 64, 0),
+    (128, 64, 0),
+    (0, 192, 0),
+    (128, 192, 0),
+    (0, 64, 128),
+)
+voc_semantic_segmentation_ignore_label_color = (224, 224, 192)

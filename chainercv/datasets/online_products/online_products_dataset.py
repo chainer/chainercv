@@ -34,16 +34,16 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     When queried by an index, this dataset returns a corresponding
     :obj:`img, class_id, super_class_id`, a tuple of an image, a class id and
     a coarse level class id.
-    Images are in BGR and CHW format.
+    Images are in RGB and CHW format.
     Class ids start from 0.
 
     The :obj:`split` selects train and test split of the dataset as done in
-    [Song]_. The train split contains the first 11318 classes and the test
+    [#]_. The train split contains the first 11318 classes and the test
     split contains the remaining 11316 classes.
 
-    .. [Song] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
-        Deep Metric Learning via Lifted Structured Feature Embedding.
-        https://arxiv.org/abs/1511.06452.
+    .. [#] Hyun Oh Song, Yu Xiang, Stefanie Jegelka, Silvio Savarese.
+        `Deep Metric Learning via Lifted Structured Feature Embedding\
+        <https://arxiv.org/abs/1511.06452>`_. arXiv 2015.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -77,7 +77,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
 
         Returns a color image, class_id and super_class_id. The image is in CHW
         format.
-        The returned image is BGR.
+        The returned image is RGB.
 
         Args:
             i (int): The index of the example.

@@ -21,11 +21,11 @@ def loc2bbox(src_bbox, loc):
 
     The decoding formulas are used in works such as R-CNN [#]_.
 
+    The output is same type as the type of the inputs.
+
     .. [#] Ross Girshick, Jeff Donahue, Trevor Darrell, Jitendra Malik. \
     Rich feature hierarchies for accurate object detection and semantic \
     segmentation. CVPR 2014.
-
-    The output is same type as the type of the inputs.
 
     Args:
         src_bbox (array): A coordinates of bounding boxes.

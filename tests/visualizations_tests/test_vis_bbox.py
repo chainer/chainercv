@@ -4,6 +4,7 @@ import numpy as np
 
 from chainer import testing
 
+from chainercv.utils import generate_random_bbox
 from chainercv.visualizations import vis_bbox
 
 try:
@@ -43,7 +44,8 @@ class TestVisBbox(unittest.TestCase):
 
     def setUp(self):
         self.img = np.random.randint(0, 255, size=(3, 32, 48))
-        self.bbox = np.random.uniform(size=(self.n_bbox, 4))
+        self.bbox = generate_random_bbox(
+            self.n_bbox, (48, 32), 8, 16)
         if self.label is not None:
             self.label = np.array(self.label, dtype=int)
         if self.score is not None:

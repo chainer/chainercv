@@ -7,8 +7,6 @@ from Cython.Distutils import build_ext
 from distutils.extension import Extension
 import numpy as np
 
-import os
-
 
 description = """
 Collection of Deep Learning Computer Vision Algorithms implemented in Chainer
@@ -20,21 +18,22 @@ ext_modules = [
 ]
 cmdclass = {'build_ext': build_ext}
 
+install_requires = [
+    'chainer==1.24',
+    'Cython',
+    'Pillow'
+]
 
 setup(
     name='chainercv',
-    version='0.4.5',
+    version='0.4.9',
     packages=find_packages(),
     author='Yusuke Niitani',
     author_email='yuyuniitani@gmail.com',
     license='MIT',
     description=description,
-    install_requires=open('requirements.txt').readlines(),
+    install_requires=install_requires,
     include_package_data=True,
-    data_files=[
-        ('chainercv/datasets/data',
-         [os.path.join('chainercv/datasets/data', fn) for fn
-          in os.listdir('chainercv/datasets/data')])],
     # for Cython
     ext_modules=ext_modules,
     cmdclass=cmdclass,

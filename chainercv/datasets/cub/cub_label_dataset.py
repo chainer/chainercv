@@ -1,4 +1,4 @@
-import os.path as osp
+import os
 
 from chainercv.datasets.cub.cub_utils import CUBDatasetBase
 from chainercv import utils
@@ -13,7 +13,7 @@ class CUBLabelDataset(CUBDatasetBase):
 
     When queried by an index, this dataset returns a corresponding
     :obj:`img, label`, a tuple of an image and class id.
-    The image is in BGR and CHW format.
+    The image is in RGB and CHW format.
     The class id are between 0 and 199.
 
     There are 200 labels of birds in total.
@@ -31,7 +31,7 @@ class CUBLabelDataset(CUBDatasetBase):
         super(CUBLabelDataset, self).__init__(
             data_dir=data_dir, crop_bbox=crop_bbox)
 
-        image_class_labels_file = osp.join(
+        image_class_labels_file = os.path.join(
             self.data_dir, 'image_class_labels.txt')
         self._data_labels = [int(d_label.split()[1]) - 1 for
                              d_label in open(image_class_labels_file)]
@@ -47,7 +47,7 @@ class CUBLabelDataset(CUBDatasetBase):
 
         """
         img = utils.read_image(
-            osp.join(self.data_dir, 'images', self.fns[i]), color=True)
+            os.path.join(self.data_dir, 'images', self.fns[i]), color=True)
 
         if self.crop_bbox:
             bbox = self.bboxes[i]  # (x, y, width, height)

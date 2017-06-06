@@ -22,7 +22,7 @@ except ImportError:
     _available = False
 
 
-_imagenet_mean = (104, 117, 123)
+_imagenet_mean = (123, 117, 104)  # RGB order
 
 
 class VGG16(chainer.Chain):
@@ -254,6 +254,10 @@ class SSD300(SSD):
     This model uses :class:`~chainercv.links.model.ssd.VGG16Extractor300` as
     its feature extractor.
 
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
+
     Args:
        n_fg_class (int): The number of classes excluding the background.
        pretrained_model (str): The weight file to be loaded.
@@ -263,21 +267,22 @@ class SSD300(SSD):
             * :obj:`'voc0712'`: Load weights trained on trainval split of \
                 PASCAL VOC 2007 and 2012. \
                 The weight file is downloaded and cached automatically. \
-                :obj:`n_fg_class` must be :obj:`20` or :obj:`None`.
+                :obj:`n_fg_class` must be :obj:`20` or :obj:`None`. \
+                These weights were converted from the Caffe model provided by \
+                `the original implementation \
+                <https://github.com/weiliu89/caffe/tree/ssd>`_. \
+                The conversion code is `chainercv/examples/ssd/caffe2npz.py`.
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
 
-    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
-       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
-       SSD: Single Shot MultiBox Detector. ECCV 2016.
     """
 
     _models = {
         'voc0712': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.1/ssd300_voc0712.npz'
+            'download/0.0.2/ssd300_voc0712_2017_05_24.npz'
         }
     }
 
@@ -305,6 +310,10 @@ class SSD512(SSD):
     This model uses :class:`~chainercv.links.model.ssd.VGG16Extractor512` as
     its feature extractor.
 
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
+
     Args:
        n_fg_class (int): The number of classes excluding the background.
        pretrained_model (str): The weight file to be loaded.
@@ -314,14 +323,14 @@ class SSD512(SSD):
             * :obj:`'voc0712'`: Load weights trained on trainval split of \
                 PASCAL VOC 2007 and 2012. \
                 The weight file is downloaded and cached automatically. \
-                :obj:`n_fg_class` must be :obj:`20` or :obj:`None`.
+                :obj:`n_fg_class` must be :obj:`20` or :obj:`None`. \
+                These weights were converted from the Caffe model provided by \
+                `the original implementation \
+                <https://github.com/weiliu89/caffe/tree/ssd>`_. \
+                The conversion code is `chainercv/examples/ssd/caffe2npz.py`.
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
-
-    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
-       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
-       SSD: Single Shot MultiBox Detector. ECCV 2016.
 
     """
 
@@ -329,7 +338,7 @@ class SSD512(SSD):
         'voc0712': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.1/ssd512_voc0712.npz'
+            'download/0.0.2/ssd512_voc0712_2017_05_24.npz'
         }
     }
 

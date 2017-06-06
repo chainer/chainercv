@@ -11,9 +11,9 @@ def random_expand(img, max_ratio=4, fill=0, return_param=False):
     :math:`[1, max\_ratio]`. The canvas is filled by a value :obj:`fill`
     except for the region where the original image is placed.
 
-    This data augmentation trick is used to create "zoom out" effect [1].
+    This data augmentation trick is used to create "zoom out" effect [#]_.
 
-    .. [1] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, \
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, \
     Scott Reed, Cheng-Yang Fu, Alexander C. Berg. \
     SSD: Single Shot MultiBox Detector. ECCV 2016.
 
