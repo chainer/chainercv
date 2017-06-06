@@ -16,8 +16,8 @@ class TestCenterCrop(unittest.TestCase):
         x_slice = param['x_slice']
 
         np.testing.assert_equal(out, img[:, y_slice, x_slice])
-        self.assertEqual(x_slice, slice(8, 24))
         self.assertEqual(y_slice, slice(12, 36))
+        self.assertEqual(x_slice, slice(8, 24))
 
 
 testing.run_module(__name__, __file__)
