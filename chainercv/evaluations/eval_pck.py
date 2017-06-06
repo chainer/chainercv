@@ -12,7 +12,7 @@ def eval_pck(pred, expected, alpha, L):
     :math:`0 < \\alpha < 1` is a variable we control.
     :math:`L` is determined differently depending on the context. For example,
     in evaluation of keypoint matching for CUB dataset,
-    :math:`L=\\sqrt{w^2 + h^2}` is used.
+    :math:`L=\\sqrt{h^2 + w^2}` is used.
 
     Args:
         pred (~numpy.ndarray): An array of shape :math:`(K, 2)`
