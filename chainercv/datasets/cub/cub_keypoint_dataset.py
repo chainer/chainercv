@@ -93,7 +93,8 @@ class CUBKeypointDataset(CUBDatasetBase):
 
         if self.crop_bbox:
             bbox = self.bboxes[i]  # (x, y, width, height)
-            img = img[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
+            img =\
+                img[:, bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
             keypoint[:, :2] = keypoint[:, :2] - np.array([bbox[0], bbox[1]])
 
         if not self.return_mask:
