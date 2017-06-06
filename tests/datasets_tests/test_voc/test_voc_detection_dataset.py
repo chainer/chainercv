@@ -3,8 +3,8 @@ import unittest
 import numpy as np
 
 from chainer import testing
-from chainer.testing import condition
 from chainer.testing import attr
+from chainer.testing import condition
 
 from chainercv.datasets import voc_detection_label_names
 from chainercv.datasets import VOCDetectionDataset
@@ -19,6 +19,7 @@ def _create_paramters():
         split_years,
         [{'use_difficult': True, 'return_difficult': True},
          {'use_difficult': True, 'return_difficult': False},
+         {'use_difficult': False, 'return_difficult': True},
          {'use_difficult': False, 'return_difficult': False}])
     return params
 
@@ -70,6 +71,9 @@ class TestVOCDetectionDataset(unittest.TestCase):
             self.assertIsInstance(difficult, np.ndarray)
             self.assertEqual(difficult.dtype, np.bool)
             self.assertEqual(difficult.shape, (bbox.shape[0],))
+
+        if not self.use_difficult and self.return_difficult:
+            np.testing.assert_equal(difficult, 0)
 
 
 testing.run_module(__name__, __file__)
