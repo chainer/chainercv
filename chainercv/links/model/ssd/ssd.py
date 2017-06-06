@@ -80,21 +80,21 @@ class SSD(chainer.Chain):
         self._default_bbox = list()
         for k, grid in enumerate(extractor.grids):
             for v, u in itertools.product(range(grid), repeat=2):
-                cx = (u + 0.5) * steps[k]
                 cy = (v + 0.5) * steps[k]
+                cx = (u + 0.5) * steps[k]
 
                 s = sizes[k]
-                self._default_bbox.append((cx, cy, s, s))
+                self._default_bbox.append((cy, cx, s, s))
 
                 s = np.sqrt(sizes[k] * sizes[k + 1])
-                self._default_bbox.append((cx, cy, s, s))
+                self._default_bbox.append((cy, cx, s, s))
 
                 s = sizes[k]
                 for ar in multibox.aspect_ratios[k]:
                     self._default_bbox.append(
-                        (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
+                        (cy, cx, s / np.sqrt(ar), s * np.sqrt(ar)))
                     self._default_bbox.append(
-                        (cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
+                        (cy, cx, s * np.sqrt(ar), s / np.sqrt(ar)))
         self._default_bbox = np.stack(self._default_bbox)
 
     @property
@@ -141,7 +141,7 @@ class SSD(chainer.Chain):
 
     def _decode(self, loc, conf):
         xp = self.xp
-        # the format of bbox is (center_x, center_y, width, height)
+        # the format of bbox is (center_y, center_x, height, width)
         bboxes = xp.dstack((
             self._default_bbox[:, :2] +
             loc[:, :, :2] * self.variance[0] * self._default_bbox[:, 2:],
