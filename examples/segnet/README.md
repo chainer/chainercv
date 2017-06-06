@@ -49,11 +49,6 @@ The trained weights to replicate the same results as below is here: [model_itera
 python evaluate.py [--gpu <gpu>] [--pretrained_model <model_path>] [--batchsize <batchsize>]
 ```
 
-e.g.,
-
-```
-python evaluate.py --gpu 0
-```
 
 # Results
 
