@@ -26,7 +26,7 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
         :obj:`'ap/Building'`, etc. if :obj:`label_names` is \
         :obj:`~chainercv.datasets.camvid_label_names`. \
         If there is no label assigned to class :obj:`label_names[l]` \
-        in either ground truth or prediction, it reports :obj:`numpy.nan` as \
+        in ground truth, it reports :obj:`numpy.nan` as \
         its IoU. \
         In this case, IoU is computed without this class.
 

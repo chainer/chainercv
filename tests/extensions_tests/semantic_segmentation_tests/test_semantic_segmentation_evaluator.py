@@ -27,17 +27,17 @@ class _SemanticSegmentationStubLink(chainer.Link):
 class TestSemanticSegmentationEvaluator(unittest.TestCase):
 
     def setUp(self):
-        n_class = 3
         self.label_names = ('a', 'b', 'c')
         imgs = np.random.uniform(size=(10, 3, 5, 5))
+        # There are labels for 'a' and 'b', but none for 'c'.
         labels = np.random.randint(
-            low=0, high=n_class, size=(10, 5, 5), dtype=np.int32)
+            low=0, high=2, size=(10, 5, 5), dtype=np.int32)
         self.dataset = TupleDataset(imgs, labels)
         self.link = _SemanticSegmentationStubLink(labels)
         self.iterator = SerialIterator(
             self.dataset, 5, repeat=False, shuffle=False)
         self.evaluator = SemanticSegmentationEvaluator(
-            self.iterator, self.link, n_class, self.label_names)
+            self.iterator, self.link, self.label_names)
 
     def test_evaluate(self):
         reporter = chainer.Reporter()
@@ -47,30 +47,36 @@ class TestSemanticSegmentationEvaluator(unittest.TestCase):
 
         # No observation is reported to the current reporter. Instead the
         # evaluator collect results in order to calculate their mean.
-        self.assertEqual(len(reporter.observation), 0)
+        np.testing.assert_equal(len(reporter.observation), 0)
 
-        self.assertEqual(eval_['target/miou'], 1.)
-        for label_name in self.label_names:
-            self.assertEqual(eval_['target/{}/iou'.format(label_name)], 1)
+        np.testing.assert_equal(eval_['target/miou'], 1.)
+        np.testing.assert_equal(eval_['target/iou/a'], 1.)
+        np.testing.assert_equal(eval_['target/iou/b'], 1.)
+        np.testing.assert_equal(eval_['target/iou/c'], np.nan)
 
     def test_call(self):
         eval_ = self.evaluator()
         # main is used as default
-        self.assertEqual(eval_['main/miou'], 1)
+        np.testing.assert_equal(eval_['main/miou'], 1)
+        np.testing.assert_equal(eval_['main/iou/a'], 1.)
+        np.testing.assert_equal(eval_['main/iou/b'], 1.)
+        np.testing.assert_equal(eval_['main/iou/c'], np.nan)
 
     def test_evaluator_name(self):
         self.evaluator.name = 'eval'
         eval_ = self.evaluator()
         # name is used as a prefix
-        self.assertAlmostEqual(
-            eval_['eval/main/miou'], 1)
+        self.assertAlmostEqual(eval_['eval/main/miou'], 1)
+        np.testing.assert_equal(eval_['eval/main/iou/a'], 1.)
+        np.testing.assert_equal(eval_['eval/main/iou/b'], 1.)
+        np.testing.assert_equal(eval_['eval/main/iou/c'], np.nan)
 
     def test_current_report(self):
         reporter = chainer.Reporter()
         with reporter:
             eval_ = self.evaluator()
         # The result is reported to the current reporter.
-        self.assertEqual(reporter.observation, eval_)
+        np.testing.assert_equal(reporter.observation, eval_)
 
 
 testing.run_module(__name__, __file__)
