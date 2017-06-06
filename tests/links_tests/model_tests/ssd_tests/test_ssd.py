@@ -54,14 +54,14 @@ class TestSSD(unittest.TestCase):
     def _check_call(self):
         x = _random_array(self.link.xp, (1, 3, 32, 32))
 
-        locs, confs = self.link(x)
+        mb_locs, mb_confs = self.link(x)
 
-        self.assertIsInstance(locs, chainer.Variable)
-        self.assertIsInstance(locs.data, self.link.xp.ndarray)
-        self.assertEqual(locs.shape, (1, self.n_bbox, 4))
-        self.assertIsInstance(confs, chainer.Variable)
-        self.assertIsInstance(confs.data, self.link.xp.ndarray)
-        self.assertEqual(confs.shape, (1, self.n_bbox, self.n_fg_class + 1))
+        self.assertIsInstance(mb_locs, chainer.Variable)
+        self.assertIsInstance(mb_locs.data, self.link.xp.ndarray)
+        self.assertEqual(mb_locs.shape, (1, self.n_bbox, 4))
+        self.assertIsInstance(mb_confs, chainer.Variable)
+        self.assertIsInstance(mb_confs.data, self.link.xp.ndarray)
+        self.assertEqual(mb_confs.shape, (1, self.n_bbox, self.n_fg_class + 1))
 
     def test_call_cpu(self):
         self._check_call()
