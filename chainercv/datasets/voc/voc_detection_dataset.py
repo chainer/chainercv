@@ -39,6 +39,8 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     The array :obj:`difficult` is a one dimensional boolean array of shape
     :math:`(R,)`. :math:`R` is the number of bounding boxes in the image.
+    If :obj:`use_difficult` is :obj:`False`, this array is
+    a boolean array with all :obj:`False`.
 
     The type of the image, the bounding boxes and the labels are as follows.
 
@@ -61,8 +63,6 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         return_difficult (bool): If true, this dataset returns a boolean array
             that indicates whether bounding boxes are labeled as difficult
             or not. The default value is :obj:`False`.
-            If :obj:`use_difficult` is :obj:`False`, this has to be
-            :obj:`False`.
 
     """
 
@@ -129,7 +129,12 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             label.append(voc_utils.voc_detection_label_names.index(name))
         bbox = np.stack(bbox).astype(np.float32)
         label = np.stack(label).astype(np.int32)
-        difficult = np.array(difficult, dtype=np.bool)
+        if self.use_difficult:
+            difficult = np.array(difficult, dtype=np.bool)
+        else:
+            # All bounding boxes are considered not difficult
+            # when `use_difficult == False`.
+            difficult = np.zeros((len(bbox),), dtype=np.bool)
 
         # Load a image
         img_file = os.path.join(self.data_dir, 'JPEGImages', id_ + '.jpg')
