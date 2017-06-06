@@ -28,7 +28,7 @@ We used the completely same parameters for all settings.
 
 | Implementation | Optimizer   | Learning rage | Momentum | Weight decay | Model code |
 |:--------------:|:-----------:|:-------------:|:--------:|:------------:|:----------:|
-| ChainerCV      | MomentumSGD | 0.1           | 0.9      | 0.0005       | [segnet_basic.py](https://github.com/pfnet/chainercv/tree/master/chainercv/links/model/segnet/segnet_basic.py) |
+| ChainerCV      | MomentumSGD | 0.1           | 0.9      | 0.0005       | [segnet_basic.py](https://github.com/chainer/chainercv/tree/master/chainercv/links/model/segnet/segnet_basic.py) |
 | Official       | MomentumSGD | 0.1           | 0.9      | 0.0005       | [segnet_basic_train.prototxt](https://github.com/alexgkendall/SegNet-Tutorial/blob/master/Models/segnet_basic_train.prototxt) |
 
 # Quick Demo

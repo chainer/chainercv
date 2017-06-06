@@ -4,15 +4,32 @@ Evaluations
 .. module:: chainercv.evaluations
 
 
-eval_detection_voc
-~~~~~~~~~~~~~~~~~~
-.. autofunction:: eval_detection_voc
+Detection VOC
+-------------
 
+eval_detection_voc_ap
+~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: eval_detection_voc_ap
+
+calc_detection_voc_ap
+~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: calc_detection_voc_ap
+
+calc_detection_voc_prec_rec
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: calc_detection_voc_prec_rec
+
+
+PCK
+---
 
 eval_pck
 ~~~~~~~~
 .. autofunction:: eval_pck
 
+
+Semantic Segmentation IoU
+-------------------------
 
 eval_semantic_segmentation_iou
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
