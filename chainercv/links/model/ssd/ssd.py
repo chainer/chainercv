@@ -76,7 +76,7 @@ class SSD(chainer.Chain):
 
         super(SSD, self).__init__(extractor=extractor, multibox=multibox)
 
-        # the format of default_bbox is (center_x, center_y, width, height)
+        # the format of default_bbox is (center_y, center_x, height, width)
         self._default_bbox = list()
         for k, grid in enumerate(extractor.grids):
             for v, u in itertools.product(range(grid), repeat=2):
@@ -147,7 +147,7 @@ class SSD(chainer.Chain):
             loc[:, :, :2] * self.variance[0] * self._default_bbox[:, 2:],
             self._default_bbox[:, 2:] *
             xp.exp(loc[:, :, 2:] * self.variance[1])))
-        # convert the format of bbox to (x_min, y_min, x_max, y_max)
+        # convert the format of bbox to (y_min, x_min, y_max, x_max)
         bboxes[:, :, :2] -= bboxes[:, :, 2:] / 2
         bboxes[:, :, 2:] += bboxes[:, :, :2]
         scores = xp.exp(conf)
@@ -236,7 +236,7 @@ class SSD(chainer.Chain):
            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
                where :math:`R` is the number of bounding boxes in a image. \
                Each bouding box is organized by \
-               :obj:`(x_min, y_min, x_max, y_max)` \
+               :obj:`(y_min, x_min, y_max, x_max)` \
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
                Each value indicates the class of the bounding box. \
