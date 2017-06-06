@@ -27,7 +27,7 @@ Multibox
    :special-members:  __call__
 
 MultiboxCoder
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 .. autoclass:: MultiboxCoder
    :members:
 
