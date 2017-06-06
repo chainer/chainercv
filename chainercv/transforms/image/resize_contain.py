@@ -6,8 +6,8 @@ from chainercv.transforms import resize
 def resize_contain(img, size, fill=0, return_param=False):
     """Resize the image to fit in the given area while keeping aspect ratio.
 
-    If both the width and the height in :obj:`size` are larger than the
-    width and the height of the :obj:`img`, the :obj:`img` is placed on
+    If both the height and the width in :obj:`size` are larger than
+    the height and the width of the :obj:`img`, the :obj:`img` is placed on
     the center with an appropriate padding to match :obj:`size`.
 
     Otherwise, the input image is scaled to fit in a canvas whose size
