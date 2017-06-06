@@ -5,7 +5,7 @@ from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links.model.ssd import MultiboxEncoder
+from chainercv.links.model.ssd import MultiboxCoder
 
 
 def _random_array(shape):
@@ -33,10 +33,10 @@ def _random_array(shape):
         'score_thresh': [0, 0.5, np.inf],
     })
 ))
-class TestDefaultBboxEncoder(unittest.TestCase):
+class TestDefaultBboxCoder(unittest.TestCase):
 
     def setUp(self):
-        self.encoder = MultiboxEncoder(
+        self.coder = MultiboxCoder(
             self.grids, self.aspect_ratios, self.steps, self.sizes, (0.1, 0.2))
         self.n_bbox = sum(
             grid * grid * (len(ar) + 1) * 2
@@ -48,23 +48,23 @@ class TestDefaultBboxEncoder(unittest.TestCase):
 
     @attr.gpu
     def test_to_cpu(self):
-        self.encoder.to_gpu()
-        self.encoder.to_cpu()
-        self.assertEqual(self.encoder.xp, np)
+        self.coder.to_gpu()
+        self.coder.to_cpu()
+        self.assertEqual(self.coder.xp, np)
 
     @attr.gpu
     def test_to_gpu(self):
-        self.encoder.to_gpu()
-        self.assertEqual(self.encoder.xp, cuda.cupy)
+        self.coder.to_gpu()
+        self.assertEqual(self.coder.xp, cuda.cupy)
 
     def test_dafault_bbox(self):
         self.assertEqual(
-            self.encoder._default_bbox.shape, (self.n_bbox, 4))
+            self.coder._default_bbox.shape, (self.n_bbox, 4))
 
     def _check_encode(self, bbox, label):
-        xp = self.encoder.xp
+        xp = self.coder.xp
 
-        mb_loc, mb_label = self.encoder.encode(bbox, label)
+        mb_loc, mb_label = self.coder.encode(bbox, label)
 
         self.assertIsInstance(mb_loc, xp.ndarray)
         self.assertEqual(mb_loc.shape, (self.n_bbox, 4))
@@ -77,13 +77,13 @@ class TestDefaultBboxEncoder(unittest.TestCase):
 
     @attr.gpu
     def test_encode_gpu(self):
-        self.encoder.to_gpu()
+        self.coder.to_gpu()
         self._check_encode(cuda.to_gpu(self.bbox), cuda.to_gpu(self.label))
 
     def _check_decode(self, mb_loc, mb_conf):
-        xp = self.encoder.xp
+        xp = self.coder.xp
 
-        bbox, label, score = self.encoder.decode(
+        bbox, label, score = self.coder.decode(
             mb_loc, mb_conf, self.nms_thresh, self.score_thresh)
 
         self.assertIsInstance(bbox, xp.ndarray)
@@ -104,7 +104,7 @@ class TestDefaultBboxEncoder(unittest.TestCase):
 
     @attr.gpu
     def test_decode_gpu(self):
-        self.encoder.to_gpu()
+        self.coder.to_gpu()
         self._check_decode(cuda.to_gpu(self.mb_loc), cuda.to_gpu(self.mb_conf))
 
 

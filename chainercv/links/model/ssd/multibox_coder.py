@@ -8,7 +8,7 @@ import chainer
 from chainercv import utils
 
 
-class MultiboxEncoder(object):
+class MultiboxCoder(object):
     """A helper class to encode/decode bounding boxes.
 
     This class encodes :obj:`(bbox, label)` to :obj:`(mb_loc, mb_label)`

@@ -26,9 +26,9 @@ Multibox
    :members:
    :special-members:  __call__
 
-MultiboxEncoder
+MultiboxCoder
 ~~~~~~~~~~~~~~~
-.. autoclass:: MultiboxEncoder
+.. autoclass:: MultiboxCoder
    :members:
 
 Normalize

@@ -4,7 +4,7 @@ import numpy as np
 
 import chainer
 
-from chainercv.links.model.ssd import MultiboxEncoder
+from chainercv.links.model.ssd import MultiboxCoder
 from chainercv import transforms
 
 
@@ -27,7 +27,7 @@ class SSD(chainer.Chain):
             feature extraction.
             * :obj:`grids`: An iterable of integer. Each integer indicates \
             the size of feature map. This value is used by
-            :class:`~chainercv.links.model.ssd.DefaultBboxencoder`.
+            :class:`~chainercv.links.model.ssd.MultiBboxCoder`.
             * :meth:`__call_`: A method which computes feature maps. \
             It must take a batched images and return batched feature maps.
         multibox: A link which computes :obj:`mb_locs` and :obj:`mb_confs`
@@ -41,21 +41,21 @@ class SSD(chainer.Chain):
             * :obj:`aspect_ratios`: An iterable of tuple of integer. \
             Each tuple indicates the aspect ratios of default bounding boxes \
             at each feature maps. This value is used by
-            :class:`~chainercv.links.model.ssd.MultiboxEncoder`.
+            :class:`~chainercv.links.model.ssd.MultiboxCoder`.
             * :meth:`__call__`: A method which computes \
             :obj:`mb_locs` and :obj:`mb_confs`. \
             It must take a batched feature maps and \
             return :obj:`mb_locs` and :obj:`mb_confs`.
         steps (iterable of float): The step size for each feature map.
             This value is used by
-            :class:`~chainercv.links.model.ssd.MultiboxEncoder`.
+            :class:`~chainercv.links.model.ssd.MultiboxCoder`.
         sizes (iterable of float): The base size of default bounding boxes
             for each feature map. This value is used by
-            :class:`~chainercv.links.model.ssd.MultiboxEncoder`.
+            :class:`~chainercv.links.model.ssd.MultiboxCoder`.
         variance (tuple of floats): Two coefficients for decoding
             the locations of bounding boxe.
             This value is used by
-            :class:`~chainercv.links.model.ssd.MultiboxEncoder`.
+            :class:`~chainercv.links.model.ssd.MultiboxCoder`.
             The default value is :obj:`(0.1, 0.2)`.
 
     Parameters:
@@ -80,7 +80,7 @@ class SSD(chainer.Chain):
 
         super(SSD, self).__init__(extractor=extractor, multibox=multibox)
 
-        self.encoder = MultiboxEncoder(
+        self.coder = MultiboxCoder(
             extractor.grids, multibox.aspect_ratios, steps, sizes, variance)
 
     @property
@@ -93,17 +93,17 @@ class SSD(chainer.Chain):
 
     def to_cpu(self):
         super(SSD, self).to_cpu()
-        self.encoder.to_cpu()
+        self.coder.to_cpu()
 
     def to_gpu(self, device=None):
         super(SSD, self).to_gpu(device)
-        self.encoder.to_gpu(device=device)
+        self.coder.to_gpu(device=device)
 
     def __call__(self, x):
         """Compute localization and classification from a batch of images.
 
         This method computes two variables, :obj:`mb_locs` and :obj:`mb_confs`.
-        :func:`self.encoder.decode` converts these variables to bounding box
+        :func:`self.coder.decode` converts these variables to bounding box
         coordinates and confidence scores.
         These variables are also used in training SSD.
 
@@ -204,7 +204,7 @@ class SSD(chainer.Chain):
         labels = list()
         scores = list()
         for mb_loc, mb_conf, size in zip(mb_locs, mb_confs, sizes):
-            bbox, label, score = self.encoder.decode(
+            bbox, label, score = self.coder.decode(
                 mb_loc, mb_conf, self.nms_thresh, self.score_thresh)
             bbox = transforms.resize_bbox(bbox, (1, 1), size)
             bboxes.append(chainer.cuda.to_cpu(bbox))
