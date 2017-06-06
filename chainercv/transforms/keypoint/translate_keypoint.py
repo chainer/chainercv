@@ -2,8 +2,8 @@ def translate_keypoint(keypoint, y_offset=0, x_offset=0):
     """Translate keypoints.
 
     This method is mainly used together with image transforms, such as padding
-    and cropping, which translates the left top point of the image from
-    the to coordinate :math:`(y, x) = (y\_offset, x\_offset)`.
+    and cropping, which translates the top left point of the image
+    to the coordinate :math:`(y, x) = (y\_offset, x\_offset)`.
 
     Args:
         keypoint (~numpy.ndarray): Keypoints in the image.
