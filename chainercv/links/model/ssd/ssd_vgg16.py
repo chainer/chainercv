@@ -282,7 +282,7 @@ class SSD300(SSD):
         'voc0712': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.2/ssd300_voc0712_2017_05_24.npz'
+            'download/0.0.3/ssd300_voc0712_2017_06_06.npz'
         }
     }
 
@@ -338,7 +338,7 @@ class SSD512(SSD):
         'voc0712': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.2/ssd512_voc0712_2017_05_24.npz'
+            'download/0.0.2/ssd512_voc0712_2017_06_06.npz'
         }
     }
 
