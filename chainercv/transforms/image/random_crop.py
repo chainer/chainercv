@@ -30,9 +30,9 @@ def random_crop(img, size, return_param=False, copy=False):
         contents are listed below with key, value-type and the description
         of the value.
 
-        * **x_slice** (*slice*): A slice used to crop the input image.\
-            The relation below holds together with :obj:`y_slice`.
-        * **y_slice** (*slice*): Similar to :obj:`x_slice`.
+        * **y_slice** (*slice*): A slice used to crop the input image.\
+            The relation below holds together with :obj:`x_slice`.
+        * **x_slice** (*slice*): Similar to :obj:`x_slice`.
 
             .. code::
 
@@ -40,14 +40,6 @@ def random_crop(img, size, return_param=False, copy=False):
 
     """
     H, W = size
-
-    if img.shape[2] == W:
-        x_offset = 0
-    elif img.shape[2] > W:
-        x_offset = random.choice(six.moves.range(img.shape[2] - W))
-    else:
-        raise ValueError('shape of image needs to be larger than output shape')
-    x_slice = slice(x_offset, x_offset + W)
 
     if img.shape[1] == H:
         y_offset = 0
@@ -57,12 +49,20 @@ def random_crop(img, size, return_param=False, copy=False):
         raise ValueError('shape of image needs to be larger than output shape')
     y_slice = slice(y_offset, y_offset + H)
 
+    if img.shape[2] == W:
+        x_offset = 0
+    elif img.shape[2] > W:
+        x_offset = random.choice(six.moves.range(img.shape[2] - W))
+    else:
+        raise ValueError('shape of image needs to be larger than output shape')
+    x_slice = slice(x_offset, x_offset + W)
+
     img = img[:, y_slice, x_slice]
 
     if copy:
         img = img.copy()
 
     if return_param:
-        return img, {'x_slice': x_slice, 'y_slice': y_slice}
+        return img, {'y_slice': y_slice, 'x_slice': x_slice}
     else:
         return img
