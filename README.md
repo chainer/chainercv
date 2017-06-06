@@ -1,11 +1,11 @@
-[![travis](https://travis-ci.org/pfnet/chainercv.svg?branch=master)](https://travis-ci.org/pfnet/chainercv)
+[![travis](https://travis-ci.org/chainer/chainercv.svg?branch=master)](https://travis-ci.org/chainer/chainercv)
 
 <!--[![pypi](https://img.shields.io/pypi/v/chainercv.svg)](https://pypi.python.org/pypi/chainercv)-->
 
 
 # ChainerCV
 
-ChainerCV is a collection of tools to train and run neural networks for computer vision tasks using [Chainer](https://github.com/pfnet/chainer).
+ChainerCV is a collection of tools to train and run neural networks for computer vision tasks using [Chainer](https://github.com/chainer/chainer).
 
 You can find the documentation [here](http://chainercv.readthedocs.io/en/latest/).
 
@@ -23,7 +23,7 @@ The instruction on installation using Anaconda is [here](http://chainercv.readth
 
 ### Requirements
 
-+ [Chainer](https://github.com/pfnet/chainer) and its dependencies
++ [Chainer](https://github.com/chainer/chainer) and its dependencies
 + Cython
 + Pillow
 
