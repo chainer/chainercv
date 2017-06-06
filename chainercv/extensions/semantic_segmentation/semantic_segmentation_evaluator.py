@@ -13,20 +13,33 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
     """An extension that evaluates a semantic segmentation model.
 
     This extension iterates over an iterator and evaluates the prediction
-    results of the model by PASCAL VOC's mAP metrics.
+    results of the model by Intersection over Union (IoU) for each class and
+    the mean of the IoUs (mIoU).
+    This extension reports the following values with keys.
+    Please note that :obj:`'iou/<label_names[l]>'` is reported only if
+    :obj:`label_names` is specified.
+
+    * :obj:`'miou'`: Mean of IoUs (mIoU).
+    * :obj:`'iou/<label_names[l]>'`: IoU for class \
+        :obj:`label_names[l]`, where :math:`l` is the index of the class. \
+        For example, this evaluator reports :obj:`'iou/Sky'`, \
+        :obj:`'ap/Building'`, etc. if :obj:`label_names` is \
+        :obj:`~chainercv.datasets.camvid_label_names`. \
+        If there is no label assigned to class :obj:`label_names[l]` \
+        in either ground truth or prediction, it reports :obj:`numpy.nan` as \
+        its IoU. \
+        In this case, IoU is computed without this class.
 
     Args:
         iterator (chainer.Iterator): An iterator. Each sample should be
-            following tuple :obj:`img, bbox, label` or
-            :obj:`img, bbox, label, difficult`.
-            :obj:`img` is an image, :obj:`bbox` is coordinates of bounding
-            boxes, :obj:`label` is labels of the bounding boxes and
-            :obj:`difficult` is whether the bounding boxes are difficult or
-            not. If :obj:`difficult` is returned, difficult ground truth
-            will be ignored from evaluation.
-        target (chainer.Link): An detection link. This link must have
-            :meth:`predict` method which takes a list of images and returns
-            :obj:`bboxes`, :obj:`labels` and :obj:`scores`.
+            following tuple :obj:`img, label`.
+            :obj:`img` is an image, :obj:`label` is pixel-wise label.
+        target (chainer.Link): A semantic segmentation link. This link should
+            have :meth:`predict` method which takes a list of images and
+            returns :obj:`labels`.
+        label_names (iterable of strings): An iterable of names of classes.
+            If this value is specified, IoU for each class is
+            also reported with the key :obj:`'iou/<label_names[l]>'`.
 
     """
 
@@ -34,16 +47,10 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
     default_name = 'validation'
     priority = chainer.training.PRIORITY_WRITER
 
-    def __init__(self, iterator, target, n_class, label_names=None):
+    def __init__(self, iterator, target, label_names=None):
         super(SemanticSegmentationEvaluator, self).__init__(
             iterator, target)
-        self.n_class = n_class
 
-        if label_names is not None and len(label_names) != n_class:
-            raise ValueError('The number of classes and the length of'
-                             'label_names should be same.')
-        if label_names is None:
-            label_names = tuple(range(n_class))
         self.label_names = label_names
 
     def evaluate(self):
@@ -64,12 +71,18 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
         pred_labels, = pred_values
         gt_labels, = gt_values
 
-        ious = eval_semantic_segmentation_iou(
-            pred_labels, gt_labels, self.n_class)
+        iou = eval_semantic_segmentation_iou(pred_labels, gt_labels)
+
+        report = {'miou': np.nanmean(iou)}
+
+        if self.label_names is not None:
+            for l, label_name in enumerate(self.label_names):
+                try:
+                    report['iou/{:s}'.format(label_name)] = iou[l]
+                except IndexError:
+                    report['iou/{:s}'.format(label_name)] = np.nan
 
         observation = {}
         with reporter.report_scope(observation):
-            for label_name, iou in zip(self.label_names, ious):
-                reporter.report({'{}/iou'.format(label_name): iou}, target)
-            reporter.report({'miou': np.nanmean(ious)}, target)
+            reporter.report(report, target)
         return observation
