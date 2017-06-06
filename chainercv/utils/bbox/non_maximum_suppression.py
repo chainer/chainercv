@@ -131,9 +131,9 @@ inline float devIoU(float const *const bbox_a, float const *const bbox_b) {
   float bottom = min(bbox_a[2], bbox_b[2]);
   float left = max(bbox_a[1], bbox_b[1]);
   float right = min(bbox_a[3], bbox_b[3]);
-  float width = max(right - left, 0.f);
   float height = max(bottom - top, 0.f);
-  float area_i = width * height;
+  float width = max(right - left, 0.f);
+  float area_i = height * width;
   float area_a = (bbox_a[2] - bbox_a[0]) * (bbox_a[3] - bbox_a[1]);
   float area_b = (bbox_b[2] - bbox_b[0]) * (bbox_b[3] - bbox_b[1]);
   return area_i / (area_a + area_b - area_i);
