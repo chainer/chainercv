@@ -39,7 +39,7 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
             :obj:`difficult` is whether the bounding boxes are difficult or
             not. If :obj:`difficult` is returned, difficult ground truth
             will be ignored from evaluation.
-        target (chainer.Link): An detection link. This link must have
+        target (chainer.Link): A detection link. This link must have
             :meth:`predict` method which takes a list of images and returns
             :obj:`bboxes`, :obj:`labels` and :obj:`scores`.
         use_07_metric (bool): Whether to use PASCAL VOC 2007 evaluation metric
