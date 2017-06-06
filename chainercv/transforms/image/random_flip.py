@@ -31,7 +31,7 @@ def random_flip(img, y_random=False, x_random=False,
             horizontal direction or not.
 
     """
-    x_flip, y_flip = False, False
+    y_flip, x_flip = False, False
     if y_random:
         y_flip = random.choice([True, False])
     if x_random:
