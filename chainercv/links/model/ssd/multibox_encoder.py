@@ -100,17 +100,6 @@ class MultiboxEncoder(object):
                 a default bounding box is assigned to a ground truth
                 or not. The default value is :obj:`0.5`.
 
-            mb_loc (array): A float array whose shape is
-                :math:`(K, 4)`, :math:`K` is the number of
-                 default bounding boxes.
-            mb_conf (array): A float array whose shape is
-                :math:`(K, n\_fg\_class + 1)`.
-            nms_thresh (float): The threshold value
-                for :meth:`chainercv.transfroms.non_maximum_suppression`.
-            score_thresh (float): The threshold value for confidence score.
-                If a bounding box whose confidence score is lower than
-                this value, the bounding box will be suppressed.
-
         Returns:
             tuple of two arrays:
             This method returns a tuple of two arrays,
