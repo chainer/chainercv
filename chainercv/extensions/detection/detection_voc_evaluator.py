@@ -20,7 +20,7 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
     :obj:`label_names` is specified.
 
     * :obj:`'map'`: Mean of average precisions (mAP).
-    * :obj:`'ap/<3label_names[l]>'`: Average precision for class \
+    * :obj:`'ap/<label_names[l]>'`: Average precision for class \
         :obj:`label_names[l]`, where :math:`l` is the index of the class. \
         For example, this evaluator reports :obj:`'ap/aeroplane'`, \
         :obj:`'ap/bicycle'`, etc. if :obj:`label_names` is \
