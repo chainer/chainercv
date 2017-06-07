@@ -50,8 +50,8 @@ def main():
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
 
-    encoder = copy.copy(model.encoder)
-    encoder.to_cpu()
+    coder = copy.copy(model.coder)
+    coder.to_cpu()
     size = model.insize
     mean = model.mean
 
@@ -59,7 +59,7 @@ def main():
         img, bbox, label = in_data
         img, bbox, label = random_transform(img, bbox, label, size, mean)
         img -= np.array(mean)[:, np.newaxis, np.newaxis]
-        mb_loc, mb_label = encoder.encode(
+        mb_loc, mb_label = coder.encode(
             transforms.resize_bbox(bbox, (size, size), (1, 1)), label)
         return img, mb_loc, mb_label
 
