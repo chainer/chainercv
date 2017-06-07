@@ -156,9 +156,9 @@ class MultiboxCoder(object):
             max_gt_idx = -1
             max_overlap = -1
             for j in range(len(bbox)):
-                if iou[i][j] <= 1e-6:
+                if iou[i, j] <= 1e-6:
                     continue
-                overlap = iou[i][j]
+                overlap = iou[i, j]
                 if overlap >= iou_thresh and overlap > max_overlap:
                     max_gt_idx = j
                     max_overlap = overlap
