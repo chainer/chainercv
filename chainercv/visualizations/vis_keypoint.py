@@ -24,7 +24,7 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
         keypoint (~numpy.ndarray): An array with keypoint pairs whose shape is
             :math:`(K, 2)`, where :math:`K` is
             the number of keypoints in the array.
-            The second axis corresponds to :math:`x` and :math:`y` coordinates
+            The second axis corresponds to :math:`y` and :math:`x` coordinates
             of the keypoint.
         kp_mask (~numpy.ndarray, optional): A boolean array whose shape is
             :math:`(K,)`. If :math:`i` th index is :obj:`True`, the
@@ -53,7 +53,7 @@ def vis_keypoint(img, keypoint, kp_mask=None, ax=None):
 
     for i in range(n_kp):
         if kp_mask[i]:
-            ax.scatter(keypoint[i][0], keypoint[i][1], c=colors[i], s=100)
+            ax.scatter(keypoint[i][1], keypoint[i][0], c=colors[i], s=100)
 
     ax.set_xlim(left=0, right=W)
     ax.set_ylim(bottom=H - 1, top=0)
