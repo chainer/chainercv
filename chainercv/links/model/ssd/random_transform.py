@@ -127,7 +127,7 @@ def random_transform(img, bbox, label, size, mean):
         img, param = transforms.random_expand(
             img, fill=mean, return_param=True)
         bbox = transforms.translate_bbox(
-            bbox, param['x_offset'], param['y_offset'])
+            bbox, x_offset=param['x_offset'], y_offset=param['y_offset'])
 
     img, bbox, label = _random_crop(img, bbox, label)
 
