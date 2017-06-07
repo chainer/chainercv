@@ -6,6 +6,61 @@ from chainercv import transforms
 from chainercv import utils
 
 
+def _random_distort(img):
+    import cv2
+
+    cv_img = img[::-1].transpose(1, 2, 0).astype(np.uint8)
+
+    def convert(cv_img, alpha=1, beta=0):
+        cv_img = cv_img.astype(float) * alpha + beta
+        cv_img[cv_img < 0] = 0
+        cv_img[cv_img > 255] = 255
+        return cv_img.astype(np.uint8)
+
+    def brightness(cv_img):
+        if random.randrange(2):
+            return convert(cv_img, beta=random.uniform(-32, 32))
+        else:
+            return cv_img
+
+    def contrast(cv_img):
+        if random.randrange(2):
+            return convert(cv_img, alpha=random.uniform(0.5, 1.5))
+        else:
+            return cv_img
+
+    def saturation(cv_img):
+        if random.randrange(2):
+            cv_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2HSV)
+            cv_img[:, :, 1] = convert(
+                cv_img[:, :, 1], alpha=random.uniform(0.5, 1.5))
+            return cv2.cvtColor(cv_img, cv2.COLOR_HSV2BGR)
+        else:
+            return cv_img
+
+    def hue(cv_img):
+        if random.randrange(2):
+            cv_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2HSV)
+            cv_img[:, :, 0] = (
+                cv_img[:, :, 0].astype(int) + random.randint(-18, 18)) % 180
+            return cv2.cvtColor(cv_img, cv2.COLOR_HSV2BGR)
+        else:
+            return cv_img
+
+    cv_img = brightness(cv_img)
+
+    if random.randrange(2):
+        cv_img = contrast(cv_img)
+        cv_img = saturation(cv_img)
+        cv_img = hue(cv_img)
+    else:
+        cv_img = saturation(cv_img)
+        cv_img = hue(cv_img)
+        cv_img = contrast(cv_img)
+
+    return cv_img.astype(np.float32).transpose(2, 0, 1)[::-1]
+
+
 def _random_crop(img, bbox, label):
     if len(bbox) == 0:
         return img, bbox, label
@@ -66,7 +121,7 @@ def _random_crop(img, bbox, label):
 
 
 def random_transform(img, bbox, label, size, mean):
-    # color augmentations here
+    img = _random_distort(img)
 
     if random.randrange(2):
         img, param = transforms.random_expand(
