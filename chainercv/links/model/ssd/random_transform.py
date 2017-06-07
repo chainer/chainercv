@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import six
 
 from chainercv import transforms
 from chainercv import utils
@@ -18,11 +19,13 @@ def _random_crop(img, bbox, label):
         (None, 1),
     )
 
+    max_trial = 50
+
     _, H, W = img.shape
 
     crop_bbox = [np.array((0, 0, W, H))]
     for iou_min, iou_max in constraints:
-        for _ in range(50):
+        for _ in six.moves.range(max_trial):
             if iou_min is None:
                 iou_min = float('-inf')
             if iou_max is None:
