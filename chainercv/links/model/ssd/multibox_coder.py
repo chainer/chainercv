@@ -123,7 +123,7 @@ class MultiboxCoder(object):
                 self._default_bbox[:, :2] + self._default_bbox[:, 2:] / 2)),
             bbox)
 
-        index = np.empty(len(self._default_bbox), dtype=int)
+        index = xp.empty(len(self._default_bbox), dtype=int)
         index[:] = -1
 
         gt_pool = list(range(len(bbox)))
