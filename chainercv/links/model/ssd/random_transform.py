@@ -120,6 +120,24 @@ def _random_crop(img, bbox, label):
     return img, bbox, label
 
 
+def _random_resize(img, size):
+    import cv2
+
+    cv_img = img[::-1].transpose(1, 2, 0)
+
+    inters = (
+        cv2.INTER_LINEAR,
+        cv2.INTER_AREA,
+        cv2.INTER_NEAREST,
+        cv2.INTER_CUBIC,
+        cv2.INTER_LANCZOS4,
+    )
+    inter = random.choice(inters)
+    cv_img = cv2.resize(cv_img, size, interpolation=inter)
+
+    return cv_img.astype(np.float32).transpose(2, 0, 1)[::-1]
+
+
 def random_transform(img, bbox, label, size, mean):
     img = _random_distort(img)
 
@@ -132,7 +150,7 @@ def random_transform(img, bbox, label, size, mean):
     img, bbox, label = _random_crop(img, bbox, label)
 
     _, H, W = img.shape
-    img = transforms.resize(img, (size, size))
+    img = _random_resize(img, (size, size))
     bbox = transforms.resize_bbox(bbox, (W, H), (size, size))
 
     img, params = transforms.random_flip(
