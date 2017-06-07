@@ -126,26 +126,14 @@ class MultiboxCoder(object):
         index = xp.empty(len(self._default_bbox), dtype=int)
         index[:] = -1
 
-        gt_pool = list(range(len(bbox)))
-        while len(gt_pool) > 0:
-            max_idx = -1
-            max_gt_idx = -1
-            max_overlap = -1
-            for i in range(len(self._default_bbox)):
-                for j in gt_pool:
-                    if index[i] >= 0:
-                        continue
-                    if iou[i, j] <= 1e-6:
-                        continue
-                    if iou[i, j] > max_overlap:
-                        max_idx = i
-                        max_gt_idx = j
-                        max_overlap = iou[i, j]
-            if max_idx == -1:
+        masked_iou = iou.copy()
+        while True:
+            i, j = np.unravel_index(masked_iou.argmax(), masked_iou.shape)
+            if masked_iou[i, j] <= 1e-6:
                 break
-            else:
-                index[max_idx] = max_gt_idx
-                gt_pool.remove(max_gt_idx)
+            index[i] = j
+            masked_iou[i, :] = 0
+            masked_iou[:, j] = 0
 
         mask = index < 0
         index[mask] = iou[mask].argmax(axis=1)
