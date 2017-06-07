@@ -51,7 +51,7 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     a coarse level class id.
     Images are in RGB and CHW format.
     Class ids start from 0.
-    The name of the coarse level class :math:`l` is :math:`l` th
+    The name of the :math:`l` th coarse level class is :math:`l` th
     element of :obj:`chainercv.datasets.online_products_super_label_names`.
 
     The :obj:`split` selects train and test split of the dataset as done in
