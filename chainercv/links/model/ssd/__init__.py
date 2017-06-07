@@ -1,6 +1,6 @@
 from chainercv.links.model.ssd.concatenated_dataset import ConcatenatedDataset  # NOQA
 from chainercv.links.model.ssd.multibox import Multibox  # NOQA
-from chainercv.links.model.ssd.multibox_encoder import MultiboxEncoder  # NOQA
+from chainercv.links.model.ssd.multibox_coder import MultiboxCoder  # NOQA
 from chainercv.links.model.ssd.multibox_loss import multibox_loss  # NOQA
 from chainercv.links.model.ssd.normalize import Normalize  # NOQA
 from chainercv.links.model.ssd.random_transform import random_transform  # NOQA
