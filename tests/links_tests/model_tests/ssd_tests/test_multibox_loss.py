@@ -18,6 +18,7 @@ from chainercv.links.model.ssd import multibox_loss
     'batchsize': [1, 5],
     'n_bbox': [10, 500],
     'n_class': [3, 20],
+    'variable': [True, False],
 }))
 class TestMultiboxLoss(unittest.TestCase):
 
@@ -40,10 +41,11 @@ class TestMultiboxLoss(unittest.TestCase):
             size=self.gt_mb_labels.shape) > 0.1] = 0
 
     def _check_forward(self, mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
-        mb_locs = chainer.Variable(mb_locs)
-        mb_confs = chainer.Variable(mb_confs)
-        gt_mb_locs = chainer.Variable(gt_mb_locs)
-        gt_mb_labels = chainer.Variable(gt_mb_labels)
+        if self.variable:
+            mb_locs = chainer.Variable(mb_locs)
+            mb_confs = chainer.Variable(mb_confs)
+            gt_mb_locs = chainer.Variable(gt_mb_locs)
+            gt_mb_labels = chainer.Variable(gt_mb_labels)
 
         loc_loss, conf_loss = multibox_loss(
             mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k)
