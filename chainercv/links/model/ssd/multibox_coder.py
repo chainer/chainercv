@@ -135,7 +135,7 @@ class MultiboxCoder(object):
             for i in range(len(self._default_bbox)):
                 if match_indices[i] >= 0:
                     continue
-                for p in range(len(gt_pool.size())):
+                for p in range(len(gt_pool)):
                     j = gt_pool[p]
                     if iou[i, j] <= 1e-6:
                         continue
