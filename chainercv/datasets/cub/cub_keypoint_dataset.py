@@ -29,7 +29,7 @@ class CUBKeypointDataset(CUBDatasetBase):
     Note that :math:`K=15` in CUB dataset. Also note that not all fifteen
     keypoints are visible in an image. When a keypoint is not visible,
     the values stored for that keypoint are undefined. The second axis
-    corresponds to the :math:`x` and :math:`y` coordinates of the
+    corresponds to the :math:`y` and :math:`x` coordinates of the
     keypoints in the image.
 
     A keypoint mask array indicates whether a keypoint is visible in the
@@ -74,7 +74,8 @@ class CUBKeypointDataset(CUBDatasetBase):
             if id_ not in self.kp_mask_dict:
                 self.kp_mask_dict[id_] = []
 
-            keypoint = [float(v) for v in values[2:4]]
+            # (y, x) order
+            keypoint = [float(v) for v in values[2:4][::-1]]
             kp_mask = bool(int(values[4]))
 
             self.kp_dict[id_].append(keypoint)
@@ -93,8 +94,9 @@ class CUBKeypointDataset(CUBDatasetBase):
 
         if self.crop_bbox:
             bbox = self.bboxes[i]  # (x, y, width, height)
-            img = img[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
-            keypoint[:, :2] = keypoint[:, :2] - np.array([bbox[0], bbox[1]])
+            img =\
+                img[:, bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
+            keypoint[:, :2] = keypoint[:, :2] - np.array([bbox[1], bbox[0]])
 
         if not self.return_mask:
             return img, keypoint, kp_mask

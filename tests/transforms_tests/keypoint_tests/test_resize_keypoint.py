@@ -13,8 +13,8 @@ class TestResizeKeypoint(unittest.TestCase):
             low=0., high=32., size=(12, 2))
 
         out = resize_keypoint(keypoint, in_size=(16, 32), out_size=(8, 64))
-        keypoint[:, 0] *= 2
-        keypoint[:, 1] *= 0.5
+        keypoint[:, 0] *= 0.5
+        keypoint[:, 1] *= 2
         np.testing.assert_equal(out, keypoint)
 
 
