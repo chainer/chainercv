@@ -135,7 +135,7 @@ class MultiboxCoder(object):
             masked_iou[i, :] = 0
             masked_iou[:, j] = 0
 
-        mask = index < 0
+        mask = xp.logical_and(index < 0, iou.max(axis=1) >= iou_thresh)
         index[mask] = iou[mask].argmax(axis=1)
 
         mb_bbox = bbox[index]
