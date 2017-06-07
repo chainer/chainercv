@@ -20,7 +20,7 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
     :obj:`label_names` is specified.
 
     * :obj:`'map'`: Mean of average precisions (mAP).
-    * :obj:`'ap/<3label_names[l]>'`: Average precision for class \
+    * :obj:`'ap/<label_names[l]>'`: Average precision for class \
         :obj:`label_names[l]`, where :math:`l` is the index of the class. \
         For example, this evaluator reports :obj:`'ap/aeroplane'`, \
         :obj:`'ap/bicycle'`, etc. if :obj:`label_names` is \
@@ -39,7 +39,7 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
             :obj:`difficult` is whether the bounding boxes are difficult or
             not. If :obj:`difficult` is returned, difficult ground truth
             will be ignored from evaluation.
-        target (chainer.Link): An detection link. This link must have
+        target (chainer.Link): A detection link. This link must have
             :meth:`predict` method which takes a list of images and returns
             :obj:`bboxes`, :obj:`labels` and :obj:`scores`.
         use_07_metric (bool): Whether to use PASCAL VOC 2007 evaluation metric
