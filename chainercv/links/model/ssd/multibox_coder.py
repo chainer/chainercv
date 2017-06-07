@@ -123,8 +123,8 @@ class MultiboxCoder(object):
                 self._default_bbox[:, :2] + self._default_bbox[:, 2:] / 2)),
             bbox)
 
-        match_indices = np.empty(len(self._default_bbox), dtype=int)
-        match_indices[:] = -1
+        index = np.empty(len(self._default_bbox), dtype=int)
+        index[:] = -1
 
         gt_pool = list(range(len(bbox)))
         while len(gt_pool) > 0:
@@ -133,7 +133,7 @@ class MultiboxCoder(object):
             max_overlap = -1
             for i in range(len(self._default_bbox)):
                 for j in gt_pool:
-                    if match_indices[i] >= 0:
+                    if index[i] >= 0:
                         continue
                     if iou[i, j] <= 1e-6:
                         continue
@@ -144,13 +144,13 @@ class MultiboxCoder(object):
             if max_idx == -1:
                 break
             else:
-                match_indices[max_idx] = max_gt_idx
+                index[max_idx] = max_gt_idx
                 gt_pool.remove(max_gt_idx)
 
-        mask = match_indices < 0
-        match_indices[mask] = iou[mask].argmax(axis=1)
+        mask = index < 0
+        index[mask] = iou[mask].argmax(axis=1)
 
-        mb_bbox = bbox[match_indices]
+        mb_bbox = bbox[index]
         mb_loc = xp.hstack((
             ((mb_bbox[:, :2] + mb_bbox[:, 2:]) / 2
              - self._default_bbox[:, :2]) /
@@ -160,9 +160,9 @@ class MultiboxCoder(object):
             self._variance[1]))
 
         # [0, n_fg_class - 1] -> [1, n_fg_class]
-        mb_label = label[match_indices] + 1
+        mb_label = label[index] + 1
         # 0 is for background
-        mb_label[match_indices < 0] = 0
+        mb_label[index < 0] = 0
 
         return mb_loc.astype(np.float32), mb_label.astype(np.int32)
 
