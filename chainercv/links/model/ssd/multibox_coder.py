@@ -147,12 +147,8 @@ class MultiboxCoder(object):
                 match_indices[max_idx] = max_gt_idx
                 gt_pool.remove(max_gt_idx)
 
-        for i in range(len(self._default_bbox)):
-            if match_indices[i] != -1:
-                continue
-            j = iou[i].argmax()
-            if iou[i, j] >= iou_thresh:
-                match_indices[i] = j
+        mask = match_indices < 0
+        match_indices[mask] = iou[mask].argmax(axis=1)
 
         mb_bbox = bbox[match_indices]
         mb_loc = xp.hstack((
