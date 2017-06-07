@@ -27,9 +27,9 @@ def _random_crop(img, bbox, label):
     for iou_min, iou_max in constraints:
         for _ in six.moves.range(max_trial):
             if iou_min is None:
-                iou_min = float('-inf')
+                iou_min = 0
             if iou_max is None:
-                iou_max = float('inf')
+                iou_max = 1
 
             scale = random.uniform(0.3, 1)
             aspect_ratio = random.uniform(
