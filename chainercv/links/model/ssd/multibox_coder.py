@@ -122,10 +122,51 @@ class MultiboxCoder(object):
                 self._default_bbox[:, :2] - self._default_bbox[:, 2:] / 2,
                 self._default_bbox[:, :2] + self._default_bbox[:, 2:] / 2)),
             bbox)
-        idx = iou.argmax(axis=1)
-        iou = iou.max(axis=1)
 
-        mb_bbox = bbox[idx]
+        match_indices = np.empty(len(self._default_bbox), dtype=int)
+        match_indices[:] = -1
+        match_overlaps = iou.max(axis=1)
+
+        gt_pool = list(range(len(bbox)))
+        while len(gt_pool) > 0:
+            max_idx = -1
+            max_gt_idx = -1
+            max_overlap = -1
+            for i in range(len(self._default_bbox)):
+                if match_indices[i] < 0:
+                    continue
+                for p in range(len(gt_pool.size())):
+                    j = gt_pool[p]
+                    if iou[i, j] <= 1e-6:
+                        continue
+                    if iou[i, j] > max_overlap:
+                        max_idx = i
+                        max_gt_idx = j
+                        max_overlap = iou[i, j]
+            if max_idx == -1:
+                break
+            else:
+                match_indices[max_idx] = max_gt_idx
+                match_overlaps[max_idx] = max_overlap
+                gt_pool.remove(max_gt_idx)
+
+        for i in range(iou.shape[0]):
+            if match_indices[i] != -1:
+                continue
+            max_gt_idx = -1
+            max_overlap = -1
+            for j in range(len(bbox)):
+                if iou[i][j] <= 1e-6:
+                    continue
+                overlap = iou[i][j]
+                if overlap >= iou_thresh and overlap > max_overlap:
+                    max_gt_idx = j
+                    max_overlap = overlap
+            if max_gt_idx != -1:
+                match_indices[i] = max_gt_idx
+                match_overlaps[i] = max_overlap
+
+        mb_bbox = bbox[match_indices]
         mb_loc = xp.hstack((
             ((mb_bbox[:, :2] + mb_bbox[:, 2:]) / 2
              - self._default_bbox[:, :2]) /
@@ -134,11 +175,10 @@ class MultiboxCoder(object):
                    / self._default_bbox[:, 2:]) /
             self._variance[1]))
 
-        mb_label = label[idx]
         # [0, n_fg_class - 1] -> [1, n_fg_class]
-        mb_label += 1
+        mb_label = label[match_indices] + 1
         # 0 is for background
-        mb_label[iou < iou_thresh] = 0
+        mb_label[match_indices < 0] = 0
 
         return mb_loc.astype(np.float32), mb_label.astype(np.int32)
 
