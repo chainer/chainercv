@@ -110,14 +110,15 @@ class MultiboxCoder(object):
             * **mb_label**: An integer array of shape :math:`(K,)`.
 
         """
+        xp = self.xp
 
         if len(bbox) == 0:
             return (
-                np.zeros(self._default_bbox.shape, dtype=np.float32),
-                np.zeros(self._default_bbox.shape[:1], dtype=np.int32))
+                xp.zeros(self._default_bbox.shape, dtype=np.float32),
+                xp.zeros(self._default_bbox.shape[:1], dtype=np.int32))
 
         iou = utils.bbox_iou(
-            np.hstack((
+            xp.hstack((
                 self._default_bbox[:, :2] - self._default_bbox[:, 2:] / 2,
                 self._default_bbox[:, :2] + self._default_bbox[:, 2:] / 2)),
             bbox)
@@ -125,11 +126,11 @@ class MultiboxCoder(object):
         iou = iou.max(axis=1)
 
         mb_bbox = bbox[idx]
-        mb_loc = np.hstack((
+        mb_loc = xp.hstack((
             ((mb_bbox[:, :2] + mb_bbox[:, 2:]) / 2
              - self._default_bbox[:, :2]) /
             (self._variance[0] * self._default_bbox[:, 2:]),
-            np.log((mb_bbox[:, 2:] - mb_bbox[:, :2])
+            xp.log((mb_bbox[:, 2:] - mb_bbox[:, :2])
                    / self._default_bbox[:, 2:]) /
             self._variance[1]))
 
