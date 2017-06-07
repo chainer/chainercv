@@ -1,3 +1,4 @@
+import numpy as np
 import os
 
 from chainercv.datasets.cub.cub_utils import CUBDatasetBase
@@ -50,9 +51,8 @@ class CUBLabelDataset(CUBDatasetBase):
             os.path.join(self.data_dir, 'images', self.fns[i]), color=True)
 
         if self.crop_bbox:
-            bbox = self.bboxes[i]  # (x, y, width, height)
-            img = img[:,
-                      bbox[1]: bbox[1] + bbox[3],
-                      bbox[0]: bbox[0] + bbox[2]]
+            # (y_min, x_min, y_max, x_max)
+            bbox = self.bboxes[i].astype(np.int32)
+            img = img[:, bbox[0]: bbox[2], bbox[1]: bbox[3]]
         label = self._data_labels[i]
         return img, label
