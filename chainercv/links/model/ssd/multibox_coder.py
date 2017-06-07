@@ -115,7 +115,7 @@ class MultiboxCoder(object):
         if len(bbox) == 0:
             return (
                 xp.zeros(self._default_bbox.shape, dtype=np.float32),
-                xp.zeros(self._default_bbox.shape[:1], dtype=np.int32))
+                xp.zeros(self._default_bbox.shape[0], dtype=np.int32))
 
         iou = utils.bbox_iou(
             xp.hstack((
