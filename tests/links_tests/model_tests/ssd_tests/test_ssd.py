@@ -51,49 +51,17 @@ class TestSSD(unittest.TestCase):
         self.link = DummySSD(n_fg_class=self.n_fg_class)
         self.n_bbox = 10 * 10 * 4 + 4 * 4 * 6 + 1 * 1 * 4
 
-    def _check_default_bbox(self):
-        self.assertIsInstance(self.link._default_bbox, self.link.xp.ndarray)
-        self.assertEqual(self.link._default_bbox.shape, (self.n_bbox, 4))
-
-    def test_default_bbox_cpu(self):
-        self._check_default_bbox()
-
-    @attr.gpu
-    def test_default_bbox_gpu(self):
-        self.link.to_gpu()
-        self._check_default_bbox()
-
-    def _check_decode(self):
-        loc = _random_array(self.link.xp, (1, self.n_bbox, 4))
-        conf = _random_array(
-            self.link.xp, (1, self.n_bbox, self.n_fg_class + 1))
-
-        bboxes, scores = self.link._decode(loc, conf)
-
-        self.assertIsInstance(bboxes, self.link.xp.ndarray)
-        self.assertEqual(bboxes.shape, (1, self.n_bbox, 4))
-        self.assertIsInstance(scores, self.link.xp.ndarray)
-        self.assertEqual(scores.shape, (1, self.n_bbox, self.n_fg_class + 1))
-
-    def test_decode_cpu(self):
-        self._check_decode()
-
-    @attr.gpu
-    def test_decode_gpu(self):
-        self.link.to_gpu()
-        self._check_decode()
-
     def _check_call(self):
         x = _random_array(self.link.xp, (1, 3, 32, 32))
 
-        loc, conf = self.link(x)
+        mb_locs, mb_confs = self.link(x)
 
-        self.assertIsInstance(loc, chainer.Variable)
-        self.assertIsInstance(loc.data, self.link.xp.ndarray)
-        self.assertEqual(loc.shape, (1, self.n_bbox, 4))
-        self.assertIsInstance(conf, chainer.Variable)
-        self.assertIsInstance(conf.data, self.link.xp.ndarray)
-        self.assertEqual(conf.shape, (1, self.n_bbox, self.n_fg_class + 1))
+        self.assertIsInstance(mb_locs, chainer.Variable)
+        self.assertIsInstance(mb_locs.data, self.link.xp.ndarray)
+        self.assertEqual(mb_locs.shape, (1, self.n_bbox, 4))
+        self.assertIsInstance(mb_confs, chainer.Variable)
+        self.assertIsInstance(mb_confs.data, self.link.xp.ndarray)
+        self.assertEqual(mb_confs.shape, (1, self.n_bbox, self.n_fg_class + 1))
 
     def test_call_cpu(self):
         self._check_call()
@@ -102,34 +70,6 @@ class TestSSD(unittest.TestCase):
     def test_call_gpu(self):
         self.link.to_gpu()
         self._check_call()
-
-    def _check_suppress(self):
-        raw_bbox = _random_array(self.link.xp, (self.n_bbox, 4))
-        raw_score = _random_array(
-            self.link.xp, (self.n_bbox, self.n_fg_class + 1))
-
-        bbox, label, score = self.link._suppress(raw_bbox, raw_score)
-
-        self.assertIsInstance(bbox, self.link.xp.ndarray)
-        self.assertEqual(bbox.ndim, 2)
-        self.assertLessEqual(bbox.shape[0], self.n_bbox * self.n_fg_class)
-        self.assertEqual(bbox.shape[1], 4)
-
-        self.assertIsInstance(label, self.link.xp.ndarray)
-        self.assertEqual(label.ndim, 1)
-        self.assertEqual(label.shape[0], bbox.shape[0])
-
-        self.assertIsInstance(score, self.link.xp.ndarray)
-        self.assertEqual(score.ndim, 1)
-        self.assertEqual(score.shape[0], bbox.shape[0])
-
-    def test_suppress_cpu(self):
-        self._check_suppress()
-
-    @attr.gpu
-    def test_suppress_gpu(self):
-        self.link.to_gpu()
-        self._check_suppress()
 
     def test_prepare(self):
         img = np.random.randint(0, 255, size=(3, 480, 640))
