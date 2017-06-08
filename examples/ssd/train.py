@@ -8,8 +8,8 @@ from chainer import training
 from chainer.training import extensions
 from chainer.training import triggers
 
-from chainercv.datasets import VOCDetectionDataset
 from chainercv.datasets import voc_detection_label_names
+from chainercv.datasets import VOCDetectionDataset
 from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links.model.ssd import ConcatenatedDataset
 from chainercv.links.model.ssd import MultiboxTrainChain
