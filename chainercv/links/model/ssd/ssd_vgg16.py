@@ -1,5 +1,6 @@
 from __future__ import division
 
+import numpy as np
 import os
 import six
 import warnings
@@ -219,6 +220,13 @@ class VGG16Extractor512(VGG16):
         return ys
 
 
+# to skip unsaved parameters, use strict option.
+def _load_npz(filename, obj):
+    with np.load(filename) as f:
+        d = chainer.serializers.NpzDeserializer(f, strict=False)
+        d.load(obj)
+
+
 def _check_pretrained_model(n_fg_class, pretrained_model, models):
     if pretrained_model in models:
         model = models[pretrained_model]
@@ -315,7 +323,7 @@ class SSD300(SSD):
             mean=_imagenet_mean)
 
         if path:
-            chainer.serializers.load_npz(path, self)
+            _load_npz(path, self)
 
 
 class SSD512(SSD):
@@ -383,4 +391,4 @@ class SSD512(SSD):
             mean=_imagenet_mean)
 
         if path:
-            chainer.serializers.load_npz(path, self)
+            _load_npz(path, self)
