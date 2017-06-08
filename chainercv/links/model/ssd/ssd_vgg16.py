@@ -191,7 +191,7 @@ class VGG16Extractor512(VGG16):
             conv11_2=L.Convolution2D(None, 256, 3, stride=2, pad=1, **init),
 
             conv12_1=L.Convolution2D(None, 128, 1, **init),
-            conv12_2=L.Convolution2D(None, 256, 4,  pad=1, **init),
+            conv12_2=L.Convolution2D(None, 256, 4, pad=1, **init),
         )
 
     def __call__(self, x):
