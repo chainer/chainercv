@@ -57,7 +57,9 @@ def main():
     train_iter = chainer.iterators.MultiprocessIterator(
         train, args.batchsize, n_processes=2)
 
-    test = VOCDetectionDataset(year='2007', split='test')
+    test = VOCDetectionDataset(
+        year='2007', split='test',
+        use_difficult=True, return_difficult=True)
     test_iter = chainer.iterators.SerialIterator(
         test, args.batchsize, repeat=False, shuffle=False)
 
