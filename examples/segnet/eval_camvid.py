@@ -19,8 +19,9 @@ from chainercv.utils import apply_prediction_to_iterator
 def calc_bn_statistics(model, gpu):
     model.to_gpu(gpu)
 
-    d = CamVidDataset(split='train')
-    it = chainer.iterators.SerialIterator(d, 24, repeat=False, shuffle=False)
+    train = CamVidDataset(split='train')
+    it = chainer.iterators.SerialIterator(
+        train, 24, repeat=False, shuffle=False)
     bn_avg_mean = defaultdict(np.float32)
     bn_avg_var = defaultdict(np.float32)
 
