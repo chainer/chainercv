@@ -46,7 +46,7 @@ python demo.py [--gpu <gpu>] [--pretrained_model <model_path>] 0001TP_008550.png
 The trained weights to replicate the same results as below is here: [model_iteration-16000](https://www.dropbox.com/s/exas66necaqbxyw/model_iteration-16000).
 
 ```
-python evaluate.py [--gpu <gpu>] [--pretrained_model <model_path>] [--batchsize <batchsize>]
+python eval_camvid.py [--gpu <gpu>] [--pretrained_model <model_path>] [--batchsize <batchsize>]
 ```
 
 
