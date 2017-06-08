@@ -17,7 +17,8 @@ from chainercv.utils import apply_prediction_to_iterator
 
 
 def calc_bn_statistics(model, gpu):
-    model.to_gpu(gpu)
+    if gpu >= 0:
+        model.to_gpu(gpu)
 
     train = CamVidDataset(split='train')
     it = chainer.iterators.SerialIterator(
