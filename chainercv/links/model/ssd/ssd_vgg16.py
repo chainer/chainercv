@@ -222,9 +222,14 @@ class VGG16Extractor512(VGG16):
 def _check_pretrained_model(n_fg_class, pretrained_model, models):
     if pretrained_model in models:
         model = models[pretrained_model]
-        if n_fg_class and not n_fg_class == model['n_fg_class']:
-            raise ValueError('n_fg_class mismatch')
-        n_fg_class = model['n_fg_class']
+        if n_fg_class:
+            if model['n_fg_class'] and not n_fg_class == model['n_fg_class']:
+                raise ValueError(
+                    'n_fg_class should be {:d}'.format(model['n_fg_class']))
+        else:
+            if not model['n_fg_class']:
+                raise ValueError('n_fg_class must be specified')
+            n_fg_class = model['n_fg_class']
 
         root = get_dataset_directory('pfnet/chainercv/models')
         basename = os.path.basename(model['url'])
@@ -272,6 +277,11 @@ class SSD300(SSD):
                 `the original implementation \
                 <https://github.com/weiliu89/caffe/tree/ssd>`_. \
                 The conversion code is `chainercv/examples/ssd/caffe2npz.py`.
+            * :obj:`'imagenet'`: Load weights of VGG-16 trained on ImageNet. \
+                The weight file is downloaded and cached automatically. \
+                This option initializes weights partially and the rests are
+                initialized randomly. In this case, :obj:`n_fg_class` \
+                can be set to any number.
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
@@ -283,7 +293,12 @@ class SSD300(SSD):
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.2/ssd300_voc0712_2017_05_24.npz'
-        }
+        },
+        'imagenet': {
+            'n_fg_class': None,
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.3/ssd_vgg16_imagenet_2017_06_09.npz'
+        },
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
@@ -328,6 +343,11 @@ class SSD512(SSD):
                 `the original implementation \
                 <https://github.com/weiliu89/caffe/tree/ssd>`_. \
                 The conversion code is `chainercv/examples/ssd/caffe2npz.py`.
+            * :obj:`'imagenet'`: Load weights of VGG-16 trained on ImageNet. \
+                The weight file is downloaded and cached automatically. \
+                This option initializes weights partially and the rests are
+                initialized randomly. In this case, :obj:`n_fg_class` \
+                can be set to any number.
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
@@ -339,7 +359,12 @@ class SSD512(SSD):
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.2/ssd512_voc0712_2017_05_24.npz'
-        }
+        },
+        'imagenet': {
+            'n_fg_class': None,
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.3/ssd_vgg16_imagenet_2017_06_09.npz'
+        },
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
