@@ -74,7 +74,7 @@ def main():
     confusion = calc_semantic_segmentation_confusion(pred_labels, gt_labels)
     ious = calc_semantic_segmentation_iou(confusion)
 
-    pixel_accuracy = np.diag(confusion).sum() / confusion.size
+    pixel_accuracy = np.diag(confusion).sum() / confusion.sum()
     mean_pixel_accuracy = np.mean(
         np.diag(confusion) / np.sum(confusion, axis=1))
 
