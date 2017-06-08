@@ -16,10 +16,10 @@ from chainercv.links import SegNetBasic
 from chainercv.utils import apply_prediction_to_iterator
 
 
-def calc_bn_statistics(model):
+def calc_bn_statistics(model, batchsize):
     train = CamVidDataset(split='train')
     it = chainer.iterators.SerialIterator(
-        train, 24, repeat=False, shuffle=False)
+        train, batchsize, repeat=False, shuffle=False)
     bn_avg_mean = defaultdict(np.float32)
     bn_avg_var = defaultdict(np.float32)
 
@@ -51,10 +51,12 @@ def main():
     model = SegNetBasic(
         n_class=len(camvid_label_names),
         pretrained_model=args.pretrained_model)
-    model = calc_bn_statistics(model, args.gpu)
-    model.train = False
     if args.gpu >= 0:
         model.to_gpu(args.gpu)
+
+    model = calc_bn_statistics(model, args.batchsize)
+
+    model.train = False
 
     test = CamVidDataset(split='test')
     it = chainer.iterators.SerialIterator(test, batch_size=args.batchsize,
