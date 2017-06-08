@@ -55,10 +55,9 @@ def main():
     parser.add_argument('--batchsize', type=int, default=24)
     args = parser.parse_args()
 
-    n_class = 11
-
     model = SegNetBasic(
-        n_class=n_class, pretrained_model=args.pretrained_model)
+        n_class=len(camvid_label_names),
+        pretrained_model=args.pretrained_model)
     model = calc_bn_statistics(model, args.gpu)
     model.train = False
     if args.gpu >= 0:
