@@ -24,7 +24,7 @@ def calc_bn_statistics(model, gpu):
     bn_avg_mean = defaultdict(np.float32)
     bn_avg_var = defaultdict(np.float32)
 
-    num_iterations = 0
+    n_iter = 0
     for batch in it:
         imgs, labels = concat_examples(batch, device=gpu)
         model(imgs)
@@ -32,12 +32,12 @@ def calc_bn_statistics(model, gpu):
             if name.endswith('_bn'):
                 bn_avg_mean[name] += cuda.to_cpu(link.avg_mean)
                 bn_avg_var[name] += cuda.to_cpu(link.avg_var)
-        num_iterations += 1
+        n_iter += 1
 
     for name, link in model.namedlinks():
         if name.endswith('_bn'):
-            link.avg_mean = bn_avg_mean[name] / num_iterations
-            link.avg_var = bn_avg_var[name] / num_iterations
+            link.avg_mean = bn_avg_mean[name] / n_iter
+            link.avg_var = bn_avg_var[name] / n_iter
 
     model.to_cpu()
     return model
