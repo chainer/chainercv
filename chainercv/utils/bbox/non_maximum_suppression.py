@@ -80,9 +80,9 @@ def _non_maximum_suppression_cpu(bbox, thresh, score=None, limit=None):
 
     selec = np.zeros(bbox.shape[0], dtype=bool)
     for i, b in enumerate(bbox):
-        lt = np.maximum(b[:2], bbox[selec, :2])
-        rb = np.minimum(b[2:], bbox[selec, 2:])
-        area = np.prod(rb - lt, axis=1) * (lt < rb).all(axis=1)
+        tl = np.maximum(b[:2], bbox[selec, :2])
+        br = np.minimum(b[2:], bbox[selec, 2:])
+        area = np.prod(br - tl, axis=1) * (tl < br).all(axis=1)
 
         iou = area / (bbox_area[i] + bbox_area[selec] - area)
         if (iou >= thresh).any():
