@@ -15,6 +15,10 @@ flip
 ~~~~
 .. autofunction:: flip
 
+padding
+~~~~~~~
+.. autofunction:: padding
+
 pca_lighting
 ~~~~~~~~~~~~
 .. autofunction:: pca_lighting
