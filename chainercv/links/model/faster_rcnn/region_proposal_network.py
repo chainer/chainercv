@@ -58,16 +58,16 @@ class RegionProposalNetwork(chainer.Chain):
         self.proposal_layer = ProposalCreator(**proposal_creator_params)
 
         n_anchor = self.anchor_base.shape[0]
-        super(RegionProposalNetwork, self).__init__(
-            conv1=L.Convolution2D(
-                in_channels, mid_channels, 3, 1, 1, initialW=initialW),
-            score=L.Convolution2D(
-                mid_channels, n_anchor * 2, 1, 1, 0, initialW=initialW),
-            loc=L.Convolution2D(
+        super(RegionProposalNetwork, self).__init__()
+        with self.init_scope():
+            self.conv1 = L.Convolution2D(
+                in_channels, mid_channels, 3, 1, 1, initialW=initialW)
+            self.score = L.Convolution2D(
+                mid_channels, n_anchor * 2, 1, 1, 0, initialW=initialW)
+            self.loc = L.Convolution2D(
                 mid_channels, n_anchor * 4, 1, 1, 0, initialW=initialW)
-        )
 
-    def __call__(self, x, img_size, scale=1., test=True):
+    def __call__(self, x, img_size, scale=1.):
         """Forward Region Proposal Network.
 
         Here are notations.
@@ -84,8 +84,6 @@ class RegionProposalNetwork(chainer.Chain):
                 which contains image size after scaling.
             scale (float): The amount of scaling done to the input images after
                 reading them from files.
-            test (bool): Execute in test mode or not.
-                Default value is :obj:`True`.
 
         Returns:
             (~chainer.Variable, ~chainer.Variable, array, array, array):
@@ -129,7 +127,7 @@ class RegionProposalNetwork(chainer.Chain):
         for i in range(n):
             roi = self.proposal_layer(
                 rpn_locs[i].data, rpn_fg_scores[i].data, anchor, img_size,
-                scale=scale, test=test)
+                scale=scale)
             batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
             rois.append(roi)
             roi_indices.append(batch_index)

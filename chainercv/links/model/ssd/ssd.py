@@ -78,7 +78,10 @@ class SSD(chainer.Chain):
         self.mean = mean
         self.use_preset('visualize')
 
-        super(SSD, self).__init__(extractor=extractor, multibox=multibox)
+        super(SSD, self).__init__()
+        with self.init_scope():
+            self.extractor = extractor
+            self.multibox = multibox
 
         self.coder = MultiboxCoder(
             extractor.grids, multibox.aspect_ratios, steps, sizes, variance)
@@ -196,8 +199,9 @@ class SSD(chainer.Chain):
             x.append(self.xp.array(img))
             sizes.append((W, H))
 
-        x = chainer.Variable(self.xp.stack(x), volatile=chainer.flag.ON)
-        mb_locs, mb_confs = self(x)
+        with chainer.function.no_backprop_mode():
+            x = chainer.Variable(self.xp.stack(x))
+            mb_locs, mb_confs = self(x)
         mb_locs, mb_confs = mb_locs.data, mb_confs.data
 
         bboxes = list()
