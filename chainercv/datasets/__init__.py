@@ -4,6 +4,7 @@ from chainercv.datasets.camvid.camvid_dataset import camvid_label_names  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import CamVidDataset  # NOQA
 from chainercv.datasets.cub.cub_keypoint_dataset import CUBKeypointDataset  # NOQA
 from chainercv.datasets.cub.cub_label_dataset import CUBLabelDataset  # NOQA
+from chainercv.datasets.multiple_dataset import MultipleDataset  # NOQA
 from chainercv.datasets.online_products.online_products_dataset import OnlineProductsDataset  # NOQA
 from chainercv.datasets.transform_dataset import TransformDataset  # NOQA
 from chainercv.datasets.voc.voc_detection_dataset import VOCDetectionDataset  # NOQA
