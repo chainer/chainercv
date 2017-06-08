@@ -16,10 +16,7 @@ from chainercv.links import SegNetBasic
 from chainercv.utils import apply_prediction_to_iterator
 
 
-def calc_bn_statistics(model, gpu):
-    if gpu >= 0:
-        model.to_gpu(gpu)
-
+def calc_bn_statistics(model):
     train = CamVidDataset(split='train')
     it = chainer.iterators.SerialIterator(
         train, 24, repeat=False, shuffle=False)
@@ -28,12 +25,12 @@ def calc_bn_statistics(model, gpu):
 
     n_iter = 0
     for batch in it:
-        imgs, labels = concat_examples(batch, device=gpu)
+        imgs, _ = concat_examples(batch)
         model(imgs)
         for name, link in model.namedlinks():
             if name.endswith('_bn'):
-                bn_avg_mean[name] += cuda.to_cpu(link.avg_mean)
-                bn_avg_var[name] += cuda.to_cpu(link.avg_var)
+                bn_avg_mean[name] += link.avg_mean
+                bn_avg_var[name] += link.avg_var
         n_iter += 1
 
     for name, link in model.namedlinks():
@@ -41,7 +38,6 @@ def calc_bn_statistics(model, gpu):
             link.avg_mean = bn_avg_mean[name] / n_iter
             link.avg_var = bn_avg_var[name] / n_iter
 
-    model.to_cpu()
     return model
 
 
