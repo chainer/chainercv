@@ -24,7 +24,7 @@ def main():
     parser.add_argument('--out', default='result')
     args = parser.parse_args()
 
-    model = SSD300(n_fg_class=20)
+    model = SSD300(n_fg_class=20, pretrained_model='imagenet')
     train_chain = MultiboxTrainChain(model)
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
