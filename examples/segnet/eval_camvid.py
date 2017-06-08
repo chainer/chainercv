@@ -5,7 +5,6 @@ from collections import defaultdict
 import numpy as np
 
 import chainer
-from chainer import cuda
 from chainer.dataset import concat_examples
 
 from chainercv.datasets import camvid_label_names
