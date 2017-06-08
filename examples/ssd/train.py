@@ -10,31 +10,11 @@ from chainer.training import triggers
 
 from chainercv.datasets import VOCDetectionDataset
 from chainercv.links.model.ssd import ConcatenatedDataset
-from chainercv.links.model.ssd import multibox_loss
+from chainercv.links.model.ssd import MultiboxTrainChain
 from chainercv.links.model.ssd import random_transform
 from chainercv.links.model.ssd import SelectiveWeightDecay
 from chainercv.links import SSD300
 from chainercv import transforms
-
-
-class MultiboxTrainChain(chainer.Chain):
-
-    def __init__(self, model, alpha=1, k=3):
-        super(MultiboxTrainChain, self).__init__(model=model)
-        self.alpha = alpha
-        self.k = k
-
-    def __call__(self, imgs, gt_mb_locs, gt_mb_labels):
-        mb_locs, mb_confs = self.model(imgs)
-        loc_loss, conf_loss = multibox_loss(
-            mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, self.k)
-        loss = loc_loss * self.alpha + conf_loss
-
-        chainer.reporter.report(
-            {'loss': loss, 'loss/loc': loc_loss, 'loss/conf': conf_loss},
-            self)
-
-        return loss
 
 
 def main():
@@ -80,16 +60,10 @@ def main():
     updater = training.StandardUpdater(iterator, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
     trainer.extend(
-        extensions.ExponentialShift('lr', 0.1, init=0.001),
+        extensions.ExponentialShift('lr', 0.1, init=1e-3),
         trigger=triggers.ManualScheduleTrigger([80000, 100000], 'iteration'))
 
-    snapshot_interval = 1000, 'iteration'
     log_interval = 10, 'iteration'
-
-    trainer.extend(extensions.dump_graph('main/loss'))
-    trainer.extend(extensions.snapshot(), trigger=snapshot_interval)
-    trainer.extend(extensions.snapshot_object(
-        model, 'model_iter_{.updater.iteration}'), trigger=snapshot_interval)
     trainer.extend(extensions.LogReport(trigger=log_interval))
     trainer.extend(extensions.observe_lr(), trigger=log_interval)
     trainer.extend(extensions.PrintReport(
@@ -98,6 +72,8 @@ def main():
             'main/loss', 'main/loss/loc', 'main/loss/conf', 'lr']),
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
+
+    trainer.extend(extensions.snapshot(), trigger=(1000, 'iteration'))
 
     trainer.run()
 
