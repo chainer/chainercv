@@ -9,6 +9,8 @@ from chainer.training import extensions
 from chainer.training import triggers
 
 from chainercv.datasets import VOCDetectionDataset
+from chainercv.datasets import voc_detection_label_names
+from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links.model.ssd import ConcatenatedDataset
 from chainercv.links.model.ssd import MultiboxTrainChain
 from chainercv.links.model.ssd import random_transform
@@ -24,7 +26,10 @@ def main():
     parser.add_argument('--out', default='result')
     args = parser.parse_args()
 
-    model = SSD300(n_fg_class=20, pretrained_model='imagenet')
+    model = SSD300(
+        n_fg_class=len(voc_detection_label_names),
+        pretrained_model='imagenet')
+    model.use_preset('evaluate')
     train_chain = MultiboxTrainChain(model)
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
@@ -43,25 +48,34 @@ def main():
             transforms.resize_bbox(bbox, (size, size), (1, 1)), label)
         return img, mb_loc, mb_label
 
-    dataset = TransformDataset(
+    train = TransformDataset(
         ConcatenatedDataset(
             VOCDetectionDataset(year='2007', split='trainval'),
             VOCDetectionDataset(year='2012', split='trainval')
         ),
         transform)
+    train_iter = chainer.iterators.MultiprocessIterator(
+        train, args.batchsize, n_processes=2)
 
-    iterator = chainer.iterators.MultiprocessIterator(
-        dataset, args.batchsize, n_processes=2)
+    test = VOCDetectionDataset(year='2007', split='test')
+    test_iter = chainer.iterators.SerialIterator(
+        test, args.batchsize, repeat=False, shuffle=False)
 
     optimizer = chainer.optimizers.MomentumSGD()
     optimizer.setup(train_chain)
     optimizer.add_hook(SelectiveWeightDecay(0.0005, b={'lr': 2, 'decay': 0}))
 
-    updater = training.StandardUpdater(iterator, optimizer, device=args.gpu)
+    updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1, init=1e-3),
         trigger=triggers.ManualScheduleTrigger([80000, 100000], 'iteration'))
+
+    trainer.extend(
+        DetectionVOCEvaluator(
+            test_iter, model, use_07_metric=True,
+            label_names=voc_detection_label_names),
+        trigger=(10000, 'iteration'))
 
     log_interval = 10, 'iteration'
     trainer.extend(extensions.LogReport(trigger=log_interval))
@@ -69,7 +83,8 @@ def main():
     trainer.extend(extensions.PrintReport(
         [
             'epoch', 'iteration',
-            'main/loss', 'main/loss/loc', 'main/loss/conf', 'lr']),
+            'main/loss', 'main/loss/loc', 'main/loss/conf',
+            'validation/main/map', 'lr']),
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
