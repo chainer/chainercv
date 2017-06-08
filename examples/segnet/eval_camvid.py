@@ -26,7 +26,7 @@ def calc_bn_statistics(model, batchsize):
     n_iter = 0
     for batch in it:
         imgs, _ = concat_examples(batch)
-        model(imgs)
+        model(model.xp.array(imgs))
         for name, link in model.namedlinks():
             if name.endswith('_bn'):
                 bn_avg_mean[name] += link.avg_mean
