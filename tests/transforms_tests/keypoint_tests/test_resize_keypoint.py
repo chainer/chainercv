@@ -12,8 +12,9 @@ class TestResizeKeypoint(unittest.TestCase):
         keypoint = np.random.uniform(
             low=0., high=32., size=(12, 2))
 
-        out = resize_keypoint(keypoint, in_size=(32, 32), out_size=(64, 64))
-        keypoint[:, :2] *= 2
+        out = resize_keypoint(keypoint, in_size=(16, 32), out_size=(8, 64))
+        keypoint[:, 0] *= 0.5
+        keypoint[:, 1] *= 2
         np.testing.assert_equal(out, keypoint)
 
 

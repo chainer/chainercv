@@ -79,25 +79,25 @@ class SSD(chainer.Chain):
             self.extractor = extractor
             self.multibox = multibox
 
-        # the format of default_bbox is (center_x, center_y, width, height)
+        # the format of default_bbox is (center_y, center_x, height, width)
         self._default_bbox = list()
         for k, grid in enumerate(extractor.grids):
             for v, u in itertools.product(range(grid), repeat=2):
-                cx = (u + 0.5) * steps[k]
                 cy = (v + 0.5) * steps[k]
+                cx = (u + 0.5) * steps[k]
 
                 s = sizes[k]
-                self._default_bbox.append((cx, cy, s, s))
+                self._default_bbox.append((cy, cx, s, s))
 
                 s = np.sqrt(sizes[k] * sizes[k + 1])
-                self._default_bbox.append((cx, cy, s, s))
+                self._default_bbox.append((cy, cx, s, s))
 
                 s = sizes[k]
                 for ar in multibox.aspect_ratios[k]:
                     self._default_bbox.append(
-                        (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
+                        (cy, cx, s / np.sqrt(ar), s * np.sqrt(ar)))
                     self._default_bbox.append(
-                        (cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
+                        (cy, cx, s * np.sqrt(ar), s / np.sqrt(ar)))
         self._default_bbox = np.stack(self._default_bbox)
 
     @property
@@ -144,13 +144,13 @@ class SSD(chainer.Chain):
 
     def _decode(self, loc, conf):
         xp = self.xp
-        # the format of bbox is (center_x, center_y, width, height)
+        # the format of bbox is (center_y, center_x, height, width)
         bboxes = xp.dstack((
             self._default_bbox[:, :2] +
             loc[:, :, :2] * self.variance[0] * self._default_bbox[:, 2:],
             self._default_bbox[:, 2:] *
             xp.exp(loc[:, :, 2:] * self.variance[1])))
-        # convert the format of bbox to (x_min, y_min, x_max, y_max)
+        # convert the format of bbox to (y_min, x_min, y_max, x_max)
         bboxes[:, :, :2] -= bboxes[:, :, 2:] / 2
         bboxes[:, :, 2:] += bboxes[:, :, :2]
         scores = xp.exp(conf)
@@ -239,7 +239,7 @@ class SSD(chainer.Chain):
            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
                where :math:`R` is the number of bounding boxes in a image. \
                Each bouding box is organized by \
-               :obj:`(x_min, y_min, x_max, y_max)` \
+               :obj:`(y_min, x_min, y_max, x_max)` \
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
                Each value indicates the class of the bounding box. \
@@ -256,7 +256,7 @@ class SSD(chainer.Chain):
             _, H, W = img.shape
             img = self._prepare(img)
             x.append(self.xp.array(img))
-            sizes.append((W, H))
+            sizes.append((H, W))
 
         with chainer.function.no_backprop_mode():
             x = chainer.Variable(self.xp.stack(x))

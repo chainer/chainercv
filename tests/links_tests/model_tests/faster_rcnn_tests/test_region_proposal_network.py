@@ -33,7 +33,7 @@ class TestRegionProposalNetwork(unittest.TestCase):
             proposal_creator_params=self.proposal_creator_params
         )
         self.x = np.random.uniform(size=(self.B, C, H, W)).astype(np.float32)
-        self.img_size = (W * feat_stride, H * feat_stride)
+        self.img_size = (H * feat_stride, W * feat_stride)
 
         chainer.config.train = self.train
 

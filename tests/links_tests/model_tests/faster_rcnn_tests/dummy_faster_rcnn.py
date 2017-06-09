@@ -59,10 +59,10 @@ class DummyRegionProposalNetwork(chainer.Chain):
         rpn_locs = _random_array(self.xp, (B, n_anchor, 4))
         rpn_cls_scores = _random_array(self.xp, (B, n_anchor, 2))
         rois = self.xp.asarray(generate_random_bbox(
-            self.n_roi, img_size[::-1], 16, min(img_size)))
+            self.n_roi, img_size, 16, min(img_size)))
         roi_indices = self.xp.zeros((len(rois),), dtype=np.int32)
         anchor = self.xp.asarray(generate_random_bbox(
-            n_anchor, img_size[::-1], 16, min(img_size)))
+            n_anchor, img_size, 16, min(img_size)))
         return (chainer.Variable(rpn_locs),
                 chainer.Variable(rpn_cls_scores), rois, roi_indices, anchor)
 

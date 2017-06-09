@@ -23,12 +23,12 @@ class TestGenerateRandomBbox(unittest.TestCase):
         self.assertTrue(np.all(bbox[:, [1, 3]] < img_size[1]))
         self.assertTrue(np.all(bbox[:, [1, 3]] >= 0))
 
-        w = bbox[:, 2] - bbox[:, 0]
-        h = bbox[:, 3] - bbox[:, 1]
-        self.assertTrue(np.all(w < max_length))
-        self.assertTrue(np.all(w >= min_length))
+        h = bbox[:, 2] - bbox[:, 0]
+        w = bbox[:, 3] - bbox[:, 1]
         self.assertTrue(np.all(h < max_length))
         self.assertTrue(np.all(h >= min_length))
+        self.assertTrue(np.all(w < max_length))
+        self.assertTrue(np.all(w >= min_length))
 
 
 testing.run_module(__name__, __file__)

@@ -43,7 +43,7 @@ class TestFasterRCNNVGG16(unittest.TestCase):
         x = chainer.Variable(
             xp.random.uniform(
                 low=-1., high=1.,
-                size=(self.B, 3, feat_size[1] * 16, feat_size[0] * 16)
+                size=(self.B, 3, feat_size[0] * 16, feat_size[1] * 16)
             ).astype(np.float32))
         roi_cls_locs, roi_scores, rois, roi_indices = self.link(x)
         if self.train:

@@ -83,7 +83,7 @@ class ProposalCreator(object):
                 Its shape is :math:`(R,)`.
             anchor (array): Coordinates of anchors. Its shape is
                 :math:`(R, 4)`.
-            img_size (tuple of ints): A tuple :obj:`width, height`,
+            img_size (tuple of ints): A tuple :obj:`height, width`,
                 which contains image size after scaling.
             scale (float): The scaling factor used to scale an image after
                 reading it from a file.
@@ -121,9 +121,9 @@ class ProposalCreator(object):
 
         # Remove predicted boxes with either height or width < threshold.
         min_size = self.min_size * scale
-        ws = roi[:, 2] - roi[:, 0]
-        hs = roi[:, 3] - roi[:, 1]
-        keep = np.where((ws >= min_size) & (hs >= min_size))[0]
+        hs = roi[:, 2] - roi[:, 0]
+        ws = roi[:, 3] - roi[:, 1]
+        keep = np.where((hs >= min_size) & (ws >= min_size))[0]
         roi = roi[keep, :]
         score = score[keep]
 

@@ -182,7 +182,7 @@ class SegNetBasic(chainer.Chain):
             score = chainer.cuda.to_cpu(score)
             if score.shape != (C, H, W):
                 dtype = score.dtype
-                score = resize(score, (W, H)).astype(dtype)
+                score = resize(score, (H, W)).astype(dtype)
 
             label = np.argmax(score, axis=0)
             labels.append(label)
