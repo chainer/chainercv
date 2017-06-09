@@ -8,7 +8,7 @@ def center_crop(img, size, return_param=False, copy=False):
         img (~numpy.ndarray): An image array to be cropped. This is in
             CHW format.
         size (tuple): The size of output image after cropping.
-            This value is :math:`(width, height)`.
+            This value is :math:`(height, width)`.
         return_param (bool): If :obj:`True`, this function returns information
             of slices.
         copy (bool): If :obj:`False`, a view of :obj:`img` is returned.
@@ -26,9 +26,9 @@ def center_crop(img, size, return_param=False, copy=False):
         contents are listed below with key, value-type and the description
         of the value.
 
-        * **x_slice** (*slice*): A slice used to crop the input image.\
-            The relation below holds together with :obj:`y_slice`.
-        * **y_slice** (*slice*): Similar to :obj:`x_slice`.
+        * **y_slice** (*slice*): A slice used to crop the input image.\
+            The relation below holds together with :obj:`x_slice`.
+        * **x_slice** (*slice*): Similar to :obj:`y_slice`.
 
             .. code::
 
@@ -36,15 +36,15 @@ def center_crop(img, size, return_param=False, copy=False):
 
     """
     _, H, W = img.shape
-    oW, oH = size
-    if oW > W or oH > H:
+    oH, oW = size
+    if oH > H or oW > W:
         raise ValueError('shape of image needs to be larger than size')
 
-    x_offset = int(round((W - oW) / 2.))
     y_offset = int(round((H - oH) / 2.))
+    x_offset = int(round((W - oW) / 2.))
 
-    x_slice = slice(x_offset, x_offset + oW)
     y_slice = slice(y_offset, y_offset + oH)
+    x_slice = slice(x_offset, x_offset + oW)
 
     img = img[:, y_slice, x_slice]
 
@@ -52,6 +52,6 @@ def center_crop(img, size, return_param=False, copy=False):
         img = img.copy()
 
     if return_param:
-        return img, {'x_slice': x_slice, 'y_slice': y_slice}
+        return img, {'y_slice': y_slice, 'x_slice': x_slice}
     else:
         return img

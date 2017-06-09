@@ -1,3 +1,4 @@
+import numpy as np
 import os
 
 import chainer
@@ -54,17 +55,26 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
         self.data_dir = data_dir
         self.mask_dir = mask_dir
 
-        images_file = os.path.join(data_dir, 'images.txt')
+        imgs_file = os.path.join(data_dir, 'images.txt')
         bboxes_file = os.path.join(data_dir, 'bounding_boxes.txt')
 
-        self.fns = [fn.strip().split()[1] for fn in open(images_file)]
-        bboxes = [bbox.split()[1:] for bbox in open(bboxes_file)]
-        self.bboxes = [[int(float(elem)) for elem in bbox] for bbox in bboxes]
+        self.filenames = [
+            line.strip().split()[1] for line in open(imgs_file)]
+
+        # (x_min, y_min, width, height)
+        bboxes = np.array([
+            tuple(map(float, line.split()[1:5]))
+            for line in open(bboxes_file)])
+        # (x_min, y_min, width, height) -> (x_min, y_min, x_max, y_max)
+        bboxes[:, 2:] += bboxes[:, :2]
+        # (x_min, y_min, width, height) -> (y_min, x_min, y_max, x_max)
+        bboxes[:] = bboxes[:, [1, 0, 3, 2]]
+        self.bboxes = bboxes.astype(np.float32)
 
         self.crop_bbox = crop_bbox
 
     def __len__(self):
-        return len(self.fns)
+        return len(self.filenames)
 
 
 cub_label_names = (

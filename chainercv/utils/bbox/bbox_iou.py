@@ -32,12 +32,12 @@ def bbox_iou(bbox_a, bbox_b):
         raise IndexError
     xp = cuda.get_array_module(bbox_a)
 
-    # left top
-    lt = xp.maximum(bbox_a[:, None, :2], bbox_b[:, :2])
-    # right bottom
-    rb = xp.minimum(bbox_a[:, None, 2:], bbox_b[:, 2:])
+    # top left
+    tl = xp.maximum(bbox_a[:, None, :2], bbox_b[:, :2])
+    # bottom right
+    br = xp.minimum(bbox_a[:, None, 2:], bbox_b[:, 2:])
 
-    area_i = xp.prod(rb - lt, axis=2) * (lt < rb).all(axis=2)
+    area_i = xp.prod(br - tl, axis=2) * (tl < br).all(axis=2)
     area_a = xp.prod(bbox_a[:, 2:] - bbox_a[:, :2], axis=1)
     area_b = xp.prod(bbox_b[:, 2:] - bbox_b[:, :2], axis=1)
     return area_i / (area_a[:, None] + area_b - area_i)

@@ -26,7 +26,7 @@ def eval_detection_voc_ap(
             of bounding boxes. This is an array whose shape is :math:`(R, 4)`,
             where :math:`R` corresponds
             to the number of bounding boxes, which may vary among boxes.
-            The second axis corresponds to :obj:`x_min, y_min, x_max, y_max`
+            The second axis corresponds to :obj:`y_min, x_min, y_max, x_max`
             of a bounding box.
         pred_labels (iterable of numpy.ndarray): An iterable of labels.
             Similar to :obj:`pred_bboxes`, its index corresponds to an
@@ -94,7 +94,7 @@ def calc_detection_voc_prec_rec(
             of bounding boxes. This is an array whose shape is :math:`(R, 4)`,
             where :math:`R` corresponds
             to the number of bounding boxes, which may vary among boxes.
-            The second axis corresponds to :obj:`x_min, y_min, x_max, y_max`
+            The second axis corresponds to :obj:`y_min, x_min, y_max, x_max`
             of a bounding box.
         pred_labels (iterable of numpy.ndarray): An iterable of labels.
             Similar to :obj:`pred_bboxes`, its index corresponds to an
