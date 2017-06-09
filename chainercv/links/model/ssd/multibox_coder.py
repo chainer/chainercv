@@ -51,23 +51,23 @@ class MultiboxCoder(object):
 
         for k, grid in enumerate(grids):
             for v, u in itertools.product(range(grid), repeat=2):
-                cx = (u + 0.5) * steps[k]
                 cy = (v + 0.5) * steps[k]
+                cx = (u + 0.5) * steps[k]
 
                 s = sizes[k]
-                default_bbox.append((cx, cy, s, s))
+                default_bbox.append((cy, cx, s, s))
 
                 s = np.sqrt(sizes[k] * sizes[k + 1])
-                default_bbox.append((cx, cy, s, s))
+                default_bbox.append((cy, cx, s, s))
 
                 s = sizes[k]
                 for ar in aspect_ratios[k]:
                     default_bbox.append(
-                        (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
+                        (cy, cx, s / np.sqrt(ar), s * np.sqrt(ar)))
                     default_bbox.append(
-                        (cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
+                        (cy, cx, s * np.sqrt(ar), s / np.sqrt(ar)))
 
-        # the format of _default_bbox is (center_x, center_y, width, height)
+        # the format of _default_bbox is (center_y, center_x, height, width)
         self._default_bbox = np.stack(default_bbox)
         self._variance = variance
 
@@ -92,7 +92,7 @@ class MultiboxCoder(object):
             bbox (array): A float array of shape :math:`(R, 4)`,
                 where :math:`R` is the number of bounding boxes in a image.
                 Each bouding box is organized by
-                :obj:`(x_min, y_min, x_max, y_max)`
+                :obj:`(y_min, x_min, y_max, x_max)`
                 in the second axis.
             label (array) : An integer array of shape :math:`(R,)`.
                 Each value indicates the class of the bounding box.
@@ -190,13 +190,13 @@ class MultiboxCoder(object):
         """
         xp = self.xp
 
-        # the format of raw_bbox is (center_x, center_y, width, height)
+        # the format of raw_bbox is (center_y, center_x, height, width)
         raw_bbox = xp.hstack((
             self._default_bbox[:, :2] + mb_loc[:, :2] *
             self._variance[0] * self._default_bbox[:, 2:],
             self._default_bbox[:, 2:] *
             xp.exp(mb_loc[:, 2:] * self._variance[1])))
-        # convert the format of raw_bbox to (x_min, y_min, x_max, y_max)
+        # convert the format of raw_bbox to (y_min, x_min, y_max, x_max)
         raw_bbox[:, :2] -= raw_bbox[:, 2:] / 2
         raw_bbox[:, 2:] += raw_bbox[:, :2]
         raw_score = xp.exp(mb_conf)

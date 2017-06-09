@@ -78,7 +78,7 @@ def _random_crop(img, bbox, label):
 
     _, H, W = img.shape
 
-    crop_bbox = [np.array((0, 0, W, H))]
+    crop_bbox = [np.array((0, 0, H, W))]
     for iou_min, iou_max in constraints:
         for _ in six.moves.range(max_trial):
             if iou_min is None:
@@ -89,13 +89,13 @@ def _random_crop(img, bbox, label):
             scale = random.uniform(0.3, 1)
             aspect_ratio = random.uniform(
                 max(1 / 2, scale * scale), min(2, 1 / (scale * scale)))
-            crop_w = int(W * scale * np.sqrt(aspect_ratio))
             crop_h = int(H * scale / np.sqrt(aspect_ratio))
+            crop_w = int(W * scale * np.sqrt(aspect_ratio))
 
-            crop_l = random.randrange(W - crop_w)
             crop_t = random.randrange(H - crop_h)
+            crop_l = random.randrange(W - crop_w)
             crop_bb = np.array((
-                crop_l, crop_t, crop_l + crop_w, crop_t + crop_h))
+                crop_t, crop_l, crop_t + crop_h, crop_l + crop_w))
 
             iou = utils.bbox_iou(bbox, crop_bb[np.newaxis])
             if iou_min <= iou.min() and iou.max() <= iou_max:
@@ -104,7 +104,7 @@ def _random_crop(img, bbox, label):
 
     crop_bb = random.choice(crop_bbox)
 
-    img = img[:, crop_bb[1]:crop_bb[3], crop_bb[0]:crop_bb[2]]
+    img = img[:, crop_bb[0]:crop_bb[2], crop_bb[1]:crop_bb[3]]
 
     center = (bbox[:, :2] + bbox[:, 2:]) / 2
     mask = np.logical_and(crop_bb[:2] < center, center < crop_bb[2:]) \
@@ -145,13 +145,13 @@ def random_transform(img, bbox, label, size, mean):
         img, param = transforms.random_expand(
             img, fill=mean, return_param=True)
         bbox = transforms.translate_bbox(
-            bbox, x_offset=param['x_offset'], y_offset=param['y_offset'])
+            bbox, y_offset=param['y_offset'], x_offset=param['x_offset'])
 
     img, bbox, label = _random_crop(img, bbox, label)
 
     _, H, W = img.shape
     img = _random_resize(img, (size, size))
-    bbox = transforms.resize_bbox(bbox, (W, H), (size, size))
+    bbox = transforms.resize_bbox(bbox, (H, W), (size, size))
 
     img, params = transforms.random_flip(
         img, x_random=True, return_param=True)
