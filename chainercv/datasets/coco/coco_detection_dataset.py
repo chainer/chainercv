@@ -130,7 +130,7 @@ def _get_coco(split, img_split):
         ext = os.path.splitext(url)[1]
         utils.extractall(download_file_path, img_root, ext)
     if not os.path.exists(anno_fn):
-        anno_url = anno_urls['detection']
+        anno_url = anno_urls[split]
         download_file_path = utils.cached_download(anno_url)
         ext = os.path.splitext(anno_url)[1]
         utils.extractall(download_file_path, data_dir, ext)
@@ -193,7 +193,7 @@ class COCODetectionDataset(chainer.dataset.DatasetMixin):
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/coco`.
-        split ({'train', 'val', 'trainval', 'minval', 'minvalminus'}): Select
+        split ({'train', 'val', 'minval', 'minvalminus'}): Select
             a split of the dataset.
         use_crowded (bool): If true, use bounding boxes that are labeled as
             crowded in the original annotation.
@@ -203,7 +203,7 @@ class COCODetectionDataset(chainer.dataset.DatasetMixin):
 
     """
 
-    def __init__(self, data_dir='auto', split='trainval',
+    def __init__(self, data_dir='auto', split='train',
                  use_crowded=False, return_crowded=False):
         if not _available:
             raise ValueError(
