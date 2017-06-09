@@ -93,11 +93,12 @@ class FasterRCNN(chainer.Chain):
             loc_normalize_mean=(0., 0., 0., 0.),
             loc_normalize_std=(0.1, 0.1, 0.2, 0.2),
     ):
-        super(FasterRCNN, self).__init__(
-            extractor=extractor,
-            rpn=rpn,
-            head=head,
-        )
+        super(FasterRCNN, self).__init__()
+        with self.init_scope():
+            self.extractor = extractor
+            self.rpn = rpn
+            self.head = head
+
         self.mean = mean
         self.min_size = min_size
         self.max_size = max_size
@@ -111,7 +112,7 @@ class FasterRCNN(chainer.Chain):
         # Total number of classes including the background.
         return self.head.n_class
 
-    def __call__(self, x, scale=1., test=True):
+    def __call__(self, x, scale=1.):
         """Forward Faster R-CNN.
 
         Scaling paramter :obj:`scale` is used by RPN to determine the
@@ -133,7 +134,6 @@ class FasterRCNN(chainer.Chain):
             x (~chainer.Variable): 4D image variable.
             scale (float): Amount of scaling applied to the raw image
                 during preprocessing.
-            test (bool): If :obj:`True`, the test time behavior is used.
 
         Returns:
             Variable, Variable, array, array:
@@ -151,11 +151,11 @@ class FasterRCNN(chainer.Chain):
         """
         img_size = x.shape[2:]
 
-        h = self.extractor(x, test=test)
+        h = self.extractor(x)
         rpn_locs, rpn_scores, rois, roi_indices, anchor =\
-            self.rpn(h, img_size, scale, test=test)
+            self.rpn(h, img_size, scale)
         roi_cls_locs, roi_scores = self.head(
-            h, rois, roi_indices, test=test)
+            h, rois, roi_indices)
         return roi_cls_locs, roi_scores, rois, roi_indices
 
     def use_preset(self, preset):
@@ -282,11 +282,11 @@ class FasterRCNN(chainer.Chain):
         labels = list()
         scores = list()
         for img, scale in zip(prepared_imgs, scales):
-            img_var = chainer.Variable(
-                self.xp.asarray(img[None]), volatile=chainer.flag.ON)
-            H, W = img_var.shape[2:]
-            roi_cls_locs, roi_scores, rois, _ = self.__call__(
-                img_var, scale=scale, test=True)
+            with chainer.function.no_backprop_mode():
+                img_var = chainer.Variable(self.xp.asarray(img[None]))
+                H, W = img_var.shape[2:]
+                roi_cls_locs, roi_scores, rois, _ = self.__call__(
+                    img_var, scale=scale)
             # We are assuming that batch size is 1.
             roi_cls_loc = roi_cls_locs.data
             roi_score = roi_scores.data

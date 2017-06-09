@@ -35,10 +35,10 @@ class Multibox(chainer.Chain):
         self.n_class = n_class
         self.aspect_ratios = aspect_ratios
 
-        super(Multibox, self).__init__(
-            loc=chainer.ChainList(),
-            conf=chainer.ChainList(),
-        )
+        super(Multibox, self).__init__()
+        with self.init_scope():
+            self.loc = chainer.ChainList()
+            self.conf = chainer.ChainList()
 
         if initialW is None:
             initialW = initializers.GlorotUniform()
@@ -48,9 +48,9 @@ class Multibox(chainer.Chain):
 
         for ar in aspect_ratios:
             n = (len(ar) + 1) * 2
-            self.loc.add_link(L.Convolution2D(None, n * 4, 3, pad=1, **init))
+            self.loc.add_link(L.Convolution2D(n * 4, 3, pad=1, **init))
             self.conf.add_link(L.Convolution2D(
-                None, n * self.n_class, 3, pad=1, **init))
+                n * self.n_class, 3, pad=1, **init))
 
     def __call__(self, xs):
         """Compute loc and conf from feature maps

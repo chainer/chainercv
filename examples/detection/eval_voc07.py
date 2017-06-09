@@ -34,6 +34,8 @@ class ProgressHook(object):
 
 
 def main():
+    chainer.config.train = False
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--model', choices=('faster_rcnn', 'ssd300', 'ssd512'),

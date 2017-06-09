@@ -3,6 +3,7 @@ import numpy as np
 import chainer
 import chainer.functions as F
 from chainer import initializers
+from chainer import variable
 
 
 class Normalize(chainer.Link):
@@ -27,9 +28,10 @@ class Normalize(chainer.Link):
     def __init__(self, n_channel, initial=0, eps=1e-5):
         super(Normalize, self).__init__()
         self.eps = eps
-        self.add_param(
-            'scale', n_channel,
-            initializer=initializers._get_initializer(initial))
+        with self.init_scope():
+            initializer = initializers._get_initializer(initial)
+            self.scale = variable.Parameter(initializer)
+            self.scale.initialize((n_channel),)
 
     def __call__(self, x):
         """Normalize input and scale it.
