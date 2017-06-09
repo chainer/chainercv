@@ -12,12 +12,12 @@ class TestTranslateBbox(unittest.TestCase):
         bbox = np.random.uniform(
             low=0., high=32., size=(10, 4))
 
-        out = translate_bbox(bbox, x_offset=3, y_offset=5)
+        out = translate_bbox(bbox, y_offset=5, x_offset=3)
         bbox_expected = np.empty_like(bbox)
-        bbox_expected[:, 0] = bbox[:, 0] + 3
-        bbox_expected[:, 1] = bbox[:, 1] + 5
-        bbox_expected[:, 2] = bbox[:, 2] + 3
-        bbox_expected[:, 3] = bbox[:, 3] + 5
+        bbox_expected[:, 0] = bbox[:, 0] + 5
+        bbox_expected[:, 1] = bbox[:, 1] + 3
+        bbox_expected[:, 2] = bbox[:, 2] + 5
+        bbox_expected[:, 3] = bbox[:, 3] + 3
         np.testing.assert_equal(out, bbox_expected)
 
 

@@ -27,19 +27,21 @@ def scale(img, size, fit_short=True):
     _, H, W = img.shape
 
     # If resizing is not necessary, return the input as is.
-    if fit_short and (W <= H and W == size) or (H <= W and H == size):
+    if fit_short and (H <= W and H == size) or (W <= H and W == size):
         return img
-    if not fit_short and (W >= H and W == size) or (H >= W and H == size):
+    if not fit_short and (H >= W and H == size) or (W >= H and W == size):
         return img
 
     if fit_short:
-        if W < H:
-            out_size = (size, int(size * H / W))
+        if H < W:
+            out_size = (size, int(size * W / H))
         else:
-            out_size = (int(size * W / H), size)
+            out_size = (int(size * H / W), size)
+
     else:
-        if W < H:
-            out_size = (int(size * W / H), size)
+        if H < W:
+            out_size = (int(size * H / W), size)
         else:
-            out_size = (size, int(size * H / W))
+            out_size = (size, int(size * W / H))
+
     return resize(img, out_size)

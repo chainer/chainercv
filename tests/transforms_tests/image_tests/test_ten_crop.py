@@ -11,14 +11,14 @@ class TestTenCrop(unittest.TestCase):
     def test_ten_crop(self):
         img = np.random.uniform(size=(3, 48, 32))
 
-        out = ten_crop(img, (32, 48))
+        out = ten_crop(img, (48, 32))
         self.assertEqual(out.shape, (10, 3, 48, 32))
         for crop in out[:5]:
             np.testing.assert_equal(crop, img)
         for crop in out[5:]:
             np.testing.assert_equal(crop[:, :, ::-1], img)
 
-        out = ten_crop(img, (12, 24))
+        out = ten_crop(img, (24, 12))
         self.assertEqual(out.shape, (10, 3, 24, 12))
 
 
