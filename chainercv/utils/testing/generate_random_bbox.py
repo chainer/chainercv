@@ -15,17 +15,17 @@ def generate_random_bbox(n, img_size, min_length, max_length):
         numpy.ndarray:
         Coordinates of bounding boxes. Its shape is :math:`(R, 4)`. \
         Here, :math:`R` equals :obj:`n`.
-        The second axis contains :math:`x_{min}, y_{min}, x_{max}, y_{max}`,
+        The second axis contains :math:`y_{min}, x_{min}, y_{max}, x_{max}`,
         where
-        :math:`min\_length \\leq x_{max} - x_{min} < max\_length`
-        and
         :math:`min\_length \\leq y_{max} - y_{min} < max\_length`.
+        and
+        :math:`min\_length \\leq x_{max} - x_{min} < max\_length`
 
     """
     H, W = img_size
-    x_min = np.random.uniform(0, W - max_length, size=(n,))
     y_min = np.random.uniform(0, H - max_length, size=(n,))
-    x_max = x_min + np.random.uniform(min_length, max_length, size=(n,))
+    x_min = np.random.uniform(0, W - max_length, size=(n,))
     y_max = y_min + np.random.uniform(min_length, max_length, size=(n,))
-    bbox = np.stack((x_min, y_min, x_max, y_max), axis=1).astype(np.float32)
+    x_max = x_min + np.random.uniform(min_length, max_length, size=(n,))
+    bbox = np.stack((y_min, x_min, y_max, x_max), axis=1).astype(np.float32)
     return bbox

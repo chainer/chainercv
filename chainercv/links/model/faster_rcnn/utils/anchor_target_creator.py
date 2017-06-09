@@ -164,7 +164,7 @@ def _get_inside_index(anchor, H, W):
     index_inside = xp.where(
         (anchor[:, 0] >= 0) &
         (anchor[:, 1] >= 0) &
-        (anchor[:, 2] <= W) &  # width
-        (anchor[:, 3] <= H)  # height
+        (anchor[:, 2] <= H) &
+        (anchor[:, 3] <= W)
     )[0]
     return index_inside

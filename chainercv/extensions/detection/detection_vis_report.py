@@ -52,7 +52,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         :obj:`gt_bbox` and :obj:`pred_bbox` are float arrays
         of shape :math:`(R, 4)`, where :math:`R` is the number of
         bounding boxes in the image. Each bounding box is organized
-        by :obj:`(x_min, y_min, x_max, y_max)` in the second axis.
+        by :obj:`(y_min, x_min, y_max, x_max)` in the second axis.
 
         :obj:`gt_label` and :obj:`pred_label` are intenger arrays
         of shape :math:`(R,)`. Each label indicates the class of

@@ -35,23 +35,23 @@ def generate_anchor_base(base_size=16, ratios=[0.5, 1, 2],
         ~numpy.ndarray:
         An array of shape :math:`(R, 4)`.
         Each element is a set of coordinates of a bounding box.
-        The second axis corresponds to :obj:`x_min, y_min, x_max, y_max`
+        The second axis corresponds to :obj:`y_min, x_min, y_max, x_max`
         of a bounding box.
 
     """
-    px = base_size / 2.
     py = base_size / 2.
+    px = base_size / 2.
 
     anchor_base = np.zeros((len(ratios) * len(anchor_scales), 4),
                            dtype=np.float32)
     for i in six.moves.range(len(ratios)):
         for j in six.moves.range(len(anchor_scales)):
-            w = base_size * anchor_scales[j] * np.sqrt(1. / ratios[i])
             h = base_size * anchor_scales[j] * np.sqrt(ratios[i])
+            w = base_size * anchor_scales[j] * np.sqrt(1. / ratios[i])
 
             index = i * len(anchor_scales) + j
-            anchor_base[index, 0] = px - w / 2.
-            anchor_base[index, 1] = py - h / 2.
-            anchor_base[index, 2] = px + w / 2.
-            anchor_base[index, 3] = py + h / 2.
+            anchor_base[index, 0] = py - h / 2.
+            anchor_base[index, 1] = px - w / 2.
+            anchor_base[index, 2] = py + h / 2.
+            anchor_base[index, 3] = px + w / 2.
     return anchor_base

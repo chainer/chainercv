@@ -62,7 +62,8 @@ def main():
         # horizontally flip
         img, params = transforms.random_flip(
             img, x_random=True, return_param=True)
-        bbox = transforms.flip_bbox(bbox, (o_H, o_W), params['x_flip'])
+        bbox = transforms.flip_bbox(
+            bbox, (o_H, o_W), x_flip=params['x_flip'])
 
         return img, bbox, label, scale
     train_data = TransformDataset(train_data, transform)

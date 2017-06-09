@@ -82,7 +82,7 @@ class FasterRCNNVGG16(FasterRCNN):
         'voc07': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.2/faster_rcnn_vgg16_voc07_2017_05_24.npz'
+            'download/0.0.3/faster_rcnn_vgg16_voc07_2017_06_06.npz'
         }
     }
     feat_stride = 16
@@ -227,10 +227,11 @@ class VGG16RoIHead(chainer.Chain):
 
         """
         roi_indices = roi_indices.astype(np.float32)
-        rois = self.xp.concatenate(
+        indices_and_rois = self.xp.concatenate(
             (roi_indices[:, None], rois), axis=1)
-        pool = F.roi_pooling_2d(
-            x, rois, self.roi_size, self.roi_size, self.spatial_scale)
+        pool = _roi_pooling_2d_yx(
+            x, indices_and_rois, self.roi_size, self.roi_size,
+            self.spatial_scale)
 
         fc6 = _relu(self.fc6(pool))
         fc7 = _relu(self.fc7(fc6))
@@ -289,6 +290,13 @@ class VGG16FeatureExtractor(chainer.Chain):
             for func in funcs:
                 h = func(h)
         return h
+
+
+def _roi_pooling_2d_yx(x, indices_and_rois, outh, outw, spatial_scale):
+    xy_indices_and_rois = indices_and_rois[:, [2, 1, 4, 3]]
+    pool = F.roi_pooling_2d(
+        x, xy_indices_and_rois, outh, outw, spatial_scale)
+    return pool
 
 
 def _max_pooling_2d(x):

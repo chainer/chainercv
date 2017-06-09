@@ -28,7 +28,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     The bounding boxes are packed into a two dimensional tensor of shape
     :math:`(R, 4)`, where :math:`R` is the number of bounding boxes in
     the image. The second axis represents attributes of the bounding box.
-    They are :obj:`(x_min, y_min, x_max, y_max)`, where the
+    They are :obj:`(y_min, x_min, y_max, x_max)`, where the
     four attributes are coordinates of the bottom left and the top right
     vertices.
 
@@ -119,7 +119,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             # subtract 1 to make pixel indexes 0-based
             bbox.append([
                 int(bndbox_anno.find(tag).text) - 1
-                for tag in ('xmin', 'ymin', 'xmax', 'ymax')])
+                for tag in ('ymin', 'xmin', 'ymax', 'xmax')])
             name = obj.find('name').text.lower().strip()
             label.append(voc_utils.voc_detection_label_names.index(name))
         bbox = np.stack(bbox).astype(np.float32)

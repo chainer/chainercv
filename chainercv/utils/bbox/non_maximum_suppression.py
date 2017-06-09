@@ -31,7 +31,7 @@ def non_maximum_suppression(bbox, thresh, score=None,
     The bounding boxes are expected to be packed into a two dimensional
     tensor of shape :math:`(R, 4)`, where :math:`R` is the number of
     bounding boxes in the image. The second axis represents attributes of
-    the bounding box. They are :obj:`(x_min, y_min, x_max, y_max)`,
+    the bounding box. They are :obj:`(y_min, x_min, y_max, x_max)`,
     where the four attributes are coordinates of the top left and the
     bottom right vertices.
 
@@ -80,9 +80,9 @@ def _non_maximum_suppression_cpu(bbox, thresh, score=None, limit=None):
 
     selec = np.zeros(bbox.shape[0], dtype=bool)
     for i, b in enumerate(bbox):
-        lt = np.maximum(b[:2], bbox[selec, :2])
-        rb = np.minimum(b[2:], bbox[selec, 2:])
-        area = np.prod(rb - lt, axis=1) * (lt < rb).all(axis=1)
+        tl = np.maximum(b[:2], bbox[selec, :2])
+        br = np.minimum(b[2:], bbox[selec, 2:])
+        area = np.prod(br - tl, axis=1) * (tl < br).all(axis=1)
 
         iou = area / (bbox_area[i] + bbox_area[selec] - area)
         if (iou >= thresh).any():
@@ -127,13 +127,13 @@ int const threadsPerBlock = sizeof(unsigned long long) * 8;
 
 __device__
 inline float devIoU(float const *const bbox_a, float const *const bbox_b) {
-  float left = max(bbox_a[0], bbox_b[0]);
-  float right = min(bbox_a[2], bbox_b[2]);
-  float top = max(bbox_a[1], bbox_b[1]);
-  float bottom = min(bbox_a[3], bbox_b[3]);
-  float width = max(right - left, 0.f);
+  float top = max(bbox_a[0], bbox_b[0]);
+  float bottom = min(bbox_a[2], bbox_b[2]);
+  float left = max(bbox_a[1], bbox_b[1]);
+  float right = min(bbox_a[3], bbox_b[3]);
   float height = max(bottom - top, 0.f);
-  float area_i = width * height;
+  float width = max(right - left, 0.f);
+  float area_i = height * width;
   float area_a = (bbox_a[2] - bbox_a[0]) * (bbox_a[3] - bbox_a[1]);
   float area_b = (bbox_b[2] - bbox_b[0]) * (bbox_b[3] - bbox_b[1]);
   return area_i / (area_a + area_b - area_i);

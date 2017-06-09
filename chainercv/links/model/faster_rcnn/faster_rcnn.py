@@ -259,7 +259,7 @@ class FasterRCNN(chainer.Chain):
            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
                where :math:`R` is the number of bounding boxes in a image. \
                Each bouding box is organized by \
-               :obj:`(x_min, y_min, x_max, y_max)` \
+               :obj:`(y_min, x_min, y_max, x_max)` \
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
                Each value indicates the class of the bounding box. \
@@ -305,9 +305,9 @@ class FasterRCNN(chainer.Chain):
             cls_bbox = cls_bbox.reshape(-1, self.n_class * 4)
             # clip bounding box
             cls_bbox[:, slice(0, 4, 2)] = self.xp.clip(
-                cls_bbox[:, slice(0, 4, 2)], 0, W / scale)
+                cls_bbox[:, slice(0, 4, 2)], 0, H / scale)
             cls_bbox[:, slice(1, 4, 2)] = self.xp.clip(
-                cls_bbox[:, slice(1, 4, 2)], 0, H / scale)
+                cls_bbox[:, slice(1, 4, 2)], 0, W / scale)
 
             prob = F.softmax(roi_score).data
 

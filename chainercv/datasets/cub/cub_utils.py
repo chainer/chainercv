@@ -1,3 +1,4 @@
+import numpy as np
 import os
 
 import chainer
@@ -58,8 +59,13 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
         bboxes_file = os.path.join(data_dir, 'bounding_boxes.txt')
 
         self.fns = [fn.strip().split()[1] for fn in open(images_file)]
-        bboxes = [bbox.split()[1:] for bbox in open(bboxes_file)]
-        self.bboxes = [[int(float(elem)) for elem in bbox] for bbox in bboxes]
+        y_min = np.array([float(bb.split()[2]) for bb in open(bboxes_file)])
+        x_min = np.array([float(bb.split()[1]) for bb in open(bboxes_file)])
+        height = np.array([float(bb.split()[4]) for bb in open(bboxes_file)])
+        width = np.array([float(bb.split()[3]) for bb in open(bboxes_file)])
+        self.bboxes = np.stack(
+            (y_min, x_min, y_min + height, x_min + width),
+            axis=1).astype(np.float32)
 
         self.crop_bbox = crop_bbox
 
