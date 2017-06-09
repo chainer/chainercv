@@ -12,6 +12,8 @@ from six.moves.urllib import request
 import sys
 import time
 
+from chainer.dataset.download import get_dataset_directory
+
 
 _dataset_root = os.environ.get('CHAINER_DATASET_ROOT',
                                os.path.expanduser('~/.chainer/dataset'))
@@ -76,6 +78,17 @@ def cached_download(url):
         shutil.rmtree(temp_root)
 
     return cache_path
+
+
+def download_model(url):
+    root = get_dataset_directory(
+        os.path.join('pfnet', 'chainercv', 'models'))
+    basename = os.path.basename(url)
+    path = os.path.join(root, basename)
+    if not os.path.exists(path):
+        cache_path = cached_download(url)
+        os.rename(cache_path, path)
+    return path
 
 
 def extractall(file_path, destination, ext):
