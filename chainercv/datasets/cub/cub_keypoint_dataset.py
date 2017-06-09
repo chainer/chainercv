@@ -75,7 +75,7 @@ class CUBKeypointDataset(CUBDatasetBase):
                 self.kp_mask_dict[id_] = []
 
             # (y, x) order
-            keypoint = [float(v) for v in values[2:4][::-1]]
+            keypoint = [float(v) for v in values[3:1:-1]]
             kp_mask = bool(int(values[4]))
 
             self.kp_dict[id_].append(keypoint)
