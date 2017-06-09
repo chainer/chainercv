@@ -55,10 +55,12 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
         self.data_dir = data_dir
         self.mask_dir = mask_dir
 
-        images_file = os.path.join(data_dir, 'images.txt')
+        imgs_file = os.path.join(data_dir, 'images.txt')
         bboxes_file = os.path.join(data_dir, 'bounding_boxes.txt')
 
-        self.fns = [fn.strip().split()[1] for fn in open(images_file)]
+        self.filenames = [
+            line.strip().split()[1] for line in open(imgs_file)]
+
         y_min = np.array([float(bb.split()[2]) for bb in open(bboxes_file)])
         x_min = np.array([float(bb.split()[1]) for bb in open(bboxes_file)])
         height = np.array([float(bb.split()[4]) for bb in open(bboxes_file)])
@@ -70,4 +72,4 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
         self.crop_bbox = crop_bbox
 
     def __len__(self):
-        return len(self.fns)
+        return len(self.filenames)
