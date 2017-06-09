@@ -62,7 +62,7 @@ class CUBKeypointDataset(CUBDatasetBase):
         self.return_mask = return_mask
 
         # load keypoint
-        parts_loc_file = os.path.join(self.data_dir, 'parts/part_locs.txt')
+        parts_loc_file = os.path.join(self.data_dir, 'parts', 'part_locs.txt')
         self.kp_dict = collections.OrderedDict()
         self.kp_mask_dict = collections.OrderedDict()
         for loc in open(parts_loc_file):
