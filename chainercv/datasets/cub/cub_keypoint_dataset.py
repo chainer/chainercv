@@ -62,7 +62,7 @@ class CUBKeypointDataset(CUBDatasetBase):
         self.return_mask = return_mask
 
         # load keypoint
-        parts_loc_file = os.path.join(self.data_dir, 'parts/part_locs.txt')
+        parts_loc_file = os.path.join(self.data_dir, 'parts', 'part_locs.txt')
         self.kp_dict = collections.OrderedDict()
         self.kp_mask_dict = collections.OrderedDict()
         for loc in open(parts_loc_file):
@@ -75,19 +75,16 @@ class CUBKeypointDataset(CUBDatasetBase):
                 self.kp_mask_dict[id_] = []
 
             # (y, x) order
-            keypoint = [float(v) for v in values[2:4][::-1]]
+            keypoint = [float(v) for v in values[3:1:-1]]
             kp_mask = bool(int(values[4]))
 
             self.kp_dict[id_].append(keypoint)
             self.kp_mask_dict[id_].append(kp_mask)
 
-    def __len__(self):
-        return len(self.fns)
-
     def get_example(self, i):
         # this i is transformed to id for the entire dataset
         img = utils.read_image(
-            os.path.join(self.data_dir, 'images', self.fns[i]),
+            os.path.join(self.data_dir, 'images', self.filenames[i]),
             color=True)
         keypoint = np.array(self.kp_dict[i], dtype=np.float32)
         kp_mask = np.array(self.kp_mask_dict[i], dtype=np.bool)
@@ -96,13 +93,14 @@ class CUBKeypointDataset(CUBDatasetBase):
             # (y_min, x_min, y_max, x_max)
             bbox = self.bboxes[i].astype(np.int32)
             img = img[:, bbox[0]: bbox[2], bbox[1]: bbox[3]]
-            keypoint[:, :2] = keypoint[:, :2] - np.array([bbox[0], bbox[1]])
+            keypoint[:, :2] = keypoint[:, :2] - bbox[:2]
 
         if not self.return_mask:
             return img, keypoint, kp_mask
 
+        filename, _ = os.path.splitext(self.filenames[i])
         mask = utils.read_image(
-            os.path.join(self.mask_dir, self.fns[i][:-4] + '.png'),
+            os.path.join(self.mask_dir, filename + '.png'),
             dtype=np.uint8,
             color=False)
         if self.crop_bbox:

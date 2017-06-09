@@ -55,19 +55,23 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
         self.data_dir = data_dir
         self.mask_dir = mask_dir
 
-        images_file = os.path.join(data_dir, 'images.txt')
+        imgs_file = os.path.join(data_dir, 'images.txt')
         bboxes_file = os.path.join(data_dir, 'bounding_boxes.txt')
 
-        self.fns = [fn.strip().split()[1] for fn in open(images_file)]
-        y_min = np.array([float(bb.split()[2]) for bb in open(bboxes_file)])
-        x_min = np.array([float(bb.split()[1]) for bb in open(bboxes_file)])
-        height = np.array([float(bb.split()[4]) for bb in open(bboxes_file)])
-        width = np.array([float(bb.split()[3]) for bb in open(bboxes_file)])
-        self.bboxes = np.stack(
-            (y_min, x_min, y_min + height, x_min + width),
-            axis=1).astype(np.float32)
+        self.filenames = [
+            line.strip().split()[1] for line in open(imgs_file)]
+
+        # (x_min, y_min, width, height)
+        bboxes = np.array([
+            tuple(map(float, line.split()[1:5]))
+            for line in open(bboxes_file)])
+        # (x_min, y_min, width, height) -> (x_min, y_min, x_max, y_max)
+        bboxes[:, 2:] += bboxes[:, :2]
+        # (x_min, y_min, width, height) -> (y_min, x_min, y_max, x_max)
+        bboxes[:] = bboxes[:, [1, 0, 3, 2]]
+        self.bboxes = bboxes.astype(np.float32)
 
         self.crop_bbox = crop_bbox
 
     def __len__(self):
-        return len(self.fns)
+        return len(self.filenames)
