@@ -255,10 +255,12 @@ class COCODetectionDataset(chainer.dataset.DatasetMixin):
             dtype=np.int32)
 
         bbox = np.array([ann['bbox'] for ann in target], dtype=np.float32)
-        if len(bbox) != 0:
-            # (x, y, width, height)  -> (x_min, y_min, x_max, y_max)
-            bbox[:, 2] = bbox[:, 0] + bbox[:, 2]
-            bbox[:, 3] = bbox[:, 1] + bbox[:, 3]
+        if len(bbox) == 0:
+            bbox = np.zeros((0, 4), dtype=np.float32)
+
+        # (x, y, width, height)  -> (x_min, y_min, x_max, y_max)
+        bbox[:, 2] = bbox[:, 0] + bbox[:, 2]
+        bbox[:, 3] = bbox[:, 1] + bbox[:, 3]
 
         # Sanitize boxes
         bbox[:, :2] = np.maximum(bbox[:, :2], 0)
