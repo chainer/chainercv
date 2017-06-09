@@ -17,7 +17,7 @@ class DummyExtractor(chainer.Link):
         super(DummyExtractor, self).__init__()
         self.feat_stride = feat_stride
 
-    def __call__(self, x, test=False):
+    def __call__(self, x):
         _, _, H, W = x.shape
         return _random_array(
             self.xp,
@@ -30,7 +30,7 @@ class DummyHead(chainer.Chain):
         super(DummyHead, self).__init__()
         self.n_class = n_class
 
-    def __call__(self, x, rois, roi_indices, test=False):
+    def __call__(self, x, rois, roi_indices):
         n_roi = len(rois)
         cls_locs = chainer.Variable(
             _random_array(self.xp, (n_roi, self.n_class * 4)))
@@ -52,7 +52,7 @@ class DummyRegionProposalNetwork(chainer.Chain):
         self.n_anchor_base = n_anchor_base
         self.n_roi = n_roi
 
-    def __call__(self, x, img_size, scale, test=False):
+    def __call__(self, x, img_size, scale):
         B, _, H, W = x.shape
         n_anchor = self.n_anchor_base * H * W
 

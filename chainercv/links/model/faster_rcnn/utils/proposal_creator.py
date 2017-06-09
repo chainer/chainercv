@@ -1,5 +1,6 @@
 import numpy as np
 
+import chainer
 from chainer import cuda
 
 from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
@@ -63,7 +64,7 @@ class ProposalCreator(object):
         self.min_size = min_size
 
     def __call__(self, loc, score,
-                 anchor, img_size, scale=1., test=True):
+                 anchor, img_size, scale=1.):
         """Propose RoIs.
 
         Inputs :obj:`loc, score, anchor` refer to the same anchor when indexed
@@ -86,8 +87,6 @@ class ProposalCreator(object):
                 which contains image size after scaling.
             scale (float): The scaling factor used to scale an image after
                 reading it from a file.
-            test (bool): Execute in test mode or not.
-                Default value is :obj:`True`.
 
         Returns:
             array:
@@ -99,8 +98,12 @@ class ProposalCreator(object):
             bounding boxes discarded by NMS.
 
         """
-        n_pre_nms = self.n_test_pre_nms if test else self.n_train_pre_nms
-        n_post_nms = self.n_test_post_nms if test else self.n_train_post_nms
+        if chainer.config.train:
+            n_pre_nms = self.n_train_pre_nms
+            n_post_nms = self.n_train_post_nms
+        else:
+            n_pre_nms = self.n_test_pre_nms
+            n_post_nms = self.n_test_post_nms
 
         xp = cuda.get_array_module(loc)
         loc = cuda.to_cpu(loc)

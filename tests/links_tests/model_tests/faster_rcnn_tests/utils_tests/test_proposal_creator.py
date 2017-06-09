@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 
+import chainer
 from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
@@ -11,9 +12,8 @@ from chainercv.utils import generate_random_bbox
 
 
 @testing.parameterize(
-    *testing.product({
-        'test': [True, False],
-    })
+    {'train': True},
+    {'train': False},
 )
 class TestProposalCreator(unittest.TestCase):
 
@@ -36,15 +36,19 @@ class TestProposalCreator(unittest.TestCase):
             n_test_post_nms=self.n_test_post_nms,
             min_size=0)
 
+        chainer.config.train = self.train
+
     def check_proposal_creator(
             self, proposal_creator,
             bbox_d, score, anchor, img_size,
-            scale=1., test=False):
+            scale=1.):
         roi = self.proposal_creator(
-            bbox_d, score, anchor, img_size, scale, test)
+            bbox_d, score, anchor, img_size, scale)
 
-        out_length = self.n_test_post_nms \
-            if test else self.n_train_post_nms
+        if chainer.config.train:
+            out_length = self.n_train_post_nms
+        else:
+            out_length = self.n_test_post_nms
         self.assertIsInstance(roi, type(bbox_d))
         self.assertEqual(roi.shape, (out_length, 4))
 
@@ -53,7 +57,7 @@ class TestProposalCreator(unittest.TestCase):
             self.proposal_creator,
             self.bbox_d,
             self.score,
-            self.anchor, self.img_size, scale=1., test=self.test)
+            self.anchor, self.img_size, scale=1.)
 
     @attr.gpu
     def test_proposal_creator_gpu(self):
@@ -62,7 +66,7 @@ class TestProposalCreator(unittest.TestCase):
             cuda.to_gpu(self.bbox_d),
             cuda.to_gpu(self.score),
             cuda.to_gpu(self.anchor), self.img_size,
-            scale=1., test=self.test)
+            scale=1.)
 
 
 testing.run_module(__name__, __file__)
