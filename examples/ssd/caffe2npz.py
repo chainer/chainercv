@@ -67,6 +67,24 @@ class SSDCaffeFunction(caffe.CaffeFunction):
         pass
 
 
+def convert_xy_conv(l):
+    b = l.b.data.reshape(-1, 4)
+    b_old_x = b[:, [0, 2]]
+    b_old_y = b[:, [1, 3]]
+    b[:, [0, 2]] = b_old_y
+    b[:, [1, 3]] = b_old_x
+
+    out_C, in_C, kh, kw = l.W.shape
+    W = l.W.data.reshape(-1, 4, in_C, kh, kw)
+    W_old_x = W[:, [0, 2]]
+    W_old_y = W[:, [1, 3]]
+    W[:, [0, 2]] = W_old_y
+    W[:, [1, 3]] = W_old_x
+
+    l.b.data[:] = b.reshape(-1)
+    l.W.data[:] = W.reshape(-1, in_C, kh, kw)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('caffemodel')
@@ -78,6 +96,14 @@ def main():
     # Convert weights so that they accept RGB images.
     model['extractor/conv1_1'].W.data[:] =\
         model['extractor/conv1_1'].W.data[:, ::-1]
+
+    # The pretrained model outputs coordinates in xy convention.
+    # This needs to be changed to yx convention, which is used
+    # in ChainerCV.
+    for name in sorted([child.name for child in model.children()]):
+        if name[:12] == 'multibox/loc':
+            convert_xy_conv(model[name])
+
     serializers.save_npz(args.output, model)
 
 
