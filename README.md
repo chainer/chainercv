@@ -38,6 +38,16 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 
 # Features
 
+## Data conventions
+
+ChainerCV follows the following conventions.
+
++ Channels of a color image are ordered as RGB. The shape of an image-array is CHW (channel, height, width).
++ Axis-dependent values follow row-column order.
+  + Shape of an image is always represented as `(height, width)`.
+  + Coordinates of bounding boxes are ordered as `(y_min, x_min, y_max, x_max)`. `(y_min, x_min)` and `(y_max, x_max)` are coordinates of the top left and the bottom right vertices of a bounding box respectively.
+  + Coordinates of keypoints are ordered as `(y, x)`.
+
 ## Models
 Currently, ChainerCV supports networks for object detection and semantic segmentation.
 We are planning to support networks with different tasks in the future.
