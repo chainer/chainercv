@@ -15,10 +15,6 @@ import time
 from chainer.dataset.download import get_dataset_directory
 
 
-_dataset_root = os.environ.get('CHAINER_DATASET_ROOT',
-                               os.path.expanduser('~/.chainer/dataset'))
-
-
 def reporthook(count, block_size, total_size):
     global start_time
     if count == 0:
@@ -52,7 +48,7 @@ def cached_download(url):
         str: Path to the downloaded file.
 
     """
-    cache_root = os.path.join(_dataset_root, '_dl_cache')
+    cache_root = get_dataset_directory('_dl_cache')
     try:
         os.makedirs(cache_root)
     except OSError:
