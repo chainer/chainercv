@@ -94,9 +94,9 @@ def main():
     # The pretrained model outputs coordinates in xy convention.
     # This needs to be changed to yx convention, which is used
     # in ChainerCV.
-    for name in [child.name for child in model.children()]:
-        if name.startswith('multibox/loc'):
-            convert_xy_conv(model[name])
+    for child in model.children():
+        if child.name.startswith('multibox/loc'):
+            convert_xy_conv(model[child.name])
 
     serializers.save_npz(args.output, model)
 
