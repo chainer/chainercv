@@ -61,13 +61,15 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
         self.filenames = [
             line.strip().split()[1] for line in open(imgs_file)]
 
-        y_min = np.array([float(bb.split()[2]) for bb in open(bboxes_file)])
-        x_min = np.array([float(bb.split()[1]) for bb in open(bboxes_file)])
-        height = np.array([float(bb.split()[4]) for bb in open(bboxes_file)])
-        width = np.array([float(bb.split()[3]) for bb in open(bboxes_file)])
-        self.bboxes = np.stack(
-            (y_min, x_min, y_min + height, x_min + width),
-            axis=1).astype(np.float32)
+        # (x_min, y_min, width, height)
+        bboxes = np.array([
+            tuple(map(float, line.split()[1:5]))
+            for line in open(bboxes_file)])
+        # (x_min, y_min, width, height) -> (x_min, y_min, x_max, y_max)
+        bboxes[:, 2:] += bboxes[:, :2]
+        # (x_min, y_min, width, height) -> (y_min, x_min, y_max, x_max)
+        bboxes[:] = bboxes[:, [1, 0, 3, 2]]
+        self.bboxes = bboxes.astype(np.float32)
 
         self.crop_bbox = crop_bbox
 
