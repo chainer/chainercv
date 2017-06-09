@@ -1,11 +1,9 @@
 from __future__ import division
 
-import os
 import six
 import warnings
 
 import chainer
-from chainer.dataset.download import get_dataset_directory
 import chainer.functions as F
 from chainer import initializers
 import chainer.links as L
