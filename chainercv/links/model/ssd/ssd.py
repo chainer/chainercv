@@ -180,7 +180,7 @@ class SSD(chainer.Chain):
            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
                where :math:`R` is the number of bounding boxes in a image. \
                Each bouding box is organized by \
-               :obj:`(x_min, y_min, x_max, y_max)` \
+               :obj:`(y_min, x_min, y_max, x_max)` \
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
                Each value indicates the class of the bounding box. \
@@ -197,7 +197,7 @@ class SSD(chainer.Chain):
             _, H, W = img.shape
             img = self._prepare(img)
             x.append(self.xp.array(img))
-            sizes.append((W, H))
+            sizes.append((H, W))
 
         with chainer.function.no_backprop_mode():
             x = chainer.Variable(self.xp.stack(x))
