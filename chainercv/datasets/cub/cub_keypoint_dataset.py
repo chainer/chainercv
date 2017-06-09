@@ -81,9 +81,6 @@ class CUBKeypointDataset(CUBDatasetBase):
             self.kp_dict[id_].append(keypoint)
             self.kp_mask_dict[id_].append(kp_mask)
 
-    def __len__(self):
-        return len(self.fns)
-
     def get_example(self, i):
         # this i is transformed to id for the entire dataset
         img = utils.read_image(
