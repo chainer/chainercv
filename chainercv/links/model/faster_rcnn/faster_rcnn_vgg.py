@@ -293,9 +293,7 @@ class VGG16FeatureExtractor(chainer.Chain):
 
 
 def _roi_pooling_2d_yx(x, indices_and_rois, outh, outw, spatial_scale):
-    xy_indices_and_rois = indices_and_rois.copy()
-    xy_indices_and_rois[:, [1, 3]] = indices_and_rois[:, [2, 4]]
-    xy_indices_and_rois[:, [2, 4]] = indices_and_rois[:, [1, 3]]
+    xy_indices_and_rois = indices_and_rois[:, [2, 1, 4, 3]]
     pool = F.roi_pooling_2d(
         x, xy_indices_and_rois, outh, outw, spatial_scale)
     return pool
