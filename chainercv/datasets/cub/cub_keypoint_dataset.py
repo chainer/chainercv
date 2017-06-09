@@ -93,7 +93,7 @@ class CUBKeypointDataset(CUBDatasetBase):
             # (y_min, x_min, y_max, x_max)
             bbox = self.bboxes[i].astype(np.int32)
             img = img[:, bbox[0]: bbox[2], bbox[1]: bbox[3]]
-            keypoint[:, :2] = keypoint[:, :2] - np.array([bbox[0], bbox[1]])
+            keypoint[:, :2] = keypoint[:, :2] - bbox[:2]
 
         if not self.return_mask:
             return img, keypoint, kp_mask
