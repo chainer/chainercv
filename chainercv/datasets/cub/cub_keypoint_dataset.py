@@ -98,8 +98,9 @@ class CUBKeypointDataset(CUBDatasetBase):
         if not self.return_mask:
             return img, keypoint, kp_mask
 
+        filename, _ = os.path.splitext(self.filenames[i])
         mask = utils.read_image(
-            os.path.join(self.mask_dir, self.filenames[i][:-4] + '.png'),
+            os.path.join(self.mask_dir, filename + '.png'),
             dtype=np.uint8,
             color=False)
         if self.crop_bbox:
