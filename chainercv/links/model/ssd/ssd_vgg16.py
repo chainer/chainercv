@@ -13,7 +13,7 @@ import chainer.links as L
 from chainercv.links.model.ssd import Multibox
 from chainercv.links.model.ssd import Normalize
 from chainercv.links.model.ssd import SSD
-from chainercv.utils import download
+from chainercv.utils import download_model
 
 try:
     import cv2  # NOQA
@@ -226,12 +226,7 @@ def _check_pretrained_model(n_fg_class, pretrained_model, models):
             raise ValueError('n_fg_class mismatch')
         n_fg_class = model['n_fg_class']
 
-        root = get_dataset_directory('pfnet/chainercv/models')
-        basename = os.path.basename(model['url'])
-        path = os.path.join(root, basename)
-        if not os.path.exists(path):
-            download_file = download.cached_download(model['url'])
-            os.rename(download_file, path)
+        path = download_model(model['url'])
 
         if not _available:
             warnings.warn(
