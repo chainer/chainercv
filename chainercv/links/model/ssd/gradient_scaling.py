@@ -1,7 +1,7 @@
 from chainer import cuda
 
 
-class GradScaling(object):
+class GradientScaling(object):
 
     """Optimizer/UpdateRule hook function for scaling gradient.
 
@@ -11,7 +11,7 @@ class GradScaling(object):
     Attributes:
         rate (float): Coefficient for scaling.
     """
-    name = 'LrMulti'
+    name = 'GradientScaling'
     call_for_each_param = True
 
     def __init__(self, rate):
