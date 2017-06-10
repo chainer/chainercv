@@ -69,10 +69,10 @@ def main():
     optimizer = chainer.optimizers.MomentumSGD()
     optimizer.setup(train_chain)
     for param in train_chain.params():
-        if param.name == 'W':
-            param.update_rule.add_hook(WeightDecay(0.0005))
-        elif param.name == 'b':
+        if param.name == 'b':
             param.update_rule.add_hook(GradientScaling(2))
+        else:
+            param.update_rule.add_hook(WeightDecay(0.0005))
 
     updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
