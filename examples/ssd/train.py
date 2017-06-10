@@ -4,6 +4,7 @@ import numpy as np
 
 import chainer
 from chainer.datasets import TransformDataset
+from chainer.optimizer import WeightDecay
 from chainer import serializers
 from chainer import training
 from chainer.training import extensions
@@ -13,9 +14,9 @@ from chainercv.datasets import voc_detection_label_names
 from chainercv.datasets import VOCDetectionDataset
 from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links.model.ssd import ConcatenatedDataset
+from chainercv.links.model.ssd import GradientScaling
 from chainercv.links.model.ssd import MultiboxTrainChain
 from chainercv.links.model.ssd import random_transform
-from chainercv.links.model.ssd import SelectiveWeightDecay
 from chainercv.links import SSD300
 from chainercv import transforms
 
@@ -67,7 +68,11 @@ def main():
 
     optimizer = chainer.optimizers.MomentumSGD()
     optimizer.setup(train_chain)
-    optimizer.add_hook(SelectiveWeightDecay(0.0005, b={'lr': 2, 'decay': 0}))
+    for param in train_chain.params():
+        if param.name == 'W':
+            param.update_rule.add_hook(WeightDecay(0.0005))
+        elif param.name == 'b':
+            param.update_rule.add_hook(GradientScaling(2))
 
     updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
