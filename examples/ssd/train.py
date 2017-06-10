@@ -4,6 +4,7 @@ import numpy as np
 
 import chainer
 from chainer.datasets import TransformDataset
+from chainer import serializers
 from chainer import training
 from chainer.training import extensions
 from chainer.training import triggers
@@ -24,6 +25,7 @@ def main():
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--out', default='result')
+    parser.add_argument('--resume')
     args = parser.parse_args()
 
     model = SSD300(
@@ -91,6 +93,9 @@ def main():
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
     trainer.extend(extensions.snapshot(), trigger=(1000, 'iteration'))
+
+    if args.resume:
+        serializers.load_npz(args.resume, trainer)
 
     trainer.run()
 
