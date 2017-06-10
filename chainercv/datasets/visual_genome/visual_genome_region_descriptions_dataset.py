@@ -14,8 +14,6 @@ from chainercv.datasets.visual_genome.visual_genome_utils import \
 from chainercv.datasets.visual_genome.visual_genome_utils import root
 from chainercv.datasets.visual_genome.visual_genome_utils import \
     VisualGenomeDatasetBase
-from chainercv.transforms import resize
-from chainercv.transforms import resize_bbox
 
 
 def get_vocabulary(region_descriptions='auto', min_token_instances=15):
@@ -73,12 +71,6 @@ class VisualGenomeRegionDescriptionsDataset(VisualGenomeDatasetBase):
                 phrases.append(self.phrases[region_id])
         regions = np.vstack(regions).astype(np.float32)
         phrases = np.vstack(phrases).astype(np.int32)
-
-        if self.img_size is not None:
-            h_orig, w_orig = img.shape[1:]
-            img = resize(img, self.img_size)
-            h, w = img.shape[1:]
-            regions = resize_bbox(regions, (w_orig, h_orig), (w, h))
 
         return img, regions, phrases
 
