@@ -89,7 +89,7 @@ def main():
         conv = model[child.name]
         for data in (conv.W.data, conv.b.data):
             data = data.reshape((-1, 4) + data.shape[1:])
-            data[:, [1, 0, 3, 2]] = data
+            data[:, [1, 0, 3, 2]] = data.copy()
 
     serializers.save_npz(args.output, model)
 
