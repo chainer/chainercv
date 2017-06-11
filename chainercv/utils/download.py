@@ -77,13 +77,13 @@ def cached_download(url):
 
 
 def download_model(url):
-    """Downloads a model file and locates it under models directory.
+    """Downloads a model file and puts it under model directory.
 
-    It downloads a file from the URL and locates it under models directory.
+    It downloads a file from the URL and puts it under model directory.
     For exmaple, if :obj:`url` is `http://example.com/subdir/model.npz`,
-    the model will be downloaded as
+    the pretrained weights file will be saved to
     `$CHAINER_DATASET_ROOT/pfnet/chainercv/models/model.npz`.
-    If there is already a downloaded file with same name,
+    If there is already a file at the destination path,
     it just returns the path without downloading the same file.
 
     Args:
