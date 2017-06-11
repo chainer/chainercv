@@ -112,10 +112,10 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         for obj in anno.findall('object'):
             # when in not using difficult split, and the object is
             # difficult, skipt it.
-            difficult.append(int(obj.find('difficult').text))
             if not self.use_difficult and int(obj.find('difficult').text) == 1:
                 continue
 
+            difficult.append(int(obj.find('difficult').text))
             bndbox_anno = obj.find('bndbox')
             # subtract 1 to make pixel indexes 0-based
             bbox.append([
