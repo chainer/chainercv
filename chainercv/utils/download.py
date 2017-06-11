@@ -15,7 +15,7 @@ import time
 from chainer.dataset.download import get_dataset_directory
 
 
-def reporthook(count, block_size, total_size):
+def _reporthook(count, block_size, total_size):
     global start_time
     if count == 0:
         start_time = time.time()
@@ -67,7 +67,7 @@ def cached_download(url):
     try:
         temp_path = os.path.join(temp_root, 'dl')
         print('Downloading from {}...'.format(url))
-        request.urlretrieve(url, temp_path, reporthook)
+        request.urlretrieve(url, temp_path, _reporthook)
         with filelock.FileLock(lock_path):
             shutil.move(temp_path, cache_path)
     finally:
