@@ -9,29 +9,29 @@ from chainercv.links.model.ssd import Normalize
 
 
 def rename(name):
-    m = re.fullmatch(r'conv(\d+)_([123])', name)
+    m = re.match(r'conv(\d+)_([123])$', name)
     if m:
         i, j = map(int, m.groups())
         if i >= 6:
             i += 2
         return 'extractor/conv{:d}_{:d}'.format(i, j)
 
-    m = re.fullmatch(r'fc([67])', name)
+    m = re.match(r'fc([67])$', name)
     if m:
         return 'extractor/conv{:d}'.format(int(m.group(1)))
 
     if name == r'conv4_3_norm':
         return 'extractor/norm4'
 
-    m = re.fullmatch(r'conv4_3_norm_mbox_(loc|conf)', name)
+    m = re.match(r'conv4_3_norm_mbox_(loc|conf)$', name)
     if m:
         return 'multibox/{:s}/0'.format(m.group(1))
 
-    m = re.fullmatch(r'fc7_mbox_(loc|conf)', name)
+    m = re.match(r'fc7_mbox_(loc|conf)$', name)
     if m:
         return ('multibox/{:s}/1'.format(m.group(1)))
 
-    m = re.fullmatch(r'conv(\d+)_2_mbox_(loc|conf)', name)
+    m = re.match(r'conv(\d+)_2_mbox_(loc|conf)$', name)
     if m:
         i, type_ = int(m.group(1)), m.group(2)
         if i >= 6:
