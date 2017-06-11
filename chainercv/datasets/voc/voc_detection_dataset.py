@@ -125,12 +125,8 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             label.append(voc_utils.voc_detection_label_names.index(name))
         bbox = np.stack(bbox).astype(np.float32)
         label = np.stack(label).astype(np.int32)
-        if self.use_difficult:
-            difficult = np.array(difficult, dtype=np.bool)
-        else:
-            # All bounding boxes are considered not difficult
-            # when `use_difficult == False`.
-            difficult = np.zeros((len(bbox),), dtype=np.bool)
+        # When `use_difficult==False`, all elements in `difficult` are False.
+        difficult = np.array(difficult, dtype=np.bool)
 
         # Load a image
         img_file = os.path.join(self.data_dir, 'JPEGImages', id_ + '.jpg')
