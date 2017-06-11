@@ -104,6 +104,23 @@ def download_model(url):
 
 
 def extractall(file_path, destination, ext):
+    """Extracts an archive file.
+
+    This function extracts an archive file to a destination.
+
+    Args:
+        file_path (str): A file path to be extracted.
+        destination (str): A directory path. The archive file
+            will be extracted under this directory.
+        ext (str): An extension suffix of the archive file.
+            It supports :obj:`'.zip'`, :obj:`'.tar'`,
+            :obj:`'.gz'` and :obj:`'.tgz'`.
+
+    Returns:
+        str: Path to the downloaded file.
+
+    """
+
     if ext == '.zip':
         with zipfile.ZipFile(file_path, 'r') as z:
             z.extractall(destination)
