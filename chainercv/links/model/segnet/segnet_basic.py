@@ -1,15 +1,13 @@
 from __future__ import division
 
 import numpy as np
-import os
 
 import chainer
-from chainer.dataset.download import get_dataset_directory
 import chainer.functions as F
 import chainer.links as L
 
 from chainercv.transforms import resize
-from chainercv.utils import download
+from chainercv.utils import download_model
 
 
 def _without_cudnn(f, x):
@@ -105,14 +103,8 @@ class SegNetBasic(chainer.Chain):
         self.n_class = n_class
 
         if pretrained_model in self._models:
-            data_root = get_dataset_directory('pfnet/chainercv/models')
-            url = self._models[pretrained_model]['url']
-            fn = os.path.basename(url)
-            dest_fn = os.path.join(data_root, fn)
-            if not os.path.exists(dest_fn):
-                download_file = download.cached_download(url)
-                os.rename(download_file, dest_fn)
-            chainer.serializers.load_npz(dest_fn, self)
+            path = download_model(self._models[pretrained_model]['url'])
+            chainer.serializers.load_npz(path, self)
         elif pretrained_model:
             chainer.serializers.load_npz(pretrained_model, self)
 

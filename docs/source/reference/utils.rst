@@ -16,6 +16,22 @@ non_maximum_suppression
 .. autofunction:: non_maximum_suppression
 
 
+Download Utilities
+------------------
+
+cached_download
+~~~~~~~~~~~~~~~
+.. autofunction:: cached_download
+
+download_model
+~~~~~~~~~~~~~~
+.. autofunction:: download_model
+
+extractall
+~~~~~~~~~~
+.. autofunction:: extractall
+
+
 Image Utilities
 ---------------
 
