@@ -13,11 +13,11 @@ def _random_distort(img):
 
     cv_img = img[::-1].transpose(1, 2, 0).astype(np.uint8)
 
-    def convert(cv_img, alpha=1, beta=0):
-        cv_img = cv_img.astype(float) * alpha + beta
-        cv_img[cv_img < 0] = 0
-        cv_img[cv_img > 255] = 255
-        return cv_img.astype(np.uint8)
+    def convert(img, alpha=1, beta=0):
+        img = img.astype(float) * alpha + beta
+        img[img < 0] = 0
+        img[img > 255] = 255
+        return img.astype(np.uint8)
 
     def brightness(cv_img):
         if random.randrange(2):
