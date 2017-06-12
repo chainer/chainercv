@@ -9,29 +9,29 @@ from chainercv.links.model.ssd import Normalize
 
 
 def rename(name):
-    m = re.match(r'^conv(\d+)_([123])$', name)
+    m = re.match(r'conv(\d+)_([123])$', name)
     if m:
         i, j = map(int, m.groups())
         if i >= 6:
             i += 2
         return 'extractor/conv{:d}_{:d}'.format(i, j)
 
-    m = re.match(r'^fc([67])$', name)
+    m = re.match(r'fc([67])$', name)
     if m:
         return 'extractor/conv{:d}'.format(int(m.group(1)))
 
     if name == r'conv4_3_norm':
         return 'extractor/norm4'
 
-    m = re.match(r'^conv4_3_norm_mbox_(loc|conf)$', name)
+    m = re.match(r'conv4_3_norm_mbox_(loc|conf)$', name)
     if m:
         return 'multibox/{:s}/0'.format(m.group(1))
 
-    m = re.match(r'^fc7_mbox_(loc|conf)$', name)
+    m = re.match(r'fc7_mbox_(loc|conf)$', name)
     if m:
         return ('multibox/{:s}/1'.format(m.group(1)))
 
-    m = re.match(r'^conv(\d+)_2_mbox_(loc|conf)$', name)
+    m = re.match(r'conv(\d+)_2_mbox_(loc|conf)$', name)
     if m:
         i, type_ = int(m.group(1)), m.group(2)
         if i >= 6:
@@ -48,7 +48,20 @@ class SSDCaffeFunction(caffe.CaffeFunction):
 
     def add_link(self, name, link):
         new_name = rename(name)
-        print('{:s} -> {:s}'.format(name, new_name))
+
+        if new_name == 'extractor/conv1_1':
+            # BGR -> RGB
+            link.W.data[:, ::-1] = link.W.data
+            print('{:s} -> {:s} (BGR -> RGB)'.format(name, new_name))
+        elif new_name.startswith('multibox/loc/'):
+            # xy -> yx
+            for data in (link.W.data, link.b.data):
+                data = data.reshape((-1, 4) + data.shape[1:])
+                data[:, [1, 0, 3, 2]] = data.copy()
+            print('{:s} -> {:s} (xy -> yx)'.format(name, new_name))
+        else:
+            print('{:s} -> {:s}'.format(name, new_name))
+
         super(SSDCaffeFunction, self).add_link(new_name, link)
 
     @caffe._layer('Normalize', None)
@@ -67,18 +80,6 @@ class SSDCaffeFunction(caffe.CaffeFunction):
         pass
 
 
-def convert_xy_conv(l):
-    b = l.b.data.reshape(-1, 4)
-    b = b[:, [1, 0, 3, 2]]
-
-    out_C, in_C, kh, kw = l.W.shape
-    W = l.W.data.reshape(-1, 4, in_C, kh, kw)
-    W = W[:, [1, 0, 3, 2]]
-
-    l.b.data[:] = b.reshape(-1)
-    l.W.data[:] = W.reshape(-1, in_C, kh, kw)
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('caffemodel')
@@ -86,18 +87,6 @@ def main():
     args = parser.parse_args()
 
     model = SSDCaffeFunction(args.caffemodel)
-    # The pretrained weights are trained to accept BGR images.
-    # Convert weights so that they accept RGB images.
-    model['extractor/conv1_1'].W.data[:] =\
-        model['extractor/conv1_1'].W.data[:, ::-1]
-
-    # The pretrained model outputs coordinates in xy convention.
-    # This needs to be changed to yx convention, which is used
-    # in ChainerCV.
-    for child in model.children():
-        if child.name.startswith('multibox/loc'):
-            convert_xy_conv(model[child.name])
-
     serializers.save_npz(args.output, model)
 
 
