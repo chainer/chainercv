@@ -82,12 +82,12 @@ def _random_crop(img, bbox, label):
 
     crop_bbox = [np.array((0, 0, H, W))]
     for iou_min, iou_max in constraints:
-        for _ in six.moves.range(max_trial):
-            if iou_min is None:
-                iou_min = 0
-            if iou_max is None:
-                iou_max = 1
+        if iou_min is None:
+            iou_min = 0
+        if iou_max is None:
+            iou_max = 1
 
+        for _ in six.moves.range(max_trial):
             scale = random.uniform(0.3, 1)
             aspect_ratio = random.uniform(
                 max(1 / 2, scale * scale), min(2, 1 / (scale * scale)))
