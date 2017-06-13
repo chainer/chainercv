@@ -1,9 +1,7 @@
 import collections
 import numpy as np
-import os
 
 import chainer
-from chainer.dataset.download import get_dataset_directory
 import chainer.functions as F
 import chainer.links as L
 from chainer.links import VGG16Layers
@@ -11,7 +9,7 @@ from chainer.links import VGG16Layers
 from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNN
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
-from chainercv.utils import download
+from chainercv.utils import download_model
 
 
 class FasterRCNNVGG16(FasterRCNN):
@@ -133,14 +131,8 @@ class FasterRCNNVGG16(FasterRCNN):
         )
 
         if pretrained_model in self._models:
-            data_root = get_dataset_directory('pfnet/chainercv/models')
-            url = self._models[pretrained_model]['url']
-            fn = os.path.basename(url)
-            dest_fn = os.path.join(data_root, fn)
-            if not os.path.exists(dest_fn):
-                download_file = download.cached_download(url)
-                os.rename(download_file, dest_fn)
-            chainer.serializers.load_npz(dest_fn, self)
+            path = download_model(self._models[pretrained_model]['url'])
+            chainer.serializers.load_npz(path, self)
         elif pretrained_model == 'imagenet':
             self._copy_imagenet_pretrained_vgg16()
         elif pretrained_model:
@@ -297,7 +289,7 @@ class VGG16FeatureExtractor(chainer.Chain):
 
 
 def _roi_pooling_2d_yx(x, indices_and_rois, outh, outw, spatial_scale):
-    xy_indices_and_rois = indices_and_rois[:, [2, 1, 4, 3]]
+    xy_indices_and_rois = indices_and_rois[:, [0, 2, 1, 4, 3]]
     pool = F.roi_pooling_2d(
         x, xy_indices_and_rois, outh, outw, spatial_scale)
     return pool
