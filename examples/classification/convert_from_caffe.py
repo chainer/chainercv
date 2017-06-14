@@ -6,7 +6,7 @@ from chainercv.links import VGG16Layers as VGG16Layers_cv
 
 if __name__ == '__main__':
     chainer_model = VGG16Layers_chainer()
-    cv_model = VGG16Layers_cv()
+    cv_model = VGG16Layers_cv(pretrained_model=None)
 
     cv_model.conv1_1.copyparams(chainer_model.conv1_1)
 

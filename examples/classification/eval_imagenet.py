@@ -30,7 +30,7 @@ def main():
         dataset, args.batchsize, repeat=False, shuffle=False,
         n_processes=4)
 
-    model = VGG16Layers()
+    model = VGG16Layers(pretrained_model=args.pretrained_model)
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
