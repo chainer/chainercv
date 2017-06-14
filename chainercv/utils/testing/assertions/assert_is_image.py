@@ -22,8 +22,8 @@ def assert_is_image(img, color=True, check_range=True):
 
     """
 
-    assert isinstance(img, np.ndarray), 'image must be a numpy.ndarray.'
-    assert len(img.shape) == 3, 'image must be a 3-dimensional array.'
+    assert isinstance(img, np.ndarray), 'img must be a numpy.ndarray.'
+    assert len(img.shape) == 3, 'img must be a 3-dimensional array.'
     C, H, W = img.shape
 
     if color:
@@ -33,4 +33,4 @@ def assert_is_image(img, color=True, check_range=True):
 
     if check_range:
         assert img.min() >= 0 and img.max() <= 255, \
-            'The values of image must be in [0, 255].'
+            'The values of img must be in [0, 255].'
