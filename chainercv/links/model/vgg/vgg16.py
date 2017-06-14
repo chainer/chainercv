@@ -62,6 +62,9 @@ class VGG16Layers(chainer.Chain):
             self.fc8 = L.Linear(4096, 1000, **kwargs)
         self.feature = feature
 
+        if pretrained_model:
+            chainer.serializers.load_npz(pretrained_model, self)
+
         # Links can be safely removed because parameters in these links
         # are guaranteed to not be in a computational graph.
         names = [child.name for child in self.children()]
