@@ -25,7 +25,9 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
     """
 
     def __init__(self, predictor, ignore_label=-1, class_weight=None):
-        super(PixelwiseSoftmaxClassifier, self).__init__(predictor=predictor)
+        super(PixelwiseSoftmaxClassifier, self).__init__()
+        with self.init_scope():
+            self.predictor = predictor
         self.n_class = predictor.n_class
         self.ignore_label = ignore_label
         if class_weight is not None:

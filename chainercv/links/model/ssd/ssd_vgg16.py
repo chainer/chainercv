@@ -1,11 +1,8 @@
 from __future__ import division
 
-import os
-import six
 import warnings
 
 import chainer
-from chainer.dataset.download import get_dataset_directory
 import chainer.functions as F
 from chainer import initializers
 import chainer.links as L
@@ -13,7 +10,7 @@ import chainer.links as L
 from chainercv.links.model.ssd import Multibox
 from chainercv.links.model.ssd import Normalize
 from chainercv.links.model.ssd import SSD
-from chainercv.utils import download
+from chainercv.utils import download_model
 
 try:
     import cv2  # NOQA
@@ -47,32 +44,30 @@ class VGG16(chainer.Chain):
        ICLR 2015.
     """
 
-    def __init__(self, **links):
-        super(VGG16, self).__init__(
-            conv1_1=L.Convolution2D(None, 64, 3, pad=1),
-            conv1_2=L.Convolution2D(None, 64, 3, pad=1),
+    def __init__(self):
+        super(VGG16, self).__init__()
+        with self.init_scope():
+            self.conv1_1 = L.Convolution2D(64, 3, pad=1)
+            self.conv1_2 = L.Convolution2D(64, 3, pad=1)
 
-            conv2_1=L.Convolution2D(None, 128, 3, pad=1),
-            conv2_2=L.Convolution2D(None, 128, 3, pad=1),
+            self.conv2_1 = L.Convolution2D(128, 3, pad=1)
+            self.conv2_2 = L.Convolution2D(128, 3, pad=1)
 
-            conv3_1=L.Convolution2D(None, 256, 3, pad=1),
-            conv3_2=L.Convolution2D(None, 256, 3, pad=1),
-            conv3_3=L.Convolution2D(None, 256, 3, pad=1),
+            self.conv3_1 = L.Convolution2D(256, 3, pad=1)
+            self.conv3_2 = L.Convolution2D(256, 3, pad=1)
+            self.conv3_3 = L.Convolution2D(256, 3, pad=1)
 
-            conv4_1=L.Convolution2D(None, 512, 3, pad=1),
-            conv4_2=L.Convolution2D(None, 512, 3, pad=1),
-            conv4_3=L.Convolution2D(None, 512, 3, pad=1),
-            norm4=Normalize(512, initial=initializers.Constant(20)),
+            self.conv4_1 = L.Convolution2D(512, 3, pad=1)
+            self.conv4_2 = L.Convolution2D(512, 3, pad=1)
+            self.conv4_3 = L.Convolution2D(512, 3, pad=1)
+            self.norm4 = Normalize(512, initial=initializers.Constant(20))
 
-            conv5_1=L.DilatedConvolution2D(None, 512, 3, pad=1),
-            conv5_2=L.DilatedConvolution2D(None, 512, 3, pad=1),
-            conv5_3=L.DilatedConvolution2D(None, 512, 3, pad=1),
+            self.conv5_1 = L.DilatedConvolution2D(512, 3, pad=1)
+            self.conv5_2 = L.DilatedConvolution2D(512, 3, pad=1)
+            self.conv5_3 = L.DilatedConvolution2D(512, 3, pad=1)
 
-            conv6=L.DilatedConvolution2D(None, 1024, 3, pad=6, dilate=6),
-            conv7=L.Convolution2D(None, 1024, 1),
-        )
-        for name, link in six.iteritems(links):
-            self.add_link(name, link)
+            self.conv6 = L.DilatedConvolution2D(1024, 3, pad=6, dilate=6)
+            self.conv7 = L.Convolution2D(1024, 1)
 
     def __call__(self, x):
         ys = list()
@@ -123,19 +118,19 @@ class VGG16Extractor300(VGG16):
             'initialW': initializers.GlorotUniform(),
             'initial_bias': initializers.Zero(),
         }
-        super(VGG16Extractor300, self).__init__(
-            conv8_1=L.Convolution2D(None, 256, 1, **init),
-            conv8_2=L.Convolution2D(None, 512, 3, stride=2, pad=1, **init),
+        super(VGG16Extractor300, self).__init__()
+        with self.init_scope():
+            self.conv8_1 = L.Convolution2D(256, 1, **init)
+            self.conv8_2 = L.Convolution2D(512, 3, stride=2, pad=1, **init)
 
-            conv9_1=L.Convolution2D(None, 128, 1, **init),
-            conv9_2=L.Convolution2D(None, 256, 3, stride=2, pad=1, **init),
+            self.conv9_1 = L.Convolution2D(128, 1, **init)
+            self.conv9_2 = L.Convolution2D(256, 3, stride=2, pad=1, **init)
 
-            conv10_1=L.Convolution2D(None, 128, 1, **init),
-            conv10_2=L.Convolution2D(None, 256, 3, **init),
+            self.conv10_1 = L.Convolution2D(128, 1, **init)
+            self.conv10_2 = L.Convolution2D(256, 3, **init)
 
-            conv11_1=L.Convolution2D(None, 128, 1, **init),
-            conv11_2=L.Convolution2D(None, 256, 3, **init),
-        )
+            self.conv11_1 = L.Convolution2D(128, 1, **init)
+            self.conv11_2 = L.Convolution2D(256, 3, **init)
 
     def __call__(self, x):
         """Compute feature maps from a batch of images.
@@ -177,22 +172,22 @@ class VGG16Extractor512(VGG16):
             'initialW': initializers.GlorotUniform(),
             'initial_bias': initializers.Zero(),
         }
-        super(VGG16Extractor512, self).__init__(
-            conv8_1=L.Convolution2D(None, 256, 1, **init),
-            conv8_2=L.Convolution2D(None, 512, 3, stride=2, pad=1, **init),
+        super(VGG16Extractor512, self).__init__()
+        with self.init_scope():
+            self.conv8_1 = L.Convolution2D(256, 1, **init)
+            self.conv8_2 = L.Convolution2D(512, 3, stride=2, pad=1, **init)
 
-            conv9_1=L.Convolution2D(None, 128, 1, **init),
-            conv9_2=L.Convolution2D(None, 256, 3, stride=2, pad=1, **init),
+            self.conv9_1 = L.Convolution2D(128, 1, **init)
+            self.conv9_2 = L.Convolution2D(256, 3, stride=2, pad=1, **init)
 
-            conv10_1=L.Convolution2D(None, 128, 1, **init),
-            conv10_2=L.Convolution2D(None, 256, 3, stride=2, pad=1, **init),
+            self.conv10_1 = L.Convolution2D(128, 1, **init)
+            self.conv10_2 = L.Convolution2D(256, 3, stride=2, pad=1, **init)
 
-            conv11_1=L.Convolution2D(None, 128, 1, **init),
-            conv11_2=L.Convolution2D(None, 256, 3, stride=2, pad=1, **init),
+            self.conv11_1 = L.Convolution2D(128, 1, **init)
+            self.conv11_2 = L.Convolution2D(256, 3, stride=2, pad=1, **init)
 
-            conv12_1=L.Convolution2D(None, 128, 1, **init),
-            conv12_2=L.Convolution2D(None, 256, 4,  pad=1, **init),
-        )
+            self.conv12_1 = L.Convolution2D(128, 1, **init)
+            self.conv12_2 = L.Convolution2D(256, 4,  pad=1, **init)
 
     def __call__(self, x):
         """Compute feature maps from a batch of images.
@@ -226,12 +221,7 @@ def _check_pretrained_model(n_fg_class, pretrained_model, models):
             raise ValueError('n_fg_class mismatch')
         n_fg_class = model['n_fg_class']
 
-        root = get_dataset_directory('pfnet/chainercv/models')
-        basename = os.path.basename(model['url'])
-        path = os.path.join(root, basename)
-        if not os.path.exists(path):
-            download_file = download.cached_download(model['url'])
-            os.rename(download_file, path)
+        path = download_model(model['url'])
 
         if not _available:
             warnings.warn(
@@ -282,7 +272,7 @@ class SSD300(SSD):
         'voc0712': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.2/ssd300_voc0712_2017_05_24.npz'
+            'download/0.0.3/ssd300_voc0712_2017_06_06.npz'
         }
     }
 
@@ -338,7 +328,7 @@ class SSD512(SSD):
         'voc0712': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.2/ssd512_voc0712_2017_05_24.npz'
+            'download/0.0.3/ssd512_voc0712_2017_06_06.npz'
         }
     }
 

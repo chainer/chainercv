@@ -23,7 +23,7 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
         bbox (~numpy.ndarray): An array of shape :math:`(R, 4)`, where
             :math:`R` is the number of bounding boxes in the image.
             Each element is organized
-            by :obj:`(x_min, y_min, x_max, y_max)` in the second axis.
+            by :obj:`(y_min, x_min, y_max, x_max)` in the second axis.
         label (~numpy.ndarray): An integer array of shape :math:`(R,)`.
             The values correspond to id for label names stored in
             :obj:`label_names`. This is optional.
@@ -55,9 +55,9 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
         return ax
 
     for i, bb in enumerate(bbox):
-        xy = (bb[0], bb[1])
-        width = bb[2] - bb[0]
-        height = bb[3] - bb[1]
+        xy = (bb[1], bb[0])
+        height = bb[2] - bb[0]
+        width = bb[3] - bb[1]
         ax.add_patch(plot.Rectangle(
             xy, width, height, fill=False, edgecolor='red', linewidth=3))
 
@@ -73,7 +73,7 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
             caption.append('{:.2f}'.format(sc))
 
         if len(caption) > 0:
-            ax.text(bb[0], bb[1],
+            ax.text(bb[1], bb[0],
                     ': '.join(caption),
                     style='italic',
                     bbox={'facecolor': 'white', 'alpha': 0.7, 'pad': 10})

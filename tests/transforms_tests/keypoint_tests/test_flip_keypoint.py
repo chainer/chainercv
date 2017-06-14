@@ -12,14 +12,14 @@ class TestFlipKeypoint(unittest.TestCase):
         keypoint = np.random.uniform(
             low=0., high=32., size=(12, 2))
 
-        out = flip_keypoint(keypoint, size=(32, 34), x_flip=True)
+        out = flip_keypoint(keypoint, size=(34, 32), y_flip=True)
         keypoint_expected = keypoint.copy()
-        keypoint_expected[:, 0] = 31 - keypoint[:, 0]
+        keypoint_expected[:, 0] = 33 - keypoint[:, 0]
         np.testing.assert_equal(out, keypoint_expected)
 
-        out = flip_keypoint(keypoint, size=(32, 34), y_flip=True)
+        out = flip_keypoint(keypoint, size=(34, 32), x_flip=True)
         keypoint_expected = keypoint.copy()
-        keypoint_expected[:, 1] = 33 - keypoint[:, 1]
+        keypoint_expected[:, 1] = 31 - keypoint[:, 1]
         np.testing.assert_equal(out, keypoint_expected)
 
 
