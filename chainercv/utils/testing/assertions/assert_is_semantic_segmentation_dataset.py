@@ -41,5 +41,5 @@ def assert_is_semantic_segmentation_dataset(dataset, n_class, repeat=10):
             'The type of label must be numpy.int32.'
         assert label.shape == img.shape[1:], \
             'The shape of label must be (H, W).'
-        assert label.min() >= 0 and label.max() < n_class, \
-            'The value of label must be in [0, n_class - 1].'
+        assert label.min() >= -1 and label.max() < n_class, \
+            'The value of label must be in [-1, n_class - 1].'

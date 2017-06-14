@@ -17,7 +17,7 @@ class SemanticSegmentationDataset(DatasetMixin):
 
     def get_example(self, i):
         img = np.random.randint(0, 256, size=(3, 48, 64))
-        label = np.random.randint(0, 20, size=(48, 64)).astype(np.int32)
+        label = np.random.randint(-1, 21, size=(48, 64)).astype(np.int32)
 
         return (img, label) + self.options
 
@@ -56,10 +56,10 @@ class TestAssertIsSemanticSegmentationDataset(unittest.TestCase):
 
     def test_assert_is_semantic_segmentation_dataset(self):
         if self.valid:
-            assert_is_semantic_segmentation_dataset(self.dataset, 20)
+            assert_is_semantic_segmentation_dataset(self.dataset, 21)
         else:
             with self.assertRaises(AssertionError):
-                assert_is_semantic_segmentation_dataset(self.dataset, 20)
+                assert_is_semantic_segmentation_dataset(self.dataset, 21)
 
 
 testing.run_module(__name__, __file__)
