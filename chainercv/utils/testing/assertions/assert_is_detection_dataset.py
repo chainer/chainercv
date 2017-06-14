@@ -41,6 +41,8 @@ def assert_is_detection_dataset(dataset, n_fg_class, repeat=10):
             'label must be a numpy.ndarray.'
         assert label.dtype == np.int32, \
             'The type of label must be numpy.int32.'
+        assert label.shape[1:] == (), \
+            'The shape of label must be (*,).'
         assert len(label) == len(bbox), \
             'The length of label must be same as that of bbox.'
         assert label.min() >= 0 and label.max() < n_fg_class, \
