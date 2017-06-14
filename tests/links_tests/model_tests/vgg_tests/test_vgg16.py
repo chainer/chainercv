@@ -39,7 +39,8 @@ class TestVGG16LayersCall(unittest.TestCase):
 
 
 @testing.parameterize(
-    {'feature': 'prob', 'shape': (1, 1000)},
+    {'feature': 'prob', 'shape': (2, 1000)},
+    {'feature': 'conv5_3', 'shape': (2, 512, 7, 7)}
 )
 class TestVGG16LayersPredict(unittest.TestCase):
 
@@ -47,13 +48,14 @@ class TestVGG16LayersPredict(unittest.TestCase):
         self.link = VGG16Layers(pretrained_model=None, feature=self.feature)
 
     def check_predict(self):
-        x1 = np.random.uniform(0, 255, (320, 240, 3)).astype(np.uint8)
-        x2 = np.random.uniform(0, 255, (320, 240)).astype(np.uint8)
-        result = self.link.predict([x1, x2], oversample=False)
-        y = cuda.to_cpu(result.data)
-        self.assertEqual(y.shape, (2, 1000))
-        self.assertEqual(y.dtype, np.float32)
+        x1 = np.random.uniform(0, 255, (3, 320, 240)).astype(np.float32)
+        x2 = np.random.uniform(0, 255, (3, 320, 240)).astype(np.float32)
+        out = self.link.predict([x1, x2], oversample=False)
+        self.assertEqual(out.shape, self.shape)
+        self.assertEqual(out.dtype, np.float32)
         result = self.link.predict([x1, x2], oversample=True)
+        self.assertEqual(out.shape, self.shape)
+        self.assertEqual(out.dtype, np.float32)
 
     def test_predict_cpu(self):
         self.check_predict()
