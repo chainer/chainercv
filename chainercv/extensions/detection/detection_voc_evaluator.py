@@ -4,7 +4,7 @@ import numpy as np
 from chainer import reporter
 import chainer.training.extensions
 
-from chainercv.evaluations import eval_detection_voc_ap
+from chainercv.evaluations import eval_detection_voc
 from chainercv.utils import apply_prediction_to_iterator
 
 
@@ -85,7 +85,7 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
             gt_bboxes, gt_labels = gt_values
             gt_difficults = None
 
-        ap = eval_detection_voc_ap(
+        ap = eval_detection_voc(
             pred_bboxes, pred_labels, pred_scores,
             gt_bboxes, gt_labels, gt_difficults,
             use_07_metric=self.use_07_metric)
