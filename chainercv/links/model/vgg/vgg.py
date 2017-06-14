@@ -48,8 +48,19 @@ class VGG16Layers(chainer.Chain):
             self.fc6 = L.Linear(512 * 7 * 7, 4096, **kwargs)
             self.fc7 = L.Linear(4096, 4096, **kwargs)
             self.fc8 = L.Linear(4096, 1000, **kwargs)
+        self.feature = feature
 
-        self.functions = collections.OrderedDict([
+        # Links can be safely removed because parameters in these links
+        # are guaranteed to not be in a computational graph.
+        names = [child.name for child in self.children()]
+        functions = self.functions
+        for name in names:
+            if name not in functions:
+                delattr(self, name)
+
+    @property
+    def functions(self):
+        default_funcs = collections.OrderedDict([
             ('conv1_1', [self.conv1_1, F.relu]),
             ('conv1_2', [self.conv1_2, F.relu]),
             ('pool1', [_max_pooling_2d]),
@@ -73,20 +84,17 @@ class VGG16Layers(chainer.Chain):
             ('fc8', [self.fc8]),
             ('prob', [F.softmax]),
         ])
-        if feature not in self.functions:
+        if self.feature not in default_funcs:
             raise ValueError('`feature` shuold be one of the keys of '
                              'VGG16Layers.functions.')
+        pop_funcs = False
+        for name in default_funcs.keys():
+            if pop_funcs:
+                default_funcs.pop(name)
 
-        # Links can be safely removed because parameters in these links
-        # are guaranteed to not be in a computational graph.
-        names = [child.name for child in self.children()]
-        delete_layers = False
-        for func in self.functions.keys():
-            if delete_layers:
-                if func in names:
-                    delattr(self, func)
-            if func == feature:
-                delete_layers = True
+            if name == self.feature:
+                pop_funcs = True
+        return default_funcs
 
     def __call__(self, x):
         h = x
