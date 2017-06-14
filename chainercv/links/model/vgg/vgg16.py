@@ -12,7 +12,7 @@ from chainer.initializers import normal
 import chainer.links as L
 
 from chainercv.transforms import center_crop
-from chainercv.transforms import resize
+from chainercv.transforms import scale
 from chainercv.transforms import ten_crop
 
 
@@ -133,7 +133,7 @@ class VGG16Layers(chainer.Chain):
 
         """
 
-        img = resize(img, (256, 256))
+        img = scale(img, size=256)
         img = img - self.mean
 
         return img
