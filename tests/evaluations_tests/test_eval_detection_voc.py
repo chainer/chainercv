@@ -9,7 +9,7 @@ from chainer import testing
 
 from chainercv.evaluations import calc_detection_voc_ap
 from chainercv.evaluations import calc_detection_voc_prec_rec
-from chainercv.evaluations import eval_detection_voc_ap
+from chainercv.evaluations import eval_detection_voc
 
 
 @testing.parameterize(*(
@@ -190,7 +190,7 @@ class TestEvalDetectionVOCAP(unittest.TestCase):
             base_url,
             'voc_detection_result_2007_test_truncated_2017_06_06.npz'))[0])
 
-    def test_eval_detection_voc_ap(self):
+    def test_eval_detection_voc(self):
         pred_bboxes = self.result['bboxes']
         pred_labels = self.result['labels']
         pred_scores = self.result['scores']
@@ -199,7 +199,7 @@ class TestEvalDetectionVOCAP(unittest.TestCase):
         gt_labels = self.dataset['labels']
         gt_difficults = self.dataset['difficults']
 
-        ap = eval_detection_voc_ap(
+        result = eval_detection_voc(
             pred_bboxes, pred_labels, pred_scores,
             gt_bboxes, gt_labels, gt_difficults,
             use_07_metric=True)
@@ -228,4 +228,6 @@ class TestEvalDetectionVOCAP(unittest.TestCase):
             0.654545,
         ]
 
-        np.testing.assert_almost_equal(ap, expected, decimal=5)
+        np.testing.assert_almost_equal(result['ap'], expected, decimal=5)
+        np.testing.assert_almost_equal(
+            result['map'], np.nanmean(expected), decimal=5)
