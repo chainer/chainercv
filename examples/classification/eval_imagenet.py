@@ -35,6 +35,8 @@ class ProgressHook(object):
 
 
 def main():
+    chainer.config.train = False
+
     parser = argparse.ArgumentParser(
         description='Learning convnet from ILSVRC2012 dataset')
     parser.add_argument('val', help='Path to root of the validation dataset')
@@ -46,7 +48,7 @@ def main():
     dataset = ImageFolderDataset(args.val)
     iterator = iterators.MultiprocessIterator(
         dataset, args.batchsize, repeat=False, shuffle=False,
-        n_processes=4, shared_mem=10000000)
+        n_processes=6, shared_mem=300000000)
 
     model = VGG16Layers(pretrained_model=args.pretrained_model)
 
