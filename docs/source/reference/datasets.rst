@@ -4,6 +4,10 @@ Datasets
 .. module:: chainercv.datasets
 
 
+ImageFolderDataset
+------------------
+.. autofunction:: ImageFolderDataset
+
 TransformDataset
 ----------------
 
