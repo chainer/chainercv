@@ -12,13 +12,13 @@ def eval_pck(pred, expected, alpha, L):
     :math:`0 < \\alpha < 1` is a variable we control.
     :math:`L` is determined differently depending on the context. For example,
     in evaluation of keypoint matching for CUB dataset,
-    :math:`L=\\sqrt{w^2 + h^2}` is used.
+    :math:`L=\\sqrt{h^2 + w^2}` is used.
 
     Args:
         pred (~numpy.ndarray): An array of shape :math:`(K, 2)`
             :math:`N` is the number of keypoints to be evaluated. The
-            two elements of the second axis corresponds to :math:`x`
-            and :math:`y` coordinate of the keypoint.
+            two elements of the second axis corresponds to :math:`y`
+            and :math:`x` coordinate of the keypoint.
         expected (~numpy.ndarray): Same kind of array as :obj:`pred`.
             This contains ground truth location of the keypoints that
             the user tries to predict.

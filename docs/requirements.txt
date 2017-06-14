@@ -1,4 +1,4 @@
-chainer==1.24
+chainer==2.0
 Cython
 matplotlib
 numpy

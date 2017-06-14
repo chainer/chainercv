@@ -14,11 +14,3 @@ DetectionVisReport
 DetectionVOCEvaluator
 ~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: DetectionVOCEvaluator
-
-
-Semantic Segmentation
----------------------
-
-SemanticSegmentationEvaluator
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: SemanticSegmentationEvaluator
