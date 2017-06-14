@@ -1,13 +1,11 @@
 import unittest
 
-import numpy as np
-
 from chainer import testing
 from chainer.testing import attr
-from chainer.testing import condition
 
 from chainercv.datasets import voc_semantic_segmentation_label_names
 from chainercv.datasets import VOCSemanticSegmentationDataset
+from chienercv.utils import assert_is_semantic_segmentation_dataset
 
 
 @testing.parameterize(
@@ -21,24 +19,11 @@ class TestVOCSemanticSegmentationDataset(unittest.TestCase):
         self.dataset = VOCSemanticSegmentationDataset(split=self.split)
 
     @attr.slow
-    @condition.repeat(10)
     def test_camvid_dataset(self):
-        i = np.random.randint(0, len(self.dataset))
-
-        img, label = self.dataset[i]
-
-        self.assertIsInstance(img, np.ndarray)
-        self.assertEqual(img.dtype, np.float32)
-        self.assertEqual(img.shape[0], 3)
-        self.assertGreaterEqual(np.min(img), 0)
-        self.assertLessEqual(np.max(img), 255)
-
-        self.assertIsInstance(label, np.ndarray)
-        self.assertEqual(label.dtype, np.int32)
-        self.assertEqual(label.shape, img.shape[1:])
-        self.assertGreaterEqual(np.min(label), -1)
-        self.assertLessEqual(
-            np.max(label), len(voc_semantic_segmentation_label_names) - 1)
+        assert_is_semantic_segmentation_dataset(
+            self.dataset,
+            len(voc_semantic_segmentation_label_names),
+            n_example=10)
 
 
 testing.run_module(__name__, __file__)
