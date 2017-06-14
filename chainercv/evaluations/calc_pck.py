@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def eval_pck(pred, expected, alpha, L):
+def calc_pck(pred, expected, alpha, L):
     """Calculate PCK (Percentage of Correct Keypoints).
 
     This function calculates number of vertices whose positions are correctly
