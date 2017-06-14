@@ -25,8 +25,12 @@ class VGG16Layers(chainer.Chain):
 
     def __init__(self, pretrained_model='auto', feature='prob',
                  initialW=None, initial_bias=None,
-                 mean=_imagenet_mean):
+                 mean=_imagenet_mean, do_ten_crop=False):
         self.mean = mean
+        self.do_ten_crop = do_ten_crop
+        if do_ten_crop and feature not in ['fc6', 'fc7', 'fc8', 'prob']:
+            raise ValueError
+
         if pretrained_model:
             # As a sampling process is time-consuming,
             # we employ a zero initializer for faster computation.
@@ -138,7 +142,7 @@ class VGG16Layers(chainer.Chain):
 
         return img
 
-    def predict(self, imgs, do_ten_crop=True):
+    def predict(self, imgs):
         """Compute class probabilities of given images.
 
         Args:
@@ -154,11 +158,8 @@ class VGG16Layers(chainer.Chain):
             A batch of arrays containing class-probabilities.
 
         """
-        if do_ten_crop and self.feature not in ['fc6', 'fc7', 'fc8', 'prob']:
-            raise ValueError
-
         imgs = [self._prepare(img) for img in imgs]
-        if do_ten_crop:
+        if self.do_ten_crop:
             imgs = [ten_crop(img, (224, 224)) for img in imgs]
         else:
             imgs = [center_crop(img, (224, 224)) for img in imgs]
@@ -168,7 +169,7 @@ class VGG16Layers(chainer.Chain):
             imgs = chainer.Variable(imgs)
             y = self(imgs).data
 
-            if do_ten_crop:
+            if self.do_ten_crop:
                 n = y.shape[0] // 10
                 y_shape = y.shape[1:]
                 y = y.reshape((n, 10) + y_shape)
