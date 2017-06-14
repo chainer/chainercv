@@ -31,9 +31,9 @@ eval_pck
 Semantic Segmentation IoU
 -------------------------
 
-eval_semantic_segmentation_iou
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: eval_semantic_segmentation_iou
+eval_semantic_segmentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: eval_semantic_segmentation
 
 calc_semantic_segmentation_confusion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
