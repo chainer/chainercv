@@ -2,11 +2,12 @@ import numpy as np
 import os
 
 import chainer
+from chainercv.utils import read_image
 
 
-def _find_label_names(directory):
-    label_names = [d for d in os.listdir(directory)
-                   if os.path.isdir(os.path.join(directory, d))]
+def find_label_names(root):
+    label_names = [d for d in os.listdir(root)
+                   if os.path.isdir(os.path.join(root, d))]
     label_names.sort()
     return label_names
 
@@ -49,9 +50,9 @@ class ImageFolderDataset(chainer.dataset.DatasetMixin):
     If this is :obj:`None`, the path with any image extensions will be parsed.
 
     Example:
-        
+
         With a directory structure like below.
-        
+
         .. code::
 
             root
@@ -78,11 +79,11 @@ class ImageFolderDataset(chainer.dataset.DatasetMixin):
     """
 
     def __init__(self, root, check_img_file=None):
-        self.label_names = find_label_names(root)
+        label_names = find_label_names(root)
         if check_img_file is None:
             check_img_file = _ends_with_img_ext
 
-        self.img_paths, self.labels = parse_classification_dataset(
+        self.img_paths, self.labels = _parse_classification_dataset(
             root, label_names, check_img_file)
 
     def __len__(self):
@@ -90,4 +91,5 @@ class ImageFolderDataset(chainer.dataset.DatasetMixin):
 
     def get_example(self, i):
         img = read_image(self.img_paths[i])
-        return img, labels[i]
+        label = self.labels[i]
+        return img, label
