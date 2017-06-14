@@ -9,8 +9,7 @@ from chainer.dataset import concat_examples
 
 from chainercv.datasets import camvid_label_names
 from chainercv.datasets import CamVidDataset
-from chainercv.evaluations import calc_semantic_segmentation_confusion
-from chainercv.evaluations import calc_semantic_segmentation_iou
+from chainercv.evaluations import eval_semantic_segmentation
 from chainercv.links import SegNetBasic
 from chainercv.utils import apply_prediction_to_iterator
 
@@ -68,21 +67,16 @@ def main():
     pred_labels, = pred_values
     gt_labels, = gt_values
 
-    confusion = calc_semantic_segmentation_confusion(pred_labels, gt_labels)
-    ious = calc_semantic_segmentation_iou(confusion)
+    result = eval_semantic_segmentation(pred_labels, gt_labels)
 
-    pixel_accuracy = np.diag(confusion).sum() / confusion.sum()
-    mean_pixel_accuracy = np.mean(
-        np.diag(confusion) / np.sum(confusion, axis=1))
-
-    for iou, label_name in zip(ious, camvid_label_names):
-        print('{:>23} : {:.4f}'.format(label_name, iou))
+    for iu, label_name in zip(result['iou'], camvid_label_names):
+        print('{:>23} : {:.4f}'.format(label_name, iu))
     print('=' * 34)
-    print('{:>23} : {:.4f}'.format('mean IoU', np.nanmean(ious)))
+    print('{:>23} : {:.4f}'.format('mean IoU', result['miou']))
     print('{:>23} : {:.4f}'.format(
-        'Class average accuracy', mean_pixel_accuracy))
+        'Class average accuracy', result['mean_accuracy']))
     print('{:>23} : {:.4f}'.format(
-        'Global average accuracy', pixel_accuracy))
+        'Global average accuracy', result['pixel_accuracy']))
 
 
 if __name__ == '__main__':
