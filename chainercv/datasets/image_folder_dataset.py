@@ -22,6 +22,9 @@ def _ends_with_img_ext(filename):
 
 def _parse_classification_dataset(root, label_names,
                                   check_img_file=_ends_with_img_ext):
+    # Use label_name_to_idx for performance.
+    label_name_to_idx = {label_names[i]: i for i in range(len(label_names))}
+
     img_paths = []
     labels = []
     for label_name in os.listdir(root):
@@ -33,7 +36,7 @@ def _parse_classification_dataset(root, label_names,
             for filename in filenames:
                 if check_img_file(filename):
                     img_paths.append(os.path.join(cur_dir, filename))
-                    labels.append(label_names.index(label_name))
+                    labels.append(label_name_to_idx[label_name])
 
     return img_paths, np.array(labels, np.int32)
 
