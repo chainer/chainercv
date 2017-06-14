@@ -2,10 +2,10 @@ import numpy as np
 
 
 def assert_is_image(img, color=True, check_range=True):
-    """Checks if an image satisfys image format.
+    """Checks if an image satisfies image format.
 
-    This function checks if a given image satisfys image format or not.
-    If the image does not satifiys the format, this function raises an
+    This function checks if a given image satisfies image format or not.
+    If the image does not satifiy the format, this function raises an
     :class:`AssertionError`.
 
     Args:
