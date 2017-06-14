@@ -118,14 +118,12 @@ def eval_semantic_segmentation(pred_labels, gt_labels):
         \\frac \
         {\\sum_{i=1}^k N_{ii}} \
         {\\sum_{i=1}^k \\sum_{j=1}^k N_{ij}}`
-    * :math:`\\text{Accuracy} = \
+    * :math:`\\text{Class Accuracy} = \
         \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij}}`
-    * :math:`\\text{Mean Accuracy} = \\frac{1}{k} \
+    * :math:`\\text{Mean Class Accuracy} = \\frac{1}{k} \
         \\sum_{i=1}^k \
         \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij}}`
 
-    mIoU can be computed by taking :obj:`numpy.nanmean` of the IoUs returned
-    by this function.
     The more detailed description of the above metric can be found in a
     review on semantic segmentation [#]_.
 
@@ -162,9 +160,10 @@ def eval_semantic_segmentation(pred_labels, gt_labels):
             :math:`n\_class` classes. Its shape is :math:`(n\_class,)`.
         * **miou** (*float*): The average of IoUs over classes.
         * **pixel_accuracy** (*float*): The computed pixel accuracy.
-        * **accuracy** (*numpy.ndarray*): An array of accuracies for the \
-            :math:`n\_class` classes. Its shape is :math:`(n\_class,)`.
-        * **mean_accuracy** (*float*): The average of accuracies.
+        * **class_accuracy** (*numpy.ndarray*): An array of class accuracies \
+            for the :math:`n\_class` classes. \
+            Its shape is :math:`(n\_class,)`.
+        * **mean_class_accuracy** (*float*): The average of class accuracies.
 
     """
     # Evaluation code is based on
@@ -174,8 +173,9 @@ def eval_semantic_segmentation(pred_labels, gt_labels):
         pred_labels, gt_labels)
     iou = calc_semantic_segmentation_iou(confusion)
     pixel_accuracy = np.diag(confusion).sum() / confusion.sum()
-    accuracy = np.diag(confusion) / np.sum(confusion, axis=1)
+    class_accuracy = np.diag(confusion) / np.sum(confusion, axis=1)
 
     return {'iou': iou, 'miou': np.nanmean(iou),
             'pixel_accuracy': pixel_accuracy,
-            'accuracy': accuracy, 'mean_accuracy': np.nanmean(accuracy)}
+            'class_accuracy': class_accuracy,
+            'mean_class_accuracy': np.nanmean(class_accuracy)}

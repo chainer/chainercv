@@ -16,13 +16,13 @@ from chainercv.evaluations import eval_semantic_segmentation
      'gt_labels': iter(np.repeat([[[1, 0, 0], [0, -1, 1]]], 2, axis=0)),
      'iou': np.array([4 / 6, 4 / 6]),
      'pixel_accuracy': 4 / 5,
-     'accuracy': np.array([2 / 3, 2 / 2]),
+     'class_accuracy': np.array([2 / 3, 2 / 2]),
      },
     {'pred_labels': np.array([[[0, 0, 0], [0, 0, 0]]]),
      'gt_labels': np.array([[[1, 1, 1], [1, 1, 1]]]),
      'iou': np.array([0, 0]),
      'pixel_accuracy': 0 / 6,
-     'accuracy': np.array([np.nan, 0])
+     'class_accuracy': np.array([np.nan, 0])
      }
 )
 class TestEvalSemanticSegmentation(unittest.TestCase):
@@ -32,11 +32,11 @@ class TestEvalSemanticSegmentation(unittest.TestCase):
             self.pred_labels, self.gt_labels)
         np.testing.assert_equal(result['iou'], self.iou)
         np.testing.assert_equal(result['pixel_accuracy'], self.pixel_accuracy)
-        np.testing.assert_equal(result['accuracy'], self.accuracy)
+        np.testing.assert_equal(result['class_accuracy'], self.class_accuracy)
 
         np.testing.assert_equal(result['miou'], np.nanmean(self.iou))
         np.testing.assert_equal(
-            result['mean_accuracy'], np.nanmean(self.accuracy))
+            result['mean_class_accuracy'], np.nanmean(self.class_accuracy))
 
 
 class TestCalcSemanticSegmentationConfusion(unittest.TestCase):

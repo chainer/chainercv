@@ -74,7 +74,7 @@ def main():
     print('=' * 34)
     print('{:>23} : {:.4f}'.format('mean IoU', result['miou']))
     print('{:>23} : {:.4f}'.format(
-        'Class average accuracy', result['mean_accuracy']))
+        'Class average accuracy', result['mean_class_accuracy']))
     print('{:>23} : {:.4f}'.format(
         'Global average accuracy', result['pixel_accuracy']))
 
