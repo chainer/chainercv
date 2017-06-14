@@ -98,13 +98,12 @@ def calc_semantic_segmentation_iou(confusion):
 
 
 def eval_semantic_segmentation(pred_labels, gt_labels):
-    """Evaluate Intersection over Union from labels.
+    """Evaluate metrics used in Semantic Segmentation.
 
-    This function calculates Intersection over Union (IoU)
-    for the task of semantic segmentation.
+    This function calculates Intersection over Union (IoU), Pixel Accuracy
+    and Class Accuracy for the task of semantic segmentation.
 
-    The definition of IoU and a related metric, mean Intersection
-    over Union (mIoU), are as follow,
+    The definition of metrics calculated by this function is as follows,
     where :math:`N_{ij}` is the number of pixels
     that are labeled as class :math:`i` by the ground truth and
     class :math:`j` by the prediction.
@@ -124,7 +123,7 @@ def eval_semantic_segmentation(pred_labels, gt_labels):
         \\sum_{i=1}^k \
         \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij}}`
 
-    The more detailed description of the above metric can be found in a
+    The more detailed description of the above metrics can be found in a
     review on semantic segmentation [#]_.
 
     The number of classes :math:`n\_class` is
