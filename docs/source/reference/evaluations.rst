@@ -20,14 +20,6 @@ calc_detection_voc_prec_rec
 .. autofunction:: calc_detection_voc_prec_rec
 
 
-PCK
----
-
-calc_pck
-~~~~~~~~
-.. autofunction:: calc_pck
-
-
 Semantic Segmentation IoU
 -------------------------
 
