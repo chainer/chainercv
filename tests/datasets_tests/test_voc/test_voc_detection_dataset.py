@@ -8,6 +8,7 @@ from chainer.testing import condition
 
 from chainercv.datasets import voc_detection_label_names
 from chainercv.datasets import VOCDetectionDataset
+from chainercv.utils import assert_is_detection_dataset
 
 
 def _create_paramters():
@@ -36,43 +37,23 @@ class TestVOCDetectionDataset(unittest.TestCase):
         self.n_out = 4 if self.return_difficult else 3
 
     @attr.slow
+    def test_as_detection_dataset(self):
+        assert_is_detection_dataset(
+            self.dataset, len(voc_detection_label_names))
+
+    @attr.slow
     @condition.repeat(10)
-    def test_get_example(self):
+    def test_difficult(self):
+        if not self.return_difficult:
+            return
+
         i = np.random.randint(0, len(self.dataset))
-        out = self.dataset[i]
+        _, bbox, _, difficult = self.dataset[i]
+        self.assertIsInstance(difficult, np.ndarray)
+        self.assertEqual(difficult.dtype, np.bool)
+        self.assertEqual(difficult.shape, (bbox.shape[0],))
 
-        self.assertEqual(len(out), self.n_out)
-
-        img, bbox, label = out[:3]
-        C, H, W = img.shape
-
-        self.assertIsInstance(img, np.ndarray)
-        self.assertEqual(img.dtype, np.float32)
-        self.assertEqual(C, 3)
-        self.assertGreaterEqual(np.min(img), 0)
-        self.assertLessEqual(np.max(img), 255)
-
-        self.assertIsInstance(bbox, np.ndarray)
-        self.assertEqual(bbox.dtype, np.float32)
-        self.assertEqual(bbox.ndim, 2)
-        self.assertEqual(bbox.shape[1], 4)
-        np.testing.assert_array_less(bbox[:, 0], bbox[:, 2])
-        np.testing.assert_array_less(bbox[:, 1], bbox[:, 3])
-
-        self.assertIsInstance(label, np.ndarray)
-        self.assertEqual(label.dtype, np.int32)
-        self.assertEqual(label.shape, (bbox.shape[0],))
-        self.assertGreaterEqual(np.min(label), 0)
-        self.assertLessEqual(
-            np.max(label), len(voc_detection_label_names) - 1)
-
-        if self.n_out == 4:
-            difficult = out[3]
-            self.assertIsInstance(difficult, np.ndarray)
-            self.assertEqual(difficult.dtype, np.bool)
-            self.assertEqual(difficult.shape, (bbox.shape[0],))
-
-        if not self.use_difficult and self.return_difficult:
+        if not self.use_difficult:
             np.testing.assert_equal(difficult, 0)
 
 
