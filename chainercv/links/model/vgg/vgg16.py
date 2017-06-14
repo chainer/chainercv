@@ -11,13 +11,14 @@ from chainer.initializers import constant
 from chainer.initializers import normal
 import chainer.links as L
 
+from chainercv.transforms import center_crop
 from chainercv.transforms import resize
 from chainercv.transforms import ten_crop
 
 
 # RGB order
 _imagenet_mean = np.array(
-    [[[123.68], [116.779], [103.939]]], dtype=np.float32)
+    [123.68, 116.779, 103.939], dtype=np.float32)[:, np.newaxis, np.newaxis]
 
 
 class VGG16Layers(chainer.Chain):
@@ -25,6 +26,7 @@ class VGG16Layers(chainer.Chain):
     def __init__(self, pretrained_model='auto', feature='prob',
                  initialW=None, initial_bias=None,
                  mean=_imagenet_mean):
+        self.mean = mean
         if pretrained_model:
             # As a sampling process is time-consuming,
             # we employ a zero initializer for faster computation.
@@ -158,6 +160,8 @@ class VGG16Layers(chainer.Chain):
         imgs = [self._prepare(img) for img in imgs]
         if do_ten_crop:
             imgs = [ten_crop(img, (224, 224)) for img in imgs]
+        else:
+            imgs = [center_crop(img, (224, 224)) for img in imgs]
         imgs = self.xp.asarray(imgs).reshape(-1, 3, 224, 224)
 
         with chainer.function.no_backprop_mode():
@@ -165,8 +169,8 @@ class VGG16Layers(chainer.Chain):
             y = self(imgs).data
 
             if do_ten_crop:
-                n = y.data.shape[0] // 10
-                y_shape = y.data.shape[1:]
+                n = y.shape[0] // 10
+                y_shape = y.shape[1:]
                 y = y.reshape((n, 10) + y_shape)
                 y = self.xp.sum(y, axis=1) / 10
         return cuda.to_cpu(y)
