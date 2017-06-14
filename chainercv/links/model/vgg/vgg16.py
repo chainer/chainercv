@@ -1,18 +1,30 @@
+from __future__ import division
+
 import collections
+
+import numpy as np
 
 import chainer
 import chainer.functions as F
-import chainer.links as L
-
+from chainer import cuda
 from chainer.initializers import constant
 from chainer.initializers import normal
+import chainer.links as L
+
+from chainercv.transforms import resize
+from chainercv.transforms import ten_crop
+
+
+# RGB order
+_imagenet_mean = np.array(
+    [[[123.68], [116.779], [103.939]]], dtype=np.float32)
 
 
 class VGG16Layers(chainer.Chain):
 
     def __init__(self, pretrained_model='auto', feature='prob',
-                 initialW=None, initial_bias=None
-                 ):
+                 initialW=None, initial_bias=None,
+                 mean=_imagenet_mean):
         if pretrained_model:
             # As a sampling process is time-consuming,
             # we employ a zero initializer for faster computation.
@@ -105,14 +117,30 @@ class VGG16Layers(chainer.Chain):
                 h = func(h)
         return h
 
-    def predict(self, imgs, oversample=True):
+    def _prepare(self, img):
+        """Transform an image to the input for VGG network.
+
+        Args:
+            img (numpy.ndarray)
+
+        Returns:
+            numpy.ndarray: The transformed image.
+
+        """
+
+        img = resize(img, (256, 256))
+        img = img - self.mean
+
+        return img
+
+    def predict(self, imgs, do_ten_crop=True):
         """Compute class probabilities of given images.
 
         Args:
             imgs (iterable of numpy.ndarray): Array-images.
                 All images are in CHW and RGB format
                 and the range of their value is :math:`[0, 255]`.
-            oversample (bool): If :obj:`True`, it averages results across
+            do_ten_crop (bool): If :obj:`True`, it averages results across
                 center, corners, and mirrors. Otherwise, it uses only the
                 center.
 
@@ -121,12 +149,25 @@ class VGG16Layers(chainer.Chain):
             A batch of arrays containing class-probabilities.
 
         """
-        raise NotImplementedError
+        if do_ten_crop and self.feature not in ['fc6', 'fc7', 'fc8', 'prob']:
+            raise ValueError
+
+        imgs = [self._prepare(img) for img in imgs]
+        if do_ten_crop:
+            imgs = [ten_crop(img, (224, 224)) for img in imgs]
+        imgs = self.xp.asarray(imgs).reshape(-1, 3, 224, 224)
+
+        with chainer.function.no_backprop_mode():
+            imgs = chainer.Variable(imgs)
+            y = self(imgs).data
+
+            if do_ten_crop:
+                n = y.data.shape[0] // 10
+                y_shape = y.data.shape[1:]
+                y = y.reshape((n, 10) + y_shape)
+                y = self.xp.sum(y, axis=1) / 10
+        return cuda.to_cpu(y)
 
 
 def _max_pooling_2d(x):
     return F.max_pooling_2d(x, ksize=2)
-
-
-if __name__ == '__main__':
-    model = VGG16Layers(feature='conv4_1')
