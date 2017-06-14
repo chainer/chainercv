@@ -41,6 +41,10 @@ from chainercv.utils import assert_is_image
     {
         'img': np.ones((1, 48, 64)) * 256,
         'color': False, 'check_range': False, 'valid': True},
+
+    {
+        'img': (((0, 1), (2, 3)), ((4, 5), (6, 7)), ((8, 9), (10, 11))),
+        'color': True, 'check_range': True, 'valid': False},
 )
 class TestAssertIsImage(unittest.TestCase):
 
