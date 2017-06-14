@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def assert_is_bbox(bbox):
+def assert_is_bbox(bbox, size=None):
     """Checks if bounding boxes satisfy bounding box format.
 
     This function checks if given bounding boxes satisfy bounding boxe
@@ -11,7 +11,9 @@ def assert_is_bbox(bbox):
 
     Args:
         bbox (~numpy.ndarray): Bounding boxes to be checked.
-
+        size (tuple of ints): The size of canvas.
+            If this argument is specified,
+            Each bounding box should be within the canvas.
     """
 
     assert isinstance(bbox, np.ndarray), \
@@ -24,3 +26,7 @@ def assert_is_bbox(bbox):
         'The coordinate of top must be less than that of bottom.'
     assert (bbox[:, 1] < bbox[:, 3]).all(), \
         'The coordinate of left must be less than that of right.'
+
+    if size is not None:
+        assert (bbox[:, :2] >= 0).all() and (bbox[:, 2:] < size).all(),\
+            'The coordinates of bbox should not exceed the size of canvas.'

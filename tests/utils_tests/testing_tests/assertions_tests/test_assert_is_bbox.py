@@ -12,6 +12,16 @@ from chainercv.utils import assert_is_bbox
         'hw': np.random.uniform(0.1, 1, size=(10, 2)).astype(np.float32),
         'valid': True},
     {
+        'tl': np.random.uniform(0, 32, size=(10, 2)).astype(np.float32),
+        'hw': np.random.uniform(0.1, 16, size=(10, 2)).astype(np.float32),
+        'size': (48, 64),
+        'valid': True},
+    {
+        'tl': np.random.uniform(20, 32, size=(10, 2)).astype(np.float32),
+        'hw': np.random.uniform(16, 32, size=(10, 2)).astype(np.float32),
+        'size': (16, 24),
+        'valid': False},
+    {
         'tl': np.random.uniform(-1, 1, size=(10, 2)).astype(float),
         'hw': np.random.uniform(0.1, 1, size=(10, 2)).astype(float),
         'valid': False},
@@ -34,13 +44,15 @@ class TestAssertIsBbox(unittest.TestCase):
     def setUp(self):
         if not hasattr(self, 'bbox'):
             self.bbox = np.hstack((self.tl, self.tl + self.hw))
+        if not hasattr(self, 'size'):
+            self.size = None
 
     def test_assert_is_bbox(self):
         if self.valid:
-            assert_is_bbox(self.bbox)
+            assert_is_bbox(self.bbox, self.size)
         else:
             with self.assertRaises(AssertionError):
-                assert_is_bbox(self.bbox)
+                assert_is_bbox(self.bbox, self.size)
 
 
 testing.run_module(__name__, __file__)
