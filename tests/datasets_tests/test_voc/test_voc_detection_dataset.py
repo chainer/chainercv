@@ -39,7 +39,7 @@ class TestVOCDetectionDataset(unittest.TestCase):
     @attr.slow
     def test_as_detection_dataset(self):
         assert_is_detection_dataset(
-            self.dataset, len(voc_detection_label_names))
+            self.dataset, len(voc_detection_label_names), n_example=10)
 
     @attr.slow
     @condition.repeat(10)
