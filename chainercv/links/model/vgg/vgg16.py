@@ -57,6 +57,8 @@ class VGG16Layers(chainer.Chain):
         for name in names:
             if name not in functions:
                 delattr(self, name)
+                # Since self.functions access self.name, it needs a value.
+                setattr(self, name, None)
 
     @property
     def functions(self):
@@ -98,7 +100,7 @@ class VGG16Layers(chainer.Chain):
 
     def __call__(self, x):
         h = x
-        for key, funcs in self.functions.items():
+        for funcs in self.functions.values():
             for func in funcs:
                 h = func(h)
         return h
