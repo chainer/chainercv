@@ -13,7 +13,7 @@ class SemanticSegmentationDataset(DatasetMixin):
         self.options = options
 
     def __len__(self):
-        return 100
+        return 10
 
     def get_example(self, i):
         img = np.random.randint(0, 256, size=(3, 48, 64))
