@@ -5,7 +5,7 @@ from chainer.testing import attr
 
 from chainercv.datasets import camvid_label_names
 from chainercv.datasets import CamVidDataset
-from chienercv.utils import assert_is_semantic_segmentation_dataset
+from chainercv.utils import assert_is_semantic_segmentation_dataset
 
 
 @testing.parameterize(
