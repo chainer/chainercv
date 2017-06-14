@@ -50,7 +50,6 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
     def __init__(self, iterator, target, label_names=None):
         super(SemanticSegmentationEvaluator, self).__init__(
             iterator, target)
-
         self.label_names = label_names
 
     def evaluate(self):
