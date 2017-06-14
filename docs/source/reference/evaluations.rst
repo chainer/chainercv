@@ -7,9 +7,9 @@ Evaluations
 Detection VOC
 -------------
 
-eval_detection_voc_ap
-~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: eval_detection_voc_ap
+eval_detection_voc
+~~~~~~~~~~~~~~~~~~
+.. autofunction:: eval_detection_voc
 
 calc_detection_voc_ap
 ~~~~~~~~~~~~~~~~~~~~~
