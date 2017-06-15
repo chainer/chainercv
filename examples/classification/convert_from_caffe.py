@@ -1,5 +1,5 @@
-from chainer.links import VGG16Layers as VGG16Layers_chainer
 import chainer
+from chainer.links import VGG16Layers as VGG16Layers_chainer
 
 from chainercv.links import VGG16Layers as VGG16Layers_cv
 

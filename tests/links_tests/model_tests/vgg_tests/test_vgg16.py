@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-from chainer import testing
 from chainer.initializers import Zero
+from chainer import testing
 from chainer.testing import attr
 from chainer.variable import Variable
 
@@ -46,6 +46,7 @@ class TestVGG16LayersCall(unittest.TestCase):
     {'feature': 'prob', 'shape': (2, 1000), 'do_ten_crop': True},
     {'feature': 'conv5_3', 'shape': (2, 512, 14, 14), 'do_ten_crop': False}
 )
+@attr.slow
 class TestVGG16LayersPredict(unittest.TestCase):
 
     def setUp(self):
