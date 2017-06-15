@@ -1,8 +1,19 @@
 # Classification
 
+## Performance
+
+| Model | Top 1 Error | Original Top 1 Error |
+|:-:|:-:|:-:|
+| VGG16 | 27.06 % | 27.0 % [1] |
+
+The results can be reproduced by the following command
+
+```
+$ python eval_imagenet.py <path_to_val_dataset> [--model vgg16] [--pretrained_model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
+```
 
 
-## Download the ImageNet dataset
+## How to prepare ImageNet Dataset
 
 This instructions are copied from ImageNet training for Torch.
 
@@ -24,4 +35,14 @@ The ImageNet Large Scale Visual Recognition Challenge (ILSVRC) dataset has 1000 
   wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash
   ```
 
+## Note on implementations
 
+#### VGG16
+
+In the original paper, fully connected layers are used as convolutional layers, and the final output is the spatial average of the outputs of the convolutions.
+Our implementation averages predictions from ten-cropped patches.
+
+
+## References
+
+1. Karen Simonyan, Andrew Zisserman. "Very Deep Convolutional Networks for Large-Scale Image Recognition" ICLR 2015

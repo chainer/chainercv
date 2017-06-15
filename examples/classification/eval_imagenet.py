@@ -36,6 +36,8 @@ def main():
     parser = argparse.ArgumentParser(
         description='Learning convnet from ILSVRC2012 dataset')
     parser.add_argument('val', help='Path to root of the validation dataset')
+    parser.add_argument(
+        '--model', choices=('vgg16'))
     parser.add_argument('--pretrained_model')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
@@ -46,10 +48,11 @@ def main():
         dataset, args.batchsize, repeat=False, shuffle=False,
         n_processes=6, shared_mem=300000000)
 
-    if args.pretrained_model:
-        model = VGG16Layers(pretrained_model=args.pretrained_model)
-    else:
-        model = VGG16Layers(pretrained_model='imagenet')
+    if args.model == 'vgg16':
+        if args.pretrained_model:
+            model = VGG16Layers(pretrained_model=args.pretrained_model)
+        else:
+            model = VGG16Layers(pretrained_model='imagenet')
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
