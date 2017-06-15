@@ -5,8 +5,8 @@ import collections
 import numpy as np
 
 import chainer
-import chainer.functions as F
 from chainer import cuda
+import chainer.functions as F
 from chainer.initializers import constant
 from chainer.initializers import normal
 import chainer.links as L
@@ -42,9 +42,6 @@ class VGG16Layers(chainer.Chain):
         at `Model Zoo \
         <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_.
 
-    If :obj:`feature` is not :math:`fc8` or :math:`prob`,
-    both :obj:`n_class` and :obj:`pretrained_model` can be :obj:`None`.
-
     Args:
         pretrained_model (str): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
@@ -54,7 +51,7 @@ class VGG16Layers(chainer.Chain):
             where :obj:`$CHAINER_DATASET_ROOT` is set as
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
-        n_class (int): The number of classes to predict when classifying.
+        n_class (int): The dimension of the output of fc8.
         feature (str): The name of the feature to output with
             :meth:`__call__` and :meth:`predict`.
         initialW (callable): Initializer for the weights.
@@ -80,7 +77,7 @@ class VGG16Layers(chainer.Chain):
                  mean=_imagenet_mean, do_ten_crop=True):
         if n_class is None:
             if pretrained_model is None and feature not in ['fc8', 'prob']:
-                # The fc8 weight will not be used.
+                # fc8 layer is not used in this case.
                 n_class = 1
             elif pretrained_model not in self._models:
                 raise ValueError(
@@ -110,79 +107,76 @@ class VGG16Layers(chainer.Chain):
 
         super(VGG16Layers, self).__init__()
 
+        links = {
+            'conv1_1': L.Convolution2D(3, 64, 3, 1, 1, **kwargs),
+            'conv1_2': L.Convolution2D(64, 64, 3, 1, 1, **kwargs),
+            'conv2_1': L.Convolution2D(64, 128, 3, 1, 1, **kwargs),
+            'conv2_2': L.Convolution2D(128, 128, 3, 1, 1, **kwargs),
+            'conv3_1': L.Convolution2D(128, 256, 3, 1, 1, **kwargs),
+            'conv3_2': L.Convolution2D(256, 256, 3, 1, 1, **kwargs),
+            'conv3_3': L.Convolution2D(256, 256, 3, 1, 1, **kwargs),
+            'conv4_1': L.Convolution2D(256, 512, 3, 1, 1, **kwargs),
+            'conv4_2': L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
+            'conv4_3': L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
+            'conv5_1': L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
+            'conv5_2': L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
+            'conv5_3': L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
+            'fc6': L.Linear(512 * 7 * 7, 4096, **kwargs),
+            'fc7': L.Linear(4096, 4096, **kwargs),
+            'fc8': L.Linear(4096, n_class, **kwargs)
+        }
+
         with self.init_scope():
-            self.conv1_1 = L.Convolution2D(3, 64, 3, 1, 1, **kwargs)
-            self.conv1_2 = L.Convolution2D(64, 64, 3, 1, 1, **kwargs)
-            self.conv2_1 = L.Convolution2D(64, 128, 3, 1, 1, **kwargs)
-            self.conv2_2 = L.Convolution2D(128, 128, 3, 1, 1, **kwargs)
-            self.conv3_1 = L.Convolution2D(128, 256, 3, 1, 1, **kwargs)
-            self.conv3_2 = L.Convolution2D(256, 256, 3, 1, 1, **kwargs)
-            self.conv3_3 = L.Convolution2D(256, 256, 3, 1, 1, **kwargs)
-            self.conv4_1 = L.Convolution2D(256, 512, 3, 1, 1, **kwargs)
-            self.conv4_2 = L.Convolution2D(512, 512, 3, 1, 1, **kwargs)
-            self.conv4_3 = L.Convolution2D(512, 512, 3, 1, 1, **kwargs)
-            self.conv5_1 = L.Convolution2D(512, 512, 3, 1, 1, **kwargs)
-            self.conv5_2 = L.Convolution2D(512, 512, 3, 1, 1, **kwargs)
-            self.conv5_3 = L.Convolution2D(512, 512, 3, 1, 1, **kwargs)
-            self.fc6 = L.Linear(512 * 7 * 7, 4096, **kwargs)
-            self.fc7 = L.Linear(4096, 4096, **kwargs)
-            self.fc8 = L.Linear(4096, n_class, **kwargs)
+            for name, link in links.items():
+                if name in self.functions:
+                    setattr(self, name, link)
 
         if pretrained_model in self._models:
             path = download_model(self._models[pretrained_model]['url'])
             chainer.serializers.load_npz(path, self)
-        elif pretrained_model == 'imagenet':
-            self._copy_imagenet_pretrained_vgg16()
         elif pretrained_model:
             chainer.serializers.load_npz(pretrained_model, self)
 
-        # Links can be safely removed because parameters in these links
-        # are guaranteed to not be in a computational graph.
-        names = [child.name for child in self.children()]
-        functions = self.functions
-        for name in names:
-            if name not in functions:
-                delattr(self, name)
-                # Since self.functions access self.name, it needs a value.
-                setattr(self, name, None)
-
     @property
     def functions(self):
-        default_funcs = collections.OrderedDict([
-            ('conv1_1', [self.conv1_1, F.relu]),
-            ('conv1_2', [self.conv1_2, F.relu]),
+        def _getattr(name):
+            return getattr(self, name, None)
+
+        funcs = collections.OrderedDict([
+            ('conv1_1', [_getattr('conv1_1'), F.relu]),
+            ('conv1_2', [_getattr('conv1_2'), F.relu]),
             ('pool1', [_max_pooling_2d]),
-            ('conv2_1', [self.conv2_1, F.relu]),
-            ('conv2_2', [self.conv2_2, F.relu]),
+            ('conv2_1', [_getattr('conv2_1'), F.relu]),
+            ('conv2_2', [_getattr('conv2_2'), F.relu]),
             ('pool2', [_max_pooling_2d]),
-            ('conv3_1', [self.conv3_1, F.relu]),
-            ('conv3_2', [self.conv3_2, F.relu]),
-            ('conv3_3', [self.conv3_3, F.relu]),
+            ('conv3_1', [_getattr('conv3_1'), F.relu]),
+            ('conv3_2', [_getattr('conv3_2'), F.relu]),
+            ('conv3_3', [_getattr('conv3_3'), F.relu]),
             ('pool3', [_max_pooling_2d]),
-            ('conv4_1', [self.conv4_1, F.relu]),
-            ('conv4_2', [self.conv4_2, F.relu]),
-            ('conv4_3', [self.conv4_3, F.relu]),
+            ('conv4_1', [_getattr('conv4_1'), F.relu]),
+            ('conv4_2', [_getattr('conv4_2'), F.relu]),
+            ('conv4_3', [_getattr('conv4_3'), F.relu]),
             ('pool4', [_max_pooling_2d]),
-            ('conv5_1', [self.conv5_1, F.relu]),
-            ('conv5_2', [self.conv5_2, F.relu]),
-            ('conv5_3', [self.conv5_3, F.relu]),
+            ('conv5_1', [_getattr('conv5_1'), F.relu]),
+            ('conv5_2', [_getattr('conv5_2'), F.relu]),
+            ('conv5_3', [_getattr('conv5_3'), F.relu]),
             ('pool5', [_max_pooling_2d]),
-            ('fc6', [self.fc6, F.relu, F.dropout]),
-            ('fc7', [self.fc7, F.relu, F.dropout]),
-            ('fc8', [self.fc8]),
+            ('fc6', [_getattr('fc6'), F.relu, F.dropout]),
+            ('fc7', [_getattr('fc7'), F.relu, F.dropout]),
+            ('fc8', [_getattr('fc8')]),
             ('prob', [F.softmax]),
         ])
-        if self._feature not in default_funcs:
+        if self._feature not in funcs:
             raise ValueError('`feature` shuold be one of '
-                             '{}.'.format(default_funcs.keys()))
+                             '{}.'.format(funcs.keys()))
         pop_funcs = False
-        for name in default_funcs.keys():
+        for name in funcs.keys():
             if pop_funcs:
-                default_funcs.pop(name)
+                funcs.pop(name)
 
             if name == self._feature:
                 pop_funcs = True
-        return default_funcs
+        return funcs
 
     def __call__(self, x):
         """Fowrard VGG16.
@@ -243,7 +237,8 @@ class VGG16Layers(chainer.Chain):
             A batch of features. It is selected by :obj:`self._feature`.
 
         """
-        if self.do_ten_crop and self._feature not in ['fc6', 'fc7', 'fc8', 'prob']:
+        if (self.do_ten_crop and
+                self._feature not in ['fc6', 'fc7', 'fc8', 'prob']):
             raise ValueError
 
         imgs = [self._prepare(img) for img in imgs]

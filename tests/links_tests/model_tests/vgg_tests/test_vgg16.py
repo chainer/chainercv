@@ -73,7 +73,9 @@ class TestVGG16LayersCopy(unittest.TestCase):
 
     def setUp(self):
         self.link = VGG16Layers(pretrained_model=None, n_class=200,
-                                initialW=Zero(), initial_bias=Zero())
+                                feature='conv2_2',
+                                initialW=Zero(), initial_bias=Zero(),
+                                )
 
     def check_copy(self):
         copied = self.link.copy()
@@ -95,12 +97,12 @@ class TestVGG16LayersFeatureOption(unittest.TestCase):
                                 initialW=Zero(), initial_bias=Zero())
 
     def check_feature_option(self):
-        self.assertTrue(self.link.conv5_1 is None)
-        self.assertTrue(self.link.conv5_2 is None)
-        self.assertTrue(self.link.conv5_3 is None)
-        self.assertTrue(self.link.fc6 is None)
-        self.assertTrue(self.link.fc7 is None)
-        self.assertTrue(self.link.fc8 is None)
+        self.assertTrue(not hasattr(self.link, 'conv5_1'))
+        self.assertTrue(not hasattr(self.link, 'conv5_2'))
+        self.assertTrue(not hasattr(self.link, 'conv5_3'))
+        self.assertTrue(not hasattr(self.link, 'fc6'))
+        self.assertTrue(not hasattr(self.link, 'fc7'))
+        self.assertTrue(not hasattr(self.link, 'fc8'))
 
         self.assertFalse('conv5_1' in self.link.functions)
         self.assertFalse('conv5_2' in self.link.functions)
