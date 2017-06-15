@@ -42,6 +42,9 @@ class VGG16Layers(chainer.Chain):
         at `Model Zoo \
         <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_.
 
+    If :obj:`feature` is not :math:`fc8` or :math:`prob`,
+    both :obj:`n_class` and :obj:`pretrained_model` can be :obj:`None`.
+
     Args:
         pretrained_model (str): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
@@ -81,7 +84,7 @@ class VGG16Layers(chainer.Chain):
                 n_class = 1
             elif pretrained_model not in self._models:
                 raise ValueError(
-                    'The n_class needs to be supplied as an argument')
+                    'The n_class needs to be supplied as an argument.')
             else:
                 n_class = self._models[pretrained_model]['n_class']
 
