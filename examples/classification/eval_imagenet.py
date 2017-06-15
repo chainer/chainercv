@@ -60,6 +60,7 @@ def main():
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
 
+    print('Model has been prepared. Evaluation starts.')
     imgs, pred_values, gt_values = apply_prediction_to_iterator(
         model.predict, iterator, hook=ProgressHook(len(dataset)))
     del imgs
