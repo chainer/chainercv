@@ -227,7 +227,7 @@ class VGG16Layers(chainer.Chain):
 
         When using patches from ten-crop, the features for each crop
         is averaged to compute one feature.
-        Ten-crop only supports calculation of features
+        Ten-crop mode is only supported for calculation of features
         :math:`fc6, fc7, fc8, prob`.
 
         Given :math:`N` input images, this outputs a batched array with
