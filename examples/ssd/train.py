@@ -15,10 +15,34 @@ from chainercv.datasets import VOCDetectionDataset
 from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links.model.ssd import ConcatenatedDataset
 from chainercv.links.model.ssd import GradientScaling
-from chainercv.links.model.ssd import MultiboxTrainChain
-from chainercv.links.model.ssd import random_transform
+from chainercv.links.model.ssd import multibox_loss
 from chainercv.links import SSD300
 from chainercv import transforms
+
+from chainercv.links.model.ssd import crop_bbox
+from chainercv.links.model.ssd import random_crop_with_bbox
+from chainercv.links.model.ssd import random_distort
+from chainercv.links.model.ssd import resize_with_random_interpolation
+
+
+class MultiboxTrainChain(chainer.Chain):
+
+    def __init__(self, model, alpha=1, k=3):
+        super(MultiboxTrainChain, self).__init__(model=model)
+        self.alpha = alpha
+        self.k = k
+
+    def __call__(self, imgs, gt_mb_locs, gt_mb_labels):
+        mb_locs, mb_confs = self.model(imgs)
+        loc_loss, conf_loss = multibox_loss(
+            mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, self.k)
+        loss = loc_loss * self.alpha + conf_loss
+
+        chainer.reporter.report(
+            {'loss': loss, 'loss/loc': loc_loss, 'loss/conf': conf_loss},
+            self)
+
+        return loss
 
 
 def main():
@@ -45,7 +69,30 @@ def main():
 
     def transform(in_data):
         img, bbox, label = in_data
-        img, bbox, label = random_transform(img, bbox, label, size, mean)
+
+        img = random_distort(img)
+
+        if np.random.randing(2):
+            img, param = transforms.random_expand(
+                img, fill=mean, return_param=True)
+            bbox = transforms.translate_bbox(
+                bbox, y_offset=param['y_offset'], x_offset=param['x_offset'])
+
+        img, param = random_crop_with_bbox(img, bbox, return_param=True)
+        bbox, param = crop_bbox(
+            bbox, y_slice=param['y_slice'], x_slice=param['x_slice'],
+            contain_center_only=True, return_param=True)
+        label = label[param['mask']]
+
+        _, H, W = img.shape
+        img = resize_with_random_interpolation(img, (size, size))
+        bbox = transforms.resize_bbox(bbox, (H, W), (size, size))
+
+        img, params = transforms.random_flip(
+            img, x_random=True, return_param=True)
+        bbox = transforms.flip_bbox(
+            bbox, (size, size), x_flip=params['x_flip'])
+
         img -= np.array(mean)[:, np.newaxis, np.newaxis]
         mb_loc, mb_label = coder.encode(
             transforms.resize_bbox(bbox, (size, size), (1, 1)), label)

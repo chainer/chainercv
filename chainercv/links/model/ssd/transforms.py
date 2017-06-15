@@ -4,11 +4,10 @@ import numpy as np
 import random
 import six
 
-from chainercv import transforms
 from chainercv import utils
 
 
-def _random_distort(img):
+def random_distort(img):
     import cv2
 
     cv_img = img[::-1].transpose(1, 2, 0).astype(np.uint8)
@@ -63,24 +62,28 @@ def _random_distort(img):
     return cv_img.astype(np.float32).transpose(2, 0, 1)[::-1]
 
 
-def _random_crop(img, bbox, label):
-    if len(bbox) == 0:
-        return img, bbox, label
+def random_crop_with_bbox(
+        img, bbox, scale=(0.3, 1), max_aspect_ratio=2, constraints=None,
+        max_trial=50, return_param=False):
 
-    constraints = (
-        (0.1, None),
-        (0.3, None),
-        (0.5, None),
-        (0.7, None),
-        (0.9, None),
-        (None, 1),
-    )
-
-    max_trial = 50
+    if constraints is None:
+        constraints = (
+            (0.1, None),
+            (0.3, None),
+            (0.5, None),
+            (0.7, None),
+            (0.9, None),
+            (None, 1),
+        )
 
     _, H, W = img.shape
+    params = [{
+        'constraint': None, 'scale': 1, 'aspect_ratio': 1,
+        'y_slice': slice(0, H), 'x_slice': slice(0, W)}]
 
-    crop_bbox = [np.array((0, 0, H, W))]
+    if len(bbox) == 0:
+        constraints = list()
+
     for iou_min, iou_max in constraints:
         if iou_min is None:
             iou_min = 0
@@ -90,7 +93,8 @@ def _random_crop(img, bbox, label):
         for _ in six.moves.range(max_trial):
             scale = random.uniform(0.3, 1)
             aspect_ratio = random.uniform(
-                max(1 / 2, scale * scale), min(2, 1 / (scale * scale)))
+                max(1 / max_aspect_ratio, scale * scale),
+                min(2, 1 / (scale * scale)))
             crop_h = int(H * scale / np.sqrt(aspect_ratio))
             crop_w = int(W * scale * np.sqrt(aspect_ratio))
 
@@ -101,28 +105,67 @@ def _random_crop(img, bbox, label):
 
             iou = utils.bbox_iou(bbox, crop_bb[np.newaxis])
             if iou_min <= iou.min() and iou.max() <= iou_max:
-                crop_bbox.append(crop_bb)
+                params.append({
+                    'constraint': (iou_min, iou_max),
+                    'scale': scale, 'aspect_ratio': aspect_ratio,
+                    'y_slice': slice(crop_t, crop_t + crop_h),
+                    'x_slice': slice(crop_l, crop_l + crop_w)})
                 break
 
-    crop_bb = random.choice(crop_bbox)
+    param = random.choice(params)
+    img = img[:, param['y_slice'], param['x_slice']]
 
-    img = img[:, crop_bb[0]:crop_bb[2], crop_bb[1]:crop_bb[3]]
+    if return_param:
+        return img, param
+    else:
+        return img
 
-    center = (bbox[:, :2] + bbox[:, 2:]) / 2
-    mask = np.logical_and(crop_bb[:2] < center, center < crop_bb[2:]) \
-             .all(axis=1)
-    bbox = bbox[mask].copy()
-    label = label[mask]
 
+def crop_bbox(
+        bbox, y_slice=None, x_slice=None,
+        contain_center_only=False, return_param=False):
+
+    def parse_slice(slice_):
+        if slice_ is None:
+            return -np.inf, np.inf
+
+        if slice_.start is None:
+            l = -np.inf
+        else:
+            l = slice_.start
+        if slice_.stop is None:
+            u = np.inf
+        else:
+            u = slice_.stop
+        return l, u
+
+    t, b = parse_slice(y_slice)
+    l, r = parse_slice(x_slice)
+    crop_bb = np.array((t, l, b, r))
+
+    if contain_center_only:
+        center = (bbox[:, :2] + bbox[:, 2:]) / 2
+        mask = np.logical_and(crop_bb[:2] < center, center < crop_bb[2:]) \
+                 .all(axis=1)
+    else:
+        mask = np.ones(bbox.shape[0], dtype=bool)
+
+    bbox = bbox.copy()
     bbox[:, :2] = np.maximum(bbox[:, :2], crop_bb[:2])
-    bbox[:, :2] -= crop_bb[:2]
     bbox[:, 2:] = np.minimum(bbox[:, 2:], crop_bb[2:])
+    bbox[:, :2] -= crop_bb[:2]
     bbox[:, 2:] -= crop_bb[:2]
 
-    return img, bbox, label
+    mask = np.logical_and(mask, (bbox[:, :2] < bbox[:, 2:]).all(axis=1))
+    bbox = bbox[mask]
+
+    if return_param:
+        return bbox, {'mask': mask}
+    else:
+        return bbox
 
 
-def _random_resize(img, size):
+def resize_with_random_interpolation(img, size, return_param=False):
     import cv2
 
     cv_img = img[::-1].transpose(1, 2, 0)
@@ -137,27 +180,9 @@ def _random_resize(img, size):
     inter = random.choice(inters)
     cv_img = cv2.resize(cv_img, size, interpolation=inter)
 
-    return cv_img.astype(np.float32).transpose(2, 0, 1)[::-1]
+    img = cv_img.astype(np.float32).transpose(2, 0, 1)[::-1]
 
-
-def random_transform(img, bbox, label, size, mean):
-    img = _random_distort(img)
-
-    if random.randrange(2):
-        img, param = transforms.random_expand(
-            img, fill=mean, return_param=True)
-        bbox = transforms.translate_bbox(
-            bbox, y_offset=param['y_offset'], x_offset=param['x_offset'])
-
-    img, bbox, label = _random_crop(img, bbox, label)
-
-    _, H, W = img.shape
-    img = _random_resize(img, (size, size))
-    bbox = transforms.resize_bbox(bbox, (H, W), (size, size))
-
-    img, params = transforms.random_flip(
-        img, x_random=True, return_param=True)
-    bbox = transforms.flip_bbox(
-        bbox, (size, size), x_flip=params['x_flip'])
-
-    return img, bbox, label
+    if return_param:
+        return img, {'interpolation': inter}
+    else:
+        return img
