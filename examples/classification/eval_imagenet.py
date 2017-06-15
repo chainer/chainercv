@@ -1,16 +1,12 @@
 import argparse
-import random
 import sys
 import time
 
 import numpy as np
 
 import chainer
-import chainer.links as L
 import chainer.functions as F
 from chainer import iterators
-from chainer import training
-from chainer.training import extensions
 
 from chainercv.datasets import ImageFolderDataset
 from chainercv.links import VGG16Layers
@@ -49,7 +45,6 @@ def main():
     iterator = iterators.MultiprocessIterator(
         dataset, args.batchsize, repeat=False, shuffle=False,
         n_processes=6, shared_mem=300000000)
-
 
     if args.pretrained_model:
         model = VGG16Layers(pretrained_model=args.pretrained_model)
