@@ -23,13 +23,50 @@ _imagenet_mean = np.array(
 
 class VGG16Layers(chainer.Chain):
 
+    """VGG16 Network for classification and feature extraction.
+
+    This model can be used for both classification task and feature extraction.
+    The network can choose to output features from set of all
+    intermediate and final features produced by the original architecture.
+
+    When :obj:`pretrained_model` is thepath of a pre-trained chainer model
+    serialized as a :obj:`.npz` file in the constructor, this chain model
+    automatically initializes all the parameters with it.
+    When a string in the prespecified set is provided, a pretrained model is
+    loaded from weights distributed on the Internet.
+    The list of pretrained models supported are as follows:
+
+    * :obj:`imagenet`: Loads weights trained with ImageNet and distributed \
+        at `Model Zoo \
+        <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_.
+
+    Args:
+        pretrained_model (str): The destination of the pre-trained
+            chainer model serialized as a :obj:`.npz` file.
+            If this is one of the strings described
+            above, it automatically loads weights stored under a directory
+            :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/models/`,
+            where :obj:`$CHAINER_DATASET_ROOT` is set as
+            :obj:`$HOME/.chainer/dataset` unless you specify another value
+            by modifying the environment variable.
+        feature (str): The name of the feature to output with
+            :meth:`__call__` and :meth:`predict`.
+        initialW (callable): Initializer for the weights.
+        initial_bias (callable): Initializer for the biases.
+        mean (numpy.ndarray): A value to be subtracted from an image
+            in :meth:`_prepare`.
+        do_ten_crop (bool): If :obj:`True`, it averages results across
+            center, corners, and mirrors in :meth:`predict`. Otherwise, it uses
+            only the center.
+
+    """
+
     def __init__(self, pretrained_model='auto', feature='prob',
                  initialW=None, initial_bias=None,
-                 mean=_imagenet_mean, do_ten_crop=False):
+                 mean=_imagenet_mean, do_ten_crop=True):
         self.mean = mean
         self.do_ten_crop = do_ten_crop
-        if do_ten_crop and feature not in ['fc6', 'fc7', 'fc8', 'prob']:
-            raise ValueError
+        self._feature = feature
 
         if pretrained_model:
             # As a sampling process is time-consuming,
@@ -66,7 +103,6 @@ class VGG16Layers(chainer.Chain):
             self.fc6 = L.Linear(512 * 7 * 7, 4096, **kwargs)
             self.fc7 = L.Linear(4096, 4096, **kwargs)
             self.fc8 = L.Linear(4096, 1000, **kwargs)
-        self.feature = feature
 
         if pretrained_model:
             chainer.serializers.load_npz(pretrained_model, self)
@@ -107,19 +143,29 @@ class VGG16Layers(chainer.Chain):
             ('fc8', [self.fc8]),
             ('prob', [F.softmax]),
         ])
-        if self.feature not in default_funcs:
-            raise ValueError('`feature` shuold be one of the keys of '
-                             'VGG16Layers.functions.')
+        if self._feature not in default_funcs:
+            raise ValueError('`feature` shuold be one of '
+                             '{}.'.format(default_funcs.keys()))
         pop_funcs = False
         for name in default_funcs.keys():
             if pop_funcs:
                 default_funcs.pop(name)
 
-            if name == self.feature:
+            if name == self._feature:
                 pop_funcs = True
         return default_funcs
 
     def __call__(self, x):
+        """Fowrard VGG16.
+
+        Args:
+            x (~chainer.Variable): Batch of image variables.
+
+        Returns:
+            ~chainer.Variable:
+            A batch of features. It is selected by :obj:`self._feature`.
+
+        """
         h = x
         for funcs in self.functions.values():
             for func in funcs:
@@ -130,34 +176,47 @@ class VGG16Layers(chainer.Chain):
         """Transform an image to the input for VGG network.
 
         Args:
-            img (numpy.ndarray)
+            img (~numpy.ndarray): An image. This is in CHW and RGB format.
+                The range of its value is :math:`[0, 255]`.
 
         Returns:
-            numpy.ndarray: The transformed image.
+            ~numpy.ndarray:
+            A preprocessed image.
 
         """
-
         img = scale(img, size=256)
         img = img - self.mean
 
         return img
 
     def predict(self, imgs):
-        """Compute class probabilities of given images.
+        """Predict features from images.
+
+        When :obj:`self.do_ten_crop == True`, this extracts features from
+        patches that are ten-cropped from images.
+        Otherwise, this extracts features from center-crop of the images.
+
+        When using patches from ten-crop, the features for each crop
+        is averaged to compute one feature.
+        Ten-crop only supports calculation of features
+        :math:`fc6, fc7, fc8, prob`.
+
+        Given :math:`N` input images, this outputs a batched array with
+        batchsize :math:`N`.
 
         Args:
             imgs (iterable of numpy.ndarray): Array-images.
                 All images are in CHW and RGB format
                 and the range of their value is :math:`[0, 255]`.
-            do_ten_crop (bool): If :obj:`True`, it averages results across
-                center, corners, and mirrors. Otherwise, it uses only the
-                center.
 
         Returns:
             numpy.ndarray:
-            A batch of arrays containing class-probabilities.
+            A batch of features. It is selected by :obj:`self._feature`.
 
         """
+        if self.do_ten_crop and self._feature not in ['fc6', 'fc7', 'fc8', 'prob']:
+            raise ValueError
+
         imgs = [self._prepare(img) for img in imgs]
         if self.do_ten_crop:
             imgs = [ten_crop(img, (224, 224)) for img in imgs]
