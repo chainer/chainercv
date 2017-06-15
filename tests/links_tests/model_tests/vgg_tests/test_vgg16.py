@@ -13,12 +13,16 @@ from chainercv.links import VGG16Layers
 _zero_init = Zero
 
 
+@testing.parameterize(
+    {'feature': 'prob', 'shape': (1, 200), 'n_class': 200},
+    {'feature': 'pool5', 'shape': (1, 512, 7, 7), 'n_class': None},
+)
 @attr.slow
 class TestVGG16LayersCall(unittest.TestCase):
 
     def setUp(self):
         self.link = VGG16Layers(
-            pretrained_model=None)
+            pretrained_model=None, n_class=self.n_class, feature=self.feature)
 
     def check_call(self):
         xp = self.link.xp
@@ -26,7 +30,7 @@ class TestVGG16LayersCall(unittest.TestCase):
         x1 = Variable(xp.asarray(np.random.uniform(
             -1, 1, (1, 3, 224, 224)).astype(np.float32)))
         y1 = self.link(x1)
-        self.assertEqual(y1.shape, (1, 1000))
+        self.assertEqual(y1.shape, self.shape)
 
     def test_call_cpu(self):
         self.check_call()
@@ -45,12 +49,14 @@ class TestVGG16LayersCall(unittest.TestCase):
 class TestVGG16LayersPredict(unittest.TestCase):
 
     def setUp(self):
-        self.link = VGG16Layers(pretrained_model=None, feature=self.feature)
+        self.link = VGG16Layers(pretrained_model=None, n_class=1000,
+                                feature=self.feature,
+                                do_ten_crop=self.do_ten_crop)
 
     def check_predict(self):
         x1 = np.random.uniform(0, 255, (3, 320, 240)).astype(np.float32)
         x2 = np.random.uniform(0, 255, (3, 320, 240)).astype(np.float32)
-        out = self.link.predict([x1, x2], do_ten_crop=self.do_ten_crop)
+        out = self.link.predict([x1, x2])
         self.assertEqual(out.shape, self.shape)
         self.assertEqual(out.dtype, np.float32)
 
@@ -66,7 +72,7 @@ class TestVGG16LayersPredict(unittest.TestCase):
 class TestVGG16LayersCopy(unittest.TestCase):
 
     def setUp(self):
-        self.link = VGG16Layers(pretrained_model=None,
+        self.link = VGG16Layers(pretrained_model=None, n_class=200,
                                 initialW=Zero(), initial_bias=Zero())
 
     def check_copy(self):
