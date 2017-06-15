@@ -4,7 +4,7 @@ from chainer.links import VGG16Layers as VGG16Layers_chainer
 from chainercv.links import VGG16Layers as VGG16Layers_cv
 
 
-if __name__ == '__main__':
+def main():
     chainer_model = VGG16Layers_chainer()
     cv_model = VGG16Layers_cv(pretrained_model=None, n_class=1000)
 
@@ -31,3 +31,7 @@ if __name__ == '__main__':
     cv_model.fc8.copyparams(chainer_model.fc8)
 
     chainer.serializers.save_npz('vgg_from_caffe.npz', cv_model)
+
+
+if __name__ == '__main__':
+    main()
