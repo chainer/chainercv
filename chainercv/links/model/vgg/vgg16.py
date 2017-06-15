@@ -15,6 +15,8 @@ from chainercv.transforms import center_crop
 from chainercv.transforms import scale
 from chainercv.transforms import ten_crop
 
+from chainercv.utils import download_model
+
 
 # RGB order
 _imagenet_mean = np.array(
@@ -49,6 +51,7 @@ class VGG16Layers(chainer.Chain):
             where :obj:`$CHAINER_DATASET_ROOT` is set as
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
+        n_class (int): The number of classes to predict when classifying.
         feature (str): The name of the feature to output with
             :meth:`__call__` and :meth:`predict`.
         initialW (callable): Initializer for the weights.
@@ -57,13 +60,31 @@ class VGG16Layers(chainer.Chain):
             in :meth:`_prepare`.
         do_ten_crop (bool): If :obj:`True`, it averages results across
             center, corners, and mirrors in :meth:`predict`. Otherwise, it uses
-            only the center.
+            only the center. The default value is :obj:`True`.
 
     """
 
-    def __init__(self, pretrained_model='auto', feature='prob',
-                 initialW=None, initial_bias=None,
+    _models = {
+        'imagenet': {
+            'n_class': 1000,
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.3/vgg16_imagenet_convert_2017_06_15.npz'
+        }
+    }
+
+    def __init__(self, pretrained_model=None, n_class=None,
+                 feature='prob', initialW=None, initial_bias=None,
                  mean=_imagenet_mean, do_ten_crop=True):
+        if n_class is None:
+            if pretrained_model is None and feature not in ['fc8', 'prob']:
+                # The fc8 weight will not be used.
+                n_class = 1
+            elif pretrained_model not in self._models:
+                raise ValueError(
+                    'The n_class needs to be supplied as an argument')
+            else:
+                n_class = self._models[pretrained_model]['n_class']
+
         self.mean = mean
         self.do_ten_crop = do_ten_crop
         self._feature = feature
@@ -102,9 +123,14 @@ class VGG16Layers(chainer.Chain):
             self.conv5_3 = L.Convolution2D(512, 512, 3, 1, 1, **kwargs)
             self.fc6 = L.Linear(512 * 7 * 7, 4096, **kwargs)
             self.fc7 = L.Linear(4096, 4096, **kwargs)
-            self.fc8 = L.Linear(4096, 1000, **kwargs)
+            self.fc8 = L.Linear(4096, n_class, **kwargs)
 
-        if pretrained_model:
+        if pretrained_model in self._models:
+            path = download_model(self._models[pretrained_model]['url'])
+            chainer.serializers.load_npz(path, self)
+        elif pretrained_model == 'imagenet':
+            self._copy_imagenet_pretrained_vgg16()
+        elif pretrained_model:
             chainer.serializers.load_npz(pretrained_model, self)
 
         # Links can be safely removed because parameters in these links
