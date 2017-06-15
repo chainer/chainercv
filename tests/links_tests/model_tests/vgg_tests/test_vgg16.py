@@ -2,7 +2,6 @@ import unittest
 
 import numpy as np
 
-from chainer import cuda
 from chainer import testing
 from chainer.initializers import Zero
 from chainer.testing import attr
@@ -114,5 +113,6 @@ class TestVGG16LayersFeatureOption(unittest.TestCase):
     def test_feature_option_gpu(self):
         self.link.to_gpu()
         self.check_feature_option()
+
 
 testing.run_module(__name__, __file__)
