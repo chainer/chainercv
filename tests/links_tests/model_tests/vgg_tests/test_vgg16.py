@@ -11,23 +11,31 @@ from chainercv.links import VGG16Layers
 
 
 @testing.parameterize(
-    {'features': 'prob', 'shape': (1, 200), 'n_class': 200},
-    {'features': 'pool5', 'shape': (1, 512, 7, 7), 'n_class': None},
+    {'features': 'prob', 'shapes': (1, 200), 'n_class': 200},
+    {'features': 'pool5', 'shapes': (1, 512, 7, 7), 'n_class': None},
+    {'features': ['conv5_3', 'conv4_2'],
+     'shapes': ((1, 512, 14, 14), (1, 512, 28, 28)), 'n_class': None},
 )
 @attr.slow
 class TestVGG16LayersCall(unittest.TestCase):
 
     def setUp(self):
         self.link = VGG16Layers(
-            pretrained_model=None, n_class=self.n_class, feature=self.features)
+            pretrained_model=None, n_class=self.n_class,
+            features=self.features)
 
     def check_call(self):
         xp = self.link.xp
 
         x1 = Variable(xp.asarray(np.random.uniform(
             -1, 1, (1, 3, 224, 224)).astype(np.float32)))
-        y1 = self.link(x1)
-        self.assertEqual(y1.shape, self.shape)
+        activations = self.link(x1)
+        if isinstance(activations, tuple):
+            for activation, shape in zip(activations, self.shapes):
+                self.assertEqual(activation.shape, shape)
+        else:
+            self.assertEqual(activations.shape, self.shapes)
+            self.assertEqual(activations.dtype, np.float32)
 
     def test_call_cpu(self):
         self.check_call()
@@ -39,14 +47,13 @@ class TestVGG16LayersCall(unittest.TestCase):
 
 
 @testing.parameterize(
-    {'features': 'prob', 'shape': (2, 1000), 'do_ten_crop': False},
-    {'features': 'prob', 'shape': (2, 1000), 'do_ten_crop': True},
-    {'features': 'conv5_3', 'shape': (2, 512, 14, 14), 'do_ten_crop': False},
+    {'features': 'prob', 'shapes': (2, 1000), 'do_ten_crop': False},
+    {'features': 'prob', 'shapes': (2, 1000), 'do_ten_crop': True},
+    {'features': 'conv5_3', 'shapes': (2, 512, 14, 14), 'do_ten_crop': False},
     {'features': ['fc6', 'conv3_1'],
-     'shape': {'conv3_1': (2, 256, 56, 56), 'fc6': (2, 4096)},
-     'do_ten_crop': False},
+     'shapes': ((2, 4096), (2, 256, 56, 56)), 'do_ten_crop': False},
     {'features': ['fc6', 'fc7'],
-     'shape': {'fc6': (2, 4096), 'fc7': (2, 4096)}, 'do_ten_crop': True}
+     'shapes': ((2, 4096), (2, 4096)), 'do_ten_crop': True}
 )
 @attr.slow
 class TestVGG16LayersPredict(unittest.TestCase):
@@ -60,12 +67,11 @@ class TestVGG16LayersPredict(unittest.TestCase):
         x1 = np.random.uniform(0, 255, (3, 320, 240)).astype(np.float32)
         x2 = np.random.uniform(0, 255, (3, 320, 240)).astype(np.float32)
         activations = self.link.predict([x1, x2])
-        if isinstance(activations, dict):
-            for name in self.features:
-                self.assertEqual(activations[name].shape, self.shape[name])
-                self.assertEqual(activations[name].dtype, np.float32)
+        if isinstance(activations, tuple):
+            for activation, shape in zip(activations, self.shapes):
+                self.assertEqual(activation.shape, shape)
         else:
-            self.assertEqual(activations.shape, self.shape)
+            self.assertEqual(activations.shape, self.shapes)
             self.assertEqual(activations.dtype, np.float32)
 
     def test_predict_cpu(self):

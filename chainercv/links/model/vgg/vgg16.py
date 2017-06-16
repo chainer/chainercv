@@ -76,12 +76,12 @@ class VGG16Layers(chainer.Chain):
                  features='prob', initialW=None, initial_bias=None,
                  mean=_imagenet_mean, do_ten_crop=False):
         if isinstance(features, (list, tuple)):
-            return_dict = True
+            return_tuple = True
         else:
-            return_dict = False
+            return_tuple = False
             features = [features]
 
-        self._return_dict = return_dict
+        self._return_tuple = return_tuple
         self._features = features
         self.mean = mean
         self.do_ten_crop = do_ten_crop
@@ -211,7 +211,10 @@ class VGG16Layers(chainer.Chain):
             if name in self._features:
                 activations[name] = h
 
-        if not self._return_dict:
+        if self._return_tuple:
+            activations = tuple(
+                [activations[name] for name in activations.keys()])
+        else:
             activations = activations.values()[0]
         return activations
 
@@ -281,18 +284,20 @@ class VGG16Layers(chainer.Chain):
             imgs = chainer.Variable(imgs)
             activations = self(imgs)
 
-        if isinstance(activations, dict):
-            for name, activation in activations.items():
+        if isinstance(activations, tuple):
+            output = []
+            for activation in activations:
                 activation = activation.data
                 if self.do_ten_crop:
                     activation = self._average_ten_crop(activation)
-                activations[name] = cuda.to_cpu(activation)
+                output.append(cuda.to_cpu(activation))
+            output = tuple(output)
         else:
-            activations = cuda.to_cpu(activations.data)
+            output = cuda.to_cpu(activations.data)
             if self.do_ten_crop:
-                activations = self._average_ten_crop(activations)
+                output = self._average_ten_crop(output)
 
-        return activations
+        return output
 
 
 def _max_pooling_2d(x):
