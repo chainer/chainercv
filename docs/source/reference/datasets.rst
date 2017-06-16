@@ -4,9 +4,9 @@ Datasets
 .. module:: chainercv.datasets
 
 
-ImageFolderDataset
-------------------
-.. autofunction:: ImageFolderDataset
+DirectoryParsingClassificationDataset
+-------------------------------------
+.. autofunction:: DirectoryParsingClassificationDataset
 
 TransformDataset
 ----------------
