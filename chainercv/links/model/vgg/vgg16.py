@@ -75,7 +75,7 @@ class VGG16Layers(chainer.Chain):
     def __init__(self, pretrained_model=None, n_class=None,
                  features='prob', initialW=None, initial_bias=None,
                  mean=_imagenet_mean, do_ten_crop=False):
-        if isinstance(features, list or tuple):
+        if isinstance(features, (list, tuple)):
             return_dict = True
         else:
             return_dict = False
