@@ -70,7 +70,7 @@ def cached_download(url):
         if os.path.exists(cache_path):
             return cache_path
 
-    print('Fetching the file size of {:s} ...'.format(url))
+    print('Fetching the size of {:s} ...'.format(url))
     req = request.Request(url=url, method='HEAD')
     with request.urlopen(req) as res:
         total = int(res.getheader('Content-Length'))
