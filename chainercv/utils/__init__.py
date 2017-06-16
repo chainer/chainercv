@@ -11,5 +11,6 @@ from chainercv.utils.testing import assert_is_detection_dataset  # NOQA
 from chainercv.utils.testing import assert_is_detection_link  # NOQA
 from chainercv.utils.testing import assert_is_image  # NOQA
 from chainercv.utils.testing import assert_is_semantic_segmentation_dataset  # NOQA
+from chainercv.utils.testing import assert_is_semantic_segmentation_link  # NOQA
 from chainercv.utils.testing import ConstantStubLink  # NOQA
 from chainercv.utils.testing import generate_random_bbox  # NOQA

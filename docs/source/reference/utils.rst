@@ -75,6 +75,10 @@ assert_is_semantic_segmentation_dataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunctions:: assert_is_semantic_segmentation_dataset
 
+assert_is_semantic_segmentation_link
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunctions:: assert_is_semantic_segmentation_link
+
 ConstantStubLink
 ~~~~~~~~~~~~~~~~
 .. autoclass:: ConstantStubLink
