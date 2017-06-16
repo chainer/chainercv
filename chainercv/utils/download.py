@@ -75,7 +75,7 @@ def cached_download(url):
     with request.urlopen(req) as res:
         total = int(res.getheader('Content-Length'))
 
-    print('Downloaded file will be saved to {:s} .'.format(cache_path))
+    print('Downloaded file will be saved to {:s}.'.format(cache_path))
     print('This will be use {:.2f} MiB of the disk space.'.format(
         total / (1 << 20)))
 
