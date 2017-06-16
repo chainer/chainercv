@@ -28,6 +28,6 @@ def assert_is_bbox(bbox, size=None):
         'The coordinate of left must be less than that of right.'
 
     if size is not None:
-        assert (bbox[:, :2] >= 0).all() and (bbox[:, 2:] < size).all(),\
+        assert (bbox[:, :2] >= 0).all() and (bbox[:, 2:] <= size).all(),\
             'The coordinates of bounding boxes ' \
             'should not exceed the size of image.'
