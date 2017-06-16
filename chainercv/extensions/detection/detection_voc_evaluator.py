@@ -4,7 +4,7 @@ import numpy as np
 from chainer import reporter
 import chainer.training.extensions
 
-from chainercv.evaluations import eval_detection_voc_ap
+from chainercv.evaluations import eval_detection_voc
 from chainercv.utils import apply_prediction_to_iterator
 
 
@@ -85,17 +85,17 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
             gt_bboxes, gt_labels = gt_values
             gt_difficults = None
 
-        ap = eval_detection_voc_ap(
+        result = eval_detection_voc(
             pred_bboxes, pred_labels, pred_scores,
             gt_bboxes, gt_labels, gt_difficults,
             use_07_metric=self.use_07_metric)
 
-        report = {'map': np.nanmean(ap)}
+        report = {'map': result['map']}
 
         if self.label_names is not None:
             for l, label_name in enumerate(self.label_names):
                 try:
-                    report['ap/{:s}'.format(label_name)] = ap[l]
+                    report['ap/{:s}'.format(label_name)] = result['ap'][l]
                 except IndexError:
                     report['ap/{:s}'.format(label_name)] = np.nan
 

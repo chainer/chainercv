@@ -8,7 +8,7 @@ import six
 from chainercv.utils.bbox.bbox_iou import bbox_iou
 
 
-def eval_detection_voc_ap(
+def eval_detection_voc(
         pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
         gt_difficults=None,
         iou_thresh=0.5, use_07_metric=False):
@@ -56,12 +56,17 @@ def eval_detection_voc_ap(
             :obj:`False`.
 
     Returns:
-        ~numpy.ndarray:
-        This function returns an array of average precisions.
-        The :math:`l`-th value corresponds to the average precision
-        for class :math:`l`. If class :math:`l` does not exist in
-        either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding
-        value is set to :obj:`numpy.nan`.
+        dict:
+
+        The keys, value-types and the description of the values are listed
+        below.
+
+        * **ap** (*numpy.ndarray*): An array of average precisions. \
+            The :math:`l`-th value corresponds to the average precision \
+            for class :math:`l`. If class :math:`l` does not exist in \
+            either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding \
+            value is set to :obj:`numpy.nan`.
+        * **map** (*float*): The average of Average Precisions over classes.
 
     """
 
@@ -72,7 +77,7 @@ def eval_detection_voc_ap(
 
     ap = calc_detection_voc_ap(prec, rec, use_07_metric=use_07_metric)
 
-    return ap
+    return {'ap': ap, 'map': np.nanmean(ap)}
 
 
 def calc_detection_voc_prec_rec(
