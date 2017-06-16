@@ -27,7 +27,7 @@ class VGG16Layers(chainer.Chain):
 
     """VGG16 Network for classification and feature extraction.
 
-    This model can be used for both classification task and feature extraction.
+    This model is a feature extraction link.
     The network can choose to output features from set of all
     intermediate and final features produced by the original architecture.
 
@@ -73,10 +73,10 @@ class VGG16Layers(chainer.Chain):
     }
 
     def __init__(self, pretrained_model=None, n_class=None,
-                 feature='prob', initialW=None, initial_bias=None,
+                 features='prob', initialW=None, initial_bias=None,
                  mean=_imagenet_mean, do_ten_crop=True):
         if n_class is None:
-            if pretrained_model is None and feature not in ['fc8', 'prob']:
+            if pretrained_model is None and features not in ['fc8', 'prob']:
                 # fc8 layer is not used in this case.
                 n_class = 1
             elif pretrained_model not in self._models:
@@ -85,9 +85,16 @@ class VGG16Layers(chainer.Chain):
             else:
                 n_class = self._models[pretrained_model]['n_class']
 
+        if isinstance(features, list or tuple):
+            return_dict = True
+        else:
+            return_dict = False
+            features = [features]
+
+        self._return_dict = return_dict
+        self._features = features
         self.mean = mean
         self.do_ten_crop = do_ten_crop
-        self._feature = feature
 
         if pretrained_model:
             # As a sampling process is time-consuming,
@@ -166,16 +173,21 @@ class VGG16Layers(chainer.Chain):
             ('fc8', [_getattr('fc8')]),
             ('prob', [F.softmax]),
         ])
-        if self._feature not in funcs:
-            raise ValueError('`feature` shuold be one of '
-                             '{}.'.format(funcs.keys()))
+        for feature in self._features:
+            if feature not in funcs:
+                raise ValueError('Elements of `features` shuold be one of '
+                                 '{}.'.format(funcs.keys()))
         pop_funcs = False
+        features = list(self._features)
         for name in funcs.keys():
             if pop_funcs:
                 funcs.pop(name)
 
-            if name == self._feature:
+            if name in features:
+                features.remove(name)
+            if len(features) == 0:
                 pop_funcs = True
+
         return funcs
 
     def __call__(self, x):
@@ -189,11 +201,17 @@ class VGG16Layers(chainer.Chain):
             A batch of features. It is selected by :obj:`self._feature`.
 
         """
+        activations = {}
         h = x
-        for funcs in self.functions.values():
+        for name, funcs in self.functions.items():
             for func in funcs:
                 h = func(h)
-        return h
+            if name in self._features:
+                activations[name] = h
+
+        if not self._return_dict:
+            activations = activations.values()[0]
+        return activations
 
     def _prepare(self, img):
         """Transform an image to the input for VGG network.
@@ -250,14 +268,30 @@ class VGG16Layers(chainer.Chain):
 
         with chainer.function.no_backprop_mode():
             imgs = chainer.Variable(imgs)
-            y = self(imgs).data
+            activations = self(imgs)
 
+        if isinstance(activations, dict):
+            for name, activation in activations.items():
+                activation = activation.data
+
+                if self.do_ten_crop:
+                    activation = self._gather_ten_crop(activation)
+                activations[name] = cuda.to_cpu(activations)
+        else:
+            activations = cuda.to_cpu(activations.data)
             if self.do_ten_crop:
-                n = y.shape[0] // 10
-                y_shape = y.shape[1:]
-                y = y.reshape((n, 10) + y_shape)
-                y = self.xp.sum(y, axis=1) / 10
-        return cuda.to_cpu(y)
+                activations = self._gather_ten_crop(activations)
+
+        return activations
+
+    def _gather_ten_crop(self, y):
+        xp = chainer.cuda.get_array_module(y)
+        n = y.shape[0] // 10
+        y_shape = y.shape[1:]
+        y = y.reshape((n, 10) + y_shape)
+        y = xp.sum(y, axis=1) / 10
+        return y
+
 
 
 def _max_pooling_2d(x):
