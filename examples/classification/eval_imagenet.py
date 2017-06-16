@@ -8,7 +8,7 @@ import chainer
 import chainer.functions as F
 from chainer import iterators
 
-from chainercv.datasets import ImageFolderDataset
+from chainercv.datasets import DirectoryParsingClassificationDataset
 from chainercv.links import VGG16Layers
 
 from chainercv.utils import apply_prediction_to_iterator
@@ -43,7 +43,7 @@ def main():
     parser.add_argument('--batchsize', type=int, default=32)
     args = parser.parse_args()
 
-    dataset = ImageFolderDataset(args.val)
+    dataset = DirectoryParsingClassificationDataset(args.val)
     iterator = iterators.MultiprocessIterator(
         dataset, args.batchsize, repeat=False, shuffle=False,
         n_processes=6, shared_mem=300000000)
