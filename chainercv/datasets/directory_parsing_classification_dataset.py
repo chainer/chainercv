@@ -76,10 +76,12 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
         root (str): The root directory.
         check_img_file (callable): A function to determine
             if a file should be included in dataset.
+        color (bool): If :obj:`True`, read images as color images.
 
     """
 
-    def __init__(self, root, check_img_file=None):
+    def __init__(self, root, check_img_file=None, color=True):
+        self.color = color
         label_names = find_label_names(root)
         if check_img_file is None:
             check_img_file = _ends_with_img_ext
@@ -91,6 +93,6 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
         return len(self.img_paths)
 
     def get_example(self, i):
-        img = read_image(self.img_paths[i])
+        img = read_image(self.img_paths[i], color=self.color)
         label = self.labels[i]
         return img, label
