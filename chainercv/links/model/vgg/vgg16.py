@@ -111,7 +111,6 @@ class VGG16Layers(chainer.Chain):
                 initialW = normal.Normal(0.01)
             if initial_bias is None:
                 initial_bias = constant.Zero()
-
         kwargs = {'initialW': initialW, 'initial_bias': initial_bias}
 
         super(VGG16Layers, self).__init__()
