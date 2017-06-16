@@ -5,24 +5,21 @@ import numpy as np
 from chainer.initializers import Zero
 from chainer import testing
 from chainer.testing import attr
-from chainer.variable import Variable
+from chainer import Variable
 
 from chainercv.links import VGG16Layers
 
 
-_zero_init = Zero
-
-
 @testing.parameterize(
-    {'feature': 'prob', 'shape': (1, 200), 'n_class': 200},
-    {'feature': 'pool5', 'shape': (1, 512, 7, 7), 'n_class': None},
+    {'features': 'prob', 'shape': (1, 200), 'n_class': 200},
+    {'features': 'pool5', 'shape': (1, 512, 7, 7), 'n_class': None},
 )
 @attr.slow
 class TestVGG16LayersCall(unittest.TestCase):
 
     def setUp(self):
         self.link = VGG16Layers(
-            pretrained_model=None, n_class=self.n_class, feature=self.feature)
+            pretrained_model=None, n_class=self.n_class, feature=self.features)
 
     def check_call(self):
         xp = self.link.xp
@@ -42,24 +39,34 @@ class TestVGG16LayersCall(unittest.TestCase):
 
 
 @testing.parameterize(
-    {'feature': 'prob', 'shape': (2, 1000), 'do_ten_crop': False},
-    {'feature': 'prob', 'shape': (2, 1000), 'do_ten_crop': True},
-    {'feature': 'conv5_3', 'shape': (2, 512, 14, 14), 'do_ten_crop': False}
+    {'features': 'prob', 'shape': (2, 1000), 'do_ten_crop': False},
+    {'features': 'prob', 'shape': (2, 1000), 'do_ten_crop': True},
+    {'features': 'conv5_3', 'shape': (2, 512, 14, 14), 'do_ten_crop': False},
+    {'features': ['fc6', 'conv3_1'],
+     'shape': {'conv3_1': (2, 256, 56, 56), 'fc6': (2, 4096)},
+     'do_ten_crop': False},
+    {'features': ['fc6', 'fc7'],
+     'shape': {'fc6': (2, 4096), 'fc7': (2, 4096)}, 'do_ten_crop': True}
 )
 @attr.slow
 class TestVGG16LayersPredict(unittest.TestCase):
 
     def setUp(self):
         self.link = VGG16Layers(pretrained_model=None, n_class=1000,
-                                feature=self.feature,
+                                features=self.features,
                                 do_ten_crop=self.do_ten_crop)
 
     def check_predict(self):
         x1 = np.random.uniform(0, 255, (3, 320, 240)).astype(np.float32)
         x2 = np.random.uniform(0, 255, (3, 320, 240)).astype(np.float32)
-        out = self.link.predict([x1, x2])
-        self.assertEqual(out.shape, self.shape)
-        self.assertEqual(out.dtype, np.float32)
+        activations = self.link.predict([x1, x2])
+        if isinstance(activations, dict):
+            for name in self.features:
+                self.assertEqual(activations[name].shape, self.shape[name])
+                self.assertEqual(activations[name].dtype, np.float32)
+        else:
+            self.assertEqual(activations.shape, self.shape)
+            self.assertEqual(activations.dtype, np.float32)
 
     def test_predict_cpu(self):
         self.check_predict()
@@ -74,9 +81,8 @@ class TestVGG16LayersCopy(unittest.TestCase):
 
     def setUp(self):
         self.link = VGG16Layers(pretrained_model=None, n_class=200,
-                                feature='conv2_2',
-                                initialW=Zero(), initial_bias=Zero(),
-                                )
+                                features='conv2_2',
+                                initialW=Zero(), initial_bias=Zero())
 
     def check_copy(self):
         copied = self.link.copy()
@@ -91,29 +97,29 @@ class TestVGG16LayersCopy(unittest.TestCase):
         self.check_copy()
 
 
+@testing.parameterize(
+    {'features': 'pool4',
+     'not_attribute': ['conv5_1', 'conv5_2', 'conv5_3', 'fc6', 'fc7', 'fc8'],
+     'not_in_functions': ['conv5_1', 'conv5_2', 'conv5_3', 'pool5',
+                          'fc6', 'fc7', 'fc8', 'prob']
+     },
+    {'features': ['pool5', 'pool4'],
+     'not_attribute': ['fc6', 'fc7', 'fc8'],
+     'not_in_functions': ['fc6', 'fc7', 'fc8', 'prob']
+     }
+)
 class TestVGG16LayersFeatureOption(unittest.TestCase):
 
     def setUp(self):
-        self.link = VGG16Layers(pretrained_model=None, feature='pool4',
+        self.link = VGG16Layers(pretrained_model=None, features=self.features,
                                 initialW=Zero(), initial_bias=Zero())
 
     def check_feature_option(self):
-        self.assertTrue(not hasattr(self.link, 'conv5_1'))
-        self.assertTrue(not hasattr(self.link, 'conv5_2'))
-        self.assertTrue(not hasattr(self.link, 'conv5_3'))
-        self.assertTrue(not hasattr(self.link, 'fc6'))
-        self.assertTrue(not hasattr(self.link, 'fc7'))
-        self.assertTrue(not hasattr(self.link, 'fc8'))
+        for name in self.not_attribute:
+            self.assertTrue(not hasattr(self.link, name))
 
-        self.assertFalse('conv5_1' in self.link.functions)
-        self.assertFalse('conv5_2' in self.link.functions)
-        self.assertFalse('conv5_3' in self.link.functions)
-        self.assertFalse('pool5' in self.link.functions)
-        self.assertFalse('fc6' in self.link.functions)
-        self.assertFalse('fc7' in self.link.functions)
-        self.assertFalse('fc8' in self.link.functions)
-        self.assertFalse('prob' in self.link.functions)
-        self.assertFalse('fc8' in self.link.functions)
+        for name in self.not_in_functions:
+            self.assertFalse(name in self.link.functions)
 
     def test_feature_option_cpu(self):
         self.check_feature_option()

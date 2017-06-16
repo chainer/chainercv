@@ -52,15 +52,15 @@ class VGG16Layers(chainer.Chain):
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
         n_class (int): The dimension of the output of fc8.
-        feature (str): The name of the feature to output with
-            :meth:`__call__` and :meth:`predict`.
+        feature (str or iterable of strings): The name of the feature to output
+            with :meth:`__call__` and :meth:`predict`.
         initialW (callable): Initializer for the weights.
         initial_bias (callable): Initializer for the biases.
         mean (numpy.ndarray): A value to be subtracted from an image
             in :meth:`_prepare`.
         do_ten_crop (bool): If :obj:`True`, it averages results across
             center, corners, and mirrors in :meth:`predict`. Otherwise, it uses
-            only the center. The default value is :obj:`True`.
+            only the center. The default value is :obj:`False`.
 
     """
 
@@ -74,17 +74,7 @@ class VGG16Layers(chainer.Chain):
 
     def __init__(self, pretrained_model=None, n_class=None,
                  features='prob', initialW=None, initial_bias=None,
-                 mean=_imagenet_mean, do_ten_crop=True):
-        if n_class is None:
-            if pretrained_model is None and features not in ['fc8', 'prob']:
-                # fc8 layer is not used in this case.
-                n_class = 1
-            elif pretrained_model not in self._models:
-                raise ValueError(
-                    'The n_class needs to be supplied as an argument.')
-            else:
-                n_class = self._models[pretrained_model]['n_class']
-
+                 mean=_imagenet_mean, do_ten_crop=False):
         if isinstance(features, list or tuple):
             return_dict = True
         else:
@@ -96,6 +86,18 @@ class VGG16Layers(chainer.Chain):
         self.mean = mean
         self.do_ten_crop = do_ten_crop
 
+        if n_class is None:
+            if (pretrained_model is None and
+                    all([feature not in ['fc8', 'prob']
+                         for feature in features])):
+                # fc8 layer is not used in this case.
+                pass
+            elif pretrained_model not in self._models:
+                raise ValueError(
+                    'The n_class needs to be supplied as an argument.')
+            else:
+                n_class = self._models[pretrained_model]['n_class']
+
         if pretrained_model:
             # As a sampling process is time-consuming,
             # we employ a zero initializer for faster computation.
@@ -104,7 +106,7 @@ class VGG16Layers(chainer.Chain):
             if initial_bias is None:
                 initial_bias = constant.Zero()
         else:
-            # employ default initializers used in the original paper
+            # Employ default initializers used in the original paper.
             if initialW is None:
                 initialW = normal.Normal(0.01)
             if initial_bias is None:
@@ -115,28 +117,28 @@ class VGG16Layers(chainer.Chain):
         super(VGG16Layers, self).__init__()
 
         links = {
-            'conv1_1': L.Convolution2D(3, 64, 3, 1, 1, **kwargs),
-            'conv1_2': L.Convolution2D(64, 64, 3, 1, 1, **kwargs),
-            'conv2_1': L.Convolution2D(64, 128, 3, 1, 1, **kwargs),
-            'conv2_2': L.Convolution2D(128, 128, 3, 1, 1, **kwargs),
-            'conv3_1': L.Convolution2D(128, 256, 3, 1, 1, **kwargs),
-            'conv3_2': L.Convolution2D(256, 256, 3, 1, 1, **kwargs),
-            'conv3_3': L.Convolution2D(256, 256, 3, 1, 1, **kwargs),
-            'conv4_1': L.Convolution2D(256, 512, 3, 1, 1, **kwargs),
-            'conv4_2': L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
-            'conv4_3': L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
-            'conv5_1': L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
-            'conv5_2': L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
-            'conv5_3': L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
-            'fc6': L.Linear(512 * 7 * 7, 4096, **kwargs),
-            'fc7': L.Linear(4096, 4096, **kwargs),
-            'fc8': L.Linear(4096, n_class, **kwargs)
+            'conv1_1': lambda: L.Convolution2D(3, 64, 3, 1, 1, **kwargs),
+            'conv1_2': lambda: L.Convolution2D(64, 64, 3, 1, 1, **kwargs),
+            'conv2_1': lambda: L.Convolution2D(64, 128, 3, 1, 1, **kwargs),
+            'conv2_2': lambda: L.Convolution2D(128, 128, 3, 1, 1, **kwargs),
+            'conv3_1': lambda: L.Convolution2D(128, 256, 3, 1, 1, **kwargs),
+            'conv3_2': lambda: L.Convolution2D(256, 256, 3, 1, 1, **kwargs),
+            'conv3_3': lambda: L.Convolution2D(256, 256, 3, 1, 1, **kwargs),
+            'conv4_1': lambda: L.Convolution2D(256, 512, 3, 1, 1, **kwargs),
+            'conv4_2': lambda: L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
+            'conv4_3': lambda: L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
+            'conv5_1': lambda: L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
+            'conv5_2': lambda: L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
+            'conv5_3': lambda: L.Convolution2D(512, 512, 3, 1, 1, **kwargs),
+            'fc6': lambda: L.Linear(512 * 7 * 7, 4096, **kwargs),
+            'fc7': lambda: L.Linear(4096, 4096, **kwargs),
+            'fc8': lambda: L.Linear(4096, n_class, **kwargs)
         }
 
         with self.init_scope():
-            for name, link in links.items():
+            for name, gen_link in links.items():
                 if name in self.functions:
-                    setattr(self, name, link)
+                    setattr(self, name, gen_link())
 
         if pretrained_model in self._models:
             path = download_model(self._models[pretrained_model]['url'])
@@ -177,6 +179,8 @@ class VGG16Layers(chainer.Chain):
             if feature not in funcs:
                 raise ValueError('Elements of `features` shuold be one of '
                                  '{}.'.format(funcs.keys()))
+
+        # Remove all functions that are not necessary.
         pop_funcs = False
         features = list(self._features)
         for name in funcs.keys():
@@ -230,6 +234,14 @@ class VGG16Layers(chainer.Chain):
 
         return img
 
+    def _average_ten_crop(self, y):
+        xp = chainer.cuda.get_array_module(y)
+        n = y.shape[0] // 10
+        y_shape = y.shape[1:]
+        y = y.reshape((n, 10) + y_shape)
+        y = xp.sum(y, axis=1) / 10
+        return y
+
     def predict(self, imgs):
         """Predict features from images.
 
@@ -256,7 +268,8 @@ class VGG16Layers(chainer.Chain):
 
         """
         if (self.do_ten_crop and
-                self._feature not in ['fc6', 'fc7', 'fc8', 'prob']):
+                any([feature not in ['fc6', 'fc7', 'fc8', 'prob']
+                     for feature in self._features])):
             raise ValueError
 
         imgs = [self._prepare(img) for img in imgs]
@@ -273,25 +286,15 @@ class VGG16Layers(chainer.Chain):
         if isinstance(activations, dict):
             for name, activation in activations.items():
                 activation = activation.data
-
                 if self.do_ten_crop:
-                    activation = self._gather_ten_crop(activation)
-                activations[name] = cuda.to_cpu(activations)
+                    activation = self._average_ten_crop(activation)
+                activations[name] = cuda.to_cpu(activation)
         else:
             activations = cuda.to_cpu(activations.data)
             if self.do_ten_crop:
-                activations = self._gather_ten_crop(activations)
+                activations = self._average_ten_crop(activations)
 
         return activations
-
-    def _gather_ten_crop(self, y):
-        xp = chainer.cuda.get_array_module(y)
-        n = y.shape[0] // 10
-        y_shape = y.shape[1:]
-        y = y.reshape((n, 10) + y_shape)
-        y = xp.sum(y, axis=1) / 10
-        return y
-
 
 
 def _max_pooling_2d(x):
