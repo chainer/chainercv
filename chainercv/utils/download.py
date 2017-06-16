@@ -1,4 +1,6 @@
+from __future__ import division
 from __future__ import print_function
+
 import hashlib
 import os
 import shutil
@@ -67,10 +69,28 @@ def cached_download(url):
         if os.path.exists(cache_path):
             return cache_path
 
+    print('Fetching the file size from {:s} ...'.format(url))
+    req = request.Request(url=url, method='HEAD')
+    with request.urlopen(req) as res:
+        total = int(res.getheader('Content-Length'))
+
+    print('Downloaded file will be saved to {:s} .'.format(cache_path))
+    print('This will be use {:.2f} MiB of the disk space.'.format(
+        total / (1 << 20)))
+
+    while True:
+        b = input('Proceed? (y/N): ')
+        if b in {'y', 'Y'}:
+            break
+        elif b in {'', 'n', 'N'}:
+            raise KeyboardInterrupt
+        else:
+            print('Please answer \'y\' or \'n\'.')
+
     temp_root = tempfile.mkdtemp(dir=cache_root)
     try:
         temp_path = os.path.join(temp_root, 'dl')
-        print('Downloading from {}...'.format(url))
+        print('Downloading from {} ...'.format(url))
         request.urlretrieve(url, temp_path, _reporthook)
         with filelock.FileLock(lock_path):
             shutil.move(temp_path, cache_path)
