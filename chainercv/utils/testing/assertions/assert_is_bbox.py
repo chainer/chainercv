@@ -11,9 +11,9 @@ def assert_is_bbox(bbox, size=None):
 
     Args:
         bbox (~numpy.ndarray): Bounding boxes to be checked.
-        size (tuple of ints): The size of canvas.
+        size (tuple of ints): The size of an image.
             If this argument is specified,
-            Each bounding box should be within the canvas.
+            Each bounding box should be within the image.
     """
 
     assert isinstance(bbox, np.ndarray), \
