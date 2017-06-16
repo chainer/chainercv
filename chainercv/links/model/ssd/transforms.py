@@ -63,7 +63,8 @@ def random_distort(img):
 
 
 def random_crop_with_bbox(
-        img, bbox, scale=(0.3, 1), max_aspect_ratio=2, constraints=None,
+        img, bbox, min_scale=0.3, max_scale=1,
+        max_aspect_ratio=2, constraints=None,
         max_trial=50, return_param=False):
 
     if constraints is None:
@@ -91,10 +92,10 @@ def random_crop_with_bbox(
             iou_max = 1
 
         for _ in six.moves.range(max_trial):
-            scale = random.uniform(0.3, 1)
+            scale = random.uniform(min_scale, max_scale)
             aspect_ratio = random.uniform(
                 max(1 / max_aspect_ratio, scale * scale),
-                min(2, 1 / (scale * scale)))
+                min(max_aspect_ratio, 1 / (scale * scale)))
             crop_h = int(H * scale / np.sqrt(aspect_ratio))
             crop_w = int(W * scale * np.sqrt(aspect_ratio))
 
