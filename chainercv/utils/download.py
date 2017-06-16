@@ -13,6 +13,7 @@ import sys
 import time
 
 from chainer.dataset.download import get_dataset_directory
+from chainer.dataset.download import get_dataset_root
 
 
 def _reporthook(count, block_size, total_size):
@@ -51,7 +52,7 @@ def cached_download(url):
         str: Path to the downloaded file.
 
     """
-    cache_root = get_dataset_directory('_dl_cache')
+    cache_root = os.path.join(get_dataset_root(), '_dl_cache')
     try:
         os.makedirs(cache_root)
     except OSError:
