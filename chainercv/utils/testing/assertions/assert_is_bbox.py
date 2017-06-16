@@ -4,7 +4,7 @@ import numpy as np
 def assert_is_bbox(bbox, size=None):
     """Checks if bounding boxes satisfy bounding box format.
 
-    This function checks if given bounding boxes satisfy bounding boxe
+    This function checks if given bounding boxes satisfy bounding boxes
     format or not.
     If the bounding boxes do not satifiy the format, this function raises an
     :class:`AssertionError`.
