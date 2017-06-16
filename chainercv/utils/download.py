@@ -21,6 +21,8 @@ def _reporthook(count, block_size, total_size):
         start_time = time.time()
         return
     duration = time.time() - start_time
+    if duration < 1e-4:
+        duration = 1e-4
     progress_size = int(count * block_size)
     speed = int(progress_size / (1024 * duration))
     percent = int(count * block_size * 100 / total_size)
