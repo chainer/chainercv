@@ -173,8 +173,8 @@ class VGG16Layers(chainer.Chain):
             ('fc8', [_getattr('fc8')]),
             ('prob', [F.softmax]),
         ])
-        for feature in self._features:
-            if feature not in funcs:
+        for name in self._features:
+            if name not in funcs:
                 raise ValueError('Elements of `features` shuold be one of '
                                  '{}.'.format(funcs.keys()))
 
