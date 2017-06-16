@@ -72,7 +72,7 @@ def main():
 
         img = random_distort(img)
 
-        if np.random.randing(2):
+        if np.random.randint(2):
             img, param = transforms.random_expand(
                 img, fill=mean, return_param=True)
             bbox = transforms.translate_bbox(
