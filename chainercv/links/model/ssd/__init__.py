@@ -3,7 +3,6 @@ from chainercv.links.model.ssd.gradient_scaling import GradientScaling  # NOQA
 from chainercv.links.model.ssd.multibox import Multibox  # NOQA
 from chainercv.links.model.ssd.multibox_coder import MultiboxCoder  # NOQA
 from chainercv.links.model.ssd.multibox_loss import multibox_loss  # NOQA
-from chainercv.links.model.ssd.multibox_train_chain import MultiboxTrainChain  # NOQA
 from chainercv.links.model.ssd.normalize import Normalize  # NOQA
 from chainercv.links.model.ssd.ssd import SSD  # NOQA
 from chainercv.links.model.ssd.ssd_vgg16 import SSD300  # NOQA
