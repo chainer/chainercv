@@ -63,6 +63,10 @@ assert_is_detection_dataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunctions:: assert_is_detection_dataset
 
+assert_is_detection_link
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunctions:: assert_is_detection_link
+
 assert_is_image
 ~~~~~~~~~~~~~~~
 .. autofunctions:: assert_is_image
