@@ -30,8 +30,21 @@ class VGG16Layers(chainer.Chain):
     This model is a feature extraction link.
     The network can choose to output features from set of all
     intermediate and final features produced by the original architecture.
+    The output features can be an array or tuple of arrays.
+    When :obj:`features` is an iterable of strings, outputs will be tuple.
+    When :obj:`features` is a string, output will be an array.
 
-    When :obj:`pretrained_model` is thepath of a pre-trained chainer model
+    Examples:
+
+        >>> model = VGG16Layers(features='conv5_3')
+        # This is an activation of conv5_3 layer.
+        >>> feat = model(imgs)
+
+        >>> model = VGG16Layers(features=['conv5_3', 'fc6'])
+        >>> # These are activations of conv5_3 and fc6 layers respectively.
+        >>> feat1, feat2 = model(imgs)
+
+    When :obj:`pretrained_model` is the path of a pre-trained chainer model
     serialized as a :obj:`.npz` file in the constructor, this chain model
     automatically initializes all the parameters with it.
     When a string in the prespecified set is provided, a pretrained model is
@@ -52,8 +65,8 @@ class VGG16Layers(chainer.Chain):
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
         n_class (int): The dimension of the output of fc8.
-        feature (str or iterable of strings): The name of the feature to output
-            with :meth:`__call__` and :meth:`predict`.
+        features (str or iterable of strings): The names of the feature to
+            output with :meth:`__call__` and :meth:`predict`.
         initialW (callable): Initializer for the weights.
         initial_bias (callable): Initializer for the biases.
         mean (numpy.ndarray): A value to be subtracted from an image
@@ -75,14 +88,14 @@ class VGG16Layers(chainer.Chain):
     def __init__(self, pretrained_model=None, n_class=None,
                  features='prob', initialW=None, initial_bias=None,
                  mean=_imagenet_mean, do_ten_crop=False):
-        if isinstance(features, (list, tuple)):
+        if all([isinstance(feature, str) for feature in features]):
             return_tuple = True
         else:
             return_tuple = False
             features = [features]
-
         self._return_tuple = return_tuple
         self._features = features
+
         self.mean = mean
         self.do_ten_crop = do_ten_crop
 
@@ -199,8 +212,10 @@ class VGG16Layers(chainer.Chain):
             x (~chainer.Variable): Batch of image variables.
 
         Returns:
-            ~chainer.Variable:
-            A batch of features. It is selected by :obj:`self._feature`.
+            Variable or tuple of Variable:
+            A batch of features or tuple of them.
+            The features to output are selected by :obj:`features` option
+            of :meth:`__init__`.
 
         """
         activations = {}
@@ -264,8 +279,10 @@ class VGG16Layers(chainer.Chain):
                 and the range of their value is :math:`[0, 255]`.
 
         Returns:
-            numpy.ndarray:
-            A batch of features. It is selected by :obj:`self._feature`.
+            Variable or tuple of Variable:
+            A batch of features or tuple of them.
+            The features to output are selected by :obj:`features` option
+            of :meth:`__init__`.
 
         """
         if (self.do_ten_crop and
