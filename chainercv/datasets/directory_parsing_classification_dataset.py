@@ -13,11 +13,9 @@ def find_label_names(root):
 
 
 def _ends_with_img_ext(filename):
-    img_extensions = [
-        '.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG',
-        '.ppm', '.PPM', '.bmp', '.BMP',
-    ]
-    return any(filename.endswith(extension) for extension in img_extensions)
+    img_extensions = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp']
+    return any(os.path.splitext(filename)[1].lower().endswith(extension) for
+               extension in img_extensions)
 
 
 def _parse_classification_dataset(root, label_names,
@@ -41,7 +39,7 @@ def _parse_classification_dataset(root, label_names,
     return img_paths, np.array(labels, np.int32)
 
 
-class ImageFolderDataset(chainer.dataset.DatasetMixin):
+class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
     """A data loader that loads images arranged in directory by classes.
 
     The label names are names of the directories locating a layer below the
@@ -66,8 +64,8 @@ class ImageFolderDataset(chainer.dataset.DatasetMixin):
             --- class_1
                 |-- img_0.png
 
-        >>> from chainercv.dataset import ImageFolderDataset
-        >>> dataset = ImageFolderDataset(root)
+        >>> from chainercv.dataset import DirectoryParsingClassificationDataset
+        >>> dataset = DirectoryParsingClassificationDataset('root')
         >>> dataset.img_paths
         ['root/class_0/img_0.png', 'root/class_0/img_1.png',
         'root_class_1/img_0.png']
