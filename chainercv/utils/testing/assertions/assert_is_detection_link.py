@@ -4,21 +4,17 @@ import six
 from chainercv.utils.testing.assertions.assert_is_bbox import assert_is_bbox
 
 
-def assert_is_detection_link(link, n_fg_class, max_n_bbox=None):
-    """Checks if a dataset satisfies detection dataset APIs.
+def assert_is_detection_link(link, n_fg_class):
+    """Checks if a link satisfies detection link APIs.
 
-    This function checks if a given dataset satisfies detection dataset APIs
+    This function checks if a given link satisfies detection link APIs
     or not.
-    If the dataset does not satifiy the APIs, this function raises an
+    If the link does not satifiy the APIs, this function raises an
     :class:`AssertionError`.
 
     Args:
-        dataset: A dataset to be checked.
+        link: A link to be checked.
         n_fg_class (int): The number of foreground classes.
-        n_example (int): The number of examples to be checked.
-            If this argument is specified, this function picks
-            examples ramdomly and checks them. Otherwise,
-            this function checks all examples.
 
     """
 
@@ -40,9 +36,6 @@ def assert_is_detection_link(link, n_fg_class, max_n_bbox=None):
 
     for bbox, label, score in six.moves.zip(bboxes, labels, scores):
         assert_is_bbox(bbox)
-        if max_n_bbox:
-            assert len(bbox) <= max_n_bbox, \
-                'The length of bbox must not exceed max_n_bbox.'
 
         assert isinstance(label, np.ndarray), \
             'label must be a numpy.ndarray.'
