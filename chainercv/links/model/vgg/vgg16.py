@@ -187,10 +187,9 @@ class VGG16Layers(chainer.Chain):
             ('fc8', [_getattr('fc8')]),
             ('prob', [F.softmax]),
         ])
-        for name in self._features:
-            if name not in funcs:
-                raise ValueError('Elements of `features` shuold be one of '
-                                 '{}.'.format(funcs.keys()))
+        if any([name not in funcs for name in self._features]):
+            raise ValueError('Elements of `features` shuold be one of '
+                             '{}.'.format(funcs.keys()))
 
         # Remove all functions that are not necessary.
         pop_funcs = False
