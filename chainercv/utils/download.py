@@ -70,13 +70,13 @@ def cached_download(url):
         if os.path.exists(cache_path):
             return cache_path
 
-    print('Fetching the file size from {:s} ...'.format(url))
+    print('Fetching the file size of {:s} ...'.format(url))
     req = request.Request(url=url, method='HEAD')
     with request.urlopen(req) as res:
         total = int(res.getheader('Content-Length'))
 
-    print('Downloaded file will be saved to {:s}.'.format(cache_path))
-    print('This will be use {:.2f} MiB of the disk space.'.format(
+    print('File will be saved to {:s}.'.format(cache_path))
+    print('It will be use {:.2f} MiB of the disk space.'.format(
         total / (1 << 20)))
 
     while True:
