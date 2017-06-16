@@ -115,7 +115,7 @@ class VGG16Layers(chainer.Chain):
 
         super(VGG16Layers, self).__init__()
 
-        links = {
+        link_generators = {
             'conv1_1': lambda: L.Convolution2D(3, 64, 3, 1, 1, **kwargs),
             'conv1_2': lambda: L.Convolution2D(64, 64, 3, 1, 1, **kwargs),
             'conv2_1': lambda: L.Convolution2D(64, 128, 3, 1, 1, **kwargs),
@@ -133,11 +133,10 @@ class VGG16Layers(chainer.Chain):
             'fc7': lambda: L.Linear(4096, 4096, **kwargs),
             'fc8': lambda: L.Linear(4096, n_class, **kwargs)
         }
-
         with self.init_scope():
-            for name, gen_link in links.items():
+            for name, link_gen in link_generators.items():
                 if name in self.functions:
-                    setattr(self, name, gen_link())
+                    setattr(self, name, link_gen())
 
         if pretrained_model in self._models:
             path = download_model(self._models[pretrained_model]['url'])
