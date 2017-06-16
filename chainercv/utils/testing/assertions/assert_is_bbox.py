@@ -29,4 +29,4 @@ def assert_is_bbox(bbox, size=None):
 
     if size is not None:
         assert (bbox[:, :2] >= 0).all() and (bbox[:, 2:] < size).all(),\
-            'The coordinates of bbox should not exceed the size of canvas.'
+            'The coordinates of bbox should not exceed the size of image.'
