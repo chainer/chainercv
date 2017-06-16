@@ -8,6 +8,10 @@ DirectoryParsingClassificationDataset
 -------------------------------------
 .. autofunction:: DirectoryParsingClassificationDataset
 
+parse_label_names
+-----------------
+.. autofunction:: parse_label_names
+
 TransformDataset
 ----------------
 

@@ -5,7 +5,22 @@ import chainer
 from chainercv.utils import read_image
 
 
-def find_label_names(root):
+def parse_label_names(root):
+    """Get label names from images arranged in directories by classes.
+
+    The label names can be used together with
+    :class:`DirectoryParsingClassificationDataset`.
+    An index of the label names correspond to a label id
+    obtained from the dataset.
+
+    Args:
+        root (str): The root directory.
+
+    Retruns:
+        list of strings:
+        Sorted names of classes.
+
+    """
     label_names = [d for d in os.listdir(root)
                    if os.path.isdir(os.path.join(root, d))]
     label_names.sort()
@@ -82,7 +97,7 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
 
     def __init__(self, root, check_img_file=None, color=True):
         self.color = color
-        label_names = find_label_names(root)
+        label_names = parse_label_names(root)
         if check_img_file is None:
             check_img_file = _ends_with_img_ext
 
