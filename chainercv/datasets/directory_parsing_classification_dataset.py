@@ -6,10 +6,13 @@ from chainercv.utils import read_image
 
 
 def parse_label_names(root):
-    """Get label names from images arranged in directories by classes.
+    """Get label names from directories that are named by them.
+
+    The label names are names of the directories that locate a layer below the
+    root.
 
     The label names can be used together with
-    :class:`DirectoryParsingClassificationDataset`.
+    :class:`chainercv.datasets.DirectoryParsingClassificationDataset`.
     An index of the label names correspond to a label id
     obtained from the dataset.
 
@@ -55,19 +58,19 @@ def _parse_classification_dataset(root, label_names,
 
 
 class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
-    """A data loader that loads images arranged in directory by classes.
+    """A classification dataset for directories whose names are label names.
 
-    The label names are names of the directories locating a layer below the
+    The label names are names of the directories that locate a layer below the
     root.
-    All images locating under the subdirectory will be categorized with the
-    label associated to the subdirectory.
-    The image is parsed only when :obj:`check_img_file` returns :obj:`True`
-    when the path to the image is given as an argument.
+    All images locating under the subdirectoies will be categorized to classes
+    with subdirectory names.
+    An image is parsed only when the function :obj:`check_img_file`
+    returns :obj:`True` when the path to the image is given as an argument.
     If this is :obj:`None`, the path with any image extensions will be parsed.
 
     Example:
 
-        With a directory structure like below.
+        A directory structure is assumed to be one below.
 
         .. code::
 
@@ -90,8 +93,9 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
     Args:
         root (str): The root directory.
         check_img_file (callable): A function to determine
-            if a file should be included in dataset.
-        color (bool): If :obj:`True`, read images as color images.
+            if a file should be included in the dataset.
+        color (bool): If :obj:`True`, this dataset read images
+            as color images.
 
     """
 
