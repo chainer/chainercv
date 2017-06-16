@@ -88,7 +88,8 @@ class VGG16Layers(chainer.Chain):
     def __init__(self, pretrained_model=None, n_class=None,
                  features='prob', initialW=None, initial_bias=None,
                  mean=_imagenet_mean, do_ten_crop=False):
-        if all([isinstance(feature, str) for feature in features]):
+        if (not isinstance(features, str) and
+                all([isinstance(feature, str) for feature in features])):
             return_tuple = True
         else:
             return_tuple = False
