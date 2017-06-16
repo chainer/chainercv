@@ -206,7 +206,7 @@ class VGG16Layers(chainer.Chain):
         return funcs
 
     def __call__(self, x):
-        """Fowrard VGG16.
+        """Forward VGG16.
 
         Args:
             x (~chainer.Variable): Batch of image variables.
