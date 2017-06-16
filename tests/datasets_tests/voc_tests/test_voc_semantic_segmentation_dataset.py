@@ -19,7 +19,7 @@ class TestVOCSemanticSegmentationDataset(unittest.TestCase):
         self.dataset = VOCSemanticSegmentationDataset(split=self.split)
 
     @attr.slow
-    def test_camvid_dataset(self):
+    def test_voc_semantic_segmentation_dataset(self):
         assert_is_semantic_segmentation_dataset(
             self.dataset,
             len(voc_semantic_segmentation_label_names),
