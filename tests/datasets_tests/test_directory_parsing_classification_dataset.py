@@ -60,4 +60,31 @@ class TestDirectoryParsingClassificationDataset(unittest.TestCase):
             label_names, ['class_{}'.format(i) for i in range(self.n_class)])
 
 
+class TestNumericalSortDirectoryParsingClassificationDataset(
+        unittest.TestCase):
+
+    n_class = 11
+    n_img_per_class = 1
+
+    def setUp(self):
+        self.tmp_dir = tempfile.mkdtemp()
+
+        for i in range(self.n_class):
+            class_dir = os.path.join(self.tmp_dir, '{}'.format(i))
+            os.makedirs(class_dir)
+            _save_img_file(os.path.join(class_dir, 'img_0.png'),
+                           (48, 32), color=True)
+
+    def test_numerical_sort(self):
+        dataset = DirectoryParsingClassificationDataset(
+            self.tmp_dir, numerical_sort=False)
+
+        assert_is_classification_dataset(
+            dataset, self.n_class)
+
+        label_names = parse_label_names(self.tmp_dir, numerical_sort=True)
+        self.assertEqual(
+            label_names, ['{}'.format(i) for i in range(self.n_class)])
+
+
 testing.run_module(__name__, __file__)

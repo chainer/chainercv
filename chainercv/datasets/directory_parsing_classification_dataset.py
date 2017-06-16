@@ -5,7 +5,7 @@ import chainer
 from chainercv.utils import read_image
 
 
-def parse_label_names(root):
+def parse_label_names(root, numerical_sort=False):
     """Get label names from directories that are named by them.
 
     The label names are names of the directories that locate a layer below the
@@ -18,6 +18,10 @@ def parse_label_names(root):
 
     Args:
         root (str): The root directory.
+        numerical_sort (bool): Label names are sorted numerically.
+            This means that :obj:`'2'` is before :obj:`10`,
+            which is not the case when string sort is used.
+            The default value is :obj:`False`.
 
     Retruns:
         list of strings:
@@ -26,7 +30,13 @@ def parse_label_names(root):
     """
     label_names = [d for d in os.listdir(root)
                    if os.path.isdir(os.path.join(root, d))]
-    label_names.sort()
+
+    if not numerical_sort:
+        label_names.sort()
+    else:
+        label_names = [int(name) for name in label_names]
+        label_names.sort()
+        label_names = [str(name) for name in label_names]
     return label_names
 
 
@@ -96,12 +106,19 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
             if a file should be included in the dataset.
         color (bool): If :obj:`True`, this dataset read images
             as color images.
+        numerical_sort (bool): Label names are sorted numerically.
+            This means that :obj:`'2'` is before :obj:`10`,
+            which is not the case when string sort is used.
+            The default value is :obj:`False`.
 
     """
 
-    def __init__(self, root, check_img_file=None, color=True):
+    def __init__(self, root, check_img_file=None, color=True,
+                 numerical_sort=False):
         self.color = color
-        label_names = parse_label_names(root)
+
+        label_names = parse_label_names(
+            root, numerical_sort=numerical_sort)
         if check_img_file is None:
             check_img_file = _ends_with_img_ext
 
