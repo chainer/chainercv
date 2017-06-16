@@ -10,8 +10,8 @@ def assert_is_image(img, color=True, check_range=True):
 
     Args:
         img (~numpy.ndarray): An image to be checked.
-        color (bool): A boolean that determines the behaviour of
-            channel(s) check. If it is :obj:`True`, the number of channels
+        color (bool): A boolean that determines the expected channel size.
+            If it is :obj:`True`, the number of channels
             should be :obj:`3`. Otherwise, it should be :obj:`1`.
             The default value is :obj:`True`.
         check_range (bool): A boolean that determines whether the range
