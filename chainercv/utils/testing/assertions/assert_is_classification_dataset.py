@@ -4,17 +4,17 @@ import six
 from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
 
 
-def assert_is_classification_dataset(dataset, n_class, n_example=None, color=False):
-    """Checks if a dataset satisfies detection dataset APIs.
+def assert_is_classification_dataset(dataset, n_class, n_example=None, color=True):
+    """Checks if a dataset satisfies classification dataset APIs.
 
-    This function checks if a given dataset satisfies detection dataset APIs
-    or not.
+    This function checks if a given dataset satisfies classification dataset
+    APIs or not.
     If the dataset does not satifiy the APIs, this function raises an
     :class:`AssertionError`.
 
     Args:
         dataset: A dataset to be checked.
-        n_fg_class (int): The number of foreground classes.
+        n_class (int): The number of classes.
         n_example (int): The number of examples to be checked.
             If this argument is specified, this function picks
             examples ramdomly and checks them. Otherwise,

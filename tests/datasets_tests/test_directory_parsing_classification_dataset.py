@@ -8,7 +8,7 @@ import tempfile
 from chainer import testing
 
 from chainercv.datasets import DirectoryParsingClassificationDataset
-from chainercv.datasets import find_label_names
+from chainercv.datasets import parse_label_names
 from chainercv.utils import assert_is_classification_dataset
 
 
@@ -55,7 +55,7 @@ class TestDirectoryParsingClassificationDataset(unittest.TestCase):
         assert_is_classification_dataset(
             dataset, self.n_class, color=self.color)
 
-        label_names = find_label_names(self.tmp_dir)
+        label_names = parse_label_names(self.tmp_dir)
         self.assertEqual(
             label_names, ['class_{}'.format(i) for i in range(self.n_class)])
 
