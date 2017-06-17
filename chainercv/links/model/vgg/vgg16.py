@@ -194,7 +194,7 @@ class VGG16Layers(chainer.Chain):
         # Remove all functions that are not necessary.
         pop_funcs = False
         features = list(self._features)
-        for name in funcs.keys():
+        for name in list(funcs.keys()):
             if pop_funcs:
                 funcs.pop(name)
 
@@ -230,7 +230,7 @@ class VGG16Layers(chainer.Chain):
             activations = tuple(
                 [activations[name] for name in activations.keys()])
         else:
-            activations = activations.values()[0]
+            activations = list(activations.values())[0]
         return activations
 
     def _prepare(self, img):
