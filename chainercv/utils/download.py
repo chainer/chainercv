@@ -32,7 +32,7 @@ def _reporthook(count, block_size, total_size):
     percent = progress_size / total_size * 100
     sys.stdout.write(
         '\r... {:.0f} %, {:.2f} MiB / {:.2f} MiB, '
-        '{:.2f} KiB/s, {:.1f} seconds passed, {:.1f} seconds remains'
+        '{:.2f} KiB/s, {:.1f} seconds passed, {:.1f} seconds remain'
         .format(
             percent, progress_size / (1 << 20), total_size / (1 << 20),
             speed / (1 << 10), duration, (total_size - progress_size) / speed))
