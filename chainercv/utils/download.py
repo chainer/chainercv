@@ -31,8 +31,11 @@ def _reporthook(count, block_size, total_size):
         speed = float('inf')
     percent = count * block_size * 100 / total_size
     sys.stdout.write(
-        '\r... {:.0f} %, {:.2f} MiB, {:.2f} KiB/s, {:.1f} seconds passed'
-        .format(percent, progress_size / (1 << 20), speed, duration))
+        '\r... {:.0f} %, {:.2f} MiB / {:.2f} MiB, '
+        '{:.2f} KiB/s, {:.1f} seconds passed'
+        .format(
+            percent, progress_size / (1 << 20), total_size / (1 << 20),
+            speed, duration))
     sys.stdout.flush()
 
 
@@ -70,28 +73,10 @@ def cached_download(url):
         if os.path.exists(cache_path):
             return cache_path
 
-    print('Fetching the size of {:s} ...'.format(url))
-    req = request.Request(url=url, method='HEAD')
-    with request.urlopen(req) as res:
-        total = int(res.getheader('Content-Length'))
-
-    print('File will be saved to {:s}.'.format(cache_path))
-    print('It will be use {:.2f} MiB of the disk space.'.format(
-        total / (1 << 20)))
-
-    while True:
-        b = input('Proceed? (y/N): ')
-        if b in {'y', 'Y'}:
-            break
-        elif b in {'', 'n', 'N'}:
-            raise KeyboardInterrupt
-        else:
-            print('Please answer \'y\' or \'n\'.')
-
     temp_root = tempfile.mkdtemp(dir=cache_root)
     try:
         temp_path = os.path.join(temp_root, 'dl')
-        print('Downloading from {} ...'.format(url))
+        print('Downloading from {:s} to {:s} ...'.format(url, cache_path))
         request.urlretrieve(url, temp_path, _reporthook)
         with filelock.FileLock(lock_path):
             shutil.move(temp_path, cache_path)
