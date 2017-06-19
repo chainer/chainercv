@@ -6,6 +6,7 @@ class SequentialChain(chainer.Chain):
 
     def __init__(self, functions, feature_names=None):
         super(SequentialChain, self).__init__()
+
         if not isinstance(functions, collections.OrderedDict):
             if feature_names is not None:
                 raise ValueError('`feature_names` needs to be `None` unless '
@@ -15,7 +16,7 @@ class SequentialChain(chainer.Chain):
         self._functions = functions
 
         if feature_names is None:
-            feature_names = functions.keys()[-1]
+            feature_names = self._functions.keys()[-1]
         if (not isinstance(feature_names, str) and
                 all([isinstance(name, str) for name in feature_names])):
             return_tuple = True
@@ -25,28 +26,18 @@ class SequentialChain(chainer.Chain):
         self._return_tuple = return_tuple
         self._feature_names = list(feature_names)
 
-        if any([name not in functions.keys() for
-                name in self._feature_names]):
-            raise ValueError('Elements of `feature_names` shuold be one of '
-                             '{}.'.format(functions.keys()))
-
         with self.init_scope():
-            for name, function in functions.items():
+            for name, function in self._functions.items():
                 if isinstance(function, chainer.Link):
                     setattr(self, name, function)
 
     def __call__(self, x):
-        feature_names = list(self._feature_names)
-
         features = {}
         h = x
         for name, function in self._functions.items():
-            if len(feature_names) == 0:
-                break
             h = function(h)
-            if name in feature_names:
+            if name in self._feature_names:
                 features[name] = h
-                feature_names.remove(name)
 
         if self._return_tuple:
             features = tuple(
