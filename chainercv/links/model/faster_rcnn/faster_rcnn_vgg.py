@@ -7,7 +7,7 @@ import chainer.links as L
 from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNN
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
-from chainercv.links.model.vgg.vgg16 import VGG16Layers
+from chainercv.links.model.vgg.vgg16 import VGG16
 from chainercv.utils import download_model
 
 
@@ -102,7 +102,7 @@ class FasterRCNNVGG16(FasterRCNN):
         if vgg_initialW is None and pretrained_model:
             vgg_initialW = chainer.initializers.constant.Zero()
 
-        extractor = VGG16Layers(features='conv5_3', initialW=vgg_initialW)
+        extractor = VGG16(feature_names='conv5_3', initialW=vgg_initialW)
         rpn = RegionProposalNetwork(
             512, 512,
             ratios=ratios,
@@ -138,7 +138,7 @@ class FasterRCNNVGG16(FasterRCNN):
             chainer.serializers.load_npz(pretrained_model, self)
 
     def _copy_imagenet_pretrained_vgg16(self):
-        pretrained_model = VGG16Layers(pretrained_model='imagenet')
+        pretrained_model = VGG16(pretrained_model='imagenet')
         self.extractor.conv1_1.copyparams(pretrained_model.conv1_1)
         self.extractor.conv1_2.copyparams(pretrained_model.conv1_2)
         self.extractor.conv2_1.copyparams(pretrained_model.conv2_1)

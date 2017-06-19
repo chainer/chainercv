@@ -7,7 +7,7 @@ from chainer import testing
 from chainer.testing import attr
 from chainer import Variable
 
-from chainercv.links import VGG16Layers
+from chainercv.links import VGG16
 
 
 @testing.parameterize(
@@ -17,10 +17,10 @@ from chainercv.links import VGG16Layers
      'shapes': ((1, 512, 14, 14), (1, 512, 28, 28)), 'n_class': None},
 )
 @attr.slow
-class TestVGG16LayersCall(unittest.TestCase):
+class TestVGG16Call(unittest.TestCase):
 
     def setUp(self):
-        self.link = VGG16Layers(
+        self.link = VGG16(
             pretrained_model=None, n_class=self.n_class,
             feature_names=self.feature_names)
 
@@ -46,10 +46,10 @@ class TestVGG16LayersCall(unittest.TestCase):
         self.check_call()
 
 
-class TestVGG16LayersCopy(unittest.TestCase):
+class TestVGG16Copy(unittest.TestCase):
 
     def setUp(self):
-        self.link = VGG16Layers(pretrained_model=None, n_class=200,
+        self.link = VGG16(pretrained_model=None, n_class=200,
                                 feature_names='conv2_2',
                                 initialW=Zero(), initial_bias=Zero())
 
@@ -74,10 +74,10 @@ class TestVGG16LayersCopy(unittest.TestCase):
      'not_attribute': ['fc6', 'fc7', 'fc8'],
      }
 )
-class TestVGG16LayersFeatureOption(unittest.TestCase):
+class TestVGG16FeatureOption(unittest.TestCase):
 
     def setUp(self):
-        self.link = VGG16Layers(
+        self.link = VGG16(
             pretrained_model=None, feature_names=self.feature_names,
             initialW=Zero(), initial_bias=Zero())
 

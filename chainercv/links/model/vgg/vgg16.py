@@ -14,7 +14,7 @@ from chainercv.links.model.sequential_feature_extraction_chain import \
     SequentialFeatureExtractionChain
 
 
-class VGG16Layers(SequentialFeatureExtractionChain):
+class VGG16(SequentialFeatureExtractionChain):
 
     """VGG16 Network for classification and feature extraction.
 
@@ -27,11 +27,11 @@ class VGG16Layers(SequentialFeatureExtractionChain):
 
     Examples:
 
-        >>> model = VGG16Layers(features='conv5_3')
+        >>> model = VGG16(features='conv5_3')
         # This is an activation of conv5_3 layer.
         >>> feat = model(imgs)
 
-        >>> model = VGG16Layers(features=['conv5_3', 'fc6'])
+        >>> model = VGG16(features=['conv5_3', 'fc6'])
         >>> # These are activations of conv5_3 and fc6 layers respectively.
         >>> feat1, feat2 = model(imgs)
 
@@ -123,7 +123,7 @@ class VGG16Layers(SequentialFeatureExtractionChain):
             'fc7': lambda: L.Linear(4096, 4096, **kwargs),
             'fc8': lambda: L.Linear(4096, n_class, **kwargs)
         }
-        super(VGG16Layers, self).__init__(feature_names, link_generators)
+        super(VGG16, self).__init__(feature_names, link_generators)
 
         if pretrained_model in self._models:
             path = download_model(self._models[pretrained_model]['url'])
