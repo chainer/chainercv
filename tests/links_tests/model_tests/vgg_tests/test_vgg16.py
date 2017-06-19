@@ -50,12 +50,12 @@ class TestVGG16Copy(unittest.TestCase):
 
     def setUp(self):
         self.link = VGG16(pretrained_model=None, n_class=200,
-                                feature_names='conv2_2',
-                                initialW=Zero(), initial_bias=Zero())
+                          feature_names='conv2_2',
+                          initialW=Zero(), initial_bias=Zero())
 
     def check_copy(self):
         copied = self.link.copy()
-        self.assertIs(copied.conv1_1, copied.functions['conv1_1'][0])
+        self.assertIs(copied.conv1_1, copied.functions['conv1_1'])
 
     def test_copy_cpu(self):
         self.check_copy()

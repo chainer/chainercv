@@ -1,6 +1,7 @@
 from __future__ import division
 
 import collections
+from itertools import islice
 
 import chainer
 import chainer.functions as F
@@ -10,11 +11,10 @@ import chainer.links as L
 
 from chainercv.utils import download_model
 
-from chainercv.links.model.sequential_feature_extraction_chain import \
-    SequentialFeatureExtractionChain
+from chainercv.links.model.sequential_chain import SequentialChain
 
 
-class VGG16(SequentialFeatureExtractionChain):
+class VGG16(SequentialChain):
 
     """VGG16 Network for classification and feature extraction.
 
@@ -123,7 +123,56 @@ class VGG16(SequentialFeatureExtractionChain):
             'fc7': lambda: L.Linear(4096, 4096, **kwargs),
             'fc8': lambda: L.Linear(4096, n_class, **kwargs)
         }
-        super(VGG16, self).__init__(feature_names, link_generators)
+
+        # None will be initialized according to link_generators once
+        # the functions to use are selected.
+        functions = collections.OrderedDict([
+            ('conv1_1', None),
+            ('conv1_1_relu', F.relu),
+            ('conv1_2', None),
+            ('conv1_2_relu', F.relu),
+            ('pool1', _max_pooling_2d),
+            ('conv2_1', None),
+            ('conv2_1_relu', F.relu),
+            ('conv2_2', None),
+            ('conv2_2_relu', F.relu),
+            ('pool2', _max_pooling_2d),
+            ('conv3_1', None),
+            ('conv3_1_relu', F.relu),
+            ('conv3_2', None),
+            ('conv3_2_relu', F.relu),
+            ('conv3_3', None),
+            ('conv3_3_relu', F.relu),
+            ('pool3', _max_pooling_2d),
+            ('conv4_1', None),
+            ('conv4_1_relu', F.relu),
+            ('conv4_2', None),
+            ('conv4_2_relu', F.relu),
+            ('conv4_3', None),
+            ('conv4_3_relu', F.relu),
+            ('pool4', _max_pooling_2d),
+            ('conv5_1', None),
+            ('conv5_1_relu', F.relu),
+            ('conv5_2', None),
+            ('conv5_2_relu', F.relu),
+            ('conv5_3', None),
+            ('conv5_3_relu', F.relu),
+            ('pool5', _max_pooling_2d),
+            ('fc6', None),
+            ('fc6_relu', F.relu),
+            ('fc6_dropout', F.dropout),
+            ('fc7', None),
+            ('fc7_relu', F.relu),
+            ('fc7_dropout', F.dropout),
+            ('fc8', None),
+            ('prob', F.softmax)
+            ])
+        functions = _choose_necessary_functions(functions, feature_names)
+        # Instantiate uninitialized links.
+        for name in list(functions.keys()):
+            if name in link_generators:
+                functions[name] = link_generators[name]()
+        super(VGG16, self).__init__(functions, feature_names)
 
         if pretrained_model in self._models:
             path = download_model(self._models[pretrained_model]['url'])
@@ -131,36 +180,17 @@ class VGG16(SequentialFeatureExtractionChain):
         elif pretrained_model:
             chainer.serializers.load_npz(pretrained_model, self)
 
-    @property
-    def functions(self):
-        def _getattr(name):
-            return getattr(self, name, None)
-
-        return collections.OrderedDict([
-            ('conv1_1', [_getattr('conv1_1'), F.relu]),
-            ('conv1_2', [_getattr('conv1_2'), F.relu]),
-            ('pool1', [_max_pooling_2d]),
-            ('conv2_1', [_getattr('conv2_1'), F.relu]),
-            ('conv2_2', [_getattr('conv2_2'), F.relu]),
-            ('pool2', [_max_pooling_2d]),
-            ('conv3_1', [_getattr('conv3_1'), F.relu]),
-            ('conv3_2', [_getattr('conv3_2'), F.relu]),
-            ('conv3_3', [_getattr('conv3_3'), F.relu]),
-            ('pool3', [_max_pooling_2d]),
-            ('conv4_1', [_getattr('conv4_1'), F.relu]),
-            ('conv4_2', [_getattr('conv4_2'), F.relu]),
-            ('conv4_3', [_getattr('conv4_3'), F.relu]),
-            ('pool4', [_max_pooling_2d]),
-            ('conv5_1', [_getattr('conv5_1'), F.relu]),
-            ('conv5_2', [_getattr('conv5_2'), F.relu]),
-            ('conv5_3', [_getattr('conv5_3'), F.relu]),
-            ('pool5', [_max_pooling_2d]),
-            ('fc6', [_getattr('fc6'), F.relu, F.dropout]),
-            ('fc7', [_getattr('fc7'), F.relu, F.dropout]),
-            ('fc8', [_getattr('fc8')]),
-            ('prob', [F.softmax]),
-        ])
-
 
 def _max_pooling_2d(x):
     return F.max_pooling_2d(x, ksize=2)
+
+
+def _choose_necessary_functions(functions, feature_names):
+    if isinstance(feature_names, str):
+        feature_names = [feature_names]
+    last_index = max([list(functions.keys()).index(name) for
+                      name in feature_names])
+    # Equivalent to `functions = functions[:last_index + 1]`.
+    functions = collections.OrderedDict(
+        islice(functions.items(), None, last_index + 1))
+    return functions
