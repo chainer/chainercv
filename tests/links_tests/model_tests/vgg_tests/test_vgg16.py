@@ -11,9 +11,9 @@ from chainercv.links import VGG16Layers
 
 
 @testing.parameterize(
-    {'features': 'prob', 'shapes': (1, 200), 'n_class': 200},
-    {'features': 'pool5', 'shapes': (1, 512, 7, 7), 'n_class': None},
-    {'features': ['conv5_3', 'conv4_2'],
+    {'feature_names': 'prob', 'shapes': (1, 200), 'n_class': 200},
+    {'feature_names': 'pool5', 'shapes': (1, 512, 7, 7), 'n_class': None},
+    {'feature_names': ['conv5_3', 'conv4_2'],
      'shapes': ((1, 512, 14, 14), (1, 512, 28, 28)), 'n_class': None},
 )
 @attr.slow
@@ -22,20 +22,20 @@ class TestVGG16LayersCall(unittest.TestCase):
     def setUp(self):
         self.link = VGG16Layers(
             pretrained_model=None, n_class=self.n_class,
-            features=self.features)
+            feature_names=self.feature_names)
 
     def check_call(self):
         xp = self.link.xp
 
         x1 = Variable(xp.asarray(np.random.uniform(
             -1, 1, (1, 3, 224, 224)).astype(np.float32)))
-        activations = self.link(x1)
-        if isinstance(activations, tuple):
-            for activation, shape in zip(activations, self.shapes):
+        features = self.link(x1)
+        if isinstance(features, tuple):
+            for activation, shape in zip(features, self.shapes):
                 self.assertEqual(activation.shape, shape)
         else:
-            self.assertEqual(activations.shape, self.shapes)
-            self.assertEqual(activations.dtype, np.float32)
+            self.assertEqual(features.shape, self.shapes)
+            self.assertEqual(features.dtype, np.float32)
 
     def test_call_cpu(self):
         self.check_call()
@@ -46,48 +46,11 @@ class TestVGG16LayersCall(unittest.TestCase):
         self.check_call()
 
 
-@testing.parameterize(
-    {'features': 'prob', 'shapes': (2, 1000), 'do_ten_crop': False},
-    {'features': 'prob', 'shapes': (2, 1000), 'do_ten_crop': True},
-    {'features': 'conv5_3', 'shapes': (2, 512, 14, 14), 'do_ten_crop': False},
-    {'features': ['fc6', 'conv3_1'],
-     'shapes': ((2, 4096), (2, 256, 56, 56)), 'do_ten_crop': False},
-    {'features': ['fc6', 'fc7'],
-     'shapes': ((2, 4096), (2, 4096)), 'do_ten_crop': True}
-)
-@attr.slow
-class TestVGG16LayersPredict(unittest.TestCase):
-
-    def setUp(self):
-        self.link = VGG16Layers(pretrained_model=None, n_class=1000,
-                                features=self.features,
-                                do_ten_crop=self.do_ten_crop)
-
-    def check_predict(self):
-        x1 = np.random.uniform(0, 255, (3, 320, 240)).astype(np.float32)
-        x2 = np.random.uniform(0, 255, (3, 320, 240)).astype(np.float32)
-        activations = self.link.predict([x1, x2])
-        if isinstance(activations, tuple):
-            for activation, shape in zip(activations, self.shapes):
-                self.assertEqual(activation.shape, shape)
-        else:
-            self.assertEqual(activations.shape, self.shapes)
-            self.assertEqual(activations.dtype, np.float32)
-
-    def test_predict_cpu(self):
-        self.check_predict()
-
-    @attr.gpu
-    def test_predict_gpu(self):
-        self.link.to_gpu()
-        self.check_predict()
-
-
 class TestVGG16LayersCopy(unittest.TestCase):
 
     def setUp(self):
         self.link = VGG16Layers(pretrained_model=None, n_class=200,
-                                features='conv2_2',
+                                feature_names='conv2_2',
                                 initialW=Zero(), initial_bias=Zero())
 
     def check_copy(self):
@@ -104,28 +67,23 @@ class TestVGG16LayersCopy(unittest.TestCase):
 
 
 @testing.parameterize(
-    {'features': 'pool4',
+    {'feature_names': 'pool4',
      'not_attribute': ['conv5_1', 'conv5_2', 'conv5_3', 'fc6', 'fc7', 'fc8'],
-     'not_in_functions': ['conv5_1', 'conv5_2', 'conv5_3', 'pool5',
-                          'fc6', 'fc7', 'fc8', 'prob']
      },
-    {'features': ['pool5', 'pool4'],
+    {'feature_names': ['pool5', 'pool4'],
      'not_attribute': ['fc6', 'fc7', 'fc8'],
-     'not_in_functions': ['fc6', 'fc7', 'fc8', 'prob']
      }
 )
 class TestVGG16LayersFeatureOption(unittest.TestCase):
 
     def setUp(self):
-        self.link = VGG16Layers(pretrained_model=None, features=self.features,
-                                initialW=Zero(), initial_bias=Zero())
+        self.link = VGG16Layers(
+            pretrained_model=None, feature_names=self.feature_names,
+            initialW=Zero(), initial_bias=Zero())
 
     def check_feature_option(self):
         for name in self.not_attribute:
             self.assertTrue(not hasattr(self.link, name))
-
-        for name in self.not_in_functions:
-            self.assertFalse(name in self.link.functions)
 
     def test_feature_option_cpu(self):
         self.check_feature_option()
