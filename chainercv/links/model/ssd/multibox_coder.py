@@ -67,7 +67,7 @@ class MultiboxCoder(object):
                     default_bbox.append(
                         (cy, cx, s * np.sqrt(ar), s / np.sqrt(ar)))
 
-        # the format of _default_bbox is (center_y, center_x, height, width)
+        # (center_y, center_x, height, width)
         self._default_bbox = np.stack(default_bbox)
         self._variance = variance
 
@@ -124,6 +124,7 @@ class MultiboxCoder(object):
             bbox)
 
         index = xp.empty(len(self._default_bbox), dtype=int)
+        # -1 is for background
         index[:] = -1
 
         masked_iou = iou.copy()
@@ -138,14 +139,17 @@ class MultiboxCoder(object):
         mask = xp.logical_and(index < 0, iou.max(axis=1) >= iou_thresh)
         index[mask] = iou[mask].argmax(axis=1)
 
-        mb_bbox = bbox[index]
-        mb_loc = xp.hstack((
-            ((mb_bbox[:, :2] + mb_bbox[:, 2:]) / 2
-             - self._default_bbox[:, :2]) /
-            (self._variance[0] * self._default_bbox[:, 2:]),
-            xp.log((mb_bbox[:, 2:] - mb_bbox[:, :2])
-                   / self._default_bbox[:, 2:]) /
-            self._variance[1]))
+        mb_bbox = bbox[index].copy()
+        # (y_min, x_min, y_max, x_max) -> (y_min, x_min, height, width)
+        mb_bbox[:, 2:] -= mb_bbox[:, :2]
+        # (y_min, x_min, height, width) -> (center_y, center_x, height, width)
+        mb_bbox[:, :2] += mb_bbox[:, 2:] / 2
+
+        mb_loc = xp.empty_like(mb_bbox)
+        mb_loc[:, :2] = (mb_bbox[:, :2] - self._default_bbox[:, :2]) / \
+            (self._variance[0] * self._default_bbox[:, 2:])
+        mb_loc[:, 2:] = xp.log(mb_bbox[:, 2:] / self._default_bbox[:, 2:]) / \
+            self._variance[1]
 
         # [0, n_fg_class - 1] -> [1, n_fg_class]
         mb_label = label[index] + 1
@@ -190,25 +194,28 @@ class MultiboxCoder(object):
         """
         xp = self.xp
 
-        # the format of raw_bbox is (center_y, center_x, height, width)
-        raw_bbox = xp.hstack((
-            self._default_bbox[:, :2] + mb_loc[:, :2] *
-            self._variance[0] * self._default_bbox[:, 2:],
-            self._default_bbox[:, 2:] *
-            xp.exp(mb_loc[:, 2:] * self._variance[1])))
-        # convert the format of raw_bbox to (y_min, x_min, y_max, x_max)
-        raw_bbox[:, :2] -= raw_bbox[:, 2:] / 2
-        raw_bbox[:, 2:] += raw_bbox[:, :2]
-        raw_score = xp.exp(mb_conf)
-        raw_score /= raw_score.sum(axis=1, keepdims=True)
+        # (center_y, center_x, height, width)
+        mb_bbox = self._default_bbox.copy()
+        mb_bbox[:, :2] += mb_loc[:, :2] * self._variance[0] \
+            * self._default_bbox[:, 2:]
+        mb_bbox[:, 2:] *= xp.exp(mb_loc[:, 2:] * self._variance[1])
+
+        # (center_y, center_x, height, width) -> (y_min, x_min, height, width)
+        mb_bbox[:, :2] -= mb_bbox[:, 2:] / 2
+        # (center_y, center_x, height, width) -> (y_min, x_min, y_max, x_max)
+        mb_bbox[:, 2:] += mb_bbox[:, :2]
+
+        # softmax
+        mb_score = xp.exp(mb_conf)
+        mb_score /= mb_conf.sum(axis=1, keepdims=True)
 
         bbox = list()
         label = list()
         score = list()
         for l in range(mb_conf.shape[1] - 1):
-            bbox_l = raw_bbox
+            bbox_l = mb_bbox
             # the l-th class corresponds for the (l + 1)-th column.
-            score_l = raw_score[:, l + 1]
+            score_l = mb_score[:, l + 1]
 
             mask = score_l >= score_thresh
             bbox_l = bbox_l[mask]
