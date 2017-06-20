@@ -207,7 +207,7 @@ class MultiboxCoder(object):
 
         # softmax
         mb_score = xp.exp(mb_conf)
-        mb_score /= mb_conf.sum(axis=1, keepdims=True)
+        mb_score /= mb_score.sum(axis=1, keepdims=True)
 
         bbox = list()
         label = list()
