@@ -122,50 +122,6 @@ def random_crop_with_bbox(
         return img
 
 
-def crop_bbox(
-        bbox, y_slice=None, x_slice=None,
-        contain_center_only=False, return_param=False):
-
-    def parse_slice(slice_):
-        if slice_ is None:
-            return -np.inf, np.inf
-
-        if slice_.start is None:
-            l = -np.inf
-        else:
-            l = slice_.start
-        if slice_.stop is None:
-            u = np.inf
-        else:
-            u = slice_.stop
-        return l, u
-
-    t, b = parse_slice(y_slice)
-    l, r = parse_slice(x_slice)
-    crop_bb = np.array((t, l, b, r))
-
-    if contain_center_only:
-        center = (bbox[:, :2] + bbox[:, 2:]) / 2
-        mask = np.logical_and(crop_bb[:2] < center, center < crop_bb[2:]) \
-                 .all(axis=1)
-    else:
-        mask = np.ones(bbox.shape[0], dtype=bool)
-
-    bbox = bbox.copy()
-    bbox[:, :2] = np.maximum(bbox[:, :2], crop_bb[:2])
-    bbox[:, 2:] = np.minimum(bbox[:, 2:], crop_bb[2:])
-    bbox[:, :2] -= crop_bb[:2]
-    bbox[:, 2:] -= crop_bb[:2]
-
-    mask = np.logical_and(mask, (bbox[:, :2] < bbox[:, 2:]).all(axis=1))
-    bbox = bbox[mask]
-
-    if return_param:
-        return bbox, {'mask': mask}
-    else:
-        return bbox
-
-
 def resize_with_random_interpolation(img, size, return_param=False):
     import cv2
 
