@@ -19,7 +19,6 @@ from chainercv.links.model.ssd import multibox_loss
 from chainercv.links import SSD300
 from chainercv import transforms
 
-from chainercv.links.model.ssd import crop_bbox
 from chainercv.links.model.ssd import random_crop_with_bbox
 from chainercv.links.model.ssd import random_distort
 from chainercv.links.model.ssd import resize_with_random_interpolation
@@ -79,10 +78,10 @@ def main():
                 bbox, y_offset=param['y_offset'], x_offset=param['x_offset'])
 
         img, param = random_crop_with_bbox(img, bbox, return_param=True)
-        bbox, param = crop_bbox(
+        bbox, param = transforms.crop_bbox(
             bbox, y_slice=param['y_slice'], x_slice=param['x_slice'],
-            contain_center_only=True, return_param=True)
-        label = label[param['mask']]
+            allow_outside_center=False, return_param=True)
+        label = label[param['index']]
 
         _, H, W = img.shape
         img = resize_with_random_interpolation(img, (size, size))
