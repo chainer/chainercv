@@ -97,14 +97,13 @@ def calc_semantic_segmentation_iou(confusion):
     return iou
 
 
-def eval_semantic_segmentation_iou(pred_labels, gt_labels):
-    """Evaluate Intersection over Union from labels.
+def eval_semantic_segmentation(pred_labels, gt_labels):
+    """Evaluate metrics used in Semantic Segmentation.
 
-    This function calculates Intersection over Union (IoU)
-    for the task of semantic segmentation.
+    This function calculates Intersection over Union (IoU), Pixel Accuracy
+    and Class Accuracy for the task of semantic segmentation.
 
-    The definition of IoU and a related metric, mean Intersection
-    over Union (mIoU), are as follow,
+    The definition of metrics calculated by this function is as follows,
     where :math:`N_{ij}` is the number of pixels
     that are labeled as class :math:`i` by the ground truth and
     class :math:`j` by the prediction.
@@ -114,10 +113,17 @@ def eval_semantic_segmentation_iou(pred_labels, gt_labels):
     * :math:`\\text{mIoU} = \\frac{1}{k} \
         \\sum_{i=1}^k \
         \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij} + \\sum_{j=1}^k N_{ji} - N_{ii}}`
+    * :math:`\\text{Pixel Accuracy} =  \
+        \\frac \
+        {\\sum_{i=1}^k N_{ii}} \
+        {\\sum_{i=1}^k \\sum_{j=1}^k N_{ij}}`
+    * :math:`\\text{Class Accuracy} = \
+        \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij}}`
+    * :math:`\\text{Mean Class Accuracy} = \\frac{1}{k} \
+        \\sum_{i=1}^k \
+        \\frac{N_{ii}}{\\sum_{j=1}^k N_{ij}}`
 
-    mIoU can be computed by taking :obj:`numpy.nanmean` of the IoUs returned
-    by this function.
-    The more detailed description of the above metric can be found in a
+    The more detailed description of the above metrics can be found in a
     review on semantic segmentation [#]_.
 
     The number of classes :math:`n\_class` is
@@ -144,9 +150,19 @@ def eval_semantic_segmentation_iou(pred_labels, gt_labels):
             A pixel with value :obj:`-1` will be ignored during evaluation.
 
     Returns:
-        numpy.ndarray:
-        An array of IoUs for the :math:`n\_class` classes. Its shape is
-        :math:`(n\_class,)`.
+        dict:
+
+        The keys, value-types and the description of the values are listed
+        below.
+
+        * **iou** (*numpy.ndarray*): An array of IoUs for the \
+            :math:`n\_class` classes. Its shape is :math:`(n\_class,)`.
+        * **miou** (*float*): The average of IoUs over classes.
+        * **pixel_accuracy** (*float*): The computed pixel accuracy.
+        * **class_accuracy** (*numpy.ndarray*): An array of class accuracies \
+            for the :math:`n\_class` classes. \
+            Its shape is :math:`(n\_class,)`.
+        * **mean_class_accuracy** (*float*): The average of class accuracies.
 
     """
     # Evaluation code is based on
@@ -155,4 +171,10 @@ def eval_semantic_segmentation_iou(pred_labels, gt_labels):
     confusion = calc_semantic_segmentation_confusion(
         pred_labels, gt_labels)
     iou = calc_semantic_segmentation_iou(confusion)
-    return iou
+    pixel_accuracy = np.diag(confusion).sum() / confusion.sum()
+    class_accuracy = np.diag(confusion) / np.sum(confusion, axis=1)
+
+    return {'iou': iou, 'miou': np.nanmean(iou),
+            'pixel_accuracy': pixel_accuracy,
+            'class_accuracy': class_accuracy,
+            'mean_class_accuracy': np.nanmean(class_accuracy)}
