@@ -20,16 +20,6 @@ from chainercv.links import PixelwiseSoftmaxClassifier
 from chainercv.links import SegNetBasic
 
 
-class TestModeEvaluator(extensions.Evaluator):
-
-    def evaluate(self):
-        model = self.get_target('main')
-        model.train = False
-        ret = super(TestModeEvaluator, self).evaluate()
-        model.train = True
-        return ret
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
@@ -84,8 +74,7 @@ def main():
     trainer.extend(extensions.LogReport(trigger=log_trigger))
     trainer.extend(extensions.observe_lr(), trigger=log_trigger)
     trainer.extend(extensions.dump_graph('main/loss'))
-    trainer.extend(TestModeEvaluator(val_iter, model,
-                                     device=args.gpu),
+    trainer.extend(extensions.Evaluator(val_iter, model, device=args.gpu),
                    trigger=validation_trigger)
 
     if extensions.PlotReport.available():
