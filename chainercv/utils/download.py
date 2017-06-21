@@ -22,7 +22,10 @@ def _reporthook(count, block_size, total_size):
         return
     duration = time.time() - start_time
     progress_size = int(count * block_size)
-    speed = int(progress_size / (1024 * duration))
+    try:
+        speed = int(progress_size / (1024 * duration))
+    except ZeroDivisionError:
+        speed = float('inf')
     percent = int(count * block_size * 100 / total_size)
     sys.stdout.write('\r...{}, {} MB, {} KB/s, {} seconds passed'.format(
         percent, progress_size / (1024 * 1024), speed, duration))

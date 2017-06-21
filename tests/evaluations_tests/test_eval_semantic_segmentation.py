@@ -8,25 +8,35 @@ from chainer import testing
 
 from chainercv.evaluations import calc_semantic_segmentation_confusion
 from chainercv.evaluations import calc_semantic_segmentation_iou
-from chainercv.evaluations import eval_semantic_segmentation_iou
+from chainercv.evaluations import eval_semantic_segmentation
 
 
 @testing.parameterize(
     {'pred_labels': iter(np.repeat([[[1, 1, 0], [0, 0, 1]]], 2, axis=0)),
      'gt_labels': iter(np.repeat([[[1, 0, 0], [0, -1, 1]]], 2, axis=0)),
-     'iou': np.array([4. / 6., 4. / 6.])
+     'iou': np.array([4 / 6, 4 / 6]),
+     'pixel_accuracy': 4 / 5,
+     'class_accuracy': np.array([2 / 3, 2 / 2]),
      },
     {'pred_labels': np.array([[[0, 0, 0], [0, 0, 0]]]),
      'gt_labels': np.array([[[1, 1, 1], [1, 1, 1]]]),
      'iou': np.array([0, 0]),
+     'pixel_accuracy': 0 / 6,
+     'class_accuracy': np.array([np.nan, 0])
      }
 )
-class TestEvalSemanticSegmentationIou(unittest.TestCase):
+class TestEvalSemanticSegmentation(unittest.TestCase):
 
-    def test_eval_semantic_segmentation_iou(self):
-        iou = eval_semantic_segmentation_iou(
+    def test_eval_semantic_segmentation(self):
+        result = eval_semantic_segmentation(
             self.pred_labels, self.gt_labels)
-        np.testing.assert_equal(iou, self.iou)
+        np.testing.assert_equal(result['iou'], self.iou)
+        np.testing.assert_equal(result['pixel_accuracy'], self.pixel_accuracy)
+        np.testing.assert_equal(result['class_accuracy'], self.class_accuracy)
+
+        np.testing.assert_equal(result['miou'], np.nanmean(self.iou))
+        np.testing.assert_equal(
+            result['mean_class_accuracy'], np.nanmean(self.class_accuracy))
 
 
 class TestCalcSemanticSegmentationConfusion(unittest.TestCase):

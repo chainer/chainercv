@@ -86,8 +86,8 @@ def main():
             file_name='miou.png'))
 
     trainer.extend(extensions.snapshot_object(
-        model.predictor, filename='model_iteration-{.updater.iteration}',
-        trigger=end_trigger))
+        model.predictor, filename='model_iteration-{.updater.iteration}'),
+        trigger=end_trigger)
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', 'elapsed_time', 'lr',
          'main/loss', 'validation/main/miou']),

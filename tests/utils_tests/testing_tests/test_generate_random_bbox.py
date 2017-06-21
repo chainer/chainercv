@@ -3,6 +3,7 @@ import unittest
 
 from chainer import testing
 
+from chainercv.utils import assert_is_bbox
 from chainercv.utils import generate_random_bbox
 
 
@@ -16,12 +17,8 @@ class TestGenerateRandomBbox(unittest.TestCase):
 
         bbox = generate_random_bbox(n, img_size, min_length, max_length)
 
-        self.assertIsInstance(bbox, np.ndarray)
-        self.assertEqual(bbox.shape, (n, 4))
-        self.assertTrue(np.all(bbox[:, [0, 2]] < img_size[0]))
-        self.assertTrue(np.all(bbox[:, [0, 2]] >= 0))
-        self.assertTrue(np.all(bbox[:, [1, 3]] < img_size[1]))
-        self.assertTrue(np.all(bbox[:, [1, 3]] >= 0))
+        assert_is_bbox(bbox, img_size)
+        self.assertEqual(bbox.shape[0], n)
 
         h = bbox[:, 2] - bbox[:, 0]
         w = bbox[:, 3] - bbox[:, 1]

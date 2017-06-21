@@ -39,6 +39,8 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     The array :obj:`difficult` is a one dimensional boolean array of shape
     :math:`(R,)`. :math:`R` is the number of bounding boxes in the image.
+    If :obj:`use_difficult` is :obj:`False`, this array is
+    a boolean array with all :obj:`False`.
 
     The type of the image, the bounding boxes and the labels are as follows.
 
@@ -76,7 +78,6 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
                     'for 2012 dataset. For 2007 dataset, you can pick \'test\''
                     ' in addition to the above mentioned splits.'
                 )
-
         id_list_file = os.path.join(
             data_dir, 'ImageSets/Main/{0}.txt'.format(split))
 
@@ -111,10 +112,10 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         for obj in anno.findall('object'):
             # when in not using difficult split, and the object is
             # difficult, skipt it.
-            difficult.append(int(obj.find('difficult').text))
             if not self.use_difficult and int(obj.find('difficult').text) == 1:
                 continue
 
+            difficult.append(int(obj.find('difficult').text))
             bndbox_anno = obj.find('bndbox')
             # subtract 1 to make pixel indexes 0-based
             bbox.append([
@@ -124,6 +125,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             label.append(voc_utils.voc_detection_label_names.index(name))
         bbox = np.stack(bbox).astype(np.float32)
         label = np.stack(label).astype(np.int32)
+        # When `use_difficult==False`, all elements in `difficult` are False.
         difficult = np.array(difficult, dtype=np.bool)
 
         # Load a image
