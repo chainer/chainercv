@@ -50,26 +50,41 @@ class TestSemanticSegmentationEvaluator(unittest.TestCase):
         np.testing.assert_equal(len(reporter.observation), 0)
 
         np.testing.assert_equal(eval_['target/miou'], 1.)
+        np.testing.assert_equal(eval_['target/pixel_accuracy'], 1.)
+        np.testing.assert_equal(eval_['target/mean_class_accuracy'], 1.)
         np.testing.assert_equal(eval_['target/iou/a'], 1.)
         np.testing.assert_equal(eval_['target/iou/b'], 1.)
         np.testing.assert_equal(eval_['target/iou/c'], np.nan)
+        np.testing.assert_equal(eval_['target/class_accuracy/a'], 1.)
+        np.testing.assert_equal(eval_['target/class_accuracy/b'], 1.)
+        np.testing.assert_equal(eval_['target/class_accuracy/c'], np.nan)
 
     def test_call(self):
         eval_ = self.evaluator()
         # main is used as default
-        np.testing.assert_equal(eval_['main/miou'], 1)
+        np.testing.assert_equal(eval_['main/miou'], 1.)
+        np.testing.assert_equal(eval_['main/pixel_accuracy'], 1.)
+        np.testing.assert_equal(eval_['main/mean_class_accuracy'], 1.)
         np.testing.assert_equal(eval_['main/iou/a'], 1.)
         np.testing.assert_equal(eval_['main/iou/b'], 1.)
         np.testing.assert_equal(eval_['main/iou/c'], np.nan)
+        np.testing.assert_equal(eval_['main/class_accuracy/a'], 1.)
+        np.testing.assert_equal(eval_['main/class_accuracy/b'], 1.)
+        np.testing.assert_equal(eval_['main/class_accuracy/c'], np.nan)
 
     def test_evaluator_name(self):
         self.evaluator.name = 'eval'
         eval_ = self.evaluator()
         # name is used as a prefix
-        self.assertAlmostEqual(eval_['eval/main/miou'], 1)
+        np.testing.assert_equal(eval_['eval/main/miou'], 1.)
+        np.testing.assert_equal(eval_['eval/main/pixel_accuracy'], 1.)
+        np.testing.assert_equal(eval_['eval/main/mean_class_accuracy'], 1.)
         np.testing.assert_equal(eval_['eval/main/iou/a'], 1.)
         np.testing.assert_equal(eval_['eval/main/iou/b'], 1.)
         np.testing.assert_equal(eval_['eval/main/iou/c'], np.nan)
+        np.testing.assert_equal(eval_['eval/main/class_accuracy/a'], 1.)
+        np.testing.assert_equal(eval_['eval/main/class_accuracy/b'], 1.)
+        np.testing.assert_equal(eval_['eval/main/class_accuracy/c'], np.nan)
 
     def test_current_report(self):
         reporter = chainer.Reporter()

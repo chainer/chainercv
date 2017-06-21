@@ -4,7 +4,7 @@ import numpy as np
 from chainer import reporter
 import chainer.training.extensions
 
-from chainercv.evaluations import eval_semantic_segmentation_iou
+from chainercv.evaluations import eval_semantic_segmentation
 from chainercv.utils import apply_prediction_to_iterator
 
 
@@ -70,16 +70,21 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
         pred_labels, = pred_values
         gt_labels, = gt_values
 
-        iou = eval_semantic_segmentation_iou(pred_labels, gt_labels)
+        result = eval_semantic_segmentation(pred_labels, gt_labels)
 
-        report = {'miou': np.nanmean(iou)}
+        report = {'miou': result['miou'],
+                  'pixel_accuracy': result['pixel_accuracy'],
+                  'mean_class_accuracy': result['mean_class_accuracy']}
 
         if self.label_names is not None:
             for l, label_name in enumerate(self.label_names):
                 try:
-                    report['iou/{:s}'.format(label_name)] = iou[l]
+                    report['iou/{:s}'.format(label_name)] = result['iou'][l]
+                    report['class_accuracy/{:s}'.format(label_name)] =\
+                        result['class_accuracy'][l]
                 except IndexError:
                     report['iou/{:s}'.format(label_name)] = np.nan
+                    report['class_accuracy/{:s}'.format(label_name)] = np.nan
 
         observation = {}
         with reporter.report_scope(observation):
