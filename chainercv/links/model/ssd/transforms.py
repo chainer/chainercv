@@ -7,7 +7,55 @@ import six
 from chainercv import utils
 
 
-def random_distort(img):
+def random_distort(
+        img,
+        brightness_delta=32,
+        contrast_low=0.5, contrast_high=1.5,
+        saturation_low=0.5, saturation_high=1.5,
+        hue_delta=18):
+    """A data augmentation method for images.
+
+    This function is a combination of four augmentation methods:
+    brightness, contrast, saturation and hue.
+
+    * brightness: Adding a random offset to intensity of the image.
+    * contrast: Multiplying intensity of the image by a random scale.
+    * saturation: Multiplying saturation of the image by a random scale.
+    * hue: Adding a random offset to hue of the image randomly.
+
+    This data augmentation is used in training of
+    Single Shot Multibox Detector [#]_.
+
+    Note that this function requires :obj:`cv2`.
+
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
+
+    Args:
+        img (~numpy.ndarray): An image array to be augmented. This is in
+            CHW and RGB format.
+        brightness_delta (float): The offset for saturation will be
+            drawn from :math:`[-brightness\_delta, brightness\_delta]`.
+            The default value is :obj:`32`.
+        contrast_low (float): The scale for contrast will be
+            drawn from :math:`[contrast\_low, contrast\_high]`.
+            The default value is :obj:`0.5`.
+        contrast_high (float): See :obj:`contrast_low`.
+            The default value is :obj:`1.5`.
+        saturation_low (float): The scale for saturation will be
+            drawn from :math:`[saturation\_low, saturation\_high]`.
+            The default value is :obj:`0.5`.
+        saturation_high (float): See :obj:`saturation_low`.
+            The default value is :obj:`1.5`.
+        hue_delta (float): The offset for hue will be
+            drawn from :math:`[-hue\_delta, hue\_delta]`.
+            The default value is :obj:`18`.
+
+    Returns:
+        An image in CHW and RGB format.
+
+    """
     import cv2
 
     cv_img = img[::-1].transpose(1, 2, 0).astype(np.uint8)
