@@ -273,7 +273,8 @@ def resize_with_random_interpolation(img, size, return_param=False):
         cv2.INTER_LANCZOS4,
     )
     inter = random.choice(inters)
-    cv_img = cv2.resize(cv_img, size, interpolation=inter)
+    H, W = size
+    cv_img = cv2.resize(cv_img, (W, H), interpolation=inter)
 
     # If input is a grayscale image, cv2 returns a two-dimentional array.
     if len(img.shape) == 2:
