@@ -277,8 +277,8 @@ def resize_with_random_interpolation(img, size, return_param=False):
     cv_img = cv2.resize(cv_img, (W, H), interpolation=inter)
 
     # If input is a grayscale image, cv2 returns a two-dimentional array.
-    if len(img.shape) == 2:
-        img = img[:, :, np.newaxis]
+    if len(cv_img.shape) == 2:
+        cv_img = cv_img[:, :, np.newaxis]
 
     img = cv_img.astype(np.float32).transpose(2, 0, 1)
 
