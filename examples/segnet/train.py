@@ -98,7 +98,7 @@ def main():
 
     trainer.extend(
         SemanticSegmentationEvaluator(
-            val_iter, model,
+            val_iter, model.predictor,
             camvid_label_names),
         trigger=validation_trigger)
 
