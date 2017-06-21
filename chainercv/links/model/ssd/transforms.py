@@ -26,7 +26,7 @@ def random_distort(
     This data augmentation is used in training of
     Single Shot Multibox Detector [#]_.
 
-    Note that this function requires :obj:`cv2`.
+    Note that this function requires :mod:`cv2`.
 
     .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
        Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
@@ -114,6 +114,61 @@ def random_crop_with_bbox(
         img, bbox, min_scale=0.3, max_scale=1,
         max_aspect_ratio=2, constraints=None,
         max_trial=50, return_param=False):
+    """Crop an image randomly with bounding box constraints.
+
+    This data augmentation is used in training of
+    Single Shot Multibox Detector [#]_. More details can be found in
+    data augmentation section of the original paper.
+
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
+
+    Args:
+        img (~numpy.ndarray): An image array to be cropped. This is in
+            CHW format.
+        bbox (~numpy.ndarray): Bounding boxes used for constraints.
+            The shape is :math:`(R, 4)`.
+            :math:`R` is the number of bounding boxes.
+        min_scale (float): The minimum ratio between cropping
+            area and the original image. The default value is :obj:`0.3`.
+        max_scale (float): The maximum ratio between cropping
+            area and the original image. The default value is :obj:`1`.
+        max_aspect_ratio (float): The maximum aspect ratio of cropping area.
+            The default value is :obj:`2`.
+        constaraints (iterable of tuples): An iterable of constraints.
+            Each constraint should be :obj:`(min_iou, max_iou)` format.
+            If you set :obj:`min_iou` or :obj:`max_iou` to :obj:`None`,
+            it means not limited.
+            If this argument is not specified, :obj:`((0.1, None), (0.3, None),
+            (0.5, None), (0.7, None), (0.9, None), (None, 1))` will be used.
+        max_trial (int): Maximum trial for each constraint. If this function
+            can not find any cropping area that satisfies the constraint in
+            :math:`max\_trial` trials, this function skips the constraint.
+            The default value is :obj:`50`.
+        return_param (bool): If :obj:`True`, this function returns
+            information of intermediate values.
+
+    Returns:
+        ~numpy.ndarray or (~numpy.ndarray, dict):
+
+        If :obj:`return_param = False`,
+        returns an array :obj:`img` that is cropped from the input
+        array.
+
+        If :obj:`return_param = True`,
+        returns a tuple whose elements are :obj:`img, param`.
+        :obj:`param` is a dictionary of intermediate parameters whose
+        contents are listed below with key, value-type and the description
+        of the value.
+
+        * **constraint** (*tuple*): The chosen constraint.
+        * **y_slice** (*slice*): A slice used to crop the input image.\
+            The relation below holds together with :obj:`x_slice`.
+        * **x_slice** (*slice*): Similar to :obj:`x_slice`.
+
+
+    """
 
     if constraints is None:
         constraints = (
@@ -127,8 +182,7 @@ def random_crop_with_bbox(
 
     _, H, W = img.shape
     params = [{
-        'constraint': None, 'scale': 1, 'aspect_ratio': 1,
-        'y_slice': slice(0, H), 'x_slice': slice(0, W)}]
+        'constraint': None, 'y_slice': slice(0, H), 'x_slice': slice(0, W)}]
 
     if len(bbox) == 0:
         constraints = list()
@@ -156,7 +210,6 @@ def random_crop_with_bbox(
             if iou_min <= iou.min() and iou.max() <= iou_max:
                 params.append({
                     'constraint': (iou_min, iou_max),
-                    'scale': scale, 'aspect_ratio': aspect_ratio,
                     'y_slice': slice(crop_t, crop_t + crop_h),
                     'x_slice': slice(crop_l, crop_l + crop_w)})
                 break
@@ -171,6 +224,43 @@ def random_crop_with_bbox(
 
 
 def resize_with_random_interpolation(img, size, return_param=False):
+    """Resize image to match the given shape.
+
+    This function is similar to :func:`chainercv.transforms.resize`, but
+    this chooses the interpolation method randomly.
+
+    This data augmentation is used in training of
+    Single Shot Multibox Detector [#]_.
+
+    Note that this function requires :mod:`cv2`.
+
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016.
+
+    Args:
+        img (~numpy.ndarray): An array to be transformed.
+            This is in CHW format and the type should be :obj:`numpy.float32`.
+        size (tuple): This is a tuple of length 2. Its elements are
+            ordered as (height, width).
+        return_param (bool): Returns information of interpolation.
+
+    Returns:
+        ~numpy.ndarray or (~numpy.ndarray, dict):
+
+        If :obj:`return_param = False`,
+        returns an array :obj:`img` that is the result of rotation.
+
+        If :obj:`return_param = True`,
+        returns a tuple whose elements are :obj:`img, param`.
+        :obj:`param` is a dictionary of intermediate parameters whose
+        contents are listed below with key, value-type and the description
+        of the value.
+
+        * **interpolatation*: The chosen interpolation method.
+
+    """
+
     import cv2
 
     cv_img = img[::-1].transpose(1, 2, 0)
