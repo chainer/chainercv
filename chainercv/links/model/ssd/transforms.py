@@ -263,7 +263,7 @@ def resize_with_random_interpolation(img, size, return_param=False):
 
     import cv2
 
-    cv_img = img[::-1].transpose(1, 2, 0)
+    cv_img = img.transpose(1, 2, 0)
 
     inters = (
         cv2.INTER_LINEAR,
@@ -275,7 +275,11 @@ def resize_with_random_interpolation(img, size, return_param=False):
     inter = random.choice(inters)
     cv_img = cv2.resize(cv_img, size, interpolation=inter)
 
-    img = cv_img.astype(np.float32).transpose(2, 0, 1)[::-1]
+    # If input is a grayscale image, cv2 returns a two-dimentional array.
+    if len(img.shape) == 2:
+        img = img[:, :, np.newaxis]
+
+    img = cv_img.astype(np.float32).transpose(2, 0, 1)
 
     if return_param:
         return img, {'interpolation': inter}
