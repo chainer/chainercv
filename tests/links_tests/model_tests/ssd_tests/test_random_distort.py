@@ -13,12 +13,12 @@ except ImportError:
 
 class TestRandomDistort(unittest.TestCase):
 
-    def test_pca_lighting(self):
-        img = np.random.randint(0, 256, size=(3, 48, 32))
+    def test_random_distort(self):
+        img = np.random.randint(0, 256, size=(3, 48, 32)).astype(np.float32)
 
         out = random_distort(img)
-        self.assertEqual(img.shape, out.shape)
-        self.assertEqual(img.dtype, out.dtype)
+        self.assertEqual(out.shape, img.shape)
+        self.assertEqual(out.dtype, img.dtype)
 
 
 testing.run_module(__name__, __file__)
