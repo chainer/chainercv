@@ -13,10 +13,11 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
     """An extension that evaluates a semantic segmentation model.
 
     This extension iterates over an iterator and evaluates the prediction
-    results of the model by Intersection over Union (IoU) for each class and
-    the mean of the IoUs (mIoU).
+    results of the model by common evaluation metrics for semantic
+    segmentation.
     This extension reports the following values with keys.
-    Please note that :obj:`'iou/<label_names[l]>'` is reported only if
+    Please note that :obj:`'iou/<label_names[l]>'` and
+    :obj:`'class_accuracy/<label_names[l]>'` are reported only if
     :obj:`label_names` is specified.
 
     * :obj:`'miou'`: Mean of IoUs (mIoU).
@@ -28,7 +29,21 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
         If there is no label assigned to class :obj:`label_names[l]` \
         in ground truth, it reports :obj:`numpy.nan` as \
         its IoU. \
-        In this case, IoU is computed without this class.
+        In this case, mean IoU is computed without this class.
+    * :obj:`'mean_class_accuracy'`: Mean of class accuracies.
+    * :obj:`class_accuracy/<label_names[l]>'`: Class accuracy for class \
+        :obj:`label_names[l]`, where :math:`l` is the index of the class. \
+        If there is no label assigned to class :obj:`label_names[l]` \
+        in ground truth, it reports :obj:`numpy.nam` as \
+        its class accuracy. \
+        In this case, mean class accuracy is computed without this class.
+    * :obj:`pixel_accuracy`: Pixel accuracy.
+
+    For details on the evaluation metrics, please see the documentation
+    for :func:`chainercv.evaluations.eval_semantic_segmentation`.
+
+    .. seealso::
+        :func:`chainercv.evaluations.eval_semantic_segmentation`.
 
     Args:
         iterator (chainer.Iterator): An iterator. Each sample should be
