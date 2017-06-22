@@ -4,13 +4,21 @@ Extensions
 .. module:: chainercv.extensions
 
 
-Detection
+Evaluator
 ---------
-
-DetectionVisReport
-~~~~~~~~~~~~~~~~~~
-.. autofunction:: DetectionVisReport
 
 DetectionVOCEvaluator
 ~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: DetectionVOCEvaluator
+
+SemanticSegmentationEvaluator
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: SemanticSegmentationEvaluator
+
+
+Visualization Report
+--------------------
+
+DetectionVisReport
+~~~~~~~~~~~~~~~~~~
+.. autofunction:: DetectionVisReport
