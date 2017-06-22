@@ -15,7 +15,7 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
     This extension iterates over an iterator and evaluates the prediction
     results of the model by common evaluation metrics for semantic
     segmentation.
-    This extension reports the following values with keys.
+    This extension reports values with keys below.
     Please note that :obj:`'iou/<label_names[l]>'` and
     :obj:`'class_accuracy/<label_names[l]>'` are reported only if
     :obj:`label_names` is specified.
@@ -23,21 +23,21 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
     * :obj:`'miou'`: Mean of IoUs (mIoU).
     * :obj:`'iou/<label_names[l]>'`: IoU for class \
         :obj:`label_names[l]`, where :math:`l` is the index of the class. \
-        For example, this evaluator reports :obj:`'iou/Sky'`, \
-        :obj:`'ap/Building'`, etc. if :obj:`label_names` is \
-        :obj:`~chainercv.datasets.camvid_label_names`. \
-        If there is no label assigned to class :obj:`label_names[l]` \
-        in ground truth, it reports :obj:`numpy.nan` as \
-        its IoU. \
-        In this case, mean IoU is computed without this class.
+        For example, if :obj:`label_names` is \
+        :obj:`~chainercv.datasets.camvid_label_names`, \
+        this evaluator reports :obj:`'iou/Sky'`, \
+        :obj:`'ap/Building'`, etc.
     * :obj:`'mean_class_accuracy'`: Mean of class accuracies.
-    * :obj:`class_accuracy/<label_names[l]>'`: Class accuracy for class \
-        :obj:`label_names[l]`, where :math:`l` is the index of the class. \
-        If there is no label assigned to class :obj:`label_names[l]` \
-        in ground truth, it reports :obj:`numpy.nam` as \
-        its class accuracy. \
-        In this case, mean class accuracy is computed without this class.
-    * :obj:`pixel_accuracy`: Pixel accuracy.
+    * :obj:`'class_accuracy/<label_names[l]>'`: Class accuracy for class \
+        :obj:`label_names[l]`, where :math:`l` is the index of the class.
+    * :obj:`'pixel_accuracy'`: Pixel accuracy.
+
+    If there is no label assigned to class :obj:`label_names[l]`
+    in the ground truth, values corresponding to keys
+    :obj:`'iou/<label_names[l]>'` and :obj:`'class_accuracy/<label_names[l]>'`
+    are :obj:`numpy.nan`.
+    In that case, the means of them are calculated by excluding them from
+    calculation.
 
     For details on the evaluation metrics, please see the documentation
     for :func:`chainercv.evaluations.eval_semantic_segmentation`.
@@ -53,8 +53,10 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
             have :meth:`predict` method which takes a list of images and
             returns :obj:`labels`.
         label_names (iterable of strings): An iterable of names of classes.
-            If this value is specified, IoU for each class is
-            also reported with the key :obj:`'iou/<label_names[l]>'`.
+            If this value is specified, IoU and class accuracy for each class
+            is also reported with the keys
+            :obj:`'iou/<label_names[l]>'` and
+            :obj:`'class_accuracy/<label_names[l]>'`.
 
     """
 
