@@ -92,7 +92,6 @@ def main():
         ['epoch', 'iteration', 'elapsed_time', 'lr',
          'main/loss', 'validation/main/miou',
          'validation/main/mean_class_accuracy',
-         'validation/main/class_accuracy',
          'validation/main/pixel_accuracy']),
         trigger=log_trigger)
     trainer.extend(extensions.ProgressBar(update_interval=10))
