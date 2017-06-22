@@ -22,6 +22,7 @@ def _reporthook(count, block_size, total_size):
     global start_time
     if count == 0:
         start_time = time.time()
+        print('  %   Total    Recv       Speed  Time left')
         return
     duration = time.time() - start_time
     progress_size = count * block_size
@@ -32,10 +33,10 @@ def _reporthook(count, block_size, total_size):
     percent = progress_size / total_size * 100
     eta = int((total_size - progress_size) / speed)
     sys.stdout.write(
-        '\r... {:.0f}% {:.0f}MiB / {:.0f}MiB {:.0f}KiB/s eta {:d}m {:02d}s'
+        '\r{:3.0f} {:4.0f}MiB {:4.0f}MiB {:6.0f}KiB/s {:4d}:{:02d}:{:02d}'
         .format(
-            percent, progress_size / (1 << 20), total_size / (1 << 20),
-            speed / (1 << 10), eta // 60, eta % 60))
+            percent, total_size / (1 << 20), progress_size / (1 << 20),
+            speed / (1 << 10), eta // 60 // 60, (eta // 60) % 60, eta % 60))
     sys.stdout.flush()
 
 
@@ -76,7 +77,9 @@ def cached_download(url):
     temp_root = tempfile.mkdtemp(dir=cache_root)
     try:
         temp_path = os.path.join(temp_root, 'dl')
-        print('Downloading from {:s} to {:s} ...'.format(url, cache_path))
+        print('Downloading ...')
+        print('From: {:s}'.format(url))
+        print('To: {:s}'.format(cache_path))
         request.urlretrieve(url, temp_path, _reporthook)
         with filelock.FileLock(lock_path):
             shutil.move(temp_path, cache_path)
