@@ -22,6 +22,11 @@ Convert `*.caffemodel` to `*.npz`. Some layers are renamed to fit ChainerCV. SSD
 $ python caffe2npz <source>.caffemodel <target>.npz
 ```
 
+## Evaluation
+
+The evaluation can be conducted using [`chainercv/examples/detection/eval_voc07.py`](https://github.com/chainer/chainercv/blob/master/examples/detection).
+
+
 ## References
 1. Wei Liu, et al. "SSD: Single shot multibox detector" ECCV 2016.
 2. Cheng-Yang Fu, et al. "[DSSD : Deconvolutional Single Shot Detector](https://arxiv.org/abs/1701.06659)" arXiv 2017.
