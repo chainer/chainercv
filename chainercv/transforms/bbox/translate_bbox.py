@@ -10,7 +10,7 @@ def translate_bbox(bbox, y_offset=0, x_offset=0):
     tensor of shape :math:`(R, 4)`, where :math:`R` is the number of
     bounding boxes in the image. The second axis represents attributes of
     the bounding box. They are :obj:`(y_min, x_min, y_max, x_max)`,
-    where the four attributes are coordinates of of the top left and the
+    where the four attributes are coordinates of the top left and the
     bottom right vertices.
 
     Args:
