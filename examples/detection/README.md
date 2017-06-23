@@ -36,6 +36,7 @@ $ python visualuze_models.py
 
 Here are list of important configurations to reproduce results.
 
-+ `model.use_preset('evaluate')` changes the score thresholds for NMS.
-+ `DetectionVOCEvaluator` should be instantiated with `use_07_metric=True` (default is False), if evaluation is conducted on VOC07 test dataset.
-+ When evaluating on VOC dataset, `VOCDetectionDataset` should return information about image difficulty, as the evaluation metric expects that to be included. The dataset returns it by setting `use_difficult=True` and `return_difficult=True`.
++ `model.use_preset('evaluate')` configures postprocessing parameters for evaluation such as threshold for confidence score.
++ `DetectionVOCEvaluator` should be instantiated with `use_07_metric=True` (default is False), if evaluation is conducted on VOC 2007 test dataset.
++ When evaluating on VOC dataset, `VOCDetectionDataset` should return information about difficulties of bounding boxes, as the evaluation metric expects that to be included.
+The dataset returns it by setting `use_difficult=True` and `return_difficult=True`.
