@@ -4,7 +4,7 @@ import numpy as np
 def crop_bbox(
         bbox, y_slice=None, x_slice=None,
         allow_outside_center=True, return_param=False):
-    """Crop bounding boxes.
+    """Translate bounding boxes to fit within the cropped area of an image.
 
     This method is mainly used together with image cropping.
     This method translates the coordinates of bounding boxes like
