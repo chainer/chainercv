@@ -14,6 +14,8 @@ except ImportError:
 class TestRandomDistort(unittest.TestCase):
 
     def test_random_distort(self):
+        if not optional_modules:
+            return
         img = np.random.randint(0, 256, size=(3, 48, 32)).astype(np.float32)
 
         out = random_distort(img)
