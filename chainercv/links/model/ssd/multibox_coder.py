@@ -231,8 +231,8 @@ class MultiboxCoder(object):
             label.append(xp.array((l,) * len(bbox_l)))
             score.append(score_l)
 
-        bbox = xp.vstack(bbox)
-        label = xp.hstack(label).astype(int)
-        score = xp.hstack(score)
+        bbox = xp.vstack(bbox).astype(np.float32)
+        label = xp.hstack(label).astype(np.int32)
+        score = xp.hstack(score).astype(np.float32)
 
         return bbox, label, score

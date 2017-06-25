@@ -7,6 +7,7 @@ from chainer.testing import attr
 
 from chainercv.links.model.ssd import Multibox
 from chainercv.links.model.ssd import SSD
+from chainercv.utils import assert_is_detection_link
 
 
 def _random_array(xp, shape):
@@ -94,38 +95,13 @@ class TestSSD(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.link.use_preset('unknown')
 
-    def _check_predict(self):
-        imgs = [
-            _random_array(np, (3, 640, 480)),
-            _random_array(np, (3, 320, 320))]
-
-        bboxes, labels, scores = self.link.predict(imgs)
-
-        self.assertEqual(len(bboxes), len(imgs))
-        self.assertEqual(len(labels), len(imgs))
-        self.assertEqual(len(scores), len(imgs))
-
-        for bbox, label, score in zip(bboxes, labels, scores):
-            self.assertIsInstance(bbox, np.ndarray)
-            self.assertEqual(bbox.ndim, 2)
-            self.assertLessEqual(bbox.shape[0], self.n_bbox * self.n_fg_class)
-            self.assertEqual(bbox.shape[1], 4)
-
-            self.assertIsInstance(label, np.ndarray)
-            self.assertEqual(label.ndim, 1)
-            self.assertEqual(label.shape[0], bbox.shape[0])
-
-            self.assertIsInstance(score, np.ndarray)
-            self.assertEqual(score.ndim, 1)
-            self.assertEqual(score.shape[0], bbox.shape[0])
-
     def test_predict_cpu(self):
-        self._check_predict()
+        assert_is_detection_link(self.link, self.n_fg_class)
 
     @attr.gpu
     def test_predict_gpu(self):
         self.link.to_gpu()
-        self._check_predict()
+        assert_is_detection_link(self.link, self.n_fg_class)
 
 
 testing.run_module(__name__, __file__)

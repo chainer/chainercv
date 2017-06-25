@@ -4,21 +4,21 @@ import numpy as np
 def crop_bbox(
         bbox, y_slice=None, x_slice=None,
         allow_outside_center=True, return_param=False):
-    """Crop bounding boxes.
+    """Translate bounding boxes to fit within the cropped area of an image.
 
     This method is mainly used together with image cropping.
     This method translates the coordinates of bounding boxes like
     :func:`~chainercv.transforms.translate_bbox`. In addition,
-    this function truncates the bounding boxes to fit within the cropping area.
-    If a bounding box does not overlap with the cropping area,
+    this function truncates the bounding boxes to fit within the cropped area.
+    If a bounding box does not overlap with the cropped area,
     this bounding box will be removed.
 
     The bounding boxes are expected to be packed into a two dimensional
     tensor of shape :math:`(R, 4)`, where :math:`R` is the number of
     bounding boxes in the image. The second axis represents attributes of
     the bounding box. They are :obj:`(y_min, x_min, y_max, x_max)`,
-    where the four attributes are coordinates of the bottom left and the
-    top right vertices.
+    where the four attributes are coordinates of the top left and the
+    bottom right vertices.
 
     Args:
         bbox (~numpy.ndarray): Bounding boxes to be transformed. The shape is
@@ -26,7 +26,7 @@ def crop_bbox(
         y_slice (slice): The slice of y axis.
         x_slice (slice): The slice of x axis.
         allow_outside_center (bool): If this argument is :obj:`False`,
-            bounding boxes whose centers are outside of the cropping area
+            bounding boxes whose centers are outside of the cropped area
             are removed. The default value is :obj:`True`.
         return_param (bool): If :obj:`True`, this function returns
             indices of kept bounding boxes.
