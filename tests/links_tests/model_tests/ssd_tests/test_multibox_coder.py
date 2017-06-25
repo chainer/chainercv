@@ -33,7 +33,7 @@ def _random_array(shape):
         'score_thresh': [0, 0.5, np.inf],
     })
 ))
-class TestDefaultBboxCoder(unittest.TestCase):
+class TestMultiboxCoder(unittest.TestCase):
 
     def setUp(self):
         self.coder = MultiboxCoder(
