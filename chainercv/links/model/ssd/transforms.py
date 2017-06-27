@@ -187,11 +187,11 @@ def random_crop_with_bbox_constraints(
     if len(bbox) == 0:
         constraints = list()
 
-    for iou_min, iou_max in constraints:
-        if iou_min is None:
-            iou_min = 0
-        if iou_max is None:
-            iou_max = 1
+    for min_iou, max_iou in constraints:
+        if min_iou is None:
+            min_iou = 0
+        if max_iou is None:
+            max_iou = 1
 
         for _ in six.moves.range(max_trial):
             scale = random.uniform(min_scale, max_scale)
@@ -207,9 +207,9 @@ def random_crop_with_bbox_constraints(
                 crop_t, crop_l, crop_t + crop_h, crop_l + crop_w))
 
             iou = utils.bbox_iou(bbox, crop_bb[np.newaxis])
-            if iou_min <= iou.min() and iou.max() <= iou_max:
+            if min_iou <= iou.min() and iou.max() <= max_iou:
                 params.append({
-                    'constraint': (iou_min, iou_max),
+                    'constraint': (min_iou, max_iou),
                     'y_slice': slice(crop_t, crop_t + crop_h),
                     'x_slice': slice(crop_l, crop_l + crop_w)})
                 break
