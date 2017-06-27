@@ -24,7 +24,7 @@ class TestRandomCropWithBboxConstraints(unittest.TestCase):
             np.testing.assert_equal(out, img)
         else:
             np.testing.assert_equal(
-                out, img[param['y_slice'], param['x_slice']])
+                out, img[:, param['y_slice'], param['x_slice']])
 
             self.assertGreaterEqual(out.size, img.size * 0.3 * 0.3)
             self.assertLessEqual(out.size, img.size * 1 * 1)
