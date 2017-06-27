@@ -110,7 +110,7 @@ def random_distort(
     return cv_img.astype(np.float32).transpose(2, 0, 1)[::-1]
 
 
-def random_crop_with_bbox(
+def random_crop_with_bbox_constraints(
         img, bbox, min_scale=0.3, max_scale=1,
         max_aspect_ratio=2, constraints=None,
         max_trial=50, return_param=False):

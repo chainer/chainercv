@@ -10,6 +10,6 @@ from chainercv.links.model.ssd.ssd_vgg16 import SSD512  # NOQA
 from chainercv.links.model.ssd.ssd_vgg16 import VGG16  # NOQA
 from chainercv.links.model.ssd.ssd_vgg16 import VGG16Extractor300  # NOQA
 from chainercv.links.model.ssd.ssd_vgg16 import VGG16Extractor512  # NOQA
-from chainercv.links.model.ssd.transforms import random_crop_with_bbox  # NOQA
+from chainercv.links.model.ssd.transforms import random_crop_with_bbox_constraints  # NOQA
 from chainercv.links.model.ssd.transforms import random_distort  # NOQA
 from chainercv.links.model.ssd.transforms import resize_with_random_interpolation  # NOQA
