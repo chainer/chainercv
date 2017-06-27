@@ -16,7 +16,7 @@ class DetectionLink(chainer.Link):
         scores = list()
 
         for img in imgs:
-            n_bbox = np.random.randint(0, 10)
+            n_bbox = np.random.randint(1, 10)
             bboxes.append(generate_random_bbox(
                 n_bbox, img.shape[1:], 4, 12))
             labels.append(np.random.randint(
