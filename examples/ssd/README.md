@@ -3,10 +3,10 @@
 ## Performance
 PASCAL VOC2007 Test
 
-| Model | Original | ChainerCV |
-|:-:|:-:|:-:|
-| SSD300 | 77.5 % [2] | 77.8 % |
-| SSD512 | 79.5 % [2] | 79.7 % |
+| Model | Original | ChainerCV (weight conversion) | ChainerCV (train) |
+|:-:|:-:|:-:|:-:|
+| SSD300 | 77.5 % [2] | 77.8 % | 77.5 % |
+| SSD512 | 79.5 % [2] | 79.7 % | - |
 
 Scores are mean Average Precision (mAP) with PASCAL VOC2007 metric.
 
@@ -21,6 +21,14 @@ Convert `*.caffemodel` to `*.npz`. Some layers are renamed to fit ChainerCV. SSD
 ```
 $ python caffe2npz <source>.caffemodel <target>.npz
 ```
+
+## Train
+You can train the model with the following code.
+
+```
+$ python train.py [--gpu <gpu>]
+```
+
 
 ## References
 1. Wei Liu, et al. "SSD: Single shot multibox detector" ECCV 2016.
