@@ -11,7 +11,8 @@ class SequentialExtractor(chainer.Chain):
 
         if not isinstance(layers, collections.OrderedDict):
             layers = collections.OrderedDict(
-                [(str(i), function) for i, function in enumerate(layers)])
+                [('{}_{}'.format(layer.__class__.__name__, i), layer)
+                 for i, layer in enumerate(layers)])
         self._layers = layers
 
         if layer_names is None:
