@@ -8,16 +8,7 @@ from chainer.testing import attr
 from chainer import utils
 
 from chainercv.links.model.faster_rcnn import AnchorTargetCreator
-
-
-def _generate_bbox(n, img_size, min_length, max_length):
-    W, H = img_size
-    x_min = np.random.uniform(0, W - max_length, size=(n,))
-    y_min = np.random.uniform(0, H - max_length, size=(n,))
-    x_max = x_min + np.random.uniform(min_length, max_length, size=(n,))
-    y_max = y_min + np.random.uniform(min_length, max_length, size=(n,))
-    bbox = np.stack((x_min, y_min, x_max, y_max), axis=1).astype(np.float32)
-    return bbox
+from chainercv.utils import generate_random_bbox
 
 
 class TestAnchorTargetCreator(unittest.TestCase):
@@ -32,8 +23,9 @@ class TestAnchorTargetCreator(unittest.TestCase):
         feat_size = (self.img_size[0] // 16, self.img_size[1] // 16)
         self.n_anchor = self.n_anchor_base * np.prod(feat_size)
 
-        self.anchor = _generate_bbox(self.n_anchor, self.img_size, 16, 200)
-        self.bbox = _generate_bbox(n_bbox, self.img_size, 16, 200)
+        self.anchor = generate_random_bbox(
+            self.n_anchor, self.img_size, 16, 200)
+        self.bbox = generate_random_bbox(n_bbox, self.img_size, 16, 200)
         self.anchor_target_layer = AnchorTargetCreator(
             self.n_sample, pos_ratio=self.pos_ratio,
         )

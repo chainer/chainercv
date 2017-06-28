@@ -93,11 +93,12 @@ class FasterRCNN(chainer.Chain):
             loc_normalize_mean=(0., 0., 0., 0.),
             loc_normalize_std=(0.1, 0.1, 0.2, 0.2),
     ):
-        super(FasterRCNN, self).__init__(
-            extractor=extractor,
-            rpn=rpn,
-            head=head,
-        )
+        super(FasterRCNN, self).__init__()
+        with self.init_scope():
+            self.extractor = extractor
+            self.rpn = rpn
+            self.head = head
+
         self.mean = mean
         self.min_size = min_size
         self.max_size = max_size
@@ -111,7 +112,7 @@ class FasterRCNN(chainer.Chain):
         # Total number of classes including the background.
         return self.head.n_class
 
-    def __call__(self, x, scale=1., test=True):
+    def __call__(self, x, scale=1.):
         """Forward Faster R-CNN.
 
         Scaling paramter :obj:`scale` is used by RPN to determine the
@@ -133,7 +134,6 @@ class FasterRCNN(chainer.Chain):
             x (~chainer.Variable): 4D image variable.
             scale (float): Amount of scaling applied to the raw image
                 during preprocessing.
-            test (bool): If :obj:`True`, the test time behavior is used.
 
         Returns:
             Variable, Variable, array, array:
@@ -149,13 +149,13 @@ class FasterRCNN(chainer.Chain):
                 :math:`(R',)`.
 
         """
-        img_size = x.shape[2:][::-1]
+        img_size = x.shape[2:]
 
-        h = self.extractor(x, test=test)
+        h = self.extractor(x)
         rpn_locs, rpn_scores, rois, roi_indices, anchor =\
-            self.rpn(h, img_size, scale, test=test)
+            self.rpn(h, img_size, scale)
         roi_cls_locs, roi_scores = self.head(
-            h, rois, roi_indices, test=test)
+            h, rois, roi_indices)
         return roi_cls_locs, roi_scores, rois, roi_indices
 
     def use_preset(self, preset):
@@ -214,7 +214,7 @@ class FasterRCNN(chainer.Chain):
         if scale * max(H, W) > self.max_size:
             scale = self.max_size / max(H, W)
 
-        img = resize(img, (int(W * scale), int(H * scale)))
+        img = resize(img, (int(H * scale), int(W * scale)))
 
         img = (img - self.mean).astype(np.float32, copy=False)
         return img
@@ -249,7 +249,7 @@ class FasterRCNN(chainer.Chain):
         Args:
             imgs (iterable of numpy.ndarray): Arrays holding images.
                 All images are in CHW and RGB format
-                and the range of their values are :math:`[0, 255]`.
+                and the range of their value is :math:`[0, 255]`.
 
         Returns:
            tuple of lists:
@@ -259,7 +259,7 @@ class FasterRCNN(chainer.Chain):
            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
                where :math:`R` is the number of bounding boxes in a image. \
                Each bouding box is organized by \
-               :obj:`(x_min, y_min, x_max, y_max)` \
+               :obj:`(y_min, x_min, y_max, x_max)` \
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
                Each value indicates the class of the bounding box. \
@@ -282,11 +282,11 @@ class FasterRCNN(chainer.Chain):
         labels = list()
         scores = list()
         for img, scale in zip(prepared_imgs, scales):
-            img_var = chainer.Variable(
-                self.xp.asarray(img[None]), volatile=chainer.flag.ON)
-            H, W = img_var.shape[2:]
-            roi_cls_locs, roi_scores, rois, _ = self.__call__(
-                img_var, scale=scale, test=True)
+            with chainer.function.no_backprop_mode():
+                img_var = chainer.Variable(self.xp.asarray(img[None]))
+                H, W = img_var.shape[2:]
+                roi_cls_locs, roi_scores, rois, _ = self.__call__(
+                    img_var, scale=scale)
             # We are assuming that batch size is 1.
             roi_cls_loc = roi_cls_locs.data
             roi_score = roi_scores.data
@@ -305,9 +305,9 @@ class FasterRCNN(chainer.Chain):
             cls_bbox = cls_bbox.reshape(-1, self.n_class * 4)
             # clip bounding box
             cls_bbox[:, slice(0, 4, 2)] = self.xp.clip(
-                cls_bbox[:, slice(0, 4, 2)], 0, W / scale)
+                cls_bbox[:, slice(0, 4, 2)], 0, H / scale)
             cls_bbox[:, slice(1, 4, 2)] = self.xp.clip(
-                cls_bbox[:, slice(1, 4, 2)], 0, H / scale)
+                cls_bbox[:, slice(1, 4, 2)], 0, W / scale)
 
             prob = F.softmax(roi_score).data
 

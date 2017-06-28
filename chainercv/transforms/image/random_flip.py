@@ -1,15 +1,15 @@
 import random
 
 
-def random_flip(img, x_random=False, y_random=False,
+def random_flip(img, y_random=False, x_random=False,
                 return_param=False, copy=False):
     """Randomly flip an image in vertical or horizontal direction.
 
     Args:
         img (~numpy.ndarray): An array that gets flipped. This is in
             CHW format.
-        x_random (bool): Randomly flip in horizontal direction.
         y_random (bool): Randomly flip in vertical direction.
+        x_random (bool): Randomly flip in horizontal direction.
         return_param (bool): Returns information of flip.
         copy (bool): If False, a view of :obj:`img` will be returned.
 
@@ -25,27 +25,27 @@ def random_flip(img, x_random=False, y_random=False,
         contents are listed below with key, value-type and the description
         of the value.
 
-        * **x_flip** (*bool*): Whether the image was flipped in the\
-            horizontal direction or not.
         * **y_flip** (*bool*): Whether the image was flipped in the\
             vertical direction or not.
+        * **x_flip** (*bool*): Whether the image was flipped in the\
+            horizontal direction or not.
 
     """
-    x_flip, y_flip = False, False
-    if x_random:
-        x_flip = random.choice([True, False])
+    y_flip, x_flip = False, False
     if y_random:
         y_flip = random.choice([True, False])
+    if x_random:
+        x_flip = random.choice([True, False])
 
-    if x_flip:
-        img = img[:, :, ::-1]
     if y_flip:
         img = img[:, ::-1, :]
+    if x_flip:
+        img = img[:, :, ::-1]
 
     if copy:
         img = img.copy()
 
     if return_param:
-        return img, {'x_flip': x_flip, 'y_flip': y_flip}
+        return img, {'y_flip': y_flip, 'x_flip': x_flip}
     else:
         return img

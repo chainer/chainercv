@@ -5,22 +5,14 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
+from chainercv.utils import assert_is_detection_link
+
 from dummy_faster_rcnn import DummyFasterRCNN
 
 
 def _random_array(xp, shape):
     return xp.array(
         np.random.uniform(-1, 1, size=shape), dtype=np.float32)
-
-
-def _generate_bbox(xp, n, img_size, min_length, max_length):
-    W, H = img_size
-    x_min = xp.random.uniform(0, W - max_length, size=(n,))
-    y_min = xp.random.uniform(0, H - max_length, size=(n,))
-    x_max = x_min + xp.random.uniform(min_length, max_length, size=(n,))
-    y_max = y_min + xp.random.uniform(min_length, max_length, size=(n,))
-    bbox = xp.stack((x_min, y_min, x_max, y_max), axis=1).astype(np.float32)
-    return bbox
 
 
 class TestFasterRCNN(unittest.TestCase):
@@ -68,39 +60,13 @@ class TestFasterRCNN(unittest.TestCase):
         self.link.to_gpu()
         self.check_call()
 
-    def check_predict(self):
-        imgs = [
-            _random_array(np, (3, 640, 480)),
-            _random_array(np, (3, 320, 320))]
-
-        bboxes, labels, scores = self.link.predict(imgs)
-
-        self.assertEqual(len(bboxes), len(imgs))
-        self.assertEqual(len(labels), len(imgs))
-        self.assertEqual(len(scores), len(imgs))
-
-        for bbox, label, score in zip(bboxes, labels, scores):
-            self.assertIsInstance(bbox, np.ndarray)
-            self.assertEqual(bbox.dtype, np.float32)
-            self.assertEqual(bbox.ndim, 2)
-            self.assertLessEqual(bbox.shape[0], self.n_roi)
-            self.assertEqual(bbox.shape[1], 4)
-
-            self.assertIsInstance(label, np.ndarray)
-            self.assertEqual(label.dtype, np.int32)
-            self.assertEqual(label.shape, (bbox.shape[0],))
-
-            self.assertIsInstance(score, np.ndarray)
-            self.assertEqual(score.dtype, np.float32)
-            self.assertEqual(score.shape, (bbox.shape[0],))
-
     def test_predict_cpu(self):
-        self.check_predict()
+        assert_is_detection_link(self.link, self.n_class - 1)
 
     @attr.gpu
     def test_predict_gpu(self):
         self.link.to_gpu()
-        self.check_predict()
+        assert_is_detection_link(self.link, self.n_class - 1)
 
 
 @testing.parameterize(

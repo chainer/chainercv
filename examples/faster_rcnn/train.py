@@ -12,14 +12,15 @@ import numpy as np
 import chainer
 from chainer import training
 from chainer.training import extensions
+from chainer.training.triggers import ManualScheduleTrigger
 
 from chainercv.datasets import TransformDataset
-from chainercv.datasets import VOCDetectionDataset
-from chainercv import transforms
-
 from chainercv.datasets import voc_detection_label_names
+from chainercv.datasets import VOCDetectionDataset
+from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
+from chainercv import transforms
 
 
 def main():
@@ -37,6 +38,8 @@ def main():
     np.random.seed(args.seed)
 
     train_data = VOCDetectionDataset(split='trainval', year='2007')
+    test_data = VOCDetectionDataset(split='test', year='2007',
+                                    use_difficult=True, return_difficult=True)
     faster_rcnn = FasterRCNNVGG16(n_fg_class=len(voc_detection_label_names),
                                   pretrained_model='imagenet')
     faster_rcnn.use_preset('evaluate')
@@ -54,18 +57,21 @@ def main():
         img = faster_rcnn.prepare(img)
         _, o_H, o_W = img.shape
         scale = o_H / H
-        bbox = transforms.resize_bbox(bbox, (W, H), (o_W, o_H))
+        bbox = transforms.resize_bbox(bbox, (H, W), (o_H, o_W))
 
         # horizontally flip
         img, params = transforms.random_flip(
             img, x_random=True, return_param=True)
-        bbox = transforms.flip_bbox(bbox, (o_W, o_H), params['x_flip'])
+        bbox = transforms.flip_bbox(
+            bbox, (o_H, o_W), x_flip=params['x_flip'])
 
         return img, bbox, label, scale
     train_data = TransformDataset(train_data, transform)
 
     train_iter = chainer.iterators.MultiprocessIterator(
         train_data, batch_size=1, n_processes=None, shared_mem=100000000)
+    test_iter = chainer.iterators.SerialIterator(
+        test_data, batch_size=1, repeat=False, shuffle=False)
     updater = chainer.training.updater.StandardUpdater(
         train_iter, optimizer, device=args.gpu)
 
@@ -92,6 +98,7 @@ def main():
          'main/roi_cls_loss',
          'main/rpn_loc_loss',
          'main/rpn_cls_loss',
+         'validation/main/map',
          ]), trigger=print_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
@@ -103,6 +110,14 @@ def main():
             ),
             trigger=plot_interval
         )
+
+    trainer.extend(
+        DetectionVOCEvaluator(
+            test_iter, model.faster_rcnn, use_07_metric=True,
+            label_names=voc_detection_label_names),
+        trigger=ManualScheduleTrigger(
+            [args.step_size, args.iteration], 'iteration'),
+        invoke_before_training=False)
 
     trainer.extend(extensions.dump_graph('main/loss'))
 

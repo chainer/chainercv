@@ -1,13 +1,13 @@
-[![travis](https://travis-ci.org/pfnet/chainercv.svg?branch=master)](https://travis-ci.org/pfnet/chainercv)
+[![travis](https://travis-ci.org/chainer/chainercv.svg?branch=master)](https://travis-ci.org/chainer/chainercv)
 
 <!--[![pypi](https://img.shields.io/pypi/v/chainercv.svg)](https://pypi.python.org/pypi/chainercv)-->
 
 
 # ChainerCV
 
-ChainerCV is a collection of tools to train and run neural networks for computer vision tasks using [Chainer](https://github.com/pfnet/chainer).
+ChainerCV is a collection of tools to train and run neural networks for computer vision tasks using [Chainer](https://github.com/chainer/chainer).
 
-You can find the documentation [here](http://chainercv.readthedocs.io/en/latest/).
+You can find the documentation [here](http://chainercv.readthedocs.io/en/stable/).
 
 ![Example are outputs of detection models supported by ChainerCV](https://cloud.githubusercontent.com/assets/2062128/26337670/44a2a202-3fb5-11e7-8b88-6eb9886a9915.png)
 These are the outputs of the detection models supported by ChainerCV.
@@ -19,11 +19,11 @@ These are the outputs of the detection models supported by ChainerCV.
 $ pip install chainercv
 ```
 
-The instruction on installation using Anaconda is [here](http://chainercv.readthedocs.io/en/latest/#install-guide) (recommended).
+The instruction on installation using Anaconda is [here](http://chainercv.readthedocs.io/en/stable/#install-guide) (recommended).
 
 ### Requirements
 
-+ [Chainer](https://github.com/pfnet/chainer) and its dependencies
++ [Chainer](https://github.com/chainer/chainer) and its dependencies
 + Cython
 + Pillow
 
@@ -35,8 +35,21 @@ For additional features
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
 
+The HEAD of the master branch is developed for Chainer v2.
+For users using Chainer v1, please use version 0.4.11, which can be installed by `pip install chainercv==0.4.11`.
+
 
 # Features
+
+## Data conventions
+
+ChainerCV follows the following conventions.
+
++ Channels of a color image are ordered as RGB. The shape of an image-array is CHW (channel, height, width).
++ Axis-dependent values follow row-column order.
+  + Shape of an image is always represented as `(height, width)`.
+  + Coordinates of bounding boxes are ordered as `(y_min, x_min, y_max, x_max)`. `(y_min, x_min)` and `(y_max, x_max)` are coordinates of the top left and the bottom right vertices of a bounding box respectively.
+  + Coordinates of keypoints are ordered as `(y, x)`.
 
 ## Models
 Currently, ChainerCV supports networks for object detection and semantic segmentation.

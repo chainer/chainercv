@@ -28,8 +28,8 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     The bounding boxes are packed into a two dimensional tensor of shape
     :math:`(R, 4)`, where :math:`R` is the number of bounding boxes in
     the image. The second axis represents attributes of the bounding box.
-    They are :obj:`(x_min, y_min, x_max, y_max)`, where the
-    four attributes are coordinates of the bottom left and the top right
+    They are :obj:`(y_min, x_min, y_max, x_max)`, where the
+    four attributes are coordinates of the top left and the bottom right
     vertices.
 
     The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
@@ -39,6 +39,8 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
 
     The array :obj:`difficult` is a one dimensional boolean array of shape
     :math:`(R,)`. :math:`R` is the number of bounding boxes in the image.
+    If :obj:`use_difficult` is :obj:`False`, this array is
+    a boolean array with all :obj:`False`.
 
     The type of the image, the bounding boxes and the labels are as follows.
 
@@ -76,7 +78,6 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
                     'for 2012 dataset. For 2007 dataset, you can pick \'test\''
                     ' in addition to the above mentioned splits.'
                 )
-
         id_list_file = os.path.join(
             data_dir, 'ImageSets/Main/{0}.txt'.format(split))
 
@@ -111,19 +112,20 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         for obj in anno.findall('object'):
             # when in not using difficult split, and the object is
             # difficult, skipt it.
-            difficult.append(int(obj.find('difficult').text))
             if not self.use_difficult and int(obj.find('difficult').text) == 1:
                 continue
 
+            difficult.append(int(obj.find('difficult').text))
             bndbox_anno = obj.find('bndbox')
             # subtract 1 to make pixel indexes 0-based
             bbox.append([
                 int(bndbox_anno.find(tag).text) - 1
-                for tag in ('xmin', 'ymin', 'xmax', 'ymax')])
+                for tag in ('ymin', 'xmin', 'ymax', 'xmax')])
             name = obj.find('name').text.lower().strip()
             label.append(voc_utils.voc_detection_label_names.index(name))
         bbox = np.stack(bbox).astype(np.float32)
         label = np.stack(label).astype(np.int32)
+        # When `use_difficult==False`, all elements in `difficult` are False.
         difficult = np.array(difficult, dtype=np.bool)
 
         # Load a image

@@ -1,4 +1,5 @@
-chainer
-scikit-image
-scikit-learn
+chainer==2.0
+Cython
 matplotlib
+numpy
+Pillow

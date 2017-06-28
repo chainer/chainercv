@@ -17,8 +17,8 @@ SSD512
 .. autoclass:: SSD512
    :members:
 
-Utility Classes
----------------
+Utility
+-------
 
 Multibox
 ~~~~~~~~

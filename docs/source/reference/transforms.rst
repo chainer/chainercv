@@ -55,6 +55,10 @@ ten_crop
 Bounding Box
 ------------
 
+crop_bbox
+~~~~~~~~~
+.. autofunction:: crop_bbox
+
 flip_bbox
 ~~~~~~~~~
 .. autofunction:: flip_bbox

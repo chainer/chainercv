@@ -2,27 +2,18 @@ import unittest
 
 import numpy as np
 
+import chainer
 from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
 
 from chainercv.links.model.faster_rcnn import ProposalCreator
-
-
-def _generate_bbox(n, img_size, min_length, max_length):
-    W, H = img_size
-    x_min = np.random.uniform(0, W - max_length, size=(n,))
-    y_min = np.random.uniform(0, H - max_length, size=(n,))
-    x_max = x_min + np.random.uniform(min_length, max_length, size=(n,))
-    y_max = y_min + np.random.uniform(min_length, max_length, size=(n,))
-    bbox = np.stack((x_min, y_min, x_max, y_max), axis=1).astype(np.float32)
-    return bbox
+from chainercv.utils import generate_random_bbox
 
 
 @testing.parameterize(
-    *testing.product({
-        'test': [True, False],
-    })
+    {'train': True},
+    {'train': False},
 )
 class TestProposalCreator(unittest.TestCase):
 
@@ -39,21 +30,25 @@ class TestProposalCreator(unittest.TestCase):
             low=0, high=1, size=(n_anchor,)).astype(np.float32)
         self.bbox_d = np.random.uniform(
             low=-1, high=1., size=(n_anchor, 4)).astype(np.float32)
-        self.anchor = _generate_bbox(n_anchor, self.img_size, 16, 200)
+        self.anchor = generate_random_bbox(n_anchor, self.img_size, 16, 200)
         self.proposal_creator = ProposalCreator(
             n_train_post_nms=self.n_train_post_nms,
             n_test_post_nms=self.n_test_post_nms,
             min_size=0)
 
+        chainer.config.train = self.train
+
     def check_proposal_creator(
             self, proposal_creator,
             bbox_d, score, anchor, img_size,
-            scale=1., test=False):
+            scale=1.):
         roi = self.proposal_creator(
-            bbox_d, score, anchor, img_size, scale, test)
+            bbox_d, score, anchor, img_size, scale)
 
-        out_length = self.n_test_post_nms \
-            if test else self.n_train_post_nms
+        if chainer.config.train:
+            out_length = self.n_train_post_nms
+        else:
+            out_length = self.n_test_post_nms
         self.assertIsInstance(roi, type(bbox_d))
         self.assertEqual(roi.shape, (out_length, 4))
 
@@ -62,7 +57,7 @@ class TestProposalCreator(unittest.TestCase):
             self.proposal_creator,
             self.bbox_d,
             self.score,
-            self.anchor, self.img_size, scale=1., test=self.test)
+            self.anchor, self.img_size, scale=1.)
 
     @attr.gpu
     def test_proposal_creator_gpu(self):
@@ -71,7 +66,7 @@ class TestProposalCreator(unittest.TestCase):
             cuda.to_gpu(self.bbox_d),
             cuda.to_gpu(self.score),
             cuda.to_gpu(self.anchor), self.img_size,
-            scale=1., test=self.test)
+            scale=1.)
 
 
 testing.run_module(__name__, __file__)

@@ -3,7 +3,7 @@ ChainerCV
 =========
 
 
-ChainerCV is a **deep learning based computer vision library** built on top of `Chainer <https://github.com/pfnet/chainer/>`_. 
+ChainerCV is a **deep learning based computer vision library** built on top of `Chainer <https://github.com/chainer/chainer/>`_. 
 
 
 Install Guide
@@ -16,7 +16,7 @@ You can install ChainerCV using `pip`.
 
 .. code-block:: shell
 
-    # If Cython has not been installed yet, install it by commands like
+    # If Cython has not been installed yet, install it by a command like
     # pip install Cython
     pip install chainercv
 
@@ -38,7 +38,7 @@ You can setup ChainerCV including its dependencies using anaconda.
     conda update -q conda
     
     # Download ChainerCV and go to the root directory of ChainerCV
-    git clone https://github.com/pfnet/chainercv
+    git clone https://github.com/chainer/chainercv
     cd chainercv
     conda env create -f environment.yml
     source activate chainercv

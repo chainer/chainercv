@@ -3,21 +3,12 @@ import numpy as np
 import chainer
 
 from chainercv.links.model.faster_rcnn import FasterRCNN
+from chainercv.utils import generate_random_bbox
 
 
 def _random_array(xp, shape):
     return xp.array(
         np.random.uniform(-1, 1, size=shape), dtype=np.float32)
-
-
-def _generate_bbox(xp, n, img_size, min_length, max_length):
-    W, H = img_size
-    x_min = xp.random.uniform(0, W - max_length, size=(n,))
-    y_min = xp.random.uniform(0, H - max_length, size=(n,))
-    x_max = x_min + xp.random.uniform(min_length, max_length, size=(n,))
-    y_max = y_min + xp.random.uniform(min_length, max_length, size=(n,))
-    bbox = xp.stack((x_min, y_min, x_max, y_max), axis=1).astype(np.float32)
-    return bbox
 
 
 class DummyExtractor(chainer.Link):
@@ -26,7 +17,7 @@ class DummyExtractor(chainer.Link):
         super(DummyExtractor, self).__init__()
         self.feat_stride = feat_stride
 
-    def __call__(self, x, test=False):
+    def __call__(self, x):
         _, _, H, W = x.shape
         return _random_array(
             self.xp,
@@ -39,7 +30,7 @@ class DummyHead(chainer.Chain):
         super(DummyHead, self).__init__()
         self.n_class = n_class
 
-    def __call__(self, x, rois, roi_indices, test=False):
+    def __call__(self, x, rois, roi_indices):
         n_roi = len(rois)
         cls_locs = chainer.Variable(
             _random_array(self.xp, (n_roi, self.n_class * 4)))
@@ -61,17 +52,17 @@ class DummyRegionProposalNetwork(chainer.Chain):
         self.n_anchor_base = n_anchor_base
         self.n_roi = n_roi
 
-    def __call__(self, x, img_size, scale, test=False):
+    def __call__(self, x, img_size, scale):
         B, _, H, W = x.shape
         n_anchor = self.n_anchor_base * H * W
 
         rpn_locs = _random_array(self.xp, (B, n_anchor, 4))
         rpn_cls_scores = _random_array(self.xp, (B, n_anchor, 2))
-        rois = _generate_bbox(
-            self.xp, self.n_roi, img_size[::-1], 16, min(img_size))
+        rois = self.xp.asarray(generate_random_bbox(
+            self.n_roi, img_size, 16, min(img_size)))
         roi_indices = self.xp.zeros((len(rois),), dtype=np.int32)
-        anchor = _generate_bbox(
-            self.xp, n_anchor, img_size[::-1], 16, min(img_size))
+        anchor = self.xp.asarray(generate_random_bbox(
+            n_anchor, img_size, 16, min(img_size)))
         return (chainer.Variable(rpn_locs),
                 chainer.Variable(rpn_cls_scores), rois, roi_indices, anchor)
 
