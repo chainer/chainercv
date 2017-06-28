@@ -10,7 +10,7 @@ from chainer.testing import attr
 
 from chainer.function import Function
 
-from chainercv.links import ExtractionChain
+from chainercv.links import SequentialExtractor
 from chainercv.utils.testing import ConstantStubLink
 
 
@@ -20,7 +20,7 @@ class DummyFunc(Function):
         return inputs[0] * 2,
 
 
-class TestExtractionChainOrderedDictFunctions(unittest.TestCase):
+class TestSequentialExtractorOrderedDictFunctions(unittest.TestCase):
 
     def setUp(self):
         self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
@@ -28,7 +28,7 @@ class TestExtractionChainOrderedDictFunctions(unittest.TestCase):
         self.f2 = DummyFunc()
         self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
 
-        self.link = ExtractionChain(
+        self.link = SequentialExtractor(
             collections.OrderedDict(
                 [('l1', self.l1),
                  ('f1', self.f1),
@@ -68,7 +68,7 @@ class TestExtractionChainOrderedDictFunctions(unittest.TestCase):
         self.check_call_output()
 
 
-class TestExtractionChainListFunctions(unittest.TestCase):
+class TestSequentialExtractorListFunctions(unittest.TestCase):
 
     def setUp(self):
         self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
@@ -76,7 +76,7 @@ class TestExtractionChainListFunctions(unittest.TestCase):
         self.f2 = DummyFunc()
         self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
 
-        self.link = ExtractionChain(
+        self.link = SequentialExtractor(
             [self.l1, self.f1, self.f2, self.l2])
         self.x = np.random.uniform(size=(1, 3, 24, 24))
 
@@ -101,7 +101,7 @@ class TestExtractionChainListFunctions(unittest.TestCase):
         self.check_call_output()
 
 
-class TestExtractionChainCopy(unittest.TestCase):
+class TestSequentialExtractorCopy(unittest.TestCase):
 
     def setUp(self):
         self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
@@ -109,7 +109,7 @@ class TestExtractionChainCopy(unittest.TestCase):
         self.f2 = DummyFunc()
         self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
 
-        self.link = ExtractionChain(
+        self.link = SequentialExtractor(
             collections.OrderedDict(
                 [('l1', self.l1),
                  ('f1', self.f1),
@@ -131,7 +131,7 @@ class TestExtractionChainCopy(unittest.TestCase):
         self.check_copy()
 
 
-class TestExtractionChainRedundantLayers(unittest.TestCase):
+class TestSequentialExtractorRedundantLayers(unittest.TestCase):
 
     def setUp(self):
         self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
@@ -139,7 +139,7 @@ class TestExtractionChainRedundantLayers(unittest.TestCase):
         self.f2 = DummyFunc()
         self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
 
-        self.link = ExtractionChain(
+        self.link = SequentialExtractor(
             collections.OrderedDict(
                 [('l1', self.l1),
                  ('f1', self.f1),

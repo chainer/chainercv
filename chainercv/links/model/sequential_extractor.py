@@ -4,10 +4,10 @@ from itertools import islice
 import chainer
 
 
-class ExtractionChain(chainer.Chain):
+class SequentialExtractor(chainer.Chain):
 
     def __init__(self, layers, layer_names=None):
-        super(ExtractionChain, self).__init__()
+        super(SequentialExtractor, self).__init__()
 
         if not isinstance(layers, collections.OrderedDict):
             layers = collections.OrderedDict(
@@ -54,7 +54,7 @@ class ExtractionChain(chainer.Chain):
         return features
 
     def copy(self):
-        ret = super(ExtractionChain, self).copy()
+        ret = super(SequentialExtractor, self).copy()
         layers = []
         for name, function in self._layers.items():
             if name in self._children:
