@@ -8,9 +8,6 @@ class ExtractionChain(chainer.Chain):
         super(ExtractionChain, self).__init__()
 
         if not isinstance(layers, collections.OrderedDict):
-            if layer_names is not None:
-                raise ValueError('`layer_names` needs to be `None` unless '
-                                 '`layers` is OrderedDict.')
             layers = collections.OrderedDict(
                 [(str(i), function) for i, function in enumerate(layers)])
         self._layers = layers
