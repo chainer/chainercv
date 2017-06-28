@@ -66,6 +66,9 @@ class VGG16(ExtractionChain):
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
         n_class (int): The dimension of the output of fc8.
+        mean (numpy.ndarray): A mean image. If :obj:`None` and
+            a supported pretrained model is used,
+            the mean image used to train the pretrained model will be used.
         features (str or iterable of strings): The names of the feature to
             output with :meth:`__call__` and :meth:`predict`.
         initialW (callable): Initializer for the weights.
