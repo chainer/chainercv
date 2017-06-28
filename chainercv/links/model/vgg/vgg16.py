@@ -88,10 +88,10 @@ class VGG16(ExtractionChain):
     }
 
     def __init__(self, pretrained_model=None, n_class=None, mean=None,
-                 feature_names='prob', initialW=None, initial_bias=None):
+                 layer_names='prob', initialW=None, initial_bias=None):
         if n_class is None:
             if (pretrained_model not in self._models and
-                    any([name in ['fc8', 'prob'] for name in feature_names])):
+                    any([name in ['fc8', 'prob'] for name in layer_names])):
                 raise ValueError(
                     'The n_class needs to be supplied as an argument.')
             elif pretrained_model:
@@ -118,7 +118,7 @@ class VGG16(ExtractionChain):
         kwargs = {'initialW': initialW, 'initial_bias': initial_bias}
 
         # The links are instantiated once it is decided to use them.
-        functions = collections.OrderedDict([
+        layers = collections.OrderedDict([
             ('conv1_1', lambda: Convolution2D(3, 64, 3, 1, 1, **kwargs)),
             ('conv1_1_relu', relu),
             ('conv1_2', lambda: Convolution2D(64, 64, 3, 1, 1, **kwargs)),
@@ -159,17 +159,17 @@ class VGG16(ExtractionChain):
             ('fc8', lambda: Linear(4096, n_class, **kwargs)),
             ('prob', softmax)
             ])
-        functions = _choose_necessary_functions(functions, feature_names)
+        layers = _choose_necessary_layers(layers, layer_names)
         # Instantiate uninitialized links.
         link_names = ['conv1_1', 'conv1_2', 'conv2_1', 'conv2_2',
                       'conv3_1', 'conv3_2', 'conv3_3', 'conv4_1',
                       'conv4_2', 'conv4_3', 'conv5_1', 'conv5_2',
                       'conv5_3', 'fc6', 'fc7', 'fc8']
-        for name in list(functions.keys()):
+        for name in list(layers.keys()):
             if name in link_names:
-                functions[name] = functions[name]()
+                layers[name] = layers[name]()
 
-        super(VGG16, self).__init__(functions, feature_names)
+        super(VGG16, self).__init__(layers, layer_names)
 
         if pretrained_model in self._models:
             path = download_model(self._models[pretrained_model]['url'])
@@ -182,13 +182,13 @@ def _max_pooling_2d(x):
     return max_pooling_2d(x, ksize=2)
 
 
-def _choose_necessary_functions(functions, feature_names):
-    if isinstance(feature_names, str):
-        feature_names = [feature_names]
-    last_index = max([list(functions.keys()).index(name) for
-                      name in feature_names])
+def _choose_necessary_layers(layers, layer_names):
+    if isinstance(layer_names, str):
+        layer_names = [layer_names]
+    last_index = max([list(layers.keys()).index(name) for
+                      name in layer_names])
 
     # Equivalent to `functions = functions[:last_index + 1]`.
-    functions = collections.OrderedDict(
-        islice(functions.items(), None, last_index + 1))
-    return functions
+    layers = collections.OrderedDict(
+        islice(layers.items(), None, last_index + 1))
+    return layers
