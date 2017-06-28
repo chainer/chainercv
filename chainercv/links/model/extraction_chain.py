@@ -21,7 +21,7 @@ class ExtractionChain(chainer.Chain):
             return_tuple = False
             layer_names = [layer_names]
         self._return_tuple = return_tuple
-        self._layer_names = list(layer_names)
+        self._layer_names = layer_names
 
         with self.init_scope():
             for name, function in self._layers.items():
