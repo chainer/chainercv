@@ -15,10 +15,10 @@ from chainer.links import Linear
 
 from chainercv.utils import download_model
 
-from chainercv.links.model.sequential_chain import SequentialChain
+from chainercv.links.model.extraction_chain import ExtractionChain
 
 
-class VGG16(SequentialChain):
+class VGG16(ExtractionChain):
 
     """VGG16 Network for classification and feature extraction.
 
