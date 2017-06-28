@@ -2,6 +2,7 @@ from __future__ import division
 
 import collections
 from itertools import islice
+import numpy as np
 
 import chainer
 from chainer.functions import dropout
@@ -16,6 +17,11 @@ from chainer.links import Linear
 from chainercv.utils import download_model
 
 from chainercv.links.model.extraction_chain import ExtractionChain
+
+
+# RGB order
+_imagenet_mean = np.array(
+    [123.68, 116.779, 103.939], dtype=np.float32)[:, np.newaxis, np.newaxis]
 
 
 class VGG16(ExtractionChain):
@@ -76,11 +82,12 @@ class VGG16(ExtractionChain):
         'imagenet': {
             'n_class': 1000,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/vgg16_imagenet_convert_2017_06_15.npz'
+            'download/0.0.3/vgg16_imagenet_convert_2017_06_15.npz',
+            'mean': _imagenet_mean
         }
     }
 
-    def __init__(self, pretrained_model=None, n_class=None,
+    def __init__(self, pretrained_model=None, n_class=None, mean=None,
                  feature_names='prob', initialW=None, initial_bias=None):
         if n_class is None:
             if (pretrained_model not in self._models and
@@ -89,6 +96,11 @@ class VGG16(ExtractionChain):
                     'The n_class needs to be supplied as an argument.')
             elif pretrained_model:
                 n_class = self._models[pretrained_model]['n_class']
+
+        if mean is None:
+            if pretrained_model in self._models:
+                mean = self._models[pretrained_model]['mean']
+        self.mean = mean
 
         if pretrained_model:
             # As a sampling process is time-consuming,

@@ -9,23 +9,21 @@ from chainercv.transforms import scale
 from chainercv.transforms import ten_crop
 
 
-# RGB order
-_imagenet_mean = np.array(
-    [123.68, 116.779, 103.939], dtype=np.float32)[:, np.newaxis, np.newaxis]
-
-
 class FeatureExtractionPredictor(chainer.Chain):
 
-    def __init__(self, extractor, mean=_imagenet_mean,
+    def __init__(self, extractor,
                  size=(224, 224), scale_size=256,
                  do_ten_crop=False):
-        self.mean = mean
         self.scale_size = scale_size
         self.size = size
         self.do_ten_crop = do_ten_crop
 
         with self.init_scope():
             self.extractor = extractor
+    
+    @property
+    def mean(self):
+        return self.extractor.mean
 
     def _prepare(self, img):
         """Transform an image to the input for VGG network.
