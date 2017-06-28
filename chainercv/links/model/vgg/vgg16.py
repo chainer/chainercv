@@ -1,7 +1,6 @@
 from __future__ import division
 
 import collections
-from itertools import islice
 import numpy as np
 
 import chainer
@@ -120,57 +119,59 @@ class VGG16(ExtractionChain):
                 initial_bias = constant.Zero()
         kwargs = {'initialW': initialW, 'initial_bias': initial_bias}
 
+        # Since fc layers take long time to instantiate,
+        # avoid doing so whenever possible.
+        fc_layer_names = ['fc6', 'fc6_relu', 'fc6_dropout',
+                          'fc7', 'fc7_relu', 'fc7_dropout', 'fc8', 'prob']
+        if (any([name in fc_layer_names for name in layer_names])
+                or layer_names in fc_layer_names):
+            fc_kwargs = {'initialW': constant.Zero(),
+                         'initial_bias': constant.Zero()}
+        else:
+            fc_kwargs = kwargs
+
         # The links are instantiated once it is decided to use them.
         layers = collections.OrderedDict([
-            ('conv1_1', lambda: Convolution2D(3, 64, 3, 1, 1, **kwargs)),
+            ('conv1_1', Convolution2D(3, 64, 3, 1, 1, **kwargs)),
             ('conv1_1_relu', relu),
-            ('conv1_2', lambda: Convolution2D(64, 64, 3, 1, 1, **kwargs)),
+            ('conv1_2', Convolution2D(64, 64, 3, 1, 1, **kwargs)),
             ('conv1_2_relu', relu),
             ('pool1', _max_pooling_2d),
-            ('conv2_1', lambda: Convolution2D(64, 128, 3, 1, 1, **kwargs)),
+            ('conv2_1', Convolution2D(64, 128, 3, 1, 1, **kwargs)),
             ('conv2_1_relu', relu),
-            ('conv2_2', lambda: Convolution2D(128, 128, 3, 1, 1, **kwargs)),
+            ('conv2_2', Convolution2D(128, 128, 3, 1, 1, **kwargs)),
             ('conv2_2_relu', relu),
             ('pool2', _max_pooling_2d),
-            ('conv3_1', lambda: Convolution2D(128, 256, 3, 1, 1, **kwargs)),
+            ('conv3_1', Convolution2D(128, 256, 3, 1, 1, **kwargs)),
             ('conv3_1_relu', relu),
-            ('conv3_2', lambda: Convolution2D(256, 256, 3, 1, 1, **kwargs)),
+            ('conv3_2', Convolution2D(256, 256, 3, 1, 1, **kwargs)),
             ('conv3_2_relu', relu),
-            ('conv3_3', lambda: Convolution2D(256, 256, 3, 1, 1, **kwargs)),
+            ('conv3_3', Convolution2D(256, 256, 3, 1, 1, **kwargs)),
             ('conv3_3_relu', relu),
             ('pool3', _max_pooling_2d),
-            ('conv4_1', lambda: Convolution2D(256, 512, 3, 1, 1, **kwargs)),
+            ('conv4_1', Convolution2D(256, 512, 3, 1, 1, **kwargs)),
             ('conv4_1_relu', relu),
-            ('conv4_2', lambda: Convolution2D(512, 512, 3, 1, 1, **kwargs)),
+            ('conv4_2', Convolution2D(512, 512, 3, 1, 1, **kwargs)),
             ('conv4_2_relu', relu),
-            ('conv4_3', lambda: Convolution2D(512, 512, 3, 1, 1, **kwargs)),
+            ('conv4_3', Convolution2D(512, 512, 3, 1, 1, **kwargs)),
             ('conv4_3_relu', relu),
             ('pool4', _max_pooling_2d),
-            ('conv5_1', lambda: Convolution2D(512, 512, 3, 1, 1, **kwargs)),
+            ('conv5_1', Convolution2D(512, 512, 3, 1, 1, **kwargs)),
             ('conv5_1_relu', relu),
-            ('conv5_2', lambda: Convolution2D(512, 512, 3, 1, 1, **kwargs)),
+            ('conv5_2', Convolution2D(512, 512, 3, 1, 1, **kwargs)),
             ('conv5_2_relu', relu),
-            ('conv5_3', lambda: Convolution2D(512, 512, 3, 1, 1, **kwargs)),
+            ('conv5_3', Convolution2D(512, 512, 3, 1, 1, **kwargs)),
             ('conv5_3_relu', relu),
             ('pool5', _max_pooling_2d),
-            ('fc6', lambda: Linear(512 * 7 * 7, 4096, **kwargs)),
+            ('fc6', Linear(512 * 7 * 7, 4096, **fc_kwargs)),
             ('fc6_relu', relu),
             ('fc6_dropout', dropout),
-            ('fc7', lambda: Linear(4096, 4096, **kwargs)),
+            ('fc7', Linear(4096, 4096, **fc_kwargs)),
             ('fc7_relu', relu),
             ('fc7_dropout', dropout),
-            ('fc8', lambda: Linear(4096, n_class, **kwargs)),
+            ('fc8', Linear(4096, n_class, **fc_kwargs)),
             ('prob', softmax)
-            ])
-        layers = _choose_necessary_layers(layers, layer_names)
-        # Instantiate uninitialized links.
-        link_names = ['conv1_1', 'conv1_2', 'conv2_1', 'conv2_2',
-                      'conv3_1', 'conv3_2', 'conv3_3', 'conv4_1',
-                      'conv4_2', 'conv4_3', 'conv5_1', 'conv5_2',
-                      'conv5_3', 'fc6', 'fc7', 'fc8']
-        for name in list(layers.keys()):
-            if name in link_names:
-                layers[name] = layers[name]()
+        ])
 
         super(VGG16, self).__init__(layers, layer_names)
 
@@ -183,15 +184,3 @@ class VGG16(ExtractionChain):
 
 def _max_pooling_2d(x):
     return max_pooling_2d(x, ksize=2)
-
-
-def _choose_necessary_layers(layers, layer_names):
-    if isinstance(layer_names, str):
-        layer_names = [layer_names]
-    last_index = max([list(layers.keys()).index(name) for
-                      name in layer_names])
-
-    # Equivalent to `functions = functions[:last_index + 1]`.
-    layers = collections.OrderedDict(
-        islice(layers.items(), None, last_index + 1))
-    return layers
