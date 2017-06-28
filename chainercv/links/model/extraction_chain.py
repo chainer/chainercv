@@ -1,5 +1,7 @@
-import chainer
 import collections
+from itertools import islice
+
+import chainer
 
 
 class ExtractionChain(chainer.Chain):
@@ -14,6 +16,7 @@ class ExtractionChain(chainer.Chain):
 
         if layer_names is None:
             layer_names = self._layers.keys()[-1]
+
         if (not isinstance(layer_names, str) and
                 all([isinstance(name, str) for name in layer_names])):
             return_tuple = True
@@ -22,6 +25,13 @@ class ExtractionChain(chainer.Chain):
             layer_names = [layer_names]
         self._return_tuple = return_tuple
         self._layer_names = layer_names
+
+        # Delete unnecessary layers from self._layers based on layer_names.
+        # Equivalent to layers = layers[:last_index + 1]
+        last_index = max([list(self._layers.keys()).index(name) for
+                         name in self._layer_names])
+        self._layers = collections.OrderedDict(
+            islice(self._layers.items(), None, last_index + 1))
 
         with self.init_scope():
             for name, function in self._layers.items():

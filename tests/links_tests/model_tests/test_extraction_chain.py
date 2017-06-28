@@ -131,4 +131,32 @@ class TestExtractionChainCopy(unittest.TestCase):
         self.check_copy()
 
 
+class TestExtractionChainRedundantLayers(unittest.TestCase):
+
+    def setUp(self):
+        self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
+        self.f1 = DummyFunc()
+        self.f2 = DummyFunc()
+        self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
+
+        self.link = ExtractionChain(
+            collections.OrderedDict(
+                [('l1', self.l1),
+                 ('f1', self.f1),
+                 ('f2', self.f2),
+                 ('l2', self.l2)]),
+            layer_names=['l1', 'f1'])
+
+    def check_redundant_layers(self):
+        self.assertNotIn('f2', self.link._layer_names)
+        self.assertNotIn('l2', self.link._layer_names)
+
+    def test_redundant_layers_cpu(self):
+        self.check_redundant_layers()
+
+    @attr.gpu
+    def test_redundant_layers_gpu(self):
+        self.check_redundant_layers()
+
+
 testing.run_module(__name__, __file__)
