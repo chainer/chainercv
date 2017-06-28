@@ -35,15 +35,15 @@ class SequentialExtractor(chainer.Chain):
             islice(self._layers.items(), None, last_index + 1))
 
         with self.init_scope():
-            for name, function in self._layers.items():
-                if isinstance(function, chainer.Link):
-                    setattr(self, name, function)
+            for name, layer in self._layers.items():
+                if isinstance(layer, chainer.Link):
+                    setattr(self, name, layer)
 
     def __call__(self, x):
         features = {}
         h = x
-        for name, function in self._layers.items():
-            h = function(h)
+        for name, layer in self._layers.items():
+            h = layer(h)
             if name in self._layer_names:
                 features[name] = h
 
@@ -57,9 +57,9 @@ class SequentialExtractor(chainer.Chain):
     def copy(self):
         ret = super(SequentialExtractor, self).copy()
         layers = []
-        for name, function in self._layers.items():
+        for name, layer in self._layers.items():
             if name in self._children:
-                function = ret[name]
-            layers.append((name, function))
+                layer = ret[name]
+            layers.append((name, layer))
         ret.layers = collections.OrderedDict(layers)
         return ret
