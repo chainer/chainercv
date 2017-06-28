@@ -27,7 +27,7 @@ class SequentialExtractor(chainer.Chain):
         self._layer_names = layer_names
 
         # Delete unnecessary layers from self._layers based on layer_names.
-        # Equivalent to layers = layers[:last_index + 1]
+        # Computation is equivalent to layers = layers[:last_index + 1].
         last_index = max([list(self._layers.keys()).index(name) for
                          name in self._layer_names])
         self._layers = collections.OrderedDict(
