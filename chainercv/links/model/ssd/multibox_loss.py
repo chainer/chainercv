@@ -69,7 +69,7 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
     positive = gt_mb_labels.data > 0
     n_positive = positive.sum()
     if n_positive == 0:
-        z = chainer.Variable(np.zeros((), dtype=np.float32))
+        z = chainer.Variable(xp.zeros((), dtype=np.float32))
         return z, z
 
     loc_loss = F.huber_loss(mb_locs, gt_mb_locs, 1, reduce='no')
