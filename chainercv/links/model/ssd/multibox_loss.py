@@ -73,7 +73,7 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
         return z, z
 
     loc_loss = F.huber_loss(mb_locs, gt_mb_locs, 1, reduce='no')
-    loc_loss = F.sum(loc_loss, axis=2)
+    loc_loss = F.sum(loc_loss, axis=-1)
     loc_loss *= positive.astype(loc_loss.dtype)
     loc_loss = F.sum(loc_loss) / n_positive
 
