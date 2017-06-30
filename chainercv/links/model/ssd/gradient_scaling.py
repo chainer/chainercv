@@ -6,6 +6,7 @@ class GradientScaling(object):
     """Optimizer/UpdateRule hook function for scaling gradient.
 
     This hook function scales gradient by a constant value.
+
     Args:
         rate (float): Coefficient for scaling.
     Attributes:
