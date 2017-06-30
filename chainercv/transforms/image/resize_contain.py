@@ -20,7 +20,7 @@ def resize_contain(img, size, fill=0, return_param=False):
             :obj:`height, width`. The size of the image after resizing.
         fill (float, tuple or ~numpy.ndarray): The value of padded pixels.
             If it is :class:`numpy.ndarray`,
-            its shape can be :math:`(C,)` or :math:`(C, 1, 1)`,
+            its shape should be :math:`(C, 1, 1)`,
             where :math:`C` is the number of channels of :obj:`img`.
         return_param (bool): Returns information of resizing and offsetting.
 

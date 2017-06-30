@@ -9,7 +9,6 @@ from chainercv.transforms import resize_contain
 @testing.parameterize(
     {'fill': 128},
     {'fill': (104, 117, 123)},
-    {'fill':  np.random.uniform(255, size=3)},
     {'fill':  np.random.uniform(255, size=(3, 1, 1))},
 )
 class TestResizeContain(unittest.TestCase):
