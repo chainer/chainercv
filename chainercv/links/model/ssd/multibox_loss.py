@@ -25,9 +25,14 @@ def _hard_negative(x, positive, k):
 
 
 def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
-    """Computes multibox losses
+    """Computes multibox losses.
 
     This is a loss function used in [#]_.
+    This function returns :obj:`loc_loss` and :obj:`conf_loss`.
+    :obj:`loc_loss` is a loss for localization and
+    :obj:`conf_loss` is a loss for classification.
+    The formulas of these losses can be found in
+    the equation (2) and (3) in the original paper.
 
     .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
        Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
@@ -45,7 +50,7 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
             locations of bounding boxes. Its shape is :math:`(B, K, 4)`.
         gt_mb_labels (chainer.Variable): A variable which indicates ground
             truth classes of bounding boxes. Its shape is :math:`(B, K)`.
-        k (float): A coefficient which is used to hard negative mining.
+        k (float): A coefficient which is used for hard negative mining.
             This value determines the ratio between the number of positives
             and that of mined negatives. The value used in the original paper
             is :obj:`3`.
