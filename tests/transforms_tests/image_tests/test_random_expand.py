@@ -54,11 +54,11 @@ class TestRandomExpandFill(unittest.TestCase):
                 break
 
         if isinstance(self.fill, int):
-            np.testing.assert_equal(
-                out[:, 0, 0], (self.fill,) * 3)
+            fill = (self.fill,) * 3
         else:
-            np.testing.assert_equal(
-                out[:, 0, 0], np.array(self.fill).flatten())
+            fill = self.fill
+        np.testing.assert_equal(
+            out[:, 0, 0], np.array(fill).flatten())
 
 
 testing.run_module(__name__, __file__)
