@@ -24,6 +24,7 @@ $ python caffe2npz <source>.caffemodel <target>.npz
 
 ## Train
 You can train the model with the following code.
+Note that this code requires `cv2` module.
 
 ```
 $ python train.py [--gpu <gpu>]
