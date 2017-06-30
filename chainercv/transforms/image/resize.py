@@ -25,13 +25,13 @@ try:
         return img.transpose(2, 0, 1)
 
 except ImportError:
-    warnings.warn(
-        'cv2 is not installed on your environment. '
-        'ChainerCV will fall back on Pillow. '
-        'Installation of cv2 is recommended for faster computation. ',
-        RuntimeWarning)
-
     def _resize(img, size, interpolation):
+        warnings.warn(
+            'cv2 is not installed on your environment. '
+            'ChainerCV will fall back on Pillow. '
+            'Installation of cv2 is recommended for faster computation. ',
+            RuntimeWarning)
+
         C = img.shape[0]
         H, W = size
         out = np.empty((C, H, W), dtype=img.dtype)
