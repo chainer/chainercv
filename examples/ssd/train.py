@@ -44,6 +44,50 @@ class MultiboxTrainChain(chainer.Chain):
         return loss
 
 
+class Transform(object):
+
+    def __init__(self, coder, size, mean):
+        # to send cpu, make a copy
+        self.coder = copy.copy(coder)
+        self.coder.to_cpu()
+
+        self.size = size
+        self.mean = mean
+
+    def __call__(self, in_data):
+        img, bbox, label = in_data
+
+        img = random_distort(img)
+
+        if np.random.randint(2):
+            img, param = transforms.random_expand(
+                img, fill=self.mean, return_param=True)
+            bbox = transforms.translate_bbox(
+                bbox, y_offset=param['y_offset'], x_offset=param['x_offset'])
+
+        img, param = random_crop_with_bbox_constraints(
+            img, bbox, return_param=True)
+        bbox, param = transforms.crop_bbox(
+            bbox, y_slice=param['y_slice'], x_slice=param['x_slice'],
+            allow_outside_center=False, return_param=True)
+        label = label[param['index']]
+
+        _, H, W = img.shape
+        img = resize_with_random_interpolation(img, (self.size, self.size))
+        bbox = transforms.resize_bbox(bbox, (H, W), (self.size, self.size))
+
+        img, params = transforms.random_flip(
+            img, x_random=True, return_param=True)
+        bbox = transforms.flip_bbox(
+            bbox, (self.size, self.size), x_flip=params['x_flip'])
+
+        img -= self.mean
+        mb_loc, mb_label = self.coder.encode(
+            transforms.resize_bbox(bbox, (self.size, self.size), (1, 1)),
+            label)
+        return img, mb_loc, mb_label
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--batchsize', type=int, default=32)
@@ -61,49 +105,12 @@ def main():
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
 
-    coder = copy.copy(model.coder)
-    coder.to_cpu()
-    size = model.insize
-    mean = model.mean
-
-    def transform(in_data):
-        img, bbox, label = in_data
-
-        img = random_distort(img)
-
-        if np.random.randint(2):
-            img, param = transforms.random_expand(
-                img, fill=mean, return_param=True)
-            bbox = transforms.translate_bbox(
-                bbox, y_offset=param['y_offset'], x_offset=param['x_offset'])
-
-        img, param = random_crop_with_bbox_constraints(
-            img, bbox, return_param=True)
-        bbox, param = transforms.crop_bbox(
-            bbox, y_slice=param['y_slice'], x_slice=param['x_slice'],
-            allow_outside_center=False, return_param=True)
-        label = label[param['index']]
-
-        _, H, W = img.shape
-        img = resize_with_random_interpolation(img, (size, size))
-        bbox = transforms.resize_bbox(bbox, (H, W), (size, size))
-
-        img, params = transforms.random_flip(
-            img, x_random=True, return_param=True)
-        bbox = transforms.flip_bbox(
-            bbox, (size, size), x_flip=params['x_flip'])
-
-        img -= mean
-        mb_loc, mb_label = coder.encode(
-            transforms.resize_bbox(bbox, (size, size), (1, 1)), label)
-        return img, mb_loc, mb_label
-
     train = TransformDataset(
         ConcatenatedDataset(
             VOCDetectionDataset(year='2007', split='trainval'),
             VOCDetectionDataset(year='2012', split='trainval')
         ),
-        transform)
+        Transform(model.coder, model.insize, model.mean))
     train_iter = chainer.iterators.MultiprocessIterator(
         train, args.batchsize, n_processes=2)
 
