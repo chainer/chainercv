@@ -93,7 +93,7 @@ def main():
         bbox = transforms.flip_bbox(
             bbox, (size, size), x_flip=params['x_flip'])
 
-        img -= np.array(mean)[:, np.newaxis, np.newaxis]
+        img -= mean
         mb_loc, mb_label = coder.encode(
             transforms.resize_bbox(bbox, (size, size), (1, 1)), label)
         return img, mb_loc, mb_label

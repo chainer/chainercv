@@ -20,7 +20,8 @@ except ImportError:
     _available = False
 
 
-_imagenet_mean = (123, 117, 104)  # RGB order
+# RGB, (C, 1, 1) format
+_imagenet_mean = np.array((123, 117, 104)).reshape(-1, 1, 1)
 
 
 class VGG16(chainer.Chain):

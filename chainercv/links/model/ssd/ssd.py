@@ -132,7 +132,7 @@ class SSD(chainer.Chain):
     def _prepare(self, img):
         img = img.astype(np.float32)
         img = transforms.resize(img, (self.insize, self.insize))
-        img -= np.array(self.mean)[:, np.newaxis, np.newaxis]
+        img -= self.mean
         return img
 
     def use_preset(self, preset):
