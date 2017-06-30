@@ -38,7 +38,7 @@ class DummySSD(SSD):
                 aspect_ratios=((2,), (2, 3), (2,))),
             steps=(0.1, 0.25, 1),
             sizes=(0.1, 0.25, 1, 1.2),
-            mean=(0, 1, 2))
+            mean=np.array((0, 1, 2)).reshape(-1, 1, 1))
 
 
 @testing.parameterize(
