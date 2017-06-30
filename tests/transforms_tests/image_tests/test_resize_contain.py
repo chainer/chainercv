@@ -21,8 +21,14 @@ class TestResizeContain(unittest.TestCase):
             img, (48, 96), fill=self.fill, return_param=True)
 
         np.testing.assert_array_equal(img, out[:, 8:40, 16:80])
+
+        if isinstance(self.fill, int):
+            fill = (self.fill,) * 3
+        else:
+            fill = self.fill
         np.testing.assert_array_equal(
-            out[:, 0, 0], np.array(self.fill).flatten())
+            out[:, 0, 0], np.array(fill).flatten())
+
         self.assertEqual(param['scaled_size'], (32, 64))
         self.assertEqual(param['y_offset'], 8)
         self.assertEqual(param['x_offset'], 16)
