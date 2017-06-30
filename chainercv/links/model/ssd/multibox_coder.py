@@ -15,6 +15,30 @@ class MultiboxCoder(object):
     and decodes :obj:`(mb_loc, mb_conf)` to `(bbox, label, score)`.
     These encoding/decoding are used in Single Shot Multibox Detector [#]_.
 
+    * :obj:`mb_loc`: An array representing coordinates of bounding boxes. \
+         Its shape is :math:`(K, 4)`, where :math:`K` is the number of \
+         default bounding boxes. \
+         The second axis is composed by \
+         :math:`(\Delta y, \Delta x, \Delta h, \Delta w)`. \
+         These values are computed by the following formulas.
+
+         * :math:`\Delta y = (b_y - m_y) / (m_h * v_0)`
+         * :math:`\Delta x = (b_x - m_x) / (m_w * v_0)`
+         * :math:`\Delta h = log(b_h / m_h) / v_1`
+         * :math:`\Delta w = log(b_w / m_w) / v_1`
+
+         :math:`(m_y, m_x)` and :math:`(m_h, m_w)` are \
+         center coodinates and size of default bounding box. \
+         :math:`(b_y, b_x)` and :math:`(b_h, b_w)` are \
+         center coodinates and size of \
+         given bounding boxes that assined to the default bounding box. \
+         :math:`(v_0, v_1)` are coefficients that can be set \
+         by :obj:`variance` argument.
+    * :obj:`mb_label`: An array representing classes of \
+         ground truth bounding boxes. Its shape is :math:`(K,)`.
+    * :obj:`mb_conf`: An array representing classes of \
+         predicted bounding boxes. Its shape is :math:`(K, n\_fg\_class + 1)`.
+
     .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
        Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
        SSD: Single Shot MultiBox Detector. ECCV 2016.
@@ -159,10 +183,10 @@ class MultiboxCoder(object):
         return mb_loc.astype(np.float32), mb_label.astype(np.int32)
 
     def decode(self, mb_loc, mb_conf, nms_thresh, score_thresh):
-        """Decodes coordinates and classes of bounding boxes.
+        """Decodes back to coordinates and classes of bounding boxes.
 
         This method decodes :obj:`mb_loc` and :obj:`mb_conf` returned
-        by a SSD network.
+        by a SSD network back to :obj:`bbox`, :obj:`label` and :obj:`score`.
 
         Args:
             mb_loc (array): A float array whose shape is
