@@ -39,6 +39,7 @@ class TestRandomExpand(unittest.TestCase):
     {'fill': 128},
     {'fill': (104, 117, 123)},
     {'fill':  np.random.uniform(255, size=3)},
+    {'fill':  np.random.uniform(255, size=(3, 1, 1))},
 )
 class TestRandomExpandFill(unittest.TestCase):
 
@@ -57,7 +58,7 @@ class TestRandomExpandFill(unittest.TestCase):
                 out[:, 0, 0], (self.fill,) * 3)
         else:
             np.testing.assert_equal(
-                out[:, 0, 0], self.fill)
+                out[:, 0, 0], np.array(self.fill).flatten())
 
 
 testing.run_module(__name__, __file__)
