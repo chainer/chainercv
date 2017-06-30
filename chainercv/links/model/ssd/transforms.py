@@ -257,7 +257,7 @@ def resize_with_random_interpolation(img, size, return_param=False):
         contents are listed below with key, value-type and the description
         of the value.
 
-        * **interpolatation*: The chosen interpolation method.
+        * **interpolatation**: The chosen interpolation method.
 
     """
 

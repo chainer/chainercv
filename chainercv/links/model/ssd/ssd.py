@@ -26,7 +26,7 @@ class SSD(chainer.Chain):
             the size of input images. Images are resized to this size before \
             feature extraction.
             * :obj:`grids`: An iterable of integer. Each integer indicates \
-            the size of feature map. This value is used by
+            the size of feature map. This value is used by \
             :class:`~chainercv.links.model.ssd.MultiBboxCoder`.
             * :meth:`__call_`: A method which computes feature maps. \
             It must take a batched images and return batched feature maps.
@@ -40,7 +40,7 @@ class SSD(chainer.Chain):
             This value should include the background class.
             * :obj:`aspect_ratios`: An iterable of tuple of integer. \
             Each tuple indicates the aspect ratios of default bounding boxes \
-            at each feature maps. This value is used by
+            at each feature maps. This value is used by \
             :class:`~chainercv.links.model.ssd.MultiboxCoder`.
             * :meth:`__call__`: A method which computes \
             :obj:`mb_locs` and :obj:`mb_confs`. \
