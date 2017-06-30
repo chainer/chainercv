@@ -31,8 +31,8 @@ class TestRandomCropWithBboxConstraints(unittest.TestCase):
             self.assertLessEqual(out.size, img.size * 1 * 1)
 
             # to ignore rounding error, add/subtract 1
-            self.assertLessEqual(out.shape[1] - 1 / out.shape[2] + 1, 2)
-            self.assertLessEqual(out.shape[2] - 1 / out.shape[1] + 1, 2)
+            self.assertLessEqual((out.shape[1] - 1) / (out.shape[2] + 1), 2)
+            self.assertLessEqual((out.shape[2] - 1) / (out.shape[1] + 1), 2)
 
             bb = np.array((
                 param['y_slice'].start, param['x_slice'].start,
