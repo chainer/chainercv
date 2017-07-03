@@ -1,3 +1,5 @@
+from __future__ import division
+
 import numpy as np
 import unittest
 
@@ -28,12 +30,22 @@ class TestSemanticSegmentationEvaluator(unittest.TestCase):
 
     def setUp(self):
         self.label_names = ('a', 'b', 'c')
-        imgs = np.random.uniform(size=(10, 3, 5, 5))
+        imgs = np.random.uniform(size=(1, 3, 2, 3))
         # There are labels for 'a' and 'b', but none for 'c'.
-        labels = np.random.randint(
-            low=0, high=2, size=(10, 5, 5), dtype=np.int32)
-        self.dataset = TupleDataset(imgs, labels)
-        self.link = _SemanticSegmentationStubLink(labels)
+        pred_labels = np.array([[[1, 1, 1], [0, 0, 1]]])
+        gt_labels = np.array([[[1, 0, 0], [0, -1, 1]]])
+
+        self.iou_a = 1 / 3
+        self.iou_b = 2 / 4
+        self.pixel_accuracy = 3 / 5
+        self.class_accuracy_a = 1 / 3
+        self.class_accuracy_b = 2 / 2
+        self.miou = np.mean((self.iou_a, self.iou_b))
+        self.mean_class_accuracy = np.mean(
+            (self.class_accuracy_a, self.class_accuracy_b))
+
+        self.dataset = TupleDataset(imgs, gt_labels)
+        self.link = _SemanticSegmentationStubLink(pred_labels)
         self.iterator = SerialIterator(
             self.dataset, 5, repeat=False, shuffle=False)
         self.evaluator = SemanticSegmentationEvaluator(
@@ -41,7 +53,7 @@ class TestSemanticSegmentationEvaluator(unittest.TestCase):
 
     def test_evaluate(self):
         reporter = chainer.Reporter()
-        reporter.add_observer('target', self.link)
+        reporter.add_observer('main', self.link)
         with reporter:
             eval_ = self.evaluator.evaluate()
 
@@ -49,41 +61,53 @@ class TestSemanticSegmentationEvaluator(unittest.TestCase):
         # evaluator collect results in order to calculate their mean.
         np.testing.assert_equal(len(reporter.observation), 0)
 
-        np.testing.assert_equal(eval_['target/miou'], 1.)
-        np.testing.assert_equal(eval_['target/pixel_accuracy'], 1.)
-        np.testing.assert_equal(eval_['target/mean_class_accuracy'], 1.)
-        np.testing.assert_equal(eval_['target/iou/a'], 1.)
-        np.testing.assert_equal(eval_['target/iou/b'], 1.)
-        np.testing.assert_equal(eval_['target/iou/c'], np.nan)
-        np.testing.assert_equal(eval_['target/class_accuracy/a'], 1.)
-        np.testing.assert_equal(eval_['target/class_accuracy/b'], 1.)
-        np.testing.assert_equal(eval_['target/class_accuracy/c'], np.nan)
+        np.testing.assert_equal(eval_['main/miou'], self.miou)
+        np.testing.assert_equal(eval_['main/pixel_accuracy'],
+                                self.pixel_accuracy)
+        np.testing.assert_equal(eval_['main/mean_class_accuracy'],
+                                self.mean_class_accuracy)
+        np.testing.assert_equal(eval_['main/iou/a'], self.iou_a)
+        np.testing.assert_equal(eval_['main/iou/b'], self.iou_b)
+        np.testing.assert_equal(eval_['main/iou/c'], np.nan)
+        np.testing.assert_equal(eval_['main/class_accuracy/a'],
+                                self.class_accuracy_a)
+        np.testing.assert_equal(eval_['main/class_accuracy/b'],
+                                self.class_accuracy_b)
+        np.testing.assert_equal(eval_['main/class_accuracy/c'], np.nan)
 
     def test_call(self):
         eval_ = self.evaluator()
         # main is used as default
-        np.testing.assert_equal(eval_['main/miou'], 1.)
-        np.testing.assert_equal(eval_['main/pixel_accuracy'], 1.)
-        np.testing.assert_equal(eval_['main/mean_class_accuracy'], 1.)
-        np.testing.assert_equal(eval_['main/iou/a'], 1.)
-        np.testing.assert_equal(eval_['main/iou/b'], 1.)
+        np.testing.assert_equal(eval_['main/miou'], self.miou)
+        np.testing.assert_equal(eval_['main/pixel_accuracy'],
+                                self.pixel_accuracy)
+        np.testing.assert_equal(eval_['main/mean_class_accuracy'],
+                                self.mean_class_accuracy)
+        np.testing.assert_equal(eval_['main/iou/a'], self.iou_a)
+        np.testing.assert_equal(eval_['main/iou/b'], self.iou_b)
         np.testing.assert_equal(eval_['main/iou/c'], np.nan)
-        np.testing.assert_equal(eval_['main/class_accuracy/a'], 1.)
-        np.testing.assert_equal(eval_['main/class_accuracy/b'], 1.)
+        np.testing.assert_equal(eval_['main/class_accuracy/a'],
+                                self.class_accuracy_a)
+        np.testing.assert_equal(eval_['main/class_accuracy/b'],
+                                self.class_accuracy_b)
         np.testing.assert_equal(eval_['main/class_accuracy/c'], np.nan)
 
     def test_evaluator_name(self):
         self.evaluator.name = 'eval'
         eval_ = self.evaluator()
         # name is used as a prefix
-        np.testing.assert_equal(eval_['eval/main/miou'], 1.)
-        np.testing.assert_equal(eval_['eval/main/pixel_accuracy'], 1.)
-        np.testing.assert_equal(eval_['eval/main/mean_class_accuracy'], 1.)
-        np.testing.assert_equal(eval_['eval/main/iou/a'], 1.)
-        np.testing.assert_equal(eval_['eval/main/iou/b'], 1.)
+        np.testing.assert_equal(eval_['eval/main/miou'], self.miou)
+        np.testing.assert_equal(eval_['eval/main/pixel_accuracy'],
+                                self.pixel_accuracy)
+        np.testing.assert_equal(eval_['eval/main/mean_class_accuracy'],
+                                self.mean_class_accuracy)
+        np.testing.assert_equal(eval_['eval/main/iou/a'], self.iou_a)
+        np.testing.assert_equal(eval_['eval/main/iou/b'], self.iou_b)
         np.testing.assert_equal(eval_['eval/main/iou/c'], np.nan)
-        np.testing.assert_equal(eval_['eval/main/class_accuracy/a'], 1.)
-        np.testing.assert_equal(eval_['eval/main/class_accuracy/b'], 1.)
+        np.testing.assert_equal(eval_['eval/main/class_accuracy/a'],
+                                self.class_accuracy_a)
+        np.testing.assert_equal(eval_['eval/main/class_accuracy/b'],
+                                self.class_accuracy_b)
         np.testing.assert_equal(eval_['eval/main/class_accuracy/c'], np.nan)
 
     def test_current_report(self):
