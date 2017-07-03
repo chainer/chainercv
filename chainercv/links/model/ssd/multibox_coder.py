@@ -48,9 +48,10 @@ class MultiboxCoder(object):
         grids (iterable of ints): An iterable of integers.
             Each integer indicates the size of a feature map.
         aspect_ratios (iterable of tuples of ints)`:
-            An iterable of tuples of integers.
-            Each tuple indicates the aspect ratios of default bounding boxes
-            at each feature maps.
+            An iterable of tuples of integers
+            used to compute the default bouding boxes.
+            Each tuple indicates the aspect ratios of
+            the default bounding boxes at each feature maps.
             The length of this iterable should be :obj:`len(grids)`.
         steps (iterable of floats): The step size for each feature map.
             The length of this iterable should be :obj:`len(grids)`.
