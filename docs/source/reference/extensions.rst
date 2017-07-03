@@ -9,11 +9,11 @@ Evaluator
 
 DetectionVOCEvaluator
 ~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: DetectionVOCEvaluator
+.. autoclass:: DetectionVOCEvaluator
 
 SemanticSegmentationEvaluator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: SemanticSegmentationEvaluator
+.. autoclass:: SemanticSegmentationEvaluator
 
 
 Visualization Report
@@ -21,4 +21,4 @@ Visualization Report
 
 DetectionVisReport
 ~~~~~~~~~~~~~~~~~~
-.. autofunction:: DetectionVisReport
+.. autoclass:: DetectionVisReport
