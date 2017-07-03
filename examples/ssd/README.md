@@ -22,14 +22,15 @@ Convert `*.caffemodel` to `*.npz`. Some layers are renamed to fit ChainerCV. SSD
 $ python caffe2npz <source>.caffemodel <target>.npz
 ```
 
+## Evaluation
+The evaluation can be conducted using [`chainercv/examples/detection/eval_voc07.py`](https://github.com/chainer/chainercv/blob/master/examples/detection).
+
 ## Train
 You can train the model with the following code.
 Note that this code requires `cv2` module.
-
 ```
 $ python train.py [--gpu <gpu>]
 ```
-
 
 ## References
 1. Wei Liu, et al. "SSD: Single shot multibox detector" ECCV 2016.

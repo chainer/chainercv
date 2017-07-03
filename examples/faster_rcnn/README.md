@@ -52,6 +52,12 @@ $ python train.py [--gpu <gpu>]
 ```
 
 
+### Evaluation
+
+The evaluation score is reported by `DetectionVOCEvaluator` during training.
+Also, the evaluation can be conducted outside of training loop by using [`chainercv/examples/detection/eval_voc07.py`](https://github.com/chainer/chainercv/blob/master/examples/detection).
+
+
 ### References
 This code is based on Caffe implementation by the original authors https://github.com/rbgirshick/py-faster-rcnn and Chainer a re-implementation https://github.com/mitmul/chainer-faster-rcnn .
 
