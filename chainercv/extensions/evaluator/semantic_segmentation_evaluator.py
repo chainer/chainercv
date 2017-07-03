@@ -50,11 +50,11 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
             following tuple :obj:`img, label`.
             :obj:`img` is an image, :obj:`label` is pixel-wise label.
         target (chainer.Link): A semantic segmentation link. This link should
-            have :meth:`predict` method which takes a list of images and
+            have :meth:`predict` method that takes a list of images and
             returns :obj:`labels`.
         label_names (iterable of strings): An iterable of names of classes.
             If this value is specified, IoU and class accuracy for each class
-            is also reported with the keys
+            are also reported with the keys
             :obj:`'iou/<label_names[l]>'` and
             :obj:`'class_accuracy/<label_names[l]>'`.
 
