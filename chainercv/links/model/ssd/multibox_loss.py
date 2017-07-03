@@ -39,17 +39,20 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
        SSD: Single Shot MultiBox Detector. ECCV 2016.
 
     Args:
-        mb_locs (chainer.Variable): A variable which indicates predicted
-            locations of bounding boxes. Its shape is :math:`(B, K, 4)`,
+        mb_locs (chainer.Variable): The offsets and scales
+            for predicted bounding boxes.
+            Its shape is :math:`(B, K, 4)`,
             where :math:`B` is the number of samples in the batch and
             :math:`K` is the number of default bounding boxes.
-        mb_confs (chainer.Variable): A variable which indicates predicted
-            classes of bounding boxes. Its shape is :math:`(B, K, n\_class)`.
+        mb_confs (chainer.Variable): The classes of predicted bounding boxes.
+            Its shape is :math:`(B, K, n\_class)`.
             This function assumes the first class is background (negative).
-        gt_mb_locs (chainer.Variable): A variable which indicates ground truth
-            locations of bounding boxes. Its shape is :math:`(B, K, 4)`.
-        gt_mb_labels (chainer.Variable): A variable which indicates ground
-            truth classes of bounding boxes. Its shape is :math:`(B, K)`.
+        gt_mb_locs (chainer.Variable): The offsets and scales
+            for ground truth bounding boxes.
+            Its shape is :math:`(B, K, 4)`.
+        gt_mb_labels (chainer.Variable): The classes of ground truth
+            bounding boxes.
+            Its shape is :math:`(B, K)`.
         k (float): A coefficient which is used for hard negative mining.
             This value determines the ratio between the number of positives
             and that of mined negatives. The value used in the original paper

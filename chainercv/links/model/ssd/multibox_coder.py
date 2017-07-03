@@ -15,9 +15,10 @@ class MultiboxCoder(object):
     and decodes :obj:`(mb_loc, mb_conf)` to `(bbox, label, score)`.
     These encoding/decoding are used in Single Shot Multibox Detector [#]_.
 
-    * :obj:`mb_loc`: An array representing coordinates of bounding boxes. \
+    * :obj:`mb_loc`: An array representing offsets and scales \
+         from the default bounding boxes. \
          Its shape is :math:`(K, 4)`, where :math:`K` is the number of \
-         default bounding boxes. \
+         the default bounding boxes. \
          The second axis is composed by \
          :math:`(\Delta y, \Delta x, \Delta h, \Delta w)`. \
          These values are computed by the following formulas.
@@ -28,12 +29,12 @@ class MultiboxCoder(object):
          * :math:`\Delta w = log(b_w / m_w) / v_1`
 
          :math:`(m_y, m_x)` and :math:`(m_h, m_w)` are \
-         center coodinates and size of default bounding box. \
+         center coodinates and size of a default bounding box. \
          :math:`(b_y, b_x)` and :math:`(b_h, b_w)` are \
          center coodinates and size of \
-         given bounding boxes that assined to the default bounding box. \
+         a given bounding boxes that is assined to the default bounding box. \
          :math:`(v_0, v_1)` are coefficients that can be set \
-         by :obj:`variance` argument.
+         by argument :obj:`variance`.
     * :obj:`mb_label`: An array representing classes of \
          ground truth bounding boxes. Its shape is :math:`(K,)`.
     * :obj:`mb_conf`: An array representing classes of \
@@ -45,7 +46,7 @@ class MultiboxCoder(object):
 
     Args:
         grids (iterable of ints): An iterable of integers.
-            Each integer indicates the size of feature map.
+            Each integer indicates the size of a feature map.
         aspect_ratios (iterable of tuples of ints)`:
             An iterable of tuples of integers.
             Each tuple indicates the aspect ratios of default bounding boxes
@@ -57,7 +58,7 @@ class MultiboxCoder(object):
             for each feature map.
             The length of this iterable should be :obj:`len(grids) + 1`.
         variance (tuple of floats): Two coefficients for encoding/decoding
-            the locations of bounding boxe. The first value is used to
+            the locations of bounding boxes. The first value is used to
             encode/decode coordinates of the centers.
             The second value is used to encode/decode the sizes of
             bounding boxes.
@@ -114,7 +115,7 @@ class MultiboxCoder(object):
 
         Args:
             bbox (array): A float array of shape :math:`(R, 4)`,
-                where :math:`R` is the number of bounding boxes in a image.
+                where :math:`R` is the number of bounding boxes in an image.
                 Each bouding box is organized by
                 :obj:`(y_min, x_min, y_max, x_max)`
                 in the second axis.
@@ -191,7 +192,7 @@ class MultiboxCoder(object):
         Args:
             mb_loc (array): A float array whose shape is
                 :math:`(K, 4)`, :math:`K` is the number of
-                 default bounding boxes.
+                default bounding boxes.
             mb_conf (array): A float array whose shape is
                 :math:`(K, n\_fg\_class + 1)`.
             nms_thresh (float): The threshold value

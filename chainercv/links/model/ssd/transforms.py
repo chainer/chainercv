@@ -13,15 +13,15 @@ def random_distort(
         contrast_low=0.5, contrast_high=1.5,
         saturation_low=0.5, saturation_high=1.5,
         hue_delta=18):
-    """A data augmentation method for images.
+    """A color related data augmentation used in SSD.
 
     This function is a combination of four augmentation methods:
     brightness, contrast, saturation and hue.
 
-    * brightness: Adding a random offset to intensity of the image.
-    * contrast: Multiplying intensity of the image by a random scale.
-    * saturation: Multiplying saturation of the image by a random scale.
-    * hue: Adding a random offset to hue of the image randomly.
+    * brightness: Adding a random offset to the intensity of the image.
+    * contrast: Multiplying the intensity of the image by a random scale.
+    * saturation: Multiplying the saturation of the image by a random scale.
+    * hue: Adding a random offset to the hue of the image randomly.
 
     This data augmentation is used in training of
     Single Shot Multibox Detector [#]_.
@@ -130,11 +130,11 @@ def random_crop_with_bbox_constraints(
         bbox (~numpy.ndarray): Bounding boxes used for constraints.
             The shape is :math:`(R, 4)`.
             :math:`R` is the number of bounding boxes.
-        min_scale (float): The minimum ratio between cropping
-            area and the original image. The default value is :obj:`0.3`.
-        max_scale (float): The maximum ratio between cropping
-            area and the original image. The default value is :obj:`1`.
-        max_aspect_ratio (float): The maximum aspect ratio of cropping area.
+        min_scale (float): The minimum ratio between a cropped
+            region and the original image. The default value is :obj:`0.3`.
+        max_scale (float): The maximum ratio between a cropped
+            region and the original image. The default value is :obj:`1`.
+        max_aspect_ratio (float): The maximum aspect ratio of cropped region.
             The default value is :obj:`2`.
         constaraints (iterable of tuples): An iterable of constraints.
             Each constraint should be :obj:`(min_iou, max_iou)` format.
@@ -142,8 +142,9 @@ def random_crop_with_bbox_constraints(
             it means not limited.
             If this argument is not specified, :obj:`((0.1, None), (0.3, None),
             (0.5, None), (0.7, None), (0.9, None), (None, 1))` will be used.
-        max_trial (int): Maximum trial for each constraint. If this function
-            can not find any cropping area that satisfies the constraint in
+        max_trial (int): The maximum number of trials to be conducted
+            for each constraint. If this function
+            can not find any region that satisfies the constraint in
             :math:`max\_trial` trials, this function skips the constraint.
             The default value is :obj:`50`.
         return_param (bool): If :obj:`True`, this function returns
@@ -224,7 +225,7 @@ def random_crop_with_bbox_constraints(
 
 
 def resize_with_random_interpolation(img, size, return_param=False):
-    """Resize image to match the given shape.
+    """Resize an image with randomly selected interpolation method.
 
     This function is similar to :func:`chainercv.transforms.resize`, but
     this chooses the interpolation method randomly.

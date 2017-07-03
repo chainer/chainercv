@@ -8,9 +8,9 @@ class Multibox(chainer.Chain):
     """Multibox head of Single Shot Multibox Detector.
 
     This is a head part of Single Shot Multibox Detector [#]_.
-    This link computes :obj:`mb_locs` and :objs:`mb_confs` from feature maps.
+    This link computes :obj:`mb_locs` and :obj:`mb_confs` from feature maps.
     :obj:`mb_locs` contains information of the coordinates of bounding boxes
-    and :obj:`mb_confs` contains that of classes.
+    and :obj:`mb_confs` contains confidence scores of each classe.
 
     .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
        Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
@@ -65,7 +65,7 @@ class Multibox(chainer.Chain):
 
         Returns:
             tuple of chainer.Variable:
-            This method returns two :obj:`chainer.Variable`, :obj:`mb_locs` and
+            This method returns two :obj:`chainer.Variable`: :obj:`mb_locs` and
             :obj:`mb_confs`.
 
             * **mb_locs**: A variable of float arrays of shape \
