@@ -34,7 +34,7 @@ $ python visualuze_models.py
 
 ## Notes on writing your own evaluation code
 
-Here are list of important configurations to reproduce results.
+Here is a list of important configurations to reproduce results.
 
 + `model.use_preset('evaluate')` configures postprocessing parameters for evaluation such as threshold for confidence score.
 + `DetectionVOCEvaluator` should be instantiated with `use_07_metric=True` (default is False), if evaluation is conducted on VOC 2007 test dataset.
