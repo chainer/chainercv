@@ -11,4 +11,4 @@ dependencies:
   - numpy
   - Pillow
   - pip:
-    - chainer==3.0
+    - chainer==3.0.0a1
