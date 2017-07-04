@@ -34,9 +34,7 @@ def directory_parsing_label_names(root, numerical_sort=False):
     if not numerical_sort:
         label_names.sort()
     else:
-        label_names = [int(name) for name in label_names]
-        label_names.sort()
-        label_names = [str(name) for name in label_names]
+        label_names = sorted(label_names, key=int)
     return label_names
 
 
@@ -47,18 +45,24 @@ def _ends_with_img_ext(filename):
 
 
 def _parse_classification_dataset(root, label_names,
-                                  check_img_file=_ends_with_img_ext):
+                                  check_img_file=_ends_with_img_ext,
+                                  numerical_sort=False):
+    if numerical_sort:
+        sort_func = lambda x: sorted(x, key=int)
+    else:
+        sort_func = lambda x: sorted(x)
+
     # Use label_name_to_idx for performance.
     label_name_to_idx = {label_names[i]: i for i in range(len(label_names))}
 
     img_paths = []
     labels = []
-    for label_name in os.listdir(root):
+    for label_name in sort_func(os.listdir(root)):
         label_dir = os.path.join(root, label_name)
         if not os.path.isdir(label_dir):
             continue
 
-        for cur_dir, _, filenames in sorted(os.walk(label_dir)):
+        for cur_dir, _, filenames in sort_func(os.walk(label_dir)):
             for filename in filenames:
                 if check_img_file(filename):
                     img_paths.append(os.path.join(cur_dir, filename))
@@ -123,7 +127,7 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
             check_img_file = _ends_with_img_ext
 
         self.img_paths, self.labels = _parse_classification_dataset(
-            root, label_names, check_img_file)
+            root, label_names, check_img_file, numerical_sort)
 
     def __len__(self):
         return len(self.img_paths)
