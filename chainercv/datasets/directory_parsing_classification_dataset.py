@@ -38,14 +38,14 @@ def directory_parsing_label_names(root, numerical_sort=False):
     return label_names
 
 
-def _ends_with_img_ext(filename):
+def _check_img_ext(filename):
     img_extensions = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp']
-    return any(os.path.splitext(filename)[1].lower().endswith(extension) for
+    return any(os.path.splitext(filename)[1].lower() == extension for
                extension in img_extensions)
 
 
 def _parse_classification_dataset(root, label_names,
-                                  check_img_file=_ends_with_img_ext,
+                                  check_img_file=_check_img_ext,
                                   numerical_sort=False):
     if numerical_sort:
         sort_func = lambda x: sorted(x, key=int)
@@ -121,7 +121,7 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
         label_names = directory_parsing_label_names(
             root, numerical_sort=numerical_sort)
         if check_img_file is None:
-            check_img_file = _ends_with_img_ext
+            check_img_file = _check_img_ext
 
         self.img_paths, self.labels = _parse_classification_dataset(
             root, label_names, check_img_file, numerical_sort)
