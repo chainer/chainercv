@@ -278,7 +278,7 @@ class SSD300(SSD):
                 The conversion code is `chainercv/examples/ssd/caffe2npz.py`.
             * :obj:`'imagenet'`: Load weights of VGG-16 trained on ImageNet. \
                 The weight file is downloaded and cached automatically. \
-                This option initializes weights partially and the rests are
+                This option initializes weights partially and the rests are \
                 initialized randomly. In this case, :obj:`n_fg_class` \
                 can be set to any number.
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
@@ -344,7 +344,7 @@ class SSD512(SSD):
                 The conversion code is `chainercv/examples/ssd/caffe2npz.py`.
             * :obj:`'imagenet'`: Load weights of VGG-16 trained on ImageNet. \
                 The weight file is downloaded and cached automatically. \
-                This option initializes weights partially and the rests are
+                This option initializes weights partially and the rests are \
                 initialized randomly. In this case, :obj:`n_fg_class` \
                 can be set to any number.
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \

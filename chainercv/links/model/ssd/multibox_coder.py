@@ -12,7 +12,7 @@ class MultiboxCoder(object):
     """A helper class to encode/decode bounding boxes.
 
     This class encodes :obj:`(bbox, label)` to :obj:`(mb_loc, mb_label)`
-    and decodes :obj:`(mb_loc, mb_conf)` to `(bbox, label, score)`.
+    and decodes :obj:`(mb_loc, mb_conf)` to :obj:`(bbox, label, score)`.
     These encoding/decoding are used in Single Shot Multibox Detector [#]_.
 
     * :obj:`mb_loc`: An array representing offsets and scales \
@@ -111,7 +111,7 @@ class MultiboxCoder(object):
     def encode(self, bbox, label, iou_thresh=0.5):
         """Encodes coordinates and classes of bounding boxes.
 
-        This method encodes :obj:`bbox: and :obj:`label` to :obj:`mb_loc`
+        This method encodes :obj:`bbox` and :obj:`label` to :obj:`mb_loc`
         and :obj:`mb_label`, which are used to compute multibox loss.
 
         Args:

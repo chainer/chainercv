@@ -164,8 +164,7 @@ def random_crop_with_bbox_constraints(
         of the value.
 
         * **constraint** (*tuple*): The chosen constraint.
-        * **y_slice** (*slice*): A slice used to crop the input image.\
-            The relation below holds together with :obj:`x_slice`.
+        * **y_slice** (*slice*): A slice used to crop the input image.
         * **x_slice** (*slice*): Similar to :obj:`x_slice`.
 
 
@@ -225,7 +224,7 @@ def random_crop_with_bbox_constraints(
 
 
 def resize_with_random_interpolation(img, size, return_param=False):
-    """Resize an image with randomly selected interpolation method.
+    """Resize an image with a randomly selected interpolation method.
 
     This function is similar to :func:`chainercv.transforms.resize`, but
     this chooses the interpolation method randomly.

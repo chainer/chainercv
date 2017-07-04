@@ -10,7 +10,7 @@ class Multibox(chainer.Chain):
     This is a head part of Single Shot Multibox Detector [#]_.
     This link computes :obj:`mb_locs` and :obj:`mb_confs` from feature maps.
     :obj:`mb_locs` contains information of the coordinates of bounding boxes
-    and :obj:`mb_confs` contains confidence scores of each classe.
+    and :obj:`mb_confs` contains confidence scores of each classes.
 
     .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan,
        Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
