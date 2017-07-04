@@ -35,8 +35,8 @@ For additional features
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
 
-For users using Chainer v1, please use version 0.4.11, which can be installed by `pip install chainercv==0.4.11`.
 The HEAD of the master branch is developed for Chainer v3.
+For users using Chainer v2, please use version 0.6, which can be installed by `pip install chainercv==0.6`.
 
 
 # Features
