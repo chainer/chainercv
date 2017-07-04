@@ -194,7 +194,7 @@ def _call_nms_kernel(bbox, thresh):
     mask_dev = cupy.zeros((n_bbox * col_blocks,), dtype=np.uint64)
     bbox = cupy.ascontiguousarray(bbox, dtype=np.float32)
     kern = _load_kernel('nms_kernel', _nms_gpu_code)
-    kern(blocks, threads, args=(n_bbox, cupy.float32(thresh),
+    kern(blocks, threads, args=(cupy.int32(n_bbox), cupy.float32(thresh),
                                 bbox, mask_dev))
 
     mask_host = mask_dev.get()
