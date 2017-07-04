@@ -164,9 +164,10 @@ def random_crop_with_bbox_constraints(
         of the value.
 
         * **constraint** (*tuple*): The chosen constraint.
-        * **y_slice** (*slice*): A slice used to crop the input image.
-        * **x_slice** (*slice*): Similar to :obj:`x_slice`.
-
+        * **y_slice** (*slice*): A slice in vertical direction used to crop \
+            the input image.
+        * **x_slice** (*slice*): A slice in horizontal direction used to crop \
+            the input image.
 
     """
 
