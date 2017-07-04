@@ -9,7 +9,7 @@ import chainer.functions as F
 from chainer import iterators
 
 from chainercv.datasets import DirectoryParsingClassificationDataset
-from chainercv.links import VGG16Layers
+from chainercv.links import VGG16
 
 from chainercv.utils import apply_prediction_to_iterator
 
@@ -50,9 +50,9 @@ def main():
 
     if args.model == 'vgg16':
         if args.pretrained_model:
-            model = VGG16Layers(pretrained_model=args.pretrained_model)
+            model = VGG16(pretrained_model=args.pretrained_model)
         else:
-            model = VGG16Layers(pretrained_model='imagenet')
+            model = VGG16(pretrained_model='imagenet')
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()

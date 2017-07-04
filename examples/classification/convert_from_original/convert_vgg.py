@@ -1,12 +1,12 @@
 import chainer
 from chainer.links import VGG16Layers as VGG16Layers_chainer
 
-from chainercv.links import VGG16Layers as VGG16Layers_cv
+from chainercv.links import VGG16 as VGG16_cv
 
 
 def main():
     chainer_model = VGG16Layers_chainer()
-    cv_model = VGG16Layers_cv(pretrained_model=None, n_class=1000)
+    cv_model = VGG16_cv(pretrained_model=None, n_class=1000)
 
     cv_model.conv1_1.copyparams(chainer_model.conv1_1)
 
