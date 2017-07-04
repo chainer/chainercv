@@ -11,22 +11,51 @@ from chainercv.transforms import ten_crop
 
 class FeatureExtractionPredictor(chainer.Chain):
 
+    """Wrapper around a feature extraction model to add predict method.
+
+    This chain wraps aroudn a feature extraction model to predict features
+    from images.
+    The :meth:`predict` takes three steps to make predictions.
+
+    1. Preprocess images
+    2. Forward the preprocessed images to the network
+    3. Average features in the case when ten-crop is used.
+
+    Example:
+
+        >>> from chainercv.links import VGG16
+        >>> from chainercv.links import FeatureExtractionPredictor
+        >>> base_model = VGG16(layer_names='prob')
+        >>> model = FeatureExtractionPredictor(base_model)
+        >>> prob = model.predict([img])
+
+    """
+
     def __init__(self, extractor,
                  size=(224, 224), scale_size=256,
                  do_ten_crop=False):
+        super(FeatureExtractionPredictor, self).__init__()
         self.scale_size = scale_size
         self.size = size
         self.do_ten_crop = do_ten_crop
 
         with self.init_scope():
             self.extractor = extractor
-    
+
     @property
     def mean(self):
         return self.extractor.mean
 
     def _prepare(self, img):
         """Transform an image to the input for VGG network.
+
+        This is a standard preprocessing scheme used by feature extraction
+        models.
+        First, the image is scaled so that the length of the smaller edge is
+        :math:`scale_size`.
+        Next, the image is center cropped or ten cropped to
+        :math:`(size, size)`.
+        Last, the image is mean subtracted by a mean image array :obj:`mean`.
 
         Args:
             img (~numpy.ndarray): An image. This is in CHW and RGB format.
@@ -70,8 +99,6 @@ class FeatureExtractionPredictor(chainer.Chain):
 
         When using patches from ten-crop, the features for each crop
         is averaged to compute one feature.
-        Ten-crop mode is only supported for calculation of features
-        :math:`fc6, fc7, fc8, prob`.
 
         Given :math:`N` input images, this outputs a batched array with
         batchsize :math:`N`.
@@ -84,8 +111,6 @@ class FeatureExtractionPredictor(chainer.Chain):
         Returns:
             Variable or tuple of Variable:
             A batch of features or tuple of them.
-            The features to output are selected by :obj:`features` option
-            of :meth:`__init__`.
 
         """
         imgs = [self._prepare(img) for img in imgs]

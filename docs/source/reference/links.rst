@@ -6,9 +6,7 @@ Links
 
 Feature Extraction
 ------------------
-
-Feature extraction links share a common method :meth:`predict` to extract features from images.
-For more details, please read :func:`VGG16Layers.predict`.
+Feature extraction models can be used to extract feature(s) given images.
 
 .. toctree::
 
@@ -17,6 +15,8 @@ For more details, please read :func:`VGG16Layers.predict`.
 
 .. autoclass:: chainercv.links.SequentialFeatureExtractor
    :members:
+
+.. autoclass:: chainercv.links.FeatureExtractionPredictor
 
 
 Detection
