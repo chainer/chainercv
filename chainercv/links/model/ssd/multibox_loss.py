@@ -16,9 +16,12 @@ def _elementwise_softmax_cross_entropy(x, t):
 
 
 def _hard_negative(x, positive, k):
+    xp = chainer.cuda.get_array_module(x, positive)
+    x = chainer.cuda.to_cpu(x)
+    positive = chainer.cuda.to_cpu(positive)
     rank = (x * (positive - 1)).argsort(axis=1).argsort(axis=1)
     hard_negative = rank < (positive.sum(axis=1) * k)[:, np.newaxis]
-    return hard_negative
+    return xp.array(hard_negative)
 
 
 def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
