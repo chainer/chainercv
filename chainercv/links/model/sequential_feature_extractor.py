@@ -69,7 +69,7 @@ class SequentialFeatureExtractor(chainer.Chain):
         # Delete unnecessary layers from self._layers based on layer_names.
         # Computation is equivalent to layers = layers[:last_index + 1].
         last_index = max([list(self._layers.keys()).index(name) for
-                         name in self._layer_names])
+                          name in self._layer_names])
         self._layers = collections.OrderedDict(
             islice(self._layers.items(), None, last_index + 1))
 

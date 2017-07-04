@@ -15,7 +15,8 @@ from chainer.links import Linear
 
 from chainercv.utils import download_model
 
-from chainercv.links.model.sequential_feature_extractor import SequentialFeatureExtractor
+from chainercv.links.model.sequential_feature_extractor import \
+    SequentialFeatureExtractor
 
 
 # RGB order
