@@ -2,11 +2,12 @@
 
 ## Performance
 
-| Model | Top 1 Error | Original Top 1 Error |
+| Model | Top 1 Error (single crop) | Reference Top 1 Error (single crop) |
 |:-:|:-:|:-:|
-| VGG16 | 27.06 % | 27.0 % [1] |
+| VGG16 | 29.0 % | 28.5 % [1] |
 
-The results can be reproduced by the following command
+The results can be reproduced by the following command.
+The score is reported using a weight converted from a weight trained by Caffe.
 
 ```
 $ python eval_imagenet.py <path_to_val_dataset> [--model vgg16] [--pretrained_model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
@@ -34,13 +35,6 @@ The ImageNet Large Scale Visual Recognition Challenge (ILSVRC) dataset has 1000 
   mkdir val && mv ILSVRC2012_img_val.tar val/ && cd val && tar -xvf ILSVRC2012_img_val.tar
   wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash
   ```
-
-## Note on implementations
-
-#### VGG16
-
-In the original paper, fully connected layers are used as convolutional layers, and the final output is the spatial average of the outputs of the convolutions.
-Our implementation averages predictions from ten-cropped patches.
 
 
 ## References

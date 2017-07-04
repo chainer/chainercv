@@ -9,6 +9,7 @@ import chainer.functions as F
 from chainer import iterators
 
 from chainercv.datasets import DirectoryParsingClassificationDataset
+from chainercv.links import FeatureExtractionPredictor
 from chainercv.links import VGG16
 
 from chainercv.utils import apply_prediction_to_iterator
@@ -53,6 +54,7 @@ def main():
             model = VGG16(pretrained_model=args.pretrained_model)
         else:
             model = VGG16(pretrained_model='imagenet')
+        model = FeatureExtractionPredictor(model)
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
