@@ -5,7 +5,7 @@ import chainer
 from chainercv.utils import read_image
 
 
-def parse_label_names(root, numerical_sort=False):
+def directory_parsing_label_names(root, numerical_sort=False):
     """Get label names from directories that are named by them.
 
     The label names are names of the directories that locate a layer below the
@@ -117,7 +117,7 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
                  numerical_sort=False):
         self.color = color
 
-        label_names = parse_label_names(
+        label_names = directory_parsing_label_names(
             root, numerical_sort=numerical_sort)
         if check_img_file is None:
             check_img_file = _ends_with_img_ext
