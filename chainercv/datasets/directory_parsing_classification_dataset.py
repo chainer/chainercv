@@ -52,12 +52,9 @@ def _parse_classification_dataset(root, label_names,
     else:
         sort_func = lambda x: sorted(x)
 
-    # Use label_name_to_idx for performance.
-    label_name_to_idx = {label_names[i]: i for i in range(len(label_names))}
-
     img_paths = []
     labels = []
-    for label_name in sort_func(os.listdir(root)):
+    for label, label_name in enumerate(label_names):
         label_dir = os.path.join(root, label_name)
         if not os.path.isdir(label_dir):
             continue
@@ -66,7 +63,7 @@ def _parse_classification_dataset(root, label_names,
             for filename in filenames:
                 if check_img_file(filename):
                     img_paths.append(os.path.join(cur_dir, filename))
-                    labels.append(label_name_to_idx[label_name])
+                    labels.append(label)
 
     return img_paths, np.array(labels, np.int32)
 
