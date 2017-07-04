@@ -5,7 +5,7 @@ import chainer
 from chainercv.utils import read_image
 
 
-def parse_label_names(root, numerical_sort=False):
+def directory_parsing_label_names(root, numerical_sort=False):
     """Get label names from directories that are named by them.
 
     The label names are names of the directories that locate a layer below the
@@ -13,7 +13,7 @@ def parse_label_names(root, numerical_sort=False):
 
     The label names can be used together with
     :class:`chainercv.datasets.DirectoryParsingClassificationDataset`.
-    An index of the label names correspond to a label id
+    An index of the label names corresponds to a label id
     obtained from the dataset.
 
     Args:
@@ -34,35 +34,35 @@ def parse_label_names(root, numerical_sort=False):
     if not numerical_sort:
         label_names.sort()
     else:
-        label_names = [int(name) for name in label_names]
-        label_names.sort()
-        label_names = [str(name) for name in label_names]
+        label_names = sorted(label_names, key=int)
     return label_names
 
 
-def _ends_with_img_ext(filename):
+def _check_img_ext(filename):
     img_extensions = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp']
-    return any(os.path.splitext(filename)[1].lower().endswith(extension) for
+    return any(os.path.splitext(filename)[1].lower() == extension for
                extension in img_extensions)
 
 
 def _parse_classification_dataset(root, label_names,
-                                  check_img_file=_ends_with_img_ext):
-    # Use label_name_to_idx for performance.
-    label_name_to_idx = {label_names[i]: i for i in range(len(label_names))}
-
+                                  check_img_file=_check_img_ext,
+                                  numerical_sort=False):
     img_paths = []
     labels = []
-    for label_name in os.listdir(root):
+    for label, label_name in enumerate(label_names):
         label_dir = os.path.join(root, label_name)
         if not os.path.isdir(label_dir):
             continue
 
-        for cur_dir, _, filenames in sorted(os.walk(label_dir)):
+        if numerical_sort:
+            walk_dir = sorted(os.walk(label_dir), key=int)
+        else:
+            walk_dir = sorted(os.walk(label_dir))
+        for cur_dir, _, filenames in walk_dir:
             for filename in filenames:
                 if check_img_file(filename):
                     img_paths.append(os.path.join(cur_dir, filename))
-                    labels.append(label_name_to_idx[label_name])
+                    labels.append(label)
 
     return img_paths, np.array(labels, np.int32)
 
@@ -71,7 +71,7 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
     """A classification dataset for directories whose names are label names.
 
     The label names are names of the directories that locate a layer below the
-    root.
+    root directory.
     All images locating under the subdirectoies will be categorized to classes
     with subdirectory names.
     An image is parsed only when the function :obj:`check_img_file`
@@ -117,13 +117,13 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
                  numerical_sort=False):
         self.color = color
 
-        label_names = parse_label_names(
+        label_names = directory_parsing_label_names(
             root, numerical_sort=numerical_sort)
         if check_img_file is None:
-            check_img_file = _ends_with_img_ext
+            check_img_file = _check_img_ext
 
         self.img_paths, self.labels = _parse_classification_dataset(
-            root, label_names, check_img_file)
+            root, label_names, check_img_file, numerical_sort)
 
     def __len__(self):
         return len(self.img_paths)

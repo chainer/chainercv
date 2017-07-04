@@ -64,9 +64,9 @@ class InvalidLabelDataset(ClassificationDataset):
         ]
     )
 ))
-class TestAssertIsSemanticSegmentationDataset(unittest.TestCase):
+class TestAssertIsClassificationDataset(unittest.TestCase):
 
-    def test_assert_is_semantic_segmentation_dataset(self):
+    def test_assert_is_classification_dataset(self):
         if hasattr(self, 'option'):
             dataset = self.dataset(self.color, self.option)
         else:

@@ -7,8 +7,8 @@ import tempfile
 
 from chainer import testing
 
+from chainercv.datasets import directory_parsing_label_names
 from chainercv.datasets import DirectoryParsingClassificationDataset
-from chainercv.datasets import parse_label_names
 from chainercv.utils import assert_is_classification_dataset
 
 
@@ -55,7 +55,7 @@ class TestDirectoryParsingClassificationDataset(unittest.TestCase):
         assert_is_classification_dataset(
             dataset, self.n_class, color=self.color)
 
-        label_names = parse_label_names(self.tmp_dir)
+        label_names = directory_parsing_label_names(self.tmp_dir)
         self.assertEqual(
             label_names, ['class_{}'.format(i) for i in range(self.n_class)])
 
@@ -82,7 +82,8 @@ class TestNumericalSortDirectoryParsingClassificationDataset(
         assert_is_classification_dataset(
             dataset, self.n_class)
 
-        label_names = parse_label_names(self.tmp_dir, numerical_sort=True)
+        label_names = directory_parsing_label_names(
+            self.tmp_dir, numerical_sort=True)
         self.assertEqual(
             label_names, ['{}'.format(i) for i in range(self.n_class)])
 

@@ -6,11 +6,11 @@ Datasets
 
 DirectoryParsingClassificationDataset
 -------------------------------------
-.. autofunction:: DirectoryParsingClassificationDataset
+.. autoclass:: DirectoryParsingClassificationDataset
 
-parse_label_names
------------------
-.. autofunction:: parse_label_names
+directory_parsing_label_names
+-----------------------------
+.. autofunction:: directory_parsing_label_names
 
 TransformDataset
 ----------------

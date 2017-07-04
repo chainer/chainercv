@@ -46,5 +46,5 @@ def _check_example(example, n_class, color):
     assert isinstance(label, np.int32), \
         'label must be a numpy.int32.'
     assert label.ndim == 0, 'The ndim of label must be 0'
-    assert label.min() >= 0 and label.max() < n_class, \
+    assert label >= 0 and label < n_class, \
         'The value of label must be in [0, n_class - 1].'
