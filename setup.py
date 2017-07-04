@@ -19,7 +19,7 @@ ext_modules = [
 cmdclass = {'build_ext': build_ext}
 
 install_requires = [
-    'chainer==3.0',
+    'chainer==3.0.0a1',
     'Cython',
     'Pillow'
 ]
