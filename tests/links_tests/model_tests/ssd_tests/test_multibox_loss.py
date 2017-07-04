@@ -59,10 +59,15 @@ class TestMultiboxLoss(unittest.TestCase):
         self.assertEqual(conf_loss.dtype, mb_confs.dtype)
 
         if self.variable:
-            mb_locs = cuda.to_cpu(mb_locs.data)
-            mb_confs = cuda.to_cpu(mb_confs.data)
-            gt_mb_locs = cuda.to_cpu(gt_mb_locs.data)
-            gt_mb_labels = cuda.to_cpu(gt_mb_labels.data)
+            mb_locs = mb_locs.data
+            mb_confs = mb_confs.data
+            gt_mb_locs = gt_mb_locs.data
+            gt_mb_labels = gt_mb_labels.data
+
+        mb_locs = cuda.to_cpu(mb_locs)
+        mb_confs = cuda.to_cpu(mb_confs)
+        gt_mb_locs = cuda.to_cpu(gt_mb_locs)
+        gt_mb_labels = cuda.to_cpu(gt_mb_labels)
         loc_loss = cuda.to_cpu(loc_loss.data)
         conf_loss = cuda.to_cpu(conf_loss.data)
 
