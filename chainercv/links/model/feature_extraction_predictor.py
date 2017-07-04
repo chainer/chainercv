@@ -53,8 +53,7 @@ class FeatureExtractionPredictor(chainer.Chain):
         models.
         First, the image is scaled so that the length of the smaller edge is
         :math:`scale_size`.
-        Next, the image is center cropped or ten cropped to
-        :math:`(size, size)`.
+        Next, the image is center cropped or ten cropped to :math:`size`.
         Last, the image is mean subtracted by a mean image array :obj:`mean`.
 
         Args:
@@ -109,7 +108,7 @@ class FeatureExtractionPredictor(chainer.Chain):
                 and the range of their value is :math:`[0, 255]`.
 
         Returns:
-            Variable or tuple of Variable:
+            numpy.ndarray or tuple of numpy.ndarray:
             A batch of features or tuple of them.
 
         """
