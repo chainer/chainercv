@@ -47,11 +47,6 @@ def _check_img_ext(filename):
 def _parse_classification_dataset(root, label_names,
                                   check_img_file=_check_img_ext,
                                   numerical_sort=False):
-    if numerical_sort:
-        sort_func = lambda x: sorted(x, key=int)
-    else:
-        sort_func = lambda x: sorted(x)
-
     img_paths = []
     labels = []
     for label, label_name in enumerate(label_names):
@@ -59,7 +54,11 @@ def _parse_classification_dataset(root, label_names,
         if not os.path.isdir(label_dir):
             continue
 
-        for cur_dir, _, filenames in sort_func(os.walk(label_dir)):
+        if numerical_sort:
+            walk_dir = sorted(os.walk(label_dir), key=int)
+        else:
+            walk_dir = sorted(os.walk(label_dir))
+        for cur_dir, _, filenames in walk_dir:
             for filename in filenames:
                 if check_img_file(filename):
                     img_paths.append(os.path.join(cur_dir, filename))
