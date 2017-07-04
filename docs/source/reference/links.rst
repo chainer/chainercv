@@ -15,6 +15,10 @@ For more details, please read :func:`VGG16Layers.predict`.
    links/vgg
 
 
+.. autoclass:: chainercv.links.SequentialFeatureExtractor
+   :members:
+
+
 Detection
 ---------
 

@@ -15,7 +15,7 @@ from chainer.links import Linear
 
 from chainercv.utils import download_model
 
-from chainercv.links.model.sequential_extractor import SequentialExtractor
+from chainercv.links.model.sequential_feature_extractor import SequentialFeatureExtractor
 
 
 # RGB order
@@ -23,7 +23,7 @@ _imagenet_mean = np.array(
     [123.68, 116.779, 103.939], dtype=np.float32)[:, np.newaxis, np.newaxis]
 
 
-class VGG16(SequentialExtractor):
+class VGG16(SequentialFeatureExtractor):
 
     """VGG16 Network for classification and feature extraction.
 
