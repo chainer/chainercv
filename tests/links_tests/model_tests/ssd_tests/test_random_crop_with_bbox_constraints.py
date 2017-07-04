@@ -1,3 +1,5 @@
+from __future__ import division
+
 import numpy as np
 import unittest
 
@@ -29,9 +31,13 @@ class TestRandomCropWithBboxConstraints(unittest.TestCase):
             self.assertGreaterEqual(out.size, img.size * 0.3 * 0.3)
             self.assertLessEqual(out.size, img.size * 1 * 1)
 
-            # to ignore rounding error, add/subtract 1
-            self.assertLessEqual((out.shape[1] - 1) / (out.shape[2] + 1), 2)
-            self.assertLessEqual((out.shape[2] - 1) / (out.shape[1] + 1), 2)
+            # to ignore rounding error, add 1
+            self.assertLessEqual(
+                out.shape[1] / (out.shape[2] + 1),
+                img.shape[1] / img.shape[2] * 2)
+            self.assertLessEqual(
+                out.shape[2] / (out.shape[1] + 1),
+                img.shape[2] / img.shape[1] * 2)
 
             bb = np.array((
                 param['y_slice'].start, param['x_slice'].start,
