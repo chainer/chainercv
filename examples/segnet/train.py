@@ -22,6 +22,14 @@ from chainercv.links import PixelwiseSoftmaxClassifier
 from chainercv.links import SegNetBasic
 
 
+def transform(in_data):
+    img, label = in_data
+    if np.random.rand() > 0.5:
+        img = img[:, :, ::-1]
+        label = label[:, ::-1]
+    return img, label
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
@@ -37,14 +45,6 @@ def main():
 
     # Dataset
     train = CamVidDataset(split='train')
-
-    def transform(in_data):
-        img, label = in_data
-        if np.random.rand() > 0.5:
-            img = img[:, :, ::-1]
-            label = label[:, ::-1]
-        return img, label
-
     train = TransformDataset(train, transform)
     val = CamVidDataset(split='val')
 
