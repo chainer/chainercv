@@ -7,7 +7,7 @@
 
 ChainerCV is a collection of tools to train and run neural networks for computer vision tasks using [Chainer](https://github.com/chainer/chainer).
 
-You can find the documentation [here](http://chainercv.readthedocs.io/en/latest/).
+You can find the documentation [here](http://chainercv.readthedocs.io/en/stable/).
 
 ![Example are outputs of detection models supported by ChainerCV](https://cloud.githubusercontent.com/assets/2062128/26337670/44a2a202-3fb5-11e7-8b88-6eb9886a9915.png)
 These are the outputs of the detection models supported by ChainerCV.
@@ -19,7 +19,7 @@ These are the outputs of the detection models supported by ChainerCV.
 $ pip install chainercv
 ```
 
-The instruction on installation using Anaconda is [here](http://chainercv.readthedocs.io/en/latest/#install-guide) (recommended).
+The instruction on installation using Anaconda is [here](http://chainercv.readthedocs.io/en/stable/#install-guide) (recommended).
 
 ### Requirements
 

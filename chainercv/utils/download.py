@@ -1,4 +1,6 @@
+from __future__ import division
 from __future__ import print_function
+
 import hashlib
 import os
 import shutil
@@ -13,19 +15,28 @@ import sys
 import time
 
 from chainer.dataset.download import get_dataset_directory
+from chainer.dataset.download import get_dataset_root
 
 
 def _reporthook(count, block_size, total_size):
     global start_time
     if count == 0:
         start_time = time.time()
+        print('  %   Total    Recv       Speed  Time left')
         return
     duration = time.time() - start_time
-    progress_size = int(count * block_size)
-    speed = int(progress_size / (1024 * duration))
-    percent = int(count * block_size * 100 / total_size)
-    sys.stdout.write('\r...{}, {} MB, {} KB/s, {} seconds passed'.format(
-        percent, progress_size / (1024 * 1024), speed, duration))
+    progress_size = count * block_size
+    try:
+        speed = progress_size / duration
+    except ZeroDivisionError:
+        speed = float('inf')
+    percent = progress_size / total_size * 100
+    eta = int((total_size - progress_size) / speed)
+    sys.stdout.write(
+        '\r{:3.0f} {:4.0f}MiB {:4.0f}MiB {:6.0f}KiB/s {:4d}:{:02d}:{:02d}'
+        .format(
+            percent, total_size / (1 << 20), progress_size / (1 << 20),
+            speed / (1 << 10), eta // 60 // 60, (eta // 60) % 60, eta % 60))
     sys.stdout.flush()
 
 
@@ -48,12 +59,12 @@ def cached_download(url):
         str: Path to the downloaded file.
 
     """
-    cache_root = get_dataset_directory('_dl_cache')
+    cache_root = os.path.join(get_dataset_root(), '_dl_cache')
     try:
         os.makedirs(cache_root)
     except OSError:
         if not os.path.exists(cache_root):
-            raise RuntimeError('cannot create download cache directory')
+            raise
 
     lock_path = os.path.join(cache_root, '_dl_lock')
     urlhash = hashlib.md5(url.encode('utf-8')).hexdigest()
@@ -66,7 +77,9 @@ def cached_download(url):
     temp_root = tempfile.mkdtemp(dir=cache_root)
     try:
         temp_path = os.path.join(temp_root, 'dl')
-        print('Downloading from {}...'.format(url))
+        print('Downloading ...')
+        print('From: {:s}'.format(url))
+        print('To: {:s}'.format(cache_path))
         request.urlretrieve(url, temp_path, _reporthook)
         with filelock.FileLock(lock_path):
             shutil.move(temp_path, cache_path)

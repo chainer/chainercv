@@ -17,25 +17,25 @@ TransformDataset
 
 TransformDataset
 ~~~~~~~~~~~~~~~~
-.. autofunction:: TransformDataset
+.. autoclass:: TransformDataset
 
 CamVid
 ------
 
 CamVidDataset
 ~~~~~~~~~~~~~
-.. autofunction:: CamVidDataset
+.. autoclass:: CamVidDataset
 
 CUB
 ---
 
 CUBLabelDataset
 ~~~~~~~~~~~~~~~
-.. autofunction:: CUBLabelDataset
+.. autoclass:: CUBLabelDataset
 
 CUBKeypointDataset
 ~~~~~~~~~~~~~~~~~~~
-.. autofunction:: CUBKeypointDataset
+.. autoclass:: CUBKeypointDataset
 
 
 OnlineProducts
@@ -43,7 +43,7 @@ OnlineProducts
 
 OnlineProductsDataset
 ~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: OnlineProductsDataset
+.. autoclass:: OnlineProductsDataset
 
 
 PASCAL VOC
@@ -51,8 +51,8 @@ PASCAL VOC
 
 VOCDetectionDataset
 ~~~~~~~~~~~~~~~~~~~
-.. autofunction:: VOCDetectionDataset
+.. autoclass:: VOCDetectionDataset
 
 VOCSemanticSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: VOCSemanticSegmentationDataset
+.. autoclass:: VOCSemanticSegmentationDataset
