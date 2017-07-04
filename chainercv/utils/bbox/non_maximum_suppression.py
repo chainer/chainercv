@@ -105,9 +105,7 @@ def _non_maximum_suppression_gpu(bbox, thresh, score=None, limit=None):
     n_bbox = bbox.shape[0]
 
     if score is not None:
-        # CuPy does not currently support argsort.
-        order = cuda.to_cpu(score).argsort()[::-1].astype(np.int32)
-        order = cuda.to_gpu(order)
+        order = score.argsort()[::-1].astype(np.int32)
     else:
         order = cupy.arange(n_bbox, dtype=np.int32)
 
