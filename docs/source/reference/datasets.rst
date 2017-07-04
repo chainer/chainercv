@@ -6,7 +6,7 @@ Datasets
 
 DirectoryParsingClassificationDataset
 -------------------------------------
-.. autofunction:: DirectoryParsingClassificationDataset
+.. autoclass:: DirectoryParsingClassificationDataset
 
 directory_parsing_label_names
 -----------------------------
