@@ -13,7 +13,7 @@ def directory_parsing_label_names(root, numerical_sort=False):
 
     The label names can be used together with
     :class:`chainercv.datasets.DirectoryParsingClassificationDataset`.
-    An index of the label names correspond to a label id
+    An index of the label names corresponds to a label id
     obtained from the dataset.
 
     Args:
@@ -71,7 +71,7 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
     """A classification dataset for directories whose names are label names.
 
     The label names are names of the directories that locate a layer below the
-    root.
+    root directory.
     All images locating under the subdirectoies will be categorized to classes
     with subdirectory names.
     An image is parsed only when the function :obj:`check_img_file`
