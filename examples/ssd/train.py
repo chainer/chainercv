@@ -95,9 +95,8 @@ class Transform(object):
 
         # Preparation for SSD network
         img -= self.mean
-        mb_loc, mb_label = self.coder.encode(
-            transforms.resize_bbox(bbox, (self.size, self.size), (1, 1)),
-            label)
+        mb_loc, mb_label = self.coder.encode(bbox, label)
+
         return img, mb_loc, mb_label
 
 

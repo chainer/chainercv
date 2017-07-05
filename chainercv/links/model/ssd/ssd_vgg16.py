@@ -309,8 +309,8 @@ class SSD300(SSD):
             multibox=Multibox(
                 n_class=n_fg_class + 1,
                 aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))),
-            steps=[s / 300 for s in (8, 16, 32, 64, 100, 300)],
-            sizes=[s / 300 for s in (30, 60, 111, 162, 213, 264, 315)],
+            steps=(8, 16, 32, 64, 100, 300),
+            sizes=(30, 60, 111, 162, 213, 264, 315),
             mean=_imagenet_mean)
 
         if path:
@@ -376,9 +376,8 @@ class SSD512(SSD):
                 n_class=n_fg_class + 1,
                 aspect_ratios=(
                     (2,), (2, 3), (2, 3), (2, 3), (2, 3), (2,), (2,))),
-            steps=[s / 512 for s in (8, 16, 32, 64, 128, 256, 512)],
-            sizes=[s / 512 for s in
-                   (35.84, 76.8, 153.6, 230.4, 307.2, 384.0, 460.8, 537.6)],
+            steps=(8, 16, 32, 64, 128, 256, 512),
+            sizes=(35.84, 76.8, 153.6, 230.4, 307.2, 384.0, 460.8, 537.6),
             mean=_imagenet_mean)
 
         if path:
