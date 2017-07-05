@@ -47,7 +47,7 @@ class MultiboxCoder(object):
     Args:
         grids (iterable of ints): An iterable of integers.
             Each integer indicates the size of a feature map.
-        aspect_ratios (iterable of tuples of ints)`:
+        aspect_ratios (iterable of tuples of ints):
             An iterable of tuples of integers
             used to compute the default bouding boxes.
             Each tuple indicates the aspect ratios of
@@ -184,7 +184,7 @@ class MultiboxCoder(object):
 
         return mb_loc.astype(np.float32), mb_label.astype(np.int32)
 
-    def decode(self, mb_loc, mb_conf, nms_thresh, score_thresh):
+    def decode(self, mb_loc, mb_conf, nms_thresh=0.45, score_thresh=0.6):
         """Decodes back to coordinates and classes of bounding boxes.
 
         This method decodes :obj:`mb_loc` and :obj:`mb_conf` returned
@@ -198,9 +198,11 @@ class MultiboxCoder(object):
                 :math:`(K, n\_fg\_class + 1)`.
             nms_thresh (float): The threshold value
                 for :meth:`chainercv.transfroms.non_maximum_suppression`.
+                The default value is :obj:`0.45`.
             score_thresh (float): The threshold value for confidence score.
                 If a bounding box whose confidence score is lower than
                 this value, the bounding box will be suppressed.
+                The default value is :obj:`0.6`.
 
         Returns:
             tuple of three arrays:
