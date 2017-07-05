@@ -27,8 +27,21 @@ class SequentialFeatureExtractor(chainer.Chain):
     will be returned. These values are ordered in the same order of the
     strings in :obj:`layer_names`.
 
-    .. seealso::
-        :obj:`chainercv.links.model.vgg.VGG16`
+    Examples:
+
+        >>> import collections
+        >>> import chainer.functions as F
+        >>> import chainer.links as L
+        >>> layers = collections.OrderedDict([
+        >>>     ('l1', L.Linear(None, 1000)),
+        >>>     ('l1_relu', F.relu),
+        >>>     ('l2', L.Linear(None, 1000)),
+        >>>     ('l2_relu', F.relu),
+        >>>     ('l3', L.Linear(None, 10))])
+        >>> model = SequentialFeatureExtractor(layers, ['l2_relu', 'l3'])
+        >>> # These are outputs of l2_relu and l3 layers.
+        >>> feat1, feat2 = model(imgs)
+
 
     The implementation is optimized for speed and memory.
     A layer that is not needed to collect all features listed in
@@ -79,6 +92,16 @@ class SequentialFeatureExtractor(chainer.Chain):
                     setattr(self, name, layer)
 
     def __call__(self, x):
+        """Forward sequential feature extraction model.
+
+        Args:
+            x (chainer.Variable or array): Input to the network.
+
+        Returns:
+            chainer.Variable or tuple of chainer.Variable:
+            The returned values are determined by :obj:`layer_names`.
+
+        """
         features = {}
         h = x
         for name, layer in self._layers.items():
