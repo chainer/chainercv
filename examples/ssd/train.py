@@ -101,6 +101,9 @@ class Transform(object):
 
 
 def main():
+    # Fix seed for stable training
+    np.random.seed(0)
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--gpu', type=int, default=-1)
