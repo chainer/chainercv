@@ -101,9 +101,6 @@ class Transform(object):
 
 
 def main():
-    # Fix seed for stable training
-    np.random.seed(0)
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--gpu', type=int, default=-1)
@@ -119,6 +116,10 @@ def main():
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
+
+    # Fix seed and initialize weights
+    np.random.seed(0)
+    model(model.xp.empty((1, 3, model.insize, model.insize), dtype=np.float32))
 
     train = TransformDataset(
         ConcatenatedDataset(
