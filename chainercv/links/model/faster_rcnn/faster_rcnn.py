@@ -304,10 +304,8 @@ class FasterRCNN(chainer.Chain):
             cls_bbox = loc2bbox(roi.reshape(-1, 4), roi_cls_loc.reshape(-1, 4))
             cls_bbox = cls_bbox.reshape(-1, self.n_class * 4)
             # clip bounding box
-            cls_bbox[:, slice(0, 4, 2)] = self.xp.clip(
-                cls_bbox[:, slice(0, 4, 2)], 0, H / scale)
-            cls_bbox[:, slice(1, 4, 2)] = self.xp.clip(
-                cls_bbox[:, slice(1, 4, 2)], 0, W / scale)
+            cls_bbox[:, 0::2] = self.xp.clip(cls_bbox[:, 0::2], 0, H / scale)
+            cls_bbox[:, 1::2] = self.xp.clip(cls_bbox[:, 1::2], 0, W / scale)
 
             prob = F.softmax(roi_score).data
 

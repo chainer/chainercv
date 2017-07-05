@@ -7,12 +7,12 @@ from chainercv.utils.bbox._nms_gpu_post import _nms_gpu_post
 
 
 if cuda.available:
-    import cupy
+    import cupy as cp
 
-    @cupy.util.memoize(for_each_device=True)
+    @cp.util.memoize(for_each_device=True)
     def _load_kernel(kernel_name, code, options=()):
         assert isinstance(options, tuple)
-        kernel_code = cupy.cuda.compile_with_cache(code, options=options)
+        kernel_code = cp.cuda.compile_with_cache(code, options=options)
         return kernel_code.get_function(kernel_name)
 
 
@@ -100,14 +100,14 @@ def _non_maximum_suppression_cpu(bbox, thresh, score=None, limit=None):
 
 def _non_maximum_suppression_gpu(bbox, thresh, score=None, limit=None):
     if len(bbox) == 0:
-        return cupy.zeros((0,), dtype=np.int32)
+        return cp.zeros((0,), dtype=np.int32)
 
     n_bbox = bbox.shape[0]
 
     if score is not None:
         order = score.argsort()[::-1].astype(np.int32)
     else:
-        order = cupy.arange(n_bbox, dtype=np.int32)
+        order = cp.arange(n_bbox, dtype=np.int32)
 
     sorted_bbox = bbox[order, :]
     selec, n_selec = _call_nms_kernel(
@@ -191,11 +191,11 @@ def _call_nms_kernel(bbox, thresh):
     blocks = (col_blocks, col_blocks, 1)
     threads = (threads_per_block, 1, 1)
 
-    mask_dev = cupy.zeros((n_bbox * col_blocks,), dtype=np.uint64)
-    bbox = cupy.ascontiguousarray(bbox, dtype=np.float32)
+    mask_dev = cp.zeros((n_bbox * col_blocks,), dtype=np.uint64)
+    bbox = cp.ascontiguousarray(bbox, dtype=np.float32)
     kern = _load_kernel('nms_kernel', _nms_gpu_code)
-    kern(blocks, threads, args=(cupy.int32(n_bbox), cupy.float32(thresh),
-                                bbox, mask_dev))
+    kern(blocks, threads,
+         args=(cp.int32(n_bbox), cp.float32(thresh), bbox, mask_dev))
 
     mask_host = mask_dev.get()
     selection, n_selec = _nms_gpu_post(

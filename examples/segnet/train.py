@@ -14,20 +14,20 @@ from chainer import optimizers
 from chainer import training
 from chainer.training import extensions
 
+from chainercv.datasets import camvid_label_names
 from chainercv.datasets import CamVidDataset
 from chainercv.datasets import TransformDataset
+from chainercv.extensions import SemanticSegmentationEvaluator
 from chainercv.links import PixelwiseSoftmaxClassifier
 from chainercv.links import SegNetBasic
 
 
-class TestModeEvaluator(extensions.Evaluator):
-
-    def evaluate(self):
-        model = self.get_target('main')
-        model.train = False
-        ret = super(TestModeEvaluator, self).evaluate()
-        model.train = True
-        return ret
+def transform(in_data):
+    img, label = in_data
+    if np.random.rand() > 0.5:
+        img = img[:, :, ::-1]
+        label = label[:, ::-1]
+    return img, label
 
 
 def main():
@@ -45,14 +45,6 @@ def main():
 
     # Dataset
     train = CamVidDataset(split='train')
-
-    def transform(in_data):
-        img, label = in_data
-        if np.random.rand() > 0.5:
-            img = img[:, :, ::-1]
-            label = label[:, ::-1]
-        return img, label
-
     train = TransformDataset(train, transform)
     val = CamVidDataset(split='val')
 
@@ -84,23 +76,31 @@ def main():
     trainer.extend(extensions.LogReport(trigger=log_trigger))
     trainer.extend(extensions.observe_lr(), trigger=log_trigger)
     trainer.extend(extensions.dump_graph('main/loss'))
-    trainer.extend(TestModeEvaluator(val_iter, model,
-                                     device=args.gpu),
-                   trigger=validation_trigger)
 
     if extensions.PlotReport.available():
         trainer.extend(extensions.PlotReport(
-            ['main/loss', 'validation/main/loss'], x_key='iteration',
+            ['main/loss'], x_key='iteration',
             file_name='loss.png'))
+        trainer.extend(extensions.PlotReport(
+            ['validation/main/miou'], x_key='iteration',
+            file_name='miou.png'))
 
     trainer.extend(extensions.snapshot_object(
         model.predictor, filename='model_iteration-{.updater.iteration}'),
         trigger=end_trigger)
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', 'elapsed_time', 'lr',
-         'main/loss', 'validation/main/loss']),
+         'main/loss', 'validation/main/miou',
+         'validation/main/mean_class_accuracy',
+         'validation/main/pixel_accuracy']),
         trigger=log_trigger)
     trainer.extend(extensions.ProgressBar(update_interval=10))
+
+    trainer.extend(
+        SemanticSegmentationEvaluator(
+            val_iter, model.predictor,
+            camvid_label_names),
+        trigger=validation_trigger)
 
     trainer.run()
 

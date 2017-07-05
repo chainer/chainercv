@@ -4,7 +4,7 @@
 
 | Training Setting | Evaluation | Reference | ChainerCV |
 |:-:|:-:|:-:|:-:|
-| VOC 2007 trainval | VOC 2007 test|  69.9 mAP [1] | 70.5 mAP |
+| VOC 2007 trainval | VOC 2007 test|  69.9 mAP [1] | 70.6 mAP |
 
 
 ### Speed
