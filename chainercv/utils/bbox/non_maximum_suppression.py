@@ -38,7 +38,7 @@ def non_maximum_suppression(bbox, thresh, score=None,
     :obj:`score` is a float array of shape :math:`(R,)`. Each score indicates
     confidence of prediction.
 
-    This function accepts both :obj:`numpy.ndarray` and :obj:`cp.ndarray` as
+    This function accepts both :obj:`numpy.ndarray` and :obj:`cupy.ndarray` as
     inputs. Please note that both :obj:`bbox` and :obj:`score` need to be
     same type.
     The output is same type as the type of the inputs.
@@ -105,7 +105,7 @@ def _non_maximum_suppression_gpu(bbox, thresh, score=None, limit=None):
     n_bbox = bbox.shape[0]
 
     if score is not None:
-        # cp does not currently support argsort.
+        # CuPy does not currently support argsort.
         order = cuda.to_cpu(score).argsort()[::-1].astype(np.int32)
         order = cuda.to_gpu(order)
     else:
