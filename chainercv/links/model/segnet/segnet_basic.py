@@ -176,6 +176,6 @@ class SegNetBasic(chainer.Chain):
                 dtype = score.dtype
                 score = resize(score, (H, W)).astype(dtype)
 
-            label = np.argmax(score, axis=0)
+            label = np.argmax(score, axis=0).astype(np.int32)
             labels.append(label)
         return labels

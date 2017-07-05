@@ -38,7 +38,7 @@ class TestRandomExpand(unittest.TestCase):
 @testing.parameterize(
     {'fill': 128},
     {'fill': (104, 117, 123)},
-    {'fill':  np.random.uniform(255, size=3)},
+    {'fill':  np.random.uniform(255, size=(3, 1, 1))},
 )
 class TestRandomExpandFill(unittest.TestCase):
 
@@ -53,11 +53,11 @@ class TestRandomExpandFill(unittest.TestCase):
                 break
 
         if isinstance(self.fill, int):
-            np.testing.assert_equal(
-                out[:, 0, 0], (self.fill,) * 3)
+            fill = (self.fill,) * 3
         else:
-            np.testing.assert_equal(
-                out[:, 0, 0], self.fill)
+            fill = self.fill
+        np.testing.assert_equal(
+            out[:, 0, 0], np.array(fill).flatten())
 
 
 testing.run_module(__name__, __file__)

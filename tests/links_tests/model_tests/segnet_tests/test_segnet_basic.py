@@ -6,6 +6,7 @@ from chainer import testing
 from chainer.testing import attr
 
 from chainercv.links import SegNetBasic
+from chainercv.utils import assert_is_semantic_segmentation_link
 
 
 @testing.parameterize(
@@ -37,29 +38,13 @@ class TestSegNetBasic(unittest.TestCase):
         self.link.to_gpu()
         self.check_call()
 
-    def check_predict(self):
-        hs = np.random.randint(128, 160, size=(2,))
-        ws = np.random.randint(128, 160, size=(2,))
-        imgs = [
-            np.random.uniform(size=(3, hs[0], ws[0])).astype(np.float32),
-            np.random.uniform(size=(3, hs[1], ws[1])).astype(np.float32),
-        ]
-
-        labels = self.link.predict(imgs)
-
-        self.assertEqual(len(labels), 2)
-        for i in range(2):
-            self.assertIsInstance(labels[i], np.ndarray)
-            self.assertEqual(labels[i].shape, (hs[i], ws[i]))
-            self.assertEqual(labels[i].dtype, np.int64)
-
     def test_predict_cpu(self):
-        self.check_predict()
+        assert_is_semantic_segmentation_link(self.link, self.n_class)
 
     @attr.gpu
     def test_predict_gpu(self):
         self.link.to_gpu()
-        self.check_predict()
+        assert_is_semantic_segmentation_link(self.link, self.n_class)
 
 
 testing.run_module(__name__, __file__)
