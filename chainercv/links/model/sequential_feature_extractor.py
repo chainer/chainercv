@@ -55,7 +55,7 @@ class SequentialFeatureExtractor(chainer.Chain):
         self._layers = layers
 
         if layer_names is None:
-            layer_names = self._layers.keys()[-1]
+            layer_names = list(self._layers.keys())[-1]
 
         if (not isinstance(layer_names, str) and
                 all([isinstance(name, str) for name in layer_names])):
