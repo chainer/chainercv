@@ -231,7 +231,7 @@ def calc_detection_voc_prec_rec(
         fp = np.cumsum(match_l == 0)
 
         prec[l] = tp / np.maximum(fp + tp, np.finfo(np.float64).eps)
-        rec[l] = tp / n_pos[l]
+        rec[l] = tp / max(1, n_pos[l])
 
     return prec, rec
 
