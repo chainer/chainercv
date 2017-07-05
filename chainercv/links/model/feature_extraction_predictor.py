@@ -109,7 +109,7 @@ class FeatureExtractionPredictor(chainer.Chain):
 
         Returns:
             numpy.ndarray or tuple of numpy.ndarray:
-            A batch of features or tuple of them.
+            A batch of features or a tuple of them.
 
         """
         imgs = self.xp.asarray([self._prepare(img) for img in imgs])
