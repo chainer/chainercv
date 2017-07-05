@@ -117,7 +117,7 @@ class VGG16Extractor300(VGG16):
 
     def __init__(self):
         init = {
-            'initialW': initializers.GlorotUniform(),
+            'initialW': initializers.LeCunUniform(),
             'initial_bias': initializers.Zero(),
         }
         super(VGG16Extractor300, self).__init__()
@@ -171,7 +171,7 @@ class VGG16Extractor512(VGG16):
 
     def __init__(self):
         init = {
-            'initialW': initializers.GlorotUniform(),
+            'initialW': initializers.LeCunUniform(),
             'initial_bias': initializers.Zero(),
         }
         super(VGG16Extractor512, self).__init__()

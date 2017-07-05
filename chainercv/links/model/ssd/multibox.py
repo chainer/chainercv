@@ -41,7 +41,7 @@ class Multibox(chainer.Chain):
             self.conf = chainer.ChainList()
 
         if initialW is None:
-            initialW = initializers.GlorotUniform()
+            initialW = initializers.LeCunUniform()
         if initial_bias is None:
             initial_bias = initializers.Zero()
         init = {'initialW': initialW, 'initial_bias': initial_bias}
