@@ -95,9 +95,10 @@ extern "C"
 __global__ void resize_linear(
     const float* src, float* dst, const float fy, const float fx,
     const int src_row, const int src_col,
-    const int dst_row, const int dst_col, const int n_channel
+    const int dst_row, const int dst_col
 )
 {
+    const int dst_z = blockIdx.z;
     const int dst_y = blockDim.y * blockIdx.y + threadIdx.y;
     const int dst_x = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -119,24 +120,22 @@ __global__ void resize_linear(
         const float w4 = (src_y - y1) * (src_x - x1);
 
         float out;
+        float src_reg;
         int src_row_col = src_row * src_col;
         int dst_row_col = dst_row * dst_col;
-        float src_reg;
-        for (int i=0; i < n_channel; i++) {
-            src_reg = src[i * src_row_col + y1 * src_col + x1];
-            out = src_reg * w1;
+        src_reg = src[dst_z * src_row_col + y1 * src_col + x1];
+        out = src_reg * w1;
 
-            src_reg = src[i * src_row_col + y1 * src_col + x2_read];
-            out = out + src_reg * w2;
+        src_reg = src[dst_z * src_row_col + y1 * src_col + x2_read];
+        out = out + src_reg * w2;
 
-            src_reg = src[i * src_row_col + y2_read * src_col + x1];
-            out = out + src_reg * w3;
+        src_reg = src[dst_z * src_row_col + y2_read * src_col + x1];
+        out = out + src_reg * w3;
 
-            src_reg = src[i * src_row_col + y2_read * src_col + x2_read];
-            out = out + src_reg * w4;
+        src_reg = src[dst_z * src_row_col + y2_read * src_col + x2_read];
+        out = out + src_reg * w4;
 
-            dst[i * dst_row_col + dst_y * dst_col + dst_x] = out;
-        }
+        dst[dst_z * dst_row_col + dst_y * dst_col + dst_x] = out;
     }
 }
 '''
@@ -157,12 +156,14 @@ def _resize_gpu(src, size, interpolation=PIL.Image.BILINEAR):
     fx = (src_W - 1) / (dst_W - 1)
 
     kernel = _load_kernel('resize_linear', resize_linear_code)
-    block = (32, 8)
-    grid = (math.ceil(dst_W / block[0]), math.ceil(dst_H / block[1]))
+    block = (32, 8, 1)
+    grid = (math.ceil(dst_W / block[0]),
+            math.ceil(dst_H / block[1]),
+            src.shape[0])
 
     src = cp.ascontiguousarray(src)
     args = (src, dst, cp.float32(fy), cp.float32(fx),
-            src_H, src_W, dst_H, dst_W, src.shape[0])
+            src_H, src_W, dst_H, dst_W)
 
     kernel(grid, block, args=args)
     return dst
