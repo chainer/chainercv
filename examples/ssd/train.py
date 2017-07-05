@@ -102,7 +102,7 @@ class Transform(object):
 
 def main():
     # Fix seed for stable training
-    np.random.seed(0)
+    np.random.seed(2017)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--batchsize', type=int, default=32)
