@@ -37,7 +37,9 @@ def bbox_iou(bbox_a, bbox_b):
     # bottom right
     br = xp.minimum(bbox_a[:, None, 2:], bbox_b[:, 2:])
 
+    eps = 1e-10
+
     area_i = xp.prod(br - tl, axis=2) * (tl < br).all(axis=2)
     area_a = xp.prod(bbox_a[:, 2:] - bbox_a[:, :2], axis=1)
     area_b = xp.prod(bbox_b[:, 2:] - bbox_b[:, :2], axis=1)
-    return area_i / (area_a[:, None] + area_b - area_i)
+    return area_i / xp.maximum(area_a[:, None] + area_b - area_i, eps)
