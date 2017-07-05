@@ -112,8 +112,9 @@ class FeatureExtractionPredictor(chainer.Chain):
             A batch of features or tuple of them.
 
         """
-        imgs = [self._prepare(img) for img in imgs]
-        imgs = self.xp.asarray(imgs).reshape(-1, 3, 224, 224)
+        imgs = self.xp.asarray([self._prepare(img) for img in imgs])
+        shape = (-1, imgs.shape[-3]) + self.size
+        imgs = imgs.reshape(shape)
 
         with chainer.function.no_backprop_mode():
             imgs = chainer.Variable(imgs)
