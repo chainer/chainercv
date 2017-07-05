@@ -22,7 +22,7 @@ class Multibox(chainer.Chain):
             default bounding boxes for each feature map.
         initialW: An initializer used in
             :meth:`chainer.links.Convolution2d.__init__`.
-            The default value is :class:`chainer.initializers.GlorotUniform`.
+            The default value is :class:`chainer.initializers.LeCunUniform`.
         initial_bias: An initializer used in
             :meth:`chainer.links.Convolution2d.__init__`.
             The default value is :class:`chainer.initializers.Zero`.
