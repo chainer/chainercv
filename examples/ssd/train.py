@@ -123,8 +123,7 @@ def main():
             VOCDetectionDataset(year='2012', split='trainval')
         ),
         Transform(model.coder, model.insize, model.mean))
-    train_iter = chainer.iterators.MultiprocessIterator(
-        train, args.batchsize, n_processes=2)
+    train_iter = chainer.iterators.MultiprocessIterator(train, args.batchsize)
 
     test = VOCDetectionDataset(
         year='2007', split='test',
