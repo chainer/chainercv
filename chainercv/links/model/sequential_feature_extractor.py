@@ -1,5 +1,4 @@
 import collections
-from itertools import islice
 
 import chainer
 
@@ -38,16 +37,13 @@ class SequentialFeatureExtractor(chainer.Chain):
         >>>     ('l2', L.Linear(None, 1000)),
         >>>     ('l2_relu', F.relu),
         >>>     ('l3', L.Linear(None, 10))])
-        >>> model = SequentialFeatureExtractor(layers, ['l2_relu', 'l3'])
-        >>> # These are outputs of l2_relu and l3 layers.
-        >>> feat1, feat2 = model(imgs)
-
-
-    The implementation is optimized for speed and memory.
-    A layer that is not needed to collect all features listed in
-    :obj:`layer_names` will not be added as a child link.
-    Also, this object only conducts the minimal amount of computation needed
-    to collect these features.
+        >>> model = SequentialFeatureExtractor(layers, ['l2_relu', 'l1_relu'])
+        >>> # These are outputs of layer l2_relu and l1_relu.
+        >>> feat1, feat2 = model(x)
+        >>> # The layer_names can be dynamically changed.
+        >>> model.layer_names = 'l3'
+        >>> # This is an output of layer l1.
+        >>> feat3 = model(x)
 
     Args:
         layers (list or collections.OrderedDict of callables):
@@ -67,6 +63,19 @@ class SequentialFeatureExtractor(chainer.Chain):
                  for i, layer in enumerate(layers)])
         self._layers = layers
 
+        self.layer_names = layer_names
+
+        with self.init_scope():
+            for name, layer in self._layers.items():
+                if isinstance(layer, chainer.Link):
+                    setattr(self, name, layer)
+
+    @property
+    def layer_names(self):
+        return self._layer_names
+
+    @layer_names.setter
+    def layer_names(self, layer_names):
         if layer_names is None:
             layer_names = list(self._layers.keys())[-1]
 
@@ -76,20 +85,11 @@ class SequentialFeatureExtractor(chainer.Chain):
         else:
             return_tuple = False
             layer_names = [layer_names]
+        if any([name not in self._layers for name in layer_names]):
+            raise ValueError('Invalid layer name')
+
         self._return_tuple = return_tuple
         self._layer_names = layer_names
-
-        # Delete unnecessary layers from self._layers based on layer_names.
-        # Computation is equivalent to layers = layers[:last_index + 1].
-        last_index = max([list(self._layers.keys()).index(name) for
-                          name in self._layer_names])
-        self._layers = collections.OrderedDict(
-            islice(self._layers.items(), None, last_index + 1))
-
-        with self.init_scope():
-            for name, layer in self._layers.items():
-                if isinstance(layer, chainer.Link):
-                    setattr(self, name, layer)
 
     def __call__(self, x):
         """Forward sequential feature extraction model.
@@ -102,9 +102,14 @@ class SequentialFeatureExtractor(chainer.Chain):
             The returned values are determined by :obj:`layer_names`.
 
         """
+        # The biggest index among indices of the layers that are included
+        # in self._layer_names.
+        last_index = max([list(self._layers.keys()).index(name) for
+                          name in self._layer_names])
+
         features = {}
         h = x
-        for name, layer in self._layers.items():
+        for name, layer in list(self._layers.items())[:last_index + 1]:
             h = layer(h)
             if name in self._layer_names:
                 features[name] = h
