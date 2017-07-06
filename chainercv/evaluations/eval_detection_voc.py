@@ -233,7 +233,7 @@ def calc_detection_voc_prec_rec(
 
         # If an element of fp + tp is 0,
         # the corresponding element of prec[l] is nan.
-        prec[l] = tp / fp + tp
+        prec[l] = tp / (fp + tp)
         # If n_pos[l] is 0, rec[l] is None.
         if n_pos[l] > 0:
             rec[l] = tp / n_pos[l]
