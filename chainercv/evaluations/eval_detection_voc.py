@@ -134,8 +134,9 @@ def calc_detection_voc_prec_rec(
             either :obj:`pred_labels` or :obj:`gt_labels`, :obj:`prec[l]` is \
             set to :obj:`None`.
         * :obj:`rec`: A list of arrays. :obj:`rec[l]` is recall \
-            for class :math:`l`. If class :math:`l` does not exist in \
-            either :obj:`pred_labels` or :obj:`gt_labels`, :obj:`rec[l]` is \
+            for class :math:`l`. If class :math:`l` that is not marked as \
+            difficult does not exist in \
+            :obj:`gt_labels`, :obj:`rec[l]` is \
             set to :obj:`None`.
 
     """
@@ -230,8 +231,12 @@ def calc_detection_voc_prec_rec(
         tp = np.cumsum(match_l == 1)
         fp = np.cumsum(match_l == 0)
 
-        prec[l] = tp / np.maximum(fp + tp, np.finfo(np.float64).eps)
-        rec[l] = tp / max(1, n_pos[l])
+        # If an element of fp + tp is 0,
+        # the corresponding element of prec[l] is nan.
+        prec[l] = tp / fp + tp
+        # If n_pos[l] is 0, rec[l] is None.
+        if n_pos[l] > 0:
+            rec[l] = tp / n_pos[l]
 
     return prec, rec
 
@@ -279,12 +284,12 @@ def calc_detection_voc_ap(prec, rec, use_07_metric=False):
                 if np.sum(rec[l] >= t) == 0:
                     p = 0
                 else:
-                    p = np.max(prec[l][rec[l] >= t])
+                    p = np.max(np.nan_to_num(prec[l])[rec[l] >= t])
                 ap[l] += p / 11
         else:
             # correct AP calculation
             # first append sentinel values at the end
-            mpre = np.concatenate(([0], prec[l], [0]))
+            mpre = np.concatenate(([0], np.nan_to_num(prec[l]), [0]))
             mrec = np.concatenate(([0], rec[l], [1]))
 
             mpre = np.maximum.accumulate(mpre[::-1])[::-1]
