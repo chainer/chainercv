@@ -116,7 +116,7 @@ from chainercv.evaluations import eval_detection_voc
         {
             'pred_bboxes': [
                 [[0, 4, 1, 5], [0, 0, 1, 1]],
-                [[0, 0, 2, 2], [2, 2, 3, 3], [5, 5, 7, 7]],
+                [[0, 0, 2, 2], [2, 2, 3, 3], [2, 2, 3, 3]],
             ],
             'pred_labels': [
                 [0, 0],
@@ -136,7 +136,7 @@ from chainercv.evaluations import eval_detection_voc
             ],
             'gt_difficults': [
                 [False, False],
-                [False, True, True],
+                [True],
             ],
             'iou_thresh': 0.4,
             'prec': [
