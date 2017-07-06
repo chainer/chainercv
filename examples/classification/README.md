@@ -2,15 +2,30 @@
 
 ## Performance
 
-| Model | Top 1 Error (single crop) | Reference Top 1 Error (single crop) |
+Single crop error rate.
+
+| Model | Top 1 | Reference Top 1 |
 |:-:|:-:|:-:|
 | VGG16 | 29.0 % | 28.5 % [1] |
+| ResNet50 | 24.8 % | 24.7 % [2] |
+| ResNet101 | 23.6 % | 23.6 % [2] |
+| ResNet152 | 23.2 % | 23.0 % [2] |
+
+Ten crop error rate.
+
+| Model | Top 1 | Reference Top 1 |
+|:-:|:-:|:-:|
+| VGG16 |  |   |
+| ResNet50 | 23.0 % | 22.9 % [2] |
+| ResNet101 |21.8 % | 21.8 % [2] |
+| ResNet152 | | 21.4 % [2] |
+
 
 The results can be reproduced by the following command.
 The score is reported using a weight converted from a weight trained by Caffe.
 
 ```
-$ python eval_imagenet.py <path_to_val_dataset> [--model vgg16] [--pretrained_model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>] [--crop center|10]
+$ python eval_imagenet.py <path_to_val_dataset> [--model vgg16|resnet50|resnet101|resnet152] [--pretrained_model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>] [--crop center|10]
 ```
 
 
@@ -41,3 +56,5 @@ The ImageNet Large Scale Visual Recognition Challenge (ILSVRC) dataset has 1000 
 ## References
 
 1. Karen Simonyan, Andrew Zisserman. "Very Deep Convolutional Networks for Large-Scale Image Recognition" ICLR 2015
+2. Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. "Deep Residual Learning for Image Recognition" CVPR 2016
+

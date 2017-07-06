@@ -11,6 +11,9 @@ from chainer import iterators
 from chainercv.datasets import directory_parsing_label_names
 from chainercv.datasets import DirectoryParsingClassificationDataset
 from chainercv.links import FeaturePredictor
+from chainercv.links import ResNet101
+from chainercv.links import ResNet152
+from chainercv.links import ResNet50
 from chainercv.links import VGG16
 
 from chainercv.utils import apply_prediction_to_iterator
@@ -38,7 +41,8 @@ def main():
     parser = argparse.ArgumentParser(
         description='Learning convnet from ILSVRC2012 dataset')
     parser.add_argument('val', help='Path to root of the validation dataset')
-    parser.add_argument('--model', choices=('vgg16',))
+    parser.add_argument(
+        '--model', choices=('vgg16', 'resnet50', 'resnet101', 'resnet152'))
     parser.add_argument('--pretrained_model', default='imagenet')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
@@ -47,13 +51,19 @@ def main():
 
     dataset = DirectoryParsingClassificationDataset(args.val)
     label_names = directory_parsing_label_names(args.val)
+    n_class = len(label_names)
     iterator = iterators.MultiprocessIterator(
         dataset, args.batchsize, repeat=False, shuffle=False,
         n_processes=6, shared_mem=300000000)
 
     if args.model == 'vgg16':
-        extractor = VGG16(pretrained_model=args.pretrained_model,
-                          n_class=len(label_names))
+        extractor = VGG16(args.pretrained_model, n_class)
+    elif args.model == 'resnet50':
+        extractor = ResNet50(args.pretrained_model, n_class)
+    elif args.model == 'resnet101':
+        extractor = ResNet101(args.pretrained_model, n_class)
+    elif args.model == 'resnet152':
+        extractor = ResNet152(args.pretrained_model, n_class)
     model = FeaturePredictor(
         extractor, crop_size=224, scale_size=256, crop=args.crop)
 
