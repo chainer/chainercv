@@ -15,6 +15,15 @@ These are the outputs of the detection models supported by ChainerCV.
 
 # Installation
 
+Install `Cython` and `numpy` first.
+
+```
+$ pip install Cython
+$ pip install numpy
+```
+
+Install `chainercv`.
+
 ```
 $ pip install chainercv
 ```

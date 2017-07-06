@@ -20,7 +20,6 @@ cmdclass = {'build_ext': build_ext}
 
 install_requires = [
     'chainer==2.0',
-    'Cython',
     'Pillow'
 ]
 
