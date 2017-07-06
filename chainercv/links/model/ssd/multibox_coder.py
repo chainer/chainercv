@@ -155,8 +155,7 @@ class MultiboxCoder(object):
 
         masked_iou = iou.copy()
         while True:
-            i, j = np.unravel_index(
-                chainer.cuda.to_cpu(masked_iou.argmax()), masked_iou.shape)
+            i, j = xp.unravel_index(masked_iou.argmax(), masked_iou.shape)
             if masked_iou[i, j] <= 1e-6:
                 break
             index[i] = j
