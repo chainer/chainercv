@@ -57,6 +57,8 @@ class VGG16(SequentialFeatureExtractor):
         <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_.
 
     Args:
+        layer_names (str or iterable of strings): The names of the feature to
+            output with :meth:`__call__` and :meth:`predict`.
         pretrained_model (str): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
@@ -69,15 +71,8 @@ class VGG16(SequentialFeatureExtractor):
         mean (numpy.ndarray): A mean image. If :obj:`None` and
             a supported pretrained model is used,
             the mean image used to train the pretrained model will be used.
-        features (str or iterable of strings): The names of the feature to
-            output with :meth:`__call__` and :meth:`predict`.
         initialW (callable): Initializer for the weights.
         initial_bias (callable): Initializer for the biases.
-        mean (numpy.ndarray): A value to be subtracted from an image
-            in :meth:`_prepare`.
-        do_ten_crop (bool): If :obj:`True`, it averages results across
-            center, corners, and mirrors in :meth:`predict`. Otherwise, it uses
-            only the center. The default value is :obj:`False`.
 
     """
 
@@ -90,8 +85,9 @@ class VGG16(SequentialFeatureExtractor):
         }
     }
 
-    def __init__(self, pretrained_model=None, n_class=None, mean=None,
-                 layer_names='prob', initialW=None, initial_bias=None):
+    def __init__(self, layer_names='prob',
+                 pretrained_model=None, n_class=None, mean=None,
+                 initialW=None, initial_bias=None):
         if n_class is None:
             if (pretrained_model not in self._models and
                     any([name in ['fc8', 'prob'] for name in layer_names])):
