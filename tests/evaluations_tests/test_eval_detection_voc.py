@@ -194,7 +194,7 @@ class TestCalcDetectionVOCPrecRec(unittest.TestCase):
 )
 class TestCalcDetectionVOCAP(unittest.TestCase):
 
-    prec = [[0, 0.5, 1 / 3], None, [0, 0.5]]
+    prec = [[0, 0.5, 1 / 3], None, [np.nan, 0.5]]
     rec = [[0, 0.5, 0.5], None, [0, 1]]
 
     def setUp(self):
