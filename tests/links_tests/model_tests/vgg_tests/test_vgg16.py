@@ -66,32 +66,4 @@ class TestVGG16Copy(unittest.TestCase):
         self.check_copy()
 
 
-@testing.parameterize(
-    {'layer_names': 'pool4',
-     'not_attribute': ['conv5_1', 'conv5_2', 'conv5_3', 'fc6', 'fc7', 'fc8'],
-     },
-    {'layer_names': ['pool5', 'pool4'],
-     'not_attribute': ['fc6', 'fc7', 'fc8'],
-     }
-)
-class TestVGG16FeatureOption(unittest.TestCase):
-
-    def setUp(self):
-        self.link = VGG16(
-            pretrained_model=None, layer_names=self.layer_names,
-            initialW=Zero(), initial_bias=Zero())
-
-    def check_feature_option(self):
-        for name in self.not_attribute:
-            self.assertTrue(not hasattr(self.link, name))
-
-    def test_feature_option_cpu(self):
-        self.check_feature_option()
-
-    @attr.gpu
-    def test_feature_option_gpu(self):
-        self.link.to_gpu()
-        self.check_feature_option()
-
-
 testing.run_module(__name__, __file__)

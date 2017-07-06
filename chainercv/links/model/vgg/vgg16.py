@@ -116,57 +116,45 @@ class VGG16(SequentialFeatureExtractor):
                 initial_bias = constant.Zero()
         kwargs = {'initialW': initialW, 'initial_bias': initial_bias}
 
-        # Since fc layers take long time to instantiate,
-        # avoid doing so whenever possible.
-        fc_layer_names = ['fc6', 'fc6_relu', 'fc6_dropout',
-                          'fc7', 'fc7_relu', 'fc7_dropout', 'fc8', 'prob']
-        if (any([name in fc_layer_names for name in layer_names])
-                or layer_names in fc_layer_names):
-            fc_kwargs = {'initialW': constant.Zero(),
-                         'initial_bias': constant.Zero()}
-        else:
-            fc_kwargs = kwargs
-
-        # The links are instantiated once it is decided to use them.
         layers = collections.OrderedDict([
-            ('conv1_1', Convolution2D(3, 64, 3, 1, 1, **kwargs)),
+            ('conv1_1', Convolution2D(None, 64, 3, 1, 1, **kwargs)),
             ('conv1_1_relu', relu),
-            ('conv1_2', Convolution2D(64, 64, 3, 1, 1, **kwargs)),
+            ('conv1_2', Convolution2D(None, 64, 3, 1, 1, **kwargs)),
             ('conv1_2_relu', relu),
             ('pool1', _max_pooling_2d),
-            ('conv2_1', Convolution2D(64, 128, 3, 1, 1, **kwargs)),
+            ('conv2_1', Convolution2D(None, 128, 3, 1, 1, **kwargs)),
             ('conv2_1_relu', relu),
-            ('conv2_2', Convolution2D(128, 128, 3, 1, 1, **kwargs)),
+            ('conv2_2', Convolution2D(None, 128, 3, 1, 1, **kwargs)),
             ('conv2_2_relu', relu),
             ('pool2', _max_pooling_2d),
-            ('conv3_1', Convolution2D(128, 256, 3, 1, 1, **kwargs)),
+            ('conv3_1', Convolution2D(None, 256, 3, 1, 1, **kwargs)),
             ('conv3_1_relu', relu),
-            ('conv3_2', Convolution2D(256, 256, 3, 1, 1, **kwargs)),
+            ('conv3_2', Convolution2D(None, 256, 3, 1, 1, **kwargs)),
             ('conv3_2_relu', relu),
-            ('conv3_3', Convolution2D(256, 256, 3, 1, 1, **kwargs)),
+            ('conv3_3', Convolution2D(None, 256, 3, 1, 1, **kwargs)),
             ('conv3_3_relu', relu),
             ('pool3', _max_pooling_2d),
-            ('conv4_1', Convolution2D(256, 512, 3, 1, 1, **kwargs)),
+            ('conv4_1', Convolution2D(None, 512, 3, 1, 1, **kwargs)),
             ('conv4_1_relu', relu),
-            ('conv4_2', Convolution2D(512, 512, 3, 1, 1, **kwargs)),
+            ('conv4_2', Convolution2D(None, 512, 3, 1, 1, **kwargs)),
             ('conv4_2_relu', relu),
-            ('conv4_3', Convolution2D(512, 512, 3, 1, 1, **kwargs)),
+            ('conv4_3', Convolution2D(None, 512, 3, 1, 1, **kwargs)),
             ('conv4_3_relu', relu),
             ('pool4', _max_pooling_2d),
-            ('conv5_1', Convolution2D(512, 512, 3, 1, 1, **kwargs)),
+            ('conv5_1', Convolution2D(None, 512, 3, 1, 1, **kwargs)),
             ('conv5_1_relu', relu),
-            ('conv5_2', Convolution2D(512, 512, 3, 1, 1, **kwargs)),
+            ('conv5_2', Convolution2D(None, 512, 3, 1, 1, **kwargs)),
             ('conv5_2_relu', relu),
-            ('conv5_3', Convolution2D(512, 512, 3, 1, 1, **kwargs)),
+            ('conv5_3', Convolution2D(None, 512, 3, 1, 1, **kwargs)),
             ('conv5_3_relu', relu),
             ('pool5', _max_pooling_2d),
-            ('fc6', Linear(512 * 7 * 7, 4096, **fc_kwargs)),
+            ('fc6', Linear(None, 4096, **kwargs)),
             ('fc6_relu', relu),
             ('fc6_dropout', dropout),
-            ('fc7', Linear(4096, 4096, **fc_kwargs)),
+            ('fc7', Linear(None, 4096, **kwargs)),
             ('fc7_relu', relu),
             ('fc7_dropout', dropout),
-            ('fc8', Linear(4096, n_class, **fc_kwargs)),
+            ('fc8', Linear(None, n_class, **kwargs)),
             ('prob', softmax)
         ])
 
