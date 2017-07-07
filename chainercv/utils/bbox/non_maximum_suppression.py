@@ -105,9 +105,7 @@ def _non_maximum_suppression_gpu(bbox, thresh, score=None, limit=None):
     n_bbox = bbox.shape[0]
 
     if score is not None:
-        # CuPy does not currently support argsort.
-        order = cuda.to_cpu(score).argsort()[::-1].astype(np.int32)
-        order = cuda.to_gpu(order)
+        order = score.argsort()[::-1].astype(np.int32)
     else:
         order = cp.arange(n_bbox, dtype=np.int32)
 
@@ -196,8 +194,8 @@ def _call_nms_kernel(bbox, thresh):
     mask_dev = cp.zeros((n_bbox * col_blocks,), dtype=np.uint64)
     bbox = cp.ascontiguousarray(bbox, dtype=np.float32)
     kern = _load_kernel('nms_kernel', _nms_gpu_code)
-    kern(blocks, threads, args=(n_bbox, cp.float32(thresh),
-                                bbox, mask_dev))
+    kern(blocks, threads,
+         args=(cp.int32(n_bbox), cp.float32(thresh), bbox, mask_dev))
 
     mask_host = mask_dev.get()
     selection, n_selec = _nms_gpu_post(

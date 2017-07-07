@@ -3,6 +3,7 @@ import copy
 import numpy as np
 
 import chainer
+from chainer.datasets import ConcatenatedDataset
 from chainer.datasets import TransformDataset
 from chainer.optimizer import WeightDecay
 from chainer import serializers
@@ -13,7 +14,6 @@ from chainer.training import triggers
 from chainercv.datasets import voc_detection_label_names
 from chainercv.datasets import VOCDetectionDataset
 from chainercv.extensions import DetectionVOCEvaluator
-from chainercv.links.model.ssd import ConcatenatedDataset
 from chainercv.links.model.ssd import GradientScaling
 from chainercv.links.model.ssd import multibox_loss
 from chainercv.links import SSD300
