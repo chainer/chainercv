@@ -155,7 +155,7 @@ class MultiboxCoder(object):
 
         masked_iou = iou.copy()
         while True:
-            i, j = xp.unravel_index(masked_iou.argmax(), masked_iou.shape)
+            i, j = _unravel_index(masked_iou.argmax(), masked_iou.shape)
             if masked_iou[i, j] <= 1e-6:
                 break
             index[i] = j
@@ -264,3 +264,15 @@ class MultiboxCoder(object):
         score = xp.hstack(score).astype(np.float32)
 
         return bbox, label, score
+
+
+def _unravel_index(index, shape):
+    if isinstance(index, np.int64):
+        return np.unravel_index(index, shape)
+
+    indices = list()
+    for s in shape[::-1]:
+        indices.append(index % s)
+        index //= s
+
+    return tuple(indices[::-1])
