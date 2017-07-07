@@ -42,6 +42,8 @@ You can setup ChainerCV including its dependencies using anaconda.
     cd chainercv
     conda env create -f environment.yml
     source activate chainercv
+    # This is necessary to build ChainerCV
+    conda install cython
 
     # Install ChainerCV
     pip install -e .
