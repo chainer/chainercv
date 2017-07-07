@@ -163,7 +163,8 @@ class MultiboxCoder(object):
             masked_iou[:, j] = 0
 
         mask = xp.logical_and(index < 0, iou.max(axis=1) >= iou_thresh)
-        index[mask] = iou[mask].argmax(axis=1)
+        if xp.count_nonzero(mask) > 0:
+            index[mask] = iou[mask].argmax(axis=1)
 
         mb_bbox = bbox[index].copy()
         # (y_min, x_min, y_max, x_max) -> (y_min, x_min, height, width)
