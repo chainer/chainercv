@@ -16,15 +16,13 @@ You can install ChainerCV using `pip`.
 
 .. code-block:: shell
 
-    # If Cython has not been installed yet, install it by a command like
-    # pip install Cython
     pip install chainercv
 
 
 Anaconda
 ~~~~~~~~
 
-You can setup ChainerCV including its dependencies using anaconda.
+Build instruction using Anaconda is as follows.
 
 .. code-block:: shell
 
@@ -42,8 +40,6 @@ You can setup ChainerCV including its dependencies using anaconda.
     cd chainercv
     conda env create -f environment.yml
     source activate chainercv
-    # This is necessary to build ChainerCV
-    conda install cython
 
     # Install ChainerCV
     pip install -e .

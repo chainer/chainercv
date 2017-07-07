@@ -3,6 +3,7 @@ channels:
 - !!python/unicode
   'defaults'
 dependencies:
+  - Cython
   - numpy
   - Pillow
   - pip:
