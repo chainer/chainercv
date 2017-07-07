@@ -11,4 +11,5 @@ dependencies:
   - numpy
   - Pillow
   - pip:
+    - cupy
     - chainer==2.0
