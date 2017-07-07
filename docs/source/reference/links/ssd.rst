@@ -17,6 +17,7 @@ SSD512
 .. autoclass:: SSD512
    :members:
 
+
 Utility
 -------
 
@@ -25,6 +26,11 @@ Multibox
 .. autoclass:: Multibox
    :members:
    :special-members:  __call__
+
+MultiboxCoder
+~~~~~~~~~~~~~
+.. autoclass:: MultiboxCoder
+   :members:
 
 Normalize
 ~~~~~~~~~
@@ -55,3 +61,31 @@ VGG16Extractor512
 .. autoclass:: VGG16Extractor512
    :members:
    :special-members:  __call__
+
+
+Train-only Utility
+------------------
+
+ConcatenatedDataset
+~~~~~~~~~~~~~~~~~~~
+.. autoclass:: ConcatenatedDataset
+
+GradientScaling
+~~~~~~~~~~~~~~~
+.. autoclass:: GradientScaling
+
+multibox_loss
+~~~~~~~~~~~~~
+.. autofunction:: multibox_loss
+
+random_crop_with_bbox_constraints
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: random_crop_with_bbox_constraints
+
+random_distort
+~~~~~~~~~~~~~~
+.. autofunction:: random_distort
+
+resize_with_random_interpolation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: resize_with_random_interpolation
