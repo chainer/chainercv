@@ -47,7 +47,7 @@ class MultiboxCoder(object):
     Args:
         grids (iterable of ints): An iterable of integers.
             Each integer indicates the size of a feature map.
-        aspect_ratios (iterable of tuples of ints)`:
+        aspect_ratios (iterable of tuples of ints):
             An iterable of tuples of integers
             used to compute the default bouding boxes.
             Each tuple indicates the aspect ratios of
@@ -155,7 +155,7 @@ class MultiboxCoder(object):
 
         masked_iou = iou.copy()
         while True:
-            i, j = np.unravel_index(masked_iou.argmax(), masked_iou.shape)
+            i, j = _unravel_index(masked_iou.argmax(), masked_iou.shape)
             if masked_iou[i, j] <= 1e-6:
                 break
             index[i] = j
@@ -163,7 +163,8 @@ class MultiboxCoder(object):
             masked_iou[:, j] = 0
 
         mask = xp.logical_and(index < 0, iou.max(axis=1) >= iou_thresh)
-        index[mask] = iou[mask].argmax(axis=1)
+        if xp.count_nonzero(mask) > 0:
+            index[mask] = iou[mask].argmax(axis=1)
 
         mb_bbox = bbox[index].copy()
         # (y_min, x_min, y_max, x_max) -> (y_min, x_min, height, width)
@@ -184,7 +185,7 @@ class MultiboxCoder(object):
 
         return mb_loc.astype(np.float32), mb_label.astype(np.int32)
 
-    def decode(self, mb_loc, mb_conf, nms_thresh, score_thresh):
+    def decode(self, mb_loc, mb_conf, nms_thresh=0.45, score_thresh=0.6):
         """Decodes back to coordinates and classes of bounding boxes.
 
         This method decodes :obj:`mb_loc` and :obj:`mb_conf` returned
@@ -198,9 +199,11 @@ class MultiboxCoder(object):
                 :math:`(K, n\_fg\_class + 1)`.
             nms_thresh (float): The threshold value
                 for :meth:`chainercv.transfroms.non_maximum_suppression`.
+                The default value is :obj:`0.45`.
             score_thresh (float): The threshold value for confidence score.
                 If a bounding box whose confidence score is lower than
                 this value, the bounding box will be suppressed.
+                The default value is :obj:`0.6`.
 
         Returns:
             tuple of three arrays:
@@ -262,3 +265,15 @@ class MultiboxCoder(object):
         score = xp.hstack(score).astype(np.float32)
 
         return bbox, label, score
+
+
+def _unravel_index(index, shape):
+    if isinstance(index, np.int64):
+        return np.unravel_index(index, shape)
+
+    indices = list()
+    for s in shape[::-1]:
+        indices.append(index % s)
+        index //= s
+
+    return tuple(indices[::-1])

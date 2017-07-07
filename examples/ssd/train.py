@@ -95,9 +95,8 @@ class Transform(object):
 
         # Preparation for SSD network
         img -= self.mean
-        mb_loc, mb_label = self.coder.encode(
-            transforms.resize_bbox(bbox, (self.size, self.size), (1, 1)),
-            label)
+        mb_loc, mb_label = self.coder.encode(bbox, label)
+
         return img, mb_loc, mb_label
 
 
@@ -124,8 +123,7 @@ def main():
             VOCDetectionDataset(year='2012', split='trainval')
         ),
         Transform(model.coder, model.insize, model.mean))
-    train_iter = chainer.iterators.MultiprocessIterator(
-        train, args.batchsize, n_processes=2)
+    train_iter = chainer.iterators.MultiprocessIterator(train, args.batchsize)
 
     test = VOCDetectionDataset(
         year='2007', split='test',
@@ -158,10 +156,9 @@ def main():
     trainer.extend(extensions.LogReport(trigger=log_interval))
     trainer.extend(extensions.observe_lr(), trigger=log_interval)
     trainer.extend(extensions.PrintReport(
-        [
-            'epoch', 'iteration', 'lr',
-            'main/loss', 'main/loss/loc', 'main/loss/conf',
-            'validation/main/map']),
+        ['epoch', 'iteration', 'lr',
+         'main/loss', 'main/loss/loc', 'main/loss/conf',
+         'validation/main/map']),
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
