@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+"""
+Parts of this file were taken from Pandas project,
+(https://github.com/pandas-dev/pandas)
+which have released under BSD 3-clause "New" or "Revised" License.
+
+"""
+
 from distutils.core import setup
 import os
 import pkg_resources
