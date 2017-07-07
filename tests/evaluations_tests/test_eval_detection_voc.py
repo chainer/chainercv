@@ -113,7 +113,43 @@ from chainercv.evaluations import eval_detection_voc
                 [0, 0, 1],
             ],
         },
-
+        {
+            'pred_bboxes': [
+                [[0, 4, 1, 5], [0, 0, 1, 1]],
+                [[0, 0, 2, 2], [2, 2, 3, 3], [2, 2, 3, 3]],
+            ],
+            'pred_labels': [
+                [0, 0],
+                [0, 2, 2],
+            ],
+            'pred_scores': [
+                [1, 0.9],
+                [0.7, 0.6, 0.8],
+            ],
+            'gt_bboxes': [
+                [[0, 0, 1, 1], [1, 0, 4, 4]],
+                [[2, 2, 3, 3]],
+            ],
+            'gt_labels': [
+                [0, 0],
+                [2],
+            ],
+            'gt_difficults': [
+                [False, False],
+                [True],
+            ],
+            'iou_thresh': 0.4,
+            'prec': [
+                [0, 0.5, 1 / 3],
+                None,
+                [np.nan, np.nan],
+            ],
+            'rec': [
+                [0, 0.5, 0.5],
+                None,
+                None,
+            ],
+        },
     ]
 ))
 class TestCalcDetectionVOCPrecRec(unittest.TestCase):
@@ -158,7 +194,7 @@ class TestCalcDetectionVOCPrecRec(unittest.TestCase):
 )
 class TestCalcDetectionVOCAP(unittest.TestCase):
 
-    prec = [[0, 0.5, 1 / 3], None, [0, 0.5]]
+    prec = [[0, 0.5, 1 / 3], None, [np.nan, 0.5]]
     rec = [[0, 0.5, 0.5], None, [0, 1]]
 
     def setUp(self):

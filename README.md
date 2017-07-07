@@ -24,8 +24,8 @@ The instruction on installation using Anaconda is [here](http://chainercv.readth
 ### Requirements
 
 + [Chainer](https://github.com/chainer/chainer) and its dependencies
-+ Cython
 + Pillow
++ Cython (Build requirements)
 
 For additional features
 
