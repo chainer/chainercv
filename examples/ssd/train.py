@@ -13,7 +13,6 @@ from chainer.training import triggers
 from chainercv.datasets import voc_detection_label_names
 from chainercv.datasets import VOCDetectionDataset
 from chainercv.extensions import DetectionVOCEvaluator
-from chainercv.links.model.ssd import ConcatenatedDataset
 from chainercv.links.model.ssd import GradientScaling
 from chainercv.links.model.ssd import multibox_loss
 from chainercv.links import SSD300
@@ -22,6 +21,23 @@ from chainercv import transforms
 from chainercv.links.model.ssd import random_crop_with_bbox_constraints
 from chainercv.links.model.ssd import random_distort
 from chainercv.links.model.ssd import resize_with_random_interpolation
+
+
+class ConcatenatedDataset(chainer.DatasetMixin):
+
+    def __init__(self, *datasets):
+        self._datasets = datasets
+
+    def __len__(self):
+        return sum(len(dataset) for dataset in self._datasets)
+
+    def get_example(self, i):
+        if i < 0:
+            raise IndexError
+        for dataset in self._datasets:
+            if i < len(dataset):
+                return dataset[i]
+            i -= len(dataset)
 
 
 class MultiboxTrainChain(chainer.Chain):
