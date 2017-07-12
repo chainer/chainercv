@@ -10,11 +10,11 @@ import argparse
 import numpy as np
 
 import chainer
+from chainer.datasets import TransformDataset
 from chainer import training
 from chainer.training import extensions
 from chainer.training.triggers import ManualScheduleTrigger
 
-from chainercv.datasets import TransformDataset
 from chainercv.datasets import voc_detection_label_names
 from chainercv.datasets import VOCDetectionDataset
 from chainercv.extensions import DetectionVOCEvaluator

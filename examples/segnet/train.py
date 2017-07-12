@@ -9,6 +9,7 @@ import argparse
 import chainer
 import numpy as np
 
+from chainer.datasets import TransformDataset
 from chainer import iterators
 from chainer import optimizers
 from chainer import training
@@ -16,7 +17,6 @@ from chainer.training import extensions
 
 from chainercv.datasets import camvid_label_names
 from chainercv.datasets import CamVidDataset
-from chainercv.datasets import TransformDataset
 from chainercv.extensions import SemanticSegmentationEvaluator
 from chainercv.links import PixelwiseSoftmaxClassifier
 from chainercv.links import SegNetBasic
