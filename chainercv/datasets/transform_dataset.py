@@ -1,3 +1,6 @@
+import warnings
+
+
 class TransformDataset(object):
 
     """Dataset that indexes data of a base dataset and transforms it.
@@ -26,6 +29,10 @@ class TransformDataset(object):
         is a slice, the base dataset is assumed to return a list of outputs
         each corresponding to the output of the integer indexing.
 
+    .. note::
+        This class is deprecated. Please use
+        :class:`chainer.datasets.TransformDataset` instead.
+
     Args:
         dataset: Underlying dataset. The index of this dataset corresponds
             to the index of the base dataset.
@@ -35,6 +42,11 @@ class TransformDataset(object):
     """
 
     def __init__(self, dataset, transform):
+        warnings.warn(
+            'chainercv.datasets.TransformDataset is deprecated. '
+            'Please use chainer.datasets.TransformDataset instead.',
+            DeprecationWarning)
+
         self._dataset = dataset
         self._transform = transform
 
