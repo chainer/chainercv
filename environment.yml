@@ -10,5 +10,3 @@ dependencies:
   - matplotlib
   - numpy
   - Pillow
-  - pip:
-    - chainer==2.0
