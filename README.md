@@ -116,7 +116,7 @@ Here is an example where a user rescales and applies a random rotation to an ima
 
 ```python
 from chainer.datasets import get_mnist
-from chainercv.datasets import TransformDataset
+from chainer.datasets import TransformDataset
 from chainercv.transforms import random_rotate
 
 dataset, _ = get_mnist(ndim=3)
@@ -133,4 +133,3 @@ img, label = dataset[0]
 
 As found in the example, `random_rotate` is one of the transforms provided by ChainerCV. Like other transforms, this is just a
 function that takes an array as input.
-Also, `TransformDataset` is a new dataset class added in ChainerCV that overrides the underlying dataset's `__getitem__` by applying `transform` to the values returned by the original `__getitem__`.
