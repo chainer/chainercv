@@ -16,6 +16,7 @@ You can install ChainerCV using `pip`.
 
 .. code-block:: shell
 
+    pip install -U numpy
     pip install chainercv
 
 
