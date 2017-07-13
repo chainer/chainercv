@@ -16,6 +16,7 @@ These are the outputs of the detection models supported by ChainerCV.
 # Installation
 
 ```bash
+$ pip install -U numpy
 $ pip install chainercv
 ```
 
