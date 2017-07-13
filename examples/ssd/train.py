@@ -23,7 +23,7 @@ from chainercv.links.model.ssd import random_distort
 from chainercv.links.model.ssd import resize_with_random_interpolation
 
 
-class ConcatenatedDataset(chainer.DatasetMixin):
+class ConcatenatedDataset(chainer.dataset.DatasetMixin):
 
     def __init__(self, *datasets):
         self._datasets = datasets
