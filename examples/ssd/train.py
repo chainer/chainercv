@@ -43,7 +43,9 @@ class ConcatenatedDataset(chainer.DatasetMixin):
 class MultiboxTrainChain(chainer.Chain):
 
     def __init__(self, model, alpha=1, k=3):
-        super(MultiboxTrainChain, self).__init__(model=model)
+        super(MultiboxTrainChain, self).__init__()
+        with self.init_scope():
+            self.model = model
         self.alpha = alpha
         self.k = k
 
