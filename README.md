@@ -15,7 +15,7 @@ These are the outputs of the detection models supported by ChainerCV.
 
 # Installation
 
-```
+```bash
 $ pip install chainercv
 ```
 
@@ -35,8 +35,8 @@ For additional features
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
 
-The HEAD of the master branch is developed for Chainer v2.
-For users using Chainer v1, please use version 0.4.11, which can be installed by `pip install chainercv==0.4.11`.
++ The master branch will work on both the stable version (v2) and the development version (v3).
++ For users using Chainer v1, please use version `0.4.11`, which can be installed by `pip install chainercv==0.4.11`. This branch is unmaintained.
 
 
 # Features
