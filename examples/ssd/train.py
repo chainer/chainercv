@@ -38,6 +38,7 @@ class ConcatenatedDataset(chainer.dataset.DatasetMixin):
             if i < len(dataset):
                 return dataset[i]
             i -= len(dataset)
+        raise IndexError
 
 
 class MultiboxTrainChain(chainer.Chain):
