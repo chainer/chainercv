@@ -25,6 +25,8 @@ class SequentialFeatureExtractor(chainer.Chain):
     When :obj:`layer_names` is an iterable of strings, a tuple of values
     is returned. The order of the values is the same as the order of
     the strings in :obj:`layer_names`.
+    When :obj:`layer_names` is :obj:`None`, the output of the last
+    layer is returned.
 
     Examples:
 
