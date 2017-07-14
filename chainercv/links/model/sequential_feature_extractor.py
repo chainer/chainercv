@@ -9,21 +9,21 @@ class SequentialFeatureExtractor(chainer.Chain):
 
     This class is a base class that can be used for an implementation of
     a feature extractor model.
-    The link takes as an argument :obj:`layers` that specifies the computation
+    The link takes an argument :obj:`layers` that specifies the computation
     conducted in :meth:`__call__`.
-    :obj:`layers` is a list or :obj:`collections.OrderedDict` of
+    :obj:`layers` is a list or :class:`collections.OrderedDict` of
     callable objects called layers, which are going to be called sequentially
-    starting from the top to the end.
-    A :obj:`chainer.Link` object in the sequence will be added as
+    starting from the top to the bottom.
+    A :class:`chainer.Link` object in the sequence will be added as
     a child link of this object.
 
     :meth:`__call__` returns single or multiple features that are picked up
     through a stream of computation.
     These features can be specified by :obj:`layer_names`, which contains
-    the names of the layers whose output is collected.
+    the names of the layers whose outputs are collected.
     When :obj:`layer_names` is a string, single value is returned.
     When :obj:`layer_names` is an iterable of strings, a tuple of values
-    will be returned. The order of the values is the same as the order of
+    is returned. The order of the values is the same as the order of
     the strings in :obj:`layer_names`.
 
     Examples:
