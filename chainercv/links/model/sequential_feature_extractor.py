@@ -92,10 +92,10 @@ class SequentialFeatureExtractor(chainer.Chain):
         self._layer_names = layer_names
 
     def __call__(self, x):
-        """Forward sequential feature extraction model.
+        """Forward this model.
 
         Args:
-            x (chainer.Variable or array): Input to the network.
+            x (chainer.Variable or array): Input to the model.
 
         Returns:
             chainer.Variable or tuple of chainer.Variable:
