@@ -80,12 +80,12 @@ class SequentialFeatureExtractor(chainer.Chain):
             layer_names = list(self._layers.keys())[-1]
 
         if (not isinstance(layer_names, str) and
-                all([isinstance(name, str) for name in layer_names])):
+                all(isinstance(name, str) for name in layer_names)):
             return_tuple = True
         else:
             return_tuple = False
             layer_names = [layer_names]
-        if any([name not in self._layers for name in layer_names]):
+        if any(name not in self._layers for name in layer_names):
             raise ValueError('Invalid layer name')
 
         self._return_tuple = return_tuple
