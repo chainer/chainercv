@@ -20,11 +20,11 @@ class SequentialFeatureExtractor(chainer.Chain):
     :meth:`__call__` returns single or multiple features that are picked up
     through a stream of computation.
     These features can be specified by :obj:`layer_names`, which contains
-    the names of the layer whose output is collected.
+    the names of the layers whose output is collected.
     When :obj:`layer_names` is a string, single value is returned.
     When :obj:`layer_names` is an iterable of strings, a tuple of values
-    will be returned. These values are ordered in the same order of the
-    strings in :obj:`layer_names`.
+    will be returned. The order of the values is the same as the order of
+    the strings in :obj:`layer_names`.
 
     Examples:
 
