@@ -11,7 +11,7 @@ class SequentialFeatureExtractor(chainer.Chain):
     a feature extractor model.
     The link takes an argument :obj:`layers` that specifies the computation
     conducted in :meth:`__call__`.
-    :obj:`layers` is a list or :class:`collections.OrderedDict` of
+    :obj:`layers` is a :class:`collections.OrderedDict` of
     callable objects called layers, which are going to be called sequentially
     starting from the top to the bottom.
     A :class:`chainer.Link` object in the sequence will be added as
@@ -46,7 +46,7 @@ class SequentialFeatureExtractor(chainer.Chain):
         >>> feat3 = model(x)
 
     Args:
-        layers (list or collections.OrderedDict of callables):
+        layers (collections.OrderedDict of callables):
             Callable objects called in the forward pass.
         layer_names (string or iterable of strings):
             Names of layers whose outputs will be collected in
@@ -58,9 +58,7 @@ class SequentialFeatureExtractor(chainer.Chain):
         super(SequentialFeatureExtractor, self).__init__()
 
         if not isinstance(layers, collections.OrderedDict):
-            layers = collections.OrderedDict(
-                [('{}_{}'.format(layer.__class__.__name__, i), layer)
-                 for i, layer in enumerate(layers)])
+            raise ValueError('layers need to be collections.OrderedDict')
         self._layers = layers
 
         self.layer_names = layer_names

@@ -83,39 +83,6 @@ class TestSequentialFeatureExtractorOrderedDictFunctions(unittest.TestCase):
         self.check_call_dynamic_layer_names()
 
 
-class TestSequentialFeatureExtractorListFunctions(unittest.TestCase):
-
-    def setUp(self):
-        self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
-        self.f1 = DummyFunc()
-        self.f2 = DummyFunc()
-        self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
-
-        self.link = SequentialFeatureExtractor(
-            [self.l1, self.f1, self.f2, self.l2])
-        self.x = np.random.uniform(size=(1, 3, 24, 24))
-
-    def check_call_output(self):
-        x = self.link.xp.asarray(self.x)
-        out = self.link(x)
-
-        self.assertIsInstance(out, chainer.Variable)
-        self.assertIsInstance(out.data, self.link.xp.ndarray)
-
-        out = to_cpu(out.data)
-        np.testing.assert_equal(
-            out,
-            to_cpu(self.l2(self.f2(self.f1(self.l1(x)))).data))
-
-    def test_call_output_cpu(self):
-        self.check_call_output()
-
-    @attr.gpu
-    def test_call_output_gpu(self):
-        self.link.to_gpu()
-        self.check_call_output()
-
-
 class TestSequentialFeatureExtractorCopy(unittest.TestCase):
 
     def setUp(self):
