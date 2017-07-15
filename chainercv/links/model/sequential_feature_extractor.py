@@ -7,13 +7,13 @@ class SequentialFeatureExtractor(chainer.Chain):
 
     This class is a base class that can be used for an implementation of
     a feature extractor model.
-    Callabel objects, such as :class:`chainer.Link` and
-    :class:`chainer.Function`, can be registered to this link with
+    Callable objects, such as :class:`chainer.Link` and
+    :class:`chainer.Function`, can be registered to this chain with
     :meth:`init_scope`.
-    This link keeps the order of registerations and conducts the computation
-    in the same order when :meth:`__call__` is called.
+    This link keeps the order of registerations and :meth:__call__
+    executes callables in the order in which they are registered to.
     A :class:`chainer.Link` object in the sequence will be added as
-    a child link of this object.
+    a child link of this link.
 
     :meth:`__call__` returns single or multiple features that are picked up
     through a stream of computation.
