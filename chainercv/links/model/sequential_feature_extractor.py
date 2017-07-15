@@ -10,8 +10,8 @@ class SequentialFeatureExtractor(chainer.Chain):
     Callable objects, such as :class:`chainer.Link` and
     :class:`chainer.Function`, can be registered to this chain with
     :meth:`init_scope`.
-    This link keeps the order of registerations and :meth:__call__
-    executes callables in the order in which they are registered to.
+    This chain keeps the order of registerations and :meth:`__call__`
+    executes callables in that order.
     A :class:`chainer.Link` object in the sequence will be added as
     a child link of this link.
 
