@@ -10,17 +10,39 @@ import argparse
 import numpy as np
 
 import chainer
+from chainer.datasets import TransformDataset
 from chainer import training
 from chainer.training import extensions
 from chainer.training.triggers import ManualScheduleTrigger
 
-from chainercv.datasets import TransformDataset
 from chainercv.datasets import voc_detection_label_names
 from chainercv.datasets import VOCDetectionDataset
 from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 from chainercv import transforms
+
+
+class Transform(object):
+
+    def __init__(self, faster_rcnn):
+        self.faster_rcnn = faster_rcnn
+
+    def __call__(self, in_data):
+        img, bbox, label = in_data
+        _, H, W = img.shape
+        img = self.faster_rcnn.prepare(img)
+        _, o_H, o_W = img.shape
+        scale = o_H / H
+        bbox = transforms.resize_bbox(bbox, (H, W), (o_H, o_W))
+
+        # horizontally flip
+        img, params = transforms.random_flip(
+            img, x_random=True, return_param=True)
+        bbox = transforms.flip_bbox(
+            bbox, (o_H, o_W), x_flip=params['x_flip'])
+
+        return img, bbox, label, scale
 
 
 def main():
@@ -51,22 +73,7 @@ def main():
     optimizer.setup(model)
     optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
-    def transform(in_data):
-        img, bbox, label = in_data
-        _, H, W = img.shape
-        img = faster_rcnn.prepare(img)
-        _, o_H, o_W = img.shape
-        scale = o_H / H
-        bbox = transforms.resize_bbox(bbox, (H, W), (o_H, o_W))
-
-        # horizontally flip
-        img, params = transforms.random_flip(
-            img, x_random=True, return_param=True)
-        bbox = transforms.flip_bbox(
-            bbox, (o_H, o_W), x_flip=params['x_flip'])
-
-        return img, bbox, label, scale
-    train_data = TransformDataset(train_data, transform)
+    train_data = TransformDataset(train_data, Transform(faster_rcnn))
 
     train_iter = chainer.iterators.MultiprocessIterator(
         train_data, batch_size=1, n_processes=None, shared_mem=100000000)

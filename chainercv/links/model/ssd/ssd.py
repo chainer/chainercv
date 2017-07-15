@@ -1,12 +1,11 @@
 from __future__ import division
 
-import itertools
 import numpy as np
 
 import chainer
 
+from chainercv.links.model.ssd import MultiboxCoder
 from chainercv import transforms
-from chainercv import utils
 
 
 class SSD(chainer.Chain):
@@ -27,10 +26,12 @@ class SSD(chainer.Chain):
             the size of input images. Images are resized to this size before \
             feature extraction.
             * :obj:`grids`: An iterable of integer. Each integer indicates \
-            the size of feature map.
+            the size of feature map. This value is used by \
+            :class:`~chainercv.links.model.ssd.MultiBboxCoder`.
             * :meth:`__call_`: A method which computes feature maps. \
             It must take a batched images and return batched feature maps.
-        multibox: A link which computes loc and conf from feature maps.
+        multibox: A link which computes :obj:`mb_locs` and :obj:`mb_confs`
+            from feature maps.
             This link must have :obj:`n_class`, :obj:`aspect_ratios` and
             :meth:`__call__`.
 
@@ -39,18 +40,22 @@ class SSD(chainer.Chain):
             This value should include the background class.
             * :obj:`aspect_ratios`: An iterable of tuple of integer. \
             Each tuple indicates the aspect ratios of default bounding boxes \
-            at each feature maps.
+            at each feature maps. This value is used by \
+            :class:`~chainercv.links.model.ssd.MultiboxCoder`.
             * :meth:`__call__`: A method which computes \
-            :obj:`loc` and :obj:`conf`. \
+            :obj:`mb_locs` and :obj:`mb_confs`. \
             It must take a batched feature maps and \
-            return :obj:`loc` and :obj:`conf`.
+            return :obj:`mb_locs` and :obj:`mb_confs`.
         steps (iterable of float): The step size for each feature map.
+            This value is used by
+            :class:`~chainercv.links.model.ssd.MultiboxCoder`.
         sizes (iterable of float): The base size of default bounding boxes
-            for each feature map.
-        variance (tuple of float): Two coefficients for encoding
-            the locations of bounding boxe. The first value is used to
-            encode coordinates of the centers. The second value is used to
-            encode the sizes of bounding boxes.
+            for each feature map. This value is used by
+            :class:`~chainercv.links.model.ssd.MultiboxCoder`.
+        variance (tuple of floats): Two coefficients for decoding
+            the locations of bounding boxe.
+            This value is used by
+            :class:`~chainercv.links.model.ssd.MultiboxCoder`.
             The default value is :obj:`(0.1, 0.2)`.
 
     Parameters:
@@ -70,7 +75,6 @@ class SSD(chainer.Chain):
             self, extractor, multibox,
             steps, sizes, variance=(0.1, 0.2),
             mean=0):
-        self.variance = variance
         self.mean = mean
         self.use_preset('visualize')
 
@@ -79,26 +83,8 @@ class SSD(chainer.Chain):
             self.extractor = extractor
             self.multibox = multibox
 
-        # the format of default_bbox is (center_y, center_x, height, width)
-        self._default_bbox = list()
-        for k, grid in enumerate(extractor.grids):
-            for v, u in itertools.product(range(grid), repeat=2):
-                cy = (v + 0.5) * steps[k]
-                cx = (u + 0.5) * steps[k]
-
-                s = sizes[k]
-                self._default_bbox.append((cy, cx, s, s))
-
-                s = np.sqrt(sizes[k] * sizes[k + 1])
-                self._default_bbox.append((cy, cx, s, s))
-
-                s = sizes[k]
-                for ar in multibox.aspect_ratios[k]:
-                    self._default_bbox.append(
-                        (cy, cx, s / np.sqrt(ar), s * np.sqrt(ar)))
-                    self._default_bbox.append(
-                        (cy, cx, s * np.sqrt(ar), s / np.sqrt(ar)))
-        self._default_bbox = np.stack(self._default_bbox)
+        self.coder = MultiboxCoder(
+            extractor.grids, multibox.aspect_ratios, steps, sizes, variance)
 
     @property
     def insize(self):
@@ -110,19 +96,18 @@ class SSD(chainer.Chain):
 
     def to_cpu(self):
         super(SSD, self).to_cpu()
-        self._default_bbox = chainer.cuda.to_cpu(self._default_bbox)
+        self.coder.to_cpu()
 
     def to_gpu(self, device=None):
         super(SSD, self).to_gpu(device)
-        self._default_bbox = chainer.cuda.to_gpu(
-            self._default_bbox, device=device)
+        self.coder.to_gpu(device=device)
 
     def __call__(self, x):
         """Compute localization and classification from a batch of images.
 
-        This method computes two variables, :obj:`loc` and :obj:`conf`.
-        :meth:`_decode` converts these variables to bounding box coordinates
-        and confidence scores.
+        This method computes two variables, :obj:`mb_locs` and :obj:`mb_confs`.
+        :func:`self.coder.decode` converts these variables to bounding box
+        coordinates and confidence scores.
         These variables are also used in training SSD.
 
         Args:
@@ -131,67 +116,23 @@ class SSD(chainer.Chain):
 
         Returns:
             tuple of chainer.Variable:
-            This method returns two variables, :obj:`loc` and :obj:`conf`.
+            This method returns two variables, :obj:`mb_locs` and
+            :obj:`mb_confs`.
 
-            * **loc**: A variable of float arrays of shape :math:`(B, K, 4)`, \
+            * **mb_locs**: A variable of float arrays of shape \
+                :math:`(B, K, 4)`, \
                 where :math:`B` is the number of samples in the batch and \
-                ::math:`K` is the number of default bounding boxes.
-            * **conf**: A variable of float arrays of shape \
+                :math:`K` is the number of default bounding boxes.
+            * **mb_confs**: A variable of float arrays of shape \
                 :math:`(B, K, n\_fg\_class + 1)`.
         """
 
         return self.multibox(self.extractor(x))
 
-    def _decode(self, loc, conf):
-        xp = self.xp
-        # the format of bbox is (center_y, center_x, height, width)
-        bboxes = xp.dstack((
-            self._default_bbox[:, :2] +
-            loc[:, :, :2] * self.variance[0] * self._default_bbox[:, 2:],
-            self._default_bbox[:, 2:] *
-            xp.exp(loc[:, :, 2:] * self.variance[1])))
-        # convert the format of bbox to (y_min, x_min, y_max, x_max)
-        bboxes[:, :, :2] -= bboxes[:, :, 2:] / 2
-        bboxes[:, :, 2:] += bboxes[:, :, :2]
-        scores = xp.exp(conf)
-        scores /= scores.sum(axis=2, keepdims=True)
-        return bboxes, scores
-
-    def _suppress(self, raw_bbox, raw_score):
-        xp = self.xp
-
-        bbox = list()
-        label = list()
-        score = list()
-        for l in range(self.n_fg_class):
-            bbox_l = raw_bbox
-            # the l-th class corresponds for the (l + 1)-th column.
-            score_l = raw_score[:, l + 1]
-
-            mask = score_l >= self.score_thresh
-            bbox_l = bbox_l[mask]
-            score_l = score_l[mask]
-
-            if self.nms_thresh is not None:
-                indices = utils.non_maximum_suppression(
-                    bbox_l, self.nms_thresh, score_l)
-                bbox_l = bbox_l[indices]
-                score_l = score_l[indices]
-
-            bbox.append(bbox_l)
-            label.append(xp.array((l,) * len(bbox_l)))
-            score.append(score_l)
-
-        bbox = xp.vstack(bbox).astype(np.float32)
-        label = xp.hstack(label).astype(np.int32)
-        score = xp.hstack(score).astype(np.float32)
-
-        return bbox, label, score
-
     def _prepare(self, img):
         img = img.astype(np.float32)
         img = transforms.resize(img, (self.insize, self.insize))
-        img -= np.array(self.mean)[:, np.newaxis, np.newaxis]
+        img -= self.mean
         return img
 
     def use_preset(self, preset):
@@ -260,15 +201,17 @@ class SSD(chainer.Chain):
 
         with chainer.function.no_backprop_mode():
             x = chainer.Variable(self.xp.stack(x))
-            loc, conf = self(x)
-        raw_bboxes, raw_scores = self._decode(loc.data, conf.data)
+            mb_locs, mb_confs = self(x)
+        mb_locs, mb_confs = mb_locs.data, mb_confs.data
 
         bboxes = list()
         labels = list()
         scores = list()
-        for raw_bbox, raw_score, size in zip(raw_bboxes, raw_scores, sizes):
-            raw_bbox = transforms.resize_bbox(raw_bbox, (1, 1), size)
-            bbox, label, score = self._suppress(raw_bbox, raw_score)
+        for mb_loc, mb_conf, size in zip(mb_locs, mb_confs, sizes):
+            bbox, label, score = self.coder.decode(
+                mb_loc, mb_conf, self.nms_thresh, self.score_thresh)
+            bbox = transforms.resize_bbox(
+                bbox, (self.insize, self.insize), size)
             bboxes.append(chainer.cuda.to_cpu(bbox))
             labels.append(chainer.cuda.to_cpu(label))
             scores.append(chainer.cuda.to_cpu(score))

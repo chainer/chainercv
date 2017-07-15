@@ -9,6 +9,7 @@ import argparse
 import chainer
 import numpy as np
 
+from chainer.datasets import TransformDataset
 from chainer import iterators
 from chainer import optimizers
 from chainer import training
@@ -16,10 +17,17 @@ from chainer.training import extensions
 
 from chainercv.datasets import camvid_label_names
 from chainercv.datasets import CamVidDataset
-from chainercv.datasets import TransformDataset
 from chainercv.extensions import SemanticSegmentationEvaluator
 from chainercv.links import PixelwiseSoftmaxClassifier
 from chainercv.links import SegNetBasic
+
+
+def transform(in_data):
+    img, label = in_data
+    if np.random.rand() > 0.5:
+        img = img[:, :, ::-1]
+        label = label[:, ::-1]
+    return img, label
 
 
 def main():
@@ -37,14 +45,6 @@ def main():
 
     # Dataset
     train = CamVidDataset(split='train')
-
-    def transform(in_data):
-        img, label = in_data
-        if np.random.rand() > 0.5:
-            img = img[:, :, ::-1]
-            label = label[:, ::-1]
-        return img, label
-
     train = TransformDataset(train, transform)
     val = CamVidDataset(split='val')
 
