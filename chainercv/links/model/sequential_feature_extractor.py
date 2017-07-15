@@ -56,19 +56,21 @@ class SequentialFeatureExtractor(chainer.Chain):
 
     """
 
-    def __init__(self, layers, layer_names=None):
+    def __init__(self):
         super(SequentialFeatureExtractor, self).__init__()
+        self._order = list()
 
-        if not isinstance(layers, collections.OrderedDict):
-            raise ValueError('layers need to be collections.OrderedDict')
-        self._layers = layers
+    def __setattr__(self, name, value):
+        super(SequentialFeatureExtractor, self).__setattr__(name, value)
+        if self.within_init_scope and callable(value):
+            self._order.append(name)
 
-        self.layer_names = layer_names
-
-        with self.init_scope():
-            for name, layer in self._layers.items():
-                if isinstance(layer, chainer.Link):
-                    setattr(self, name, layer)
+    def __delattr__(self, name):
+        super(SequentialFeatureExtractor, self).__delattr__(name)
+        try:
+            self._order.remove(name)
+        except ValueError:
+            pass
 
     @property
     def layer_names(self):
@@ -77,7 +79,7 @@ class SequentialFeatureExtractor(chainer.Chain):
     @layer_names.setter
     def layer_names(self, layer_names):
         if layer_names is None:
-            layer_names = list(self._layers.keys())[-1]
+            layer_names = self._order[-1]
 
         if (not isinstance(layer_names, str) and
                 all(isinstance(name, str) for name in layer_names)):
@@ -85,7 +87,7 @@ class SequentialFeatureExtractor(chainer.Chain):
         else:
             return_tuple = False
             layer_names = [layer_names]
-        if any(name not in self._layers for name in layer_names):
+        if any(name not in self._order for name in layer_names):
             raise ValueError('Invalid layer name')
 
         self._return_tuple = return_tuple
@@ -104,13 +106,12 @@ class SequentialFeatureExtractor(chainer.Chain):
         """
         # The biggest index among indices of the layers that are included
         # in self._layer_names.
-        last_index = max([list(self._layers.keys()).index(name) for
-                          name in self._layer_names])
+        last_index = max(self._order.index(name) for name in self._layer_names)
 
         features = {}
         h = x
-        for name, layer in list(self._layers.items())[:last_index + 1]:
-            h = layer(h)
+        for name in self._order[:last_index + 1]:
+            h = self[name](h)
             if name in self._layer_names:
                 features[name] = h
 
@@ -120,13 +121,3 @@ class SequentialFeatureExtractor(chainer.Chain):
         else:
             features = list(features.values())[0]
         return features
-
-    def copy(self):
-        ret = super(SequentialFeatureExtractor, self).copy()
-        layers = []
-        for name, layer in self._layers.items():
-            if name in self._children:
-                layer = ret[name]
-            layers.append((name, layer))
-        ret.layers = collections.OrderedDict(layers)
-        return ret
