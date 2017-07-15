@@ -56,6 +56,7 @@ class SequentialFeatureExtractor(chainer.Chain):
     def __init__(self):
         super(SequentialFeatureExtractor, self).__init__()
         self._order = list()
+        self.layer_names = None
 
     def __setattr__(self, name, value):
         super(SequentialFeatureExtractor, self).__setattr__(name, value)
@@ -76,7 +77,9 @@ class SequentialFeatureExtractor(chainer.Chain):
     @layer_names.setter
     def layer_names(self, layer_names):
         if layer_names is None:
-            layer_names = self._order[-1]
+            self._return_tuple = False
+            self._layer_names = None
+            return
 
         if (not isinstance(layer_names, str) and
                 all(isinstance(name, str) for name in layer_names)):
@@ -101,20 +104,25 @@ class SequentialFeatureExtractor(chainer.Chain):
             The returned values are determined by :obj:`layer_names`.
 
         """
+        if self._layer_names is None:
+            layer_names = [self._order[-1]]
+        else:
+            layer_names = self._layer_names
+
         # The biggest index among indices of the layers that are included
-        # in self._layer_names.
-        last_index = max(self._order.index(name) for name in self._layer_names)
+        # in layer_names.
+        last_index = max(self._order.index(name) for name in layer_names)
 
         features = {}
         h = x
         for name in self._order[:last_index + 1]:
             h = self[name](h)
-            if name in self._layer_names:
+            if name in layer_names:
                 features[name] = h
 
         if self._return_tuple:
             features = tuple(
-                [features[name] for name in self._layer_names])
+                [features[name] for name in layer_names])
         else:
             features = list(features.values())[0]
         return features
