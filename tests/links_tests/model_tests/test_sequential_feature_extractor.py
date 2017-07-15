@@ -18,10 +18,10 @@ class DummyFunc(Function):
 
 
 @testing.parameterize(
-    {'layer_names': None},
-    {'layer_names': 'f2'},
-    {'layer_names': ('f2',)},
-    {'layer_names': ('l2', 'l1', 'f2')},
+    {'feature_names': None},
+    {'feature_names': 'f2'},
+    {'feature_names': ('f2',)},
+    {'feature_names': ('l2', 'l1', 'f2')},
 )
 class TestSequentialFeatureExtractor(unittest.TestCase):
 
@@ -38,26 +38,26 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
             self.link.f2 = self.f2
             self.link.l2 = self.l2
 
-        if self.layer_names:
-            self.link.layer_names = self.layer_names
+        if self.feature_names:
+            self.link.feature_names = self.feature_names
 
         self.x = np.random.uniform(size=(1, 3, 24, 24))
 
     def check_call(self, x, expects):
         outs = self.link(x)
 
-        if isinstance(self.layer_names, tuple):
-            layer_names = self.layer_names
+        if isinstance(self.feature_names, tuple):
+            feature_names = self.feature_names
         else:
-            if self.layer_names is None:
-                layer_names = ('l2',)
+            if self.feature_names is None:
+                feature_names = ('l2',)
             else:
-                layer_names = (self.layer_names,)
+                feature_names = (self.feature_names,)
             outs = (outs,)
 
-        self.assertEqual(len(outs), len(layer_names))
+        self.assertEqual(len(outs), len(feature_names))
 
-        for out, layer_name in zip(outs, layer_names):
+        for out, layer_name in zip(outs, feature_names):
             self.assertIsInstance(out, chainer.Variable)
             self.assertIsInstance(out.data, self.link.xp.ndarray)
 
@@ -86,8 +86,8 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
     def check_deletion(self):
         x = self.link.xp.asarray(self.x)
 
-        if self.layer_names == 'l1' or \
-           (isinstance(self.layer_names, tuple) and 'l1' in self.layer_names):
+        if self.feature_names == 'l1' or \
+           (isinstance(self.feature_names, tuple) and 'l1' in self.feature_names):
             with self.assertRaises(AttributeError):
                 del self.link.l1
             return
