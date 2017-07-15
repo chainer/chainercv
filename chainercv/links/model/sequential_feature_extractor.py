@@ -28,7 +28,6 @@ class SequentialFeatureExtractor(chainer.Chain):
 
     Examples:
 
-        >>> import collections
         >>> import chainer.functions as F
         >>> import chainer.links as L
         >>> model = SequentialFeatureExtractor()
