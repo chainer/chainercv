@@ -46,24 +46,5 @@ class TestVGG16Call(unittest.TestCase):
         self.check_call()
 
 
-class TestVGG16Copy(unittest.TestCase):
-
-    def setUp(self):
-        self.link = VGG16(pretrained_model=None, n_class=200,
-                          layer_names='conv2_2',
-                          initialW=Zero(), initial_bias=Zero())
-
-    def check_copy(self):
-        copied = self.link.copy()
-        self.assertIs(copied.conv1_1, copied.layers['conv1_1'])
-
-    def test_copy_cpu(self):
-        self.check_copy()
-
-    @attr.gpu
-    def test_copy_gpu(self):
-        self.link.to_gpu()
-        self.check_copy()
-
 
 testing.run_module(__name__, __file__)

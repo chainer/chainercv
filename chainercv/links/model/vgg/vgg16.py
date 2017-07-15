@@ -158,7 +158,12 @@ class VGG16(SequentialFeatureExtractor):
             ('prob', softmax)
         ])
 
-        super(VGG16, self).__init__(layers, layer_names)
+        super(VGG16, self).__init__()
+        with self.init_scope():
+            for name, layer in layers.items():
+                setattr(self, name, layer)
+
+        self.layer_names = layer_names
 
         if pretrained_model in self._models:
             path = download_model(self._models[pretrained_model]['url'])
