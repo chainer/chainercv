@@ -38,7 +38,7 @@ class SequentialFeatureExtractor(chainer.Chain):
         >>>     model.l2 = L.Linear(None, 1000)
         >>>     model.l2_relu = F.relu
         >>>     model.l3 = L.Linear(None, 10)
-        >>> model.layer_names = ['l2_relu', 'l1_relu']
+        >>> model.layer_names = ('l2_relu', 'l1_relu')
         >>> # These are outputs of layer l2_relu and l1_relu.
         >>> feat1, feat2 = model(x)
         >>> # The layer_names can be dynamically changed.
@@ -89,7 +89,7 @@ class SequentialFeatureExtractor(chainer.Chain):
             return_tuple = True
         else:
             return_tuple = False
-            layer_names = [layer_names]
+            layer_names = (layer_names,)
         if any(name not in self._order for name in layer_names):
             raise ValueError('Invalid layer name')
 
@@ -108,7 +108,7 @@ class SequentialFeatureExtractor(chainer.Chain):
 
         """
         if self._layer_names is None:
-            layer_names = [self._order[-1]]
+            layer_names = (self._order[-1],)
         else:
             layer_names = self._layer_names
 
