@@ -38,13 +38,12 @@ class SequentialFeatureExtractor(chainer.Chain):
         >>>     model.l2 = L.Linear(None, 1000)
         >>>     model.l2_relu = F.relu
         >>>     model.l3 = L.Linear(None, 10)
+        >>> # This is the output of layer l3.
+        >>> feat3 = model(x)
+        >>> # The layers to be collected can be changed.
         >>> model.layer_names = ('l2_relu', 'l1_relu')
         >>> # These are outputs of layer l2_relu and l1_relu.
-        >>> feat1, feat2 = model(x)
-        >>> # The layer_names can be dynamically changed.
-        >>> model.layer_names = 'l3'
-        >>> # This is an output of layer l1.
-        >>> feat3 = model(x)
+        >>> feat2, feat1 = model(x)
 
     Params:
         layer_names (string or iterable of strings):
