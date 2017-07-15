@@ -59,9 +59,9 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
 
         for out, layer_name in zip(outs, layer_names):
             self.assertIsInstance(out, chainer.Variable)
-            out = to_cpu(out.data)
+            self.assertIsInstance(out.data, self.link.xp.ndarray)
 
-            self.assertIsInstance(out, self.link.xp.ndarray)
+            out = to_cpu(out.data)
             np.testing.assert_equal(out, to_cpu(expects[layer_name].data))
 
     def check_basic(self):
