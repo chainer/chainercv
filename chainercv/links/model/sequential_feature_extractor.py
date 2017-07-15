@@ -64,6 +64,9 @@ class SequentialFeatureExtractor(chainer.Chain):
             self._order.append(name)
 
     def __delattr__(self, name):
+        if self._layer_names and name in self._layer_names:
+            raise AttributeError(
+                'Layer {:s} is registered to layer_names.'.format(name))
         super(SequentialFeatureExtractor, self).__delattr__(name)
         try:
             self._order.remove(name)
