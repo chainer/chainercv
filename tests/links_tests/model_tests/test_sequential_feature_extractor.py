@@ -1,14 +1,11 @@
-import collections
-import unittest
-
 import numpy as np
+import unittest
 
 import chainer
 from chainer.cuda import to_cpu
+from chainer.function import Function
 from chainer import testing
 from chainer.testing import attr
-
-from chainer.function import Function
 
 from chainercv.links import SequentialFeatureExtractor
 from chainercv.utils.testing import ConstantStubLink
@@ -20,7 +17,13 @@ class DummyFunc(Function):
         return inputs[0] * 2,
 
 
-class TestSequentialFeatureExtractorOrderedDictFunctions(unittest.TestCase):
+@testing.parameterize(
+    {'layer_names': None},
+    {'layer_names': 'f2'},
+    {'layer_names': ('f2',)},
+    {'layer_names': ('l2', 'l1', 'f2')},
+)
+class TestSequentialFeatureExtractor(unittest.TestCase):
 
     def setUp(self):
         self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
@@ -28,89 +31,83 @@ class TestSequentialFeatureExtractorOrderedDictFunctions(unittest.TestCase):
         self.f2 = DummyFunc()
         self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
 
-        self.link = SequentialFeatureExtractor(
-            collections.OrderedDict(
-                [('l1', self.l1),
-                 ('f1', self.f1),
-                 ('f2', self.f2),
-                 ('l2', self.l2)]),
-            layer_names=['l1', 'f1', 'f2'])
+        self.link = SequentialFeatureExtractor()
+        with self.link.init_scope():
+            self.link.l1 = self.l1
+            self.link.f1 = self.f1
+            self.link.f2 = self.f2
+            self.link.l2 = self.l2
+
+        if self.layer_names:
+            self.link.layer_names = self.layer_names
+
         self.x = np.random.uniform(size=(1, 3, 24, 24))
 
-    def check_call_output(self):
+    def check_call(self, x, expects):
+        outs = self.link(x)
+
+        if isinstance(self.layer_names, tuple):
+            layer_names = self.layer_names
+        else:
+            if self.layer_names is None:
+                layer_names = ('l2',)
+            else:
+                layer_names = (self.layer_names,)
+            outs = (outs,)
+
+        self.assertEqual(len(outs), len(layer_names))
+
+        for out, layer_name in zip(outs, layer_names):
+            self.assertIsInstance(out, chainer.Variable)
+            self.assertIsInstance(out.data, self.link.xp.ndarray)
+
+            out = to_cpu(out.data)
+            np.testing.assert_equal(out, to_cpu(expects[layer_name].data))
+
+    def check_basic(self):
         x = self.link.xp.asarray(self.x)
-        out = self.link(x)
 
-        self.assertEqual(len(out), 3)
-        self.assertIsInstance(out[0], chainer.Variable)
-        self.assertIsInstance(out[1], chainer.Variable)
-        self.assertIsInstance(out[2], chainer.Variable)
-        self.assertIsInstance(out[0].data, self.link.xp.ndarray)
-        self.assertIsInstance(out[1].data, self.link.xp.ndarray)
-        self.assertIsInstance(out[2].data, self.link.xp.ndarray)
+        expects = dict()
+        expects['l1'] = self.l1(x)
+        expects['f1'] = self.f1(expects['l1'])
+        expects['f2'] = self.f2(expects['f1'])
+        expects['l2'] = self.l2(expects['f2'])
 
-        out_data = [to_cpu(var.data) for var in out]
-        np.testing.assert_equal(out_data[0], to_cpu(self.l1(x).data))
-        np.testing.assert_equal(out_data[1], to_cpu(self.f1(self.l1(x)).data))
-        np.testing.assert_equal(
-            out_data[2], to_cpu(self.f2(self.f1(self.l1(x))).data))
+        self.check_call(x, expects)
 
-    def test_call_output_cpu(self):
-        self.check_call_output()
+    def test_basic_cpu(self):
+        self.check_basic()
 
     @attr.gpu
-    def test_call_output_gpu(self):
+    def test_call_gpu(self):
         self.link.to_gpu()
-        self.check_call_output()
+        self.check_basic()
 
-    def check_call_dynamic_layer_names(self):
+    def check_deletion(self):
         x = self.link.xp.asarray(self.x)
-        self.link.layer_names = ['l2']
-        out, = self.link(x)
 
-        self.assertIsInstance(out, chainer.Variable)
-        self.assertIsInstance(out.data, self.link.xp.ndarray)
+        if self.layer_names == 'l1' or \
+           (isinstance(self.layer_names, tuple) and 'l1' in self.layer_names):
+            with self.assertRaises(AttributeError):
+                del self.link.l1
+            return
+        else:
+            del self.link.l1
 
-        out_data = out.data
-        np.testing.assert_equal(
-            out_data, to_cpu(self.l2(self.f2(self.f1(self.l1(x)))).data))
+        expects = dict()
+        expects['f1'] = self.f1(x)
+        expects['f2'] = self.f2(expects['f1'])
+        expects['l2'] = self.l2(expects['f2'])
 
-    def test_call_dynamic_layer_names_cpu(self):
-        self.check_call_dynamic_layer_names()
+        self.check_call(x, expects)
 
-    @attr.gpu
-    def test_call_dynamic_layer_names_gpu(self):
-        self.check_call_dynamic_layer_names()
-
-
-class TestSequentialFeatureExtractorCopy(unittest.TestCase):
-
-    def setUp(self):
-        self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
-        self.f1 = DummyFunc()
-        self.f2 = DummyFunc()
-        self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
-
-        self.link = SequentialFeatureExtractor(
-            collections.OrderedDict(
-                [('l1', self.l1),
-                 ('f1', self.f1),
-                 ('f2', self.f2),
-                 ('l2', self.l2)]),
-            layer_names=['l1', 'f1', 'f2', 'l2'])
-
-    def check_copy(self):
-        copied = self.link.copy()
-        self.assertIs(copied.l1, copied.layers['l1'])
-        self.assertIs(copied.l2, copied.layers['l2'])
-
-    def test_copy_cpu(self):
-        self.check_copy()
+    def test_deletion_cpu(self):
+        self.check_deletion()
 
     @attr.gpu
-    def test_copy_gpu(self):
+    def test_deletion_gpu(self):
         self.link.to_gpu()
-        self.check_copy()
+        self.check_deletion()
 
 
 testing.run_module(__name__, __file__)
