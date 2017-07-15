@@ -94,7 +94,7 @@ class SequentialFeatureExtractor(chainer.Chain):
             raise ValueError('Invalid layer name')
 
         self._return_tuple = return_tuple
-        self._layer_names = layer_names
+        self._layer_names = tuple(layer_names)
 
     def __call__(self, x):
         """Forward this model.
