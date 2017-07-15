@@ -28,13 +28,13 @@ class TestSequentialFeatureExtractorOrderedDictFunctions(unittest.TestCase):
         self.f2 = DummyFunc()
         self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
 
-        self.link = SequentialFeatureExtractor(
-            collections.OrderedDict(
-                [('l1', self.l1),
-                 ('f1', self.f1),
-                 ('f2', self.f2),
-                 ('l2', self.l2)]),
-            layer_names=['l1', 'f1', 'f2'])
+        self.link = SequentialFeatureExtractor()
+        with self.link.init_scope():
+            self.link.l1 = self.l1
+            self.link.f1 = self.f1
+            self.link.f2 = self.f2
+            self.link.l2 = self.l2
+        self.link.layer_names = ['l1', 'f1', 'f2']
         self.x = np.random.uniform(size=(1, 3, 24, 24))
 
     def check_call_output(self):
@@ -81,36 +81,6 @@ class TestSequentialFeatureExtractorOrderedDictFunctions(unittest.TestCase):
     @attr.gpu
     def test_call_dynamic_layer_names_gpu(self):
         self.check_call_dynamic_layer_names()
-
-
-class TestSequentialFeatureExtractorCopy(unittest.TestCase):
-
-    def setUp(self):
-        self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
-        self.f1 = DummyFunc()
-        self.f2 = DummyFunc()
-        self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
-
-        self.link = SequentialFeatureExtractor(
-            collections.OrderedDict(
-                [('l1', self.l1),
-                 ('f1', self.f1),
-                 ('f2', self.f2),
-                 ('l2', self.l2)]),
-            layer_names=['l1', 'f1', 'f2', 'l2'])
-
-    def check_copy(self):
-        copied = self.link.copy()
-        self.assertIs(copied.l1, copied.layers['l1'])
-        self.assertIs(copied.l2, copied.layers['l2'])
-
-    def test_copy_cpu(self):
-        self.check_copy()
-
-    @attr.gpu
-    def test_copy_gpu(self):
-        self.link.to_gpu()
-        self.check_copy()
 
 
 testing.run_module(__name__, __file__)
