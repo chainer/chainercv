@@ -9,11 +9,11 @@ class SequentialFeatureExtractor(chainer.Chain):
 
     This class is a base class that can be used for an implementation of
     a feature extractor model.
-    The link takes an argument :obj:`layers` that specifies the computation
-    conducted in :meth:`__call__`.
-    :obj:`layers` is a :class:`collections.OrderedDict` of
-    callable objects called layers, which are going to be called sequentially
-    starting from the top to the bottom.
+    Callabel objects, such as :class:`chainer.Link` and
+    :class:`chainer.Function`, can be registered to this link with
+    :meth:`init_scope`.
+    This link keeps the order of registerations and conducts the computation
+    in the same order when :meth:`__call__` is called.
     A :class:`chainer.Link` object in the sequence will be added as
     a child link of this object.
 
@@ -33,13 +33,14 @@ class SequentialFeatureExtractor(chainer.Chain):
         >>> import collections
         >>> import chainer.functions as F
         >>> import chainer.links as L
-        >>> layers = collections.OrderedDict([
-        >>>     ('l1', L.Linear(None, 1000)),
-        >>>     ('l1_relu', F.relu),
-        >>>     ('l2', L.Linear(None, 1000)),
-        >>>     ('l2_relu', F.relu),
-        >>>     ('l3', L.Linear(None, 10))])
-        >>> model = SequentialFeatureExtractor(layers, ['l2_relu', 'l1_relu'])
+        >>> model = SequentialFeatureExtractor()
+        >>> with model.init_scope():
+        >>>     model.l1 = L.Linear(None, 1000)
+        >>>     model.l1_relu = F.relu
+        >>>     model.l2 = L.Linear(None, 1000)
+        >>>     model.l2_relu = F.relu
+        >>>     model.l3 = L.Linear(None, 10)
+        >>> model.layer_names = ['l2_relu', 'l1_relu']
         >>> # These are outputs of layer l2_relu and l1_relu.
         >>> feat1, feat2 = model(x)
         >>> # The layer_names can be dynamically changed.
@@ -47,9 +48,7 @@ class SequentialFeatureExtractor(chainer.Chain):
         >>> # This is an output of layer l1.
         >>> feat3 = model(x)
 
-    Args:
-        layers (collections.OrderedDict of callables):
-            Callable objects called in the forward pass.
+    Params:
         layer_names (string or iterable of strings):
             Names of layers whose outputs will be collected in
             the forward pass.
