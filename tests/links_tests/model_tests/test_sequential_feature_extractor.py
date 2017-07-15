@@ -43,15 +43,7 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
 
         self.x = np.random.uniform(size=(1, 3, 24, 24))
 
-    def check_call(self):
-        x = self.link.xp.asarray(self.x)
-
-        expects = dict()
-        expects['l1'] = self.l1(x)
-        expects['f1'] = self.f1(expects['l1'])
-        expects['f2'] = self.f2(expects['f1'])
-        expects['l2'] = self.l2(expects['f2'])
-
+    def check_call(self, x, expects):
         outs = self.link(x)
 
         if isinstance(self.layer_names, tuple):
@@ -67,18 +59,55 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
 
         for out, layer_name in zip(outs, layer_names):
             self.assertIsInstance(out, chainer.Variable)
-
             out = to_cpu(out.data)
+
             self.assertIsInstance(out, self.link.xp.ndarray)
             np.testing.assert_equal(out, to_cpu(expects[layer_name].data))
 
-    def test_call_cpu(self):
-        self.check_call()
+    def check_basic(self):
+        x = self.link.xp.asarray(self.x)
+
+        expects = dict()
+        expects['l1'] = self.l1(x)
+        expects['f1'] = self.f1(expects['l1'])
+        expects['f2'] = self.f2(expects['f1'])
+        expects['l2'] = self.l2(expects['f2'])
+
+        self.check_call(x, expects)
+
+    def test_basic_cpu(self):
+        self.check_basic()
 
     @attr.gpu
     def test_call_gpu(self):
         self.link.to_gpu()
-        self.check_call()
+        self.check_basic()
+
+    def check_deletion(self):
+        x = self.link.xp.asarray(self.x)
+
+        if self.layer_names == 'l1' or \
+           (isinstance(self.layer_names, tuple) and 'l1' in self.layer_names):
+            with self.assertRaises(AttributeError):
+                del self.link.l1
+            return
+        else:
+            del self.link.l1
+
+        expects = dict()
+        expects['f1'] = self.f1(x)
+        expects['f2'] = self.f2(expects['f1'])
+        expects['l2'] = self.l2(expects['f2'])
+
+        self.check_call(x, expects)
+
+    def test_deletion_cpu(self):
+        self.check_deletion()
+
+    @attr.gpu
+    def test_deletion_gpu(self):
+        self.link.to_gpu()
+        self.check_deletion()
 
 
 testing.run_module(__name__, __file__)
