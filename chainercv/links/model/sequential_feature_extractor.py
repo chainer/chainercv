@@ -124,8 +124,7 @@ class SequentialFeatureExtractor(chainer.Chain):
                 features[name] = h
 
         if self._return_tuple:
-            features = tuple(
-                [features[name] for name in layer_names])
+            features = tuple(features[name] for name in layer_names)
         else:
             features = list(features.values())[0]
         return features
