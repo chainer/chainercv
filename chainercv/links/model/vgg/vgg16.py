@@ -31,19 +31,24 @@ class VGG16(SequentialFeatureExtractor):
     This model is a feature extraction link.
     The network can choose to output features from set of all
     intermediate and final features produced by the original architecture.
-    The output features can be an array or tuple of arrays.
-    When :obj:`features` is an iterable of strings, outputs will be tuple.
-    When :obj:`features` is a string, output will be an array.
+    By setting :obj:`VGG16.layer_names`, the kind of features can be selected.
 
     Examples:
 
-        >>> model = VGG16(features='conv5_3')
-        # This is an activation of conv5_3 layer.
-        >>> feat = model(imgs)
+        >>> model = VGG16()
+        # By default, VGG16.__call__ returns a probability score.
+        >>> prob = model(imgs)
 
-        >>> model = VGG16(features=['conv5_3', 'fc6'])
+        >>> model.layer_names = 'conv5_3'
+        # This is an activation of conv5_3 layer.
+        >>> feat5_3 = model(imgs)
+
+        >>> model.layer_names = ['conv5_3', 'fc6']
         >>> # These are activations of conv5_3 and fc6 layers respectively.
-        >>> feat1, feat2 = model(imgs)
+        >>> feat5_3, feat6 = model(imgs)
+
+    .. seealso::
+        :class:`chainercv.links.model.SequentialFeatureExtractor`
 
     When :obj:`pretrained_model` is the path of a pre-trained chainer model
     serialized as a :obj:`.npz` file in the constructor, this chain model
@@ -58,7 +63,7 @@ class VGG16(SequentialFeatureExtractor):
 
     Args:
         layer_names (str or iterable of strings): The names of the feature to
-            output with :meth:`__call__` and :meth:`predict`.
+            output with :meth:`__call__`.
         pretrained_model (str): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
