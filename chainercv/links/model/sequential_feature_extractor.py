@@ -54,7 +54,7 @@ class SequentialFeatureExtractor(chainer.Chain):
         super(SequentialFeatureExtractor, self).__init__()
         self._order = list()
         self.feature_names = None
-        # Two member variables are initialized by setter of feature_names.
+        # Two attributes are initialized by setter of feature_names.
         # self._feature_names -> None
         # self._return_tuple -> False
 
