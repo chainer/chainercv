@@ -87,7 +87,8 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
         x = self.link.xp.asarray(self.x)
 
         if self.feature_names == 'l1' or \
-           (isinstance(self.feature_names, tuple) and 'l1' in self.feature_names):
+           (isinstance(self.feature_names, tuple) and
+                'l1' in self.feature_names):
             with self.assertRaises(AttributeError):
                 del self.link.l1
             return
