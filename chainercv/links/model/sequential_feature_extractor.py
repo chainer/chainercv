@@ -19,9 +19,9 @@ class SequentialFeatureExtractor(chainer.Chain):
     through a stream of computation.
     These features can be specified by :obj:`feature_names`, which contains
     the names of the features that are collected.
-    When :obj:`feature_names` is a string, single value is returned.
-    When :obj:`feature_names` is an iterable of strings, a tuple of values
-    is returned. The order of the values is the same as the order of
+    When :obj:`feature_names` is a string, single feature is returned.
+    When :obj:`feature_names` is an iterable of strings, a tuple of features
+    is returned. The order of the features is the same as the order of
     the strings in :obj:`feature_names`.
     When :obj:`feature_names` is :obj:`None`, the last feature is returned.
 
@@ -36,7 +36,7 @@ class SequentialFeatureExtractor(chainer.Chain):
         >>>     model.l2 = L.Linear(None, 1000)
         >>>     model.l2_relu = F.relu
         >>>     model.l3 = L.Linear(None, 10)
-        >>> # This is the feature l3
+        >>> # This is feature l3
         >>> feat3 = model(x)
         >>> # The features to be collected can be changed.
         >>> model.feature_names = ('l2_relu', 'l1_relu')
@@ -45,7 +45,7 @@ class SequentialFeatureExtractor(chainer.Chain):
 
     Params:
         feature_names (string or iterable of strings):
-            Names of feature that are collected during
+            Names of features that are collected during
             the forward pass.
 
     """
@@ -101,7 +101,7 @@ class SequentialFeatureExtractor(chainer.Chain):
 
         Returns:
             chainer.Variable or tuple of chainer.Variable:
-            The returned values are determined by :obj:`feature_names`.
+            The returned features are determined by :obj:`feature_names`.
 
         """
         if self._feature_names is None:
