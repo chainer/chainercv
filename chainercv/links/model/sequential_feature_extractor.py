@@ -53,10 +53,10 @@ class SequentialFeatureExtractor(chainer.Chain):
     def __init__(self):
         super(SequentialFeatureExtractor, self).__init__()
         self._order = list()
-        self.feature_names = None
         # Two attributes are initialized by the setter of feature_names.
         # self._feature_names -> None
         # self._return_tuple -> False
+        self.feature_names = None
 
     def __setattr__(self, name, value):
         super(SequentialFeatureExtractor, self).__setattr__(name, value)
