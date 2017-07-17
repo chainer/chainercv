@@ -22,6 +22,7 @@ class DummyFunc(Function):
     {'feature_names': 'f2'},
     {'feature_names': ('f2',)},
     {'feature_names': ('l2', 'l1', 'f2')},
+    {'feature_names': ('l2', 'l2')},
 )
 class TestSequentialFeatureExtractor(unittest.TestCase):
 
