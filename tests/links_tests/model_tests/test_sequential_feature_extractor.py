@@ -44,6 +44,9 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
 
         self.x = np.random.uniform(size=(1, 3, 24, 24))
 
+    def test_feature_names(self):
+        self.assertEqual(self.link.feature_names, self.feature_names)
+
     def check_call(self, x, expects):
         outs = self.link(x)
 
