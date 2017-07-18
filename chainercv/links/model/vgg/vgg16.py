@@ -31,7 +31,7 @@ class VGG16(SequentialFeatureExtractor):
     This model is a feature extraction link.
     The network can choose to output features from set of all
     intermediate and final features produced by the original architecture.
-    By setting :obj:`VGG16.layer_names`, the kind of features can be selected.
+    By setting :obj:`VGG16.feature_names`, the kind of features can be selected.
 
     Examples:
 
@@ -39,12 +39,12 @@ class VGG16(SequentialFeatureExtractor):
         # By default, VGG16.__call__ returns a probability score.
         >>> prob = model(imgs)
 
-        >>> model.layer_names = 'conv5_3'
-        # This is an activation of conv5_3 layer.
+        >>> model.feature_names = 'conv5_3'
+        # This is feature conv5_3.
         >>> feat5_3 = model(imgs)
 
-        >>> model.layer_names = ['conv5_3', 'fc6']
-        >>> # These are activations of conv5_3 and fc6 layers respectively.
+        >>> model.feature_names = ['conv5_3', 'fc6']
+        >>> # These are features conv5_3 and fc6.
         >>> feat5_3, feat6 = model(imgs)
 
     .. seealso::
@@ -62,7 +62,7 @@ class VGG16(SequentialFeatureExtractor):
         <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_.
 
     Args:
-        layer_names (str or iterable of strings): The names of the feature to
+        feature_names (str or iterable of strings): The names of the feature to
             output with :meth:`__call__`.
         pretrained_model (str): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
