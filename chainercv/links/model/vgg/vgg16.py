@@ -9,12 +9,12 @@ from chainer.functions import relu
 from chainer.functions import softmax
 from chainer.initializers import constant
 from chainer.initializers import normal
-from chainer.links import BatchNormalization
-from chainer.links import Convolution2D
+
 from chainer.links import Linear
 
 from chainercv.utils import download_model
 
+from chainercv.links.connection.convolution_2d_block import Convolution2DBlock
 from chainercv.links.model.sequential_feature_extractor import \
     SequentialFeatureExtractor
 
@@ -22,31 +22,6 @@ from chainercv.links.model.sequential_feature_extractor import \
 # RGB order
 _imagenet_mean = np.array(
     [123.68, 116.779, 103.939], dtype=np.float32)[:, np.newaxis, np.newaxis]
-
-
-class Block(chainer.Chain):
-
-    def __init__(self, in_channels, out_channels, ksize=None, stride=1, pad=0,
-                 nobias=False, initialW=None, initial_bias=None,
-                 activation=relu, use_bn=False,
-                 decay=0.9, eps=2e-5,
-                 use_gamma=True, use_beta=True,
-                 initial_gamma=None, initial_beta=None):
-        self.use_bn = use_bn
-        self.activaton = activation
-        with self.init_scope():
-            self.conv = Convolution2D(in_channels, out_channels, ksize, stride,
-                                      pad, nobias, initialW, initial_bias)
-            if self.use_bn:
-                self.bn = BatchNormalization(
-                    None, decay, eps, use_gamma, use_beta,
-                    initial_gamma, initial_beta)
-
-    def __call__(self, x):
-        h = self.conv(x)
-        if self.use_bn:
-            h = self.bn(h)
-        return self.activataion(h)
 
 
 class VGG16(SequentialFeatureExtractor):
@@ -138,23 +113,23 @@ class VGG16(SequentialFeatureExtractor):
 
         super(VGG16, self).__init__()
         with self.init_scope():
-            self.conv1_1 = Block(None, 64, 3, 1, 1, **kwargs)
-            self.conv1_2 = Block(None, 64, 3, 1, 1, **kwargs)
+            self.conv1_1 = Convolution2DBlock(None, 64, 3, 1, 1, **kwargs)
+            self.conv1_2 = Convolution2DBlock(None, 64, 3, 1, 1, **kwargs)
             self.pool1 = _max_pooling_2d
-            self.conv2_1 = Block(None, 128, 3, 1, 1, **kwargs)
-            self.conv2_2 = Block(None, 128, 3, 1, 1, **kwargs)
+            self.conv2_1 = Convolution2DBlock(None, 128, 3, 1, 1, **kwargs)
+            self.conv2_2 = Convolution2DBlock(None, 128, 3, 1, 1, **kwargs)
             self.pool2 = _max_pooling_2d
-            self.conv3_1 = Block(None, 256, 3, 1, 1, **kwargs)
-            self.conv3_2 = Block(None, 256, 3, 1, 1, **kwargs)
-            self.conv3_3 = Block(None, 256, 3, 1, 1, **kwargs)
+            self.conv3_1 = Convolution2DBlock(None, 256, 3, 1, 1, **kwargs)
+            self.conv3_2 = Convolution2DBlock(None, 256, 3, 1, 1, **kwargs)
+            self.conv3_3 = Convolution2DBlock(None, 256, 3, 1, 1, **kwargs)
             self.pool3 = _max_pooling_2d
-            self.conv4_1 = Block(None, 512, 3, 1, 1, **kwargs)
-            self.conv4_2 = Block(None, 512, 3, 1, 1, **kwargs)
-            self.conv4_3 = Block(None, 512, 3, 1, 1, **kwargs)
+            self.conv4_1 = Convolution2DBlock(None, 512, 3, 1, 1, **kwargs)
+            self.conv4_2 = Convolution2DBlock(None, 512, 3, 1, 1, **kwargs)
+            self.conv4_3 = Convolution2DBlock(None, 512, 3, 1, 1, **kwargs)
             self.pool4 = _max_pooling_2d
-            self.conv5_1 = Block(None, 512, 3, 1, 1, **kwargs)
-            self.conv5_2 = Block(None, 512, 3, 1, 1, **kwargs)
-            self.conv5_3 = Block(None, 512, 3, 1, 1, **kwargs)
+            self.conv5_1 = Convolution2DBlock(None, 512, 3, 1, 1, **kwargs)
+            self.conv5_2 = Convolution2DBlock(None, 512, 3, 1, 1, **kwargs)
+            self.conv5_3 = Convolution2DBlock(None, 512, 3, 1, 1, **kwargs)
             self.pool5 = _max_pooling_2d
             self.fc6 = Linear(None, 4096, **kwargs)
             self.fc6_relu = relu
