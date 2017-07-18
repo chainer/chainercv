@@ -136,7 +136,7 @@ class VGG16(SequentialFeatureExtractor):
             self.fc6_dropout = dropout
             self.fc7 = Linear(None, 4096, **kwargs)
             self.fc7_relu = relu
-            self.fc7_dropout = Linear(None, 4096, **kwargs)
+            self.fc7_dropout = dropout
             self.fc8 = Linear(None, n_class, **kwargs)
             self.prob = softmax
 
