@@ -124,7 +124,8 @@ class SequentialFeatureExtractor(chainer.Chain):
 
         # The biggest index among indices of the features that are included
         # in feature_names.
-        last_index = max(self.all_feature_names.index(name) for name in feature_names)
+        last_index = max(self.all_feature_names.index(name) for
+                         name in feature_names)
 
         features = {}
         h = x
