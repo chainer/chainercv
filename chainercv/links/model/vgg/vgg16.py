@@ -106,19 +106,11 @@ class VGG16(SequentialFeatureExtractor):
                 mean = self._models[pretrained_model]['mean']
         self.mean = mean
 
-        if pretrained_model:
-            # As a sampling process is time-consuming,
-            # we employ a zero initializer for faster computation.
-            if initialW is None:
-                initialW = constant.Zero()
-            if initial_bias is None:
-                initial_bias = constant.Zero()
-        else:
-            # Employ default initializers used in the original paper.
-            if initialW is None:
-                initialW = normal.Normal(0.01)
-            if initial_bias is None:
-                initial_bias = constant.Zero()
+        # Employ default initializers used in the original paper.
+        if initialW is None:
+            initialW = normal.Normal(0.01)
+        if initial_bias is None:
+            initial_bias = constant.Zero()
         kwargs = {'initialW': initialW, 'initial_bias': initial_bias}
 
         layers = collections.OrderedDict([
