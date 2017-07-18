@@ -10,6 +10,7 @@ from chainer.functions import relu
 from chainer.functions import softmax
 from chainer.initializers import constant
 from chainer.initializers import normal
+from chainer.links import BatchNormalization
 from chainer.links import Convolution2D
 from chainer.links import Linear
 
@@ -22,6 +23,32 @@ from chainercv.links.model.sequential_feature_extractor import \
 # RGB order
 _imagenet_mean = np.array(
     [123.68, 116.779, 103.939], dtype=np.float32)[:, np.newaxis, np.newaxis]
+
+
+
+class Block(chainer.Chain):
+
+    def __init__(self, in_channels, out_channels, ksize=None, stride=1, pad=0,
+                 nobias=False, initialW=None, initial_bias=None,
+                 activation=relu, use_bn=False,
+                 decay=0.9, eps=2e-5,
+                 use_gamma=True, use_beta=True,
+                 initial_gamma=None, initial_beta=None):
+        self.use_bn = use_bn
+        self.activataion = activataion
+        with self.init_scope():
+            self.conv = Convolution2D(in_channels, out_channels, ksize, stride,
+                                      pad, nobias, initialW, initial_bias)
+            if self.use_bn:
+                self.bn = BatchNormalization(
+                    None, decay, eps, use_gamma, use_beta,
+                    initial_gamma, initial_beta)
+
+    def __call__(self, x):
+        h = self.conv(x)
+        if self.use_bn:
+            h = self.bn(h)
+        return self.activataion(h)
 
 
 class VGG16(SequentialFeatureExtractor):
@@ -114,36 +141,23 @@ class VGG16(SequentialFeatureExtractor):
         kwargs = {'initialW': initialW, 'initial_bias': initial_bias}
 
         layers = collections.OrderedDict([
-            ('conv1_1', Convolution2D(None, 64, 3, 1, 1, **kwargs)),
-            ('conv1_1_relu', relu),
-            ('conv1_2', Convolution2D(None, 64, 3, 1, 1, **kwargs)),
-            ('conv1_2_relu', relu),
+            ('conv1_1', Block(None, 64, 3, 1, 1, **kwargs)),
+            ('conv1_2', Block(None, 64, 3, 1, 1, **kwargs)),
             ('pool1', _max_pooling_2d),
-            ('conv2_1', Convolution2D(None, 128, 3, 1, 1, **kwargs)),
-            ('conv2_1_relu', relu),
-            ('conv2_2', Convolution2D(None, 128, 3, 1, 1, **kwargs)),
-            ('conv2_2_relu', relu),
+            ('conv2_1', Block(None, 128, 3, 1, 1, **kwargs)),
+            ('conv2_2', Block(None, 128, 3, 1, 1, **kwargs)),
             ('pool2', _max_pooling_2d),
-            ('conv3_1', Convolution2D(None, 256, 3, 1, 1, **kwargs)),
-            ('conv3_1_relu', relu),
-            ('conv3_2', Convolution2D(None, 256, 3, 1, 1, **kwargs)),
-            ('conv3_2_relu', relu),
-            ('conv3_3', Convolution2D(None, 256, 3, 1, 1, **kwargs)),
-            ('conv3_3_relu', relu),
+            ('conv3_1', Block(None, 256, 3, 1, 1, **kwargs)),
+            ('conv3_2', Block(None, 256, 3, 1, 1, **kwargs)),
+            ('conv3_3', Block(None, 256, 3, 1, 1, **kwargs)),
             ('pool3', _max_pooling_2d),
-            ('conv4_1', Convolution2D(None, 512, 3, 1, 1, **kwargs)),
-            ('conv4_1_relu', relu),
-            ('conv4_2', Convolution2D(None, 512, 3, 1, 1, **kwargs)),
-            ('conv4_2_relu', relu),
-            ('conv4_3', Convolution2D(None, 512, 3, 1, 1, **kwargs)),
-            ('conv4_3_relu', relu),
+            ('conv4_1', Block(None, 512, 3, 1, 1, **kwargs)),
+            ('conv4_2', Block(None, 512, 3, 1, 1, **kwargs)),
+            ('conv4_3', Block(None, 512, 3, 1, 1, **kwargs)),
             ('pool4', _max_pooling_2d),
-            ('conv5_1', Convolution2D(None, 512, 3, 1, 1, **kwargs)),
-            ('conv5_1_relu', relu),
-            ('conv5_2', Convolution2D(None, 512, 3, 1, 1, **kwargs)),
-            ('conv5_2_relu', relu),
-            ('conv5_3', Convolution2D(None, 512, 3, 1, 1, **kwargs)),
-            ('conv5_3_relu', relu),
+            ('conv5_1', Block(None, 512, 3, 1, 1, **kwargs)),
+            ('conv5_2', Block(None, 512, 3, 1, 1, **kwargs)),
+            ('conv5_3', Block(None, 512, 3, 1, 1, **kwargs)),
             ('pool5', _max_pooling_2d),
             ('fc6', Linear(None, 4096, **kwargs)),
             ('fc6_relu', relu),
