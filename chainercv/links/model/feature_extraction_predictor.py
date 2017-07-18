@@ -11,10 +11,8 @@ from chainercv.transforms import ten_crop
 
 class FeatureExtractionPredictor(chainer.Chain):
 
-    """Wrapper around a feature extraction model to add predict method.
+    """Wrapper class that adds predict method to a feature extraction model.
 
-    This chain wraps aroudn a feature extraction model to predict features
-    from images.
     The :meth:`predict` takes three steps to make predictions.
 
     1. Preprocess images
@@ -25,7 +23,7 @@ class FeatureExtractionPredictor(chainer.Chain):
 
         >>> from chainercv.links import VGG16
         >>> from chainercv.links import FeatureExtractionPredictor
-        >>> base_model = VGG16(layer_names='prob')
+        >>> base_model = VGG16()
         >>> model = FeatureExtractionPredictor(base_model)
         >>> prob = model.predict([img])
 
