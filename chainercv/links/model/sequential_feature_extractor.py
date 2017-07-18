@@ -47,12 +47,16 @@ class SequentialFeatureExtractor(chainer.Chain):
         feature_names (string or iterable of strings):
             Names of features that are collected during
             the forward pass.
+        all_feature_names (iterable of strings):
+            Names of features that can be collected from
+            this chain. The names are ordered in the order
+            of computation.
 
     """
 
     def __init__(self):
         super(SequentialFeatureExtractor, self).__init__()
-        self._order = list()
+        self.all_feature_names = list()
         # Two attributes are initialized by the setter of feature_names.
         # self._feature_names -> None
         # self._return_tuple -> False
@@ -61,7 +65,7 @@ class SequentialFeatureExtractor(chainer.Chain):
     def __setattr__(self, name, value):
         super(SequentialFeatureExtractor, self).__setattr__(name, value)
         if self.within_init_scope and callable(value):
-            self._order.append(name)
+            self.all_feature_names.append(name)
 
     def __delattr__(self, name):
         if self._feature_names and name in self._feature_names:
@@ -69,7 +73,7 @@ class SequentialFeatureExtractor(chainer.Chain):
                 'Feature {:s} is registered to feature_names.'.format(name))
         super(SequentialFeatureExtractor, self).__delattr__(name)
         try:
-            self._order.remove(name)
+            self.all_feature_names.remove(name)
         except ValueError:
             pass
 
@@ -96,7 +100,7 @@ class SequentialFeatureExtractor(chainer.Chain):
         else:
             return_tuple = False
             feature_names = (feature_names,)
-        if any(name not in self._order for name in feature_names):
+        if any(name not in self.all_feature_names for name in feature_names):
             raise ValueError('Invalid feature name')
 
         self._return_tuple = return_tuple
@@ -114,17 +118,18 @@ class SequentialFeatureExtractor(chainer.Chain):
 
         """
         if self._feature_names is None:
-            feature_names = (self._order[-1],)
+            feature_names = (self.all_feature_names[-1],)
         else:
             feature_names = self._feature_names
 
         # The biggest index among indices of the features that are included
         # in feature_names.
-        last_index = max(self._order.index(name) for name in feature_names)
+        last_index = max(self.all_feature_names.index(name) for
+                         name in feature_names)
 
         features = {}
         h = x
-        for name in self._order[:last_index + 1]:
+        for name in self.all_feature_names[:last_index + 1]:
             h = self[name](h)
             if name in feature_names:
                 features[name] = h
