@@ -85,7 +85,7 @@ class VGG16(SequentialFeatureExtractor):
         'imagenet': {
             'n_class': 1000,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/vgg16_imagenet_convert_2017_06_15.npz',
+            'download/0.0.4/vgg16_imagenet_convert_2017_07_18.npz',
             'mean': _imagenet_mean
         }
     }
