@@ -1,6 +1,5 @@
 from __future__ import division
 
-import collections
 import numpy as np
 
 import chainer
@@ -25,7 +24,6 @@ _imagenet_mean = np.array(
     [123.68, 116.779, 103.939], dtype=np.float32)[:, np.newaxis, np.newaxis]
 
 
-
 class Block(chainer.Chain):
 
     def __init__(self, in_channels, out_channels, ksize=None, stride=1, pad=0,
@@ -35,7 +33,7 @@ class Block(chainer.Chain):
                  use_gamma=True, use_beta=True,
                  initial_gamma=None, initial_beta=None):
         self.use_bn = use_bn
-        self.activataion = activataion
+        self.activaton = activation
         with self.init_scope():
             self.conv = Convolution2D(in_channels, out_channels, ksize, stride,
                                       pad, nobias, initialW, initial_bias)
@@ -117,16 +115,14 @@ class VGG16(SequentialFeatureExtractor):
         }
     }
 
-    def __init__(self, layer_names='prob',
+    def __init__(self,
                  pretrained_model=None, n_class=None, mean=None,
                  initialW=None, initial_bias=None):
         if n_class is None:
-            if (pretrained_model not in self._models and
-                    any([name in ['fc8', 'prob'] for name in layer_names])):
-                raise ValueError(
-                    'The n_class needs to be supplied as an argument.')
-            elif pretrained_model:
+            if pretrained_model in self._models:
                 n_class = self._models[pretrained_model]['n_class']
+            else:
+                n_class = 1000
 
         if mean is None:
             if pretrained_model in self._models:
@@ -140,41 +136,34 @@ class VGG16(SequentialFeatureExtractor):
             initial_bias = constant.Zero()
         kwargs = {'initialW': initialW, 'initial_bias': initial_bias}
 
-        layers = collections.OrderedDict([
-            ('conv1_1', Block(None, 64, 3, 1, 1, **kwargs)),
-            ('conv1_2', Block(None, 64, 3, 1, 1, **kwargs)),
-            ('pool1', _max_pooling_2d),
-            ('conv2_1', Block(None, 128, 3, 1, 1, **kwargs)),
-            ('conv2_2', Block(None, 128, 3, 1, 1, **kwargs)),
-            ('pool2', _max_pooling_2d),
-            ('conv3_1', Block(None, 256, 3, 1, 1, **kwargs)),
-            ('conv3_2', Block(None, 256, 3, 1, 1, **kwargs)),
-            ('conv3_3', Block(None, 256, 3, 1, 1, **kwargs)),
-            ('pool3', _max_pooling_2d),
-            ('conv4_1', Block(None, 512, 3, 1, 1, **kwargs)),
-            ('conv4_2', Block(None, 512, 3, 1, 1, **kwargs)),
-            ('conv4_3', Block(None, 512, 3, 1, 1, **kwargs)),
-            ('pool4', _max_pooling_2d),
-            ('conv5_1', Block(None, 512, 3, 1, 1, **kwargs)),
-            ('conv5_2', Block(None, 512, 3, 1, 1, **kwargs)),
-            ('conv5_3', Block(None, 512, 3, 1, 1, **kwargs)),
-            ('pool5', _max_pooling_2d),
-            ('fc6', Linear(None, 4096, **kwargs)),
-            ('fc6_relu', relu),
-            ('fc6_dropout', dropout),
-            ('fc7', Linear(None, 4096, **kwargs)),
-            ('fc7_relu', relu),
-            ('fc7_dropout', dropout),
-            ('fc8', Linear(None, n_class, **kwargs)),
-            ('prob', softmax)
-        ])
-
         super(VGG16, self).__init__()
         with self.init_scope():
-            for name, layer in layers.items():
-                setattr(self, name, layer)
-
-        self.layer_names = layer_names
+            self.conv1_1 = Block(None, 64, 3, 1, 1, **kwargs)
+            self.conv1_2 = Block(None, 64, 3, 1, 1, **kwargs)
+            self.pool1 = _max_pooling_2d
+            self.conv2_1 = Block(None, 128, 3, 1, 1, **kwargs)
+            self.conv2_2 = Block(None, 128, 3, 1, 1, **kwargs)
+            self.pool2 = _max_pooling_2d
+            self.conv3_1 = Block(None, 256, 3, 1, 1, **kwargs)
+            self.conv3_2 = Block(None, 256, 3, 1, 1, **kwargs)
+            self.conv3_3 = Block(None, 256, 3, 1, 1, **kwargs)
+            self.pool3 = _max_pooling_2d
+            self.conv4_1 = Block(None, 512, 3, 1, 1, **kwargs)
+            self.conv4_2 = Block(None, 512, 3, 1, 1, **kwargs)
+            self.conv4_3 = Block(None, 512, 3, 1, 1, **kwargs)
+            self.pool4 = _max_pooling_2d
+            self.conv5_1 = Block(None, 512, 3, 1, 1, **kwargs)
+            self.conv5_2 = Block(None, 512, 3, 1, 1, **kwargs)
+            self.conv5_3 = Block(None, 512, 3, 1, 1, **kwargs)
+            self.pool5 = _max_pooling_2d
+            self.fc6 = Linear(None, 4096, **kwargs)
+            self.fc6_relu = relu
+            self.fc6_dropout = dropout
+            self.fc7 = Linear(None, 4096, **kwargs)
+            self.fc7_relu = relu
+            self.fc7_dropout = Linear(None, 4096, **kwargs)
+            self.fc8 = Linear(None, n_class, **kwargs)
+            self.prob = softmax
 
         if pretrained_model in self._models:
             path = download_model(self._models[pretrained_model]['url'])
