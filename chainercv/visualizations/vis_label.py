@@ -115,8 +115,8 @@ def vis_label(
     ax.imshow(img)
 
     legend_handles = list()
-    for l, label_name in enumerate(label_names):
+    for l in np.unique(label):
         legend_handles.append(
-            Patch(color=cmap(l / (n_class - 1)), label=label_name))
+            Patch(color=cmap(l / (n_class - 1)), label=label_names[l]))
 
     return ax, legend_handles
