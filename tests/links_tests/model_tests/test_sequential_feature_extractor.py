@@ -50,6 +50,12 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
     def test_all_feature_names(self):
         self.assertEqual(self.link.all_feature_names, ['l1', 'f1', 'f2', 'l2'])
 
+    def test_index(self):
+        self.assertEqual(self.link.index('l1'), 0)
+        self.assertEqual(self.link.index('f1'), 1)
+        self.assertEqual(self.link.index('f2'), 2)
+        self.assertEqual(self.link.index('l2'), 3)
+
     def check_call(self, x, expects):
         outs = self.link(x)
 
@@ -116,6 +122,43 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
     def test_deletion_gpu(self):
         self.link.to_gpu()
         self.check_deletion()
+
+
+@testing.parameterize(
+    {'feature_names': 'f1',
+     'slice': slice(None, 2),
+     'all_feature_names': ['l1', 'f1']},
+    {'feature_names': 'f2',
+     'slice': slice(2, -1),
+     'all_feature_names': ['f2']}
+)
+class TestSequentialFeatureExtractorGetitem(unittest.TestCase):
+
+    def setUp(self):
+        self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
+        self.f1 = DummyFunc()
+        self.f2 = DummyFunc()
+        self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
+
+        self.link = SequentialFeatureExtractor()
+        with self.link.init_scope():
+            self.link.l1 = self.l1
+            self.link.f1 = self.f1
+            self.link.f2 = self.f2
+            self.link.l2 = self.l2
+        self.link.feature_names = self.feature_names
+
+    def check_getitem(self):
+        model = self.link[self.slice]
+        self.assertEqual(model.all_feature_names, self.all_feature_names)
+
+    def test_getitem_cpu(self):
+        self.check_getitem()
+
+    @attr.gpu
+    def test_getitem_gpu(self):
+        self.link.to_gpu()
+        self.check_getitem()
 
 
 testing.run_module(__name__, __file__)
