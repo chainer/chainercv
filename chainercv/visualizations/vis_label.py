@@ -67,8 +67,9 @@ def vis_label(
             overlaying the label on the source image.
         all_label_names_in_legend (bool): Determines whether to include
             all label names in a legend. If this is :obj:`False`,
-            only the names of labels
-            that are included in the label image are included.
+            the legend does not contain the names of unused labels.
+            An unused label is defined as a label that does not appear in
+            :obj:`label`.
             The default value is :obj:`False`.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
