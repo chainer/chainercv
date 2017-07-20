@@ -126,10 +126,13 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
 
 @testing.parameterize(
     {'feature_names': 'f1',
-     'slice': slice(None, 2),
+     'index': slice(None, 2),
+     'all_feature_names': ['l1', 'f1']},
+    {'feature_names': 'f1',
+     'index': 1,
      'all_feature_names': ['l1', 'f1']},
     {'feature_names': 'f2',
-     'slice': slice(2, -1),
+     'index': slice(2, -1),
      'all_feature_names': ['f2']}
 )
 class TestSequentialFeatureExtractorGetitem(unittest.TestCase):
@@ -149,8 +152,13 @@ class TestSequentialFeatureExtractorGetitem(unittest.TestCase):
         self.link.feature_names = self.feature_names
 
     def check_getitem(self):
-        model = self.link[self.slice]
-        self.assertEqual(model.all_feature_names, self.all_feature_names)
+        ret = self.link[self.index]
+        if isinstance(self.index, int):
+            expected_type = type(getattr(
+                self.link, self.link.all_feature_names[self.index]))
+            self.assertIsInstance(ret, expected_type)
+        elif isinstance(self.index, slice):
+            self.assertEqual(ret.all_feature_names, self.all_feature_names)
 
     def test_getitem_cpu(self):
         self.check_getitem()
