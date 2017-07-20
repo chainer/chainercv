@@ -15,6 +15,7 @@ except ImportError:
 @testing.parameterize(*testing.product({
     'label_names': [None, ('class0', 'class1', 'class2')],
     'label_colors': [None, ((255, 0, 0), (0, 255, 0), (0, 0, 255))],
+    'all_label_names_in_legend': [False, True],
 }))
 class TestVisLabel(unittest.TestCase):
 
@@ -26,7 +27,8 @@ class TestVisLabel(unittest.TestCase):
         if optional_modules:
             ax, legend_handles = vis_label(
                 self.label,
-                label_names=self.label_names, label_colors=self.label_colors)
+                label_names=self.label_names, label_colors=self.label_colors,
+                all_label_names_in_legend=self.all_label_names_in_legend)
 
             self.assertIsInstance(ax, matplotlib.axes.Axes)
             for handle in legend_handles:
