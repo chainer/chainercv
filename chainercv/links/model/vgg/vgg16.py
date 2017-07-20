@@ -31,7 +31,10 @@ class VGG16(SequentialFeatureExtractor):
     This model is a feature extraction link.
     The network can choose to output features from set of all
     intermediate and final features produced by the original architecture.
-    By setting :obj:`VGG16.feature_names`, the kind of features can be selected.
+    The value of :obj:`VGG16.feature_names` selects the features to be
+    collected by :meth:`__call__`.
+    :obj:`self.all_feature_names` is the list of the names of features
+    that can be collected.
 
     Examples:
 
@@ -62,8 +65,6 @@ class VGG16(SequentialFeatureExtractor):
         <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_.
 
     Args:
-        feature_names (str or iterable of strings): The names of the feature to
-            output with :meth:`__call__`.
         pretrained_model (str): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
