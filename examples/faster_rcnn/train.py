@@ -73,7 +73,7 @@ def main():
     optimizer.setup(model)
 
     update_link = [l for l in faster_rcnn.extractor.children()
-                   if l.name not in ['fc6', 'fc7', 'fc8']] 
+                   if l.name not in ['fc6', 'fc7', 'fc8']]
     update_link += (list(faster_rcnn.rpn.children()) +
                     list(faster_rcnn.head.children()))
     for l in update_link:
