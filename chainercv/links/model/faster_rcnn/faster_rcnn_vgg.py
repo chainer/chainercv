@@ -102,7 +102,8 @@ class FasterRCNNVGG16(FasterRCNN):
         if vgg_initialW is None and pretrained_model:
             vgg_initialW = chainer.initializers.constant.Zero()
 
-        extractor = VGG16(feature_names='conv5_3', initialW=vgg_initialW)
+        extractor = VGG16(initialW=vgg_initialW)
+        extractor.feature_names = 'conv5_3'
         rpn = RegionProposalNetwork(
             512, 512,
             ratios=ratios,
