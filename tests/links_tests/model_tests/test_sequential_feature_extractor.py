@@ -47,6 +47,9 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
     def test_feature_names(self):
         self.assertEqual(self.link.feature_names, self.feature_names)
 
+    def test_all_feature_names(self):
+        self.assertEqual(self.link.all_feature_names, ['l1', 'f1', 'f2', 'l2'])
+
     def check_call(self, x, expects):
         outs = self.link(x)
 
