@@ -26,6 +26,9 @@ class FeatureExtractionPredictor(chainer.Chain):
         >>> base_model = VGG16()
         >>> model = FeatureExtractionPredictor(base_model)
         >>> prob = model.predict([img])
+        # Predicting multiple features
+        >>> model.extractor.feature_names = ['conv5_3', 'fc7']
+        >>> conv5_3, fc7 = model.predict([img])
 
     """
 
@@ -45,7 +48,7 @@ class FeatureExtractionPredictor(chainer.Chain):
         return self.extractor.mean
 
     def _prepare(self, img):
-        """Transform an image to the input for VGG network.
+        """Prepare an image for feeding it to a model.
 
         This is a standard preprocessing scheme used by feature extraction
         models.
@@ -92,10 +95,10 @@ class FeatureExtractionPredictor(chainer.Chain):
 
         When :obj:`self.do_ten_crop == True`, this extracts features from
         patches that are ten-cropped from images.
-        Otherwise, this extracts features from center-crop of the images.
+        Otherwise, this extracts features from a center crop of the images.
 
-        When using patches from ten-crop, the features for each crop
-        is averaged to compute one feature.
+        When using patches from ten crops, the output is the average
+        of ten features computed from the ten crops.
 
         Given :math:`N` input images, this outputs a batched array with
         batchsize :math:`N`.
