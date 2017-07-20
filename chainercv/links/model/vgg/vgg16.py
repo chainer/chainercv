@@ -110,6 +110,11 @@ class VGG16(SequentialFeatureExtractor):
             initialW = normal.Normal(0.01)
         if initial_bias is None:
             initial_bias = constant.Zero()
+
+        if pretrained_model:
+            # As a sampling process is time-consuming,
+            # we employ a zero initializer for faster computation.
+            initialW = constant.Zero()
         kwargs = {'initialW': initialW, 'initial_bias': initial_bias}
 
         super(VGG16, self).__init__()
