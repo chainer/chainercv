@@ -116,6 +116,8 @@ def vis_label(
 
     legend_handles = list()
     for l in np.unique(label):
+        if l < 0:
+            continue
         legend_handles.append(
             Patch(color=cmap(l / (n_class - 1)), label=label_names[l]))
 
