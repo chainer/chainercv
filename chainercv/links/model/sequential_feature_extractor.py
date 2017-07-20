@@ -43,7 +43,7 @@ class SequentialFeatureExtractor(chainer.Chain):
         >>> # These are features l2_relu and l1_relu.
         >>> feat2, feat1 = model(x)
 
-    Params:
+    Parameters:
         feature_names (string or iterable of strings):
             Names of features that are collected during
             the forward pass.
