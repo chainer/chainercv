@@ -125,7 +125,7 @@ def vis_label(
     if all_label_names_in_legend:
         legend_labels = [l for l in np.unique(label) if l >= 0]
     else:
-        legend_labels = range(len(label_names))
+        legend_labels = range(n_class)
     for l in legend_labels:
         legend_handles.append(
             Patch(color=cmap(l / (n_class - 1)), label=label_names[l]))
