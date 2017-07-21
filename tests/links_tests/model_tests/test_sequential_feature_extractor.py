@@ -125,10 +125,11 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
 
 
 @testing.parameterize(
+    {'feature_names': 'f1', 'index': 1, 'all_feature_names': None},
     {'feature_names': 'f1', 'index': slice(None, 2),
      'all_feature_names': ['l1', 'f1']},
-    {'feature_names': 'f1', 'index': 1, 'all_feature_names': None},
-    {'feature_names': 'f2', 'index': slice(2, -1), 'all_feature_names': ['f2']}
+    {'feature_names': 'f2', 'index': slice(2, -1), 'all_feature_names': ['f2']},
+    {'feature_names': 'l1', 'index': slice(None, 2, 2), 'all_feature_names': ['l1']}
 )
 class TestSequentialFeatureExtractorGetitem(unittest.TestCase):
 
