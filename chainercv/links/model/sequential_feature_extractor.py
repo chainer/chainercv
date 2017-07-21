@@ -43,11 +43,6 @@ class SequentialFeatureExtractor(chainer.Chain):
         >>> # These are features l2_relu and l1_relu.
         >>> feat2, feat1 = model(x)
 
-        >>> # The sequence can be indexed using an integer or a slice.
-        >>> bottom_model = model[:2]
-        >>> bottom_model.all_feature_names
-        ['l1', 'l1_relu']
-
     Parameters:
         feature_names (string or iterable of strings):
             Names of features that are collected during
@@ -111,21 +106,21 @@ class SequentialFeatureExtractor(chainer.Chain):
         self._return_tuple = return_tuple
         self._feature_names = tuple(feature_names)
 
-    def __getitem__(self, index):
-        if isinstance(index, int):
-            return getattr(self, self.all_feature_names[index])
-        elif isinstance(index, slice):
-            ret = self.copy()
-            keep_feature_names = self.all_feature_names[index]
-            for name in list(self.all_feature_names):
-                if name not in keep_feature_names:
-                    delattr(ret, name)
-            return ret
-        else:
-            return super(SequentialFeatureExtractor, self).__getitem__(index)
+    def remove_unused(self):
+        """Delete all features that are not needed for the forward pass.
 
-    def index(self, name):
-        return self.all_feature_names.index(name)
+        """
+        if self._feature_names is None:
+            feature_names = (self.all_feature_names[-1],)
+        else:
+            feature_names = self._feature_names
+
+        # The biggest index among indices of the features that are included
+        # in feature_names.
+        last_index = max(self.all_feature_names.index(name) for
+                         name in feature_names)
+        for name in self.all_feature_names[last_index + 1:]:
+            delattr(self, name)
 
     def __call__(self, x):
         """Forward this model.

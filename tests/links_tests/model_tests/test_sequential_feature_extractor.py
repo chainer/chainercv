@@ -50,12 +50,6 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
     def test_all_feature_names(self):
         self.assertEqual(self.link.all_feature_names, ['l1', 'f1', 'f2', 'l2'])
 
-    def test_index(self):
-        self.assertEqual(self.link.index('l1'), 0)
-        self.assertEqual(self.link.index('f1'), 1)
-        self.assertEqual(self.link.index('f2'), 2)
-        self.assertEqual(self.link.index('l2'), 3)
-
     def check_call(self, x, expects):
         outs = self.link(x)
 
@@ -125,15 +119,12 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
 
 
 @testing.parameterize(
-    {'feature_names': 'f1', 'index': 1, 'all_feature_names': None},
-    {'feature_names': 'f1', 'index': slice(None, 2),
-     'all_feature_names': ['l1', 'f1']},
-    {'feature_names': 'f2', 'index': slice(2, -1),
-     'all_feature_names': ['f2']},
-    {'feature_names': 'l1', 'index': slice(None, 2, 2),
-     'all_feature_names': ['l1']}
+    {'feature_names': 'l1', 'all_feature_names': ['l1']},
+    {'feature_names': 'f1', 'all_feature_names': ['l1', 'f1']},
+    {'feature_names': ['f1', 'f2'], 'all_feature_names': ['l1', 'f1', 'f2']},
+    {'feature_names': None, 'all_feature_names': ['l1', 'f1', 'f2', 'l2']}
 )
-class TestSequentialFeatureExtractorGetitem(unittest.TestCase):
+class TestSequentialFeatureExtractorRemoveUnused(unittest.TestCase):
 
     def setUp(self):
         self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
@@ -149,22 +140,23 @@ class TestSequentialFeatureExtractorGetitem(unittest.TestCase):
             self.link.l2 = self.l2
         self.link.feature_names = self.feature_names
 
-    def check_getitem(self):
-        ret = self.link[self.index]
-        if isinstance(self.index, int):
-            expected_type = type(getattr(
-                self.link, self.link.all_feature_names[self.index]))
-            self.assertIsInstance(ret, expected_type)
-        elif isinstance(self.index, slice):
-            self.assertEqual(ret.all_feature_names, self.all_feature_names)
+    def check_remove_unused(self):
+        self.link.remove_unused()
 
-    def test_getitem_cpu(self):
-        self.check_getitem()
+        self.assertEqual(self.link.all_feature_names, self.all_feature_names)
+        for name in ['l1', 'f1', 'f2', 'l2']:
+            if name in self.all_feature_names:
+                self.assertTrue(hasattr(self.link, name))
+            else:
+                self.assertFalse(hasattr(self.link, name))
+
+    def test_remove_unused_cpu(self):
+        self.check_remove_unused()
 
     @attr.gpu
-    def test_getitem_gpu(self):
+    def test_remove_unused_gpu(self):
         self.link.to_gpu()
-        self.check_getitem()
+        self.check_remove_unused()
 
 
 testing.run_module(__name__, __file__)
