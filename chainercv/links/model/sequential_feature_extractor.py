@@ -106,6 +106,20 @@ class SequentialFeatureExtractor(chainer.Chain):
         self._return_tuple = return_tuple
         self._feature_names = tuple(feature_names)
 
+    def remove_unused(self):
+        """Delete all layers that are not needed for the forward pass.
+
+        """
+        if self._feature_names is None:
+            return
+
+        # The biggest index among indices of the features that are included
+        # in feature_names.
+        last_index = max(self.all_feature_names.index(name) for
+                         name in self._feature_names)
+        for name in self.all_feature_names[last_index + 1:]:
+            delattr(self, name)
+
     def __call__(self, x):
         """Forward this model.
 

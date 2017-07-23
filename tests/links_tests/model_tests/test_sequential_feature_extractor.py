@@ -118,4 +118,45 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
         self.check_deletion()
 
 
+@testing.parameterize(
+    {'feature_names': 'l1', 'all_feature_names': ['l1']},
+    {'feature_names': 'f1', 'all_feature_names': ['l1', 'f1']},
+    {'feature_names': ['f1', 'f2'], 'all_feature_names': ['l1', 'f1', 'f2']},
+    {'feature_names': None, 'all_feature_names': ['l1', 'f1', 'f2', 'l2']}
+)
+class TestSequentialFeatureExtractorRemoveUnused(unittest.TestCase):
+
+    def setUp(self):
+        self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
+        self.f1 = DummyFunc()
+        self.f2 = DummyFunc()
+        self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
+
+        self.link = SequentialFeatureExtractor()
+        with self.link.init_scope():
+            self.link.l1 = self.l1
+            self.link.f1 = self.f1
+            self.link.f2 = self.f2
+            self.link.l2 = self.l2
+        self.link.feature_names = self.feature_names
+
+    def check_remove_unused(self):
+        self.link.remove_unused()
+
+        self.assertEqual(self.link.all_feature_names, self.all_feature_names)
+        for name in ['l1', 'f1', 'f2', 'l2']:
+            if name in self.all_feature_names:
+                self.assertTrue(hasattr(self.link, name))
+            else:
+                self.assertFalse(hasattr(self.link, name))
+
+    def test_remove_unused_cpu(self):
+        self.check_remove_unused()
+
+    @attr.gpu
+    def test_remove_unused_gpu(self):
+        self.link.to_gpu()
+        self.check_remove_unused()
+
+
 testing.run_module(__name__, __file__)
