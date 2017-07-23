@@ -107,7 +107,7 @@ class SequentialFeatureExtractor(chainer.Chain):
         self._feature_names = tuple(feature_names)
 
     def remove_unused(self):
-        """Delete all features that are not needed for the forward pass.
+        """Delete all layers that are not needed for the forward pass.
 
         """
         if self._feature_names is None:
