@@ -111,14 +111,12 @@ class SequentialFeatureExtractor(chainer.Chain):
 
         """
         if self._feature_names is None:
-            feature_names = (self.all_feature_names[-1],)
-        else:
-            feature_names = self._feature_names
+            return
 
         # The biggest index among indices of the features that are included
         # in feature_names.
         last_index = max(self.all_feature_names.index(name) for
-                         name in feature_names)
+                         name in self._feature_names)
         for name in self.all_feature_names[last_index + 1:]:
             delattr(self, name)
 
