@@ -70,16 +70,8 @@ def main():
         model.to_gpu(args.gpu)
         chainer.cuda.get_device(args.gpu).use()
     optimizer = chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9)
+    optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
     optimizer.setup(model)
-
-    update_link = [l for l in faster_rcnn.extractor.children()
-                   if l.name not in ['fc6', 'fc7', 'fc8']]
-    update_link += (list(faster_rcnn.rpn.children()) +
-                    list(faster_rcnn.head.children()))
-    for l in update_link:
-        for p in l.params():
-            p.update_rule.add_hook(
-                chainer.optimizer.WeightDecay(rate=0.0005))
 
     train_data = TransformDataset(train_data, Transform(faster_rcnn))
 

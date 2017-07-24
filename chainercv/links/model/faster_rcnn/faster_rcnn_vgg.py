@@ -104,6 +104,8 @@ class FasterRCNNVGG16(FasterRCNN):
 
         extractor = VGG16(initialW=vgg_initialW)
         extractor.feature_names = 'conv5_3'
+        # Delete all layers after conv5_3.
+        extractor.remove_unused()
         rpn = RegionProposalNetwork(
             512, 512,
             ratios=ratios,
