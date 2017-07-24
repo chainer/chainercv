@@ -20,7 +20,8 @@ def _default_cmap(label):
 
 def vis_label(
         label, label_names=None,
-        label_colors=None, ignore_label_color=(0, 0, 0), alpha=1, ax=None):
+        label_colors=None, ignore_label_color=(0, 0, 0), alpha=1,
+        all_label_names_in_legend=False, ax=None):
     """Visualize a label for semantic segmentation.
 
     Example:
@@ -64,6 +65,12 @@ def vis_label(
             value is :obj:`0`, the figure will be completely transparent.
             The default value is :obj:`1`. This option is useful for
             overlaying the label on the source image.
+        all_label_names_in_legend (bool): Determines whether to include
+            all label names in a legend. If this is :obj:`False`,
+            the legend does not contain the names of unused labels.
+            An unused label is defined as a label that does not appear in
+            :obj:`label`.
+            The default value is :obj:`False`.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
 
@@ -115,8 +122,12 @@ def vis_label(
     ax.imshow(img)
 
     legend_handles = list()
-    for l, label_name in enumerate(label_names):
+    if all_label_names_in_legend:
+        legend_labels = [l for l in np.unique(label) if l >= 0]
+    else:
+        legend_labels = range(n_class)
+    for l in legend_labels:
         legend_handles.append(
-            Patch(color=cmap(l / (n_class - 1)), label=label_name))
+            Patch(color=cmap(l / (n_class - 1)), label=label_names[l]))
 
     return ax, legend_handles
