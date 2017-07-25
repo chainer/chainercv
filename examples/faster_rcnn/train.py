@@ -2,7 +2,6 @@ from __future__ import division
 
 try:
     import matplotlib
-    matplotlib.use('agg')
 except ImportError:
     pass
 
