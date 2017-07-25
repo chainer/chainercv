@@ -1,8 +1,3 @@
-try:
-    import matplotlib
-except ImportError:
-    pass
-
 import argparse
 
 import chainer

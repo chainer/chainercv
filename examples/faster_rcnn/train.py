@@ -1,10 +1,5 @@
 from __future__ import division
 
-try:
-    import matplotlib
-except ImportError:
-    pass
-
 import argparse
 import numpy as np
 
