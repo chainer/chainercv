@@ -102,7 +102,7 @@ def _get_region_ids(region_descriptions_path):
 
 
 def _get_regions(region_descriptions_path):
-    """Region ID (int) -> Region bounding box (tuple of int).
+    """Region ID (int) -> Region bounding box (xmin, ymin).
 
     """
     data_root = download.get_dataset_directory(root)
@@ -116,11 +116,11 @@ def _get_regions(region_descriptions_path):
             for region_description in region_descriptions:
                 for region in region_description['regions']:
                     region_id = region['region_id']  # int
-                    xmin = region['x']
-                    ymin = region['y']
-                    xmax = xmin + region['width']
-                    ymax = ymin + region['height']
-                    regions[region_id] = (xmin, ymin, xmax, ymax)
+                    x_min = region['x']
+                    y_min = region['y']
+                    x_max = x_min + region['width']
+                    y_max = y_min + region['height']
+                    regions[region_id] = (y_min, x_min, y_max, x_max)
         pickle.dump(regions, open(base_path, 'wb'))
         return regions
 
@@ -151,9 +151,12 @@ def _get_phrases(region_descriptions_path, min_token_instances,
                     region_id = region['region_id']
                     tokens = _preprocess_phrase(region['phrase']).split()
                     if max_token_length > 0 and \
-                            len(tokens) <= max_token_length:
-                        phrase = np.zeros(max_token_length, dtype=np.int32)
-                        for i, token in enumerate(tokens):
+                            len(tokens) < max_token_length - 1:
+                        # <sos>, t1, t2,..., tn, <eos>, <eos>,..., <eos>
+                        phrase = np.empty(max_token_length, dtype=np.int32)
+                        phrase.fill(vocab['<eos>'])
+                        phrase[0] = vocab['<sos>']
+                        for i, token in enumerate(tokens, 1):
                             if token not in vocab:
                                 token = '<unk>'
                             token_id = vocab[token]
@@ -217,11 +220,13 @@ def _load_words(region_descriptions_path, min_token_instances):
     for word, count in six.iteritems(word_counts):
         if min_token_instances is None or count >= min_token_instances:
             words.append(word)
-    words.append('<unk>')
-    words.append('<eos>')
 
     # Sort to make sure that word orders are consistent
     words = sorted(words)
+
+    words.insert(0, '<unk>')
+    words.insert(0, '<eos>')
+    words.insert(0, '<sos>')
 
     return words
 
