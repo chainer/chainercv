@@ -152,10 +152,10 @@ def _get_phrases(region_descriptions_path, min_token_instances,
                     tokens = _preprocess_phrase(region['phrase']).split()
                     if max_token_length > 0 and \
                             len(tokens) < max_token_length - 1:
-                        # <sos>, t1, t2,..., tn, <eos>, <eos>,..., <eos>
+                        # <bos>, t1, t2,..., tn, <eos>, <eos>,..., <eos>
                         phrase = np.empty(max_token_length, dtype=np.int32)
                         phrase.fill(vocab['<eos>'])
-                        phrase[0] = vocab['<sos>']
+                        phrase[0] = vocab['<bos>']
                         for i, token in enumerate(tokens, 1):
                             if token not in vocab:
                                 token = '<unk>'
@@ -226,7 +226,7 @@ def _load_words(region_descriptions_path, min_token_instances):
 
     words.insert(0, '<unk>')
     words.insert(0, '<eos>')
-    words.insert(0, '<sos>')
+    words.insert(0, '<bos>')
 
     return words
 
