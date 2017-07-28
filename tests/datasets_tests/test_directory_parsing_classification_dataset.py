@@ -23,11 +23,36 @@ def _save_img_file(path, size, color):
         Image.fromarray(img[0]).save(path)
 
 
+def _setup_depth_one_dummy_data(tmp_dir, n_class, n_img_per_class,
+                                size, color, suffix):
+    for i in range(n_class):
+        class_dir = os.path.join(tmp_dir, 'class_{}'.format(i))
+        os.makedirs(class_dir)
+        for j in range(n_img_per_class):
+            filename = os.path.join(class_dir, 'img{}.{}'.format(j, suffix))
+            _save_img_file(filename, size, color)
+        open(os.path.join(class_dir, 'dummy_file.XXX'), 'a').close()
+
+
+def _setup_depth_two_dummy_data(tmp_dir, n_class, n_img_per_class,
+                                size, color, suffix):
+    for i in range(n_class):
+        class_dir = os.path.join(tmp_dir, 'class_{}'.format(i))
+        os.makedirs(class_dir)
+        nested_dir = os.path.join(class_dir, 'nested_directory')
+        os.makedirs(nested_dir)
+        for j in range(n_img_per_class):
+            filename = os.path.join(nested_dir, 'img{}.{}'.format(j, suffix))
+            _save_img_file(filename, size, color)
+        open(os.path.join(nested_dir, 'dummy_file.XXX'), 'a').close()
+
+
 @testing.parameterize(*testing.product({
     'size': [(48, 32)],
     'color': [True, False],
     'n_class': [2, 3],
-    'suffix': ['bmp', 'jpg', 'png', 'ppm', 'jpeg']}
+    'suffix': ['bmp', 'jpg', 'png', 'ppm', 'jpeg'],
+    'depth': [1, 2]}
 ))
 class TestDirectoryParsingClassificationDataset(unittest.TestCase):
 
@@ -36,15 +61,14 @@ class TestDirectoryParsingClassificationDataset(unittest.TestCase):
     def setUp(self):
         self.tmp_dir = tempfile.mkdtemp()
 
-        for i in range(self.n_class):
-            class_dir = os.path.join(self.tmp_dir, 'class_{}'.format(i))
-            os.makedirs(class_dir)
-            for j in range(self.n_img_per_class):
-                _save_img_file(
-                    os.path.join(class_dir,
-                                 'img{}.{}'.format(j, self.suffix)),
-                    self.size, self.color)
-            open(os.path.join(class_dir, 'dummy_file.XXX'), 'a').close()
+        if self.depth == 1:
+            _setup_depth_one_dummy_data(self.tmp_dir, self.n_class,
+                                        self.n_img_per_class, self.size,
+                                        self.color, self.suffix)
+        elif self.depth == 2:
+            _setup_depth_two_dummy_data(self.tmp_dir, self.n_class,
+                                        self.n_img_per_class, self.size,
+                                        self.color, self.suffix)
 
     def test_directory_parsing_classification_dataset(self):
         dataset = DirectoryParsingClassificationDataset(
