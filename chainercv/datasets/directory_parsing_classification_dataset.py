@@ -47,7 +47,7 @@ def _check_img_ext(filename):
 def _parse_classification_dataset(root, label_names,
                                   check_img_file=_check_img_ext,
                                   numerical_sort=False):
-    img_paths = []
+    img_filenames = []
     labels = []
     for label, label_name in enumerate(label_names):
         label_dir = os.path.join(root, label_name)
@@ -58,13 +58,14 @@ def _parse_classification_dataset(root, label_names,
             walk_dir = sorted(os.walk(label_dir), key=int)
         else:
             walk_dir = sorted(os.walk(label_dir))
-        for cur_dir, _, filenames in walk_dir:
-            for filename in filenames:
-                if check_img_file(filename):
-                    img_paths.append(os.path.join(cur_dir, filename))
+        for cur_dir, _, names in walk_dir:
+            for name in names:
+                img_filename = os.path.join(cur_dir, name)
+                if check_img_file(img_filename):
+                    img_filenames.append(img_filename)
                     labels.append(label)
 
-    return img_paths, np.array(labels, np.int32)
+    return img_filenames, np.array(labels, np.int32)
 
 
 class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
@@ -94,7 +95,7 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
 
         >>> from chainercv.dataset import DirectoryParsingClassificationDataset
         >>> dataset = DirectoryParsingClassificationDataset('root')
-        >>> dataset.img_paths
+        >>> dataset.filenames
         ['root/class_0/img_0.png', 'root/class_0/img_1.png',
         'root_class_1/img_0.png']
         >>> dataset.labels
@@ -122,13 +123,13 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
         if check_img_file is None:
             check_img_file = _check_img_ext
 
-        self.img_paths, self.labels = _parse_classification_dataset(
+        self.img_filenames, self.labels = _parse_classification_dataset(
             root, label_names, check_img_file, numerical_sort)
 
     def __len__(self):
-        return len(self.img_paths)
+        return len(self.img_filenames)
 
     def get_example(self, i):
-        img = read_image(self.img_paths[i], color=self.color)
+        img = read_image(self.img_filenames[i], color=self.color)
         label = self.labels[i]
         return img, label
