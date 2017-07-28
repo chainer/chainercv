@@ -55,11 +55,12 @@ def _parse_classification_dataset(root, label_names,
             continue
 
         if numerical_sort:
-            walk_dir = sorted(os.walk(label_dir), key=int)
+            sorted_func = lambda x: sorted(x, key=int)
         else:
-            walk_dir = sorted(os.walk(label_dir))
+            sorted_func = lambda x: sorted(x)
+        walk_dir = sorted_func(os.walk(label_dir))
         for cur_dir, _, names in walk_dir:
-            for name in names:
+            for name in sorted_func(names):
                 img_filename = os.path.join(cur_dir, name)
                 if check_img_file(img_filename):
                     img_filenames.append(img_filename)
