@@ -19,7 +19,7 @@ def directory_parsing_label_names(root, numerical_sort=False):
     Args:
         root (str): The root directory.
         numerical_sort (bool): Label names are sorted numerically.
-            This means that :obj:`'2'` is before :obj:`10`,
+            This means that :obj:`2` is before :obj:`10`,
             which is not the case when string sort is used.
             The default value is :obj:`False`.
 
