@@ -74,17 +74,18 @@ def _parse_classification_dataset(root, label_names,
 class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
     """A classification dataset for directories whose names are label names.
 
-    The label names are names of the directories that locate a layer below the
-    root directory.
+    The label names are the names of the directories that locate a layer below
+    the root directory.
     All images locating under the subdirectoies will be categorized to classes
     with subdirectory names.
     An image is parsed only when the function :obj:`check_img_file`
     returns :obj:`True` when the path to the image is given as an argument.
-    If this is :obj:`None`, the path with any image extensions will be parsed.
+    If :obj:`check_img_file` is :obj:`None`,
+    the path with any image extensions will be parsed.
 
     Example:
 
-        A directory structure is assumed to be one below.
+        An example directory structure that is assumed by this class.
 
         .. code::
 
@@ -111,7 +112,7 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
         color (bool): If :obj:`True`, this dataset read images
             as color images.
         numerical_sort (bool): Label names are sorted numerically.
-            This means that :obj:`'2'` is before :obj:`10`,
+            This means that :obj:`2` is before :obj:`10`,
             which is not the case when string sort is used.
             The default value is :obj:`False`.
 
