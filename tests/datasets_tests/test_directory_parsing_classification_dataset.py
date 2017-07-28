@@ -79,6 +79,13 @@ class TestDirectoryParsingClassificationDataset(unittest.TestCase):
         assert_is_classification_dataset(
             dataset, self.n_class, color=self.color)
 
+        img_names = [os.path.split(filename)[-1]
+                     for filename in dataset.img_filenames]
+        self.assertEqual(
+            img_names[:self.n_img_per_class],
+            ['img{}.{}'.format(i, self.suffix)
+             for i in range(self.n_img_per_class)])
+
         label_names = directory_parsing_label_names(self.tmp_dir)
         self.assertEqual(
             label_names, ['class_{}'.format(i) for i in range(self.n_class)])
