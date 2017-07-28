@@ -85,7 +85,7 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
 
     Example:
 
-        An example directory structure that is assumed by this class.
+        A directory structure should be one like below.
 
         .. code::
 
