@@ -57,6 +57,8 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
             are also reported with the keys
             :obj:`'iou/<label_names[l]>'` and
             :obj:`'class_accuracy/<label_names[l]>'`.
+        device: Device to which the training data is sent. Negative value
+            indicates the host memory (CPU).
 
     """
 
@@ -64,9 +66,9 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
     default_name = 'validation'
     priority = chainer.training.PRIORITY_WRITER
 
-    def __init__(self, iterator, target, label_names=None):
+    def __init__(self, iterator, target, label_names=None, device=None):
         super(SemanticSegmentationEvaluator, self).__init__(
-            iterator, target)
+            iterator, target, device=device)
         self.label_names = label_names
 
     def evaluate(self):
