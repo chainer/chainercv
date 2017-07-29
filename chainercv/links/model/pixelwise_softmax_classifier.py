@@ -28,7 +28,6 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
         super(PixelwiseSoftmaxClassifier, self).__init__()
         with self.init_scope():
             self.predictor = predictor
-        self.n_class = predictor.n_class
         self.ignore_label = ignore_label
         if class_weight is not None:
             self.class_weight = np.asarray(class_weight, dtype=np.float32)
