@@ -48,6 +48,8 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
         label_names (iterable of strings): An iterable of names of classes.
             If this value is specified, average precision for each class is
             also reported with the key :obj:`'ap/<label_names[l]>'`.
+        device: Device to which the training data is sent. Negative value
+            indicates the host memory (CPU).
 
     """
 
@@ -56,9 +58,10 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
     priority = chainer.training.PRIORITY_WRITER
 
     def __init__(
-            self, iterator, target, use_07_metric=False, label_names=None):
+            self, iterator, target, use_07_metric=False, label_names=None,
+            device=None):
         super(DetectionVOCEvaluator, self).__init__(
-            iterator, target)
+            iterator, target, device=device)
         self.use_07_metric = use_07_metric
         self.label_names = label_names
 
