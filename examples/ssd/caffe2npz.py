@@ -14,32 +14,30 @@ def rename(name):
         i, j = map(int, m.groups())
         if i >= 6:
             i += 2
-        return 'extractor/conv{:d}_{:d}'.format(i, j), True
+        return 'extractor/conv{:d}_{:d}'.format(i, j)
 
     m = re.match(r'fc([67])$', name)
     if m:
-        return 'extractor/conv{:d}'.format(int(m.group(1))), True
+        return 'extractor/conv{:d}'.format(int(m.group(1)))
 
     if name == r'conv4_3_norm':
-        return 'extractor/norm4', True
+        return 'extractor/norm4'
 
     m = re.match(r'conv4_3_norm_mbox_(loc|conf)$', name)
     if m:
-        return 'multibox/{:s}/0'.format(m.group(1)), True
+        return 'multibox/{:s}/0'.format(m.group(1))
 
     m = re.match(r'fc7_mbox_(loc|conf)$', name)
     if m:
-        return ('multibox/{:s}/1'.format(m.group(1))), True
+        return ('multibox/{:s}/1'.format(m.group(1)))
 
     m = re.match(r'conv(\d+)_2_mbox_(loc|conf)$', name)
     if m:
         i, type_ = int(m.group(1)), m.group(2)
         if i >= 6:
-            return 'multibox/{:s}/{:d}'.format(type_, i - 4), True
-        else:
-            return name, True
+            return 'multibox/{:s}/{:d}'.format(type_, i - 4)
 
-    return name, False
+    return name
 
 
 class SSDCaffeFunction(caffe.CaffeFunction):
@@ -49,20 +47,23 @@ class SSDCaffeFunction(caffe.CaffeFunction):
         super(SSDCaffeFunction, self).__init__(model_path)
 
     def __setattr__(self, name, link):
-        new_name, match = rename(name)
+        if self.within_init_scope:
+            new_name = rename(name)
 
-        if new_name == 'extractor/conv1_1':
-            # BGR -> RGB
-            link.W.data[:, ::-1] = link.W.data
-            print('{:s} -> {:s} (BGR -> RGB)'.format(name, new_name))
-        elif new_name.startswith('multibox/loc/'):
-            # xy -> yx
-            for data in (link.W.data, link.b.data):
-                data = data.reshape((-1, 4) + data.shape[1:])
-                data[:, [1, 0, 3, 2]] = data.copy()
-            print('{:s} -> {:s} (xy -> yx)'.format(name, new_name))
-        elif match:
-            print('{:s} -> {:s}'.format(name, new_name))
+            if new_name == 'extractor/conv1_1':
+                # BGR -> RGB
+                link.W.data[:, ::-1] = link.W.data
+                print('{:s} -> {:s} (BGR -> RGB)'.format(name, new_name))
+            elif new_name.startswith('multibox/loc/'):
+                # xy -> yx
+                for data in (link.W.data, link.b.data):
+                    data = data.reshape((-1, 4) + data.shape[1:])
+                    data[:, [1, 0, 3, 2]] = data.copy()
+                print('{:s} -> {:s} (xy -> yx)'.format(name, new_name))
+            else:
+                print('{:s} -> {:s}'.format(name, new_name))
+        else:
+            new_name = name
 
         super(SSDCaffeFunction, self).__setattr__(new_name, link)
 
