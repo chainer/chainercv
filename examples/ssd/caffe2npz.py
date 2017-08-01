@@ -47,7 +47,7 @@ class SSDCaffeFunction(caffe.CaffeFunction):
         super(SSDCaffeFunction, self).__init__(model_path)
 
     def __setattr__(self, name, link):
-        if self.within_init_scope:
+        if self.within_init_scope and name != '_within_init_scoep':
             new_name = rename(name)
 
             if new_name == 'extractor/conv1_1':
