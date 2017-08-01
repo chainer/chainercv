@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 import re
 
+from chainer import Link
 import chainer.links.caffe.caffe_function as caffe
 from chainer import serializers
 
@@ -47,7 +48,7 @@ class SSDCaffeFunction(caffe.CaffeFunction):
         super(SSDCaffeFunction, self).__init__(model_path)
 
     def __setattr__(self, name, link):
-        if self.within_init_scope and name != '_within_init_scoep':
+        if self.within_init_scope and instanceof(link, Link):
             new_name = rename(name)
 
             if new_name == 'extractor/conv1_1':
