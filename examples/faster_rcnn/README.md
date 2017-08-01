@@ -51,6 +51,12 @@ You can train the model with the following code.
 $ python train.py [--gpu <gpu>]
 ```
 
+PlotReport extension uses matplotlib. If you got `RuntimeError: Invalid DISPLAY variable` error on Linux environment, adding an environment variable specification is recommended:
+
+```
+$ MPLBACKEND=Agg python train.py [--gpu <gpu>]
+```
+
 
 ### Evaluation
 

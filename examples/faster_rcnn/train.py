@@ -1,11 +1,5 @@
 from __future__ import division
 
-try:
-    import matplotlib
-    matplotlib.use('agg')
-except ImportError:
-    pass
-
 import argparse
 import numpy as np
 
