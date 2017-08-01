@@ -47,17 +47,17 @@ class SSDCaffeFunction(caffe.CaffeFunction):
         print('loading weights from {:s} ... '.format(model_path))
         super(SSDCaffeFunction, self).__init__(model_path)
 
-    def __setattr__(self, name, link):
-        if self.within_init_scope and isinstance(link, Link):
+    def __setattr__(self, name, value):
+        if self.within_init_scope and isinstance(value, Link):
             new_name = rename(name)
 
             if new_name == 'extractor/conv1_1':
                 # BGR -> RGB
-                link.W.data[:, ::-1] = link.W.data
+                value.W.data[:, ::-1] = value.W.data
                 print('{:s} -> {:s} (BGR -> RGB)'.format(name, new_name))
             elif new_name.startswith('multibox/loc/'):
                 # xy -> yx
-                for data in (link.W.data, link.b.data):
+                for data in (value.W.data, value.b.data):
                     data = data.reshape((-1, 4) + data.shape[1:])
                     data[:, [1, 0, 3, 2]] = data.copy()
                 print('{:s} -> {:s} (xy -> yx)'.format(name, new_name))
@@ -66,7 +66,7 @@ class SSDCaffeFunction(caffe.CaffeFunction):
         else:
             new_name = name
 
-        super(SSDCaffeFunction, self).__setattr__(new_name, link)
+        super(SSDCaffeFunction, self).__setattr__(new_name, value)
 
     @caffe._layer('Normalize', None)
     def _setup_normarize(self, layer):
