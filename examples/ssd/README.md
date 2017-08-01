@@ -6,9 +6,11 @@ PASCAL VOC2007 Test
 | Model | Original | ChainerCV (weight conversion) | ChainerCV (train) |
 |:-:|:-:|:-:|:-:|
 | SSD300 | 77.5 % [2] | 77.8 % | 77.5 % |
-| SSD512 | 79.5 % [2] | 79.7 % | - |
+| SSD512 | 79.5 % [2] | 79.7 % | 80.1 % * |
 
 Scores are mean Average Precision (mAP) with PASCAL VOC2007 metric.
+
+\*: We set batchsize to 24 because of memory limitation. The original paper used 32.
 
 ## Demo
 Detect objects in an given image. This demo downloads Pascal VOC pretrained model automatically if a pretrained model path is not given.
@@ -29,7 +31,7 @@ The evaluation can be conducted using [`chainercv/examples/detection/eval_voc07.
 You can train the model with the following code.
 Note that this code requires `cv2` module.
 ```
-$ python train.py [--gpu <gpu>]
+$ python train.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--gpu <gpu>]
 ```
 
 ## References
