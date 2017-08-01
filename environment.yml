@@ -1,7 +1,7 @@
 name: chainercv
 channels:
 - !!python/unicode
-  'conda-forge'
+  'menpo'
 - !!python/unicode
   'defaults'
 dependencies:

@@ -27,6 +27,7 @@ install:
   - conda info -a
 
   - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
+      conda config --add channels menpo
       conda env create -f environment.yml;
       source activate chainercv;
     else
