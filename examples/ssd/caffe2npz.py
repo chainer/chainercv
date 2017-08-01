@@ -36,6 +36,8 @@ def rename(name):
         i, type_ = int(m.group(1)), m.group(2)
         if i >= 6:
             return 'multibox/{:s}/{:d}'.format(type_, i - 4), True
+        else:
+            return name, True
 
     return name, False
 
