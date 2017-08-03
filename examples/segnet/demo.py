@@ -25,8 +25,8 @@ def main():
         pretrained_model=args.pretrained_model)
 
     if args.gpu >= 0:
-        model.to_gpu(args.gpu)
         chainer.cuda.get_device(args.gpu).use()
+        model.to_gpu()
 
     img = utils.read_image(args.image, color=True)
     labels = model.predict([img])
