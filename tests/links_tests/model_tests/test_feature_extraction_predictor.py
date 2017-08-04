@@ -66,8 +66,8 @@ class TestFeatureExtractionPredictorPredict(unittest.TestCase):
 
 
 @testing.parameterize(
-    {'do_ten_crop': False, 'size': (256, 192)},
-    {'do_ten_crop': True, 'size': (256, 192)}
+    {'do_ten_crop': False, 'crop_size': 192},
+    {'do_ten_crop': True, 'crop_size': 192}
 )
 class TestFeatureExtractionPredictorPrepare(unittest.TestCase):
 
@@ -76,12 +76,14 @@ class TestFeatureExtractionPredictorPrepare(unittest.TestCase):
     def setUp(self):
         self.link = FeatureExtractionPredictor(
             DummyFeatureExtractor((1,), None),
-            size=self.size,
+            crop_size=self.crop_size,
             do_ten_crop=self.do_ten_crop)
         if self.do_ten_crop:
-            self.expected_shape = (10, self.n_channel) + self.size
+            self.expected_shape = (
+                10, self.n_channel, self.crop_size, self.crop_size)
         else:
-            self.expected_shape = (self.n_channel,) + self.size
+            self.expected_shape = (
+                self.n_channel, self.crop_size, self.crop_size)
 
     def test(self):
         out = self.link._prepare(

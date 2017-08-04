@@ -33,11 +33,11 @@ class FeatureExtractionPredictor(chainer.Chain):
     """
 
     def __init__(self, extractor,
-                 size=(224, 224), scale_size=256,
+                 crop_size=224, scale_size=256,
                  do_ten_crop=False):
         super(FeatureExtractionPredictor, self).__init__()
         self.scale_size = scale_size
-        self.size = size
+        self.crop_size = (crop_size, crop_size)
         self.do_ten_crop = do_ten_crop
 
         with self.init_scope():
@@ -54,7 +54,7 @@ class FeatureExtractionPredictor(chainer.Chain):
         models.
         First, the image is scaled so that the length of the smaller edge is
         :math:`scale_size`.
-        Next, the image is center cropped or ten cropped to :math:`size`.
+        Next, the image is center cropped or ten cropped to :math:`crop_size`.
         Last, the image is mean subtracted by a mean image array :obj:`mean`.
 
         Args:
@@ -68,10 +68,10 @@ class FeatureExtractionPredictor(chainer.Chain):
         """
         img = scale(img, size=self.scale_size)
         if self.do_ten_crop:
-            img = ten_crop(img, self.size)
+            img = ten_crop(img, self.crop_size)
             img -= self.mean[np.newaxis]
         else:
-            img = center_crop(img, self.size)
+            img = center_crop(img, self.crop_size)
             img -= self.mean
 
         return img
@@ -114,7 +114,7 @@ class FeatureExtractionPredictor(chainer.Chain):
 
         """
         imgs = self.xp.asarray([self._prepare(img) for img in imgs])
-        shape = (-1, imgs.shape[-3]) + self.size
+        shape = (-1, imgs.shape[-3]) + self.crop_size
         imgs = imgs.reshape(shape)
 
         with chainer.function.no_backprop_mode():
