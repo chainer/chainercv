@@ -43,6 +43,7 @@ def main():
     parser.add_argument('--pretrained_model')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
+    parser.add_argument('--crop', type=str, default='center')
     args = parser.parse_args()
 
     dataset = DirectoryParsingClassificationDataset(args.val)
@@ -53,12 +54,12 @@ def main():
 
     if args.model == 'vgg16':
         if args.pretrained_model:
-            model = VGG16(pretrained_model=args.pretrained_model,
-                          n_class=len(label_names))
+            extractor = VGG16(pretrained_model=args.pretrained_model,
+                              n_class=len(label_names))
         else:
-            model = VGG16(pretrained_model='imagenet',
-                          n_class=len(label_names))
-        model = FeatureExtractionPredictor(model)
+            extractor = VGG16(pretrained_model='imagenet',
+                              n_class=len(label_names))
+    model = FeatureExtractionPredictor(extractor, crop=args.crop)
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()

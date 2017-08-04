@@ -10,7 +10,7 @@ The results can be reproduced by the following command.
 The score is reported using a weight converted from a weight trained by Caffe.
 
 ```
-$ python eval_imagenet.py <path_to_val_dataset> [--model vgg16] [--pretrained_model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
+$ python eval_imagenet.py <path_to_val_dataset> [--model vgg16] [--pretrained_model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>] [--crop center|10]
 ```
 
 
