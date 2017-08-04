@@ -60,6 +60,9 @@ class Convolution2DBlock(chainer.Chain):
     def __init__(self, in_channels, out_channels, ksize=None,
                  activation=relu, use_bn=False,
                  conv_kwargs=dict(), bn_kwargs=dict()):
+        if ksize is None:
+            out_channels, ksize, in_channels = in_channels, out_channels, None
+
         self.use_bn = use_bn
         self.activation = activation
         super(Convolution2DBlock, self).__init__()
