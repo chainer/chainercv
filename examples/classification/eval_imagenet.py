@@ -51,9 +51,9 @@ def main():
 
     if args.model == 'vgg16':
         if args.pretrained_model:
-            model = VGG16(pretrained_model=args.pretrained_model)
+            model = VGG16(pretrained_model=args.pretrained_model, n_class=1000)
         else:
-            model = VGG16(pretrained_model='imagenet')
+            model = VGG16(pretrained_model='imagenet', n_class=1000)
         model = FeatureExtractionPredictor(model)
 
     if args.gpu >= 0:
