@@ -8,6 +8,7 @@ import chainer
 import chainer.functions as F
 from chainer import iterators
 
+from chainercv.datasets import directory_parsing_label_names
 from chainercv.datasets import DirectoryParsingClassificationDataset
 from chainercv.links import FeatureExtractionPredictor
 from chainercv.links import VGG16
@@ -45,15 +46,18 @@ def main():
     args = parser.parse_args()
 
     dataset = DirectoryParsingClassificationDataset(args.val)
+    label_names = directory_parsing_label_names(args.val)
     iterator = iterators.MultiprocessIterator(
         dataset, args.batchsize, repeat=False, shuffle=False,
         n_processes=6, shared_mem=300000000)
 
     if args.model == 'vgg16':
         if args.pretrained_model:
-            model = VGG16(pretrained_model=args.pretrained_model, n_class=1000)
+            model = VGG16(pretrained_model=args.pretrained_model,
+                          n_class=len(label_names))
         else:
-            model = VGG16(pretrained_model='imagenet', n_class=1000)
+            model = VGG16(pretrained_model='imagenet',
+                          n_class=len(label_names))
         model = FeatureExtractionPredictor(model)
 
     if args.gpu >= 0:
