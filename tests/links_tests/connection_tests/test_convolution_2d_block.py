@@ -10,10 +10,10 @@ from chainer.testing import attr
 from chainercv.links import Convolution2DBlock
 
 
-@testing.parameterize(
-    {'use_bn': True},
-    {'use_bn': False}
-)
+@testing.parameterize(*testing.product({
+    'use_bn': [True, False],
+    'args_style': ['explicit', 'None', 'omit']
+}))
 class TestConvolution2DBlock(unittest.TestCase):
 
     in_channels = 3
@@ -27,10 +27,21 @@ class TestConvolution2DBlock(unittest.TestCase):
             -1, 1, (5, self.in_channels, 5, 5)).astype(np.float32)
         self.gy = np.random.uniform(
             -1, 1, (5, self.out_channels, 5, 5)).astype(np.float32)
-        self.l = Convolution2DBlock(
-            self.in_channels, self.out_channels, self.ksize, self.stride,
-            self.pad, use_bn=self.use_bn
-        )
+        if self.args_style == 'explicit':
+            self.l = Convolution2DBlock(
+                self.in_channels, self.out_channels, self.ksize,
+                use_bn=self.use_bn,
+                conv_kwargs={'stride': self.stride, 'pad': self.pad})
+        elif self.args_style == 'None':
+            self.l = Convolution2DBlock(
+                None, self.out_channels, self.ksize,
+                use_bn=self.use_bn,
+                conv_kwargs={'stride': self.stride, 'pad': self.pad})
+        elif self.args_style == 'omit':
+            self.l = Convolution2DBlock(
+                self.out_channels, self.ksize,
+                use_bn=self.use_bn,
+                conv_kwargs={'stride': self.stride, 'pad': self.pad})
 
     def check_backward(self, x_data, y_grad):
         x = chainer.Variable(x_data)
