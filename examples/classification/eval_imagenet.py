@@ -65,11 +65,11 @@ def main():
         model.predict, iterator, hook=ProgressHook(len(dataset)))
     del imgs
 
-    pred_labels, = pred_values
-    gt_labels, = gt_values
+    pred_scores, = pred_values
+    gt_scores, = gt_values
 
     accuracy = F.accuracy(
-        np.array(list(pred_labels)), np.array(list(gt_labels))).data
+        np.array(list(pred_scores)), np.array(list(gt_scores))).data
     print()
     print('Top 1 Error {}'.format(1. - accuracy))
 
