@@ -40,7 +40,7 @@ def calc_semantic_segmentation_confusion(pred_labels, gt_labels):
             raise ValueError('ndim of labels should be two.')
         if pred_label.shape != gt_label.shape:
             raise ValueError('Shape of ground truth and prediction should'
-                             'be same.')
+                             ' be same.')
         pred_label = pred_label.flatten()
         gt_label = gt_label.flatten()
 
