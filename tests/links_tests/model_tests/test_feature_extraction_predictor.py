@@ -29,17 +29,17 @@ class DummyFeatureExtractor(chainer.Chain):
 
 
 @testing.parameterize(
-    {'shape_0': (5, 10, 10), 'shape_1': None, 'do_ten_crop': False},
-    {'shape_0': (8,), 'shape_1': None, 'do_ten_crop': True},
-    {'shape_0': (5, 10, 10), 'shape_1': (12,), 'do_ten_crop': False},
-    {'shape_0': (8,), 'shape_1': (10,), 'do_ten_crop': True},
+    {'shape_0': (5, 10, 10), 'shape_1': None, 'crop': 'center'},
+    {'shape_0': (8,), 'shape_1': None, 'crop': '10'},
+    {'shape_0': (5, 10, 10), 'shape_1': (12,), 'crop': 'center'},
+    {'shape_0': (8,), 'shape_1': (10,), 'crop': '10'},
 )
 class TestFeatureExtractionPredictorPredict(unittest.TestCase):
 
     def setUp(self):
         self.link = FeatureExtractionPredictor(
             DummyFeatureExtractor(self.shape_0, self.shape_1),
-            do_ten_crop=self.do_ten_crop)
+            crop=self.crop)
         self.x = np.random.uniform(size=(3, 3, 32, 32)).astype(np.float32)
 
         self.one_output = self.shape_1 is None
@@ -66,8 +66,8 @@ class TestFeatureExtractionPredictorPredict(unittest.TestCase):
 
 
 @testing.parameterize(
-    {'do_ten_crop': False, 'crop_size': 192},
-    {'do_ten_crop': True, 'crop_size': 192}
+    {'crop': 'center', 'crop_size': 192},
+    {'crop': '10', 'crop_size': 192}
 )
 class TestFeatureExtractionPredictorPrepare(unittest.TestCase):
 
@@ -76,14 +76,13 @@ class TestFeatureExtractionPredictorPrepare(unittest.TestCase):
     def setUp(self):
         self.link = FeatureExtractionPredictor(
             DummyFeatureExtractor((1,), None),
-            crop_size=self.crop_size,
-            do_ten_crop=self.do_ten_crop)
-        if self.do_ten_crop:
+            crop_size=self.crop_size, crop=self.crop)
+        if self.crop == 'center':
+            self.expected_shape = (
+                1, self.n_channel, self.crop_size, self.crop_size)
+        elif self.crop == '10':
             self.expected_shape = (
                 10, self.n_channel, self.crop_size, self.crop_size)
-        else:
-            self.expected_shape = (
-                self.n_channel, self.crop_size, self.crop_size)
 
     def test(self):
         out = self.link._prepare(

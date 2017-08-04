@@ -11,7 +11,7 @@ from chainercv.transforms import ten_crop
 
 class FeatureExtractionPredictor(chainer.Chain):
 
-    """Wrapper class that adds predict method to a feature extraction model.
+    """Wrapper that adds a prediction method to a feature extraction model.
 
     The :meth:`predict` takes three steps to make predictions.
 
@@ -30,15 +30,33 @@ class FeatureExtractionPredictor(chainer.Chain):
         >>> model.extractor.feature_names = ['conv5_3', 'fc7']
         >>> conv5_3, fc7 = model.predict([img])
 
+    When :obj:`self.crop == 'center'`, :meth:`predict` extracts features from
+    the center crop of the input images.
+    When :obj:`self.crop == '10'`, :meth:`predict` extracts features from
+    patches that are ten-cropped from the input images.
+
+    When extracting more than one crops from an image, the output of
+    :meth:`predict` returns average of the features computed from the crops.
+
+    Args:
+        extractor: A feature extraction model. This is a callable chain
+            that takes a batch of images and returns a variable or
+            tuple of variables
+        crop_size (int): The width and the height of a crop.
+        scale_size (int): Inside :meth:`_prepare`, an image is
+            resized so that its shorter edge has length equal
+            to :obj:`scale_size`.
+        crop ({'center', '10'}): Determines the style of cropping.
+
     """
 
     def __init__(self, extractor,
                  crop_size=224, scale_size=256,
-                 do_ten_crop=False):
+                 crop='center'):
         super(FeatureExtractionPredictor, self).__init__()
         self.scale_size = scale_size
         self.crop_size = (crop_size, crop_size)
-        self.do_ten_crop = do_ten_crop
+        self.crop = crop
 
         with self.init_scope():
             self.extractor = extractor
@@ -63,20 +81,21 @@ class FeatureExtractionPredictor(chainer.Chain):
 
         Returns:
             ~numpy.ndarray:
-            A preprocessed image.
+            A preprocessed image. This is 4D array whose batch size is
+            the number of crops.
 
         """
         img = scale(img, size=self.scale_size)
-        if self.do_ten_crop:
-            img = ten_crop(img, self.crop_size)
-            img -= self.mean[np.newaxis]
-        else:
-            img = center_crop(img, self.crop_size)
-            img -= self.mean
+        if self.crop == '10':
+            imgs = ten_crop(img, self.crop_size)
+            imgs -= self.mean[np.newaxis]
+        elif self.crop == 'center':
+            imgs = center_crop(img, self.crop_size)[np.newaxis]
+            imgs -= self.mean[np.newaxis]
 
-        return img
+        return imgs
 
-    def _average_ten_crop(self, y):
+    def _average_crops(self, y, n_crop):
         if y.ndim == 4:
             warnings.warn(
                 'Four dimensional features are averaged. '
@@ -84,21 +103,13 @@ class FeatureExtractionPredictor(chainer.Chain):
                 'their spatial information would be lost.')
 
         xp = chainer.cuda.get_array_module(y)
-        n = y.shape[0] // 10
-        y_shape = y.shape[1:]
-        y = y.reshape((n, 10) + y_shape)
-        y = xp.sum(y, axis=1) / 10
+        n = y.shape[0] // n_crop
+        y = y.reshape((n, n_crop) + y.shape[1:])
+        y = xp.sum(y, axis=1) / n_crop
         return y
 
     def predict(self, imgs):
         """Predict features from images.
-
-        When :obj:`self.do_ten_crop == True`, this extracts features from
-        patches that are ten-cropped from images.
-        Otherwise, this extracts features from a center crop of the images.
-
-        When using patches from ten crops, the output is the average
-        of ten features computed from the ten crops.
 
         Given :math:`N` input images, this outputs a batched array with
         batchsize :math:`N`.
@@ -114,6 +125,7 @@ class FeatureExtractionPredictor(chainer.Chain):
 
         """
         imgs = self.xp.asarray([self._prepare(img) for img in imgs])
+        n_crop = imgs.shape[-4]
         shape = (-1, imgs.shape[-3]) + self.crop_size
         imgs = imgs.reshape(shape)
 
@@ -125,13 +137,13 @@ class FeatureExtractionPredictor(chainer.Chain):
             output = []
             for activation in activations:
                 activation = activation.data
-                if self.do_ten_crop:
-                    activation = self._average_ten_crop(activation)
+                if n_crop > 1:
+                    activation = self._average_crops(activation, n_crop)
                 output.append(cuda.to_cpu(activation))
             output = tuple(output)
         else:
             output = cuda.to_cpu(activations.data)
-            if self.do_ten_crop:
-                output = self._average_ten_crop(output)
+            if n_crop > 1:
+                output = self._average_crops(output, n_crop)
 
         return output
