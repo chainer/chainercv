@@ -76,7 +76,7 @@ class VGG16(SequentialFeatureExtractor):
         n_class (int): The dimension of the output of fc8.
         mean (numpy.ndarray): A mean image. If :obj:`None` and
             a supported pretrained model is used,
-            the mean image used to train the pretrained model will be used.
+            the mean value used to train the pretrained model will be used.
         initialW (callable): Initializer for the weights.
         initial_bias (callable): Initializer for the biases.
 
