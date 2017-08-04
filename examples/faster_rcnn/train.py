@@ -70,8 +70,8 @@ def main():
         model.to_gpu(args.gpu)
         chainer.cuda.get_device(args.gpu).use()
     optimizer = chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9)
-    optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
     optimizer.setup(model)
+    optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
     train_data = TransformDataset(train_data, Transform(faster_rcnn))
 
