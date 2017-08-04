@@ -13,11 +13,11 @@ class FeatureExtractionPredictor(chainer.Chain):
 
     """Wrapper that adds a prediction method to a feature extraction model.
 
-    The :meth:`predict` takes three steps to make predictions.
+    The :meth:`predict` takes three steps to make a prediction.
 
-    1. Preprocess images
+    1. Preprocess input images
     2. Forward the preprocessed images to the network
-    3. Average features in the case when ten-crop is used.
+    3. Average features in the case when more than one crops are extracted.
 
     Example:
 
@@ -40,11 +40,11 @@ class FeatureExtractionPredictor(chainer.Chain):
 
     Args:
         extractor: A feature extraction model. This is a callable chain
-            that takes a batch of images and returns a variable or
+            that takes a batch of images and returns a variable or a
             tuple of variables
-        crop_size (int): The width and the height of a crop.
+        crop_size (int): The width and the height of a cropped image.
         scale_size (int): Inside :meth:`_prepare`, an image is
-            resized so that its shorter edge has length equal
+            resized so that the length of the shorter edge is equal
             to :obj:`scale_size`.
         crop ({'center', '10'}): Determines the style of cropping.
 
@@ -72,8 +72,9 @@ class FeatureExtractionPredictor(chainer.Chain):
         models.
         First, the image is scaled so that the length of the smaller edge is
         :math:`scale_size`.
-        Next, the image is center cropped or ten cropped to :math:`crop_size`.
-        Last, the image is mean subtracted by a mean image array :obj:`mean`.
+        Next, the image is cropped into patches with height and width equal to
+        :math:`crop_size`.
+        Last, the image is mean subtracted an array :obj:`mean`.
 
         Args:
             img (~numpy.ndarray): An image. This is in CHW and RGB format.
@@ -111,7 +112,7 @@ class FeatureExtractionPredictor(chainer.Chain):
     def predict(self, imgs):
         """Predict features from images.
 
-        Given :math:`N` input images, this outputs a batched array with
+        Given :math:`N` input images, this method outputs a batched array with
         batchsize :math:`N`.
 
         Args:
