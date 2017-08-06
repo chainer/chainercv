@@ -75,14 +75,13 @@ Here are links to the weights trained using ChainerCV.
 
 ##### Faster RCNN VGG16 trained with VOC07
 
-[1](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_0.npz) 
-[2](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_1.npz) 
-[3](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_2.npz) 
-[4](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_3.npz) 
-[5](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_4.npz)
-
-[2](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_1.npz) scored the median mAP (70.24%).
-
+| Trial | mAP |
+|:-:|:-:|
+|  [1](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_0.npz) | 70.21 % |
+|  [2](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_1.npz) | 70.23 % |
+|  [3](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_2.npz) | 69.44 % |
+|  [4](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_3.npz) | 70.94 % |
+|  [5](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_4.npz) | 70.62 % |
 
 
 ### References
