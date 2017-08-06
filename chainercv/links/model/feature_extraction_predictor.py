@@ -5,6 +5,7 @@ import chainer
 from chainer import cuda
 
 from chainercv.transforms import center_crop
+from chainercv.transforms import resize
 from chainercv.transforms import scale
 from chainercv.transforms import ten_crop
 
@@ -42,10 +43,13 @@ class FeatureExtractionPredictor(chainer.Chain):
         extractor: A feature extraction model. This is a callable chain
             that takes a batch of images and returns a variable or a
             tuple of variables
-        crop_size (int): The width and the height of a cropped image.
-        scale_size (int): Inside :meth:`_prepare`, an image is
-            resized so that the length of the shorter edge is equal
-            to :obj:`scale_size`.
+        crop_size (int or tuple): The height and the width of a cropped image.
+            If this is an integer, an image is cropped to
+            :math:`(crop_size, crop_size)`.
+        scale_size (int or tuple): If :obj:`scale_size` is an integer,
+            an image is resized so that the length of the shorter edge is equal
+            to :obj:`scale_size`. If this is a tuple :obj:`(height, width)`,
+            an image is resized to :math:`(height, width)`.
         crop ({'center', '10'}): Determines the style of cropping.
 
     """
@@ -55,7 +59,9 @@ class FeatureExtractionPredictor(chainer.Chain):
                  crop='center'):
         super(FeatureExtractionPredictor, self).__init__()
         self.scale_size = scale_size
-        self.crop_size = (crop_size, crop_size)
+        if isinstance(crop_size, int):
+            crop_size = (crop_size, crop_size)
+        self.crop_size = crop_size
         self.crop = crop
 
         with self.init_scope():
@@ -70,10 +76,8 @@ class FeatureExtractionPredictor(chainer.Chain):
 
         This is a standard preprocessing scheme used by feature extraction
         models.
-        First, the image is scaled so that the length of the smaller edge is
-        :math:`scale_size`.
-        Next, the image is cropped into patches with height and width equal to
-        :math:`crop_size`.
+        First, the image is scaled or resized according to :math:`scale_size`.
+        Next, the image is cropped to :math:`crop_size`.
         Last, the image is mean subtracted an array :obj:`mean`.
 
         Args:
@@ -86,13 +90,17 @@ class FeatureExtractionPredictor(chainer.Chain):
             the number of crops.
 
         """
-        img = scale(img, size=self.scale_size)
+        if isinstance(self.scale_size, int):
+            img = scale(img, size=self.scale_size)
+        else:
+            img = resize(img, size=self.scale_size)
+
         if self.crop == '10':
             imgs = ten_crop(img, self.crop_size)
-            imgs -= self.mean[np.newaxis]
         elif self.crop == 'center':
             imgs = center_crop(img, self.crop_size)[np.newaxis]
-            imgs -= self.mean[np.newaxis]
+
+        imgs -= self.mean[np.newaxis]
 
         return imgs
 

@@ -65,10 +65,11 @@ class TestFeatureExtractionPredictorPredict(unittest.TestCase):
         self.check(self.x)
 
 
-@testing.parameterize(
-    {'crop': 'center', 'crop_size': 192},
-    {'crop': '10', 'crop_size': 192}
-)
+@testing.parameterize(*testing.product({
+    'crop': ['center', '10'],
+    'crop_size': [192, (192, 256), (256, 192)],
+    'scale_size': [256, (256, 256)]
+}))
 class TestFeatureExtractionPredictorPrepare(unittest.TestCase):
 
     n_channel = 3
@@ -76,17 +77,21 @@ class TestFeatureExtractionPredictorPrepare(unittest.TestCase):
     def setUp(self):
         self.link = FeatureExtractionPredictor(
             DummyFeatureExtractor((1,), None),
-            crop_size=self.crop_size, crop=self.crop)
+            crop_size=self.crop_size, scale_size=self.scale_size,
+            crop=self.crop)
+
+        if isinstance(self.crop_size, int):
+            hw = (self.crop_size, self.crop_size)
+        else:
+            hw = self.crop_size
         if self.crop == 'center':
-            self.expected_shape = (
-                1, self.n_channel, self.crop_size, self.crop_size)
+            self.expected_shape = (1, self.n_channel) + hw
         elif self.crop == '10':
-            self.expected_shape = (
-                10, self.n_channel, self.crop_size, self.crop_size)
+            self.expected_shape = (10, self.n_channel) + hw
 
     def test(self):
         out = self.link._prepare(
-            np.random.uniform(size=(self.n_channel, 128, 256)))
+            np.random.uniform(size=(self.n_channel, 286, 286)))
 
         self.assertEqual(out.shape, self.expected_shape)
 
