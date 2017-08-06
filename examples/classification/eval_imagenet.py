@@ -43,7 +43,7 @@ def main():
     parser.add_argument('--pretrained_model')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
-    parser.add_argument('--crop', type=str, default='center')
+    parser.add_argument('--crop', choices=('center', '10'), default='center')
     args = parser.parse_args()
 
     dataset = DirectoryParsingClassificationDataset(args.val)
