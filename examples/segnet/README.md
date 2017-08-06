@@ -98,13 +98,13 @@ Here are links to the weights trained using ChainerCV.
 
 ##### SegNet traiend with CamVid
 
-[1](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/segnet_camvid_trained_2017_08_06_trial_0.npz) 
-[2](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/segnet_camvid_trained_2017_08_06_trial_1.npz) 
-[3](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/segnet_camvid_trained_2017_08_06_trial_2.npz) 
-[4](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/segnet_camvid_trained_2017_08_06_trial_3.npz) 
-[5](https://github.com/yuyu2172/share-weights/releases/download/0.0.2/segnet_camvid_2017_05_28.npz)
-
-[5](https://github.com/yuyu2172/share-weights/releases/download/0.0.2/segnet_camvid_2017_05_28.npz)  scored the median mIoU (49.39%).
+| Trial | Global accuracy | Class accuracy | mean IoU   |
+|:--------------:|:---------------:|:--------------:|:---------------:|
+| [1](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/segnet_camvid_trained_2017_08_06_trial_0.npz)  | 78.33 % | 65.45 % | 45.81% |
+|[2](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/segnet_camvid_trained_2017_08_06_trial_1.npz) | 77.88 % | 64.22% | 43.86%|
+|[3](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/segnet_camvid_trained_2017_08_06_trial_2.npz) | 83.18 % | 67.24% | 50.08%|
+|[4](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/segnet_camvid_trained_2017_08_06_trial_3.npz) | 83.34 % | 65.64% | 49.93%|
+|[5](https://github.com/yuyu2172/share-weights/releases/download/0.0.2/segnet_camvid_2017_05_28.npz) | 82.66% | 67.05 % | 49.39%|
 
 
 # Reference
