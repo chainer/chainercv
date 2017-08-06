@@ -82,10 +82,30 @@ Global average accuracy : 0.8266
 
 | Implementation | Global accuracy | Class accuracy | mean IoU   |
 |:--------------:|:---------------:|:--------------:|:----------:|
-| ChainerCV      | 82.7 %          | **67.1 %**     | **49.4 %** |
+| ChainerCV      | 81.08 % (2.44%)   | **65.92 %** (1.11%)  | **47.81 %** (2.52%) |
 | Official       | **82.8 %**      | 62.3%          | 46.3 %     |
 
 The above values of the official implementation is found here: [Getting Started with SegNet](http://mi.eng.cam.ac.uk/projects/segnet/tutorial.html)
+
+For the scores reported for ChainerCV, they are the means of five trials.
+The standard deviations are in parentheses.
+
+
+
+## Trained weights
+
+Here are links to the weights trained using ChainerCV.
+
+##### SegNet traiend with CamVid
+
+[1](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/segnet_camvid_trained_2017_08_06_trial_0.npz) 
+[2](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/segnet_camvid_trained_2017_08_06_trial_1.npz) 
+[3](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/segnet_camvid_trained_2017_08_06_trial_2.npz) 
+[4](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/segnet_camvid_trained_2017_08_06_trial_3.npz) 
+[5](https://github.com/yuyu2172/share-weights/releases/download/0.0.2/segnet_camvid_2017_05_28.npz)
+
+[5](https://github.com/yuyu2172/share-weights/releases/download/0.0.2/segnet_camvid_2017_05_28.npz)  scored the median mIoU (49.39%).
+
 
 # Reference
 
