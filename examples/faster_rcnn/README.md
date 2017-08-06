@@ -4,7 +4,12 @@
 
 | Training Setting | Evaluation | Reference | ChainerCV |
 |:-:|:-:|:-:|:-:|
-| VOC 2007 trainval | VOC 2007 test|  69.9 mAP [1] | 70.6 mAP |
+| VOC 2007 trainval | VOC 2007 test|  69.9 % [1] | 70.29 % (0.50%) |
+
+Scores are mean Average Precision (mAP) with PASCAL VOC2007 metric.
+
+For the scores reported for ChainerCV, they are the mean of five trials.
+The standard deviation is in parentheses.
 
 
 ### Speed
@@ -62,6 +67,21 @@ $ MPLBACKEND=Agg python train.py [--gpu <gpu>]
 
 The evaluation score is reported by `DetectionVOCEvaluator` during training.
 Also, the evaluation can be conducted outside of training loop by using [`chainercv/examples/detection/eval_voc07.py`](https://github.com/chainer/chainercv/blob/master/examples/detection).
+
+
+### Trained weights
+
+Here are links to the weights trained using ChainerCV.
+
+##### Faster RCNN VGG16 trained with VOC07
+
+| Trial | mAP |
+|:-:|:-:|
+|  [1](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_0.npz) | 70.21 % |
+|  [2](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_1.npz) | 70.23 % |
+|  [3](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_2.npz) | 69.44 % |
+|  [4](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_3.npz) | 70.94 % |
+|  [5](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_4.npz) | 70.62 % |
 
 
 ### References
