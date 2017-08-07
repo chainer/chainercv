@@ -134,3 +134,17 @@ img, label = dataset[0]
 
 As found in the example, `random_rotate` is one of the transforms provided by ChainerCV. Like other transforms, this is just a
 function that takes an array as input.
+
+
+# Citation
+
+Please cite the paper if you would use it in your research:
+
+```
+@inproceedings{ChainerCV2017,
+    author = {Niitani, Yusuke and Ogawa, Toru and Saito, Shunta and Saito, Masaki},
+    title = {ChainerCV: a Library for Deep Learning in Computer Vision},
+    booktitle = {ACM Multimedia},
+    year = {2017},
+}
+```
