@@ -108,7 +108,7 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
         numerical_sort (bool): Label names are sorted numerically.
             This means that label :obj:`2` is before label :obj:`10`,
             which is not the case when string sort is used.
-            Regardless of this option, non-numerical sort is used for the
+            Regardless of this option, string sort is used for the
             order of files with the same label.
             The default value is :obj:`False`.
 
