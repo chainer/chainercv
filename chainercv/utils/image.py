@@ -43,12 +43,12 @@ def read_image(path, dtype=np.float32, color=True):
 def write_image(img, path):
     """Save an image to a file.
 
-    This function saves an image to given file. The image is CHW format and
+    This function saves an image to given file. The image is in CHW format and
     the range of its value is :math:`[0, 255]`.
 
     Args:
         image (~numpy.ndarray): An image to be saved.
-        path (str): A path of image file.
+        path (str): A path of the image file.
 
     """
 
