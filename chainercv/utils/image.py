@@ -52,6 +52,10 @@ def write_image(img, path):
 
     """
 
-    img = Image.fromarray(
-        img.transpose(1, 2, 0).astype(np.uint8))
+    if img.shape[0] == 1:
+        img = img[0]
+    else:
+        img = img.transpose(1, 2, 0)
+
+    img = Image.fromarray(img.astype(np.uint8))
     img.save(path)
