@@ -36,7 +36,7 @@ def read_image(path, dtype=np.float32, color=True):
         # reshape (H, W) -> (1, H, W)
         return img[np.newaxis]
     else:
-        # transpose (H, W, C) -> (C, H, W) and
+        # transpose (H, W, C) -> (C, H, W)
         return img.transpose(2, 0, 1)
 
 
