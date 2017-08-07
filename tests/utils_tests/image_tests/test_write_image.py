@@ -12,7 +12,7 @@ from chainercv.utils import write_image
     'size': [(48, 32)],
     'color': [True, False],
     'suffix': ['bmp', 'jpg', 'png'],
-    'dtype': [np.float32, np.uint8],
+    'dtype': [np.float32, np.uint8, bool],
 }))
 class TestWriteImage(unittest.TestCase):
 
