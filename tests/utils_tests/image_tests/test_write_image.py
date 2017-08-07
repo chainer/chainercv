@@ -1,10 +1,10 @@
 import numpy as np
+from PIL import Image
 import tempfile
 import unittest
 
 from chainer import testing
 
-from chainercv.utils import read_image
 from chainercv.utils import write_image
 
 
@@ -12,7 +12,7 @@ from chainercv.utils import write_image
     'size': [(48, 32)],
     'color': [True, False],
     'suffix': ['bmp', 'jpg', 'png'],
-    'dtype': [np.float32, np.uint8, bool],
+    'dtype': [np.float32, np.uint8],
 }))
 class TestWriteImage(unittest.TestCase):
 
@@ -22,20 +22,35 @@ class TestWriteImage(unittest.TestCase):
         self.path = self.file.name
 
         if self.color:
-            self.img = np.random.randint(
-                0, 255, size=(3,) + self.size, dtype=self.dtype)
+            shape = (3,) + self.size
         else:
-            self.img = np.random.randint(
-                0, 255, size=(1,) + self.size, dtype=self.dtype)
+            shape = (1,) + self.size
+
+        self.img = np.random.randint(0, 255, size=shape).astype(self.dtype)
 
     def test_write_image(self):
         write_image(self.img, self.path)
 
-        img = read_image(self.path, dtype=self.dtype, color=self.color)
-        self.assertEqual(img.shape, self.img.shape)
-        self.assertEqual(img.dtype, self.dtype)
+        img = Image.open(self.path)
+
+        W, H = img.size
+        self.assertEqual((H, W), self.size)
+
+        if self.color:
+            self.assertEqual(len(img.getbands()), 3)
+        else:
+            self.assertEqual(len(img.getbands()), 1)
 
         if self.suffix in {'bmp', 'png'}:
+            img = np.asarray(img)
+
+            if img.ndim == 2:
+                # reshape (H, W) -> (1, H, W)
+                img = img[np.newaxis]
+            else:
+                # transpose (H, W, C) -> (C, H, W)
+                img = img.transpose(2, 0, 1)
+
             np.testing.assert_equal(img, self.img)
 
 
