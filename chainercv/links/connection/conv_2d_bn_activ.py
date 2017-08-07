@@ -10,7 +10,7 @@ class Conv2DBNActiv(chainer.Chain):
     This is a chain that sequentially apllies two-dimensional convolution,
     a batch normalization and an activation.
 
-    The parameters are the same as that of
+    The arguments are the same as that of
     :class:`chainer.links.Convolution2D`
     except for :obj:`activ` and :obj:`bn_kwargs`.
 
