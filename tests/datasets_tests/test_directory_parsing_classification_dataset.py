@@ -108,7 +108,7 @@ class TestNumericalSortDirectoryParsingClassificationDataset(
 
     def test_numerical_sort(self):
         dataset = DirectoryParsingClassificationDataset(
-            self.tmp_dir, numerical_sort=False)
+            self.tmp_dir, numerical_sort=True)
 
         assert_is_classification_dataset(
             dataset, self.n_class)
