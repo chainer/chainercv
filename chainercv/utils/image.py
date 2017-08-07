@@ -48,7 +48,7 @@ def write_image(img, path):
 
     Args:
         image (~numpy.ndarray): An image to be saved.
-        path (str): A path of the image file.
+        path (str): The path of an image file.
 
     """
 
