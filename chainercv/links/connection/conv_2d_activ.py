@@ -46,18 +46,18 @@ class Conv2DActiv(chainer.Chain):
             is set to 0.
             May also be a callable that takes :obj:`numpy.ndarray` or
             :obj:`cupy.ndarray` and edits its value.
-        activation (callable): An activation function. The default value is
+        activ (callable): An activation function. The default value is
             :func:`chainer.functions.relu`.
 
     """
 
     def __init__(self, in_channels, out_channels, ksize=None,
                  stride=1, pad=0, nobias=False, initialW=None,
-                 initial_bias=None, activation=relu):
+                 initial_bias=None, activ=relu):
         if ksize is None:
             out_channels, ksize, in_channels = in_channels, out_channels, None
 
-        self.activation = activation
+        self.activ = activ
         super(Conv2DActiv, self).__init__()
         with self.init_scope():
             self.conv = Convolution2D(
@@ -66,4 +66,4 @@ class Conv2DActiv(chainer.Chain):
 
     def __call__(self, x):
         h = self.conv(x)
-        return self.activation(h)
+        return self.activ(h)
