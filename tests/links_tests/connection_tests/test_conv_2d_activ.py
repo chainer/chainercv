@@ -7,14 +7,15 @@ from chainer import cuda
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links import Convolution2DBlock
+from chainercv.links import Conv2DActiv
 
 
-@testing.parameterize(*testing.product({
-    'use_bn': [True, False],
-    'args_style': ['explicit', 'None', 'omit']
-}))
-class TestConvolution2DBlock(unittest.TestCase):
+@testing.parameterize(
+    {'args_style': 'explicit'},
+    {'args_style': 'None'},
+    {'args_style': 'omit'}
+)
+class TestConv2DActiv(unittest.TestCase):
 
     in_channels = 3
     out_channels = 5
@@ -28,20 +29,15 @@ class TestConvolution2DBlock(unittest.TestCase):
         self.gy = np.random.uniform(
             -1, 1, (5, self.out_channels, 5, 5)).astype(np.float32)
         if self.args_style == 'explicit':
-            self.l = Convolution2DBlock(
+            self.l = Conv2DActiv(
                 self.in_channels, self.out_channels, self.ksize,
-                use_bn=self.use_bn,
-                conv_kwargs={'stride': self.stride, 'pad': self.pad})
+                self.stride, self.pad)
         elif self.args_style == 'None':
-            self.l = Convolution2DBlock(
-                None, self.out_channels, self.ksize,
-                use_bn=self.use_bn,
-                conv_kwargs={'stride': self.stride, 'pad': self.pad})
+            self.l = Conv2DActiv(
+                None, self.out_channels, self.ksize, self.stride, self.pad)
         elif self.args_style == 'omit':
-            self.l = Convolution2DBlock(
-                self.out_channels, self.ksize,
-                use_bn=self.use_bn,
-                conv_kwargs={'stride': self.stride, 'pad': self.pad})
+            self.l = Conv2DActiv(
+                self.out_channels, self.ksize, stride=self.stride, pad=self.pad)
 
     def check_backward(self, x_data, y_grad):
         x = chainer.Variable(x_data)

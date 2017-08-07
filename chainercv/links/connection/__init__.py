@@ -1,1 +1,1 @@
-from chainercv.links.connection.convolution_2d_block import Convolution2DBlock  # NOQA
+from chainercv.links.connection.conv_2d_activ import Conv2DActiv  # NOQA

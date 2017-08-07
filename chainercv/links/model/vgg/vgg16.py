@@ -14,7 +14,7 @@ from chainer.links import Linear
 
 from chainercv.utils import download_model
 
-from chainercv.links.connection.convolution_2d_block import Convolution2DBlock
+from chainercv.links.connection.conv_2d_activ import Conv2DActiv
 from chainercv.links.model.sequential_feature_extractor import \
     SequentialFeatureExtractor
 
@@ -112,50 +112,35 @@ class VGG16(SequentialFeatureExtractor):
             # As a sampling process is time-consuming,
             # we employ a zero initializer for faster computation.
             initialW = constant.Zero()
-        conv_kwargs = {'stride': 1, 'pad': 1,
-                       'initialW': initialW, 'initial_bias': initial_bias}
-        fc_kwargs = {'initialW': initialW, 'initial_bias': initial_bias}
+        kwargs = {'initialW': initialW, 'initial_bias': initial_bias}
 
         super(VGG16, self).__init__()
         with self.init_scope():
-            self.conv1_1 = Convolution2DBlock(None, 64, 3,
-                                              conv_kwargs=conv_kwargs)
-            self.conv1_2 = Convolution2DBlock(None, 64, 3,
-                                              conv_kwargs=conv_kwargs)
+            self.conv1_1 = Conv2DActiv(None, 64, 3, 1, 1, **kwargs)
+            self.conv1_2 = Conv2DActiv(None, 64, 3, 1, 1, **kwargs)
             self.pool1 = _max_pooling_2d
-            self.conv2_1 = Convolution2DBlock(None, 128, 3,
-                                              conv_kwargs=conv_kwargs)
-            self.conv2_2 = Convolution2DBlock(None, 128, 3,
-                                              conv_kwargs=conv_kwargs)
+            self.conv2_1 = Conv2DActiv(None, 128, 3, 1, 1, **kwargs)
+            self.conv2_2 = Conv2DActiv(None, 128, 3, 1, 1, **kwargs)
             self.pool2 = _max_pooling_2d
-            self.conv3_1 = Convolution2DBlock(None, 256, 3,
-                                              conv_kwargs=conv_kwargs)
-            self.conv3_2 = Convolution2DBlock(None, 256, 3,
-                                              conv_kwargs=conv_kwargs)
-            self.conv3_3 = Convolution2DBlock(None, 256, 3,
-                                              conv_kwargs=conv_kwargs)
+            self.conv3_1 = Conv2DActiv(None, 256, 3, 1, 1, **kwargs)
+            self.conv3_2 = Conv2DActiv(None, 256, 3, 1, 1, **kwargs)
+            self.conv3_3 = Conv2DActiv(None, 256, 3, 1, 1, **kwargs)
             self.pool3 = _max_pooling_2d
-            self.conv4_1 = Convolution2DBlock(None, 512, 3,
-                                              conv_kwargs=conv_kwargs)
-            self.conv4_2 = Convolution2DBlock(None, 512, 3,
-                                              conv_kwargs=conv_kwargs)
-            self.conv4_3 = Convolution2DBlock(None, 512, 3,
-                                              conv_kwargs=conv_kwargs)
+            self.conv4_1 = Conv2DActiv(None, 512, 3, 1, 1, **kwargs)
+            self.conv4_2 = Conv2DActiv(None, 512, 3, 1, 1, **kwargs)
+            self.conv4_3 = Conv2DActiv(None, 512, 3, 1, 1, **kwargs)
             self.pool4 = _max_pooling_2d
-            self.conv5_1 = Convolution2DBlock(None, 512, 3,
-                                              conv_kwargs=conv_kwargs)
-            self.conv5_2 = Convolution2DBlock(None, 512, 3,
-                                              conv_kwargs=conv_kwargs)
-            self.conv5_3 = Convolution2DBlock(None, 512, 3,
-                                              conv_kwargs=conv_kwargs)
+            self.conv5_1 = Conv2DActiv(None, 512, 3, 1, 1, **kwargs)
+            self.conv5_2 = Conv2DActiv(None, 512, 3, 1, 1, **kwargs)
+            self.conv5_3 = Conv2DActiv(None, 512, 3, 1, 1, **kwargs)
             self.pool5 = _max_pooling_2d
-            self.fc6 = Linear(None, 4096, **fc_kwargs)
+            self.fc6 = Linear(None, 4096, **kwargs)
             self.fc6_relu = relu
             self.fc6_dropout = dropout
-            self.fc7 = Linear(None, 4096, **fc_kwargs)
+            self.fc7 = Linear(None, 4096, **kwargs)
             self.fc7_relu = relu
             self.fc7_dropout = dropout
-            self.fc8 = Linear(None, n_class, **fc_kwargs)
+            self.fc8 = Linear(None, n_class, **kwargs)
             self.prob = softmax
 
         if pretrained_model in self._models:
