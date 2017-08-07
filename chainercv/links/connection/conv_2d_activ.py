@@ -9,6 +9,10 @@ class Conv2DActiv(chainer.Chain):
     This is a chain that does two-dimensional convolution
     and applies an activation.
 
+    The arguments are the same as that of
+    :class:`chainer.links.Convolution2D`
+    except for `obj:`activ`.
+
     Example:
 
         There are sevaral ways to make a Conv2DActiv chain.
