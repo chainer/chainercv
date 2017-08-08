@@ -13,8 +13,8 @@ def directory_parsing_label_names(root, numerical_sort=False):
 
     The label names can be used together with
     :class:`chainercv.datasets.DirectoryParsingClassificationDataset`.
-    An index of the label names corresponds to a label id
-    that is used by the dataset.
+    The index of a label name corresponds to the label id
+    that is used by the dataset to refer the label.
 
     Args:
         root (str): The root directory.
