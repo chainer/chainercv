@@ -63,6 +63,10 @@ assert_is_bbox
 ~~~~~~~~~~~~~~
 .. autofunction:: assert_is_bbox
 
+assert_is_classification_dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: assert_is_classification_dataset
+
 assert_is_detection_dataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: assert_is_detection_dataset
