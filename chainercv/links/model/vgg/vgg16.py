@@ -28,11 +28,11 @@ class VGG16(SequentialFeatureExtractor):
 
     """VGG16 Network for classification and feature extraction.
 
-    This model is a feature extraction link.
+    This is a feature extraction model.
     The network can choose to output features from set of all
-    intermediate and final features produced by the original architecture.
-    The value of :obj:`VGG16.feature_names` selects the features to be
-    collected by :meth:`__call__`.
+    intermediate features.
+    The value of :obj:`VGG16.feature_names` selects the features that are going
+    to be collected by :meth:`__call__`.
     :obj:`self.all_feature_names` is the list of the names of features
     that can be collected.
 
@@ -73,8 +73,8 @@ class VGG16(SequentialFeatureExtractor):
             where :obj:`$CHAINER_DATASET_ROOT` is set as
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
-        n_class (int): The dimension of the output of fc8.
-        mean (numpy.ndarray): A mean image. If :obj:`None` and
+        n_class (int): The number of classes.
+        mean (numpy.ndarray): A mean value. If :obj:`None` and
             a supported pretrained model is used,
             the mean value used to train the pretrained model will be used.
         initialW (callable): Initializer for the weights.
