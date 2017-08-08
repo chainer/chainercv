@@ -37,19 +37,21 @@ class FeatureExtractionPredictor(chainer.Chain):
     patches that are ten-cropped from the input images.
 
     When extracting more than one crops from an image, the output of
-    :meth:`predict` returns average of the features computed from the crops.
+    :meth:`predict` returns the average of the features computed from the
+    crops.
 
     Args:
         extractor: A feature extraction model. This is a callable chain
             that takes a batch of images and returns a variable or a
-            tuple of variables
-        crop_size (int or tuple): The height and the width of a cropped image.
-            If this is an integer, an image is cropped to
+            tuple of variables.
+        crop_size (int or tuple): The height and the width of an image after
+            cropping in preprocessing.
+            If this is an integer, the image is cropped to
             :math:`(crop_size, crop_size)`.
-        scale_size (int or tuple): If :obj:`scale_size` is an integer,
-            an image is resized so that the length of the shorter edge is equal
-            to :obj:`scale_size`. If this is a tuple :obj:`(height, width)`,
-            an image is resized to :math:`(height, width)`.
+        scale_size (int or tuple): If :obj:`scale_size` is an integer, during
+            preprocessing, an image is resized so that the length of the shorter
+            edge is equal to :obj:`scale_size`. If this is a tuple
+            :obj:`(height, width)`, the image is resized to :math:`(height, width)`.
         crop ({'center', '10'}): Determines the style of cropping.
 
     """
@@ -78,7 +80,7 @@ class FeatureExtractionPredictor(chainer.Chain):
         models.
         First, the image is scaled or resized according to :math:`scale_size`.
         Next, the image is cropped to :math:`crop_size`.
-        Last, the image is mean subtracted an array :obj:`mean`.
+        Last, the image is mean subtracted by an array :obj:`mean`.
 
         Args:
             img (~numpy.ndarray): An image. This is in CHW and RGB format.
