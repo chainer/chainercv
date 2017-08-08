@@ -1,0 +1,1 @@
+from chainercv.functions.normalization.distributed_batch_normalization import DistributedBatchNormalizationFunction  # NOQA

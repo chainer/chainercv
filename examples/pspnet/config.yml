@@ -1,0 +1,117 @@
+stop_trigger: [90000, "iteration"]
+# max_workspace_size: 256
+
+dataset:
+  train:
+    module: cityscapes.cityscapes
+    name: TransformedCityscapes
+    args:
+      img_dir: data/cityscapes/leftImg8bit
+      label_dir: data/cityscapes/gtFine
+      crop_size: [713, 713]
+      ignore_labels: [19]
+      label_size: null
+      scale: [0.5, 2.0]
+      rotate: True
+      fliplr: True
+      n_class: 20
+      mean_fn: dataset/cityscapes/train_mean.npy
+      split: train
+    batchsize: 2
+
+  valid:
+    module: cityscapes.cityscapes
+    name: TransformedCityscapes
+    args:
+      img_dir: data/cityscapes/leftImg8bit
+      label_dir: data/cityscapes/gtFine
+      crop_size: [713, 713]
+      ignore_labels: [19]
+      label_size: null
+      scale: False
+      rotate: False
+      fliplr: False
+      n_class: 20
+      mean_fn: dataset/cityscapes/train_mean.npy
+      split: val
+    batchsize: 2
+
+model:
+  module: chainercv.links.model.pspnet
+  name: PSPNet
+  args:
+    n_class: 20
+    comm: comm
+
+loss:
+  module: loss
+  name: PixelwiseSoftmaxClassifier
+  args:
+    ignore_label: -1
+
+optimizer:
+  method: MomentumSGD
+  args:
+    lr: 0.01
+    momentum: 0.9
+  weight_decay: 0.0001
+  lr_drop_poly_power: 0.9
+
+updater_creator:
+    module: chainer.training
+    name: StandardUpdater
+
+trainer_extension:
+  - LogReport:
+      trigger: [1, "epoch"]
+  - dump_graph:
+      root_name: main/loss
+      out_name: cg.dot
+  - observe_lr:
+      trigger: [1, "epoch"]
+  - Evaluator:
+      module: chainercv.extensions
+      name: SemanticSegmentationEvaluator
+      trigger: [1, "epoch"]
+      prefix: val
+  - PlotReport:
+      y_keys:
+        - main/loss
+      x_key: epoch
+      file_name: loss_epoch.png
+      trigger: [1, "epoch"]
+  - PlotReport:
+      y_keys:
+        - val/main/miou
+      x_key: epoch
+      file_name: val_miou_epoch.png
+      trigger: [1, "epoch"]
+  - PlotReport:
+      y_keys:
+        - val/main/pixel_accuracy
+      x_key: epoch
+      file_name: val_pixel_accuracy_epoch.png
+      trigger: [1, "epoch"]
+  - PlotReport:
+      y_keys:
+        - val/main/mean_class_accuracy
+      x_key: epoch
+      file_name: val_mean_class_accuracy_epoch.png
+      trigger: [1, "epoch"]
+  - PrintReport:
+      entries:
+        - epoch
+        - iteration
+        - main/loss
+        - val/main/miou
+        - val/main/pixel_accuracy
+        - val/main/mean_class_accuracy
+        - elapsed_time
+        - lr
+      trigger: [1, "epoch"]
+  - ProgressBar:
+      update_interval: 10
+      trigger: [10, "iteration"]
+  - snapshot:
+      filename: trainer_{.updater.epoch}_epoch
+      trigger: [10, "epoch"]
