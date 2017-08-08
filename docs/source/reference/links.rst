@@ -1,10 +1,28 @@
 Links
 =====
 
-.. module:: chainercv.links.model.faster_rcnn
+
+Model
+-----
+
+
+Feature Extraction
+~~~~~~~~~~~~~~~~~~
+Feature extraction models can be used to extract feature(s) given images.
+
+.. toctree::
+
+   links/vgg
+
+
+.. autoclass:: chainercv.links.SequentialFeatureExtractor
+   :members:
+
+.. autoclass:: chainercv.links.FeatureExtractionPredictor
+
 
 Detection
----------
+~~~~~~~~~
 
 Detection links share a common method :meth:`predict` to detect objects in images.
 For more details, please read :func:`FasterRCNN.predict`.
@@ -16,7 +34,7 @@ For more details, please read :func:`FasterRCNN.predict`.
 
 
 Semantic Segmentation
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 .. module:: chainercv.links.model.segnet
 
@@ -29,8 +47,17 @@ For more details, please read :func:`SegNetBasic.predict`.
 
 
 Classifiers
------------
+~~~~~~~~~~~
 
 .. toctree::
 
    links/classifier
+
+
+Connection
+----------
+
+.. toctree::
+    links/connection
+
+

@@ -1,14 +1,13 @@
-import collections
 import numpy as np
 
 import chainer
 import chainer.functions as F
 import chainer.links as L
-from chainer.links import VGG16Layers
 
 from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNN
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
+from chainercv.links.model.vgg.vgg16 import VGG16
 from chainercv.utils import download_model
 
 
@@ -74,7 +73,8 @@ class FasterRCNNVGG16(FasterRCNN):
         'voc07': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/faster_rcnn_vgg16_voc07_2017_06_06.npz'
+            'download/0.0.4/'
+            'faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_4.npz'
         }
     }
     feat_stride = 16
@@ -103,7 +103,10 @@ class FasterRCNNVGG16(FasterRCNN):
         if vgg_initialW is None and pretrained_model:
             vgg_initialW = chainer.initializers.constant.Zero()
 
-        extractor = VGG16FeatureExtractor(initialW=vgg_initialW)
+        extractor = VGG16(initialW=vgg_initialW)
+        extractor.feature_names = 'conv5_3'
+        # Delete all layers after conv5_3.
+        extractor.remove_unused()
         rpn = RegionProposalNetwork(
             512, 512,
             ratios=ratios,
@@ -139,12 +142,8 @@ class FasterRCNNVGG16(FasterRCNN):
             chainer.serializers.load_npz(pretrained_model, self)
 
     def _copy_imagenet_pretrained_vgg16(self):
-        pretrained_model = VGG16Layers()
+        pretrained_model = VGG16(pretrained_model='imagenet')
         self.extractor.conv1_1.copyparams(pretrained_model.conv1_1)
-        # The pretrained weights are trained to accept BGR images.
-        # Convert weights so that they accept RGB images.
-        self.extractor.conv1_1.W.data[:] =\
-            self.extractor.conv1_1.W.data[:, ::-1]
         self.extractor.conv1_2.copyparams(pretrained_model.conv1_2)
         self.extractor.conv2_1.copyparams(pretrained_model.conv2_1)
         self.extractor.conv2_2.copyparams(pretrained_model.conv2_2)
@@ -225,75 +224,8 @@ class VGG16RoIHead(chainer.Chain):
         return roi_cls_locs, roi_scores
 
 
-class VGG16FeatureExtractor(chainer.Chain):
-    """Truncated VGG-16 that extracts a conv5_3 feature map.
-
-    Args:
-        initialW (callable): Initializer for the weights.
-
-    """
-
-    def __init__(self, initialW=None):
-        super(VGG16FeatureExtractor, self).__init__()
-        with self.init_scope():
-            self.conv1_1 = L.Convolution2D(3, 64, 3, 1, 1, initialW=initialW)
-            self.conv1_2 = L.Convolution2D(64, 64, 3, 1, 1, initialW=initialW)
-            self.conv2_1 = L.Convolution2D(64, 128, 3, 1, 1, initialW=initialW)
-            self.conv2_2 = L.Convolution2D(
-                128, 128, 3, 1, 1, initialW=initialW)
-            self.conv3_1 = L.Convolution2D(
-                128, 256, 3, 1, 1, initialW=initialW)
-            self.conv3_2 = L.Convolution2D(
-                256, 256, 3, 1, 1, initialW=initialW)
-            self.conv3_3 = L.Convolution2D(
-                256, 256, 3, 1, 1, initialW=initialW)
-            self.conv4_1 = L.Convolution2D(
-                256, 512, 3, 1, 1, initialW=initialW)
-            self.conv4_2 = L.Convolution2D(
-                512, 512, 3, 1, 1, initialW=initialW)
-            self.conv4_3 = L.Convolution2D(
-                512, 512, 3, 1, 1, initialW=initialW)
-            self.conv5_1 = L.Convolution2D(
-                512, 512, 3, 1, 1, initialW=initialW)
-            self.conv5_2 = L.Convolution2D(
-                512, 512, 3, 1, 1, initialW=initialW)
-            self.conv5_3 = L.Convolution2D(
-                512, 512, 3, 1, 1, initialW=initialW)
-
-        self.functions = collections.OrderedDict([
-            ('conv1_1', [self.conv1_1, F.relu]),
-            ('conv1_2', [self.conv1_2, F.relu]),
-            ('pool1', [_max_pooling_2d]),
-            ('conv2_1', [self.conv2_1, F.relu]),
-            ('conv2_2', [self.conv2_2, F.relu]),
-            ('pool2', [_max_pooling_2d]),
-            ('conv3_1', [self.conv3_1, F.relu]),
-            ('conv3_2', [self.conv3_2, F.relu]),
-            ('conv3_3', [self.conv3_3, F.relu]),
-            ('pool3', [_max_pooling_2d]),
-            ('conv4_1', [self.conv4_1, F.relu]),
-            ('conv4_2', [self.conv4_2, F.relu]),
-            ('conv4_3', [self.conv4_3, F.relu]),
-            ('pool4', [_max_pooling_2d]),
-            ('conv5_1', [self.conv5_1, F.relu]),
-            ('conv5_2', [self.conv5_2, F.relu]),
-            ('conv5_3', [self.conv5_3, F.relu]),
-        ])
-
-    def __call__(self, x):
-        h = x
-        for key, funcs in self.functions.items():
-            for func in funcs:
-                h = func(h)
-        return h
-
-
 def _roi_pooling_2d_yx(x, indices_and_rois, outh, outw, spatial_scale):
     xy_indices_and_rois = indices_and_rois[:, [0, 2, 1, 4, 3]]
     pool = F.roi_pooling_2d(
         x, xy_indices_and_rois, outh, outw, spatial_scale)
     return pool
-
-
-def _max_pooling_2d(x):
-    return F.max_pooling_2d(x, ksize=2)
