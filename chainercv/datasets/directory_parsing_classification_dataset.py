@@ -6,20 +6,20 @@ from chainercv.utils import read_image
 
 
 def directory_parsing_label_names(root, numerical_sort=False):
-    """Get label names from directories that are named by them.
+    """Get label names from the directories that are named by them.
 
-    The label names are names of the directories that locate a layer below the
-    root.
+    The label names are the names of the directories that locate a
+    layer below the root directory.
 
     The label names can be used together with
     :class:`chainercv.datasets.DirectoryParsingClassificationDataset`.
     An index of the label names corresponds to a label id
-    obtained from the dataset.
+    that is used by the dataset.
 
     Args:
         root (str): The root directory.
         numerical_sort (bool): Label names are sorted numerically.
-            This means that :obj:`2` is before :obj:`10`,
+            This means that label :obj:`2` is before label :obj:`10`,
             which is not the case when string sort is used.
             The default value is :obj:`False`.
 
@@ -73,7 +73,7 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
     All images locating under the subdirectoies will be categorized to classes
     with subdirectory names.
     An image is parsed only when the function :obj:`check_img_file`
-    returns :obj:`True` when the path to the image is given as an argument.
+    returns :obj:`True` by taking the path to the image as an argument.
     If :obj:`check_img_file` is :obj:`None`,
     the path with any image extensions will be parsed.
 
