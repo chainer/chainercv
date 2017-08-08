@@ -20,6 +20,10 @@ def assert_is_classification_dataset(dataset, n_class, n_example=None,
             If this argument is specified, this function picks
             examples ramdomly and checks them. Otherwise,
             this function checks all examples.
+        color (bool): A boolean that determines the expected channel size.
+            If it is :obj:`True`, the number of channels
+            should be :obj:`3`. Otherwise, it should be :obj:`1`.
+            The default value is :obj:`True`.
 
     """
 

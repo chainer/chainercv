@@ -66,10 +66,6 @@ VGG16Extractor512
 Train-only Utility
 ------------------
 
-ConcatenatedDataset
-~~~~~~~~~~~~~~~~~~~
-.. autoclass:: ConcatenatedDataset
-
 GradientScaling
 ~~~~~~~~~~~~~~~
 .. autoclass:: GradientScaling

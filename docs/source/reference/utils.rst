@@ -39,6 +39,10 @@ read_image
 ~~~~~~~~~~
 .. autofunction:: read_image
 
+write_image
+~~~~~~~~~~~
+.. autofunction:: write_image
+
 
 Iterator Utilities
 ------------------

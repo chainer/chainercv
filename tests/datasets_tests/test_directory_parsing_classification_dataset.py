@@ -35,16 +35,18 @@ def _setup_depth_one_dummy_data(tmp_dir, n_class, n_img_per_class,
 
 
 def _setup_depth_two_dummy_data(tmp_dir, n_class, n_img_per_class,
-                                size, color, suffix):
+                                n_sub_directory, size, color, suffix):
     for i in range(n_class):
         class_dir = os.path.join(tmp_dir, 'class_{}'.format(i))
         os.makedirs(class_dir)
-        nested_dir = os.path.join(class_dir, 'nested_directory')
-        os.makedirs(nested_dir)
-        for j in range(n_img_per_class):
-            filename = os.path.join(nested_dir, 'img{}.{}'.format(j, suffix))
-            _save_img_file(filename, size, color)
-        open(os.path.join(nested_dir, 'dummy_file.XXX'), 'a').close()
+        for j in range(n_sub_directory):
+            nested_dir = os.path.join(class_dir, 'nested_{}'.format(j))
+            os.makedirs(nested_dir)
+            for k in range(n_img_per_class):
+                filename = os.path.join(
+                    nested_dir, 'img{}.{}'.format(k, suffix))
+                _save_img_file(filename, size, color)
+            open(os.path.join(nested_dir, 'dummy_file.XXX'), 'a').close()
 
 
 @testing.parameterize(*testing.product({
@@ -57,6 +59,7 @@ def _setup_depth_two_dummy_data(tmp_dir, n_class, n_img_per_class,
 class TestDirectoryParsingClassificationDataset(unittest.TestCase):
 
     n_img_per_class = 5
+    n_sub_directory = 6
 
     def setUp(self):
         self.tmp_dir = tempfile.mkdtemp()
@@ -67,28 +70,42 @@ class TestDirectoryParsingClassificationDataset(unittest.TestCase):
                                         self.color, self.suffix)
         elif self.depth == 2:
             _setup_depth_two_dummy_data(self.tmp_dir, self.n_class,
-                                        self.n_img_per_class, self.size,
+                                        self.n_img_per_class,
+                                        self.n_sub_directory, self.size,
                                         self.color, self.suffix)
 
     def test_directory_parsing_classification_dataset(self):
         dataset = DirectoryParsingClassificationDataset(
             self.tmp_dir, color=self.color)
 
-        self.assertEqual(len(dataset), self.n_img_per_class * self.n_class)
+        if self.depth == 1:
+            expected_legnth = self.n_img_per_class * self.n_class
+        elif self.depth == 2:
+            expected_legnth =\
+                self.n_img_per_class * self.n_sub_directory * self.n_class
+        self.assertEqual(len(dataset), expected_legnth)
 
         assert_is_classification_dataset(
             dataset, self.n_class, color=self.color)
 
-        img_names = [os.path.split(filename)[-1]
-                     for filename in dataset.img_filenames]
-        self.assertEqual(
-            img_names[:self.n_img_per_class],
-            ['img{}.{}'.format(i, self.suffix)
-             for i in range(self.n_img_per_class)])
-
         label_names = directory_parsing_label_names(self.tmp_dir)
         self.assertEqual(
             label_names, ['class_{}'.format(i) for i in range(self.n_class)])
+
+        if self.depth == 1:
+            self.assertEqual(
+                dataset.img_filenames,
+                ['{}/class_{}/img{}.{}'.format(self.tmp_dir, i, j, self.suffix)
+                 for i in range(self.n_class)
+                 for j in range(self.n_img_per_class)])
+        elif self.depth == 2:
+            self.assertEqual(
+                dataset.img_filenames,
+                ['{}/class_{}/nested_{}/img{}.{}'.format(
+                    self.tmp_dir, i, j, k, self.suffix)
+                 for i in range(self.n_class)
+                 for j in range(self.n_sub_directory)
+                 for k in range(self.n_img_per_class)])
 
 
 class TestNumericalSortDirectoryParsingClassificationDataset(
@@ -108,7 +125,7 @@ class TestNumericalSortDirectoryParsingClassificationDataset(
 
     def test_numerical_sort(self):
         dataset = DirectoryParsingClassificationDataset(
-            self.tmp_dir, numerical_sort=False)
+            self.tmp_dir, numerical_sort=True)
 
         assert_is_classification_dataset(
             dataset, self.n_class)
