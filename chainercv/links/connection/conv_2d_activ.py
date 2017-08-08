@@ -11,7 +11,7 @@ class Conv2DActiv(chainer.Chain):
 
     The arguments are the same as those of
     :class:`chainer.links.Convolution2D`
-    except for `obj:`activ`.
+    except for :obj:`activ`.
 
     Example:
 
