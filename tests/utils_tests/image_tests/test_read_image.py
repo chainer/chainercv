@@ -6,6 +6,7 @@ import unittest
 from chainer import testing
 
 from chainercv.utils import read_image
+from chainercv.utils import write_image
 
 
 @testing.parameterize(*testing.product({
@@ -24,11 +25,10 @@ class TestReadImage(unittest.TestCase):
         if self.color:
             self.img = np.random.randint(
                 0, 255, size=(3,) + self.size, dtype=np.uint8)
-            Image.fromarray(self.img.transpose(1, 2, 0)).save(self.path)
         else:
             self.img = np.random.randint(
                 0, 255, size=(1,) + self.size, dtype=np.uint8)
-            Image.fromarray(self.img[0]).save(self.path)
+        write_image(self.img, self.path)
 
     def test_read_image_as_color(self):
         if self.dtype == np.float32:
