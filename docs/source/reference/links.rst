@@ -34,3 +34,10 @@ Classifiers
 .. toctree::
 
    links/classifier
+
+
+Connection
+----------
+
+.. toctree::
+    links/connection
