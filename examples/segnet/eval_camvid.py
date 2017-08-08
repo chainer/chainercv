@@ -50,7 +50,7 @@ def main():
         n_class=len(camvid_label_names),
         pretrained_model=args.pretrained_model)
     if args.gpu >= 0:
-        chainer.cuda.get_device(args.gpu).use()
+        chainer.cuda.get_device_from_id(args.gpu).use()
         model.to_gpu()
 
     model = calc_bn_statistics(model, args.batchsize)

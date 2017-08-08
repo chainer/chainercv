@@ -67,7 +67,7 @@ def main():
             model = SSD512(pretrained_model='voc0712')
 
     if args.gpu >= 0:
-        chainer.cuda.get_device(args.gpu).use()
+        chainer.cuda.get_device_from_id(args.gpu).use()
         model.to_gpu()
 
     model.use_preset('evaluate')
