@@ -26,8 +26,8 @@ class Conv2DActiv(chainer.Chain):
             In these ways, attributes are initialized at runtime based on
             the channel size of the input.
 
-            >>> l = Conv2DActiv(None, 10, 3)
             >>> l = Conv2DActiv(10, 3)
+            >>> l = Conv2DActiv(None, 10, 3)
 
     Args:
         in_channels (int or None): Number of channels of input arrays.
