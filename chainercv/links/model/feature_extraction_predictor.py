@@ -49,9 +49,10 @@ class FeatureExtractionPredictor(chainer.Chain):
             If this is an integer, the image is cropped to
             :math:`(crop_size, crop_size)`.
         scale_size (int or tuple): If :obj:`scale_size` is an integer, during
-            preprocessing, an image is resized so that the length of the shorter
-            edge is equal to :obj:`scale_size`. If this is a tuple
-            :obj:`(height, width)`, the image is resized to :math:`(height, width)`.
+            preprocessing, an image is resized so that the length of the
+            shorter edge is equal to :obj:`scale_size`. If this is a tuple
+            :obj:`(height, width)`, the image is resized to
+            :math:`(height, width)`.
         crop ({'center', '10'}): Determines the style of cropping.
 
     """
