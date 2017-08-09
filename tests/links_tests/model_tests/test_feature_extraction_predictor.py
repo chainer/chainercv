@@ -77,7 +77,7 @@ class TestFeatureExtractionPredictorPredict(unittest.TestCase):
 @testing.parameterize(*testing.product({
     'crop': ['center', '10'],
     'crop_size': [192, (192, 256), (256, 192)],
-    'scale_size': [256, (256, 256)],
+    'scale_size': [None, 256, (256, 256)],
     'in_channels': [1, 3],
     'mean': [None, np.float32(1)]
 }))
