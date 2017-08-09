@@ -143,18 +143,18 @@ class FeatureExtractionPredictor(chainer.Chain):
 
         with chainer.function.no_backprop_mode():
             imgs = chainer.Variable(imgs)
-            activations = self.extractor(imgs)
+            features = self.extractor(imgs)
 
-        if isinstance(activations, tuple):
+        if isinstance(features, tuple):
             output = []
-            for activation in activations:
+            for activation in features:
                 activation = activation.data
                 if n_crop > 1:
                     activation = self._average_crops(activation, n_crop)
                 output.append(cuda.to_cpu(activation))
             output = tuple(output)
         else:
-            output = cuda.to_cpu(activations.data)
+            output = cuda.to_cpu(features.data)
             if n_crop > 1:
                 output = self._average_crops(output, n_crop)
 
