@@ -78,15 +78,17 @@ class TestFeatureExtractionPredictorPredict(unittest.TestCase):
     'crop': ['center', '10'],
     'crop_size': [192, (192, 256), (256, 192)],
     'scale_size': [256, (256, 256)],
-    'in_channels': [1, 3]
+    'in_channels': [1, 3],
+    'mean': [None, np.float32(1)]
 }))
-class TestFeatureExtractionPredictorPrepare(unittest.TestCase):
+class TestFeatureExtractionPredictor(unittest.TestCase):
 
     def setUp(self):
+
         self.link = FeatureExtractionPredictor(
             DummyFeatureExtractor(self.in_channels, (1,), None),
             crop_size=self.crop_size, scale_size=self.scale_size,
-            crop=self.crop)
+            crop=self.crop, mean=self.mean)
 
         if isinstance(self.crop_size, int):
             hw = (self.crop_size, self.crop_size)
@@ -97,11 +99,17 @@ class TestFeatureExtractionPredictorPrepare(unittest.TestCase):
         elif self.crop == '10':
             self.expected_shape = (10, self.in_channels) + hw
 
-    def test(self):
+    def test_prepare(self):
         out = self.link._prepare(
             np.random.uniform(size=(self.in_channels, 286, 286)))
 
         self.assertEqual(out.shape, self.expected_shape)
+
+    def test_mean(self):
+        if self.mean is None:
+            np.testing.assert_equal(self.link.mean, self.link.extractor.mean)
+        else:
+            np.testing.assert_equal(self.link.mean, self.mean)
 
 
 testing.run_module(__name__, __file__)
