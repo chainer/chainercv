@@ -49,7 +49,8 @@ class FeatureExtractionPredictor(chainer.Chain):
             If this is an integer, the image is cropped to
             :math:`(crop_size, crop_size)`.
         scale_size (int or tuple): If :obj:`scale_size` is :obj:`None`,
-            neighther scaling nor resizing is conducted during preprocessing.
+            neither scaling nor resizing is conducted during preprocessing.
+            This is the default behavior.
             If this is an integer, an image is resized so that the length of
             the shorter edge is equal to :obj:`scale_size`. If this is a tuple
             :obj:`(height, width)`, the image is resized to
@@ -92,7 +93,7 @@ class FeatureExtractionPredictor(chainer.Chain):
         Last, the image is mean subtracted by an array :obj:`mean`.
 
         Args:
-            img (~numpy.ndarray): An image. This is in CHW and RGB format.
+            img (~numpy.ndarray): An image. This is in CHW format.
                 The range of its value is :math:`[0, 255]`.
 
         Returns:
