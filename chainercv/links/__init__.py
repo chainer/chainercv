@@ -1,3 +1,5 @@
+from chainercv.links.connection.conv_2d_activ import Conv2DActiv  # NOQA
+
 from chainercv.links.model.feature_extraction_predictor import FeatureExtractionPredictor  # NOQA
 from chainercv.links.model.pixelwise_softmax_classifier import PixelwiseSoftmaxClassifier  # NOQA
 from chainercv.links.model.sequential_feature_extractor import SequentialFeatureExtractor  # NOQA
