@@ -2,7 +2,6 @@ import unittest
 
 import numpy as np
 import os
-from PIL import Image
 import tempfile
 
 from chainer import testing
@@ -10,17 +9,17 @@ from chainer import testing
 from chainercv.datasets import directory_parsing_label_names
 from chainercv.datasets import DirectoryParsingClassificationDataset
 from chainercv.utils import assert_is_classification_dataset
+from chainercv.utils import write_image
 
 
 def _save_img_file(path, size, color):
     if color:
         img = np.random.randint(
             0, 255, size=(3,) + size, dtype=np.uint8)
-        Image.fromarray(img.transpose(1, 2, 0)).save(path)
     else:
         img = np.random.randint(
             0, 255, size=(1,) + size, dtype=np.uint8)
-        Image.fromarray(img[0]).save(path)
+    write_image(img, path)
 
 
 def _setup_depth_one_dummy_data(tmp_dir, n_class, n_img_per_class,
