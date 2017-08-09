@@ -25,7 +25,7 @@ class FeatureExtractionPredictor(chainer.Chain):
         >>> from chainercv.links import VGG16
         >>> from chainercv.links import FeatureExtractionPredictor
         >>> base_model = VGG16()
-        >>> model = FeatureExtractionPredictor(base_model)
+        >>> model = FeatureExtractionPredictor(base_model, 224, 256)
         >>> prob = model.predict([img])
         # Predicting multiple features
         >>> model.extractor.feature_names = ['conv5_3', 'fc7']
@@ -48,31 +48,38 @@ class FeatureExtractionPredictor(chainer.Chain):
             cropping in preprocessing.
             If this is an integer, the image is cropped to
             :math:`(crop_size, crop_size)`.
-        scale_size (int or tuple): If :obj:`scale_size` is an integer, during
-            preprocessing, an image is resized so that the length of the
-            shorter edge is equal to :obj:`scale_size`. If this is a tuple
+        scale_size (int or tuple): If :obj:`scale_size` is :obj:`None`,
+            neighther scaling nor resizing is conducted during preprocessing.
+            If this is an integer, an image is resized so that the length of
+            the shorter edge is equal to :obj:`scale_size`. If this is a tuple
             :obj:`(height, width)`, the image is resized to
             :math:`(height, width)`.
         crop ({'center', '10'}): Determines the style of cropping.
+        mean (numpy.ndarray): A mean value. If this is :obj:`None`,
+            :obj:`extractor.mean` is used as the mean value.
 
     """
 
     def __init__(self, extractor,
-                 crop_size=224, scale_size=256,
-                 crop='center'):
+                 crop_size, scale_size=None,
+                 crop='center', mean=None):
         super(FeatureExtractionPredictor, self).__init__()
         self.scale_size = scale_size
         if isinstance(crop_size, int):
             crop_size = (crop_size, crop_size)
         self.crop_size = crop_size
         self.crop = crop
+        self._mean = mean
 
         with self.init_scope():
             self.extractor = extractor
 
     @property
     def mean(self):
-        return self.extractor.mean
+        if self._mean is None:
+            return self.extractor.mean
+        else:
+            return self._mean
 
     def _prepare(self, img):
         """Prepare an image for feeding it to a model.
@@ -80,6 +87,7 @@ class FeatureExtractionPredictor(chainer.Chain):
         This is a standard preprocessing scheme used by feature extraction
         models.
         First, the image is scaled or resized according to :math:`scale_size`.
+        Note that this step is optional.
         Next, the image is cropped to :math:`crop_size`.
         Last, the image is mean subtracted by an array :obj:`mean`.
 
@@ -93,10 +101,11 @@ class FeatureExtractionPredictor(chainer.Chain):
             the number of crops.
 
         """
-        if isinstance(self.scale_size, int):
-            img = scale(img, size=self.scale_size)
-        else:
-            img = resize(img, size=self.scale_size)
+        if self.scale_size is not None:
+            if isinstance(self.scale_size, int):
+                img = scale(img, size=self.scale_size)
+            else:
+                img = resize(img, size=self.scale_size)
 
         if self.crop == '10':
             imgs = ten_crop(img, self.crop_size)
@@ -128,7 +137,7 @@ class FeatureExtractionPredictor(chainer.Chain):
 
         Args:
             imgs (iterable of numpy.ndarray): Array-images.
-                All images are in CHW and RGB format
+                All images are in CHW format
                 and the range of their value is :math:`[0, 255]`.
 
         Returns:
