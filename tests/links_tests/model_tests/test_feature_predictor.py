@@ -5,7 +5,7 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links import FeatureExtractionPredictor
+from chainercv.links import FeaturePredictor
 
 
 class DummyFeatureExtractor(chainer.Chain):
@@ -41,10 +41,10 @@ class DummyFeatureExtractor(chainer.Chain):
         ]
     )
 ))
-class TestFeatureExtractionPredictorPredict(unittest.TestCase):
+class TestFeaturePredictorPredict(unittest.TestCase):
 
     def setUp(self):
-        self.link = FeatureExtractionPredictor(
+        self.link = FeaturePredictor(
             DummyFeatureExtractor(
                 self.in_channels, self.shape_0, self.shape_1),
             crop_size=5, crop=self.crop)
@@ -81,11 +81,11 @@ class TestFeatureExtractionPredictorPredict(unittest.TestCase):
     'in_channels': [1, 3],
     'mean': [None, np.float32(1)]
 }))
-class TestFeatureExtractionPredictor(unittest.TestCase):
+class TestFeaturePredictor(unittest.TestCase):
 
     def setUp(self):
 
-        self.link = FeatureExtractionPredictor(
+        self.link = FeaturePredictor(
             DummyFeatureExtractor(self.in_channels, (1,), None),
             crop_size=self.crop_size, scale_size=self.scale_size,
             crop=self.crop, mean=self.mean)

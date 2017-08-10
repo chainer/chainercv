@@ -10,7 +10,7 @@ from chainercv.transforms import scale
 from chainercv.transforms import ten_crop
 
 
-class FeatureExtractionPredictor(chainer.Chain):
+class FeaturePredictor(chainer.Chain):
 
     """Wrapper that adds a prediction method to a feature extraction model.
 
@@ -23,9 +23,9 @@ class FeatureExtractionPredictor(chainer.Chain):
     Example:
 
         >>> from chainercv.links import VGG16
-        >>> from chainercv.links import FeatureExtractionPredictor
+        >>> from chainercv.links import FeaturePredictor
         >>> base_model = VGG16()
-        >>> model = FeatureExtractionPredictor(base_model, 224, 256)
+        >>> model = FeaturePredictor(base_model, 224, 256)
         >>> prob = model.predict([img])
         # Predicting multiple features
         >>> model.extractor.feature_names = ['conv5_3', 'fc7']
@@ -64,7 +64,7 @@ class FeatureExtractionPredictor(chainer.Chain):
     def __init__(self, extractor,
                  crop_size, scale_size=None,
                  crop='center', mean=None):
-        super(FeatureExtractionPredictor, self).__init__()
+        super(FeaturePredictor, self).__init__()
         self.scale_size = scale_size
         if isinstance(crop_size, int):
             crop_size = (crop_size, crop_size)
