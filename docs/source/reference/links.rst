@@ -59,5 +59,3 @@ Connection
 
 .. toctree::
     links/connection
-
-
