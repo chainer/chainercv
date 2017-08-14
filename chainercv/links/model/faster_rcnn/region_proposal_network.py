@@ -113,14 +113,14 @@ class RegionProposalNetwork(chainer.Chain):
         h = F.relu(self.conv1(x))
 
         rpn_locs = self.loc(h)
-        rpn_locs = rpn_locs.transpose((0, 2, 3, 1)).reshape(n, -1, 4)
+        rpn_locs = rpn_locs.transpose((0, 2, 3, 1)).reshape((n, -1, 4))
 
         rpn_scores = self.score(h)
-        rpn_scores = rpn_scores.transpose(0, 2, 3, 1)
+        rpn_scores = rpn_scores.transpose((0, 2, 3, 1))
         rpn_fg_scores =\
-            rpn_scores.reshape(n, hh, ww, n_anchor, 2)[:, :, :, :, 1]
-        rpn_fg_scores = rpn_fg_scores.reshape(n, -1)
-        rpn_scores = rpn_scores.reshape(n, -1, 2)
+            rpn_scores.reshape((n, hh, ww, n_anchor, 2))[:, :, :, :, 1]
+        rpn_fg_scores = rpn_fg_scores.reshape((n, -1))
+        rpn_scores = rpn_scores.reshape((n, -1, 2))
 
         rois = []
         roi_indices = []
