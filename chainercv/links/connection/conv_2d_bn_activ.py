@@ -7,7 +7,7 @@ from chainer.links import Convolution2D
 class Conv2DBNActiv(chainer.Chain):
     """Convolution2D --> Batch Normalization --> Activation
 
-    This is a chain that sequentially apllies two-dimensional convolution,
+    This is a chain that sequentially apllies a two-dimensional convolution,
     a batch normalization and an activation.
 
     The arguments are the same as that of
@@ -27,8 +27,8 @@ class Conv2DBNActiv(chainer.Chain):
             In these ways, attributes are initialized at runtime based on
             the channel size of the input.
 
-            >>> l = Conv2DBNActiv(None, 10, 3)
             >>> l = Conv2DBNActiv(10, 3)
+            >>> l = Conv2DBNActiv(None, 10, 3)
 
     Args:
         in_channels (int or None): Number of channels of input arrays.
@@ -60,7 +60,7 @@ class Conv2DBNActiv(chainer.Chain):
 
     def __init__(self, in_channels, out_channels, ksize=None,
                  stride=1, pad=0, nobias=False, initialW=None,
-                 initial_bias=None, activ=relu, bn_kwargs={}):
+                 initial_bias=None, activ=relu, bn_kwargs=dict()):
         if ksize is None:
             out_channels, ksize, in_channels = in_channels, out_channels, None
 
