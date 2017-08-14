@@ -230,7 +230,7 @@ if __name__ == '__main__':
             'input_size': 473,
             'n_blocks': [3, 4, 6, 3],
             'feat_size': 60,
-            'mid_stride': True,
+            'mid_stride': False,
             'pyramids': [6, 3, 2, 1],
         }
     }
