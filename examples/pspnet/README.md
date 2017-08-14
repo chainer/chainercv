@@ -11,29 +11,27 @@ This is an unofficial implementation of Pyramid Scene Parsing Network (PSPNet) i
     - Chainer 3.0.0b1+
     - ChainerCV 0.6.0+
     - Matplotlib 2.0.0+
+    - CuPy 2.0.0b1+
+    - tqdm 4.11.0+
 
-## 1. Download converted weights
-
-```
-$ bash download.sh
-```
-
-## 2. Run demo.py
+## Run demo.py
 
 ```
-$ python demo.py sample.jpg
+$ python demo.py -g 0 -m cityscapes -f aachen_000000_000019_leftImg8bit.png
 ```
 
+---
 
 # Convert weights by yourself
 
-**Caffe is not needed** to convert `.caffemodel` to Chainer model by using `caffe_pb2.py`.
+**Caffe is NOT needed** to convert `.caffemodel` to Chainer model. Use `caffe_pb2.py`.
 
 ## Requirement
 
 - Python 3.4.4+
     - protobuf 3.2.0+
     - Chainer 3.0.0b1+
+    - NumPy 1.12.0+
 
 ## 1. Download the original weights
 
@@ -48,5 +46,5 @@ Please download the weights below from the author's repository:
 ## 2. Convert weights
 
 ```
-$ python -m convert
+$ python convert.py
 ```

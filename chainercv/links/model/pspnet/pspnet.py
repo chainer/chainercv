@@ -1,11 +1,16 @@
+from __future__ import division
+
+import warnings
 from math import ceil
 
 import numpy as np
+import six
 
 import chainer
 import chainer.functions as F
 import chainer.links as L
-import warnings
+from chainercv.transforms import resize
+from chainercv.utils import download_model
 
 try:
     from chainermn.links import MultiNodeBatchNormalization
@@ -20,9 +25,9 @@ except:
 class ConvBNReLU(chainer.Chain):
 
     def __init__(self, in_ch, out_ch, ksize, stride=1, pad=1, dilation=1):
-        super().__init__()
+        super(ConvBNReLU, self).__init__()
         comm = chainer.config.comm
-        w = chainer.initializers.HeNormal()
+        w = chainer.config.initialW
         with self.init_scope():
             if dilation > 1:
                 self.conv = L.DilatedConvolution2D(
@@ -31,9 +36,10 @@ class ConvBNReLU(chainer.Chain):
                 self.conv = L.Convolution2D(
                     in_ch, out_ch, ksize, stride, pad, True, w)
             if comm is not None:
-                self.bn = MultiNodeBatchNormalization(out_ch, comm)
+                self.bn = MultiNodeBatchNormalization(
+                    out_ch, comm, eps=1e-5, decay=0.95)
             else:
-                self.bn = L.BatchNormalization(out_ch)
+                self.bn = L.BatchNormalization(out_ch, eps=1e-5, decay=0.95)
 
     def __call__(self, x, relu=True):
         h = self.bn(self.conv(x))
@@ -43,26 +49,23 @@ class ConvBNReLU(chainer.Chain):
 class PyramidPoolingModule(chainer.ChainList):
 
     def __init__(self, in_ch, feat_size, pyramids):
-        super().__init__(
+        super(PyramidPoolingModule, self).__init__(
             ConvBNReLU(in_ch, in_ch // len(pyramids), 1, 1, 0),
             ConvBNReLU(in_ch, in_ch // len(pyramids), 1, 1, 0),
             ConvBNReLU(in_ch, in_ch // len(pyramids), 1, 1, 0),
             ConvBNReLU(in_ch, in_ch // len(pyramids), 1, 1, 0))
-        self.ksizes = (feat_size // np.array(pyramids)).tolist()
+        if isinstance(feat_size, int):
+            self.ksizes = (feat_size // np.array(pyramids)).tolist()
+        elif isinstance(feat_size, (list, tuple)) and len(feat_size) == 2:
+            kh = (feat_size[0] // np.array(pyramids)).tolist()
+            kw = (feat_size[1] // np.array(pyramids)).tolist()
+            self.ksizes = list(zip(kh, kw))
 
     def __call__(self, x):
         ys = [x]
         h, w = x.shape[2:]
         for f, ksize in zip(self, self.ksizes):
-            ksize = (ksize, ksize)
-
-            # Calc padding sizes
-            h_rem, w_rem = h % ksize[0], w % ksize[1]
-            pad_h = int(ceil((ksize[0] - h_rem) / 2.0)) if h_rem > 0 else 0
-            pad_w = int(ceil((ksize[1] - w_rem) / 2.0)) if w_rem > 0 else 0
-            pad = (pad_h, pad_w)
-
-            y = F.average_pooling_2d(x, ksize, ksize, pad)
+            y = F.average_pooling_2d(x, ksize, ksize)  # Pad should be 0!
             y = f(y)  # Reduce num of channels
             y = F.resize_images(y, (h, w))
             ys.append(y)
@@ -73,7 +76,7 @@ class BottleneckConv(chainer.Chain):
 
     def __init__(self, in_ch, mid_ch, out_ch, stride=2, dilate=False):
         mid_stride = chainer.config.mid_stride
-        super().__init__()
+        super(BottleneckConv, self).__init__()
         with self.init_scope():
             self.cbr1 = ConvBNReLU(
                 in_ch, mid_ch, 1, 1 if mid_stride else stride, 0)
@@ -96,7 +99,7 @@ class BottleneckConv(chainer.Chain):
 class BottleneckIdentity(chainer.Chain):
 
     def __init__(self, in_ch, mid_ch, dilate=False):
-        super().__init__()
+        super(BottleneckIdentity, self).__init__()
         with self.init_scope():
             self.cbr1 = ConvBNReLU(in_ch, mid_ch, 1, 1, 0)
             if dilate:
@@ -115,9 +118,9 @@ class BottleneckIdentity(chainer.Chain):
 class ResBlock(chainer.ChainList):
 
     def __init__(self, n_layer, in_ch, mid_ch, out_ch, stride):
-        super().__init__()
+        super(ResBlock, self).__init__()
         self.add_link(BottleneckConv(in_ch, mid_ch, out_ch, stride))
-        for _ in range(1, n_layer):
+        for _ in six.moves.xrange(1, n_layer):
             self.add_link(BottleneckIdentity(out_ch, mid_ch))
 
     def __call__(self, x):
@@ -129,9 +132,9 @@ class ResBlock(chainer.ChainList):
 class DilatedResBlock(chainer.ChainList):
 
     def __init__(self, n_layer, in_ch, mid_ch, out_ch, dilate):
-        super().__init__()
+        super(DilatedResBlock, self).__init__()
         self.add_link(BottleneckConv(in_ch, mid_ch, out_ch, 1, dilate))
-        for _ in range(1, n_layer):
+        for _ in six.moves.xrange(1, n_layer):
             self.add_link(BottleneckIdentity(out_ch, mid_ch, dilate))
 
     def __call__(self, x):
@@ -143,7 +146,7 @@ class DilatedResBlock(chainer.ChainList):
 class DilatedFCN(chainer.Chain):
 
     def __init__(self, n_blocks):
-        super().__init__()
+        super(DilatedFCN, self).__init__()
         with self.init_scope():
             self.cbr1_1 = ConvBNReLU(None, 64, 3, 2, 1)
             self.cbr1_2 = ConvBNReLU(64, 64, 3, 1, 1)
@@ -174,53 +177,174 @@ class PSPNet(chainer.Chain):
     This Chain supports any depth of ResNet and any pyramid levels for
     the pyramid pooling module (PPM).
 
+    When you specify the path of a pre-trained chainer model serialized as
+    a :obj:`.npz` file in the constructor, this chain model automatically
+    initializes all the parameters with it.
+    When a string in prespecified set is provided, a pretrained model is
+    loaded from weights distributed on the Internet.
+    The list of pretrained models supported are as follows:
+
+    * :obj:`voc07`: Loads weights trained with the trainval split of \
+        PASCAL VOC2007 Detection Dataset.
+    * :obj:`imagenet`: Loads weights trained with ImageNet Classfication \
+        task for the feature extractor and the head modules. \
+        Weights that do not have a corresponding layer in VGG-16 \
+        will be randomly initialized.
+
     Args:
         n_class (int): The number of channels in the last convolution layer.
+        input_size (int or iterable of ints): The input image size. If a
+            single integer is given, it's treated in the same way as if
+            a tuple of (input_size, input_size) is given. If an iterable object
+            is given, it should mean (height, width) of the input images.
         n_blocks (list of int): Numbers of layers in ResNet. Typically,
             [3, 4, 23, 3] for ResNet101 (used for PASCAL VOC2012 and
             Cityscapes in the original paper) and [3, 4, 6, 3] for ResNet50
             (used for ADE20K datset in the original paper).
-        feat_size (int): The feature map size of the output of the base ResNet.
-            Typically it will be 1/8 of the input image size.
         pyramids (list of int): The number of division to the feature map in
             each pyramid level. The length of this list will be the number of
-            levels of pyramid in the pyramid pooling module.
+            levels of pyramid in the pyramid pooling module. In each pyramid,
+            an average pooling is applied to the feature map with the kernel
+            size of the corresponding value in this list.
         mid_stride (bool): If True, spatial dimention reduction in bottleneck
             modules in ResNet part will be done at the middle 3x3 convolution.
             It means that the stride of the middle 3x3 convolution will be two.
             Otherwise (if it's set to False), the stride of the first 1x1
             convolution in the bottleneck module will be two as in the original
             ResNet and Deeplab v2.
-        comm (ChainerMN communicator or None): If a ChainerMN communicator is
+        mean (numpy.ndarray): A value to be subtracted from an image
+            in :meth:`prepare`.
+        comm (chainermn.communicator or None): If a ChainerMN communicator is
             given, it will be used for distributed batch normalization during
             training. If None, all batch normalization links will not share
             the input vectors among GPUs before calculating mean and variance.
             The original PSPNet implementation uses distributed batch
             normalization.
+        pretrained_model (str): The destination of the pre-trained
+            chainer model serialized as a :obj:`.npz` file.
+            If this is one of the strings described
+            above, it automatically loads weights stored under a directory
+            :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/models/`,
+            where :obj:`$CHAINER_DATASET_ROOT` is set as
+            :obj:`$HOME/.chainer/dataset` unless you specify another value
+            by modifying the environment variable.
 
     """
 
-    def __init__(self, n_class, n_blocks=[3, 4, 23, 3], feat_size=90,
-                 pyramids=[1, 2, 3, 6], mid_stride=True, comm=None):
+    _models = {
+        'voc2012': {
+            'n_class': 21,
+            'input_size': (473, 473),
+            'n_blocks': [3, 4, 23, 3],
+            'feat_size': 60,
+            'mid_stride': True,
+            'pyramids': [6, 3, 2, 1],
+            'mean': np.array([103.939, 116.779, 123.68]),
+            'url': 'https://github.com/mitmul/chainer-pspnet/releases/'
+                   'download/PSPNet_reference_weights/pspnet101_VOC2012_473_'
+                   'reference.npz'
+        },
+        'cityscapes': {
+            'n_class': 19,
+            'input_size': (713, 713),
+            'n_blocks': [3, 4, 23, 3],
+            'feat_size': 90,
+            'mid_stride': True,
+            'pyramids': [6, 3, 2, 1],
+            'mean': np.array([103.939, 116.779, 123.68]),
+            'url': 'https://github.com/mitmul/chainer-pspnet/releases/'
+                   'download/PSPNet_reference_weights/pspnet101_cityscapes_'
+                   '713_reference.npz'
+        },
+        'ade20k': {
+            'n_class': 150,
+            'input_size': (473, 473),
+            'n_blocks': [3, 4, 6, 3],
+            'feat_size': 60,
+            'mid_stride': True,
+            'pyramids': [6, 3, 2, 1],
+            'mean': np.array([103.939, 116.779, 123.68]),
+            'url': 'https://github.com/mitmul/chainer-pspnet/releases/'
+                   'download/PSPNet_reference_weights/pspnet50_ADE20K_473_'
+                   'reference.npz'
+        }
+    }
+
+    def __init__(self, n_class=None, input_size=None, n_blocks=None,
+                 pyramids=None, mid_stride=None, mean=None, comm=None,
+                 pretrained_model=None, initialW=None):
+        super(PSPNet, self).__init__()
+
+        if pretrained_model is not None:
+            if 'n_class' in self._models[pretrained_model]:
+                n_class = self._models[pretrained_model]['n_class']
+            if 'input_size' in self._models[pretrained_model]:
+                input_size = self._models[pretrained_model]['input_size']
+            if 'n_blocks' in self._models[pretrained_model]:
+                n_blocks = self._models[pretrained_model]['n_blocks']
+            if 'pyramids' in self._models[pretrained_model]:
+                pyramids = self._models[pretrained_model]['pyramids']
+            if 'mid_stride' in self._models[pretrained_model]:
+                mid_stride = self._models[pretrained_model]['mid_stride']
+            if 'mean' in self._models[pretrained_model]:
+                mean = self._models[pretrained_model]['mean']
+
         chainer.config.mid_stride = mid_stride
         chainer.config.comm = comm
-        super().__init__()
-        w = chainer.initializers.HeNormal()
+
+        if initialW is None:
+            chainer.config.initialW = chainer.initializers.HeNormal()
+        else:
+            chainer.config.initialW = initialW
+
+        if not isinstance(input_size, (list, tuple)):
+            input_size = (int(input_size), int(input_size))
+
         with self.init_scope():
+            self.input_size = input_size
             self.trunk = DilatedFCN(n_blocks=n_blocks)
 
             # To calculate auxirally loss
             if chainer.config.train:
                 self.cbr_aux = ConvBNReLU(None, 512, 3, 1, 1)
                 self.out_aux = L.Convolution2D(
-                    512, n_class, 3, 1, 1, False, w)
+                    512, n_class, 3, 1, 1, False, initialW)
 
             # Main branch
+            feat_size = (input_size[0] // 8, input_size[1] // 8)
             self.ppm = PyramidPoolingModule(2048, feat_size, pyramids)
             self.cbr_main = ConvBNReLU(4096, 512, 3, 1, 1)
-            self.out_main = L.Convolution2D(512, n_class, 1, 1, 0, False, w)
+            self.out_main = L.Convolution2D(
+                512, n_class, 1, 1, 0, False, initialW)
+
+        self.mean = mean
+
+        if pretrained_model in self._models:
+            path = download_model(self._models[pretrained_model]['url'])
+            chainer.serializers.load_npz(path, self)
+        elif pretrained_model:
+            chainer.serializers.load_npz(pretrained_model, self)
+
+    @property
+    def n_class(self):
+        return self.out_main.out_channels
 
     def __call__(self, x):
+        """Forward computation of PSPNet
+
+        Args:
+            x: Input array or Variable.
+
+        Returns:
+            Training time: it returns the outputs from auxiliary branch and the
+                main branch. So the returned value is a tuple of two Variables.
+            Inference time: it returns the output of the main branch. So the
+                returned value is a sinle Variable which forms
+                ``(N, n_class, H, W)`` where ``N`` is the batchsize and
+                ``n_class`` is the number of classes specified in the
+                constructor. ``H, W`` is the input image size.
+
+        """
         if chainer.config.train:
             aux, h = self.trunk(x)
             aux = F.dropout(self.cbr_aux(aux), ratio=0.1)
@@ -239,10 +363,120 @@ class PSPNet(chainer.Chain):
         else:
             return h
 
-    def predict(self, imgs):
+    def prepare(self, img):
+        """Preprocess an image for feature extraction.
+
+        The image is subtracted by a mean image value :obj:`self.mean`.
+
+        Args:
+            img (~numpy.ndarray): An image. This is in CHW and RGB format.
+                The range of its value is :math:`[0, 255]`.
+
+        Returns:
+            ~numpy.ndarray:
+            A preprocessed image.
+
+        """
+        if self.mean is not None:
+            img = (img - self.mean).astype(np.float32, copy=False)
+        return img
+
+    def _predict(self, img):
+        imgs = np.concatenate([img, img[:, :, :, ::-1]], axis=0)
+        imgs = chainer.Variable(self.xp.asarray(imgs))
         with chainer.using_config('train', False):
-            imgs = chainer.Variable(self.xp.asarray(imgs))
-            y = self.__call__(imgs)
-            label = F.argmax(y, axis=1).data
-            label = chainer.cuda.to_cpu(label)
-            return label
+            scores = self.__call__(imgs)
+        score = (scores[0] + scores[1][:, :, ::-1])[None, ...]
+        return F.softmax(score).data
+
+    def _pad_img(self, img):
+        if img.shape[1] < self.input_size[0]:
+            pad_h = self.input_size - img.shape[1]
+            img = np.pad(img, ((0, 0), (0, pad_h), (0, 0)), 'constant')
+        else:
+            pad_h = 0
+        if img.shape[2] < self.input_size[1]:
+            pad_w = self.input_size - img.shape[2]
+            img = np.pad(img, ((0, 0), (0, 0), (0, pad_w)), 'constant')
+        else:
+            pad_w = 0
+        return img, pad_h, pad_w
+
+    def _tile_predict(self, img):
+        ori_rows, ori_cols = img.shape[1:]
+        long_size = max(ori_rows, ori_cols)
+
+        # Calc scaled size
+        new_rows, new_cols = long_size, long_size
+        if ori_rows > ori_cols:
+            new_cols = int(long_size / ori_rows * ori_cols)
+        else:
+            new_rows = int(long_size / ori_cols * ori_rows)
+
+        # Perform scaling
+        if ori_rows != new_rows or ori_cols != new_cols:
+            img_scaled = resize(img, (new_rows, new_cols))
+        else:
+            img_scaled = img
+        long_size = max(new_rows, new_cols)
+
+        # When padding input patches is needed
+        if long_size > self.input_size:
+            count = np.zeros((new_rows, new_cols))
+            pred = np.zeros((1, self.n_class, new_rows, new_cols))
+            stride_rate = 2 / 3.
+            stride = (ceil(self.input_size[0] * stride_rate),
+                      ceil(self.input_size[1] * stride_rate))
+            hh = ceil((new_rows - self.input_size[0]) / stride[0]) + 1
+            ww = ceil((new_cols - self.input_size[1]) / stride[1]) + 1
+            for yy in six.moves.xrange(hh):
+                for xx in six.moves.xrange(ww):
+                    sy, sx = yy * stride[0], xx * stride[1]
+                    ey, ex = sy + self.input_size[0], sx + self.input_size[1]
+                    img_sub = img_scaled[:, sy:ey, sx:ex]
+                    img_sub, pad_h, pad_w = self._pad_img(img_sub)
+                    psub = self._predict(img_sub[np.newaxis])
+                    if sy + self.input_size > new_rows:
+                        psub = psub[:, :, :-pad_h, :]
+                    if sx + self.input_size > new_cols:
+                        psub = psub[:, :, :, :-pad_w]
+                    pred[:, :, sy:ey, sx:ex] = psub
+                    count[sy:ey, sx:ex] += 1
+            score = (pred / count[None, None, ...]).astype(np.float32)
+        else:
+            img_scaled, pad_h, pad_w = self._pad_img(img_scaled)
+            pred = self._predict(img_scaled[np.newaxis])
+            score = pred[
+                :, :, :self.input_size - pad_h, :self.input_size - pad_w]
+        score = F.resize_images(score, (ori_rows, ori_cols))[0].data
+        return score / score.sum(axis=0)
+
+    def predict(self, imgs, argmax=True):
+        """Conduct semantic segmentation from images.
+
+        Args:
+            imgs (iterable of numpy.ndarray): Arrays holding images.
+                All images should be in CHW order.
+            argmax (bool): Whether it performs argmax to the output label
+                predictions over the channel axis or not. The default is True.
+
+        Returns:
+            list of numpy.ndarray: List of predictions from each image in the
+                input list. Note that if you specified ``argmax=True``, each
+                prediction is resulting integer label and the number of
+                dimensions is two (:math:`(H, W)`). Otherwise, the output will
+                be a probability map calculated by the model and its number of
+                dimensions will be three (:math:`(C, H, W)`).
+
+        """
+        labels = []
+        for img in imgs:
+            _, H, W = img.shape
+            with chainer.using_config('train', False):
+                x = self.prepare(img)
+                score = self._tile_predict(x)
+            score = chainer.cuda.to_cpu(score)
+            if argmax:
+                label = np.argmax(score, axis=0).astype(np.int32)
+            labels.append(label)
+        return labels
