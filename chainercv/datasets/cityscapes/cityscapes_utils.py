@@ -1,3 +1,6 @@
+# The values used here is copied from cityscapesScripts:
+# https://github.com/mcordts/cityscapesScripts
+
 from collections import namedtuple
 
 
