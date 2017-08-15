@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 from chainer import dataset
-from chainercv.datasets import cityscapes_labels
+from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_labels
 from chainercv.utils import read_image
 
 
