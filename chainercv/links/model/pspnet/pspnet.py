@@ -302,9 +302,10 @@ class PSPNet(chainer.Chain):
             self.trunk = DilatedFCN(n_blocks=n_blocks)
 
             # To calculate auxirally loss
-            self.cbr_aux = ConvBNReLU(None, 512, 3, 1, 1)
-            self.out_aux = L.Convolution2D(
-                512, n_class, 3, 1, 1, False, initialW)
+            if chainer.config.train:
+                self.cbr_aux = ConvBNReLU(None, 512, 3, 1, 1)
+                self.out_aux = L.Convolution2D(
+                    512, n_class, 3, 1, 1, False, initialW)
 
             # Main branch
             feat_size = (input_size[0] // 8, input_size[1] // 8)

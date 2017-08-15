@@ -20,8 +20,8 @@ chainer.config.train = False
 
 
 def get_chainer_model(n_class, input_size, n_blocks, pyramids, mid_stride):
-    model = PSPNet(n_class, input_size, n_blocks, pyramids, mid_stride)
     with chainer.using_config('train', True):
+        model = PSPNet(n_class, input_size, n_blocks, pyramids, mid_stride)
         model(np.random.rand(1, 3, input_size, input_size).astype(np.float32))
     size = 0
     for param in model.params():
