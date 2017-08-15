@@ -21,10 +21,15 @@ chainer.config.train = False
 
 def get_chainer_model(n_class, input_size, n_blocks, pyramids, mid_stride):
     model = PSPNet(n_class, input_size, n_blocks, pyramids, mid_stride)
-    model(np.random.rand(1, 3, input_size, input_size).astype(np.float32))
+    with chainer.using_config('train', True):
+        model(np.random.rand(1, 3, input_size, input_size).astype(np.float32))
     size = 0
     for param in model.params():
-        size += param.size
+        try:
+            size += param.size
+        except Exception as e:
+            print(str(type(e)), e, param, param.name)
+            exit(-1)
     print('PSPNet (chainer) size:', size)
     return model
 
@@ -198,7 +203,7 @@ if __name__ == '__main__':
         exit()
 
     # Num of parameters of models for...
-    # VOC2012: 65708501
+    # VOC2012: 65708501 (train: 70524906)
     # Cityscapes: 65707475
     # ADE20K: 46782550
 

@@ -9,11 +9,11 @@ import numpy as np
 
 import chainer
 from chainer import serializers
-from chainercv.datasets import ade20k_label_colors
-from chainercv.datasets import ade20k_label_names
-from chainercv.datasets import cityscapes_labels
-from chainercv.datasets import cityscapes_label_colors
-from chainercv.datasets import cityscapes_label_names
+# from chainercv.datasets import ade20k_label_colors
+# from chainercv.datasets import ade20k_label_names
+# from chainercv.datasets import cityscapes_labels
+# from chainercv.datasets import cityscapes_label_colors
+# from chainercv.datasets import cityscapes_label_names
 from chainercv.datasets import voc_semantic_segmentation_label_colors
 from chainercv.datasets import voc_semantic_segmentation_label_names
 from chainercv.links import PSPNet

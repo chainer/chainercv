@@ -240,9 +240,8 @@ class PSPNet(chainer.Chain):
             'mid_stride': True,
             'pyramids': [6, 3, 2, 1],
             'mean': np.array([103.939, 116.779, 123.68]),
-            'url': 'https://github.com/mitmul/chainer-pspnet/releases/'
-                   'download/PSPNet_reference_weights/pspnet101_VOC2012_473_'
-                   'reference.npz'
+            'url': 'https://github.com/mitmul/chainer-pspnet/releases/download'
+                   '/ChainerCV_PSPNet/pspnet101_VOC2012_473_reference.npz'
         },
         'cityscapes': {
             'n_class': 19,
@@ -252,9 +251,8 @@ class PSPNet(chainer.Chain):
             'mid_stride': True,
             'pyramids': [6, 3, 2, 1],
             'mean': np.array([103.939, 116.779, 123.68]),
-            'url': 'https://github.com/mitmul/chainer-pspnet/releases/'
-                   'download/PSPNet_reference_weights/pspnet101_cityscapes_'
-                   '713_reference.npz'
+            'url': 'https://github.com/mitmul/chainer-pspnet/releases/download'
+                   '/ChainerCV_PSPNet/pspnet101_cityscapes_713_reference.npz'
         },
         'ade20k': {
             'n_class': 150,
@@ -264,9 +262,8 @@ class PSPNet(chainer.Chain):
             'mid_stride': True,
             'pyramids': [6, 3, 2, 1],
             'mean': np.array([103.939, 116.779, 123.68]),
-            'url': 'https://github.com/mitmul/chainer-pspnet/releases/'
-                   'download/PSPNet_reference_weights/pspnet50_ADE20K_473_'
-                   'reference.npz'
+            'url': 'https://github.com/mitmul/chainer-pspnet/releases/download'
+                   '/ChainerCV_PSPNet/pspnet50_ADE20K_473_reference.npz'
         }
     }
 
@@ -305,10 +302,9 @@ class PSPNet(chainer.Chain):
             self.trunk = DilatedFCN(n_blocks=n_blocks)
 
             # To calculate auxirally loss
-            if chainer.config.train:
-                self.cbr_aux = ConvBNReLU(None, 512, 3, 1, 1)
-                self.out_aux = L.Convolution2D(
-                    512, n_class, 3, 1, 1, False, initialW)
+            self.cbr_aux = ConvBNReLU(None, 512, 3, 1, 1)
+            self.out_aux = L.Convolution2D(
+                512, n_class, 3, 1, 1, False, initialW)
 
             # Main branch
             feat_size = (input_size[0] // 8, input_size[1] // 8)
