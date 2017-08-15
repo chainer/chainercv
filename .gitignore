@@ -5,6 +5,7 @@
 *.c
 *.cpp
 *.so
+*.cson
 build
 \#*\#
 .\#*
