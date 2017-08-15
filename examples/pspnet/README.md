@@ -12,13 +12,14 @@ This is an unofficial implementation of Pyramid Scene Parsing Network (PSPNet) i
     - ChainerCV 0.6.0+
     - Matplotlib 2.0.0+
     - CuPy 2.0.0b1+
-    - tqdm 4.11.0+
 
 ## Run demo.py
 
 ```
-$ python demo.py -g 0 -m cityscapes -f aachen_000000_000019_leftImg8bit.png
+$ python demo.py -g 0 -m cityscapes -f stuttgart_00_000000_000040_leftImg8bit.png
 ```
+
+![](images/sample.png)
 
 ---
 

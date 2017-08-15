@@ -375,7 +375,8 @@ class PSPNet(chainer.Chain):
 
         """
         if self.mean is not None:
-            img = (img - self.mean).astype(np.float32, copy=False)
+            img = img - self.mean[:, None, None]
+            img = img.astype(np.float32, copy=False)
         return img
 
     def _predict(self, img):
@@ -384,16 +385,16 @@ class PSPNet(chainer.Chain):
         with chainer.using_config('train', False):
             scores = self.__call__(imgs)
         score = (scores[0] + scores[1][:, :, ::-1])[None, ...]
-        return F.softmax(score).data
+        return chainer.cuda.to_cpu(F.softmax(score).data)
 
     def _pad_img(self, img):
         if img.shape[1] < self.input_size[0]:
-            pad_h = self.input_size - img.shape[1]
+            pad_h = self.input_size[0] - img.shape[1]
             img = np.pad(img, ((0, 0), (0, pad_h), (0, 0)), 'constant')
         else:
             pad_h = 0
         if img.shape[2] < self.input_size[1]:
-            pad_w = self.input_size - img.shape[2]
+            pad_w = self.input_size[1] - img.shape[2]
             img = np.pad(img, ((0, 0), (0, 0), (0, pad_w)), 'constant')
         else:
             pad_w = 0
@@ -418,7 +419,7 @@ class PSPNet(chainer.Chain):
         long_size = max(new_rows, new_cols)
 
         # When padding input patches is needed
-        if long_size > self.input_size:
+        if long_size > max(self.input_size):
             count = np.zeros((new_rows, new_cols))
             pred = np.zeros((1, self.n_class, new_rows, new_cols))
             stride_rate = 2 / 3.
@@ -433,9 +434,9 @@ class PSPNet(chainer.Chain):
                     img_sub = img_scaled[:, sy:ey, sx:ex]
                     img_sub, pad_h, pad_w = self._pad_img(img_sub)
                     psub = self._predict(img_sub[np.newaxis])
-                    if sy + self.input_size > new_rows:
+                    if sy + self.input_size[0] > new_rows:
                         psub = psub[:, :, :-pad_h, :]
-                    if sx + self.input_size > new_cols:
+                    if sx + self.input_size[1] > new_cols:
                         psub = psub[:, :, :, :-pad_w]
                     pred[:, :, sy:ey, sx:ex] = psub
                     count[sy:ey, sx:ex] += 1
@@ -444,7 +445,7 @@ class PSPNet(chainer.Chain):
             img_scaled, pad_h, pad_w = self._pad_img(img_scaled)
             pred = self._predict(img_scaled[np.newaxis])
             score = pred[
-                :, :, :self.input_size - pad_h, :self.input_size - pad_w]
+                :, :, :self.input_size[0] - pad_h, :self.input_size[1] - pad_w]
         score = F.resize_images(score, (ori_rows, ori_cols))[0].data
         return score / score.sum(axis=0)
 

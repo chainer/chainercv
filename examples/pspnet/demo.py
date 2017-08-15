@@ -41,7 +41,7 @@ if __name__ == '__main__':
         model.to_gpu(args.gpu)
 
     img = read_image(args.img_fn)
-    pred = model.predict([img])
+    pred = model.predict([img])[0]
 
     # Save the result image
     ax = vis_image(img)

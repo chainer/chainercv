@@ -20,7 +20,6 @@ from datasets import cityscapes_labels
 from datasets import CityscapesSemanticSegmentationDataset
 from datasets import VOCSemanticSegmentationDataset
 from pspnet import PSPNet
-from tqdm import tqdm
 
 
 def preprocess(inputs):
@@ -204,7 +203,7 @@ if __name__ == '__main__':
         chainer.cuda.get_device_from_id(args.gpu)
         model.to_gpu(args.gpu)
 
-    for i in tqdm(range(args.start_i, args.end_i + 1)):
+    for i in range(args.start_i, args.end_i + 1):
         img = dataset[i]
         out_fn = os.path.join(
             args.out_dir, os.path.basename(dataset._dataset.img_fns[i]))
