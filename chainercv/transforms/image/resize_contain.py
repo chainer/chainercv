@@ -55,7 +55,7 @@ def resize_contain(img, size, fill=0, return_param=False):
         img = resize(img, scaled_size)
     y_slice, x_slice = _get_pad_slice(img, size=size)
     out_img = np.empty((C, out_H, out_W), dtype=img.dtype)
-    out_img[:] = np.array(fill).reshape(-1, 1, 1)
+    out_img[:] = np.array(fill).reshape((-1, 1, 1))
     out_img[:, y_slice, x_slice] = img
 
     if return_param:

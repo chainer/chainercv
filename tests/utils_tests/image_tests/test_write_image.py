@@ -49,7 +49,7 @@ class TestWriteImage(unittest.TestCase):
                 img = img[np.newaxis]
             else:
                 # transpose (H, W, C) -> (C, H, W)
-                img = img.transpose(2, 0, 1)
+                img = img.transpose((2, 0, 1))
 
             np.testing.assert_equal(img, self.img)
 

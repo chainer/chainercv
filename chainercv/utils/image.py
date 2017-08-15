@@ -37,7 +37,7 @@ def read_image(path, dtype=np.float32, color=True):
         return img[np.newaxis]
     else:
         # transpose (H, W, C) -> (C, H, W)
-        return img.transpose(2, 0, 1)
+        return img.transpose((2, 0, 1))
 
 
 def write_image(img, path):
@@ -55,7 +55,7 @@ def write_image(img, path):
     if img.shape[0] == 1:
         img = img[0]
     else:
-        img = img.transpose(1, 2, 0)
+        img = img.transpose((1, 2, 0))
 
     img = Image.fromarray(img.astype(np.uint8))
     img.save(path)
