@@ -2,10 +2,10 @@ from chainercv.datasets.camvid.camvid_dataset import camvid_ignore_label_color  
 from chainercv.datasets.camvid.camvid_dataset import camvid_label_colors  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import camvid_label_names  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import CamVidDataset  # NOQA
-from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_labels  # NOQA
-from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_label_names  # NOQA
-from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_label_colors  # NOQA
 from chainercv.datasets.cityscapes.cityscapes_semantic_segmentation_dataset import CityscapesSemanticSegmentationDataset  # NOQA
+from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_label_colors  # NOQA
+from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_label_names  # NOQA
+from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_labels  # NOQA
 from chainercv.datasets.cub.cub_keypoint_dataset import CUBKeypointDataset  # NOQA
 from chainercv.datasets.cub.cub_label_dataset import CUBLabelDataset  # NOQA
 from chainercv.datasets.cub.cub_utils import cub_label_names  # NOQA
