@@ -1,3 +1,32 @@
+"""Coding style checker for ChainerCV
+
+This is a coding style checker used in ChainerCV.
+
+Usage:
+    $ python style_checker.py <directory path>
+
+This script checks following coding rules.
+
+- Arguments of `ndarray.reshape`.
+    If the target shape is 1-d array, it should be passed as an integer.
+    Otherwise, it should be passed as a tuple.
+
+    Example:
+        a.reshape(3)  # OK
+        b.reshape((1, 2, 3))  # OK
+
+        a.reshape((3,))  # NG
+        b.reshape(1, 2, 3)  # NG
+
+- Arguments of `ndarray.transpose`.
+    The order of axes should be passed as a tuple.
+
+    Example:
+        a.transpose((2, 0, 1))  # OK
+        a.reshape(2, 0, 1)  # NG
+
+ """
+
 import argparse
 import ast
 import os
