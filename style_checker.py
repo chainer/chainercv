@@ -5,7 +5,7 @@ This is a coding style checker used in ChainerCV.
 Usage:
     $ python style_checker.py <directory path>
 
-This script checks following coding rules.
+This script checks the following coding rules.
 
 - Arguments of `ndarray.reshape`.
     If the target shape is 1-d array, it should be passed as an integer.
