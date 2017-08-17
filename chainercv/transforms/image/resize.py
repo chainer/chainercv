@@ -7,7 +7,7 @@ try:
     import cv2
 
     def _resize(img, size, interpolation):
-        img = img.transpose(1, 2, 0)
+        img = img.transpose((1, 2, 0))
         if interpolation == PIL.Image.NEAREST:
             cv_interpolation = cv2.INTER_NEAREST
         elif interpolation == PIL.Image.BILINEAR:
@@ -22,7 +22,7 @@ try:
         # If input is a grayscale image, cv2 returns a two-dimentional array.
         if len(img.shape) == 2:
             img = img[:, :, np.newaxis]
-        return img.transpose(2, 0, 1)
+        return img.transpose((2, 0, 1))
 
 except ImportError:
     def _resize(img, size, interpolation):
