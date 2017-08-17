@@ -38,6 +38,7 @@ def check(source):
         check_reshape,
         check_transpose,
         check_empty_list,
+        check_empty_dict,
     )
 
     for node in ast.walk(ast.parse(source)):
@@ -92,6 +93,14 @@ def check_empty_list(node):
 
     if len(node.elts) == 0:
         yield (node.lineno, 'init by []')
+
+
+def check_empty_dict(node):
+    if not isinstance(node, ast.Dict):
+        return
+
+    if len(node.keys) == 0 and len(node.values) == 0:
+        yield (node.lineno, 'init by {}')
 
 
 def main():
