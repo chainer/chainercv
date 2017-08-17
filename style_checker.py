@@ -37,6 +37,7 @@ def check(source):
     checkers = (
         check_reshape,
         check_transpose,
+        check_empty_list,
     )
 
     for node in ast.walk(ast.parse(source)):
@@ -83,6 +84,14 @@ def check_transpose(node):
        isinstance(node.args[0], ast.Tuple) and \
        len(node.args[0].elts) == 1:
         yield (node.lineno, 'transpose((A,))')
+
+
+def check_empty_list(node):
+    if not isinstance(node, ast.List):
+        return
+
+    if len(node.elts) == 0:
+        yield (node.lineno, '[]')
 
 
 def main():
