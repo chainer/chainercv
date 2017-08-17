@@ -7,10 +7,10 @@ import numpy as np
 
 from chainer import testing
 from chainer.testing import attr
+from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_labels
 from chainercv.datasets import cityscapes_label_names
 from chainercv.datasets import CityscapesSemanticSegmentationDataset
 from chainercv.utils import assert_is_semantic_segmentation_dataset
-from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_labels
 from chainercv.utils import write_image
 
 
