@@ -4,18 +4,19 @@ import tempfile
 import unittest
 
 import numpy as np
-from PIL import Image
 
 from chainer import testing
 from chainer.testing import attr
 from chainercv.datasets import cityscapes_label_names
 from chainercv.datasets import CityscapesSemanticSegmentationDataset
 from chainercv.utils import assert_is_semantic_segmentation_dataset
+from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_labels
+from chainercv.utils import write_image
 
 
 @testing.parameterize(
-    {'split': 'train'},
-    {'split': 'val'}
+    {'split': 'train', 'ignore_labels': True},
+    {'split': 'val', 'ignore_labels': False}
 )
 class TestCityscapesSemanticSegmentationDataset(unittest.TestCase):
 
@@ -29,23 +30,27 @@ class TestCityscapesSemanticSegmentationDataset(unittest.TestCase):
         os.makedirs(label_dir)
 
         for i in range(10):
-            img = np.random.randint(0, 255, size=(128, 160, 3))
-            img = Image.fromarray(img.astype(np.uint8))
-            img.save(os.path.join(
+            img = np.random.randint(
+                0, 255, size=(128, 160, 3)).astype(np.uint8)
+            write_image(img, os.path.join(
                 img_dir, 'aachen_000000_0000{:02d}_leftImg8bit.png'.format(i)))
 
-            label = np.random.randint(0, 20, size=(128, 160)).astype(np.uint8)
-            label = Image.fromarray(np.zeros((128, 160), dtype=np.uint8))
-            label.save(os.path.join(
+            label = np.random.randint(-1, 33, size=(128, 160)).astype(np.uint8)
+            label.save(label, os.path.join(
                 label_dir,
                 'aachen_000000_0000{:02d}_gtFine_labelIds.png'.format(i)))
 
         img_dir = os.path.join(self.temp_dir, 'leftImg8bit')
         label_dir = os.path.join(self.temp_dir, 'gtFine')
-        if self.split == 'test':
-            label_dir = None
         self.dataset = CityscapesSemanticSegmentationDataset(
-            img_dir, label_dir, self.split)
+            img_dir, label_dir, self.split, self.ignore_labels)
+
+    def test_ignore_labels(self):
+        _, label_orig = self.dataset
+        H, W = label_orig.shape
+        label_out = np.ones((H, W), dtype=np.int32) * -1
+        for label in cityscapes_labels:
+            label_out[label_orig == label.trainId] = label.id
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)

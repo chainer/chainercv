@@ -4,6 +4,7 @@ import os
 import numpy as np
 
 from chainer import dataset
+from chainer.dataset import download
 from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_labels
 from chainercv.utils import read_image
 
@@ -16,41 +17,56 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
 
     .. note::
 
-        Please download the data by yourself because Cityscapes dataset doesn't
-        allow to re-distribute their data.
+        Please manually downalod the data because it is not allowed to
+        re-distribute Cityscapes dataset.
 
     Args:
-        img_dir (string): Path to the image dir. It should end with
-            ``leftImg8bit``.
-        label_dir (string): Path to the dir which contains labels. It should
-            end with either ``gtFine`` or ``gtCoarse``.
+        img_dir (string): Path to the image directory. It should end with
+            :obj`leftImg8bit`. If :obj:`None` is given, it uses
+            :obj:`$CHAINER_DATSET_ROOT/pfnet/chainercv/cityscapes/leftImg8bit`
+            as default.
+        label_dir (string): Path to the directory which contains labels. It
+            should end with either :obj`gtFine` or :obj:`gtCoarse`. If
+            :obj:`None` is given, it uses
+            :obj:`$CHAINER_DATSET_ROOT/pfnet/chainercv/cityscapes/gtFine`
+            as default.
         split ({'train', 'val'}): Select from dataset splits used in
             Cityscapes dataset.
-        ignore_labels (bool): If True, the labels marked ``ignoreInEval``
+        ignore_labels (bool): If True, the labels marked :obj:`ignoreInEval`
             defined in the original
             `cityscapesScripts<https://github.com/mcordts/cityscapesScripts>_`
-            will be replaced with `-1` in the `get_example` method.
+            will be replaced with :obj:`-1` in the :meth:`get_example` method.
+            The default value is :obj:`True`
 
     """
 
-    def __init__(self, img_dir, label_dir, split='train', ignore_labels=True):
+    def __init__(self, img_dir=None, label_dir=None, split='train',
+                 ignore_labels=True):
+        data_root = download.get_dataset_directory(
+            'pfnet/chainercv/cityscapes')
+        base_path = os.path.join(data_root, 'cityscapes')
+        if img_dir is None:
+            img_dir = os.path.join(base_path, 'leftImg8bit')
+        if label_dir is None:
+            label_dir = os.path.join(base_path, 'gtFine')
         img_dir = os.path.join(img_dir, split)
         self.ignore_labels = ignore_labels
 
-        self.label_fns, self.img_fns = [], []
+        self.label_fnames = list()
+        self.img_fnames = list()
         resol = os.path.basename(label_dir)
-        for dname in glob.glob('{}/*'.format(label_dir)):
+        for dname in glob.glob(os.path.join(label_dir, '*')):
             if split in dname:
-                for label_fn in glob.glob(
-                        '{}/*/*_labelIds.png'.format(dname)):
-                    self.label_fns.append(label_fn)
-        for label_fn in self.label_fns:
-            img_fn = label_fn.replace(resol, 'leftImg8bit')
-            img_fn = img_fn.replace('_labelIds', '')
-            self.img_fns.append(img_fn)
+                for label_fname in glob.glob(
+                        os.path.join(dname, '*', '*_labelIds.png')):
+                    self.label_fnames.append(label_fname)
+        for label_fname in self.label_fnames:
+            img_fname = label_fname.replace(resol, 'leftImg8bit')
+            img_fname = label_fname.replace('_labelIds', '')
+            self.img_fnames.append(img_fname)
 
     def __len__(self):
-        return len(self.img_fns)
+        return len(self.img_fnames)
 
     def get_example(self, i):
         """Returns the i-th example.
@@ -68,18 +84,15 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
             the dtype of the label image is :obj:`numpy.int32`.
 
         """
-        img = read_image(self.img_fns[i])
+        img = read_image(self.img_fnames[i])
         label_orig = read_image(
-            self.label_fns[i], dtype=np.int32, color=False)[0]
+            self.label_fnames[i], dtype=np.int32, color=False)[0]
         H, W = label_orig.shape
         if self.ignore_labels:
             label_out = np.ones((H, W), dtype=np.int32) * -1
             for label in cityscapes_labels:
-                if label.ignoreInEval:
-                    label_out[np.where(label_orig == label.id)] = -1
-                else:
+                if not label.ignoreInEval:
                     label_out[np.where(label_orig == label.id)] = label.trainId
         else:
             label_out = label
-        img = img.astype(np.float32)
         return img, label_out
