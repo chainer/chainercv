@@ -91,7 +91,7 @@ def check_empty_list(node):
         return
 
     if len(node.elts) == 0:
-        yield (node.lineno, 'initialize by []')
+        yield (node.lineno, 'init by []')
 
 
 def main():
