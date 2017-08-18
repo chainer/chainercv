@@ -34,8 +34,9 @@ class CUBLabelDataset(CUBDatasetBase):
 
         image_class_labels_file = os.path.join(
             self.data_dir, 'image_class_labels.txt')
-        self._data_labels = [int(d_label.split()[1]) - 1 for
-                             d_label in open(image_class_labels_file)]
+        labels = [int(d_label.split()[1]) - 1 for
+                  d_label in open(image_class_labels_file)]
+        self._labels = np.array(labels, dtype=np.int32)
 
     def get_example(self, i):
         """Returns the i-th example.
@@ -55,5 +56,5 @@ class CUBLabelDataset(CUBDatasetBase):
             # (y_min, x_min, y_max, x_max)
             bbox = self.bboxes[i].astype(np.int32)
             img = img[:, bbox[0]: bbox[2], bbox[1]: bbox[3]]
-        label = self._data_labels[i]
+        label = self._labels[i]
         return img, label
