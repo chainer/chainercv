@@ -53,7 +53,7 @@ class Conv2DBNActiv(chainer.Chain):
             :obj:`cupy.ndarray` and edits its value.
         activ (callable): An activation function. The default value is
             :func:`chainer.functions.relu`.
-        bn_kwargs (dict): Key-word arguments passed to initialize
+        bn_kwargs (dict): Keyword arguments passed to initialize
             :class:`chainer.links.BatchNormalization`.
 
     """
