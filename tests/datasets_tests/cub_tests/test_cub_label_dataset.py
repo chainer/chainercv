@@ -18,7 +18,7 @@ class TestCUBLabelDataset(unittest.TestCase):
         self.dataset = CUBLabelDataset(crop_bbox=self.crop_bbox)
 
     @attr.slow
-    def test_camvid_dataset(self):
+    def test_cub_label_dataset(self):
         assert_is_classification_dataset(
             self.dataset, len(cub_label_names), n_example=10)
 
