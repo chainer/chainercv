@@ -70,13 +70,13 @@ class FeaturePredictor(chainer.Chain):
             crop_size = (crop_size, crop_size)
         self.crop_size = crop_size
         self.crop = crop
+        with self.init_scope():
+            self.extractor = extractor
+
         if mean is None:
             self.mean = self.extractor.mean
         else:
             self.mean = mean
-
-        with self.init_scope():
-            self.extractor = extractor
 
     def _prepare(self, img):
         """Prepare an image for feeding it to a model.
