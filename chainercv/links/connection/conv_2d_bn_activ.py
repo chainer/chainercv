@@ -13,6 +13,8 @@ class Conv2DBNActiv(chainer.Chain):
     The arguments are the same as that of
     :class:`chainer.links.Convolution2D`
     except for :obj:`activ` and :obj:`bn_kwargs`.
+    Note that the default value for the :obj:`nobias`
+    is changed to :obj:`True`.
 
     Example:
 
@@ -59,7 +61,7 @@ class Conv2DBNActiv(chainer.Chain):
     """
 
     def __init__(self, in_channels, out_channels, ksize=None,
-                 stride=1, pad=0, nobias=False, initialW=None,
+                 stride=1, pad=0, nobias=True, initialW=None,
                  initial_bias=None, activ=relu, bn_kwargs=dict()):
         if ksize is None:
             out_channels, ksize, in_channels = in_channels, out_channels, None
