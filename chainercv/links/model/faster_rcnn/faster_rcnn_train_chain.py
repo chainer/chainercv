@@ -131,7 +131,7 @@ class FasterRCNNTrainChain(chainer.Chain):
 
         # Losses for outputs of the head.
         n_sample = roi_cls_loc.shape[0]
-        roi_cls_loc = roi_cls_loc.reshape(n_sample, -1, 4)
+        roi_cls_loc = roi_cls_loc.reshape((n_sample, -1, 4))
         roi_loc = roi_cls_loc[self.xp.arange(n_sample), gt_roi_label]
         roi_loc_loss = _fast_rcnn_loc_loss(
             roi_loc, gt_roi_loc, gt_roi_label, self.roi_sigma)

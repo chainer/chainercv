@@ -58,7 +58,7 @@ def random_distort(
     """
     import cv2
 
-    cv_img = img[::-1].transpose(1, 2, 0).astype(np.uint8)
+    cv_img = img[::-1].transpose((1, 2, 0)).astype(np.uint8)
 
     def convert(img, alpha=1, beta=0):
         img = img.astype(float) * alpha + beta
@@ -107,7 +107,7 @@ def random_distort(
         cv_img = hue(cv_img)
         cv_img = contrast(cv_img)
 
-    return cv_img.astype(np.float32).transpose(2, 0, 1)[::-1]
+    return cv_img.astype(np.float32).transpose((2, 0, 1))[::-1]
 
 
 def random_crop_with_bbox_constraints(
@@ -264,7 +264,7 @@ def resize_with_random_interpolation(img, size, return_param=False):
 
     import cv2
 
-    cv_img = img.transpose(1, 2, 0)
+    cv_img = img.transpose((1, 2, 0))
 
     inters = (
         cv2.INTER_LINEAR,
@@ -281,7 +281,7 @@ def resize_with_random_interpolation(img, size, return_param=False):
     if len(cv_img.shape) == 2:
         cv_img = cv_img[:, :, np.newaxis]
 
-    img = cv_img.astype(np.float32).transpose(2, 0, 1)
+    img = cv_img.astype(np.float32).transpose((2, 0, 1))
 
     if return_param:
         return img, {'interpolation': inter}
