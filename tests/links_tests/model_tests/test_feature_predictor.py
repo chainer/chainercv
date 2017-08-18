@@ -14,7 +14,7 @@ class DummyFeatureExtractor(chainer.Chain):
         super(DummyFeatureExtractor, self).__init__()
         self.shape_0 = shape_0
         self.shape_1 = shape_1
-        self.mean = np.zeros(in_channels).reshape(in_channels, 1, 1)
+        self.mean = np.zeros(in_channels).reshape((in_channels, 1, 1))
 
     def __call__(self, x):
         shape = (x.shape[0],) + self.shape_0
