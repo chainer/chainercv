@@ -58,16 +58,13 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
             data_dir = _get_online_products()
         self.data_dir = data_dir
 
-        self.class_ids = []
-        self.super_class_ids = []
-        self.paths = []
-        # for split in ['train', 'test']:
-        id_list_file = os.path.join(data_dir, 'Ebay_{}.txt'.format(split))
-        ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
-        # ids start from 0
-        self.class_ids += [int(id_[1]) - 1 for id_ in ids_tmp]
-        self.super_class_ids += [int(id_[2]) - 1 for id_ in ids_tmp]
-        self.paths += [os.path.join(data_dir, id_[3]) for id_ in ids_tmp]
+        anno_path = os.path.join(data_dir, 'Ebay_{}.txt'.format(split))
+        annos = [anno.strip().split() for anno in open(anno_path)][1:]
+        self.labels = np.array([int(anno[1]) - 1 for anno in annos],
+                               dtype=np.int32)
+        self.super_labels = np.array([int(anno[2]) - 1 for anno in annos],
+                                     dtype=np.int32)
+        self.paths = [os.path.join(data_dir, anno[3]) for anno in annos]
 
     def __len__(self):
         return len(self.paths)
@@ -83,9 +80,10 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
             i (int): The index of the example.
         Returns:
             i-th example
-        """
-        class_id = np.array(self.class_ids[i], np.int32)
-        super_class_id = np.array(self.super_class_ids[i], np.int32)
 
+        """
         img = utils.read_image(self.paths[i], color=True)
-        return img, class_id, super_class_id
+
+        label = self.labels[i]
+        super_label = self.super_labels[i]
+        return img, label, super_label
