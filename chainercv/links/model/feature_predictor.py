@@ -70,17 +70,13 @@ class FeaturePredictor(chainer.Chain):
             crop_size = (crop_size, crop_size)
         self.crop_size = crop_size
         self.crop = crop
-        self._mean = mean
+        if mean is None:
+            self.mean = self.extractor.mean
+        else:
+            self.mean = mean
 
         with self.init_scope():
             self.extractor = extractor
-
-    @property
-    def mean(self):
-        if self._mean is None:
-            return self.extractor.mean
-        else:
-            return self._mean
 
     def _prepare(self, img):
         """Prepare an image for feeding it to a model.
@@ -125,9 +121,8 @@ class FeaturePredictor(chainer.Chain):
                 'their spatial information would be lost.')
 
         xp = chainer.cuda.get_array_module(y)
-        n = y.shape[0] // n_crop
-        y = y.reshape((n, n_crop) + y.shape[1:])
-        y = xp.sum(y, axis=1) / n_crop
+        y = y.reshape((-1, n_crop) + y.shape[1:])
+        y = xp.mean(y, axis=1)
         return y
 
     def predict(self, imgs):
@@ -146,9 +141,11 @@ class FeaturePredictor(chainer.Chain):
             A batch of features or a tuple of them.
 
         """
+        # [(C, H_0, W_0), ..., (C, H_{B-1}, W_{B-1})] -> (B, N, C, H, W)
         imgs = self.xp.asarray([self._prepare(img) for img in imgs])
         n_crop = imgs.shape[-4]
         shape = (-1, imgs.shape[-3]) + self.crop_size
+        # (B, N, C, H, W) -> (B * N, C, H, W)
         imgs = imgs.reshape(shape)
 
         with chainer.function.no_backprop_mode():
@@ -157,11 +154,11 @@ class FeaturePredictor(chainer.Chain):
 
         if isinstance(features, tuple):
             output = []
-            for activation in features:
-                activation = activation.data
+            for feature in features:
+                feature = feature.data
                 if n_crop > 1:
-                    activation = self._average_crops(activation, n_crop)
-                output.append(cuda.to_cpu(activation))
+                    feature = self._average_crops(feature, n_crop)
+                output.append(cuda.to_cpu(feature))
             output = tuple(output)
         else:
             output = cuda.to_cpu(features.data)
