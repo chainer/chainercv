@@ -25,15 +25,15 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
             contain at least two directories, :obj:`leftImg8bit` and either
             :obj:`gtFine` or :obj:`gtCoarse`. If :obj:`None` is given, it uses
             :obj:`$CHAINER_DATSET_ROOT/pfnet/chainercv/cityscapes` by default.
-        label_mode (string): The resolution of the labels. It should be either
-            :obj:`fine` or :obj:`coarse`.
+        label_mode ({'fine', 'coarse'}): The resolution of the labels. It
+            should be either :obj:`fine` or :obj:`coarse`.
         split ({'train', 'val'}): Select from dataset splits used in
             Cityscapes dataset.
         ignore_labels (bool): If True, the labels marked :obj:`ignoreInEval`
             defined in the original
             `cityscapesScripts<https://github.com/mcordts/cityscapesScripts>_`
             will be replaced with :obj:`-1` in the :meth:`get_example` method.
-            The default value is :obj:`True`
+            The default value is :obj:`True`.
 
     """
 
@@ -43,12 +43,19 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/cityscapes')
         if label_mode not in ['fine', 'coarse']:
-            raise ValueError('\'label_name\' argment should be eighter '
+            raise ValueError('\'label_mode\' argment should be eighter '
                              '\'fine\' or \'coarse\'.')
 
         img_dir = os.path.join(data_dir, os.path.join('leftImg8bit', split))
         resol = 'gtFine' if label_mode == 'fine' else 'gtCoarse'
         label_dir = os.path.join(data_dir, resol)
+        if not os.path.exists(img_dir) or not os.path.exists(label_dir):
+            raise ValueError(
+                'Cityscapes dataset does not exist at the expected location.'
+                'Please download it from https://www.cityscapes-dataset.com/.'
+                'Then place directory leftImg8bit at {} and {} at {}.'.format(
+                    os.path.join(data_dir, 'leftImg8bit'), resol, label_dir))
+
         self.ignore_labels = ignore_labels
 
         self.label_paths = list()
