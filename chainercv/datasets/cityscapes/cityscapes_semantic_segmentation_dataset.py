@@ -24,7 +24,7 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
         data_dir (string): Path to the dataset directory. The directory should
             contain at least two directories, :obj:`leftImg8bit` and either
             :obj:`gtFine` or :obj:`gtCoarse`. If :obj:`None` is given, it uses
-            :obj:`$CHAINER_DATSET_ROOT/pfnet/chainercv/cityscapes` as default.
+            :obj:`$CHAINER_DATSET_ROOT/pfnet/chainercv/cityscapes` by default.
         label_mode (string): The resolution of the labels. It should be either
             :obj:`fine` or :obj:`coarse`.
         split ({'train', 'val'}): Select from dataset splits used in
@@ -42,13 +42,9 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
         if data_dir is None:
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/cityscapes')
-        if label_mode is None:
-            raise ValueError('You need to give some value to \'label_mode\' '
-                             'argment.')
-        elif label_mode != 'fine' and label_mode != 'coarse':
+        if label_mode not in ['fine', 'coarse']:
             raise ValueError('\'label_name\' argment should be eighter '
-                             '\'fine\' or \'coarse\'. But {} was '
-                             'given.'.format(label_mode))
+                             '\'fine\' or \'coarse\'.')
 
         img_dir = os.path.join(data_dir, os.path.join('leftImg8bit', split))
         resol = 'gtFine' if label_mode == 'fine' else 'gtCoarse'
@@ -61,16 +57,16 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
         for dname in glob.glob(os.path.join(label_dir, '*')):
             if split in dname:
                 for city_dname in glob.glob(os.path.join(dname, '*')):
-                    for label_fname in glob.glob(
+                    for label_path in glob.glob(
                             os.path.join(city_dname, '*_labelIds.png')):
-                        self.label_paths.append(label_fname)
+                        self.label_paths.append(label_path)
                         city_dnames.append(os.path.basename(city_dname))
-        for city_dname, label_fname in zip(city_dnames, self.label_paths):
-            label_fname = os.path.basename(label_fname)
-            img_fname = label_fname.replace(
+        for city_dname, label_path in zip(city_dnames, self.label_paths):
+            label_path = os.path.basename(label_path)
+            img_path = label_path.replace(
                 '{}_labelIds'.format(resol), 'leftImg8bit')
-            img_fname = os.path.join(img_dir, city_dname, img_fname)
-            self.img_paths.append(img_fname)
+            img_path = os.path.join(img_dir, city_dname, img_path)
+            self.img_paths.append(img_path)
 
     def __len__(self):
         return len(self.img_paths)
