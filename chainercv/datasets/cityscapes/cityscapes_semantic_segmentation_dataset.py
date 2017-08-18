@@ -55,25 +55,25 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
         label_dir = os.path.join(data_dir, resol)
         self.ignore_labels = ignore_labels
 
-        self.label_fnames = list()
-        self.img_fnames = list()
+        self.label_paths = list()
+        self.img_paths = list()
         city_dnames = list()
         for dname in glob.glob(os.path.join(label_dir, '*')):
             if split in dname:
                 for city_dname in glob.glob(os.path.join(dname, '*')):
                     for label_fname in glob.glob(
                             os.path.join(city_dname, '*_labelIds.png')):
-                        self.label_fnames.append(label_fname)
+                        self.label_paths.append(label_fname)
                         city_dnames.append(os.path.basename(city_dname))
-        for city_dname, label_fname in zip(city_dnames, self.label_fnames):
+        for city_dname, label_fname in zip(city_dnames, self.label_paths):
             label_fname = os.path.basename(label_fname)
             img_fname = label_fname.replace(
                 '{}_labelIds'.format(resol), 'leftImg8bit')
             img_fname = os.path.join(img_dir, city_dname, img_fname)
-            self.img_fnames.append(img_fname)
+            self.img_paths.append(img_fname)
 
     def __len__(self):
-        return len(self.img_fnames)
+        return len(self.img_paths)
 
     def get_example(self, i):
         """Returns the i-th example.
@@ -91,9 +91,9 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
             the dtype of the label image is :obj:`numpy.int32`.
 
         """
-        img = read_image(self.img_fnames[i])
+        img = read_image(self.img_paths[i])
         label_orig = read_image(
-            self.label_fnames[i], dtype=np.int32, color=False)[0]
+            self.label_paths[i], dtype=np.int32, color=False)[0]
         H, W = label_orig.shape
         if self.ignore_labels:
             label_out = np.ones((H, W), dtype=np.int32) * -1
