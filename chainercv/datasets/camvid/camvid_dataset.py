@@ -83,12 +83,12 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
             data_dir = get_camvid()
 
         img_list_filename = os.path.join(data_dir, '{}.txt'.format(split))
-        self.filenames = [
+        self.paths = [
             [os.path.join(data_dir, fn.replace('/SegNet/CamVid/', ''))
              for fn in line.split()] for line in open(img_list_filename)]
 
     def __len__(self):
-        return len(self.filenames)
+        return len(self.paths)
 
     def get_example(self, i):
         """Returns the i-th example.
@@ -108,7 +108,7 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
         """
         if i >= len(self):
             raise IndexError('index is too large')
-        img_filename, label_filename = self.filenames[i]
+        img_filename, label_filename = self.paths[i]
         img = read_image(img_filename, color=True)
         label = read_image(label_filename, dtype=np.int32, color=False)[0]
         # Label id 11 is for unlabeled pixels.

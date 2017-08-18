@@ -28,8 +28,8 @@ def _setup_depth_one_dummy_data(tmp_dir, n_class, n_img_per_class,
         class_dir = os.path.join(tmp_dir, 'class_{}'.format(i))
         os.makedirs(class_dir)
         for j in range(n_img_per_class):
-            filename = os.path.join(class_dir, 'img{}.{}'.format(j, suffix))
-            _save_img_file(filename, size, color)
+            path = os.path.join(class_dir, 'img{}.{}'.format(j, suffix))
+            _save_img_file(path, size, color)
         open(os.path.join(class_dir, 'dummy_file.XXX'), 'a').close()
 
 
@@ -42,9 +42,9 @@ def _setup_depth_two_dummy_data(tmp_dir, n_class, n_img_per_class,
             nested_dir = os.path.join(class_dir, 'nested_{}'.format(j))
             os.makedirs(nested_dir)
             for k in range(n_img_per_class):
-                filename = os.path.join(
+                path = os.path.join(
                     nested_dir, 'img{}.{}'.format(k, suffix))
-                _save_img_file(filename, size, color)
+                _save_img_file(path, size, color)
             open(os.path.join(nested_dir, 'dummy_file.XXX'), 'a').close()
 
 
@@ -93,13 +93,13 @@ class TestDirectoryParsingClassificationDataset(unittest.TestCase):
 
         if self.depth == 1:
             self.assertEqual(
-                dataset.img_filenames,
+                dataset.img_paths,
                 ['{}/class_{}/img{}.{}'.format(self.tmp_dir, i, j, self.suffix)
                  for i in range(self.n_class)
                  for j in range(self.n_img_per_class)])
         elif self.depth == 2:
             self.assertEqual(
-                dataset.img_filenames,
+                dataset.img_paths,
                 ['{}/class_{}/nested_{}/img{}.{}'.format(
                     self.tmp_dir, i, j, k, self.suffix)
                  for i in range(self.n_class)
