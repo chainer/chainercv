@@ -25,8 +25,8 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
             contain at least two directories, :obj:`leftImg8bit` and either
             :obj:`gtFine` or :obj:`gtCoarse`. If :obj:`None` is given, it uses
             :obj:`$CHAINER_DATSET_ROOT/pfnet/chainercv/cityscapes` by default.
-        label_resolutionution ({'fine', 'coarse'}): The resolution of the
-            labels. It should be either :obj:`fine` or :obj:`coarse`.
+        label_resolution ({'fine', 'coarse'}): The resolution of the labels. It
+            should be either :obj:`fine` or :obj:`coarse`.
         split ({'train', 'val'}): Select from dataset splits used in
             Cityscapes dataset.
         ignore_labels (bool): If True, the labels marked :obj:`ignoreInEval`
