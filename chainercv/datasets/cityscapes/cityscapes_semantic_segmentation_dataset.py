@@ -25,7 +25,7 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
             contain at least two directories, :obj:`leftImg8bit` and either
             :obj:`gtFine` or :obj:`gtCoarse`. If :obj:`None` is given, it uses
             :obj:`$CHAINER_DATSET_ROOT/pfnet/chainercv/cityscapes` by default.
-        label_resol ({'fine', 'coarse'}): The resolution of the labels. It
+        label_resolutionution ({'fine', 'coarse'}): The resolution of the labels. It
             should be either :obj:`fine` or :obj:`coarse`.
         split ({'train', 'val'}): Select from dataset splits used in
             Cityscapes dataset.
@@ -37,17 +37,17 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
 
     """
 
-    def __init__(self, data_dir=None, label_resol=None, split='train',
+    def __init__(self, data_dir=None, label_resolution=None, split='train',
                  ignore_labels=True):
         if data_dir is None:
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/cityscapes')
-        if label_resol not in ['fine', 'coarse']:
-            raise ValueError('\'label_resol\' argment should be eighter '
+        if label_resolution not in ['fine', 'coarse']:
+            raise ValueError('\'label_resolution\' argment should be eighter '
                              '\'fine\' or \'coarse\'.')
 
         img_dir = os.path.join(data_dir, os.path.join('leftImg8bit', split))
-        resol = 'gtFine' if label_resol == 'fine' else 'gtCoarse'
+        resol = 'gtFine' if label_resolution == 'fine' else 'gtCoarse'
         label_dir = os.path.join(data_dir, resol)
         if not os.path.exists(img_dir) or not os.path.exists(label_dir):
             raise ValueError(
