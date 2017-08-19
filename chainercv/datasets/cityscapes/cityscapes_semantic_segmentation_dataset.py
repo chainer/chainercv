@@ -25,7 +25,7 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
             contain at least two directories, :obj:`leftImg8bit` and either
             :obj:`gtFine` or :obj:`gtCoarse`. If :obj:`None` is given, it uses
             :obj:`$CHAINER_DATSET_ROOT/pfnet/chainercv/cityscapes` by default.
-        label_mode ({'fine', 'coarse'}): The resolution of the labels. It
+        label_resol ({'fine', 'coarse'}): The resolution of the labels. It
             should be either :obj:`fine` or :obj:`coarse`.
         split ({'train', 'val'}): Select from dataset splits used in
             Cityscapes dataset.
@@ -37,17 +37,17 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
 
     """
 
-    def __init__(self, data_dir=None, label_mode=None, split='train',
+    def __init__(self, data_dir=None, label_resol=None, split='train',
                  ignore_labels=True):
         if data_dir is None:
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/cityscapes')
-        if label_mode not in ['fine', 'coarse']:
-            raise ValueError('\'label_mode\' argment should be eighter '
+        if label_resol not in ['fine', 'coarse']:
+            raise ValueError('\'label_resol\' argment should be eighter '
                              '\'fine\' or \'coarse\'.')
 
         img_dir = os.path.join(data_dir, os.path.join('leftImg8bit', split))
-        resol = 'gtFine' if label_mode == 'fine' else 'gtCoarse'
+        resol = 'gtFine' if label_resol == 'fine' else 'gtCoarse'
         label_dir = os.path.join(data_dir, resol)
         if not os.path.exists(img_dir) or not os.path.exists(label_dir):
             raise ValueError(
@@ -97,12 +97,11 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
         img = read_image(self.img_paths[i])
         label_orig = read_image(
             self.label_paths[i], dtype=np.int32, color=False)[0]
-        H, W = label_orig.shape
         if self.ignore_labels:
-            label_out = np.ones((H, W), dtype=np.int32) * -1
+            label_out = np.ones(label_orig.shape, dtype=np.int32) * -1
             for label in cityscapes_labels:
                 if not label.ignoreInEval:
-                    label_out[np.where(label_orig == label.id)] = label.trainId
+                    label_out[label_orig == label.id] = label.trainId
         else:
             label_out = label_orig
         return img, label_out
