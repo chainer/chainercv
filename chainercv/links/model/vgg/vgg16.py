@@ -26,10 +26,10 @@ _imagenet_mean = np.array(
 
 class VGG16(SequentialFeatureExtractor):
 
-    """VGG16 Network for classification and feature extraction.
+    """VGG-16 Network for classification and feature extraction.
 
     This is a feature extraction model.
-    The network can choose to output features from set of all
+    The network can choose output features from set of all
     intermediate features.
     The value of :obj:`VGG16.feature_names` selects the features that are going
     to be collected by :meth:`__call__`.
@@ -39,15 +39,15 @@ class VGG16(SequentialFeatureExtractor):
     Examples:
 
         >>> model = VGG16()
-        # By default, VGG16.__call__ returns a probability score.
+        # By default, __call__ returns a probability score (after Softmax).
         >>> prob = model(imgs)
 
         >>> model.feature_names = 'conv5_3'
-        # This is feature conv5_3.
+        # This is feature conv5_3 (after ReLU).
         >>> feat5_3 = model(imgs)
 
         >>> model.feature_names = ['conv5_3', 'fc6']
-        >>> # These are features conv5_3 and fc6.
+        >>> # These are features conv5_3 (after ReLU) and fc6 (before ReLU).
         >>> feat5_3, feat6 = model(imgs)
 
     .. seealso::
@@ -73,10 +73,18 @@ class VGG16(SequentialFeatureExtractor):
             where :obj:`$CHAINER_DATASET_ROOT` is set as
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
-        n_class (int): The number of classes.
-        mean (numpy.ndarray): A mean value. If :obj:`None` and
-            a supported pretrained model is used,
-            the mean value used to train the pretrained model will be used.
+        n_class (int): The number of classes. If :obj:`None`,
+            the default values are used.
+            If a supported pretrained model is used,
+            the number of classes used to train the pretrained model
+            is used. Otherwise, the number of classes in ILSVRC 2012 dataset
+            is used.
+        mean (numpy.ndarray): A mean value. If :obj:`None`,
+            the default values are used.
+            If a supported pretrained model is used,
+            the mean value used to train the pretrained model is used.
+            Otherwise, the mean value calculated from ILSVRC 2012 dataset
+            is used.
         initialW (callable): Initializer for the weights.
         initial_bias (callable): Initializer for the biases.
 

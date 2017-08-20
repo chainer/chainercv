@@ -8,7 +8,7 @@ Model
 
 Feature Extraction
 ~~~~~~~~~~~~~~~~~~
-Feature extraction models can be used to extract feature(s) given images.
+Feature extraction models extract feature(s) from given images.
 
 .. toctree::
 
