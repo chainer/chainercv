@@ -39,7 +39,7 @@ def main():
         description='Learning convnet from ILSVRC2012 dataset')
     parser.add_argument('val', help='Path to root of the validation dataset')
     parser.add_argument('--model', choices=('vgg16',))
-    parser.add_argument('--pretrained_model')
+    parser.add_argument('--pretrained_model', default='imagenet')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--crop', choices=('center', '10'), default='center')
@@ -49,16 +49,13 @@ def main():
     label_names = directory_parsing_label_names(args.val)
     iterator = iterators.MultiprocessIterator(
         dataset, args.batchsize, repeat=False, shuffle=False,
-        n_processes=6, shared_mem=3 * 224 * 224 * 4)
+        n_processes=6, shared_mem=300000000)
 
     if args.model == 'vgg16':
-        if args.pretrained_model:
-            extractor = VGG16(pretrained_model=args.pretrained_model,
-                              n_class=len(label_names))
-        else:
-            extractor = VGG16(pretrained_model='imagenet',
-                              n_class=len(label_names))
-    model = FeaturePredictor(extractor, 224, crop=args.crop)
+        extractor = VGG16(pretrained_model=args.pretrained_model,
+                          n_class=len(label_names))
+    model = FeaturePredictor(
+        extractor, crop_size=224, scale_size=256, crop=args.crop)
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
