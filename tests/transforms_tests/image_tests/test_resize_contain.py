@@ -48,8 +48,8 @@ class TestResizeContain(unittest.TestCase):
                 fill = (self.fill,) * 3
             else:
                 fill = self.fill
-                np.testing.assert_array_equal(
-                    out[:, 0, 0], np.array(fill).flatten())
+            np.testing.assert_array_equal(
+                out[:, 0, 0], np.array(fill).flatten())
 
 
 testing.run_module(__name__, __file__)
