@@ -8,7 +8,7 @@ from chainer.functions import relu
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links import Conv2DActiv
+from chainercv.links import Conv2DBNActiv
 
 
 def _add_one(x):
@@ -17,9 +17,9 @@ def _add_one(x):
 
 @testing.parameterize(*testing.product({
     'args_style': ['explicit', 'None', 'omit'],
-    'activ': ['relu', 'add_one']
+    'activ': ['relu', 'add_one'],
 }))
-class TestConv2DActiv(unittest.TestCase):
+class TestConv2DBNActiv(unittest.TestCase):
 
     in_channels = 1
     out_channels = 1
@@ -40,37 +40,46 @@ class TestConv2DActiv(unittest.TestCase):
         # Convolution is the identity function.
         initialW = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]],
                             dtype=np.float32).reshape((1, 1, 3, 3))
+        bn_kwargs = {'decay': 0.8}
         initial_bias = 0
         if self.args_style == 'explicit':
-            self.l = Conv2DActiv(
+            self.l = Conv2DBNActiv(
                 self.in_channels, self.out_channels, self.ksize,
                 self.stride, self.pad,
                 initialW=initialW, initial_bias=initial_bias,
-                activ=activ)
+                activ=activ, bn_kwargs=bn_kwargs)
         elif self.args_style == 'None':
-            self.l = Conv2DActiv(
+            self.l = Conv2DBNActiv(
                 None, self.out_channels, self.ksize, self.stride, self.pad,
                 initialW=initialW, initial_bias=initial_bias,
-                activ=activ)
+                activ=activ, bn_kwargs=bn_kwargs)
         elif self.args_style == 'omit':
-            self.l = Conv2DActiv(
+            self.l = Conv2DBNActiv(
                 self.out_channels, self.ksize, stride=self.stride,
                 pad=self.pad, initialW=initialW, initial_bias=initial_bias,
-                activ=activ)
+                activ=activ, bn_kwargs=bn_kwargs)
 
     def check_forward(self, x_data):
         x = chainer.Variable(x_data)
-        y = self.l(x)
+        # Make the batch normalization to be the identity function.
+        self.l.bn.avg_var[:] = 1
+        self.l.bn.avg_mean[:] = 0
+        with chainer.using_config('train', False):
+            y = self.l(x)
 
         self.assertIsInstance(y, chainer.Variable)
         self.assertIsInstance(y.data, self.l.xp.ndarray)
 
         if self.activ == 'relu':
             np.testing.assert_almost_equal(
-                cuda.to_cpu(y.data), np.maximum(cuda.to_cpu(x_data), 0))
+                cuda.to_cpu(y.data), np.maximum(cuda.to_cpu(x_data), 0),
+                decimal=4
+            )
         elif self.activ == 'add_one':
             np.testing.assert_almost_equal(
-                cuda.to_cpu(y.data), cuda.to_cpu(x_data) + 1)
+                cuda.to_cpu(y.data), cuda.to_cpu(x_data) + 1,
+                decimal=4
+            )
 
     def test_forward_cpu(self):
         self.check_forward(self.x)

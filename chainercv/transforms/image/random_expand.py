@@ -64,7 +64,7 @@ def random_expand(img, max_ratio=4, fill=0, return_param=False):
     x_offset = random.randint(0, out_W - W)
 
     out_img = np.empty((C, out_H, out_W), dtype=img.dtype)
-    out_img[:] = np.array(fill).reshape(-1, 1, 1)
+    out_img[:] = np.array(fill).reshape((-1, 1, 1))
     out_img[:, y_offset:y_offset + H, x_offset:x_offset + W] = img
 
     if return_param:

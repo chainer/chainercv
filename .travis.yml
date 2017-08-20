@@ -46,4 +46,5 @@ script:
   - flake8 .
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
+  - python style_checker.py .
   - MPLBACKEND="agg" nosetests -a '!gpu,!slow' tests
