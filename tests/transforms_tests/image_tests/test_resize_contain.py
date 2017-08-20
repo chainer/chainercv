@@ -14,6 +14,8 @@ from chainercv.transforms import resize_contain
          'y_offset': 0, 'x_offset': 18},
         {'size': (24, 16), 'scaled_size': (8, 16),
          'y_offset': 8, 'x_offset': 0},
+        {'size': (47, 97), 'scaled_size': (32, 64),
+         'y_offset': 7, 'x_offset': 16},
     ],
     [
         {'fill': 128},
