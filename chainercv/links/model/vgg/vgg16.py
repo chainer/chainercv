@@ -103,6 +103,8 @@ class VGG16(SequentialFeatureExtractor):
         if mean is None:
             if pretrained_model in self._models:
                 mean = self._models[pretrained_model]['mean']
+            else:
+                mean = _imagenet_mean
         self.mean = mean
 
         if initialW is None:
