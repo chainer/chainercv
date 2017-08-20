@@ -18,7 +18,7 @@ Feature extraction models can be used to extract feature(s) given images.
 .. autoclass:: chainercv.links.SequentialFeatureExtractor
    :members:
 
-.. autoclass:: chainercv.links.FeatureExtractionPredictor
+.. autoclass:: chainercv.links.FeaturePredictor
 
 
 Detection

@@ -10,7 +10,7 @@ from chainer import iterators
 
 from chainercv.datasets import directory_parsing_label_names
 from chainercv.datasets import DirectoryParsingClassificationDataset
-from chainercv.links import FeatureExtractionPredictor
+from chainercv.links import FeaturePredictor
 from chainercv.links import VGG16
 
 from chainercv.utils import apply_prediction_to_iterator
@@ -50,7 +50,7 @@ def main():
     label_names = directory_parsing_label_names(args.val)
     iterator = iterators.MultiprocessIterator(
         dataset, args.batchsize, repeat=False, shuffle=False,
-        n_processes=6, shared_mem=300000000)
+        n_processes=6, shared_mem=3 * 224 * 224 * 4)
 
     if args.model == 'vgg16':
         if args.pretrained_model:
@@ -59,7 +59,7 @@ def main():
         else:
             extractor = VGG16(pretrained_model='imagenet',
                               n_class=len(label_names))
-    model = FeatureExtractionPredictor(extractor, crop=args.crop)
+    model = FeaturePredictor(extractor, 224, crop=args.crop)
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
