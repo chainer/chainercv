@@ -38,8 +38,7 @@ def main():
     parser = argparse.ArgumentParser(
         description='Learning convnet from ILSVRC2012 dataset')
     parser.add_argument('val', help='Path to root of the validation dataset')
-    parser.add_argument(
-        '--model', choices=('vgg16'))
+    parser.add_argument('--model', choices=('vgg16',))
     parser.add_argument('--pretrained_model')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
