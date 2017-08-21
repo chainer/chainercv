@@ -1,15 +1,46 @@
 import argparse
+import re
 
 import chainer
+from chainer import Link
 import chainer.links.caffe.caffe_function as caffe
 
-from chainercv.links import VGG16
 
 """
 Please download a weight from here.
-http://www.robots.ox.ac.uk/%7Evgg/software/very_deep/
-caffe/VGG_ILSVRC_16_layers.caffemodel
+http://www.robots.ox.ac.uk/%7Evgg/software/very_deep/caffe/VGG_ILSVRC_16_layers.caffemodel
 """
+
+
+def rename(name):
+    m = re.match(r'conv(\d+)_(\d+)$', name)
+    if m:
+        i, j = map(int, m.groups())
+        return 'conv{:d}_{:d}/conv'.format(i, j)
+
+    return name
+
+
+class VGGCaffeFunction(caffe.CaffeFunction):
+
+    def __init__(self, model_path):
+        print('loading weights from {:s} ... '.format(model_path))
+        super(VGGCaffeFunction, self).__init__(model_path)
+
+    def __setattr__(self, name, value):
+        if self.within_init_scope and isinstance(value, Link):
+            new_name = rename(name)
+
+            if new_name == 'conv1_1/conv':
+                # BGR -> RGB
+                value.W.data[:, ::-1] = value.W.data
+                print('{:s} -> {:s} (BGR -> RGB)'.format(name, new_name))
+            else:
+                print('{:s} -> {:s}'.format(name, new_name))
+        else:
+            new_name = name
+
+        super(VGGCaffeFunction, self).__setattr__(new_name, value)
 
 
 def main():
@@ -18,28 +49,7 @@ def main():
     parser.add_argument('output')
     args = parser.parse_args()
 
-    caffemodel = caffe.CaffeFunction(args.caffemodel)
-    model = VGG16(pretrained_model=None, n_class=1000)
-
-    model.conv1_1.conv.copyparams(caffemodel.conv1_1)
-    # The pretrained weights are trained to accept BGR images.
-    # Convert weights so that they accept RGB images.
-    model.conv1_1.conv.W.data[:] = model.conv1_1.conv.W.data[:, ::-1]
-    model.conv1_2.conv.copyparams(caffemodel.conv1_2)
-    model.conv2_1.conv.copyparams(caffemodel.conv2_1)
-    model.conv2_2.conv.copyparams(caffemodel.conv2_2)
-    model.conv3_1.conv.copyparams(caffemodel.conv3_1)
-    model.conv3_2.conv.copyparams(caffemodel.conv3_2)
-    model.conv3_3.conv.copyparams(caffemodel.conv3_3)
-    model.conv4_1.conv.copyparams(caffemodel.conv4_1)
-    model.conv4_2.conv.copyparams(caffemodel.conv4_2)
-    model.conv4_3.conv.copyparams(caffemodel.conv4_3)
-    model.conv5_1.conv.copyparams(caffemodel.conv5_1)
-    model.conv5_2.conv.copyparams(caffemodel.conv5_2)
-    model.conv5_3.conv.copyparams(caffemodel.conv5_3)
-    model.fc6.copyparams(caffemodel.fc6)
-    model.fc7.copyparams(caffemodel.fc7)
-    model.fc8.copyparams(caffemodel.fc8)
+    model = VGGCaffeFunction(args.caffemodel)
     chainer.serializers.save_npz(args.output, model)
 
 
