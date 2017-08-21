@@ -6,7 +6,7 @@ For evaluation, please go to [`examples/classification`](https://github.com/chai
 Convert `*.caffemodel` to `*.npz`.
 
 ```
-$ python caff2npz.py <source>.caffemodel <target>.npz
+$ python caffe2npz.py <source>.caffemodel <target>.npz
 ```
 
 The pretrained `.caffemodel` for VGG-16 can be downloaded from here.
