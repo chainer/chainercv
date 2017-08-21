@@ -4,7 +4,8 @@
 
 | Training Setting | Evaluation | Reference | ChainerCV |
 |:-:|:-:|:-:|:-:|
-| VOC 2007 trainval | VOC 2007 test|  69.9 mAP [1] | 70.6 mAP |
+| VOC07 trainval | VOC07 test|  69.9 mAP [1] | 70.6 mAP |
+| VOC2007\&2012 trainval | VOC07 test|  73.2 mAP [1] | 74.7 mAP |
 
 
 ### Speed
@@ -44,11 +45,14 @@ On top of that, the anchors are not discretized in ChainerCV.
 
 
 ### Train code
-
-You can train the model with the following code.
-
+For training with VOC07
 ```
-$ python train.py [--gpu <gpu>]
+$ python train.py --dataset voc07 --gpu GPU --step_size 50000  --iteration 70000
+```
+
+For training with VOC07+12
+```
+$ python train.py --dataset voc0712 --gpu GPU --step_size 80000  --iteration 110000
 ```
 
 PlotReport extension uses matplotlib. If you got `RuntimeError: Invalid DISPLAY variable` error on Linux environment, adding an environment variable specification is recommended:
@@ -57,6 +61,10 @@ PlotReport extension uses matplotlib. If you got `RuntimeError: Invalid DISPLAY 
 $ MPLBACKEND=Agg python train.py [--gpu <gpu>]
 ```
 
+Fully list of options can be checked by the following command.
+```
+$ python train.py -h
+```
 
 ### Evaluation
 
