@@ -17,7 +17,7 @@ def main():
 
     dataset = VOCDetectionDataset(year='2007', split='test')
     models = [
-        ('Faster R-CNN', FasterRCNNVGG16(pretrained_model='voc07')),
+        ('Faster R-CNN', FasterRCNNVGG16(pretrained_model='voc0712')),
         ('SSD300', SSD300(pretrained_model='voc0712')),
         ('SSD512', SSD512(pretrained_model='voc0712')),
     ]
