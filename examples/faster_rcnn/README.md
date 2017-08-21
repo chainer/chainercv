@@ -61,11 +61,6 @@ PlotReport extension uses matplotlib. If you got `RuntimeError: Invalid DISPLAY 
 $ MPLBACKEND=Agg python train.py [--gpu <gpu>]
 ```
 
-Fully list of options can be checked by the following command.
-```
-$ python train.py -h
-```
-
 ### Evaluation
 
 The evaluation score is reported by `DetectionVOCEvaluator` during training.
