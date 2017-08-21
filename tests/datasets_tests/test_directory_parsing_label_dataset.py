@@ -8,7 +8,7 @@ from chainer import testing
 
 from chainercv.datasets import directory_parsing_label_names
 from chainercv.datasets import DirectoryParsingLabelDataset
-from chainercv.utils import assert_is_classification_dataset
+from chainercv.utils import assert_is_label_dataset
 from chainercv.utils import write_image
 
 
@@ -84,8 +84,7 @@ class TestDirectoryParsingLabelDataset(unittest.TestCase):
                 self.n_img_per_class * self.n_sub_directory * self.n_class
         self.assertEqual(len(dataset), expected_legnth)
 
-        assert_is_classification_dataset(
-            dataset, self.n_class, color=self.color)
+        assert_is_label_dataset(dataset, self.n_class, color=self.color)
 
         label_names = directory_parsing_label_names(self.tmp_dir)
         self.assertEqual(
@@ -126,8 +125,7 @@ class TestNumericalSortDirectoryParsingLabelDataset(
         dataset = DirectoryParsingLabelDataset(
             self.tmp_dir, numerical_sort=True)
 
-        assert_is_classification_dataset(
-            dataset, self.n_class)
+        assert_is_label_dataset(dataset, self.n_class)
 
         label_names = directory_parsing_label_names(
             self.tmp_dir, numerical_sort=True)
