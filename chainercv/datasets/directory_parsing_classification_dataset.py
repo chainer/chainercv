@@ -12,7 +12,7 @@ def directory_parsing_label_names(root, numerical_sort=False):
     layer below the root directory.
 
     The label names can be used together with
-    :class:`chainercv.datasets.DirectoryParsingClassificationDataset`.
+    :class:`chainercv.datasets.DirectoryParsingLabelDataset`.
     The index of a label name corresponds to the label id
     that is used by the dataset to refer the label.
 
@@ -44,7 +44,7 @@ def _check_img_ext(filename):
                extension in img_extensions)
 
 
-def _parse_classification_dataset(root, label_names,
+def _parse_label_dataset(root, label_names,
                                   check_img_file=_check_img_ext):
     img_filenames = []
     labels = []
@@ -65,8 +65,8 @@ def _parse_classification_dataset(root, label_names,
     return img_filenames, np.array(labels, np.int32)
 
 
-class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
-    """A classification dataset for directories whose names are label names.
+class DirectoryParsingLabelDataset(chainer.dataset.DatasetMixin):
+    """A label dataset whose label names are the names of the subdirectories.
 
     The label names are the names of the directories that locate a layer below
     the root directory.
@@ -91,8 +91,8 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
             --- class_1
                 |-- img_0.png
 
-        >>> from chainercv.dataset import DirectoryParsingClassificationDataset
-        >>> dataset = DirectoryParsingClassificationDataset('root')
+        >>> from chainercv.dataset import DirectoryParsingLabelDataset
+        >>> dataset = DirectoryParsingLabelDataset('root')
         >>> dataset.filenames
         ['root/class_0/img_0.png', 'root/class_0/img_1.png',
         'root_class_1/img_0.png']
@@ -123,7 +123,7 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
         if check_img_file is None:
             check_img_file = _check_img_ext
 
-        self.img_filenames, self.labels = _parse_classification_dataset(
+        self.img_filenames, self.labels = _parse_label_dataset(
             root, label_names, check_img_file)
 
     def __len__(self):
