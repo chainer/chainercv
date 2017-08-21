@@ -1,8 +1,6 @@
 from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plot
 
-import chainer
-
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
