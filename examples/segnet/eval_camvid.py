@@ -55,8 +55,6 @@ def main():
 
     model = calc_bn_statistics(model, args.batchsize)
 
-    chainer.config.train = False
-
     test = CamVidDataset(split='test')
     it = chainer.iterators.SerialIterator(test, batch_size=args.batchsize,
                                           repeat=False, shuffle=False)
