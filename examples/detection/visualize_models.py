@@ -13,8 +13,6 @@ from chainercv.visualizations import vis_bbox
 
 
 def main():
-    chainer.config.train = False
-
     dataset = VOCDetectionDataset(year='2007', split='test')
     models = [
         ('Faster R-CNN', FasterRCNNVGG16(pretrained_model='voc07')),
