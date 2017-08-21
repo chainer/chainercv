@@ -282,7 +282,7 @@ class FasterRCNN(chainer.Chain):
         labels = list()
         scores = list()
         for img, scale in zip(prepared_imgs, scales):
-            with chainer.config.use_config('train', False), \
+            with chainer.using_config('train', False), \
                     chainer.function.no_backprop_mode():
                 img_var = chainer.Variable(self.xp.asarray(img[None]))
                 H, W = img_var.shape[2:]

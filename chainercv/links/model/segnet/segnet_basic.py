@@ -168,7 +168,7 @@ class SegNetBasic(chainer.Chain):
         labels = []
         for img in imgs:
             C, H, W = img.shape
-            with chainer.config.use_config('train', False), \
+            with chainer.using_config('train', False), \
                     chainer.function.no_backprop_mode():
                 x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
                 score = self.__call__(x)[0].data

@@ -199,7 +199,7 @@ class SSD(chainer.Chain):
             x.append(self.xp.array(img))
             sizes.append((H, W))
 
-        with chainer.config.use_config('train', False), \
+        with chainer.using_config('train', False), \
                 chainer.function.no_backprop_mode():
             x = chainer.Variable(self.xp.stack(x))
             mb_locs, mb_confs = self(x)

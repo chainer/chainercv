@@ -148,7 +148,7 @@ class FeaturePredictor(chainer.Chain):
         # (B, N, C, H, W) -> (B * N, C, H, W)
         imgs = imgs.reshape(shape)
 
-        with chainer.config.use_config('train', False), \
+        with chainer.using_config('train', False), \
                 chainer.function.no_backprop_mode():
             imgs = chainer.Variable(imgs)
             features = self.extractor(imgs)
