@@ -74,7 +74,7 @@ class FasterRCNNVGG16(FasterRCNN):
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.4/'
-            'faster_rcnn_vgg16_voc07_trained_2017_08_06_trial_4.npz'
+            'faster_rcnn_vgg16_voc07_trained_2017_08_06.npz'
         }
     }
     feat_stride = 16
