@@ -3,9 +3,9 @@ Datasets
 
 .. module:: chainercv.datasets
 
-DirectoryParsingClassificationDataset
+DirectoryParsingLabelDataset
 -------------------------------------
-.. autoclass:: DirectoryParsingClassificationDataset
+.. autoclass:: DirectoryParsingLabelDataset
 
 directory_parsing_label_names
 -----------------------------

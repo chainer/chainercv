@@ -7,7 +7,7 @@ import tempfile
 from chainer import testing
 
 from chainercv.datasets import directory_parsing_label_names
-from chainercv.datasets import DirectoryParsingClassificationDataset
+from chainercv.datasets import DirectoryParsingLabelDataset
 from chainercv.utils import assert_is_classification_dataset
 from chainercv.utils import write_image
 
@@ -55,7 +55,7 @@ def _setup_depth_two_dummy_data(tmp_dir, n_class, n_img_per_class,
     'suffix': ['bmp', 'jpg', 'png', 'ppm', 'jpeg'],
     'depth': [1, 2]}
 ))
-class TestDirectoryParsingClassificationDataset(unittest.TestCase):
+class TestDirectoryParsingLabelDataset(unittest.TestCase):
 
     n_img_per_class = 5
     n_sub_directory = 6
@@ -73,8 +73,8 @@ class TestDirectoryParsingClassificationDataset(unittest.TestCase):
                                         self.n_sub_directory, self.size,
                                         self.color, self.suffix)
 
-    def test_directory_parsing_classification_dataset(self):
-        dataset = DirectoryParsingClassificationDataset(
+    def test_directory_parsing_label_dataset(self):
+        dataset = DirectoryParsingLabelDataset(
             self.tmp_dir, color=self.color)
 
         if self.depth == 1:
@@ -107,7 +107,7 @@ class TestDirectoryParsingClassificationDataset(unittest.TestCase):
                  for k in range(self.n_img_per_class)])
 
 
-class TestNumericalSortDirectoryParsingClassificationDataset(
+class TestNumericalSortDirectoryParsingLabelDataset(
         unittest.TestCase):
 
     n_class = 11
@@ -123,7 +123,7 @@ class TestNumericalSortDirectoryParsingClassificationDataset(
                            (48, 32), color=True)
 
     def test_numerical_sort(self):
-        dataset = DirectoryParsingClassificationDataset(
+        dataset = DirectoryParsingLabelDataset(
             self.tmp_dir, numerical_sort=True)
 
         assert_is_classification_dataset(
