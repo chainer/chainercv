@@ -33,8 +33,6 @@ class ProgressHook(object):
 
 
 def main():
-    chainer.config.train = False
-
     parser = argparse.ArgumentParser(
         description='Learning convnet from ILSVRC2012 dataset')
     parser.add_argument('val', help='Path to root of the validation dataset')
