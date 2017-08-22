@@ -4,8 +4,7 @@ import six
 from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
 
 
-def assert_is_label_dataset(dataset, n_class, n_example=None,
-                                     color=True):
+def assert_is_label_dataset(dataset, n_class, n_example=None, color=True):
     """Checks if a dataset satisfies label dataset APIs.
 
     This function checks if a given dataset satisfies label dataset

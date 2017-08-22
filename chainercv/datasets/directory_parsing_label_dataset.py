@@ -44,8 +44,7 @@ def _check_img_ext(filename):
                extension in img_extensions)
 
 
-def _parse_label_dataset(root, label_names,
-                                  check_img_file=_check_img_ext):
+def _parse_label_dataset(root, label_names, check_img_file=_check_img_ext):
     img_filenames = []
     labels = []
     for label, label_name in enumerate(label_names):
