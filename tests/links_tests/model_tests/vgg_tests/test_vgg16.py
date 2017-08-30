@@ -21,7 +21,7 @@ class TestVGG16Call(unittest.TestCase):
 
     def setUp(self):
         self.link = VGG16(
-            pretrained_model=None, n_class=self.n_class,
+            n_class=self.n_class, pretrained_model=None,
             initialW=Zero())
         self.link.feature_names = self.feature_names
 

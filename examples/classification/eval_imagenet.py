@@ -50,8 +50,7 @@ def main():
         n_processes=6, shared_mem=300000000)
 
     if args.model == 'vgg16':
-        extractor = VGG16(pretrained_model=args.pretrained_model,
-                          n_class=len(label_names))
+        extractor = VGG16(len(label_names), args.pretrained_model)
     model = FeaturePredictor(
         extractor, crop_size=224, scale_size=256, crop=args.crop)
 
