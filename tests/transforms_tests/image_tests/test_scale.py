@@ -24,7 +24,7 @@ from chainercv.transforms import scale
     {'in_shape': (1, 16, 24), 'size': 8,
      'fit_short': True, 'out_shape': (1, 8, 12)},
     {'in_shape': (1, 16, 24), 'size': 36,
-        'fit_short': False, 'out_shape': (1, 24, 36)},
+     'fit_short': False, 'out_shape': (1, 24, 36)},
     {'interpolation': PIL.Image.NEAREST},
     {'interpolation': PIL.Image.BILINEAR},
     {'interpolation': PIL.Image.BICUBIC},
@@ -35,7 +35,7 @@ class TestScale(unittest.TestCase):
     def test_scale(self):
         img = np.random.uniform(size=self.in_shape)
 
-        out = scale(img, self.size, fit_short=self.fit_short)
+        out = scale(img, self.size, fit_short=self.fit_short, interpolation=self.interpolation)
         self.assertEqual(out.shape, self.out_shape)
 
 
@@ -46,13 +46,17 @@ class TestScale(unittest.TestCase):
     {'in_shape': (3, 16, 24), 'size': 24, 'fit_short': False},
     # grayscale
     {'in_shape': (1, 16, 24), 'size': 24, 'fit_short': False},
+    {'interpolation': PIL.Image.NEAREST},
+    {'interpolation': PIL.Image.BILINEAR},
+    {'interpolation': PIL.Image.BICUBIC},
+    {'interpolation': PIL.Image.LANCZOS},
 )
 class TestScaleNoResize(unittest.TestCase):
 
     def test_scale_no_resize(self):
         img = np.random.uniform(size=self.in_shape)
 
-        out = scale(img, self.size, fit_short=self.fit_short)
+        out = scale(img, self.size, fit_short=self.fit_short, interpolation=self.interpolation)
         self.assertIs(img, out)
 
 
