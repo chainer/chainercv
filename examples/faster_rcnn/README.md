@@ -4,8 +4,8 @@
 
 | Training Setting | Evaluation | Reference | ChainerCV |
 |:-:|:-:|:-:|:-:|
-| VOC07 trainval | VOC07 test|  69.9 mAP [1] | 70.6 mAP |
-| VOC2007\&2012 trainval | VOC07 test|  73.2 mAP [1] | 74.7 mAP |
+| VOC2007 trainval | VOC2007 test | 69.9 mAP [1] | 70.6 mAP |
+| VOC2007\&2012 trainval | VOC2007 test | 73.2 mAP [1] | 74.7 mAP |
 
 
 ### Speed
@@ -45,12 +45,12 @@ On top of that, the anchors are not discretized in ChainerCV.
 
 
 ### Train code
-For training with VOC07
+For training with VOC2007
 ```
 $ python train.py --dataset voc07 --step_size 50000 --iteration 70000 [--gpu <gpu>]
 ```
 
-For training with VOC07+12
+For training with VOC2007+2012
 ```
 $ python train.py --dataset voc0712 --step_size 80000 --iteration 110000 [--gpu <gpu>]
 ```
