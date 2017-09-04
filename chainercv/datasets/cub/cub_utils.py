@@ -58,7 +58,7 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
         imgs_file = os.path.join(data_dir, 'images.txt')
         bboxes_file = os.path.join(data_dir, 'bounding_boxes.txt')
 
-        self.filenames = [
+        self.paths = [
             line.strip().split()[1] for line in open(imgs_file)]
 
         # (x_min, y_min, width, height)
@@ -74,7 +74,7 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
         self.crop_bbox = crop_bbox
 
     def __len__(self):
-        return len(self.filenames)
+        return len(self.paths)
 
 
 cub_label_names = (
