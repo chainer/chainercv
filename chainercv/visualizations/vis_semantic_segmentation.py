@@ -18,11 +18,11 @@ def _default_cmap(label):
     return r, g, b
 
 
-def vis_label(
+def vis_semantic_segmentation(
         label, label_names=None,
         label_colors=None, ignore_label_color=(0, 0, 0), alpha=1,
         all_label_names_in_legend=False, ax=None):
-    """Visualize a label for semantic segmentation.
+    """Visualize a semantic segmentation.
 
     Example:
 
@@ -32,12 +32,12 @@ def vis_label(
         >>> from chainercv.datasets \
         ...     import voc_semantic_segmentation_label_names
         >>> from chainercv.visualizations import vis_image
-        >>> from chainercv.visualizations import vis_label
+        >>> from chainercv.visualizations import vis_semantic_segmentation
         >>> import matplotlib.pyplot as plot
         >>> dataset = VOCSemanticSegmentationDataset()
         >>> img, label = dataset[60]
         >>> ax = vis_image(img)
-        >>> _, legend_handles = vis_label(
+        >>> _, legend_handles = vis_semantic_segmentation(
         ...     label,
         ...     label_names=voc_semantic_segmentation_label_names,
         ...     label_colors=voc_semantic_segmentation_label_colors,
