@@ -8,8 +8,8 @@ from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
 def assert_is_bbox_dataset(dataset, n_fg_class, n_example=None):
     """Checks if a dataset satisfies bounding box dataset APIs.
 
-    This function checks if a given dataset satisfies bbox dataset APIs
-    or not.
+    This function checks if a given dataset satisfies bounding box dataset
+    APIs or not.
     If the dataset does not satifiy the APIs, this function raises an
     :class:`AssertionError`.
 
