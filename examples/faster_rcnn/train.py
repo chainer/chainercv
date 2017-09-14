@@ -61,23 +61,16 @@ def main():
     parser = argparse.ArgumentParser(
         description='ChainerCV training example: Faster R-CNN')
     parser.add_argument('--dataset', choices=('voc07', 'voc0712'),
-                        help='The dataset to use: VOC07, VOC07+12')
+                        help='The dataset to use: VOC07, VOC07+12',
+                        default='voc07')
     parser.add_argument('--gpu', '-g', type=int, default=-1)
     parser.add_argument('--lr', '-l', type=float, default=1e-3)
     parser.add_argument('--out', '-o', default='result',
                         help='Output directory')
     parser.add_argument('--seed', '-s', type=int, default=0)
-    parser.add_argument('--step_size', '-ss', type=int)
-    parser.add_argument('--iteration', '-i', type=int)
+    parser.add_argument('--step_size', '-ss', type=int, default=50000)
+    parser.add_argument('--iteration', '-i', type=int, default=70000)
     args = parser.parse_args()
-    if (args.dataset is None or args.step_size is None
-            or args.iteration is None):
-        raise ValueError(
-            'Some hyperparameters are not set.\n'
-            'Please specify the following arguments: '
-            '\'dataset\', \'step_size\' and \'iteration\'.\n'
-            'ex: python train.py --gpu 0 --dataset voc07 --step_size 50000 '
-            '--iteration 70000')
 
     np.random.seed(args.seed)
 
