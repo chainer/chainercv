@@ -52,9 +52,9 @@ OnlineProductsDataset
 PASCAL VOC
 ----------
 
-VOCDetectionDataset
+VOCBboxDataset
 ~~~~~~~~~~~~~~~~~~~
-.. autoclass:: VOCDetectionDataset
+.. autoclass:: VOCBboxDataset
 
 VOCSemanticSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

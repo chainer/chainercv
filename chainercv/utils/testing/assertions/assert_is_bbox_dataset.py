@@ -5,10 +5,10 @@ from chainercv.utils.testing.assertions.assert_is_bbox import assert_is_bbox
 from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
 
 
-def assert_is_detection_dataset(dataset, n_fg_class, n_example=None):
-    """Checks if a dataset satisfies detection dataset APIs.
+def assert_is_bbox_dataset(dataset, n_fg_class, n_example=None):
+    """Checks if a dataset satisfies bbox dataset APIs.
 
-    This function checks if a given dataset satisfies detection dataset APIs
+    This function checks if a given dataset satisfies bbox dataset APIs
     or not.
     If the dataset does not satifiy the APIs, this function raises an
     :class:`AssertionError`.

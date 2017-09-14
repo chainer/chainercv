@@ -37,7 +37,7 @@ def get_voc(year, split):
     return base_path
 
 
-voc_detection_label_names = (
+voc_bbox_label_names = (
     'aeroplane',
     'bicycle',
     'bird',
@@ -60,7 +60,7 @@ voc_detection_label_names = (
     'tvmonitor')
 
 voc_semantic_segmentation_label_names = (('background',) +
-                                         voc_detection_label_names)
+                                         voc_bbox_label_names)
 
 # these colors are used in the original MATLAB tools
 voc_semantic_segmentation_label_colors = (
