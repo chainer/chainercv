@@ -35,6 +35,10 @@ extractall
 Image Utilities
 ---------------
 
+make_grid
+~~~~~~~~~
+.. autofunction:: make_grid
+
 read_image
 ~~~~~~~~~~
 .. autofunction:: read_image
