@@ -33,8 +33,6 @@ class ProgressHook(object):
 
 
 def main():
-    chainer.config.train = False
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--model', choices=('faster_rcnn', 'ssd300', 'ssd512'),
@@ -50,7 +48,7 @@ def main():
                 n_fg_class=20,
                 pretrained_model=args.pretrained_model)
         else:
-            model = FasterRCNNVGG16(pretrained_model='voc07')
+            model = FasterRCNNVGG16(pretrained_model='voc0712')
     elif args.model == 'ssd300':
         if args.pretrained_model:
             model = SSD300(

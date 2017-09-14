@@ -10,11 +10,9 @@ from chainercv.visualizations import vis_bbox
 
 
 def main():
-    chainer.config.train = False
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--pretrained_model', default='voc07')
+    parser.add_argument('--pretrained_model', default='voc0712')
     parser.add_argument('image')
     args = parser.parse_args()
 

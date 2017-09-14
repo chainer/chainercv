@@ -1,8 +1,6 @@
 from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plot
 
-import chainer
-
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
@@ -13,11 +11,9 @@ from chainercv.visualizations import vis_bbox
 
 
 def main():
-    chainer.config.train = False
-
     dataset = VOCDetectionDataset(year='2007', split='test')
     models = [
-        ('Faster R-CNN', FasterRCNNVGG16(pretrained_model='voc07')),
+        ('Faster R-CNN', FasterRCNNVGG16(pretrained_model='voc0712')),
         ('SSD300', SSD300(pretrained_model='voc0712')),
         ('SSD512', SSD512(pretrained_model='voc0712')),
     ]
