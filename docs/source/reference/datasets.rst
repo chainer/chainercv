@@ -53,7 +53,7 @@ PASCAL VOC
 ----------
 
 VOCBboxDataset
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 .. autoclass:: VOCBboxDataset
 
 VOCSemanticSegmentationDataset
