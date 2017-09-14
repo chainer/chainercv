@@ -39,13 +39,13 @@ read_image
 ~~~~~~~~~~
 .. autofunction:: read_image
 
-write_image
-~~~~~~~~~~~
-.. autofunction:: write_image
-
 tile_images
 ~~~~~~~~~~~
 .. autofunction:: tile_images
+
+write_image
+~~~~~~~~~~~
+.. autofunction:: write_image
 
 
 Iterator Utilities
