@@ -80,7 +80,7 @@ def main():
             VOCBboxDataset(year='2007', split='trainval'),
             VOCBboxDataset(year='2012', split='trainval'))
     test_data = VOCBboxDataset(split='test', year='2007',
-                                    use_difficult=True, return_difficult=True)
+                               use_difficult=True, return_difficult=True)
     faster_rcnn = FasterRCNNVGG16(n_fg_class=len(voc_bbox_label_names),
                                   pretrained_model='imagenet')
     faster_rcnn.use_preset('evaluate')

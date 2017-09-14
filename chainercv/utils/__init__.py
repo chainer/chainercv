@@ -8,8 +8,8 @@ from chainercv.utils.image import write_image  # NOQA
 from chainercv.utils.iterator import apply_prediction_to_iterator  # NOQA
 from chainercv.utils.iterator import unzip  # NOQA
 from chainercv.utils.testing import assert_is_bbox  # NOQA
-from chainercv.utils.testing import assert_is_classification_dataset  # NOQA
 from chainercv.utils.testing import assert_is_bbox_dataset  # NOQA
+from chainercv.utils.testing import assert_is_classification_dataset  # NOQA
 from chainercv.utils.testing import assert_is_detection_link  # NOQA
 from chainercv.utils.testing import assert_is_image  # NOQA
 from chainercv.utils.testing import assert_is_semantic_segmentation_dataset  # NOQA
