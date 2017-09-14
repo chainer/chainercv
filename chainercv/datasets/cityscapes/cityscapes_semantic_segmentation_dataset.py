@@ -11,7 +11,7 @@ from chainercv.utils import read_image
 
 class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
 
-    """Dataset class for a semantic segmentation task on `Cityscapes dataset`_.
+    """Semantic segmentation dataset for `Cityscapes dataset`_.
 
     .. _`Cityscapes dataset`: https://www.cityscapes-dataset.com
 
