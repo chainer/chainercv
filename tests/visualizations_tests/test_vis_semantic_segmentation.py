@@ -3,7 +3,7 @@ import unittest
 
 from chainer import testing
 
-from chainercv.visualizations import vis_label
+from chainercv.visualizations import vis_semantic_segmentation
 
 try:
     import matplotlib  # NOQA
@@ -17,15 +17,15 @@ except ImportError:
     'label_colors': [None, ((255, 0, 0), (0, 255, 0), (0, 0, 255))],
     'all_label_names_in_legend': [False, True],
 }))
-class TestVisLabel(unittest.TestCase):
+class TestVisSemanticSegmentation(unittest.TestCase):
 
     def setUp(self):
         self.label = np.random.randint(
             -1, 3, size=(48, 64)).astype(np.int32)
 
-    def test_vis_label(self):
+    def test_vis_semantic_segmentation(self):
         if optional_modules:
-            ax, legend_handles = vis_label(
+            ax, legend_handles = vis_semantic_segmentation(
                 self.label,
                 label_names=self.label_names, label_colors=self.label_colors,
                 all_label_names_in_legend=self.all_label_names_in_legend)
@@ -35,24 +35,24 @@ class TestVisLabel(unittest.TestCase):
                 self.assertIsInstance(handle, matplotlib.patches.Patch)
 
 
-class TestVisLabelInvalidArguments(unittest.TestCase):
+class TestVisSemanticSegmentationInvalidArguments(unittest.TestCase):
 
-    def test_vis_label_mismatch_names_and_colors(self):
+    def test_vis_semantic_segmentation_mismatch_names_and_colors(self):
         label = np.random.randint(-1, 2, size=(48, 64)).astype(np.int32)
 
         if optional_modules:
             with self.assertRaises(ValueError):
-                vis_label(
+                vis_semantic_segmentation(
                     label,
                     label_names=('class0', 'class1', 'class2'),
                     label_colors=((255, 0, 0), (0, 255, 0)))
 
-    def test_vis_label_exceed_value(self):
+    def test_vis_semantic_segmentation_exceed_value(self):
         label = np.random.randint(10, 20, size=(48, 64)).astype(np.int32)
 
         if optional_modules:
             with self.assertRaises(ValueError):
-                vis_label(
+                vis_semantic_segmentation(
                     label,
                     label_names=('class0', 'class1', 'class2'))
 
