@@ -32,3 +32,6 @@ class TestMakeGrid(unittest.TestCase):
                        start_x_11:start_x_11 + W]
 
         np.testing.assert_equal(grid_11, imgs[(n_col - 1) + 2])
+
+
+testing.run_module(__name__, __file__)
