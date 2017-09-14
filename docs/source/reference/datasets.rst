@@ -4,7 +4,7 @@ Datasets
 .. module:: chainercv.datasets
 
 DirectoryParsingLabelDataset
--------------------------------------
+----------------------------
 .. autoclass:: DirectoryParsingLabelDataset
 
 directory_parsing_label_names
