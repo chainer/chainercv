@@ -25,10 +25,9 @@ def make_grid(imgs, n_col, pad=2, fill=0):
     n_col = min(n_col, B)
     n_row = int(math.ceil(B / n_col))
 
-    beginning_offset = pad // 2 + 1
     shape = (C,
-             (H + pad) * n_row + beginning_offset,
-             (W + pad) * n_col + beginning_offset)
+             (H + pad) * n_row,
+             (W + pad) * n_col)
     grid = np.empty(shape, dtype=imgs.dtype)
     grid[:] = np.array(fill).reshape((-1, 1, 1))
 
@@ -37,8 +36,8 @@ def make_grid(imgs, n_col, pad=2, fill=0):
         for x in range(n_col):
             if k >= B:
                 break
-            start_y = y * (H + pad) + beginning_offset
-            start_x = x * (W + pad) + beginning_offset
+            start_y = y * (H + pad) + pad // 2 + 1
+            start_x = x * (W + pad) + pad // 2 + 1
             grid[:,
                  start_y: start_y + H,
                  start_x: start_x + W] = imgs[k]
