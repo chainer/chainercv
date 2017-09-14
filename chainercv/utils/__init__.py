@@ -3,9 +3,9 @@ from chainercv.utils.bbox.non_maximum_suppression import non_maximum_suppression
 from chainercv.utils.download import cached_download  # NOQA
 from chainercv.utils.download import download_model  # NOQA
 from chainercv.utils.download import extractall  # NOQA
-from chainercv.utils.image.make_grid import make_grid  # NOQA
 from chainercv.utils.image import read_image  # NOQA
 from chainercv.utils.image import write_image  # NOQA
+from chainercv.utils.image.tile_images import tile_images  # NOQA
 from chainercv.utils.iterator import apply_prediction_to_iterator  # NOQA
 from chainercv.utils.iterator import unzip  # NOQA
 from chainercv.utils.testing import assert_is_bbox  # NOQA

@@ -35,10 +35,6 @@ extractall
 Image Utilities
 ---------------
 
-make_grid
-~~~~~~~~~
-.. autofunction:: make_grid
-
 read_image
 ~~~~~~~~~~
 .. autofunction:: read_image
@@ -46,6 +42,10 @@ read_image
 write_image
 ~~~~~~~~~~~
 .. autofunction:: write_image
+
+tile_images
+~~~~~~~~~~~
+.. autofunction:: tile_images
 
 
 Iterator Utilities

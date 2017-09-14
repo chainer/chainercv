@@ -4,12 +4,12 @@ import math
 import numpy as np
 
 
-def make_grid(imgs, n_col, pad=2, fill=0):
-    """Make a grid of images.
+def tile_images(imgs, n_col, pad=2, fill=0):
+    """Make a tile of images
 
     Args:
         imgs (numpy.ndarray): A batch of images whose shape is BCHW.
-        n_col (int): Number of columns in a grid.
+        n_col (int): Number of columns in a tile.
         pad (int): Amount of pad. Default is 2.
         fill (float, tuple or ~numpy.ndarray): The value of padded pixels.
             If it is :class:`numpy.ndarray`,
@@ -28,8 +28,8 @@ def make_grid(imgs, n_col, pad=2, fill=0):
     shape = (C,
              (H + pad) * n_row,
              (W + pad) * n_col)
-    grid = np.empty(shape, dtype=imgs.dtype)
-    grid[:] = np.array(fill).reshape((-1, 1, 1))
+    tile = np.empty(shape, dtype=imgs.dtype)
+    tile[:] = np.array(fill).reshape((-1, 1, 1))
 
     k = 0
     for y in range(n_row):
@@ -38,9 +38,9 @@ def make_grid(imgs, n_col, pad=2, fill=0):
                 break
             start_y = y * (H + pad) + pad // 2 + 1
             start_x = x * (W + pad) + pad // 2 + 1
-            grid[:,
+            tile[:,
                  start_y: start_y + H,
                  start_x: start_x + W] = imgs[k]
             k += 1
 
-    return grid
+    return tile
