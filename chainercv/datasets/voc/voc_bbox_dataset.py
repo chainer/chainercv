@@ -11,7 +11,7 @@ from chainercv.utils import read_image
 
 class VOCBboxDataset(chainer.dataset.DatasetMixin):
 
-    """Dataset class for the detection task of PASCAL `VOC`_.
+    """Bounding box dataset for PASCAL `VOC`_.
 
     .. _`VOC`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
