@@ -25,6 +25,16 @@ This script checks the following coding rules.
         a.transpose((2, 0, 1))  # OK
         a.reshape(2, 0, 1)  # NG
 
+- Initialization of empty `list`/`dict`.
+    An empty `list`/`dict` should be initialized by `list()`/`dict()`.
+
+    Example:
+        a = list()  # OK
+        b = dict()  # OK
+
+        a = []  # NG
+        b = {}  # NG
+
  """
 
 import argparse
