@@ -91,7 +91,7 @@ class FasterRCNNVGG16(FasterRCNN):
                  ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
                  vgg_initialW=None, rpn_initialW=None,
                  loc_initialW=None, score_initialW=None,
-                 proposal_creator_params={}
+                 proposal_creator_params=dict()
                  ):
         if n_fg_class is None:
             if pretrained_model not in self._models:
