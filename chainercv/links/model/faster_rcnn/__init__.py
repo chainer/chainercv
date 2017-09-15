@@ -1,7 +1,6 @@
 from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNN  # NOQA
 from chainercv.links.model.faster_rcnn.faster_rcnn_train_chain import FasterRCNNTrainChain  # NOQA
 from chainercv.links.model.faster_rcnn.faster_rcnn_vgg import FasterRCNNVGG16  # NOQA
-from chainercv.links.model.faster_rcnn.faster_rcnn_vgg import VGG16FeatureExtractor  # NOQA
 from chainercv.links.model.faster_rcnn.faster_rcnn_vgg import VGG16RoIHead  # NOQA
 from chainercv.links.model.faster_rcnn.region_proposal_network import RegionProposalNetwork  # NOQA
 from chainercv.links.model.faster_rcnn.utils.anchor_target_creator import AnchorTargetCreator  # NOQA

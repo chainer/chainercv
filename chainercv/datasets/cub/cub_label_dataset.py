@@ -48,7 +48,7 @@ class CUBLabelDataset(CUBDatasetBase):
 
         """
         img = utils.read_image(
-            os.path.join(self.data_dir, 'images', self.filenames[i]),
+            os.path.join(self.data_dir, 'images', self.paths[i]),
             color=True)
 
         if self.crop_bbox:

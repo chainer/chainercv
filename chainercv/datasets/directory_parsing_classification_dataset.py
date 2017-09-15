@@ -38,15 +38,15 @@ def directory_parsing_label_names(root, numerical_sort=False):
     return label_names
 
 
-def _check_img_ext(filename):
+def _check_img_ext(path):
     img_extensions = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp']
-    return any(os.path.splitext(filename)[1].lower() == extension for
+    return any(os.path.splitext(path)[1].lower() == extension for
                extension in img_extensions)
 
 
 def _parse_classification_dataset(root, label_names,
                                   check_img_file=_check_img_ext):
-    img_filenames = []
+    img_paths = []
     labels = []
     for label, label_name in enumerate(label_names):
         label_dir = os.path.join(root, label_name)
@@ -57,12 +57,12 @@ def _parse_classification_dataset(root, label_names,
         for cur_dir, _, names in walk_dir:
             names = sorted(names)
             for name in names:
-                img_filename = os.path.join(cur_dir, name)
-                if check_img_file(img_filename):
-                    img_filenames.append(img_filename)
+                img_path = os.path.join(cur_dir, name)
+                if check_img_file(img_path):
+                    img_paths.append(img_path)
                     labels.append(label)
 
-    return img_filenames, np.array(labels, np.int32)
+    return img_paths, np.array(labels, np.int32)
 
 
 class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
@@ -93,7 +93,7 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
 
         >>> from chainercv.dataset import DirectoryParsingClassificationDataset
         >>> dataset = DirectoryParsingClassificationDataset('root')
-        >>> dataset.filenames
+        >>> dataset.paths
         ['root/class_0/img_0.png', 'root/class_0/img_1.png',
         'root_class_1/img_0.png']
         >>> dataset.labels
@@ -123,13 +123,13 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
         if check_img_file is None:
             check_img_file = _check_img_ext
 
-        self.img_filenames, self.labels = _parse_classification_dataset(
+        self.img_paths, self.labels = _parse_classification_dataset(
             root, label_names, check_img_file)
 
     def __len__(self):
-        return len(self.img_filenames)
+        return len(self.img_paths)
 
     def get_example(self, i):
-        img = read_image(self.img_filenames[i], color=self.color)
+        img = read_image(self.img_paths[i], color=self.color)
         label = self.labels[i]
         return img, label
