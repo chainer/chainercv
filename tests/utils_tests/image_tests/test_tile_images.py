@@ -25,8 +25,8 @@ class TestTileImages(unittest.TestCase):
 
         n_row = int(math.ceil(B / n_col))
         self.assertTrue(n_col >= 1 and n_row >= 1)
-        start_y_11 = H + self.pad + self.pad // 2 + 1
-        start_x_11 = W + self.pad + self.pad // 2 + 1
+        start_y_11 = H + self.pad + self.pad // 2
+        start_x_11 = W + self.pad + self.pad // 2
         tile_11 = tile[:,
                        start_y_11:start_y_11 + H,
                        start_x_11:start_x_11 + W]

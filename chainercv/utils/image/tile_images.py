@@ -39,8 +39,8 @@ def tile_images(imgs, n_col, pad=2, fill=0):
         for x in range(n_col):
             if k >= B:
                 break
-            start_y = y * (H + pad) + pad // 2 + 1
-            start_x = x * (W + pad) + pad // 2 + 1
+            start_y = y * (H + pad) + pad // 2
+            start_x = x * (W + pad) + pad // 2
             tile[:,
                  start_y: start_y + H,
                  start_x: start_x + W] = imgs[k]
