@@ -9,7 +9,7 @@ def tile_images(imgs, n_col, pad=2, fill=0):
 
     Args:
         imgs (numpy.ndarray): A batch of images whose shape is BCHW.
-        n_col (int): Number of columns in a tile.
+        n_col (int): The number of columns in a tile.
         pad (int): Amount of pad. Default is 2.
         fill (float, tuple or ~numpy.ndarray): The value of padded pixels.
             If it is :class:`numpy.ndarray`,
@@ -19,6 +19,9 @@ def tile_images(imgs, n_col, pad=2, fill=0):
     Returns:
         ~numpy.ndarray:
         An image array in CHW format.
+        The size of this image is
+        :math:`((H + pad) \\times \\lceil B / n_{n_{col}} \\rceil,
+        (W + pad) \\times n_{col})`.
 
     """
     B, C, H, W = imgs.shape
