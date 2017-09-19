@@ -106,9 +106,9 @@ class VOCBboxDataset(chainer.dataset.DatasetMixin):
         id_ = self.ids[i]
         anno = ET.parse(
             os.path.join(self.data_dir, 'Annotations', id_ + '.xml'))
-        bbox = []
-        label = []
-        difficult = []
+        bbox = list()
+        label = list()
+        difficult = list()
         for obj in anno.findall('object'):
             # when in not using difficult split, and the object is
             # difficult, skipt it.

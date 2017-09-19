@@ -70,9 +70,9 @@ class CUBKeypointDataset(CUBDatasetBase):
             id_ = int(values[0]) - 1
 
             if id_ not in self.kp_dict:
-                self.kp_dict[id_] = []
+                self.kp_dict[id_] = list()
             if id_ not in self.kp_mask_dict:
-                self.kp_mask_dict[id_] = []
+                self.kp_mask_dict[id_] = list()
 
             # (y, x) order
             keypoint = [float(v) for v in values[3:1:-1]]

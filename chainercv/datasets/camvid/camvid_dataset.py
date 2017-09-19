@@ -61,7 +61,7 @@ def get_camvid():
 
 class CamVidDataset(chainer.dataset.DatasetMixin):
 
-    """Dataset class for a semantic segmantion task on CamVid `u`_.
+    """Semantic segmentation dataset for CamVid `u`_.
 
     .. _`u`: https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid
 

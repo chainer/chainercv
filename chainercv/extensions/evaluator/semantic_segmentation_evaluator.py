@@ -103,7 +103,7 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
                     report['iou/{:s}'.format(label_name)] = np.nan
                     report['class_accuracy/{:s}'.format(label_name)] = np.nan
 
-        observation = {}
+        observation = dict()
         with reporter.report_scope(observation):
             reporter.report(report, target)
         return observation
