@@ -154,7 +154,7 @@ class FeaturePredictor(chainer.Chain):
             features = self.extractor(imgs)
 
         if isinstance(features, tuple):
-            output = []
+            output = list()
             for feature in features:
                 feature = feature.data
                 if n_crop > 1:

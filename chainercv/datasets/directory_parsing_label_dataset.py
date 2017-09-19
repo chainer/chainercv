@@ -46,8 +46,8 @@ def _check_img_ext(path):
 
 def _parse_label_dataset(root, label_names,
                          check_img_file=_check_img_ext):
-    img_paths = []
-    labels = []
+    img_paths = list()
+    labels = list()
     for label, label_name in enumerate(label_names):
         label_dir = os.path.join(root, label_name)
         if not os.path.isdir(label_dir):
