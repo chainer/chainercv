@@ -10,7 +10,7 @@ from chainercv.utils import tile_images
 
 @testing.parameterize(*testing.product({
     'fill': [128, (104, 117, 123), np.random.uniform(255, size=(3, 1, 1))],
-    'pad': [1, 2, 3]
+    'pad': [0, 1, 2, 3]
 }))
 class TestTileImages(unittest.TestCase):
 
