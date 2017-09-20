@@ -5,8 +5,8 @@ import numpy as np
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.datasets import CUBLabelDataset
 from chainercv.datasets import cub_label_names
+from chainercv.datasets import CUBLabelDataset
 from chainercv.utils import assert_is_classification_dataset
 from chainercv.utils import assert_is_bbox
 
