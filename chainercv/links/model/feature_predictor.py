@@ -28,7 +28,7 @@ class FeaturePredictor(chainer.Chain):
         >>> model = FeaturePredictor(base_model, 224, 256)
         >>> prob = model.predict([img])
         # Predicting multiple features
-        >>> model.extractor.feature_names = ['conv5_3', 'fc7']
+        >>> model.extractor.pick = ['conv5_3', 'fc7']
         >>> conv5_3, fc7 = model.predict([img])
 
     When :obj:`self.crop == 'center'`, :meth:`predict` extracts features from
