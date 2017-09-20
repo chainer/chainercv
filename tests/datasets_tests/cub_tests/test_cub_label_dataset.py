@@ -27,7 +27,7 @@ class TestCUBLabelDataset(unittest.TestCase):
         if self.return_bb:
             idx = np.random.choice(np.arange(10))
             _, _, bb = self.dataset[idx]
-            assert_is_bbox(bb[None])
+            assert_is_bbox(bb[np.newaxis])
 
 
 testing.run_module(__name__, __file__)
