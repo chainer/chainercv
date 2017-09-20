@@ -8,7 +8,7 @@ from chainer.testing import attr
 from chainercv.datasets import cub_label_names
 from chainercv.datasets import CUBLabelDataset
 from chainercv.utils import assert_is_bbox
-from chainercv.utils import assert_is_classification_dataset
+from chainercv.utils import assert_is_label_dataset
 
 
 @testing.parameterize(
@@ -22,7 +22,7 @@ class TestCUBLabelDataset(unittest.TestCase):
 
     @attr.slow
     def test_cub_label_dataset(self):
-        assert_is_classification_dataset(
+        assert_is_label_dataset(
             self.dataset, len(cub_label_names), n_example=10)
         if self.return_bb:
             idx = np.random.choice(np.arange(10))
