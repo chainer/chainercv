@@ -3,7 +3,6 @@ Datasets
 
 .. module:: chainercv.datasets
 
-
 DirectoryParsingClassificationDataset
 -------------------------------------
 .. autoclass:: DirectoryParsingClassificationDataset
@@ -25,6 +24,10 @@ CamVid
 CamVidDataset
 ~~~~~~~~~~~~~
 .. autoclass:: CamVidDataset
+
+CityscapesSemanticSegmentationDataset
+-------------------------------------
+.. autoclass:: CityscapesSemanticSegmentationDataset
 
 CUB
 ---

@@ -165,10 +165,11 @@ class SegNetBasic(chainer.Chain):
             list.
 
         """
-        labels = []
+        labels = list()
         for img in imgs:
             C, H, W = img.shape
-            with chainer.function.no_backprop_mode():
+            with chainer.using_config('train', False), \
+                    chainer.function.no_backprop_mode():
                 x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
                 score = self.__call__(x)[0].data
             score = chainer.cuda.to_cpu(score)
