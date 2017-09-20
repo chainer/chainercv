@@ -47,7 +47,7 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
 
     """
 
-    def __init__(self, data_dir='auto', mask_dir='auto', crop_bbox=True):
+    def __init__(self, data_dir='auto', mask_dir='auto', return_bb=False):
         if data_dir == 'auto':
             data_dir = get_cub()
         if mask_dir == 'auto':
@@ -56,22 +56,22 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
         self.mask_dir = mask_dir
 
         imgs_file = os.path.join(data_dir, 'images.txt')
-        bboxes_file = os.path.join(data_dir, 'bounding_boxes.txt')
+        bbs_file = os.path.join(data_dir, 'bounding_boxes.txt')
 
         self.paths = [
             line.strip().split()[1] for line in open(imgs_file)]
 
         # (x_min, y_min, width, height)
-        bboxes = np.array([
+        bbs = np.array([
             tuple(map(float, line.split()[1:5]))
-            for line in open(bboxes_file)])
+            for line in open(bbs_file)])
         # (x_min, y_min, width, height) -> (x_min, y_min, x_max, y_max)
-        bboxes[:, 2:] += bboxes[:, :2]
+        bbs[:, 2:] += bbs[:, :2]
         # (x_min, y_min, width, height) -> (y_min, x_min, y_max, x_max)
-        bboxes[:] = bboxes[:, [1, 0, 3, 2]]
-        self.bboxes = bboxes.astype(np.float32)
+        bbs[:] = bbs[:, [1, 0, 3, 2]]
+        self.bbs = bbs.astype(np.float32)
 
-        self.crop_bbox = crop_bbox
+        self.return_bb = return_bb
 
     def __len__(self):
         return len(self.paths)
