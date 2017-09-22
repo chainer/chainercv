@@ -75,7 +75,12 @@ class FasterRCNNVGG16(FasterRCNN):
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.4/'
             'faster_rcnn_vgg16_voc07_trained_2017_08_06.npz'
-        }
+        },
+        'voc0712': {
+            'n_fg_class': 20,
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.4/faster_rcnn_vgg16_voc0712_trained_2017_07_21.npz'
+        },
     }
     feat_stride = 16
 
@@ -86,7 +91,7 @@ class FasterRCNNVGG16(FasterRCNN):
                  ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
                  vgg_initialW=None, rpn_initialW=None,
                  loc_initialW=None, score_initialW=None,
-                 proposal_creator_params={}
+                 proposal_creator_params=dict()
                  ):
         if n_fg_class is None:
             if pretrained_model not in self._models:

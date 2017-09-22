@@ -9,7 +9,7 @@ from chainercv.utils import read_image
 
 class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
 
-    """Dataset class for the semantic segmantion task of PASCAL `VOC2012`_.
+    """Semantic segmentation dataset for PASCAL `VOC2012`_.
 
     The class name of the label :math:`l` is :math:`l` th element of
     :obj:`chainercv.datasets.voc_semantic_segmentation_label_names`.

@@ -36,8 +36,6 @@ class ProgressHook(object):
 
 
 def main():
-    chainer.config.train = False
-
     parser = argparse.ArgumentParser(
         description='Learning convnet from ILSVRC2012 dataset')
     parser.add_argument('val', help='Path to root of the validation dataset')
@@ -57,7 +55,7 @@ def main():
         n_processes=6, shared_mem=300000000)
 
     if args.model == 'vgg16':
-        extractor = VGG16(args.pretrained_model, n_class)
+        extractor = VGG16(len(label_names), args.pretrained_model)
     elif args.model == 'resnet50':
         extractor = ResNet50(args.pretrained_model, n_class)
     elif args.model == 'resnet101':

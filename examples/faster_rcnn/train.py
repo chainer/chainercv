@@ -17,6 +17,24 @@ from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 from chainercv import transforms
 
 
+class ConcatenatedDataset(chainer.dataset.DatasetMixin):
+
+    def __init__(self, *datasets):
+        self._datasets = datasets
+
+    def __len__(self):
+        return sum(len(dataset) for dataset in self._datasets)
+
+    def get_example(self, i):
+        if i < 0:
+            raise IndexError
+        for dataset in self._datasets:
+            if i < len(dataset):
+                return dataset[i]
+            i -= len(dataset)
+        raise IndexError
+
+
 class Transform(object):
 
     def __init__(self, faster_rcnn):
@@ -42,6 +60,9 @@ class Transform(object):
 def main():
     parser = argparse.ArgumentParser(
         description='ChainerCV training example: Faster R-CNN')
+    parser.add_argument('--dataset', choices=('voc07', 'voc0712'),
+                        help='The dataset to use: VOC07, VOC07+12',
+                        default='voc07')
     parser.add_argument('--gpu', '-g', type=int, default=-1)
     parser.add_argument('--lr', '-l', type=float, default=1e-3)
     parser.add_argument('--out', '-o', default='result',
@@ -53,7 +74,12 @@ def main():
 
     np.random.seed(args.seed)
 
-    train_data = VOCDetectionDataset(split='trainval', year='2007')
+    if args.dataset == 'voc07':
+        train_data = VOCDetectionDataset(split='trainval', year='2007')
+    elif args.dataset == 'voc0712':
+        train_data = ConcatenatedDataset(
+            VOCDetectionDataset(year='2007', split='trainval'),
+            VOCDetectionDataset(year='2012', split='trainval'))
     test_data = VOCDetectionDataset(split='test', year='2007',
                                     use_difficult=True, return_difficult=True)
     faster_rcnn = FasterRCNNVGG16(n_fg_class=len(voc_detection_label_names),

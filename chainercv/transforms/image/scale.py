@@ -1,7 +1,9 @@
+import PIL
+
 from chainercv.transforms import resize
 
 
-def scale(img, size, fit_short=True):
+def scale(img, size, fit_short=True, interpolation=PIL.Image.BILINEAR):
     """Rescales the input image to the given "size".
 
     When :obj:`fit_short == True`, the input image will be resized so that
@@ -19,6 +21,10 @@ def scale(img, size, fit_short=True):
         size (int): The length of the smaller edge.
         fit_short (bool): Determines whether to match the length
             of the shorter edge or the longer edge to :obj:`size`.
+        interpolation (int): Determines sampling strategy. This is one of
+            :obj:`PIL.Image.NEAREST`, :obj:`PIL.Image.BILINEAR`,
+            :obj:`PIL.Image.BICUBIC`, :obj:`PIL.Image.LANCZOS`.
+            Bilinear interpolation is the default strategy.
 
     Returns:
         ~numpy.ndarray: A scaled image in CHW format.
@@ -44,4 +50,4 @@ def scale(img, size, fit_short=True):
         else:
             out_size = (size, int(size * W / H))
 
-    return resize(img, out_size)
+    return resize(img, out_size, interpolation)

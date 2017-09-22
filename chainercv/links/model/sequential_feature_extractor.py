@@ -141,7 +141,7 @@ class SequentialFeatureExtractor(chainer.Chain):
         last_index = max(self.all_feature_names.index(name) for
                          name in feature_names)
 
-        features = {}
+        features = dict()
         h = x
         for name in self.all_feature_names[:last_index + 1]:
             h = self[name](h)

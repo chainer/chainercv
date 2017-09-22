@@ -65,6 +65,12 @@ class VGG16(SequentialFeatureExtractor):
         <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_.
 
     Args:
+        n_class (int): The number of classes. If :obj:`None`,
+            the default values are used.
+            If a supported pretrained model is used,
+            the number of classes used to train the pretrained model
+            is used. Otherwise, the number of classes in ILSVRC 2012 dataset
+            is used.
         pretrained_model (str): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
@@ -73,12 +79,6 @@ class VGG16(SequentialFeatureExtractor):
             where :obj:`$CHAINER_DATASET_ROOT` is set as
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
-        n_class (int): The number of classes. If :obj:`None`,
-            the default values are used.
-            If a supported pretrained model is used,
-            the number of classes used to train the pretrained model
-            is used. Otherwise, the number of classes in ILSVRC 2012 dataset
-            is used.
         mean (numpy.ndarray): A mean value. If :obj:`None`,
             the default values are used.
             If a supported pretrained model is used,
@@ -100,7 +100,7 @@ class VGG16(SequentialFeatureExtractor):
     }
 
     def __init__(self,
-                 pretrained_model=None, n_class=None, mean=None,
+                 n_class=None, pretrained_model=None, mean=None,
                  initialW=None, initial_bias=None):
         if n_class is None:
             if pretrained_model in self._models:
