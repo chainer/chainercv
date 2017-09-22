@@ -7,7 +7,7 @@ from chainer.function import Function
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links import SequentialFeatureExtractor
+from chainercv.links import PickableSequentialChain
 from chainercv.utils.testing import ConstantStubLink
 
 
@@ -18,13 +18,13 @@ class DummyFunc(Function):
 
 
 @testing.parameterize(
-    {'feature_names': None},
-    {'feature_names': 'f2'},
-    {'feature_names': ('f2',)},
-    {'feature_names': ('l2', 'l1', 'f2')},
-    {'feature_names': ('l2', 'l2')},
+    {'pick': None},
+    {'pick': 'f2'},
+    {'pick': ('f2',)},
+    {'pick': ('l2', 'l1', 'f2')},
+    {'pick': ('l2', 'l2')},
 )
-class TestSequentialFeatureExtractor(unittest.TestCase):
+class TestPickableSequentialChain(unittest.TestCase):
 
     def setUp(self):
         self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
@@ -32,39 +32,39 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
         self.f2 = DummyFunc()
         self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
 
-        self.link = SequentialFeatureExtractor()
+        self.link = PickableSequentialChain()
         with self.link.init_scope():
             self.link.l1 = self.l1
             self.link.f1 = self.f1
             self.link.f2 = self.f2
             self.link.l2 = self.l2
 
-        if self.feature_names:
-            self.link.feature_names = self.feature_names
+        if self.pick:
+            self.link.pick = self.pick
 
         self.x = np.random.uniform(size=(1, 3, 24, 24))
 
-    def test_feature_names(self):
-        self.assertEqual(self.link.feature_names, self.feature_names)
+    def test_pick(self):
+        self.assertEqual(self.link.pick, self.pick)
 
-    def test_all_feature_names(self):
-        self.assertEqual(self.link.all_feature_names, ['l1', 'f1', 'f2', 'l2'])
+    def test_layer_names(self):
+        self.assertEqual(self.link.layer_names, ['l1', 'f1', 'f2', 'l2'])
 
     def check_call(self, x, expects):
         outs = self.link(x)
 
-        if isinstance(self.feature_names, tuple):
-            feature_names = self.feature_names
+        if isinstance(self.pick, tuple):
+            pick = self.pick
         else:
-            if self.feature_names is None:
-                feature_names = ('l2',)
+            if self.pick is None:
+                pick = ('l2',)
             else:
-                feature_names = (self.feature_names,)
+                pick = (self.pick,)
             outs = (outs,)
 
-        self.assertEqual(len(outs), len(feature_names))
+        self.assertEqual(len(outs), len(pick))
 
-        for out, layer_name in zip(outs, feature_names):
+        for out, layer_name in zip(outs, pick):
             self.assertIsInstance(out, chainer.Variable)
             self.assertIsInstance(out.data, self.link.xp.ndarray)
 
@@ -93,9 +93,9 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
     def check_deletion(self):
         x = self.link.xp.asarray(self.x)
 
-        if self.feature_names == 'l1' or \
-           (isinstance(self.feature_names, tuple) and
-                'l1' in self.feature_names):
+        if self.pick == 'l1' or \
+           (isinstance(self.pick, tuple) and
+                'l1' in self.pick):
             with self.assertRaises(AttributeError):
                 del self.link.l1
             return
@@ -119,12 +119,12 @@ class TestSequentialFeatureExtractor(unittest.TestCase):
 
 
 @testing.parameterize(
-    {'feature_names': 'l1', 'all_feature_names': ['l1']},
-    {'feature_names': 'f1', 'all_feature_names': ['l1', 'f1']},
-    {'feature_names': ['f1', 'f2'], 'all_feature_names': ['l1', 'f1', 'f2']},
-    {'feature_names': None, 'all_feature_names': ['l1', 'f1', 'f2', 'l2']}
+    {'pick': 'l1', 'layer_names': ['l1']},
+    {'pick': 'f1', 'layer_names': ['l1', 'f1']},
+    {'pick': ['f1', 'f2'], 'layer_names': ['l1', 'f1', 'f2']},
+    {'pick': None, 'layer_names': ['l1', 'f1', 'f2', 'l2']}
 )
-class TestSequentialFeatureExtractorRemoveUnused(unittest.TestCase):
+class TestPickableSequentialChainRemoveUnused(unittest.TestCase):
 
     def setUp(self):
         self.l1 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
@@ -132,20 +132,20 @@ class TestSequentialFeatureExtractorRemoveUnused(unittest.TestCase):
         self.f2 = DummyFunc()
         self.l2 = ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24)))
 
-        self.link = SequentialFeatureExtractor()
+        self.link = PickableSequentialChain()
         with self.link.init_scope():
             self.link.l1 = self.l1
             self.link.f1 = self.f1
             self.link.f2 = self.f2
             self.link.l2 = self.l2
-        self.link.feature_names = self.feature_names
+        self.link.pick = self.pick
 
     def check_remove_unused(self):
         self.link.remove_unused()
 
-        self.assertEqual(self.link.all_feature_names, self.all_feature_names)
+        self.assertEqual(self.link.layer_names, self.layer_names)
         for name in ['l1', 'f1', 'f2', 'l2']:
-            if name in self.all_feature_names:
+            if name in self.layer_names:
                 self.assertTrue(hasattr(self.link, name))
             else:
                 self.assertFalse(hasattr(self.link, name))

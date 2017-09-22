@@ -5,6 +5,13 @@ Links
 Model
 -----
 
+General Chain
+~~~~~~~~~~~~~
+
+.. toctree::
+
+    links/general_chain
+
 
 Feature Extraction
 ~~~~~~~~~~~~~~~~~~
@@ -13,12 +20,6 @@ Feature extraction models extract feature(s) from given images.
 .. toctree::
 
    links/vgg
-
-
-.. autoclass:: chainercv.links.SequentialFeatureExtractor
-   :members:
-
-.. autoclass:: chainercv.links.FeaturePredictor
 
 
 Detection
