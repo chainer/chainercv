@@ -24,7 +24,7 @@ class ResNet(PickableSequentialChain):
 
     """Base class for ResNet Network.
 
-    This is a feature extraction model.
+    This is a feature extraction link.
     The network can choose output layers from set of all
     intermediate layers.
     The attribute :obj:`layer_names` is the names of the layers that are going
