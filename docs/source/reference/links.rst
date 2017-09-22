@@ -20,6 +20,7 @@ Feature extraction models extract feature(s) from given images.
 .. toctree::
 
    links/vgg
+   links/resnet
 
 
 Detection

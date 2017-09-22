@@ -8,7 +8,7 @@ from chainer import initializers
 import chainer.links as L
 
 from chainercv.links.model.resnet.building_block import BuildingBlock
-from chainercv.links import SequentialFeatureExtractor
+from chainercv.links import PickableSequentialChain
 from chainercv.utils import download_model
 
 
@@ -20,7 +20,75 @@ _imagenet_mean = np.array(
     dtype=np.float32)[:, np.newaxis, np.newaxis]
 
 
-class ResNet(SequentialFeatureExtractor):
+class ResNet(PickableSequentialChain):
+
+    """Base class for ResNet Network.
+
+    This is a feature extraction model.
+    The network can choose output layers from set of all
+    intermediate layers.
+    The attribute :obj:`layer_names` is the names of the layers that are going
+    to be picked by :meth:`__call__`.
+    The attribute :obj:`layer_names` is the names of layers
+    that can be picked.
+
+    Examples:
+
+        >>> model = VGG16()
+        # By default, __call__ returns a probability score (after Softmax).
+        >>> prob = model(imgs)
+        >>> model.pick = 'res5'
+        # This is layer res5
+        >>> res5 = model(imgs)
+        >>> model.pick = ['res5', 'fc6']
+        >>> # These are layers res5 and fc6.
+        >>> res5, fc6 = model(imgs)
+
+    .. seealso::
+        :class:`chainercv.links.model.PickableSequentialChain`
+
+    When :obj:`pretrained_model` is the path of a pre-trained chainer model
+    serialized as a :obj:`.npz` file in the constructor, this chain model
+    automatically initializes all the parameters with it.
+    When a string in the prespecified set is provided, a pretrained model is
+    loaded from weights distributed on the Internet.
+    The list of pretrained models supported are as follows:
+
+    * :obj:`imagenet`: Loads weights trained with ImageNet and distributed \
+        at `Model Zoo \
+        <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_.
+        This is only supported when :obj:`fb_resnet=False`.
+
+    Args:
+        model_name (str): Name of the resnet model to instantiate.
+        n_class (int): The number of classes. If :obj:`None`,
+            the default values are used.
+            If a supported pretrained model is used,
+            the number of classes used to train the pretrained model
+            is used. Otherwise, the number of classes in ILSVRC 2012 dataset
+            is used.
+        pretrained_model (str): The destination of the pre-trained
+            chainer model serialized as a :obj:`.npz` file.
+            If this is one of the strings described
+            above, it automatically loads weights stored under a directory
+            :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/models/`,
+            where :obj:`$CHAINER_DATASET_ROOT` is set as
+            :obj:`$HOME/.chainer/dataset` unless you specify another value
+            by modifying the environment variable.
+        mean (numpy.ndarray): A mean value. If :obj:`None`,
+            the default values are used.
+            If a supported pretrained model is used,
+            the mean value used to train the pretrained model is used.
+            Otherwise, the mean value calculated from ILSVRC 2012 dataset
+            is used.
+        initialW (callable): Initializer for the weights.
+        fb_resnet (bool): If :obj:`True`, use Facebook ResNet
+            architecture. Otherwise, use the architecture presented
+            by `the original ResNet paper \
+            <https://arxiv.org/pdf/1512.03385.pdf>`_.
+            This option changes where to apply strided convolution.
+
+    """
 
     _blocks = {
         'resnet50': [3, 4, 6, 3],
@@ -28,7 +96,7 @@ class ResNet(SequentialFeatureExtractor):
         'resnet152': [3, 8, 36, 3]
     }
 
-    _models = {
+    _he_models = {
         'resnet50': {
             'imagenet': {
                 'n_class': 1000,
@@ -55,14 +123,28 @@ class ResNet(SequentialFeatureExtractor):
         }
     }
 
+    _fb_models = {
+        'resnet50': dict(),
+        'resnet101': dict(),
+        'resnet152': dict()
+    }
+
     def __init__(self, model_name,
-                 pretrained_model=None,
                  n_class=None,
-                 mean=None, initialW=None):
+                 pretrained_model=None,
+                 mean=None, initialW=None, fb_resnet=False):
+        if fb_resnet:
+            if pretrained_model == 'imagenet':
+                raise ValueError(
+                    'Pretrained weights for Facebook ResNet models '
+                    'are not supported.')
+            _models = self._fb_models[model_name]
+        else:
+            _models = self._he_models[model_name]
         block = self._blocks[model_name]
-        _models = self._models[model_name]
+
         if n_class is None:
-            if pretrained_model in self._models:
+            if pretrained_model in _models:
                 n_class = _models[pretrained_model]['n_class']
             else:
                 n_class = 1000
@@ -70,22 +152,22 @@ class ResNet(SequentialFeatureExtractor):
         if mean is None:
             if pretrained_model in _models:
                 mean = _models[pretrained_model]['mean']
+            else:
+                mean = _imagenet_mean
         self.mean = mean
 
+        if initialW is None:
+            # Employ default initializers used in the original paper.
+            initialW = initializers.normal.HeNormal(scale=1.)
         if pretrained_model:
             # As a sampling process is time-consuming,
             # we employ a zero initializer for faster computation.
-            if initialW is None:
-                initialW = initializers.constant.Zero()
-        else:
-            # Employ default initializers used in the original paper.
-            if initialW is None:
-                initialW = initializers.normal.HeNormal(scale=1.)
-        kwargs = {'initialW': initialW}
+            initialW = initializers.constant.Zero()
+        kwargs = {'initialW': initialW, 'stride_first': not fb_resnet}
 
         super(ResNet, self).__init__()
         with self.init_scope():
-            self.conv1 = L.Convolution2D(None, 64, 7, 2, 3, **kwargs)
+            self.conv1 = L.Convolution2D(None, 64, 7, 2, 3, initialW=initialW)
             self.bn1 = L.BatchNormalization(64)
             self.conv1_relu = F.relu
             self.pool1 = lambda x: F.max_pooling_2d(x, ksize=3, stride=2)
@@ -107,32 +189,59 @@ class ResNet(SequentialFeatureExtractor):
 def _global_average_pooling_2d(x):
     n, channel, rows, cols = x.data.shape
     h = F.average_pooling_2d(x, (rows, cols), stride=1)
-    h = h.reshape(n, channel)
+    h = h.reshape((n, channel))
     return h
 
 
 class ResNet50(ResNet):
 
-    def __init__(self, pretrained_model=None,
-                 n_class=None, mean=None, initialW=None):
+    """ResNet-50 Network.
+
+    Please consult the documentation for :class:`ResNet`.
+
+    .. seealso::
+        :class:`chainercv.links.model.resnet.ResNet`
+
+    """
+
+    def __init__(self, n_class=None, pretrained_model=None,
+                 mean=None, initialW=None, fb_resnet=False):
         super(ResNet50, self).__init__(
-            'resnet50', pretrained_model,
-            n_class, mean, initialW)
+            'resnet50', n_class, pretrained_model,
+            mean, initialW, fb_resnet)
 
 
 class ResNet101(ResNet):
 
-    def __init__(self, pretrained_model=None,
-                 n_class=None, mean=None, initialW=None):
+    """ResNet-101 Network.
+
+    Please consult the documentation for :class:`ResNet`.
+
+    .. seealso::
+        :class:`chainercv.links.model.resnet.ResNet`
+
+    """
+
+    def __init__(self, n_class=None, pretrained_model=None,
+                 mean=None, initialW=None, fb_resnet=False):
         super(ResNet101, self).__init__(
-            'resnet101', pretrained_model,
-            n_class, mean, initialW)
+            'resnet101', n_class, pretrained_model,
+            mean, initialW, fb_resnet)
 
 
 class ResNet152(ResNet):
 
-    def __init__(self, pretrained_model=None,
-                 n_class=None, mean=None, initialW=None):
+    """ResNet-152 Network.
+
+    Please consult the documentation for :class:`ResNet`.
+
+    .. seealso::
+        :class:`chainercv.links.model.resnet.ResNet`
+
+    """
+
+    def __init__(self, n_class=None, pretrained_model=None,
+                 mean=None, initialW=None, fb_resnet=False):
         super(ResNet152, self).__init__(
-            'resnet152', pretrained_model,
-            n_class, mean, initialW)
+            'resnet152', n_class, pretrained_model,
+            mean, initialW, fb_resnet)
