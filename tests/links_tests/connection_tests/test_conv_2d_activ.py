@@ -39,7 +39,7 @@ class TestConv2DActiv(unittest.TestCase):
 
         # Convolution is the identity function.
         initialW = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]],
-                            dtype=np.float32).reshape(1, 1, 3, 3)
+                            dtype=np.float32).reshape((1, 1, 3, 3))
         initial_bias = 0
         if self.args_style == 'explicit':
             self.l = Conv2DActiv(

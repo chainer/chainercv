@@ -225,7 +225,7 @@ class FasterRCNN(chainer.Chain):
         score = list()
         # skip cls_id = 0 because it is the background class
         for l in range(1, self.n_class):
-            cls_bbox_l = raw_cls_bbox.reshape(-1, self.n_class, 4)[:, l, :]
+            cls_bbox_l = raw_cls_bbox.reshape((-1, self.n_class, 4))[:, l, :]
             prob_l = raw_prob[:, l]
             mask = prob_l > self.score_thresh
             cls_bbox_l = cls_bbox_l[mask]
@@ -282,7 +282,8 @@ class FasterRCNN(chainer.Chain):
         labels = list()
         scores = list()
         for img, scale in zip(prepared_imgs, scales):
-            with chainer.function.no_backprop_mode():
+            with chainer.using_config('train', False), \
+                    chainer.function.no_backprop_mode():
                 img_var = chainer.Variable(self.xp.asarray(img[None]))
                 H, W = img_var.shape[2:]
                 roi_cls_locs, roi_scores, rois, _ = self.__call__(
@@ -299,10 +300,11 @@ class FasterRCNN(chainer.Chain):
             std = self.xp.tile(self.xp.asarray(self.loc_normalize_std),
                                self.n_class)
             roi_cls_loc = (roi_cls_loc * std + mean).astype(np.float32)
-            roi_cls_loc = roi_cls_loc.reshape(-1, self.n_class, 4)
+            roi_cls_loc = roi_cls_loc.reshape((-1, self.n_class, 4))
             roi = self.xp.broadcast_to(roi[:, None], roi_cls_loc.shape)
-            cls_bbox = loc2bbox(roi.reshape(-1, 4), roi_cls_loc.reshape(-1, 4))
-            cls_bbox = cls_bbox.reshape(-1, self.n_class * 4)
+            cls_bbox = loc2bbox(roi.reshape((-1, 4)),
+                                roi_cls_loc.reshape((-1, 4)))
+            cls_bbox = cls_bbox.reshape((-1, self.n_class * 4))
             # clip bounding box
             cls_bbox[:, 0::2] = self.xp.clip(cls_bbox[:, 0::2], 0, H / scale)
             cls_bbox[:, 1::2] = self.xp.clip(cls_bbox[:, 1::2], 0, W / scale)

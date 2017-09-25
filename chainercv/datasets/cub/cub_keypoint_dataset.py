@@ -70,9 +70,9 @@ class CUBKeypointDataset(CUBDatasetBase):
             id_ = int(values[0]) - 1
 
             if id_ not in self.kp_dict:
-                self.kp_dict[id_] = []
+                self.kp_dict[id_] = list()
             if id_ not in self.kp_mask_dict:
-                self.kp_mask_dict[id_] = []
+                self.kp_mask_dict[id_] = list()
 
             # (y, x) order
             keypoint = [float(v) for v in values[3:1:-1]]
@@ -84,7 +84,7 @@ class CUBKeypointDataset(CUBDatasetBase):
     def get_example(self, i):
         # this i is transformed to id for the entire dataset
         img = utils.read_image(
-            os.path.join(self.data_dir, 'images', self.filenames[i]),
+            os.path.join(self.data_dir, 'images', self.paths[i]),
             color=True)
         keypoint = np.array(self.kp_dict[i], dtype=np.float32)
         kp_mask = np.array(self.kp_mask_dict[i], dtype=np.bool)
@@ -98,9 +98,9 @@ class CUBKeypointDataset(CUBDatasetBase):
         if not self.return_mask:
             return img, keypoint, kp_mask
 
-        filename, _ = os.path.splitext(self.filenames[i])
+        path, _ = os.path.splitext(self.paths[i])
         mask = utils.read_image(
-            os.path.join(self.mask_dir, filename + '.png'),
+            os.path.join(self.mask_dir, path + '.png'),
             dtype=np.uint8,
             color=False)
         if self.crop_bbox:

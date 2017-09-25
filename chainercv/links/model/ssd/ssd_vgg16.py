@@ -21,7 +21,7 @@ except ImportError:
 
 
 # RGB, (C, 1, 1) format
-_imagenet_mean = np.array((123, 117, 104)).reshape(-1, 1, 1)
+_imagenet_mean = np.array((123, 117, 104)).reshape((-1, 1, 1))
 
 
 class VGG16(chainer.Chain):

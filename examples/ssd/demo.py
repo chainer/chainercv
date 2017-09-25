@@ -11,8 +11,6 @@ from chainercv.visualizations import vis_bbox
 
 
 def main():
-    chainer.config.train = False
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--model', choices=('ssd300', 'ssd512'), default='ssd300')

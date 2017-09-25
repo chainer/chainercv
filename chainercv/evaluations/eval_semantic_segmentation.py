@@ -58,7 +58,7 @@ def calc_semantic_segmentation_confusion(pred_labels, gt_labels):
         mask = gt_label >= 0
         confusion += np.bincount(
             n_class * gt_label[mask].astype(int) +
-            pred_label[mask], minlength=n_class**2).reshape(n_class, n_class)
+            pred_label[mask], minlength=n_class**2).reshape((n_class, n_class))
 
     for iter_ in (pred_labels, gt_labels):
         # This code assumes any iterator does not contain None as its items.

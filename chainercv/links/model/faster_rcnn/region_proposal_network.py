@@ -50,7 +50,7 @@ class RegionProposalNetwork(chainer.Chain):
             self, in_channels=512, mid_channels=512, ratios=[0.5, 1, 2],
             anchor_scales=[8, 16, 32], feat_stride=16,
             initialW=None,
-            proposal_creator_params={},
+            proposal_creator_params=dict(),
     ):
         self.anchor_base = generate_anchor_base(
             anchor_scales=anchor_scales, ratios=ratios)
@@ -113,17 +113,17 @@ class RegionProposalNetwork(chainer.Chain):
         h = F.relu(self.conv1(x))
 
         rpn_locs = self.loc(h)
-        rpn_locs = rpn_locs.transpose((0, 2, 3, 1)).reshape(n, -1, 4)
+        rpn_locs = rpn_locs.transpose((0, 2, 3, 1)).reshape((n, -1, 4))
 
         rpn_scores = self.score(h)
-        rpn_scores = rpn_scores.transpose(0, 2, 3, 1)
+        rpn_scores = rpn_scores.transpose((0, 2, 3, 1))
         rpn_fg_scores =\
-            rpn_scores.reshape(n, hh, ww, n_anchor, 2)[:, :, :, :, 1]
-        rpn_fg_scores = rpn_fg_scores.reshape(n, -1)
-        rpn_scores = rpn_scores.reshape(n, -1, 2)
+            rpn_scores.reshape((n, hh, ww, n_anchor, 2))[:, :, :, :, 1]
+        rpn_fg_scores = rpn_fg_scores.reshape((n, -1))
+        rpn_scores = rpn_scores.reshape((n, -1, 2))
 
-        rois = []
-        roi_indices = []
+        rois = list()
+        roi_indices = list()
         for i in range(n):
             roi = self.proposal_layer(
                 rpn_locs[i].data, rpn_fg_scores[i].data, anchor, img_size,

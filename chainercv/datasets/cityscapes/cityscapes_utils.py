@@ -1,3 +1,6 @@
+# The values used here is copied from cityscapesScripts:
+# https://github.com/mcordts/cityscapesScripts
+
 from collections import namedtuple
 
 
@@ -5,7 +8,7 @@ Label = namedtuple(
     'Label', ['name', 'id', 'trainId', 'category', 'categoryId',
               'hasInstances', 'ignoreInEval', 'color'])
 
-cityscapes_labels = [
+cityscapes_labels = tuple([
     Label('unlabeled', 0, 255, 'void', 0, False, True, (0, 0, 0)),
     Label('egovehicle', 1, 255, 'void', 0, False, True, (0, 0, 0)),
     Label('rectificationborder', 2, 255, 'void', 0, False, True, (0, 0, 0)),
@@ -42,7 +45,7 @@ cityscapes_labels = [
     Label('motorcycle', 32, 17, 'vehicle', 7, True, False, (0, 0, 230)),
     Label('bicycle', 33, 18, 'vehicle', 7, True, False, (119, 11, 32)),
     Label('licenseplate', -1, -1, 'vehicle', 7, False, True, (0, 0, 142)),
-]
+])
 
 cityscapes_label_names = tuple(
     l.name for l in cityscapes_labels if not l.ignoreInEval)
