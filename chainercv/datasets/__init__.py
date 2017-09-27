@@ -1,3 +1,6 @@
+from chainercv.datasets.ade20k.ade20k_semantic_segmentation_dataset import ADE20KSemanticSegmentationDataset  # NOQA
+from chainercv.datasets.ade20k.ade20k_utils import ade20k_label_colors  # NOQA
+from chainercv.datasets.ade20k.ade20k_utils import ade20k_label_names  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import camvid_ignore_label_color  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import camvid_label_colors  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import camvid_label_names  # NOQA
