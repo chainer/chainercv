@@ -19,7 +19,7 @@ class TestADE20KDataset(unittest.TestCase):
         self.dataset = ADE20KSemanticSegmentationDataset(split=self.split)
 
     @attr.slow
-    def test_camvid_dataset(self):
+    def test_ade20k_dataset(self):
         if self.split == 'train' or self.split == 'val':
             assert_is_semantic_segmentation_dataset(
                 self.dataset, len(ade20k_label_names), n_example=10)
