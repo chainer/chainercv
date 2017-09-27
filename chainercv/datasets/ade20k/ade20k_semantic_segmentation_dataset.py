@@ -46,7 +46,7 @@ class ADE20KSemanticSegmentationDataset(dataset.DatasetMixin):
             automatically downloaded into
             :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/ade20k`.
         split ({'train', 'val', 'test'}): Select from dataset splits used in
-            Cityscapes dataset.
+            MIT Scene Parsing Benchmark dataset (ADE20K).
 
     """
 
