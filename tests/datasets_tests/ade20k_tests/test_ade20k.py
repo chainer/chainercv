@@ -2,8 +2,8 @@ import unittest
 
 from chainer import testing
 from chainer.testing import attr
-from chainercv.datasets import ADE20KSemanticSegmentationDataset
 from chainercv.datasets import ade20k_label_names
+from chainercv.datasets import ADE20KSemanticSegmentationDataset
 from chainercv.utils import assert_is_semantic_segmentation_dataset
 from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
 

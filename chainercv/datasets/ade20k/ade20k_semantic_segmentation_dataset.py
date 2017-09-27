@@ -1,6 +1,6 @@
 import glob
-import os
 from multiprocessing import Pool
+import os
 
 import numpy as np
 
