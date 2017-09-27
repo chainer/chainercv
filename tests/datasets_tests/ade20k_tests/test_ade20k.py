@@ -13,7 +13,7 @@ from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
     {'split': 'val'},
     {'split': 'test'}
 )
-class TestCamVidDataset(unittest.TestCase):
+class TestADE20KDataset(unittest.TestCase):
 
     def setUp(self):
         self.dataset = ADE20KSemanticSegmentationDataset(split=self.split)
@@ -24,7 +24,7 @@ class TestCamVidDataset(unittest.TestCase):
             assert_is_semantic_segmentation_dataset(
                 self.dataset, len(ade20k_label_names), n_example=10)
         else:
-            for img in self.datast[:10]:
+            for img in self.dataset[:10]:
                 assert_is_image(img, color=True)
 
 
