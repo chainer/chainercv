@@ -20,7 +20,7 @@ class TestADE20KDataset(unittest.TestCase):
         if self.split == 'train' or self.split == 'val':
             self.dataset = ADE20KSemanticSegmentationDataset(split=self.split)
         else:
-            self.dataset = ADE20KTestImageDataset(split=self.split)
+            self.dataset = ADE20KTestImageDataset()
 
     @attr.slow
     def test_ade20k_dataset(self):
