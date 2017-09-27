@@ -1,21 +1,19 @@
 import glob
 import os
 
-import numpy as np
-
 from chainer import dataset
 from chainer.dataset import download
 from chainercv import utils
 from chainercv.utils import read_image
 
 root = 'pfnet/chainercv/ade20k'
-test_url = 'http://data.csail.mit.edu/places/ADEchallenge/release_test.zip'
+url = 'http://data.csail.mit.edu/places/ADEchallenge/release_test.zip'
 
 
 def get_ade20k():
     data_root = download.get_dataset_directory(root)
-    cache_fn = utils.cached_download(test_url)
-    utils.extractall(cache_fn, data_root, os.path.splitext(test_url)[1])
+    cache_fn = utils.cached_download(url)
+    utils.extractall(cache_fn, data_root, os.path.splitext(url)[1])
     return data_root
 
 
