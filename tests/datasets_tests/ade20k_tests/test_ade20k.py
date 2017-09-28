@@ -30,8 +30,8 @@ class TestADE20KDataset(unittest.TestCase):
             assert_is_semantic_segmentation_dataset(
                 self.dataset, len(ade20k_label_names), n_example=10)
         else:
-            idx = np.random.permutation(np.arange(len(self.dataset)))
-            for i in idx[:10]:
+            indices = np.random.permutation(np.arange(len(self.dataset)))
+            for i in indices[:10]:
                 img = self.dataset[i]
                 assert_is_image(img, color=True)
 
