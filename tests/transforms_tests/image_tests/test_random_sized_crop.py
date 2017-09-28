@@ -1,5 +1,8 @@
+from __future__ import division
+
 import unittest
 
+import math
 import numpy as np
 
 from chainer import testing
@@ -15,7 +18,8 @@ class TestRandomSizedCrop(unittest.TestCase):
 
     def test_random_sized_crop(self):
         img = np.random.uniform(size=(3, self.H, self.W))
-
+        scale_ratio_interval = (np.sqrt(0.08), 1)
+        aspect_ratio_interval = (3 / 4, 4 / 3)
         out, params = random_sized_crop(img, return_params=True)
 
         expected = img[:, params['y_slice'], params['x_slice']]
@@ -24,8 +28,13 @@ class TestRandomSizedCrop(unittest.TestCase):
         _, H_crop, W_crop = out.shape
         s = params['scale_ratio']
         a = params['aspect_ratio']
-        self.assertEqual(H_crop, int(s * self.H * np.sqrt(a)))
-        self.assertEqual(W_crop, int(s * self.W / np.sqrt(a)))
+        self.assertEqual(H_crop, int(math.floor(s * self.H * np.sqrt(a))))
+        self.assertEqual(W_crop, int(math.floor(s * self.W / np.sqrt(a))))
+
+        self.assertTrue(
+            scale_ratio_interval[0] <= s <= scale_ratio_interval[1])
+        self.assertTrue(
+            aspect_ratio_interval[0] <= a <= aspect_ratio_interval[1])
 
 
 testing.run_module(__name__, __file__)
