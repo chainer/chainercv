@@ -4,10 +4,10 @@ import unittest
 from chainer.dataset import DatasetMixin
 from chainer import testing
 
-from chainercv.utils import assert_is_classification_dataset
+from chainercv.utils import assert_is_label_dataset
 
 
-class ClassificationDataset(DatasetMixin):
+class LabelDataset(DatasetMixin):
 
     def __init__(self, color, *options):
         self.color = color
@@ -25,7 +25,7 @@ class ClassificationDataset(DatasetMixin):
         return (img, label) + self.options
 
 
-class InvalidSampleSizeDataset(ClassificationDataset):
+class InvalidSampleSizeDataset(LabelDataset):
 
     def get_example(self, i):
         img, label = super(
@@ -33,14 +33,14 @@ class InvalidSampleSizeDataset(ClassificationDataset):
         return img
 
 
-class InvalidImageDataset(ClassificationDataset):
+class InvalidImageDataset(LabelDataset):
 
     def get_example(self, i):
         img, label = super(InvalidImageDataset, self).get_example(i)[:2]
         return img[0], label
 
 
-class InvalidLabelDataset(ClassificationDataset):
+class InvalidLabelDataset(LabelDataset):
 
     def get_example(self, i):
         img, label = super(InvalidLabelDataset, self).get_example(i)[:2]
@@ -51,8 +51,8 @@ class InvalidLabelDataset(ClassificationDataset):
 @testing.parameterize(*(
     testing.product_dict(
         [
-            {'dataset': ClassificationDataset, 'valid': True},
-            {'dataset': ClassificationDataset, 'valid': True,
+            {'dataset': LabelDataset, 'valid': True},
+            {'dataset': LabelDataset, 'valid': True,
              'option': 'option'},
             {'dataset': InvalidSampleSizeDataset, 'valid': False},
             {'dataset': InvalidImageDataset, 'valid': False},
@@ -64,19 +64,19 @@ class InvalidLabelDataset(ClassificationDataset):
         ]
     )
 ))
-class TestAssertIsClassificationDataset(unittest.TestCase):
+class TestAssertIsLabelDataset(unittest.TestCase):
 
-    def test_assert_is_classification_dataset(self):
+    def test_assert_is_label_dataset(self):
         if hasattr(self, 'option'):
             dataset = self.dataset(self.color, self.option)
         else:
             dataset = self.dataset(self.color)
 
         if self.valid:
-            assert_is_classification_dataset(dataset, 20, color=self.color)
+            assert_is_label_dataset(dataset, 20, color=self.color)
         else:
             with self.assertRaises(AssertionError):
-                assert_is_classification_dataset(dataset, 20, color=self.color)
+                assert_is_label_dataset(dataset, 20, color=self.color)
 
 
 testing.run_module(__name__, __file__)

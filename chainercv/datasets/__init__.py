@@ -12,8 +12,8 @@ from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_label_name
 from chainercv.datasets.cub.cub_keypoint_dataset import CUBKeypointDataset  # NOQA
 from chainercv.datasets.cub.cub_label_dataset import CUBLabelDataset  # NOQA
 from chainercv.datasets.cub.cub_utils import cub_label_names  # NOQA
-from chainercv.datasets.directory_parsing_classification_dataset import directory_parsing_label_names  # NOQA
-from chainercv.datasets.directory_parsing_classification_dataset import DirectoryParsingClassificationDataset  # NOQA
+from chainercv.datasets.directory_parsing_label_dataset import directory_parsing_label_names  # NOQA
+from chainercv.datasets.directory_parsing_label_dataset import DirectoryParsingLabelDataset  # NOQA
 from chainercv.datasets.online_products.online_products_dataset import OnlineProductsDataset  # NOQA
 from chainercv.datasets.transform_dataset import TransformDataset  # NOQA
 from chainercv.datasets.voc.voc_detection_dataset import VOCDetectionDataset  # NOQA
