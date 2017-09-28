@@ -93,6 +93,8 @@ def _get_random_sized_crop_params(size, scale_ratio_interval,
     if random.uniform(0, 1) < 0.5:
         aspect_ratio = 1 / aspect_ratio
 
+    # This is determined so that relationships "H - H_crop >= 0" and
+    # "W - W_crop >= 0" are always satisfied.
     scale_ratio_max = min((scale_ratio_interval[1],
                            np.sqrt(aspect_ratio),
                            1 / np.sqrt(aspect_ratio)))
