@@ -12,8 +12,8 @@ url = 'http://data.csail.mit.edu/places/ADEchallenge/release_test.zip'
 
 def get_ade20k():
     data_root = download.get_dataset_directory(root)
-    cache_fn = utils.cached_download(url)
-    utils.extractall(cache_fn, data_root, os.path.splitext(url)[1])
+    cache_path = utils.cached_download(url)
+    utils.extractall(cache_path, data_root, os.path.splitext(url)[1])
     return data_root
 
 

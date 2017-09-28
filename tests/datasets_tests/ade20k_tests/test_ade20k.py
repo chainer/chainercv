@@ -2,6 +2,8 @@ import unittest
 
 from chainer import testing
 from chainer.testing import attr
+import numpy as np
+
 from chainercv.datasets import ade20k_label_names
 from chainercv.datasets import ADE20KSemanticSegmentationDataset
 from chainercv.datasets import ADE20KTestImageDataset
@@ -28,7 +30,9 @@ class TestADE20KDataset(unittest.TestCase):
             assert_is_semantic_segmentation_dataset(
                 self.dataset, len(ade20k_label_names), n_example=10)
         else:
-            for img in self.dataset[:10]:
+            idx = np.random.permutation(np.arange(len(self.dataset)))
+            for i in idx[:10]:
+                img = self.dataset[i]
                 assert_is_image(img, color=True)
 
 
