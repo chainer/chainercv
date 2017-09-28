@@ -91,12 +91,14 @@ class ResNet(PickableSequentialChain):
     """
 
     _blocks = {
+        'resnet18': [2, 2, 2, 2],
         'resnet50': [3, 4, 6, 3],
         'resnet101': [3, 4, 23, 3],
         'resnet152': [3, 8, 36, 3]
     }
 
     _he_models = {
+        'resnet18': {},
         'resnet50': {
             'imagenet': {
                 'n_class': 1000,
@@ -124,6 +126,7 @@ class ResNet(PickableSequentialChain):
     }
 
     _fb_models = {
+        'resnet18': dict(),
         'resnet50': dict(),
         'resnet101': dict(),
         'resnet152': dict()
@@ -191,6 +194,24 @@ def _global_average_pooling_2d(x):
     h = F.average_pooling_2d(x, (rows, cols), stride=1)
     h = h.reshape((n, channel))
     return h
+
+
+class ResNet18(ResNet):
+
+    """ResNet-18 Network.
+
+    Please consult the documentation for :class:`ResNet`.
+
+    .. seealso::
+        :class:`chainercv.links.model.resnet.ResNet`
+
+    """
+
+    def __init__(self, n_class=None, pretrained_model=None,
+                 mean=None, initialW=None, fb_resnet=False):
+        super(ResNet18, self).__init__(
+            'resnet18', n_class, pretrained_model,
+            mean, initialW, fb_resnet)
 
 
 class ResNet50(ResNet):
