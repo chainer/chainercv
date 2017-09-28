@@ -20,7 +20,9 @@ class TestRandomSizedCrop(unittest.TestCase):
         img = np.random.uniform(size=(3, self.H, self.W))
         scale_ratio_interval = (np.sqrt(0.08), 1)
         aspect_ratio_interval = (3 / 4, 4 / 3)
-        out, params = random_sized_crop(img, return_params=True)
+        out, params = random_sized_crop(img, scale_ratio_interval,
+                                        aspect_ratio_interval,
+                                        return_params=True)
 
         expected = img[:, params['y_slice'], params['x_slice']]
         np.testing.assert_equal(out, expected)
