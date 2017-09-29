@@ -6,7 +6,7 @@ import random
 
 
 def random_sized_crop(img,
-                      scale_ratio_interval=(np.sqrt(0.08), 1),
+                      scale_ratio_interval=(0.08, 1),
                       aspect_ratio_interval=(3 / 4, 4 / 3),
                       return_params=False, copy=False):
     """Crop an image to random size and aspect ratio.
@@ -14,8 +14,10 @@ def random_sized_crop(img,
     The size :math:`(H_{crop}, W_{crop})` and the left top coordinate
     :math:`(y_{start}, x_{start})` of the crop are calculated as follows:
 
-    + :math:`H_{crop} = \\lfloor{s \\times H \\times \\sqrt{a}}\\rfloor`
-    + :math:`W_{crop} = \\lfloor{s \\times W \\div \\sqrt{a}}\\rfloor`
+    + :math:`H_{crop} = \\lfloor{\\sqrt{s \\times H \\times W \
+        \\times a}}\\rfloor`
+    + :math:`W_{crop} = \\lfloor{\\sqrt{s \\times H \\times W \
+        \\div a}}\\rfloor`
     + :math:`y_{start} \\sim Uniform(0, H - H_{crop})`
     + :math:`x_{start} \\sim Uniform(0, W - W_{crop})`
     + :math:`s \\sim Uniform(s_1, s_2)`
@@ -70,8 +72,8 @@ def random_sized_crop(img,
         _sample_parameters(
             (H, W), scale_ratio_interval, aspect_ratio_interval)
 
-    H_crop = int(math.floor(scale_ratio * H * np.sqrt(aspect_ratio)))
-    W_crop = int(math.floor(scale_ratio * W / np.sqrt(aspect_ratio)))
+    H_crop = int(math.floor(np.sqrt(scale_ratio * H * W * aspect_ratio)))
+    W_crop = int(math.floor(np.sqrt(scale_ratio * H * W / aspect_ratio)))
     y_start = random.randint(0, H - H_crop)
     x_start = random.randint(0, W - W_crop)
     y_slice = slice(y_start, y_start + H_crop)
@@ -90,6 +92,7 @@ def random_sized_crop(img,
 
 
 def _sample_parameters(size, scale_ratio_interval, aspect_ratio_interval):
+    H, W = size
     for _ in range(10):
         aspect_ratio = random.uniform(
             aspect_ratio_interval[0], aspect_ratio_interval[1])
@@ -98,8 +101,8 @@ def _sample_parameters(size, scale_ratio_interval, aspect_ratio_interval):
         # This is determined so that relationships "H - H_crop >= 0" and
         # "W - W_crop >= 0" are always satisfied.
         scale_ratio_max = min((scale_ratio_interval[1],
-                               np.sqrt(aspect_ratio),
-                               1 / np.sqrt(aspect_ratio)))
+                               H / (W * aspect_ratio),
+                               (aspect_ratio * W) / H))
 
         scale_ratio = random.uniform(
             scale_ratio_interval[0], scale_ratio_interval[1])

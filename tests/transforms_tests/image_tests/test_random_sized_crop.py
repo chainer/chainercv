@@ -18,7 +18,7 @@ class TestRandomSizedCrop(unittest.TestCase):
 
     def test_random_sized_crop(self):
         img = np.random.uniform(size=(3, self.H, self.W))
-        scale_ratio_interval = (np.sqrt(0.08), 1)
+        scale_ratio_interval = (0.08, 1)
         aspect_ratio_interval = (3 / 4, 4 / 3)
         out, params = random_sized_crop(img, scale_ratio_interval,
                                         aspect_ratio_interval,
@@ -30,8 +30,12 @@ class TestRandomSizedCrop(unittest.TestCase):
         _, H_crop, W_crop = out.shape
         s = params['scale_ratio']
         a = params['aspect_ratio']
-        self.assertEqual(H_crop, int(math.floor(s * self.H * np.sqrt(a))))
-        self.assertEqual(W_crop, int(math.floor(s * self.W / np.sqrt(a))))
+        expected_H_crop = int(math.floor(
+            np.sqrt(s * self.H * self.W * a)))
+        expected_W_crop = int(math.floor(
+            np.sqrt(s * self.H * self.W / a)))
+        self.assertEqual(H_crop, expected_H_crop)
+        self.assertEqual(W_crop, expected_W_crop)
 
         self.assertTrue(
             scale_ratio_interval[0] <= s <= scale_ratio_interval[1])
