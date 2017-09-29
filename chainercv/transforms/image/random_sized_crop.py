@@ -28,6 +28,9 @@ def random_sized_crop(img,
     :obj:`scale_ratio_interval` and :math:`a_1, a_2` are the two floats
     in :obj:`aspect_ratio_interval`.
     Also, :math:`H` and :math:`W` are the height and the width of the image.
+    Note that :math:`s \\approx \\frac{H_{crop} \\times W_{crop}}{H \\times W}`
+    and :math:`a \\approx \\frac{H_{crop}}{W_{crop}}`.
+    The approximation comes from flooring floats to integers.
 
     Args:
         img (~numpy.ndarray): An image array. This is in CHW format.
