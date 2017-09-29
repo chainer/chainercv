@@ -33,10 +33,10 @@ def random_sized_crop(img,
     The approximations come from flooring floats to integers.
 
     .. note::
-        
+
         When it fails to sample valid scale and aspect ratios for ten
-        times, it picks values in non-uniform way.
-        If this happens, the selected scale_ratio can be smaller
+        times, it picks values in a non-uniform way.
+        If this happens, the selected scale ratio can be smaller
         than :obj:`scale_ratio_interval[0]`.
 
     Args:
@@ -119,7 +119,7 @@ def _sample_parameters(size, scale_ratio_interval, aspect_ratio_interval):
         if scale_ratio_interval[0] <= scale_ratio <= scale_ratio_max:
             return scale_ratio, aspect_ratio
 
-    # This is a valid param when
+    # This is not a valid param when
     # scale_ratio_max < scale_ratio_interval[0].
     scale_ratio = random.uniform(
         min((scale_ratio_interval[0], scale_ratio_max)), scale_ratio_max)
