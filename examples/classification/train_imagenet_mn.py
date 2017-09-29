@@ -84,7 +84,7 @@ def main():
     parser.add_argument('--loaderjob', type=int, default=4)
     parser.add_argument('--batchsize', type=int, default=64,
                         help='Batch size for each worker')
-    parser.add_argument('--lr', type=float, default=1e-1)
+    parser.add_argument('--lr', type=float, default=1e-2)
     parser.add_argument('--momentum', type=float, default=0.9)
     parser.add_argument('--weight_decay', type=float, default=0.0001)
     parser.add_argument('--out', type=str, default='result')
