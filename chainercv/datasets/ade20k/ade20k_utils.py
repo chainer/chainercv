@@ -1,7 +1,7 @@
 # The values used here are copied from CSAILVision/sceneparsing:
 # https://github.com/CSAILVision/sceneparsing
 
-ade20k_label_names = (
+ade20k_semantic_segmentation_label_names = (
     'wall',
     'edifice',
     'sky',
@@ -154,7 +154,7 @@ ade20k_label_names = (
     'flag'
 )
 
-ade20k_label_colors = (
+ade20k_semantic_segmentation_label_colors = (
     (120, 120, 120),
     (180, 120, 120),
     (6, 230, 230),
