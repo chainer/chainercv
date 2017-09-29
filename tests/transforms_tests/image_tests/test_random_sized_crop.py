@@ -13,6 +13,7 @@ from chainercv.transforms import random_sized_crop
     {'H': 256, 'W': 256},
     {'H': 129, 'W': 352},
     {'H': 352, 'W': 129},
+    {'H': 35, 'W': 500},
 )
 class TestRandomSizedCrop(unittest.TestCase):
 
@@ -28,19 +29,26 @@ class TestRandomSizedCrop(unittest.TestCase):
         np.testing.assert_equal(out, expected)
 
         _, H_crop, W_crop = out.shape
-        s = params['scale_ratio']
-        a = params['aspect_ratio']
+        scale_ratio = params['scale_ratio']
+        aspect_ratio = params['aspect_ratio']
+        area = scale_ratio * self.H * self.W
         expected_H_crop = int(math.floor(
-            np.sqrt(s * self.H * self.W * a)))
+            np.sqrt(area * aspect_ratio)))
         expected_W_crop = int(math.floor(
-            np.sqrt(s * self.H * self.W / a)))
+            np.sqrt(area / aspect_ratio)))
         self.assertEqual(H_crop, expected_H_crop)
         self.assertEqual(W_crop, expected_W_crop)
 
         self.assertTrue(
-            scale_ratio_interval[0] <= s <= scale_ratio_interval[1])
+            (aspect_ratio_interval[0] <= aspect_ratio) and
+            (aspect_ratio <= aspect_ratio_interval[1]))
         self.assertTrue(
-            aspect_ratio_interval[0] <= a <= aspect_ratio_interval[1])
+            scale_ratio <= scale_ratio_interval[1])
+        scale_ratio_max = min((scale_ratio_interval[1],
+                               self.H / (self.W * aspect_ratio),
+                               (aspect_ratio * self.W) / self.H))
+        self.assertTrue(
+            min((scale_ratio_max, scale_ratio_interval[0])) <= scale_ratio)
 
 
 testing.run_module(__name__, __file__)
