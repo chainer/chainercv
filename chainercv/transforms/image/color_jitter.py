@@ -74,7 +74,7 @@ def color_jitter(img, brightness_var=0.4, contrast_var=0.4,
             data augmentation.
 
     """
-    funcs = []
+    funcs = list()
     if brightness_var > 0:
         funcs.append(('brightness', lambda x: _brightness(x, brightness_var)))
     if contrast_var > 0:
