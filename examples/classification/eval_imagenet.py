@@ -9,7 +9,7 @@ import chainer.functions as F
 from chainer import iterators
 
 from chainercv.datasets import directory_parsing_label_names
-from chainercv.datasets import DirectoryParsingClassificationDataset
+from chainercv.datasets import DirectoryParsingLabelDataset
 from chainercv.links import FeaturePredictor
 from chainercv.links import VGG16
 
@@ -43,7 +43,7 @@ def main():
     parser.add_argument('--crop', choices=('center', '10'), default='center')
     args = parser.parse_args()
 
-    dataset = DirectoryParsingClassificationDataset(args.val)
+    dataset = DirectoryParsingLabelDataset(args.val)
     label_names = directory_parsing_label_names(args.val)
     iterator = iterators.MultiprocessIterator(
         dataset, args.batchsize, repeat=False, shuffle=False,
