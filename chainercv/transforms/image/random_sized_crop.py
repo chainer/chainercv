@@ -8,7 +8,7 @@ import random
 def random_sized_crop(img,
                       scale_ratio_interval=(0.08, 1),
                       aspect_ratio_interval=(3 / 4, 4 / 3),
-                      return_params=False, copy=False):
+                      return_param=False, copy=False):
     """Crop an image to random size and aspect ratio.
 
     The size :math:`(H_{crop}, W_{crop})` and the left top coordinate
@@ -86,7 +86,7 @@ def random_sized_crop(img,
 
     if copy:
         img = img.copy()
-    if return_params:
+    if return_param:
         params = {'y_slice': y_slice, 'x_slice': x_slice,
                   'scale_ratio': scale_ratio, 'aspect_ratio': aspect_ratio}
         return img, params
