@@ -55,6 +55,7 @@ Reference Manual
    :maxdepth: 3
 
    reference/index
+   tutorial/index
 
 
 
