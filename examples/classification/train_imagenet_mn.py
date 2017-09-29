@@ -13,6 +13,7 @@ from chainer.training import extensions
 from chainercv.datasets import DirectoryParsingLabelDataset
 
 from chainercv.transforms import center_crop
+from chainercv.transforms import color_jitter
 from chainercv.transforms import pca_lighting
 from chainercv.transforms import random_flip
 from chainercv.transforms import random_sized_crop
@@ -40,8 +41,9 @@ class TrainTransform(object):
         _, H, W = img.shape
         img = random_sized_crop(img)
         img = resize(img, (224, 224))
-        img = random_flip(img, x_random=True)
+        img = color_jitter(img)
         img = pca_lighting(img, 25)
+        img = random_flip(img, x_random=True)
         img -= self.mean
         return img, label
 
