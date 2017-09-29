@@ -28,6 +28,18 @@ The score is reported using a weight converted from a weight trained by Caffe.
 $ python eval_imagenet.py <path_to_val_dataset> [--model vgg16|resnet50|resnet101|resnet152] [--pretrained_model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>] [--crop center|10]
 ```
 
+## Training Models
+
+Training with single GPU.
+```
+$ python train_imagenet.py <path_to_train_dataset> <path_to_val_dataset> [--gpu <gpu>]
+```
+
+Training with multiple GPUs. Please install ChainerMN to use this feature.
+```
+$ mpiexec -n N python train_imagenet_mn.py <path_to_train_dataset> <path_to_val_dataset>
+```
+
 
 ## How to prepare ImageNet Dataset
 
