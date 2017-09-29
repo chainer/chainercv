@@ -1,22 +1,25 @@
 from __future__ import division
 
+import math
 import numpy as np
 import random
 
 
 def random_sized_crop(img,
-                      scale_ratio_interval=(np.sqrt(0.08), 1.),
+                      scale_ratio_interval=(0.08, 1),
                       aspect_ratio_interval=(3 / 4, 4 / 3),
                       return_params=False, copy=False):
     """Crop an image to random size and aspect ratio.
 
     The size :math:`(H_{crop}, W_{crop})` and the left top coordinate
-    :math:`(y_{start}, x_{start})` of the crop are calculated as follows.
+    :math:`(y_{start}, x_{start})` of the crop are calculated as follows:
 
-    + :math:`H_{crop} = s \\times H \\times \\sqrt{a}`
-    + :math:`W_{crop} = s \\times W \\div \\sqrt{a}`
-    + :math:`y_{start} \\sim Uniform(0, H - H_{crop})`
-    + :math:`x_{start} \\sim Uniform(0, W - W_{crop})`
+    + :math:`H_{crop} = \\lfloor{\\sqrt{s \\times H \\times W \
+        \\times a}}\\rfloor`
+    + :math:`W_{crop} = \\lfloor{\\sqrt{s \\times H \\times W \
+        \\div a}}\\rfloor`
+    + :math:`y_{start} \\sim Uniform\\{0, H - H_{crop}\\}`
+    + :math:`x_{start} \\sim Uniform\\{0, W - W_{crop}\\}`
     + :math:`s \\sim Uniform(s_1, s_2)`
     + :math:`b \\sim Uniform(a_1, a_2)` and \
         :math:`a = b` or :math:`a = \\frac{1}{b}` in 50/50 probability.
@@ -25,6 +28,9 @@ def random_sized_crop(img,
     :obj:`scale_ratio_interval` and :math:`a_1, a_2` are the two floats
     in :obj:`aspect_ratio_interval`.
     Also, :math:`H` and :math:`W` are the height and the width of the image.
+    Note that :math:`s \\approx \\frac{H_{crop} \\times W_{crop}}{H \\times W}`
+    and :math:`a \\approx \\frac{H_{crop}}{W_{crop}}`.
+    The approximations come from flooring floats to integers.
 
     Args:
         img (~numpy.ndarray): An image array. This is in CHW format.
@@ -38,7 +44,7 @@ def random_sized_crop(img,
             The default values are
             :math:`\\frac{3}{4}` and :math:`\\frac{4}{3}`, which
             are also the default setting to train ResNets in Torch style.
-        return_param (bool): Returns sampled parameters if :obj:`True`.
+        return_param (bool): Returns parameters if :obj:`True`.
 
     Returns:
         ~numpy.ndarray or (~numpy.ndarray, dict):
@@ -64,9 +70,15 @@ def random_sized_crop(img,
         * **aspect_ratio** (float): :math:`a` in the description.
 
     """
-    H_crop, W_crop, y_start, x_start, scale_ratio, aspect_ratio =\
-        _get_random_sized_crop_params(
-            img, scale_ratio_interval, aspect_ratio_interval)
+    _, H, W = img.shape
+    scale_ratio, aspect_ratio =\
+        _sample_parameters(
+            (H, W), scale_ratio_interval, aspect_ratio_interval)
+
+    H_crop = int(math.floor(np.sqrt(scale_ratio * H * W * aspect_ratio)))
+    W_crop = int(math.floor(np.sqrt(scale_ratio * H * W / aspect_ratio)))
+    y_start = random.randint(0, H - H_crop)
+    x_start = random.randint(0, W - W_crop)
     y_slice = slice(y_start, y_start + H_crop)
     x_slice = slice(x_start, x_start + W_crop)
 
@@ -82,31 +94,25 @@ def random_sized_crop(img,
         return img
 
 
-def _get_random_sized_crop_params(img, scale_ratio_interval,
-                                  aspect_ratio_interval):
-    _, H, W = img.shape
-
+def _sample_parameters(size, scale_ratio_interval, aspect_ratio_interval):
+    H, W = size
     for _ in range(10):
-        scale_ratio = random.uniform(
-            scale_ratio_interval[0], scale_ratio_interval[1])
         aspect_ratio = random.uniform(
             aspect_ratio_interval[0], aspect_ratio_interval[1])
         if random.uniform(0, 1) < 0.5:
             aspect_ratio = 1 / aspect_ratio
+        # This is determined so that relationships "H - H_crop >= 0" and
+        # "W - W_crop >= 0" are always satisfied.
+        scale_ratio_max = min((scale_ratio_interval[1],
+                               H / (W * aspect_ratio),
+                               (aspect_ratio * W) / H))
 
-        H_crop = int(scale_ratio * H * np.sqrt(aspect_ratio))
-        W_crop = int(scale_ratio * W / np.sqrt(aspect_ratio))
+        scale_ratio = random.uniform(
+            scale_ratio_interval[0], scale_ratio_interval[1])
+        if scale_ratio <= scale_ratio_max:
+            return scale_ratio, aspect_ratio
 
-        if H - H_crop >= 0 and W - W_crop >= 0:
-            y_start = random.randint(0, H - H_crop + 1)
-            x_start = random.randint(0, W - W_crop + 1)
-            return H_crop, W_crop, y_start, x_start, scale_ratio, aspect_ratio
-
-    # fallback and choose scale_ratio
-    if not ((scale_ratio_interval[0] < 1 < scale_ratio_interval[1]) and
-            (aspect_ratio_interval[0] < 1 < aspect_ratio_interval[1])):
-        raise ValueError(
-            'No valid parameters could not be found, and '
-            'the default fallback option (scale_ratio=1, aspect_ratio=1) '
-            'is invalid.')
-    return H_crop, W_crop, 0, 0, 1, 1
+    # This is guaranteed to be a valid param.
+    scale_ratio = random.uniform(
+        scale_ratio_interval[0], scale_ratio_max)
+    return scale_ratio, aspect_ratio
