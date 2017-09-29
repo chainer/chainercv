@@ -18,8 +18,8 @@ def random_sized_crop(img,
         \\times a}}\\rfloor`
     + :math:`W_{crop} = \\lfloor{\\sqrt{s \\times H \\times W \
         \\div a}}\\rfloor`
-    + :math:`y_{start} \\sim Uniform(0, H - H_{crop})`
-    + :math:`x_{start} \\sim Uniform(0, W - W_{crop})`
+    + :math:`y_{start} \\sim Uniform\\{0, H - H_{crop}\\}`
+    + :math:`x_{start} \\sim Uniform\\{0, W - W_{crop}\\}`
     + :math:`s \\sim Uniform(s_1, s_2)`
     + :math:`b \\sim Uniform(a_1, a_2)` and \
         :math:`a = b` or :math:`a = \\frac{1}{b}` in 50/50 probability.
@@ -30,7 +30,7 @@ def random_sized_crop(img,
     Also, :math:`H` and :math:`W` are the height and the width of the image.
     Note that :math:`s \\approx \\frac{H_{crop} \\times W_{crop}}{H \\times W}`
     and :math:`a \\approx \\frac{H_{crop}}{W_{crop}}`.
-    The approximation comes from flooring floats to integers.
+    The approximations come from flooring floats to integers.
 
     Args:
         img (~numpy.ndarray): An image array. This is in CHW format.
