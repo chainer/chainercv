@@ -40,11 +40,14 @@ def color_jitter(img, brightness_var=0.4, contrast_var=0.4,
         img (~numpy.ndarray): An image array to be augmented. This is in
             CHW and RGB format.
         brightness_var (float): Alpha for brightness is sampled from
-            :obj:`unif(-brightness_var, brightness_var)`.
+            :obj:`unif(-brightness_var, brightness_var)`. The default
+            value is 0.4.
         contrast_var (float): Alpha for contrast is sampled from
-            :obj:`unif(-contrast_var, contrast_var)`.
+            :obj:`unif(-contrast_var, contrast_var)`. The default
+            value is 0.4.
         saturation_var (float): Alpha for contrast is sampled from
-            :obj:`unif(-saturation_var, saturation_var)`.
+            :obj:`unif(-saturation_var, saturation_var)`. The default
+            value is 0.4.
         return_param (bool): Returns parameters if :obj:`True`.
 
     Returns:
