@@ -119,7 +119,7 @@ def _sample_parameters(size, scale_ratio_interval, aspect_ratio_interval):
         if scale_ratio_interval[0] <= scale_ratio <= scale_ratio_max:
             return scale_ratio, aspect_ratio
 
-    # This is not a valid param when
+    # This scale_ratio is outside the given interval when
     # scale_ratio_max < scale_ratio_interval[0].
     scale_ratio = random.uniform(
         min((scale_ratio_interval[0], scale_ratio_max)), scale_ratio_max)
