@@ -8,7 +8,7 @@ import random
 def random_sized_crop(img,
                       scale_ratio_interval=(0.08, 1),
                       aspect_ratio_interval=(3 / 4, 4 / 3),
-                      return_params=False, copy=False):
+                      return_param=False, copy=False):
     """Crop an image to random size and aspect ratio.
 
     The size :math:`(H_{crop}, W_{crop})` and the left top coordinate
@@ -31,6 +31,13 @@ def random_sized_crop(img,
     Note that :math:`s \\approx \\frac{H_{crop} \\times W_{crop}}{H \\times W}`
     and :math:`a \\approx \\frac{H_{crop}}{W_{crop}}`.
     The approximations come from flooring floats to integers.
+
+    .. note::
+        
+        When it fails to sample valid scale and aspect ratios for ten
+        times, it picks values in non-uniform way.
+        If this happens, the selected scale_ratio can be smaller
+        than :obj:`scale_ratio_interval[0]`.
 
     Args:
         img (~numpy.ndarray): An image array. This is in CHW format.
@@ -86,7 +93,7 @@ def random_sized_crop(img,
 
     if copy:
         img = img.copy()
-    if return_params:
+    if return_param:
         params = {'y_slice': y_slice, 'x_slice': x_slice,
                   'scale_ratio': scale_ratio, 'aspect_ratio': aspect_ratio}
         return img, params
@@ -109,10 +116,11 @@ def _sample_parameters(size, scale_ratio_interval, aspect_ratio_interval):
 
         scale_ratio = random.uniform(
             scale_ratio_interval[0], scale_ratio_interval[1])
-        if scale_ratio <= scale_ratio_max:
+        if scale_ratio_interval[0] <= scale_ratio <= scale_ratio_max:
             return scale_ratio, aspect_ratio
 
-    # This is guaranteed to be a valid param.
+    # This is a valid param when
+    # scale_ratio_max < scale_ratio_interval[0].
     scale_ratio = random.uniform(
-        scale_ratio_interval[0], scale_ratio_max)
+        min((scale_ratio_interval[0], scale_ratio_max)), scale_ratio_max)
     return scale_ratio, aspect_ratio
