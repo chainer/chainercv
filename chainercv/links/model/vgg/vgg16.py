@@ -28,12 +28,12 @@ class VGG16(PickableSequentialChain):
 
     """VGG-16 Network.
 
-    This is a feature extraction model.
+    This is a feature extraction link.
     The network can choose output layers from set of all
     intermediate layers.
-    The value of :obj:`VGG16.pick` selects the layers that are going
+    The attribute :obj:`pick` is the names of the layers that are going
     to be picked by :meth:`__call__`.
-    :obj:`self.layer_names` is the list of the names of layers
+    The attribute :obj:`layer_names` is the names of all layers
     that can be picked.
 
     Examples:
@@ -41,11 +41,9 @@ class VGG16(PickableSequentialChain):
         >>> model = VGG16()
         # By default, __call__ returns a probability score (after Softmax).
         >>> prob = model(imgs)
-
         >>> model.pick = 'conv5_3'
         # This is layer conv5_3 (after ReLU).
         >>> conv5_3 = model(imgs)
-
         >>> model.pick = ['conv5_3', 'fc6']
         >>> # These are layers conv5_3 (after ReLU) and fc6 (before ReLU).
         >>> conv5_3, fc6 = model(imgs)

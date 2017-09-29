@@ -12,7 +12,7 @@ from chainercv.transforms import ten_crop
 
 class FeaturePredictor(chainer.Chain):
 
-    """Wrapper that adds a prediction method to a feature extraction model.
+    """Wrapper that adds a prediction method to a feature extraction link.
 
     The :meth:`predict` takes three steps to make a prediction.
 
@@ -41,7 +41,7 @@ class FeaturePredictor(chainer.Chain):
     crops.
 
     Args:
-        extractor: A feature extraction model. This is a callable chain
+        extractor: A feature extraction link. This is a callable chain
             that takes a batch of images and returns a variable or a
             tuple of variables.
         crop_size (int or tuple): The height and the width of an image after

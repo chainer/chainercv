@@ -15,7 +15,7 @@ General Chain
 
 Feature Extraction
 ~~~~~~~~~~~~~~~~~~
-Feature extraction models extract feature(s) from given images.
+Feature extraction links extract feature(s) from given images.
 
 .. toctree::
 
