@@ -4,7 +4,7 @@ from chainer import testing
 from chainer.testing import attr
 import numpy as np
 
-from chainercv.datasets import ade20k_label_names
+from chainercv.datasets import ade20k_semantic_segmentation_label_names
 from chainercv.datasets import ADE20KSemanticSegmentationDataset
 from chainercv.datasets import ADE20KTestImageDataset
 from chainercv.utils import assert_is_semantic_segmentation_dataset
@@ -23,7 +23,8 @@ class TestADE20KSemanticSegmentationDataset(unittest.TestCase):
     @attr.slow
     def test_ade20k_dataset(self):
         assert_is_semantic_segmentation_dataset(
-            self.dataset, len(ade20k_label_names), n_example=10)
+            self.dataset, len(ade20k_semantic_segmentation_label_names),
+            n_example=10)
 
 
 class TestADE20KTestImageDataset(unittest.TestCase):
