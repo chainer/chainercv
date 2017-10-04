@@ -63,10 +63,6 @@ assert_is_bbox
 ~~~~~~~~~~~~~~
 .. autofunction:: assert_is_bbox
 
-assert_is_classification_dataset
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: assert_is_classification_dataset
-
 assert_is_detection_dataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: assert_is_detection_dataset
@@ -78,6 +74,10 @@ assert_is_detection_link
 assert_is_image
 ~~~~~~~~~~~~~~~
 .. autofunction:: assert_is_image
+
+assert_is_label_dataset
+~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: assert_is_label_dataset
 
 assert_is_semantic_segmentation_dataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
