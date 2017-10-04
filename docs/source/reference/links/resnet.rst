@@ -31,14 +31,9 @@ ResNet152
 Utility
 -------
 
-BottleneckA
-~~~~~~~~~~~
-.. autoclass:: BottleneckA
-   :members:
-
-BottleneckB
-~~~~~~~~~~~
-.. autoclass:: BottleneckB
+Bottleneck
+~~~~~~~~~~
+.. autoclass:: Bottleneck
    :members:
 
 BuildingBlock
