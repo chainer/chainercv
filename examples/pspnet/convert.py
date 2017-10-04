@@ -1,20 +1,16 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import sys  # NOQA  # isort:skip
 sys.path.insert(0, '.')  # NOQA  # isort:skip
 
 import os
 import re
 
-import numpy as np
-from google.protobuf import text_format
-
 import caffe_pb2
 import chainer
-import chainer.links as L
-import pspnet
 from chainer import serializers
+import chainer.links as L
+from google.protobuf import text_format
+import numpy as np
+import pspnet
 
 
 def get_chainer_model(n_class, input_size, n_blocks, pyramids, mid_stride):

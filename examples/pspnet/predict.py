@@ -1,18 +1,14 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import argparse
 import json
 import os
 
 import chainer
 import chainer.functions as F
+from chainercv import transforms
 import numpy as np
+import pspnet
 from skimage import io
 
-from chainercv import transforms
-
-import pspnet
 from datasets import ADE20KSemanticSegmentationDataset  # NOQA  # isort:skip
 from datasets import ADE20KTestImageDataset  # NOQA  # isort:skip
 from datasets import CityscapesSemanticSegmentationDataset  # NOQA  # isort:skip

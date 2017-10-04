@@ -1,15 +1,14 @@
 from __future__ import division
 
-import warnings
 from math import ceil
-
-import numpy as np
-import six
+import warnings
 
 import chainer
 import chainer.functions as F
 import chainer.links as L
 from chainercv.utils import download_model
+import numpy as np
+import six
 
 try:
     from chainermn.links import MultiNodeBatchNormalization
