@@ -27,14 +27,14 @@ class ResNet(PickableSequentialChain):
     This is a feature extraction link.
     The network can choose output layers from set of all
     intermediate layers.
-    The attribute :obj:`layer_names` is the names of the layers that are going
+    The attribute :obj:`pick` is the names of the layers that are going
     to be picked by :meth:`__call__`.
-    The attribute :obj:`layer_names` is the names of layers
+    The attribute :obj:`layer_names` is the names of all layers
     that can be picked.
 
     Examples:
 
-        >>> model = VGG16()
+        >>> model = ResNet50()
         # By default, __call__ returns a probability score (after Softmax).
         >>> prob = model(imgs)
         >>> model.pick = 'res5'
@@ -157,7 +157,6 @@ class ResNet(PickableSequentialChain):
         self.mean = mean
 
         if initialW is None:
-            # Employ default initializers used in the original paper.
             conv_initialW = HeNormal(scale=1., fan_option='fan_out')
             fc_initialW = initializers.Normal(scale=0.01)
         if pretrained_model:
