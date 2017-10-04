@@ -56,7 +56,7 @@ Evaluation
 ## Create predictions
 
 ```
-python evaluate.py \
+python predict.py \
 --gpu 0 \
 --dataset cityscapes \
 --data_dir $HOME/.chainer/dataset/pfnet/chainercv/cityscapes \
@@ -168,6 +168,6 @@ human | 86.2661 | 67.9147
 vehicle | 95.1186 | 86.9693
 Score Average | 0.9013  | 0.7744
 
-# ADE20K
+<!-- # ADE20K -->
 
-# Pascal VOC
+<!-- # Pascal VOC -->
