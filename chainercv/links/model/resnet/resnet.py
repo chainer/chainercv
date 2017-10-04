@@ -8,6 +8,7 @@ from chainer import initializers
 import chainer.links as L
 
 from chainercv.links.model.resnet.building_block import BuildingBlock
+from chainercv.links import Conv2DBNActiv
 from chainercv.links import PickableSequentialChain
 from chainercv.utils import download_model
 
@@ -167,9 +168,8 @@ class ResNet(PickableSequentialChain):
 
         super(ResNet, self).__init__()
         with self.init_scope():
-            self.conv1 = L.Convolution2D(None, 64, 7, 2, 3, initialW=initialW)
-            self.bn1 = L.BatchNormalization(64)
-            self.conv1_relu = F.relu
+            self.conv1 = Conv2DBNActiv(None, 64, 7, 2, 3, nobias=fb_resnet,
+                                       initialW=initialW)
             self.pool1 = lambda x: F.max_pooling_2d(x, ksize=3, stride=2)
             self.res2 = BuildingBlock(block[0], None, 64, 256, 1, **kwargs)
             self.res3 = BuildingBlock(block[1], None, 128, 512, 2, **kwargs)
