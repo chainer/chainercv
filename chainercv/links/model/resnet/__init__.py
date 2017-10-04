@@ -1,5 +1,4 @@
-from chainercv.links.model.resnet.building_block import BottleneckA  # NOQA
-from chainercv.links.model.resnet.building_block import BottleneckB  # NOQA
+from chainercv.links.model.resnet.building_block import Bottleneck  # NOQA
 from chainercv.links.model.resnet.building_block import BuildingBlock  # NOQA
 from chainercv.links.model.resnet.resnet import ResNet  # NOQA
 from chainercv.links.model.resnet.resnet import ResNet101  # NOQA
