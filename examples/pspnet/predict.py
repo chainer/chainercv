@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import argparse
 import json
 import os
@@ -9,13 +11,13 @@ import numpy as np
 import pspnet
 from skimage import io
 
-from datasets import ADE20KSemanticSegmentationDataset  # NOQA  # isort:skip
-from datasets import ADE20KTestImageDataset  # NOQA  # isort:skip
-from datasets import CityscapesSemanticSegmentationDataset  # NOQA  # isort:skip
-from datasets import CityscapesTestImageDataset  # NOQA  # isort:skip
-from datasets import VOCSemanticSegmentationDataset  # NOQA  # isort:skip
-from datasets import cityscapes_labels  # NOQA  # isort:skip
-from datasets import ade20k_label_colors  # NOQA  # isort:skip
+from chainercv.datasets import ade20k_semantic_segmentation_label_colors
+from chainercv.datasets import ADE20KSemanticSegmentationDataset
+from chainercv.datasets import ADE20KTestImageDataset
+from chainercv.datasets import cityscapes_semantic_segmentation_labels
+from chainercv.datasets import CityscapesSemanticSegmentationDataset
+from chainercv.datasets import CityscapesTestImageDataset
+from chainercv.datasets import VOCSemanticSegmentationDataset
 
 
 def inference(model, n_class, img, scales):
@@ -132,7 +134,7 @@ if __name__ == '__main__':
             color_out = np.zeros(
                 (pred.shape[0], pred.shape[1], 3), dtype=np.uint8)
             label_out = np.zeros_like(pred)
-            for label in cityscapes_labels:
+            for label in cityscapes_semantic_segmentation_labels:
                 label_out[np.where(pred == label.trainId)] = label.id
                 color_out[np.where(pred == label.trainId)] = label.color
             pred = label_out
@@ -141,7 +143,8 @@ if __name__ == '__main__':
         if args.dataset == 'ade20k':
             color_out = np.zeros(
                 (pred.shape[0], pred.shape[1], 3), dtype=np.uint8)
-            for i, color in enumerate(ade20k_label_colors):
+            for i, color in enumerate(
+                    ade20k_semantic_segmentation_label_colors):
                 color_out[np.where(pred == i)] = color
             color_fn = out_fn.replace('.', '_color.')
             io.imsave(color_fn, color_out)
