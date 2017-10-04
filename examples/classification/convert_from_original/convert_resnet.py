@@ -1,5 +1,7 @@
 import argparse
 
+import numpy as np
+
 import chainer
 from chainer.links.caffe.caffe_function import CaffeFunction
 
@@ -20,16 +22,16 @@ def _transfer_components(src, dst_conv, dst_bn, bname, cname):
 
 
 def _transfer_bottleneckA(src, dst, name):
-    _transfer_components(src, dst.conv1, dst.bn1, name, '2a')
-    _transfer_components(src, dst.conv2, dst.bn2, name, '2b')
-    _transfer_components(src, dst.conv3, dst.bn3, name, '2c')
-    _transfer_components(src, dst.conv4, dst.bn4, name, '1')
+    _transfer_components(src, dst.conv1.conv, dst.conv1.bn, name, '2a')
+    _transfer_components(src, dst.conv2.conv, dst.conv2.bn, name, '2b')
+    _transfer_components(src, dst.conv3.conv, dst.conv3.bn, name, '2c')
+    _transfer_components(src, dst.shortcut.conv, dst.shortcut.bn, name, '1')
 
 
 def _transfer_bottleneckB(src, dst, name):
-    _transfer_components(src, dst.conv1, dst.bn1, name, '2a')
-    _transfer_components(src, dst.conv2, dst.bn2, name, '2b')
-    _transfer_components(src, dst.conv3, dst.bn3, name, '2c')
+    _transfer_components(src, dst.conv1.conv, dst.conv1.bn, name, '2a')
+    _transfer_components(src, dst.conv2.conv, dst.conv2.bn, name, '2b')
+    _transfer_components(src, dst.conv3.conv, dst.conv3.bn, name, '2c')
 
 
 def _transfer_block(src, dst, names):
@@ -41,12 +43,12 @@ def _transfer_block(src, dst, names):
 
 def _transfer_resnet50(src, dst):
     # Reorder weights to work on RGB and not on BGR
-    dst.conv1.W.data[:] = src.conv1.W.data[:, ::-1]
-    dst.conv1.b.data[:] = src.conv1.b.data
-    dst.bn1.avg_mean[:] = src.bn_conv1.avg_mean
-    dst.bn1.avg_var[:] = src.bn_conv1.avg_var
-    dst.bn1.gamma.data[:] = src.scale_conv1.W.data
-    dst.bn1.beta.data[:] = src.scale_conv1.bias.b.data
+    dst.conv1.conv.W.data[:] = src.conv1.W.data[:, ::-1]
+    dst.conv1.conv.b.data[:] = src.conv1.b.data
+    dst.conv1.conv.bn1.avg_mean[:] = src.bn_conv1.avg_mean
+    dst.conv1.bn.avg_var[:] = src.bn_conv1.avg_var
+    dst.conv1.bn.gamma.data[:] = src.scale_conv1.W.data
+    dst.conv1.bn.beta.data[:] = src.scale_conv1.bias.b.data
 
     _transfer_block(src, dst.res2, ['2a', '2b', '2c'])
     _transfer_block(src, dst.res3, ['3a', '3b', '3c', '3d'])
@@ -59,11 +61,11 @@ def _transfer_resnet50(src, dst):
 
 def _transfer_resnet101(src, dst):
     # Reorder weights to work on RGB and not on BGR
-    dst.conv1.W.data[:] = src.conv1.W.data[:, ::-1]
-    dst.bn1.avg_mean[:] = src.bn_conv1.avg_mean
-    dst.bn1.avg_var[:] = src.bn_conv1.avg_var
-    dst.bn1.gamma.data[:] = src.scale_conv1.W.data
-    dst.bn1.beta.data[:] = src.scale_conv1.bias.b.data
+    dst.conv1.conv.W.data[:] = src.conv1.W.data[:, ::-1]
+    dst.conv1.bn.avg_mean[:] = src.bn_conv1.avg_mean
+    dst.conv1.bn.avg_var[:] = src.bn_conv1.avg_var
+    dst.conv1.bn.gamma.data[:] = src.scale_conv1.W.data
+    dst.conv1.bn.beta.data[:] = src.scale_conv1.bias.b.data
 
     _transfer_block(src, dst.res2, ['2a', '2b', '2c'])
     _transfer_block(src, dst.res3, ['3a', '3b1', '3b2', '3b3'])
@@ -77,11 +79,11 @@ def _transfer_resnet101(src, dst):
 
 def _transfer_resnet152(src, dst):
     # Reorder weights to work on RGB and not on BGR
-    dst.conv1.W.data[:] = src.conv1.W.data[:, ::-1]
-    dst.bn1.avg_mean[:] = src.bn_conv1.avg_mean
-    dst.bn1.avg_var[:] = src.bn_conv1.avg_var
-    dst.bn1.gamma.data[:] = src.scale_conv1.W.data
-    dst.bn1.beta.data[:] = src.scale_conv1.bias.b.data
+    dst.conv1.conv.W.data[:] = src.conv1.W.data[:, ::-1]
+    dst.conv1.bn.avg_mean[:] = src.bn_conv1.avg_mean
+    dst.conv1.bn.avg_var[:] = src.bn_conv1.avg_var
+    dst.conv1.bn.gamma.data[:] = src.scale_conv1.W.data
+    dst.conv1.bn.beta.data[:] = src.scale_conv1.bias.b.data
 
     _transfer_block(src, dst.res2, ['2a', '2b', '2c'])
     _transfer_block(src, dst.res3,
@@ -104,13 +106,16 @@ def main():
 
     caffemodel = CaffeFunction(args.caffemodel)
     if args.model_name == 'resnet50':
-        model = ResNet50(pretrained_model=None, n_class=1000)
+        model = ResNet50(pretrained_model=None, n_class=1000, fb_resnet=False)
+        model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet50(caffemodel, model)
     elif args.model_name == 'resnet101':
-        model = ResNet101(pretrained_model=None, n_class=1000)
+        model = ResNet101(pretrained_model=None, n_class=1000, fb_resnet=False)
+        model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet101(caffemodel, model)
     elif args.model_name == 'resnet152':
-        model = ResNet152(pretrained_model=None, n_class=1000)
+        model = ResNet152(pretrained_model=None, n_class=1000, fb_resnet=False)
+        model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet152(caffemodel, model)
 
     chainer.serializers.save_npz(
