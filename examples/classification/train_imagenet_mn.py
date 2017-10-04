@@ -7,14 +7,13 @@ import chainer
 from chainer.datasets import TransformDataset
 from chainer import iterators
 from chainer.links import Classifier
+from chainer.optimizer import WeightDecay
 from chainer import training
 from chainer.training import extensions
 
 from chainercv.datasets import DirectoryParsingLabelDataset
 
 from chainercv.transforms import center_crop
-from chainercv.transforms import color_jitter
-from chainercv.transforms import pca_lighting
 from chainercv.transforms import random_flip
 from chainercv.transforms import random_sized_crop
 from chainercv.transforms import resize
@@ -29,6 +28,8 @@ from chainercv.links import ResNet50
 
 import chainermn
 
+from corrected_momentum_sgd import CorrectedMomentumSGD
+
 
 class TrainTransform(object):
 
@@ -41,8 +42,6 @@ class TrainTransform(object):
         _, H, W = img.shape
         img = random_sized_crop(img)
         img = resize(img, (224, 224))
-        img = color_jitter(img)
-        img = pca_lighting(img, 25)
         img = random_flip(img, x_random=True)
         img -= self.mean
         return img, label
@@ -84,18 +83,22 @@ def main():
     parser.add_argument('--pretrained_model')
     # parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--loaderjob', type=int, default=4)
-    parser.add_argument('--batchsize', type=int, default=64,
+    parser.add_argument('--batchsize', type=int, default=32,
                         help='Batch size for each worker')
-    parser.add_argument('--lr', type=float, default=1e-2)
+    parser.add_argument('--lr', type=float)
     parser.add_argument('--momentum', type=float, default=0.9)
     parser.add_argument('--weight_decay', type=float, default=0.0001)
     parser.add_argument('--out', type=str, default='result')
-    parser.add_argument('--step_size', type=int, default=30)
     parser.add_argument('--epoch', type=int, default=90)
     args = parser.parse_args()
 
     comm = chainermn.create_communicator(args.communicator)
     device = comm.intra_rank
+
+    if args.lr is not None:
+        lr = args.lr
+    else:
+        lr = 0.1 * (args.batchsize * comm.size) / 256
 
     label_names = directory_parsing_label_names(args.train)
 
@@ -107,7 +110,8 @@ def main():
     if comm.rank == 0:
         train_data = DirectoryParsingLabelDataset(args.train)
         val_data = DirectoryParsingLabelDataset(args.val)
-        train_data = TransformDataset(train_data, TrainTransform(extractor.mean))
+        train_data = TransformDataset(
+            train_data, TrainTransform(extractor.mean))
         val_data = TransformDataset(val_data, ValTransform(extractor.mean))
         print('finished loading dataset')
     else:
@@ -121,14 +125,16 @@ def main():
         repeat=False, shuffle=False, shared_mem=3 * 224 * 224 * 4)
 
     optimizer = chainermn.create_multi_node_optimizer(
-        chainer.optimizers.MomentumSGD(
-        lr=args.lr, momentum=args.momentum), comm)
+        CorrectedMomentumSGD(lr=lr, momentum=args.momentum), comm)
     optimizer.setup(model)
-    optimizer.add_hook(chainer.optimizer.WeightDecay(rate=args.weight_decay))
+    for param in model.params():
+        if param.name != 'beta' and param.name != 'gamma':
+            param.update_rule.add_hook(WeightDecay(args.weight_decay))
 
     if device >= 0:
         chainer.cuda.get_device(device).use()
         model.to_gpu()
+    chainer.cuda.set_max_workspace_size(1 * 1024 * 1024 * 1024)
 
     updater = chainer.training.StandardUpdater(
         train_iter, optimizer, device=device)
@@ -136,7 +142,8 @@ def main():
     trainer = training.Trainer(
         updater, (args.epoch, 'epoch'), out=args.out)
     trainer.extend(extensions.ExponentialShift('lr', 0.1),
-                   trigger=(args.step_size, 'epoch'))
+                   trigger=chainer.training.triggers.ManualScheduleTrigger(
+                       [30, 60, 80], 'epoch'))
     evaluator = chainermn.create_multi_node_evaluator(
         extensions.Evaluator(val_iter, model, device=device), comm)
     trainer.extend(evaluator, trigger=(1, 'epoch'))
@@ -147,13 +154,14 @@ def main():
 
     if comm.rank == 0:
         trainer.extend(
-            extensions.snapshot_object(extractor, 'snapshot_model.npz'),
+            extensions.snapshot_object(
+                extractor, 'snapshot_model_{.updater.epoch}.npz'),
             trigger=(args.epoch, 'epoch'))
         trainer.extend(extensions.LogReport(trigger=log_interval))
         trainer.extend(extensions.PrintReport(
             ['iteration', 'epoch', 'elapsed_time', 'lr',
-            'main/loss', 'validation/main/loss',
-            'main/accuracy', 'validation/main/accuracy']
+             'main/loss', 'validation/main/loss',
+             'main/accuracy', 'validation/main/accuracy']
         ), trigger=print_interval)
         trainer.extend(extensions.ProgressBar(update_interval=10))
 
@@ -172,7 +180,6 @@ def main():
                 ),
                 trigger=plot_interval
             )
-
 
         trainer.extend(extensions.dump_graph('main/loss'))
 
