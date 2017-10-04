@@ -8,6 +8,7 @@ from chainer import initializers
 import chainer.links as L
 
 from chainercv.links.model.resnet.building_block import BuildingBlock
+from chainercv.links import Conv2DBNActiv
 from chainercv.links import PickableSequentialChain
 from chainercv.utils import download_model
 
@@ -27,14 +28,14 @@ class ResNet(PickableSequentialChain):
     This is a feature extraction link.
     The network can choose output layers from set of all
     intermediate layers.
-    The attribute :obj:`layer_names` is the names of the layers that are going
+    The attribute :obj:`pick` is the names of the layers that are going
     to be picked by :meth:`__call__`.
-    The attribute :obj:`layer_names` is the names of layers
+    The attribute :obj:`layer_names` is the names of all layers
     that can be picked.
 
     Examples:
 
-        >>> model = VGG16()
+        >>> model = ResNet50()
         # By default, __call__ returns a probability score (after Softmax).
         >>> prob = model(imgs)
         >>> model.pick = 'res5'
@@ -160,7 +161,6 @@ class ResNet(PickableSequentialChain):
         self.mean = mean
 
         if initialW is None:
-            # Employ default initializers used in the original paper.
             conv_initialW = HeNormal(scale=1., fan_option='fan_out')
             fc_initialW = initializers.Normal(scale=0.01)
         if pretrained_model:
@@ -171,9 +171,8 @@ class ResNet(PickableSequentialChain):
 
         super(ResNet, self).__init__()
         with self.init_scope():
-            self.conv1 = L.Convolution2D(None, 64, 7, 2, 3, initialW=initialW)
-            self.bn1 = L.BatchNormalization(64)
-            self.conv1_relu = F.relu
+            self.conv1 = Conv2DBNActiv(None, 64, 7, 2, 3, nobias=fb_resnet,
+                                       initialW=initialW)
             self.pool1 = lambda x: F.max_pooling_2d(x, ksize=3, stride=2)
             self.res2 = BuildingBlock(block[0], None, 64, 256, 1, **kwargs)
             self.res3 = BuildingBlock(block[1], None, 128, 512, 2, **kwargs)

@@ -46,7 +46,7 @@ class BuildingBlock(PickableSequentialChain):
 
 class Bottleneck(chainer.Chain):
 
-    """A bottleneck layer that reduces the resolution of the feature map.
+    """A bottleneck layer.
 
     Args:
         in_channels (int): The number of channels of input arrays.
