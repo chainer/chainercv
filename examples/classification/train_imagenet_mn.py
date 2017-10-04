@@ -153,6 +153,8 @@ def main():
     plot_interval = 1, 'epoch'
 
     if comm.rank == 0:
+        trainer.extend(chainer.training.extensions.observe_lr(),
+                       trigger=log_interval)
         trainer.extend(
             extensions.snapshot_object(
                 extractor, 'snapshot_model_{.updater.epoch}.npz'),
