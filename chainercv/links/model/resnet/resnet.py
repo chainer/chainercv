@@ -158,12 +158,13 @@ class ResNet(PickableSequentialChain):
 
         if initialW is None:
             # Employ default initializers used in the original paper.
-            initialW = initializers.normal.HeNormal(scale=1.)
+            conv_initialW = HeNormal(scale=1., fan_option='fan_out')
+            fc_initialW = initializers.Normal(scale=0.01)
         if pretrained_model:
             # As a sampling process is time-consuming,
             # we employ a zero initializer for faster computation.
             initialW = initializers.constant.Zero()
-        kwargs = {'initialW': initialW, 'stride_first': not fb_resnet}
+        kwargs = {'initialW': conv_initialW, 'stride_first': not fb_resnet}
 
         super(ResNet, self).__init__()
         with self.init_scope():
@@ -176,7 +177,7 @@ class ResNet(PickableSequentialChain):
             self.res4 = BuildingBlock(block[2], None, 256, 1024, 2, **kwargs)
             self.res5 = BuildingBlock(block[3], None, 512, 2048, 2, **kwargs)
             self.pool5 = _global_average_pooling_2d
-            self.fc6 = L.Linear(None, n_class)
+            self.fc6 = L.Linear(None, n_class, initialW=fc_initialW)
             self.prob = F.softmax
 
         if pretrained_model in _models:
@@ -245,3 +246,26 @@ class ResNet152(ResNet):
         super(ResNet152, self).__init__(
             'resnet152', n_class, pretrained_model,
             mean, initialW, fb_resnet)
+
+
+class HeNormal(chainer.initializer.Initializer):
+
+    # fan_option is not supported in Chainer v3.
+
+    def __init__(self, scale=1.0, dtype=None, fan_option='fan_in'):
+        self.scale = scale
+        self.fan_option = fan_option
+        super(HeNormal, self).__init__(dtype)
+
+    def __call__(self, array):
+        if self.dtype is not None:
+            assert array.dtype == self.dtype
+        fan_in, fan_out = chainer.initializer.get_fans(array.shape)
+        if self.fan_option == 'fan_in':
+            s = self.scale * np.sqrt(2. / fan_in)
+        elif self.fan_option == 'fan_out':
+            s = self.scale * np.sqrt(2. / fan_out)
+        else:
+            raise ValueError(
+                'fan_option should be either \'fan_in\' or \'fan_out\'.')
+        initializers.Normal(s)(array)
