@@ -7,8 +7,7 @@ from chainer import testing
 from chainer.testing import attr
 import numpy as np
 
-from chainercv.datasets.cityscapes.cityscapes_utils \
-    import cityscapes_semantic_segmentation_label_names
+from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_labels
 from chainercv.datasets import CityscapesSemanticSegmentationDataset
 from chainercv.datasets import CityscapesTestImageDataset
 from chainercv.utils import assert_is_semantic_segmentation_dataset
@@ -53,7 +52,7 @@ class TestCityscapesSemanticSegmentationDataset(unittest.TestCase):
         for _, label_orig in self.dataset:
             H, W = label_orig.shape
             label_out = np.ones((H, W), dtype=np.int32) * -1
-            for label in cityscapes_semantic_segmentation_label_names:
+            for label in cityscapes_labels:
                 label_out[label_orig == label.trainId] = label.id
 
     def tearDown(self):
