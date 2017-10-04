@@ -1,16 +1,14 @@
-import sys  # NOQA  # isort:skip
-sys.path.insert(0, '.')  # NOQA  # isort:skip
-
 import os
 import re
 
-import caffe_pb2
 import chainer
 import chainer.links as L
 from chainer import serializers
 from chainercv.links import PSPNet
 from google.protobuf import text_format
 import numpy as np
+
+import caffe_pb2
 
 
 def get_chainer_model(n_class, input_size, n_blocks, pyramids, mid_stride):
