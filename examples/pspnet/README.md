@@ -1,38 +1,31 @@
-Pyramid Scene Parsing Network
-=============================
+# Pyramid Scene Parsing Network
 
 This is an unofficial implementation of Pyramid Scene Parsing Network (PSPNet) in Chainer.
 
-# Inference using converted weights
+## Inference using converted weights
 
-## Requirement
-
-- Python 3.4.4+
-    - Chainer 3.0.0b1+
-    - ChainerCV 0.6.0+
-    - Matplotlib 2.0.0+
-    - CuPy 2.0.0b1+
-
-## Run demo.py
+### Run demo.py
 
 ```
-$ python demo.py -g 0 -m cityscapes -f stuttgart_00_000000_000040_leftImg8bit.png
+python demo.py -m cityscapes -f stuttgart_00_000000_000040_leftImg8bit.png
 ```
 
 ![](images/sample.png)
 
-# Convert weights by yourself
+**Note:** Please give `-g 0` if you want to use GPU.
+
+## Convert weights by yourself
 
 **Caffe is NOT needed** to convert `.caffemodel` to Chainer model. Use `caffe_pb2.py`.
 
-## Requirement
+### Requirement
 
 - Python 3.4.4+
     - protobuf 3.2.0+
     - Chainer 3.0.0b1+
     - NumPy 1.12.0+
 
-## 1. Download the original weights
+### 1. Download the original weights
 
 Please download the weights below from the author's repository:
 
@@ -42,18 +35,19 @@ Please download the weights below from the author's repository:
 
 **and then put them into `weights` directory.**
 
-## 2. Convert weights
+### 2. Convert weights
 
 ```
-$ python convert.py
+python convert.py
 ```
 
-Evaluation
-==========
+# Evaluation
 
-# Cityscapes
+## Cityscapes
 
-## Create predictions
+### Create predictions
+
+Run the code below to make predictions over all validation images.
 
 ```
 python predict.py \
@@ -75,9 +69,9 @@ mkdir pred
 find . -name "*_leftImg8bit.png" | xargs -I '{}' mv {} pred/
 ```
 
-## Evaluate results
+### Evaluate results
 
-### 1. Build tools
+#### 1. Build tools
 
 ```
 git clone https://github.com/mcordts/cityscapesScripts.git
@@ -85,7 +79,7 @@ cd cityscapesScripts
 python setup.py build
 ```
 
-### 2. Evaluation
+#### 2. Evaluation
 
 ```
 CITYSCAPES_DATASET=$HOME/.chainer/dataset/pfnet/chainercv/cityscapes \
@@ -93,9 +87,9 @@ CITYSCAPES_RESULTS=../../../results \
 python evalPixelLevelSemanticLabeling.py
 ```
 
-## Results
+### Results
 
-### val
+#### val
 
 classes       |  IoU   |  nIoU
 :-------------|:-------|:-----
@@ -120,6 +114,7 @@ motorcycle    | 0.682  | 0.492
 bicycle       | 0.796  | 0.636
 Score Average | 0.799  | 0.624
 
+The original author's experiment results show **0.8091** for the mIoU on `val` set. See: [hszhao/PSPNet](https://github.com/hszhao/PSPNet).
 
 categories    |  IoU   |  nIoU
 :-------------|:-------|:-----
@@ -132,7 +127,7 @@ nature        | 0.928  |   nan
 flat          | 0.986  |   nan
 Score Average | 0.902  | 0.780
 
-### test
+#### test
 
 | Class | IoU | iIoU
 |:------|:----|:----
