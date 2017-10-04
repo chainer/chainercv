@@ -6,16 +6,16 @@ import re
 
 import caffe_pb2
 import chainer
-from chainer import serializers
 import chainer.links as L
+from chainer import serializers
+from chainercv.links import PSPNet
 from google.protobuf import text_format
 import numpy as np
-import pspnet
 
 
 def get_chainer_model(n_class, input_size, n_blocks, pyramids, mid_stride):
     with chainer.using_config('train', True):
-        model = pspnet.PSPNet(
+        model = PSPNet(
             n_class, input_size, n_blocks, pyramids, mid_stride)
         model(np.random.rand(1, 3, input_size, input_size).astype(np.float32))
     size = 0
@@ -181,17 +181,20 @@ def transfer(model, param, net):
 if __name__ == '__main__':
     proto_dir = 'weights'
 
-    if not os.path.exists(os.path.join(proto_dir, 'pspnet101_VOC2012.caffemodel')):
+    if not os.path.exists(
+            os.path.join(proto_dir, 'pspnet101_VOC2012.caffemodel')):
         print('Please download pspnet101_VOC2012.caffemodel from here: '
               'https://drive.google.com/open?id=0BzaU285cX7TCNVhETE5vVUdMYk0 '
               'and put it into weights/ dir.')
         exit()
-    if not os.path.exists(os.path.join(proto_dir, 'pspnet101_cityscapes.caffemodel')):
+    if not os.path.exists(
+            os.path.join(proto_dir, 'pspnet101_cityscapes.caffemodel')):
         print('Please download pspnet101_cityscapes.caffemodel from here: '
               'https://drive.google.com/open?id=0BzaU285cX7TCT1M3TmNfNjlUeEU '
               'and put it into weights/ dir.')
         exit()
-    if not os.path.exists(os.path.join(proto_dir, 'pspnet50_ADE20K.caffemodel')):
+    if not os.path.exists(
+            os.path.join(proto_dir, 'pspnet50_ADE20K.caffemodel')):
         print('Please download pspnet50_ADE20K.caffemodel from here: '
               'https://drive.google.com/open?id=0BzaU285cX7TCN1R3QnUwQ0hoMTA '
               'and put it into weights/ dir.')
