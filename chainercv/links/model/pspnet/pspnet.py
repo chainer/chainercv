@@ -9,12 +9,11 @@ import six
 import chainer
 import chainer.functions as F
 import chainer.links as L
-from chainercv.transforms import resize
 from chainercv.utils import download_model
 
 try:
     from chainermn.links import MultiNodeBatchNormalization
-except:
+except Exception:
     warnings.warn('To perform batch normalization with multiple GPUs or '
                   'multiple nodes, MultiNodeBatchNormalization link is '
                   'needed. Please install ChainerMN: '
@@ -184,12 +183,10 @@ class PSPNet(chainer.Chain):
     loaded from weights distributed on the Internet.
     The list of pretrained models supported are as follows:
 
-    * :obj:`voc07`: Loads weights trained with the trainval split of \
-        PASCAL VOC2007 Detection Dataset.
-    * :obj:`imagenet`: Loads weights trained with ImageNet Classfication \
-        task for the feature extractor and the head modules. \
-        Weights that do not have a corresponding layer in VGG-16 \
-        will be randomly initialized.
+    * :obj:`voc2012`: Loads weights trained with the trainval split of \
+        PASCAL VOC2012 Semantic Segmentation Dataset.
+    * :obj:`cityscapes`: Loads weights trained with Cityscapes dataset.
+    * :obj:`ade20k`: Loads weights trained with ADE20K dataset.
 
     Args:
         n_class (int): The number of channels in the last convolution layer.
@@ -239,7 +236,7 @@ class PSPNet(chainer.Chain):
             'feat_size': 60,
             'mid_stride': True,
             'pyramids': [6, 3, 2, 1],
-            'mean': np.array([103.939, 116.779, 123.68]),
+            'mean': np.array([123.68, 116.779, 103.939]),
             'url': 'https://github.com/mitmul/chainer-pspnet/releases/download'
                    '/ChainerCV_PSPNet/pspnet101_VOC2012_473_reference.npz'
         },
@@ -250,7 +247,7 @@ class PSPNet(chainer.Chain):
             'feat_size': 90,
             'mid_stride': True,
             'pyramids': [6, 3, 2, 1],
-            'mean': np.array([103.939, 116.779, 123.68]),
+            'mean': np.array([123.68, 116.779, 103.939]),
             'url': 'https://github.com/mitmul/chainer-pspnet/releases/download'
                    '/ChainerCV_PSPNet/pspnet101_cityscapes_713_reference.npz'
         },
@@ -261,7 +258,7 @@ class PSPNet(chainer.Chain):
             'feat_size': 60,
             'mid_stride': True,
             'pyramids': [6, 3, 2, 1],
-            'mean': np.array([103.939, 116.779, 123.68]),
+            'mean': np.array([123.68, 116.779, 103.939]),
             'url': 'https://github.com/mitmul/chainer-pspnet/releases/download'
                    '/ChainerCV_PSPNet/pspnet50_ADE20K_473_reference.npz'
         }
@@ -272,7 +269,7 @@ class PSPNet(chainer.Chain):
                  pretrained_model=None, initialW=None):
         super(PSPNet, self).__init__()
 
-        if pretrained_model is not None:
+        if pretrained_model in self._models:
             if 'n_class' in self._models[pretrained_model]:
                 n_class = self._models[pretrained_model]['n_class']
             if 'input_size' in self._models[pretrained_model]:
@@ -285,6 +282,7 @@ class PSPNet(chainer.Chain):
                 mid_stride = self._models[pretrained_model]['mid_stride']
             if 'mean' in self._models[pretrained_model]:
                 mean = self._models[pretrained_model]['mean']
+                self._use_pretrained_model = True
 
         chainer.config.mid_stride = mid_stride
         chainer.config.comm = comm
@@ -319,8 +317,14 @@ class PSPNet(chainer.Chain):
         if pretrained_model in self._models:
             path = download_model(self._models[pretrained_model]['url'])
             chainer.serializers.load_npz(path, self)
+            self._use_pretrained_model = True
+            print('Pre-trained model has been loaded:', pretrained_model)
         elif pretrained_model:
+            self._use_pretrained_model = False
             chainer.serializers.load_npz(pretrained_model, self)
+            print('Pre-trained model has been loaded:', pretrained_model)
+        else:
+            self._use_pretrained_model = False
 
     @property
     def n_class(self):
@@ -375,16 +379,17 @@ class PSPNet(chainer.Chain):
 
         """
         if self.mean is not None:
-            img = img - self.mean[:, None, None]
+            img -= self.mean[:, None, None]
             img = img.astype(np.float32, copy=False)
+            if self._use_pretrained_model:
+                # Pre-trained model is trained for BGR images
+                img = img[::-1, ...]
         return img
 
     def _predict(self, img):
-        imgs = np.concatenate([img, img[:, :, :, ::-1]], axis=0)
-        imgs = chainer.Variable(self.xp.asarray(imgs))
+        img = chainer.Variable(self.xp.asarray(img))
         with chainer.using_config('train', False):
-            scores = self.__call__(imgs)
-        score = (scores[0] + scores[1][:, :, ::-1])[None, ...]
+            score = self.__call__(img)
         return chainer.cuda.to_cpu(F.softmax(score).data)
 
     def _pad_img(self, img):
@@ -404,46 +409,39 @@ class PSPNet(chainer.Chain):
         ori_rows, ori_cols = img.shape[1:]
         long_size = max(ori_rows, ori_cols)
 
-        # Calc scaled size
-        new_rows, new_cols = long_size, long_size
-        if ori_rows > ori_cols:
-            new_cols = int(long_size / ori_rows * ori_cols)
-        else:
-            new_rows = int(long_size / ori_cols * ori_rows)
-
-        # Perform scaling
-        if ori_rows != new_rows or ori_cols != new_cols:
-            img_scaled = resize(img, (new_rows, new_cols))
-        else:
-            img_scaled = img
-        long_size = max(new_rows, new_cols)
-
         # When padding input patches is needed
         if long_size > max(self.input_size):
-            count = np.zeros((new_rows, new_cols))
-            pred = np.zeros((1, self.n_class, new_rows, new_cols))
+            count = np.zeros((ori_rows, ori_cols))
+            pred = np.zeros((1, self.n_class, ori_rows, ori_cols))
             stride_rate = 2 / 3.
             stride = (ceil(self.input_size[0] * stride_rate),
                       ceil(self.input_size[1] * stride_rate))
-            hh = ceil((new_rows - self.input_size[0]) / stride[0]) + 1
-            ww = ceil((new_cols - self.input_size[1]) / stride[1]) + 1
+            hh = ceil((ori_rows - self.input_size[0]) / stride[0]) + 1
+            ww = ceil((ori_cols - self.input_size[1]) / stride[1]) + 1
             for yy in six.moves.xrange(hh):
                 for xx in six.moves.xrange(ww):
                     sy, sx = yy * stride[0], xx * stride[1]
                     ey, ex = sy + self.input_size[0], sx + self.input_size[1]
-                    img_sub = img_scaled[:, sy:ey, sx:ex]
+                    img_sub = img[:, sy:ey, sx:ex]
                     img_sub, pad_h, pad_w = self._pad_img(img_sub)
-                    psub = self._predict(img_sub[np.newaxis])
-                    if sy + self.input_size[0] > new_rows:
+
+                    # Take average of pred and pred from flipped image
+                    psub1 = self._predict(img_sub[np.newaxis])
+                    psub2 = self._predict(img_sub[np.newaxis, :, :, ::-1])
+                    psub = (psub1 + psub2[:, :, :, ::-1]) / 2.
+
+                    if sy + self.input_size[0] > ori_rows:
                         psub = psub[:, :, :-pad_h, :]
-                    if sx + self.input_size[1] > new_cols:
+                    if sx + self.input_size[1] > ori_cols:
                         psub = psub[:, :, :, :-pad_w]
                     pred[:, :, sy:ey, sx:ex] = psub
                     count[sy:ey, sx:ex] += 1
             score = (pred / count[None, None, ...]).astype(np.float32)
         else:
-            img_scaled, pad_h, pad_w = self._pad_img(img_scaled)
-            pred = self._predict(img_scaled[np.newaxis])
+            img, pad_h, pad_w = self._pad_img(img)
+            pred1 = self._predict(img[np.newaxis])
+            pred2 = self._predict(img[np.newaxis, :, :, ::-1])
+            pred = (pred1 + pred2[:, :, :, ::-1]) / 2.
             score = pred[
                 :, :, :self.input_size[0] - pad_h, :self.input_size[1] - pad_w]
         score = F.resize_images(score, (ori_rows, ori_cols))[0].data
@@ -469,11 +467,10 @@ class PSPNet(chainer.Chain):
         """
         labels = []
         for img in imgs:
-            _, H, W = img.shape
             with chainer.using_config('train', False):
                 x = self.prepare(img)
                 score = self._tile_predict(x)
-            score = chainer.cuda.to_cpu(score)
+            label = chainer.cuda.to_cpu(score)
             if argmax:
                 label = np.argmax(score, axis=0).astype(np.int32)
             labels.append(label)

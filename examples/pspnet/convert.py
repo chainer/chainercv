@@ -13,15 +13,14 @@ from google.protobuf import text_format
 import caffe_pb2
 import chainer
 import chainer.links as L
+import pspnet
 from chainer import serializers
-from chainercv.links import PSPNet
-
-chainer.config.train = False
 
 
 def get_chainer_model(n_class, input_size, n_blocks, pyramids, mid_stride):
     with chainer.using_config('train', True):
-        model = PSPNet(n_class, input_size, n_blocks, pyramids, mid_stride)
+        model = pspnet.PSPNet(
+            n_class, input_size, n_blocks, pyramids, mid_stride)
         model(np.random.rand(1, 3, input_size, input_size).astype(np.float32))
     size = 0
     for param in model.params():
