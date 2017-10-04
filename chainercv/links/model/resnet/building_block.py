@@ -83,6 +83,7 @@ class Bottleneck(chainer.Chain):
                                        nobias=True)
             self.conv3 = Conv2DBNActiv(mid_channels, out_channels, 1, 1, 0,
                                        initialW=initialW, nobias=True,
+                                       bn_kwargs={'initial_gamma': 0},
                                        activ=lambda x: x)
             if shortcut is not None:
                 self.shortcut = shortcut
