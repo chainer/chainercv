@@ -18,6 +18,17 @@ TransformDataset
 ~~~~~~~~~~~~~~~~
 .. autoclass:: TransformDataset
 
+ADE20K
+------
+
+ADE20KSemanticSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: ADE20KSemanticSegmentationDataset
+
+ADE20KTestImageDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: ADE20KTestImageDataset
+
 CamVid
 ------
 
