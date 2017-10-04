@@ -109,7 +109,7 @@ class FasterRCNNVGG16(FasterRCNN):
             vgg_initialW = chainer.initializers.constant.Zero()
 
         extractor = VGG16(initialW=vgg_initialW)
-        extractor.feature_names = 'conv5_3'
+        extractor.pick = 'conv5_3'
         # Delete all layers after conv5_3.
         extractor.remove_unused()
         rpn = RegionProposalNetwork(
