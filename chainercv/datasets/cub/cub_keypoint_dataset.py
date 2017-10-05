@@ -19,7 +19,7 @@ class CUBKeypointDataset(CUBDatasetBase):
     :obj:`img, keypoint, kp_mask`, a tuple of an image, keypoints
     and a keypoint mask that indicates visible keypoints in the image.
     The data type of the three elements are :obj:`float32, float32, bool`.
-    If :obj:`return_mask = True`, :obj:`mask` will be returned as well,
+    If :obj:`return_prob_map = True`, :obj:`mask` will be returned as well,
     making the returned tuple to be of length four. :obj:`mask` is a
     :obj:`uint8` image which indicates the region of the image
     where a bird locates.
@@ -42,13 +42,13 @@ class CUBKeypointDataset(CUBDatasetBase):
     This information can optionally be retrieved from the dataset
     by setting :obj:`return_bb = True`.
 
-    A mask image of the bird shows how likely the bird is located at a
-    given pixel. If the value is close to 255, more likely that a bird
-    locates at that pixel. The shape of this array is :math:`(1, H, W)`,
+    The probability map of a bird shows how likely the bird is located at each
+    pixel. If the value is close to 1, it is more likely that a bird
+    locates at that pixel. The shape of this array is :math:`(H, W)`,
     where :math:`H` and :math:`W` are height and width of the image
     respectively.
     This information can optionally be retrieved from the dataset
-    by setting :obj:`return_mask = True`.
+    by setting :obj:`return_prob_map = True`.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -56,19 +56,20 @@ class CUBKeypointDataset(CUBDatasetBase):
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
         return_bb (bool): If :obj:`True`, this returns a bounding box
             around a bird. The default value is :obj:`False`.
-        mask_dir (string): Path to the root of the mask data. If this is
-            :obj:`auto`, this class will automatically download data for you
-            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
-        return_mask (bool): Decide whether to include mask image of the bird
-            in a tuple served for a query. The default value is :obj:`False`.
+        prob_map_dir (string): Path to the root of the probability maps.
+            If this is :obj:`auto`, this class will automatically download data
+            for you under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
+        return_prob_map (bool): Decide whether to include a probability map of
+            the bird in a tuple served for a query. The default value is
+            :obj:`False`.
 
     """
 
     def __init__(self, data_dir='auto', return_bb=False,
-                 mask_dir='auto', return_mask=False):
+                 prob_map_dir='auto', return_prob_map=False):
         super(CUBKeypointDataset, self).__init__(
-            data_dir=data_dir, mask_di=mask_dir, return_bb=return_bb)
-        self.return_mask = return_mask
+            data_dir=data_dir, return_bb=return_bb,
+            prob_map_dir=prob_map_dir, return_prob_map=return_prob_map)
 
         # load keypoint
         parts_loc_file = os.path.join(self.data_dir, 'parts', 'part_locs.txt')
@@ -98,18 +99,17 @@ class CUBKeypointDataset(CUBDatasetBase):
         keypoint = np.array(self.kp_dict[i], dtype=np.float32)
         kp_mask = np.array(self.kp_mask_dict[i], dtype=np.bool)
 
-        if not self.return_mask:
+        if not self.return_prob_map:
             if self.return_bb:
                 return img, keypoint, kp_mask, self.bbs[i]
             else:
                 return img, keypoint, kp_mask
 
-        path, _ = os.path.splitext(self.paths[i])
-        mask = utils.read_image(
-            os.path.join(self.mask_dir, path + '.png'),
-            dtype=np.uint8,
-            color=False)
+        prob_map = utils.read_image(self.prob_map_paths[i],
+                                    dtype=np.uint8, color=False)
+        prob_map = prob_map.astype(np.float32) / 255  # [0, 255] -> [0, 1]
+        prob_map = prob_map[0]  # (1, H, W) --> (H, W)
         if self.return_bb:
-            return img, keypoint, kp_mask, self.bbs[i], mask
+            return img, keypoint, kp_mask, self.bbs[i], prob_map
         else:
-            return img, keypoint, kp_mask, mask
+            return img, keypoint, kp_mask, prob_map

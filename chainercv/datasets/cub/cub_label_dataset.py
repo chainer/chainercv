@@ -24,18 +24,34 @@ class CUBLabelDataset(CUBDatasetBase):
     This information can optionally be retrieved from the dataset
     by setting :obj:`return_bb = True`.
 
+    The probability map of a bird shows how likely the bird is located at each
+    pixel. If the value is close to 1, it is more likely that a bird
+    locates at that pixel. The shape of this array is :math:`(H, W)`,
+    where :math:`H` and :math:`W` are height and width of the image
+    respectively.
+    This information can optionally be retrieved from the dataset
+    by setting :obj:`return_prob_map = True`.
+
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
         return_bb (bool): If :obj:`True`, this returns a bounding box
             around a bird. The default value is :obj:`False`.
+        prob_map_dir (string): Path to the root of the probability maps.
+            If this is :obj:`auto`, this class will automatically download data
+            for you under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
+        return_prob_map (bool): Decide whether to include a probability map of
+            the bird in a tuple served for a query. The default value is
+            :obj:`False`.
 
     """
 
-    def __init__(self, data_dir='auto', return_bb=False):
+    def __init__(self, data_dir='auto', return_bb=False,
+                 prob_map_dir='auto', return_prob_map=False):
         super(CUBLabelDataset, self).__init__(
-            data_dir=data_dir, return_bb=return_bb)
+            data_dir=data_dir, return_bb=return_bb,
+            prob_map_dir=prob_map_dir, return_prob_map=return_prob_map)
 
         image_class_labels_file = os.path.join(
             self.data_dir, 'image_class_labels.txt')
@@ -58,6 +74,17 @@ class CUBLabelDataset(CUBDatasetBase):
             color=True)
         label = self._labels[i]
 
+        if not self.return_prob_map:
+            if self.return_bb:
+                return img, label, self.bbs[i]
+            else:
+                return img, label
+
+        prob_map = utils.read_image(self.prob_map_paths[i],
+                                    dtype=np.uint8, color=False)
+        prob_map = prob_map.astype(np.float32) / 255  # [0, 255] -> [0, 1]
+        prob_map = prob_map[0]  # (1, H, W) --> (H, W)
         if self.return_bb:
-            return img, label, self.bbs[i]
-        return img, label
+            return img, label, self.bbs[i], prob_map
+        else:
+            return img, label, prob_map
