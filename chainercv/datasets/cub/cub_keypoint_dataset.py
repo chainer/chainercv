@@ -55,12 +55,12 @@ class CUBKeypointDataset(CUBDatasetBase):
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
         return_bb (bool): If :obj:`True`, this returns a bounding box
-            around a bird. Default value is :obj:`False`.
+            around a bird. The default value is :obj:`False`.
         mask_dir (string): Path to the root of the mask data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
         return_mask (bool): Decide whether to include mask image of the bird
-            in a tuple served for a query. Default value is :obj:`False`.
+            in a tuple served for a query. The default value is :obj:`False`.
 
     """
 
