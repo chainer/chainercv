@@ -10,8 +10,8 @@ from chainer import training
 from chainer.training import extensions
 from chainer.training import triggers
 
-from chainercv.datasets import voc_detection_label_names
-from chainercv.datasets import VOCDetectionDataset
+from chainercv.datasets import voc_bbox_label_names
+from chainercv.datasets import VOCBboxDataset
 from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links.model.ssd import GradientScaling
 from chainercv.links.model.ssd import multibox_loss
@@ -132,11 +132,11 @@ def main():
 
     if args.model == 'ssd300':
         model = SSD300(
-            n_fg_class=len(voc_detection_label_names),
+            n_fg_class=len(voc_bbox_label_names),
             pretrained_model='imagenet')
     elif args.model == 'ssd512':
         model = SSD512(
-            n_fg_class=len(voc_detection_label_names),
+            n_fg_class=len(voc_bbox_label_names),
             pretrained_model='imagenet')
 
     model.use_preset('evaluate')
@@ -147,13 +147,13 @@ def main():
 
     train = TransformDataset(
         ConcatenatedDataset(
-            VOCDetectionDataset(year='2007', split='trainval'),
-            VOCDetectionDataset(year='2012', split='trainval')
+            VOCBboxDataset(year='2007', split='trainval'),
+            VOCBboxDataset(year='2012', split='trainval')
         ),
         Transform(model.coder, model.insize, model.mean))
     train_iter = chainer.iterators.MultiprocessIterator(train, args.batchsize)
 
-    test = VOCDetectionDataset(
+    test = VOCBboxDataset(
         year='2007', split='test',
         use_difficult=True, return_difficult=True)
     test_iter = chainer.iterators.SerialIterator(
@@ -177,7 +177,7 @@ def main():
     trainer.extend(
         DetectionVOCEvaluator(
             test_iter, model, use_07_metric=True,
-            label_names=voc_detection_label_names),
+            label_names=voc_bbox_label_names),
         trigger=(10000, 'iteration'))
 
     log_interval = 10, 'iteration'

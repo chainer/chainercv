@@ -9,9 +9,9 @@ from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
 
 
-class VOCDetectionDataset(chainer.dataset.DatasetMixin):
+class VOCBboxDataset(chainer.dataset.DatasetMixin):
 
-    """Dataset class for the detection task of PASCAL `VOC`_.
+    """Bounding box dataset for PASCAL `VOC`_.
 
     .. _`VOC`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
@@ -35,7 +35,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
     :math:`R` is the number of bounding boxes in the image.
     The class name of the label :math:`l` is :math:`l` th element of
-    :obj:`chainercv.datasets.voc_detection_label_names`.
+    :obj:`chainercv.datasets.voc_bbox_label_names`.
 
     The array :obj:`difficult` is a one dimensional boolean array of shape
     :math:`(R,)`. :math:`R` is the number of bounding boxes in the image.
@@ -122,7 +122,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
                 int(bndbox_anno.find(tag).text) - 1
                 for tag in ('ymin', 'xmin', 'ymax', 'xmax')])
             name = obj.find('name').text.lower().strip()
-            label.append(voc_utils.voc_detection_label_names.index(name))
+            label.append(voc_utils.voc_bbox_label_names.index(name))
         bbox = np.stack(bbox).astype(np.float32)
         label = np.stack(label).astype(np.int32)
         # When `use_difficult==False`, all elements in `difficult` are False.

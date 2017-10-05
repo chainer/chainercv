@@ -47,8 +47,8 @@ cityscapes_labels = tuple([
     Label('licenseplate', -1, -1, 'vehicle', 7, False, True, (0, 0, 142)),
 ])
 
-cityscapes_label_names = tuple(
+cityscapes_semantic_segmentation_label_names = tuple(
     l.name for l in cityscapes_labels if not l.ignoreInEval)
 
-cityscapes_label_colors = tuple(
+cityscapes_semantic_segmentation_label_colors = tuple(
     l.color for l in cityscapes_labels if not l.ignoreInEval)
