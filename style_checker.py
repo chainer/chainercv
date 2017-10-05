@@ -123,17 +123,17 @@ def main():
 
     for dir, _, files in os.walk(args.dir):
         for file in files:
-            path = os.path.join(dir, file)
             _, ext = os.path.splitext(file)
 
             if not ext == '.py':
                 continue
 
             if args.exclude is not None and file in args.exclude:
-                print('{:s} : skipped'.format(path))
                 continue
 
+            path = os.path.join(dir, file)
             lines = open(path).readlines()
+
             for lineno, msg in check(''.join(lines)):
                 print('{:s}:{:d} : {:s}'.format(path, lineno, msg))
                 print(lines[lineno - 1])
