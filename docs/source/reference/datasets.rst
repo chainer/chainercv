@@ -26,7 +26,7 @@ ADE20KSemanticSegmentationDataset
 .. autoclass:: ADE20KSemanticSegmentationDataset
 
 ADE20KTestImageDataset
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: ADE20KTestImageDataset
 
 CamVid
