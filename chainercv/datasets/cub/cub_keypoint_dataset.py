@@ -67,7 +67,7 @@ class CUBKeypointDataset(CUBDatasetBase):
     def __init__(self, data_dir='auto', return_bb=False,
                  mask_dir='auto', return_mask=False):
         super(CUBKeypointDataset, self).__init__(
-            data_dir=data_dir, return_bb=return_bb)
+            data_dir=data_dir, mask_di=mask_dir, return_bb=return_bb)
         self.return_mask = return_mask
 
         # load keypoint
