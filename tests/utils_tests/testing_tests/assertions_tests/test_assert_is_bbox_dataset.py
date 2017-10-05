@@ -4,11 +4,11 @@ import unittest
 from chainer.dataset import DatasetMixin
 from chainer import testing
 
-from chainercv.utils import assert_is_detection_dataset
+from chainercv.utils import assert_is_bbox_dataset
 from chainercv.utils import generate_random_bbox
 
 
-class DetectionDataset(DatasetMixin):
+class BboxDataset(DatasetMixin):
 
     def __init__(self, *options):
         self.options = options
@@ -25,7 +25,7 @@ class DetectionDataset(DatasetMixin):
         return (img, bbox, label) + self.options
 
 
-class InvalidSampleSizeDataset(DetectionDataset):
+class InvalidSampleSizeDataset(BboxDataset):
 
     def get_example(self, i):
         img, bbox, label = super(
@@ -33,14 +33,14 @@ class InvalidSampleSizeDataset(DetectionDataset):
         return img, bbox
 
 
-class InvalidImageDataset(DetectionDataset):
+class InvalidImageDataset(BboxDataset):
 
     def get_example(self, i):
         img, bbox, label = super(InvalidImageDataset, self).get_example(i)[:3]
         return img[0], bbox, label
 
 
-class InvalidBboxDataset(DetectionDataset):
+class InvalidBboxDataset(BboxDataset):
 
     def get_example(self, i):
         img, bbox, label = super(InvalidBboxDataset, self).get_example(i)[:3]
@@ -48,7 +48,7 @@ class InvalidBboxDataset(DetectionDataset):
         return img, bbox, label
 
 
-class InvalidLabelDataset(DetectionDataset):
+class InvalidLabelDataset(BboxDataset):
 
     def get_example(self, i):
         img, bbox, label = super(InvalidLabelDataset, self).get_example(i)[:3]
@@ -56,7 +56,7 @@ class InvalidLabelDataset(DetectionDataset):
         return img, bbox, label
 
 
-class MismatchLengthDataset(DetectionDataset):
+class MismatchLengthDataset(BboxDataset):
 
     def get_example(self, i):
         img, bbox, label = super(
@@ -65,22 +65,22 @@ class MismatchLengthDataset(DetectionDataset):
 
 
 @testing.parameterize(
-    {'dataset': DetectionDataset(), 'valid': True},
-    {'dataset': DetectionDataset('option'), 'valid': True},
+    {'dataset': BboxDataset(), 'valid': True},
+    {'dataset': BboxDataset('option'), 'valid': True},
     {'dataset': InvalidSampleSizeDataset(), 'valid': False},
     {'dataset': InvalidImageDataset(), 'valid': False},
     {'dataset': InvalidBboxDataset(), 'valid': False},
     {'dataset': InvalidLabelDataset(), 'valid': False},
     {'dataset': MismatchLengthDataset(), 'valid': False},
 )
-class TestAssertIsDetectionDataset(unittest.TestCase):
+class TestAssertIsBboxDataset(unittest.TestCase):
 
-    def test_assert_is_detection_dataset(self):
+    def test_assert_is_bbox_dataset(self):
         if self.valid:
-            assert_is_detection_dataset(self.dataset, 20)
+            assert_is_bbox_dataset(self.dataset, 20)
         else:
             with self.assertRaises(AssertionError):
-                assert_is_detection_dataset(self.dataset, 20)
+                assert_is_bbox_dataset(self.dataset, 20)
 
 
 testing.run_module(__name__, __file__)
