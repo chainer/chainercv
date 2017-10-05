@@ -91,7 +91,7 @@ class DirectoryParsingLabelDataset(chainer.dataset.DatasetMixin):
             --- class_1
                 |-- img_0.png
 
-        >>> from chainercv.dataset import DirectoryParsingLabelDataset
+        >>> from chainercv.datasets import DirectoryParsingLabelDataset
         >>> dataset = DirectoryParsingLabelDataset('root')
         >>> dataset.paths
         ['root/class_0/img_0.png', 'root/class_0/img_1.png',
