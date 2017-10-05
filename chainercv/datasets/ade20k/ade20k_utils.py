@@ -1,6 +1,9 @@
 # The values used here are copied from CSAILVision/sceneparsing:
 # https://github.com/CSAILVision/sceneparsing
 
+from chainer.dataset import download
+from chainercv import utils
+
 
 def get_ade20k(root, url):
     data_root = download.get_dataset_directory(root)

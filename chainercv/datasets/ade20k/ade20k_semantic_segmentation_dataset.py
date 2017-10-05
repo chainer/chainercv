@@ -4,9 +4,10 @@ import os
 import numpy as np
 
 from chainer import dataset
-from chainer.dataset import download
-from chainercv import utils
 from chainercv.utils import read_image
+
+from chainercv.datasets.ade20k.ade20k_utils import get_ade20k
+
 
 root = 'pfnet/chainercv/ade20k'
 url = 'http://data.csail.mit.edu/places/ADEchallenge/ADEChallengeData2016.zip'
