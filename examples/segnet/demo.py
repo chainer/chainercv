@@ -8,10 +8,12 @@ from chainercv.datasets import camvid_label_names
 from chainercv.links import SegNetBasic
 from chainercv import utils
 from chainercv.visualizations import vis_image
-from chainercv.visualizations import vis_label
+from chainercv.visualizations import vis_semantic_segmentation
 
 
 def main():
+    chainer.config.train = False
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--pretrained_model', default='camvid')
@@ -23,8 +25,8 @@ def main():
         pretrained_model=args.pretrained_model)
 
     if args.gpu >= 0:
-        model.to_gpu(args.gpu)
-        chainer.cuda.get_device(args.gpu).use()
+        chainer.cuda.get_device_from_id(args.gpu).use()
+        model.to_gpu()
 
     img = utils.read_image(args.image, color=True)
     labels = model.predict([img])
@@ -34,7 +36,8 @@ def main():
     ax1 = fig.add_subplot(1, 2, 1)
     vis_image(img, ax=ax1)
     ax2 = fig.add_subplot(1, 2, 2)
-    vis_label(label, camvid_label_names, camvid_label_colors, ax=ax2)
+    vis_semantic_segmentation(
+        label, camvid_label_names, camvid_label_colors, ax=ax2)
     plot.show()
 
 

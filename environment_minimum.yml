@@ -6,5 +6,3 @@ dependencies:
   - Cython
   - numpy
   - Pillow
-  - pip:
-    - chainer=1.24

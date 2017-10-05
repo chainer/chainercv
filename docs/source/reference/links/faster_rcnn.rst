@@ -45,10 +45,6 @@ RegionProposalNetwork
    :members:
    :special-members:  __call__
 
-VGG16FeatureExtractor
-~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: VGG16FeatureExtractor
-
 VGG16RoIHead
 ~~~~~~~~~~~~
 .. autoclass:: VGG16RoIHead

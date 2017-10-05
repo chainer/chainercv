@@ -13,7 +13,8 @@ For the details, please check the documents and examples of each model.
 
 | Model | Train dataset | FPS | mAP (PASCAL VOC2007 metric) |
 |:-:|:-:|:-:|:-:|
-| Faster R-CNN | VOC2007 trainval | | 70.5 % |
+| Faster R-CNN | VOC2007 trainval | | 70.6 % |
+| Faster R-CNN | VOC2007\&2012 trainval | | 74.7 % |
 | SSD300 | VOC2007\&2012 trainval | | 77.8 % |
 | SSD512 | VOC2007\&2012 trainval | | 79.7 % |
 
@@ -31,3 +32,12 @@ You can generate these visualization results by the following command.
 ```
 $ python visualuze_models.py
 ```
+
+## Notes on writing your own evaluation code
+
+Here is a list of important configurations to reproduce results.
+
++ `model.use_preset('evaluate')` configures postprocessing parameters for evaluation such as threshold for confidence score.
++ `DetectionVOCEvaluator` should be instantiated with `use_07_metric=True` (default is False), if evaluation is conducted on VOC 2007 test dataset.
++ When evaluating on VOC dataset, `VOCBboxDataset` should return information about difficulties of bounding boxes, as the evaluation metric expects that to be included.
+The dataset returns it by setting `use_difficult=True` and `return_difficult=True`.

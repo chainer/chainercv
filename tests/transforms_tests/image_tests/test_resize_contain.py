@@ -6,42 +6,50 @@ from chainer import testing
 from chainercv.transforms import resize_contain
 
 
-@testing.parameterize(
-    {'fill': 128},
-    {'fill': (104, 117, 123)},
-    {'fill':  np.random.uniform(255, size=3)},
-)
+@testing.parameterize(*testing.product_dict(
+    [
+        {'size': (48, 96), 'scaled_size': (32, 64),
+         'y_offset': 8, 'x_offset': 16},
+        {'size': (16, 68), 'scaled_size': (16, 32),
+         'y_offset': 0, 'x_offset': 18},
+        {'size': (24, 16), 'scaled_size': (8, 16),
+         'y_offset': 8, 'x_offset': 0},
+        {'size': (47, 97), 'scaled_size': (32, 64),
+         'y_offset': 7, 'x_offset': 16},
+    ],
+    [
+        {'fill': 128},
+        {'fill': (104, 117, 123)},
+        {'fill': np.random.uniform(255, size=(3, 1, 1))},
+    ]
+))
 class TestResizeContain(unittest.TestCase):
 
     def test_resize_contain(self):
-        img = np.random.uniform(size=(3, 32, 64))
+        H, W = 32, 64
+        img = np.random.uniform(255, size=(3, H, W))
 
         out, param = resize_contain(
-            img, (96, 48), fill=self.fill, return_param=True)
+            img, self.size, fill=self.fill, return_param=True)
 
-        np.testing.assert_array_equal(img, out[:, 8:40, 16:80])
-        np.testing.assert_array_equal(self.fill, out[:, 0, 0])
-        self.assertEqual(param['scaled_size'], (64, 32))
-        self.assertEqual(param['x_offset'], 16)
-        self.assertEqual(param['y_offset'], 8)
+        self.assertEqual(param['scaled_size'], self.scaled_size)
+        self.assertEqual(param['y_offset'], self.y_offset)
+        self.assertEqual(param['x_offset'], self.x_offset)
 
-    def test_resize_contain_canvas_small_x(self):
-        img = np.random.uniform(size=(3, 32, 64))
+        if self.scaled_size == (H, W):
+            np.testing.assert_array_equal(
+                out[:,
+                    self.y_offset:self.y_offset + H,
+                    self.x_offset:self.x_offset + W],
+                img)
 
-        out, param = resize_contain(
-            img, (68, 16), fill=self.fill, return_param=True)
-        self.assertEqual(param['scaled_size'], (32, 16))
-        self.assertEqual(param['x_offset'], 18)
-        self.assertEqual(param['y_offset'], 0)
-
-    def test_resize_contain_canvas_small_y(self):
-        img = np.random.uniform(size=(3, 32, 64))
-
-        out, param = resize_contain(
-            img, (16, 24), fill=self.fill, return_param=True)
-        self.assertEqual(param['scaled_size'], (16, 8))
-        self.assertEqual(param['x_offset'], 0)
-        self.assertEqual(param['y_offset'], 8)
+        if self.y_offset > 0 or self.x_offset > 0:
+            if isinstance(self.fill, int):
+                fill = (self.fill,) * 3
+            else:
+                fill = self.fill
+            np.testing.assert_array_equal(
+                out[:, 0, 0], np.array(fill).flatten())
 
 
 testing.run_module(__name__, __file__)

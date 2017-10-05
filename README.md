@@ -7,7 +7,7 @@
 
 ChainerCV is a collection of tools to train and run neural networks for computer vision tasks using [Chainer](https://github.com/chainer/chainer).
 
-You can find the documentation [here](http://chainercv.readthedocs.io/en/latest/).
+You can find the documentation [here](http://chainercv.readthedocs.io/en/stable/).
 
 ![Example are outputs of detection models supported by ChainerCV](https://cloud.githubusercontent.com/assets/2062128/26337670/44a2a202-3fb5-11e7-8b88-6eb9886a9915.png)
 These are the outputs of the detection models supported by ChainerCV.
@@ -15,17 +15,18 @@ These are the outputs of the detection models supported by ChainerCV.
 
 # Installation
 
-```
+```bash
+$ pip install -U numpy
 $ pip install chainercv
 ```
 
-The instruction on installation using Anaconda is [here](http://chainercv.readthedocs.io/en/latest/#install-guide) (recommended).
+The instruction on installation using Anaconda is [here](http://chainercv.readthedocs.io/en/stable/#install-guide) (recommended).
 
 ### Requirements
 
 + [Chainer](https://github.com/chainer/chainer) and its dependencies
-+ Cython
 + Pillow
++ Cython (Build requirements)
 
 For additional features
 
@@ -35,8 +36,21 @@ For additional features
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
 
++ The master branch will work on both the stable version (v2) and the development version (v3).
++ For users using Chainer v1, please use version `0.4.11`, which can be installed by `pip install chainercv==0.4.11`. This branch is unmaintained.
+
 
 # Features
+
+## Data conventions
+
+ChainerCV follows the following conventions.
+
++ Channels of a color image are ordered as RGB. The shape of an image-array is CHW (channel, height, width).
++ Axis-dependent values follow row-column order.
+  + Shape of an image is always represented as `(height, width)`.
+  + Coordinates of bounding boxes are ordered as `(y_min, x_min, y_max, x_max)`. `(y_min, x_min)` and `(y_max, x_max)` are coordinates of the top left and the bottom right vertices of a bounding box respectively.
+  + Coordinates of keypoints are ordered as `(y, x)`.
 
 ## Models
 Currently, ChainerCV supports networks for object detection and semantic segmentation.
@@ -103,7 +117,7 @@ Here is an example where a user rescales and applies a random rotation to an ima
 
 ```python
 from chainer.datasets import get_mnist
-from chainercv.datasets import TransformDataset
+from chainer.datasets import TransformDataset
 from chainercv.transforms import random_rotate
 
 dataset, _ = get_mnist(ndim=3)
@@ -120,4 +134,3 @@ img, label = dataset[0]
 
 As found in the example, `random_rotate` is one of the transforms provided by ChainerCV. Like other transforms, this is just a
 function that takes an array as input.
-Also, `TransformDataset` is a new dataset class added in ChainerCV that overrides the underlying dataset's `__getitem__` by applying `transform` to the values returned by the original `__getitem__`.

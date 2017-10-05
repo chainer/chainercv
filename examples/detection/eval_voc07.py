@@ -1,16 +1,15 @@
 from __future__ import division
 
 import argparse
-import numpy as np
 import sys
 import time
 
 import chainer
 from chainer import iterators
 
-from chainercv.datasets import voc_detection_label_names
-from chainercv.datasets import VOCDetectionDataset
-from chainercv.evaluations import eval_detection_voc_ap
+from chainercv.datasets import voc_bbox_label_names
+from chainercv.datasets import VOCBboxDataset
+from chainercv.evaluations import eval_detection_voc
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
@@ -66,12 +65,12 @@ def main():
             model = SSD512(pretrained_model='voc0712')
 
     if args.gpu >= 0:
-        chainer.cuda.get_device(args.gpu).use()
+        chainer.cuda.get_device_from_id(args.gpu).use()
         model.to_gpu()
 
     model.use_preset('evaluate')
 
-    dataset = VOCDetectionDataset(
+    dataset = VOCBboxDataset(
         year='2007', split='test', use_difficult=True, return_difficult=True)
     iterator = iterators.SerialIterator(
         dataset, args.batchsize, repeat=False, shuffle=False)
@@ -84,17 +83,16 @@ def main():
     pred_bboxes, pred_labels, pred_scores = pred_values
     gt_bboxes, gt_labels, gt_difficults = gt_values
 
-    ap = eval_detection_voc_ap(
+    result = eval_detection_voc(
         pred_bboxes, pred_labels, pred_scores,
         gt_bboxes, gt_labels, gt_difficults,
         use_07_metric=True)
-    map_ = np.nanmean(ap)
 
     print()
-    print('mAP: {:f}'.format(map_))
-    for l, name in enumerate(voc_detection_label_names):
-        if ap[l]:
-            print('{:s}: {:f}'.format(name, ap[l]))
+    print('mAP: {:f}'.format(result['map']))
+    for l, name in enumerate(voc_bbox_label_names):
+        if result['ap'][l]:
+            print('{:s}: {:f}'.format(name, result['ap'][l]))
         else:
             print('{:s}: -'.format(name))
 

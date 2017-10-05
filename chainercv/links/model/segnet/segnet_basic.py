@@ -1,15 +1,18 @@
 from __future__ import division
 
 import numpy as np
-import os
 
 import chainer
-from chainer.dataset.download import get_dataset_directory
 import chainer.functions as F
 import chainer.links as L
 
 from chainercv.transforms import resize
-from chainercv.utils import download
+from chainercv.utils import download_model
+
+
+def _without_cudnn(f, x):
+    with chainer.using_config('use_cudnn', 'never'):
+        return f(x)
 
 
 class SegNetBasic(chainer.Chain):
@@ -68,46 +71,40 @@ class SegNetBasic(chainer.Chain):
         if initialW is None:
             initialW = chainer.initializers.HeNormal()
 
-        super(SegNetBasic, self).__init__(
-            conv1=L.Convolution2D(
-                None, 64, 7, 1, 3, nobias=True, initialW=initialW),
-            conv1_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv2=L.Convolution2D(
-                64, 64, 7, 1, 3, nobias=True, initialW=initialW),
-            conv2_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv3=L.Convolution2D(
-                64, 64, 7, 1, 3, nobias=True, initialW=initialW),
-            conv3_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv4=L.Convolution2D(
-                64, 64, 7, 1, 3, nobias=True, initialW=initialW),
-            conv4_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv_decode4=L.Convolution2D(
-                64, 64, 7, 1, 3, nobias=True, initialW=initialW),
-            conv_decode4_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv_decode3=L.Convolution2D(
-                64, 64, 7, 1, 3, nobias=True, initialW=initialW),
-            conv_decode3_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv_decode2=L.Convolution2D(
-                64, 64, 7, 1, 3, nobias=True, initialW=initialW),
-            conv_decode2_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv_decode1=L.Convolution2D(
-                64, 64, 7, 1, 3, nobias=True, initialW=initialW),
-            conv_decode1_bn=L.BatchNormalization(64, initial_beta=0.001),
-            conv_classifier=L.Convolution2D(
+        super(SegNetBasic, self).__init__()
+        with self.init_scope():
+            self.conv1 = L.Convolution2D(
+                None, 64, 7, 1, 3, nobias=True, initialW=initialW)
+            self.conv1_bn = L.BatchNormalization(64, initial_beta=0.001)
+            self.conv2 = L.Convolution2D(
+                64, 64, 7, 1, 3, nobias=True, initialW=initialW)
+            self.conv2_bn = L.BatchNormalization(64, initial_beta=0.001)
+            self.conv3 = L.Convolution2D(
+                64, 64, 7, 1, 3, nobias=True, initialW=initialW)
+            self.conv3_bn = L.BatchNormalization(64, initial_beta=0.001)
+            self.conv4 = L.Convolution2D(
+                64, 64, 7, 1, 3, nobias=True, initialW=initialW)
+            self.conv4_bn = L.BatchNormalization(64, initial_beta=0.001)
+            self.conv_decode4 = L.Convolution2D(
+                64, 64, 7, 1, 3, nobias=True, initialW=initialW)
+            self.conv_decode4_bn = L.BatchNormalization(64, initial_beta=0.001)
+            self.conv_decode3 = L.Convolution2D(
+                64, 64, 7, 1, 3, nobias=True, initialW=initialW)
+            self.conv_decode3_bn = L.BatchNormalization(64, initial_beta=0.001)
+            self.conv_decode2 = L.Convolution2D(
+                64, 64, 7, 1, 3, nobias=True, initialW=initialW)
+            self.conv_decode2_bn = L.BatchNormalization(64, initial_beta=0.001)
+            self.conv_decode1 = L.Convolution2D(
+                64, 64, 7, 1, 3, nobias=True, initialW=initialW)
+            self.conv_decode1_bn = L.BatchNormalization(64, initial_beta=0.001)
+            self.conv_classifier = L.Convolution2D(
                 64, n_class, 1, 1, 0, initialW=initialW)
-        )
+
         self.n_class = n_class
-        self.train = True
 
         if pretrained_model in self._models:
-            data_root = get_dataset_directory('pfnet/chainercv/models')
-            url = self._models[pretrained_model]['url']
-            fn = os.path.basename(url)
-            dest_fn = os.path.join(data_root, fn)
-            if not os.path.exists(dest_fn):
-                download_file = download.cached_download(url)
-                os.rename(download_file, dest_fn)
-            chainer.serializers.load_npz(dest_fn, self)
+            path = download_model(self._models[pretrained_model]['url'])
+            chainer.serializers.load_npz(path, self)
         elif pretrained_model:
             chainer.serializers.load_npz(pretrained_model, self)
 
@@ -133,23 +130,23 @@ class SegNetBasic(chainer.Chain):
             An image-wise score. Its channel size is :obj:`self.n_class`.
 
         """
-        p1 = F.MaxPooling2D(2, 2, use_cudnn=False)
-        p2 = F.MaxPooling2D(2, 2, use_cudnn=False)
-        p3 = F.MaxPooling2D(2, 2, use_cudnn=False)
-        p4 = F.MaxPooling2D(2, 2, use_cudnn=False)
+        p1 = F.MaxPooling2D(2, 2)
+        p2 = F.MaxPooling2D(2, 2)
+        p3 = F.MaxPooling2D(2, 2)
+        p4 = F.MaxPooling2D(2, 2)
         h = F.local_response_normalization(x, 5, 1, 1e-4 / 5., 0.75)
-        h = p1(F.relu(self.conv1_bn(self.conv1(h), test=not self.train)))
-        h = p2(F.relu(self.conv2_bn(self.conv2(h), test=not self.train)))
-        h = p3(F.relu(self.conv3_bn(self.conv3(h), test=not self.train)))
-        h = p4(F.relu(self.conv4_bn(self.conv4(h), test=not self.train)))
+        h = _without_cudnn(p1, F.relu(self.conv1_bn(self.conv1(h))))
+        h = _without_cudnn(p2, F.relu(self.conv2_bn(self.conv2(h))))
+        h = _without_cudnn(p3, F.relu(self.conv3_bn(self.conv3(h))))
+        h = _without_cudnn(p4, F.relu(self.conv4_bn(self.conv4(h))))
         h = self._upsampling_2d(h, p4)
-        h = self.conv_decode4_bn(self.conv_decode4(h), test=not self.train)
+        h = self.conv_decode4_bn(self.conv_decode4(h))
         h = self._upsampling_2d(h, p3)
-        h = self.conv_decode3_bn(self.conv_decode3(h), test=not self.train)
+        h = self.conv_decode3_bn(self.conv_decode3(h))
         h = self._upsampling_2d(h, p2)
-        h = self.conv_decode2_bn(self.conv_decode2(h), test=not self.train)
+        h = self.conv_decode2_bn(self.conv_decode2(h))
         h = self._upsampling_2d(h, p1)
-        h = self.conv_decode1_bn(self.conv_decode1(h), test=not self.train)
+        h = self.conv_decode1_bn(self.conv_decode1(h))
         score = self.conv_classifier(h)
         return score
 
@@ -168,17 +165,18 @@ class SegNetBasic(chainer.Chain):
             list.
 
         """
-        labels = []
+        labels = list()
         for img in imgs:
             C, H, W = img.shape
-            x = chainer.Variable(
-                self.xp.asarray(img[np.newaxis]), volatile=chainer.flag.ON)
-            score = self.__call__(x)[0].data
+            with chainer.using_config('train', False), \
+                    chainer.function.no_backprop_mode():
+                x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
+                score = self.__call__(x)[0].data
             score = chainer.cuda.to_cpu(score)
             if score.shape != (C, H, W):
                 dtype = score.dtype
-                score = resize(score, (W, H)).astype(dtype)
+                score = resize(score, (H, W)).astype(dtype)
 
-            label = np.argmax(score, axis=0)
+            label = np.argmax(score, axis=0).astype(np.int32)
             labels.append(label)
         return labels

@@ -7,7 +7,7 @@ try:
     import cv2
 
     def _resize(img, size, interpolation):
-        img = img.transpose(1, 2, 0)
+        img = img.transpose((1, 2, 0))
         if interpolation == PIL.Image.NEAREST:
             cv_interpolation = cv2.INTER_NEAREST
         elif interpolation == PIL.Image.BILINEAR:
@@ -16,27 +16,28 @@ try:
             cv_interpolation = cv2.INTER_CUBIC
         elif interpolation == PIL.Image.LANCZOS:
             cv_interpolation = cv2.INTER_LANCZOS4
-        img = cv2.resize(img, dsize=size, interpolation=cv_interpolation)
+        H, W = size
+        img = cv2.resize(img, dsize=(W, H), interpolation=cv_interpolation)
 
         # If input is a grayscale image, cv2 returns a two-dimentional array.
         if len(img.shape) == 2:
             img = img[:, :, np.newaxis]
-        return img.transpose(2, 0, 1)
+        return img.transpose((2, 0, 1))
 
 except ImportError:
-    warnings.warn(
-        'cv2 is not installed on your environment. '
-        'ChainerCV will fall back on Pillow. '
-        'Installation of cv2 is recommended for faster computation. ',
-        RuntimeWarning)
-
     def _resize(img, size, interpolation):
+        warnings.warn(
+            'cv2 is not installed on your environment. '
+            'ChainerCV will fall back on Pillow. '
+            'Installation of cv2 is recommended for faster computation. ',
+            RuntimeWarning)
+
         C = img.shape[0]
-        W, H = size
+        H, W = size
         out = np.empty((C, H, W), dtype=img.dtype)
         for ch, out_ch in zip(img, out):
             ch = PIL.Image.fromarray(ch, mode='F')
-            out_ch[:] = ch.resize(size, resample=interpolation)
+            out_ch[:] = ch.resize((W, H), resample=interpolation)
         return out
 
 
@@ -57,7 +58,7 @@ def resize(img, size, interpolation=PIL.Image.BILINEAR):
         img (~numpy.ndarray): An array to be transformed.
             This is in CHW format and the type should be :obj:`numpy.float32`.
         size (tuple): This is a tuple of length 2. Its elements are
-            ordered as (width, height).
+            ordered as (height, width).
         interpolation (int): Determines sampling strategy. This is one of
             :obj:`PIL.Image.NEAREST`, :obj:`PIL.Image.BILINEAR`,
             :obj:`PIL.Image.BICUBIC`, :obj:`PIL.Image.LANCZOS`.

@@ -3,12 +3,14 @@
 ## Performance
 PASCAL VOC2007 Test
 
-| Model | Original | ChainerCV |
-|:-:|:-:|:-:|
-| SSD300 | 77.5 % [2] | 77.8 % |
-| SSD512 | 79.5 % [2] | 79.7 % |
+| Model | Original | ChainerCV (weight conversion) | ChainerCV (train) |
+|:-:|:-:|:-:|:-:|
+| SSD300 | 77.5 % [2] | 77.8 % | 77.5 % |
+| SSD512 | 79.5 % [2] | 79.7 % | 80.1 % * |
 
 Scores are mean Average Precision (mAP) with PASCAL VOC2007 metric.
+
+\*: We set batchsize to 24 because of memory limitation. The original paper used 32.
 
 ## Demo
 Detect objects in an given image. This demo downloads Pascal VOC pretrained model automatically if a pretrained model path is not given.
@@ -21,6 +23,20 @@ Convert `*.caffemodel` to `*.npz`. Some layers are renamed to fit ChainerCV. SSD
 ```
 $ python caffe2npz <source>.caffemodel <target>.npz
 ```
+
+## Evaluation
+The evaluation can be conducted using [`chainercv/examples/detection/eval_voc07.py`](https://github.com/chainer/chainercv/blob/master/examples/detection).
+
+## Train
+You can train the model with the following code.
+Note that this code requires `cv2` module.
+```
+$ python train.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--gpu <gpu>]
+```
+
+You can download weights that were trained by ChainerCV.
+- [SSD300](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/ssd300_voc0712_trained_2017_08_08.npz)
+- [SSD512](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/ssd512_voc0712_trained_batchsize_24_2017_08_08.npz)
 
 ## References
 1. Wei Liu, et al. "SSD: Single shot multibox detector" ECCV 2016.

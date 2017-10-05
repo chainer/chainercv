@@ -5,6 +5,8 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
+from chainercv.utils import assert_is_detection_link
+
 from dummy_faster_rcnn import DummyFasterRCNN
 
 
@@ -58,39 +60,13 @@ class TestFasterRCNN(unittest.TestCase):
         self.link.to_gpu()
         self.check_call()
 
-    def check_predict(self):
-        imgs = [
-            _random_array(np, (3, 640, 480)),
-            _random_array(np, (3, 320, 320))]
-
-        bboxes, labels, scores = self.link.predict(imgs)
-
-        self.assertEqual(len(bboxes), len(imgs))
-        self.assertEqual(len(labels), len(imgs))
-        self.assertEqual(len(scores), len(imgs))
-
-        for bbox, label, score in zip(bboxes, labels, scores):
-            self.assertIsInstance(bbox, np.ndarray)
-            self.assertEqual(bbox.dtype, np.float32)
-            self.assertEqual(bbox.ndim, 2)
-            self.assertLessEqual(bbox.shape[0], self.n_roi)
-            self.assertEqual(bbox.shape[1], 4)
-
-            self.assertIsInstance(label, np.ndarray)
-            self.assertEqual(label.dtype, np.int32)
-            self.assertEqual(label.shape, (bbox.shape[0],))
-
-            self.assertIsInstance(score, np.ndarray)
-            self.assertEqual(score.dtype, np.float32)
-            self.assertEqual(score.shape, (bbox.shape[0],))
-
     def test_predict_cpu(self):
-        self.check_predict()
+        assert_is_detection_link(self.link, self.n_class - 1)
 
     @attr.gpu
     def test_predict_gpu(self):
         self.link.to_gpu()
-        self.check_predict()
+        assert_is_detection_link(self.link, self.n_class - 1)
 
 
 @testing.parameterize(

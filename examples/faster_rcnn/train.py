@@ -1,31 +1,68 @@
 from __future__ import division
 
-try:
-    import matplotlib
-    matplotlib.use('agg')
-except ImportError:
-    pass
-
 import argparse
 import numpy as np
 
 import chainer
+from chainer.datasets import TransformDataset
 from chainer import training
 from chainer.training import extensions
 from chainer.training.triggers import ManualScheduleTrigger
 
-from chainercv.datasets import TransformDataset
-from chainercv.datasets import voc_detection_label_names
-from chainercv.datasets import VOCDetectionDataset
+from chainercv.datasets import voc_bbox_label_names
+from chainercv.datasets import VOCBboxDataset
 from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 from chainercv import transforms
 
 
+class ConcatenatedDataset(chainer.dataset.DatasetMixin):
+
+    def __init__(self, *datasets):
+        self._datasets = datasets
+
+    def __len__(self):
+        return sum(len(dataset) for dataset in self._datasets)
+
+    def get_example(self, i):
+        if i < 0:
+            raise IndexError
+        for dataset in self._datasets:
+            if i < len(dataset):
+                return dataset[i]
+            i -= len(dataset)
+        raise IndexError
+
+
+class Transform(object):
+
+    def __init__(self, faster_rcnn):
+        self.faster_rcnn = faster_rcnn
+
+    def __call__(self, in_data):
+        img, bbox, label = in_data
+        _, H, W = img.shape
+        img = self.faster_rcnn.prepare(img)
+        _, o_H, o_W = img.shape
+        scale = o_H / H
+        bbox = transforms.resize_bbox(bbox, (H, W), (o_H, o_W))
+
+        # horizontally flip
+        img, params = transforms.random_flip(
+            img, x_random=True, return_param=True)
+        bbox = transforms.flip_bbox(
+            bbox, (o_H, o_W), x_flip=params['x_flip'])
+
+        return img, bbox, label, scale
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='ChainerCV training example: Faster R-CNN')
+    parser.add_argument('--dataset', choices=('voc07', 'voc0712'),
+                        help='The dataset to use: VOC07, VOC07+12',
+                        default='voc07')
     parser.add_argument('--gpu', '-g', type=int, default=-1)
     parser.add_argument('--lr', '-l', type=float, default=1e-3)
     parser.add_argument('--out', '-o', default='result',
@@ -37,35 +74,26 @@ def main():
 
     np.random.seed(args.seed)
 
-    train_data = VOCDetectionDataset(split='trainval', year='2007')
-    test_data = VOCDetectionDataset(split='test', year='2007',
-                                    use_difficult=True, return_difficult=True)
-    faster_rcnn = FasterRCNNVGG16(n_fg_class=len(voc_detection_label_names),
+    if args.dataset == 'voc07':
+        train_data = VOCBboxDataset(split='trainval', year='2007')
+    elif args.dataset == 'voc0712':
+        train_data = ConcatenatedDataset(
+            VOCBboxDataset(year='2007', split='trainval'),
+            VOCBboxDataset(year='2012', split='trainval'))
+    test_data = VOCBboxDataset(split='test', year='2007',
+                               use_difficult=True, return_difficult=True)
+    faster_rcnn = FasterRCNNVGG16(n_fg_class=len(voc_bbox_label_names),
                                   pretrained_model='imagenet')
     faster_rcnn.use_preset('evaluate')
     model = FasterRCNNTrainChain(faster_rcnn)
     if args.gpu >= 0:
-        model.to_gpu(args.gpu)
-        chainer.cuda.get_device(args.gpu).use()
+        chainer.cuda.get_device_from_id(args.gpu).use()
+        model.to_gpu()
     optimizer = chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9)
     optimizer.setup(model)
     optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
-    def transform(in_data):
-        img, bbox, label = in_data
-        _, H, W = img.shape
-        img = faster_rcnn.prepare(img)
-        _, o_H, o_W = img.shape
-        scale = o_H / H
-        bbox = transforms.resize_bbox(bbox, (W, H), (o_W, o_H))
-
-        # horizontally flip
-        img, params = transforms.random_flip(
-            img, x_random=True, return_param=True)
-        bbox = transforms.flip_bbox(bbox, (o_W, o_H), params['x_flip'])
-
-        return img, bbox, label, scale
-    train_data = TransformDataset(train_data, transform)
+    train_data = TransformDataset(train_data, Transform(faster_rcnn))
 
     train_iter = chainer.iterators.MultiprocessIterator(
         train_data, batch_size=1, n_processes=None, shared_mem=100000000)
@@ -113,10 +141,9 @@ def main():
     trainer.extend(
         DetectionVOCEvaluator(
             test_iter, model.faster_rcnn, use_07_metric=True,
-            label_names=voc_detection_label_names),
+            label_names=voc_bbox_label_names),
         trigger=ManualScheduleTrigger(
-            [args.step_size, args.iteration], 'iteration'),
-        invoke_before_training=False)
+            [args.step_size, args.iteration], 'iteration'))
 
     trainer.extend(extensions.dump_graph('main/loss'))
 

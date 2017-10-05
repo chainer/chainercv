@@ -17,6 +17,12 @@ First, move to this directory (i.e., `examples/segnet`) and run:
 python train.py [--gpu <gpu>]
 ```
 
+PlotReport extension uses matplotlib. If you got `RuntimeError: Invalid DISPLAY variable` error on Linux environment, adding an environment variable specification is recommended:
+
+```
+$ MPLBACKEND=Agg python train.py [--gpu <gpu>]
+```
+
 ## NOTE
 
 - According to the original implementation, the authors performed LR flipping to the input images for data augmentation: https://github.com/alexgkendall/caffe-segnet/blob/segnet-cleaned/src/caffe/layers/dense_image_data_layer.cpp#L168-L175
@@ -46,33 +52,28 @@ python demo.py [--gpu <gpu>] [--pretrained_model <model_path>] 0001TP_008550.png
 The trained weights to replicate the same results as below is here: [model_iteration-16000](https://www.dropbox.com/s/exas66necaqbxyw/model_iteration-16000).
 
 ```
-python evaluate.py [GPU ID] [MODEL SNAPSHOT]
+python eval_camvid.py [--gpu <gpu>] [--pretrained_model <model_path>] [--batchsize <batchsize>]
 ```
 
-e.g.,
-
-```
-python evaluate.py 0 result/model_iteration-16000
-```
 
 # Results
 
 Once you execute the above evaluation script, you will see the values of intersection over union (IoU) for each class, the mean IoU over all the classes, class average accuracy, and global average accuracy like this:
 
 ```
-                    Sky : 0.8675
-               Building : 0.6487
-                   Pole : 0.1795
-           Road_marking : 0.8493
-                   Road : 0.6230
-               Pavement : 0.6051
-                   Tree : 0.1813
-             SignSymbol : 0.1901
-              Fence,Car : 0.5924
-             Pedestrian : 0.2402
-              Bicyclist : 0.2111
+                    Sky : 0.8790
+               Building : 0.6684
+                   Pole : 0.1923
+                   Road : 0.8739
+               Pavement : 0.6421
+                   Tree : 0.6227
+             SignSymbol : 0.1893
+                  Fence : 0.2137
+                    Car : 0.6355
+             Pedestrian : 0.2739
+              Bicyclist : 0.2415
 ==================================
-               mean IoU : 0.4716
+               mean IoU : 0.4939
  Class average accuracy : 0.6705
 Global average accuracy : 0.8266
 ```
@@ -81,12 +82,12 @@ Global average accuracy : 0.8266
 
 | Implementation | Global accuracy | Class accuracy | mean IoU   |
 |:--------------:|:---------------:|:--------------:|:----------:|
-| ChainerCV      | 82.7 %          | **67.1 %**     | **47.2 %** |
+| ChainerCV      | 82.7 %          | **67.1 %**     | **49.4 %** |
 | Official       | **82.8 %**      | 62.3%          | 46.3 %     |
 
-The above values of the official implementation is found here: [Getting Started with SegNet](http://mi.eng.cam.ac.uk/projects/segnet/tutorial.html)
+The above values of the official implementation are found here: [Getting Started with SegNet](http://mi.eng.cam.ac.uk/projects/segnet/tutorial.html)
 
 # Reference
 
-1. Vijay Badrinarayanan, Alex Kendall and Roberto Cipolla "SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation." PAMI, 2017. 
+1. Vijay Badrinarayanan, Alex Kendall and Roberto Cipolla "SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation." PAMI, 2017.
 2. Vijay Badrinarayanan, Ankur Handa and Roberto Cipolla "SegNet: A Deep Convolutional Encoder-Decoder Architecture for Robust Semantic Pixel-Wise Labelling." arXiv preprint arXiv:1505.07293, 2015.

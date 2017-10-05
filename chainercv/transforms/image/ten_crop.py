@@ -25,17 +25,17 @@ def ten_crop(img, size):
         img (~numpy.ndarray): An image array to be cropped. This is in
             CHW format.
         size (tuple): The size of output images after cropping.
-            This value is :math:`(width, height)`.
+            This value is :math:`(height, width)`.
 
     Returns:
         The cropped arrays. The shape of tensor is :math:`(10, C, H, W)`.
 
     """
-    W, H = size
+    H, W = size
     iH, iW = img.shape[1:3]
 
-    if iW < W or iH < H:
-        raise ValueError('shape of image is larger than output shape')
+    if iH < H or iW < W:
+        raise ValueError('shape of image is smaller than output shape')
 
     crops = np.stack((
         img[:, (iH - H) // 2:(iH + H) // 2, (iW - W) // 2:(iW + W) // 2],

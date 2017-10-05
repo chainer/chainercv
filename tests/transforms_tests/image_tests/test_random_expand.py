@@ -23,8 +23,8 @@ class TestRandomExpand(unittest.TestCase):
         out, param = random_expand(
             img, max_ratio=self.max_ratio, return_param=True)
         ratio = param['ratio']
-        x_offset = param['x_offset']
         y_offset = param['y_offset']
+        x_offset = param['x_offset']
         np.testing.assert_equal(
             out[:, y_offset:y_offset + 64, x_offset:x_offset + 32], img)
         self.assertGreaterEqual(ratio, 1)
@@ -38,7 +38,7 @@ class TestRandomExpand(unittest.TestCase):
 @testing.parameterize(
     {'fill': 128},
     {'fill': (104, 117, 123)},
-    {'fill':  np.random.uniform(255, size=3)},
+    {'fill':  np.random.uniform(255, size=(3, 1, 1))},
 )
 class TestRandomExpandFill(unittest.TestCase):
 
@@ -47,17 +47,17 @@ class TestRandomExpandFill(unittest.TestCase):
 
         while True:
             out, param = random_expand(img, fill=self.fill, return_param=True)
-            x_offset = param['x_offset']
             y_offset = param['y_offset']
-            if x_offset > 0 or y_offset > 0:
+            x_offset = param['x_offset']
+            if y_offset > 0 or x_offset > 0:
                 break
 
         if isinstance(self.fill, int):
-            np.testing.assert_equal(
-                out[:, 0, 0], (self.fill,) * 3)
+            fill = (self.fill,) * 3
         else:
-            np.testing.assert_equal(
-                out[:, 0, 0], self.fill)
+            fill = self.fill
+        np.testing.assert_equal(
+            out[:, 0, 0], np.array(fill).flatten())
 
 
 testing.run_module(__name__, __file__)
