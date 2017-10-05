@@ -24,7 +24,7 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
         :obj:`label_names[l]`, where :math:`l` is the index of the class. \
         For example, this evaluator reports :obj:`'ap/aeroplane'`, \
         :obj:`'ap/bicycle'`, etc. if :obj:`label_names` is \
-        :obj:`~chainercv.datasets.voc_detection_label_names`. \
+        :obj:`~chainercv.datasets.voc_bbox_label_names`. \
         If there is no bounding box assigned to class :obj:`label_names[l]` \
         in either ground truth or prediction, it reports :obj:`numpy.nan` as \
         its average precision. \

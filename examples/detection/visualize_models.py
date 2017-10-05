@@ -5,13 +5,13 @@ from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
 
-from chainercv.datasets import voc_detection_label_names
-from chainercv.datasets import VOCDetectionDataset
+from chainercv.datasets import voc_bbox_label_names
+from chainercv.datasets import VOCBboxDataset
 from chainercv.visualizations import vis_bbox
 
 
 def main():
-    dataset = VOCDetectionDataset(year='2007', split='test')
+    dataset = VOCBboxDataset(year='2007', split='test')
     models = [
         ('Faster R-CNN', FasterRCNNVGG16(pretrained_model='voc07')),
         ('SSD300', SSD300(pretrained_model='voc0712')),
@@ -30,7 +30,7 @@ def main():
                 len(indices), len(models), i * len(models) + j + 1)
             vis_bbox(
                 img, bbox, label, score,
-                label_names=voc_detection_label_names, ax=ax
+                label_names=voc_bbox_label_names, ax=ax
             )
 
             # Set MatplotLib parameters

@@ -9,8 +9,8 @@ from chainer import training
 from chainer.training import extensions
 from chainer.training.triggers import ManualScheduleTrigger
 
-from chainercv.datasets import voc_detection_label_names
-from chainercv.datasets import VOCDetectionDataset
+from chainercv.datasets import voc_bbox_label_names
+from chainercv.datasets import VOCBboxDataset
 from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
@@ -75,14 +75,14 @@ def main():
     np.random.seed(args.seed)
 
     if args.dataset == 'voc07':
-        train_data = VOCDetectionDataset(split='trainval', year='2007')
+        train_data = VOCBboxDataset(split='trainval', year='2007')
     elif args.dataset == 'voc0712':
         train_data = ConcatenatedDataset(
-            VOCDetectionDataset(year='2007', split='trainval'),
-            VOCDetectionDataset(year='2012', split='trainval'))
-    test_data = VOCDetectionDataset(split='test', year='2007',
-                                    use_difficult=True, return_difficult=True)
-    faster_rcnn = FasterRCNNVGG16(n_fg_class=len(voc_detection_label_names),
+            VOCBboxDataset(year='2007', split='trainval'),
+            VOCBboxDataset(year='2012', split='trainval'))
+    test_data = VOCBboxDataset(split='test', year='2007',
+                               use_difficult=True, return_difficult=True)
+    faster_rcnn = FasterRCNNVGG16(n_fg_class=len(voc_bbox_label_names),
                                   pretrained_model='imagenet')
     faster_rcnn.use_preset('evaluate')
     model = FasterRCNNTrainChain(faster_rcnn)
@@ -141,7 +141,7 @@ def main():
     trainer.extend(
         DetectionVOCEvaluator(
             test_iter, model.faster_rcnn, use_07_metric=True,
-            label_names=voc_detection_label_names),
+            label_names=voc_bbox_label_names),
         trigger=ManualScheduleTrigger(
             [args.step_size, args.iteration], 'iteration'))
 
