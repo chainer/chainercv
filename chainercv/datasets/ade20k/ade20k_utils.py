@@ -1,6 +1,8 @@
 # The values used here are copied from CSAILVision/sceneparsing:
 # https://github.com/CSAILVision/sceneparsing
 
+import os
+
 from chainer.dataset import download
 from chainercv import utils
 
