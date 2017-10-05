@@ -3,7 +3,7 @@
 This is a coding style checker used in ChainerCV.
 
 Usage:
-    $ python style_checker.py <directory path>
+    $ python style_checker.py [--exclude <file> [<file> ...]] <directory>
 
 This script checks the following coding rules.
 
@@ -115,6 +115,7 @@ def check_empty_dict(node):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--exclude', nargs='+')
     parser.add_argument('dir')
     args = parser.parse_args()
 
@@ -122,12 +123,17 @@ def main():
 
     for dir, _, files in os.walk(args.dir):
         for file in files:
+            path = os.path.join(dir, file)
             _, ext = os.path.splitext(file)
+
             if not ext == '.py':
                 continue
-            path = os.path.join(dir, file)
-            lines = open(path).readlines()
 
+            if args.exclude is not None and file in args.exclude:
+                print('{:s} : skipped'.format(path))
+                continue
+
+            lines = open(path).readlines()
             for lineno, msg in check(''.join(lines)):
                 print('{:s}:{:d} : {:s}'.format(path, lineno, msg))
                 print(lines[lineno - 1])
