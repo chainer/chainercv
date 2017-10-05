@@ -138,7 +138,8 @@ function that takes an array as input.
 
 # Citation
 
-Please cite the paper if you would use it in your research:
+If ChainerCV helps your research, please cite the paper for ACM Multimedia Open Source competition.
+Here is a BibTex entry:
 
 ```
 @inproceedings{ChainerCV2017,
@@ -148,3 +149,5 @@ Please cite the paper if you would use it in your research:
     year = {2017},
 }
 ```
+
+The preprint can be found in arXiv: https://arxiv.org/abs/1708.08169
