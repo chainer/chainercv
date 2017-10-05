@@ -16,6 +16,10 @@ class CUBLabelDataset(CUBDatasetBase):
     :obj:`img, label`, a tuple of an image and class id.
     The image is in RGB and CHW format.
     The class id are between 0 and 199.
+    If :obj:`return_bb = True`, a bounding box :obj:`bb` is appended to the
+    tuple.
+    If :obj:`return_prob_map = True`, a probability map :obj:`prob_map` is
+    appended.
 
     A bounding box is a one-dimensional array of shape :math:`(4,)`.
     The elements of the bounding box corresponds to
@@ -25,7 +29,7 @@ class CUBLabelDataset(CUBDatasetBase):
     by setting :obj:`return_bb = True`.
 
     The probability map of a bird shows how likely the bird is located at each
-    pixel. If the value is close to 1, it is more likely that a bird
+    pixel. If the value is close to 1, it is likely that the bird
     locates at that pixel. The shape of this array is :math:`(H, W)`,
     where :math:`H` and :math:`W` are height and width of the image
     respectively.
@@ -67,6 +71,12 @@ class CUBLabelDataset(CUBDatasetBase):
 
         Returns:
             tuple of an image and its label.
+            The image is in CHW format and its color channel is ordered in
+            RGB.
+            If :obj:`return_bb = True`,
+            a bounding box is appended to the returned value.
+            If :obj:`return_mask = True`,
+            a probability map is appended to the returned value.
 
         """
         img = utils.read_image(

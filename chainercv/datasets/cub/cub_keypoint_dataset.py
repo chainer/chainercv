@@ -19,10 +19,10 @@ class CUBKeypointDataset(CUBDatasetBase):
     :obj:`img, keypoint, kp_mask`, a tuple of an image, keypoints
     and a keypoint mask that indicates visible keypoints in the image.
     The data type of the three elements are :obj:`float32, float32, bool`.
-    If :obj:`return_prob_map = True`, :obj:`mask` will be returned as well,
-    making the returned tuple to be of length four. :obj:`mask` is a
-    :obj:`uint8` image which indicates the region of the image
-    where a bird locates.
+    If :obj:`return_bb = True`, a bounding box :obj:`bb` is appended to the
+    tuple.
+    If :obj:`return_prob_map = True`, a probability map :obj:`prob_map` is
+    appended.
 
     keypoints are packed into a two dimensional array of shape
     :math:`(K, 2)`, where :math:`K` is the number of keypoints.
@@ -43,7 +43,7 @@ class CUBKeypointDataset(CUBDatasetBase):
     by setting :obj:`return_bb = True`.
 
     The probability map of a bird shows how likely the bird is located at each
-    pixel. If the value is close to 1, it is more likely that a bird
+    pixel. If the value is close to 1, it is likely that the bird
     locates at that pixel. The shape of this array is :math:`(H, W)`,
     where :math:`H` and :math:`W` are height and width of the image
     respectively.
@@ -92,7 +92,21 @@ class CUBKeypointDataset(CUBDatasetBase):
             self.kp_mask_dict[id_].append(kp_mask)
 
     def get_example(self, i):
-        # this i is transformed to id for the entire dataset
+        """Returns the i-th example.
+
+        Args:
+            i (int): The index of the example.
+
+        Returns:
+            tuple of an image, keypoints and a keypoint mask.
+            The image is in CHW format and its color channel is ordered in
+            RGB.
+            If :obj:`return_bb = True`,
+            a bounding box is appended to the returned value.
+            If :obj:`return_mask = True`,
+            a probability map is appended to the returned value.
+
+        """
         img = utils.read_image(
             os.path.join(self.data_dir, 'images', self.paths[i]),
             color=True)
