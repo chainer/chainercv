@@ -124,7 +124,6 @@ def main():
     for dir, _, files in os.walk(args.dir):
         for file in files:
             _, ext = os.path.splitext(file)
-
             if not ext == '.py':
                 continue
 
