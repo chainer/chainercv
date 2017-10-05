@@ -35,30 +35,39 @@ class CUBKeypointDataset(CUBDatasetBase):
     A keypoint mask array indicates whether a keypoint is visible in the
     image or not. This is a boolean array of shape :math:`(K,)`.
 
+    A bounding box is a one-dimensional array of shape :math:`(4,)`.
+    The elements of the bounding box corresponds to
+    :obj:`(y_min, x_min, y_max, x_max)`, where the four attributes are
+    coordinates of the top left and the bottom right vertices.
+    This information can optionally be retrieved from the dataset
+    by setting :obj:`return_bb = True`.
+
     A mask image of the bird shows how likely the bird is located at a
     given pixel. If the value is close to 255, more likely that a bird
     locates at that pixel. The shape of this array is :math:`(1, H, W)`,
     where :math:`H` and :math:`W` are height and width of the image
     respectively.
+    This information can optionally be retrieved from the dataset
+    by setting :obj:`return_mask = True`.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
-        crop_bbox (bool): If true, this class returns an image cropped
-            by the bounding box of the bird inside it.
+        return_bb (bool): If :obj:`True`, this returns a bounding box
+            around a bird. The default value is :obj:`False`.
         mask_dir (string): Path to the root of the mask data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
         return_mask (bool): Decide whether to include mask image of the bird
-            in a tuple served for a query.
+            in a tuple served for a query. The default value is :obj:`False`.
 
     """
 
-    def __init__(self, data_dir='auto', crop_bbox=True,
+    def __init__(self, data_dir='auto', return_bb=False,
                  mask_dir='auto', return_mask=False):
         super(CUBKeypointDataset, self).__init__(
-            data_dir=data_dir, crop_bbox=crop_bbox)
+            data_dir=data_dir, return_bb=return_bb)
         self.return_mask = return_mask
 
         # load keypoint
@@ -89,21 +98,18 @@ class CUBKeypointDataset(CUBDatasetBase):
         keypoint = np.array(self.kp_dict[i], dtype=np.float32)
         kp_mask = np.array(self.kp_mask_dict[i], dtype=np.bool)
 
-        if self.crop_bbox:
-            # (y_min, x_min, y_max, x_max)
-            bbox = self.bboxes[i].astype(np.int32)
-            img = img[:, bbox[0]: bbox[2], bbox[1]: bbox[3]]
-            keypoint[:, :2] = keypoint[:, :2] - bbox[:2]
-
         if not self.return_mask:
-            return img, keypoint, kp_mask
+            if self.return_bb:
+                return img, keypoint, kp_mask, self.bbs[i]
+            else:
+                return img, keypoint, kp_mask
 
         path, _ = os.path.splitext(self.paths[i])
         mask = utils.read_image(
             os.path.join(self.mask_dir, path + '.png'),
             dtype=np.uint8,
             color=False)
-        if self.crop_bbox:
-            mask = mask[:, bbox[0]: bbox[2], bbox[1]: bbox[3]]
-
-        return img, keypoint, kp_mask, mask
+        if self.return_bb:
+            return img, keypoint, kp_mask, self.bbs[i], mask
+        else:
+            return img, keypoint, kp_mask, mask

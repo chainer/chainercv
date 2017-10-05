@@ -17,25 +17,31 @@ class CUBLabelDataset(CUBDatasetBase):
     The image is in RGB and CHW format.
     The class id are between 0 and 199.
 
-    There are 200 labels of birds in total.
+    A bounding box is a one-dimensional array of shape :math:`(4,)`.
+    The elements of the bounding box corresponds to
+    :obj:`(y_min, x_min, y_max, x_max)`, where the four attributes are
+    coordinates of the top left and the bottom right vertices.
+    This information can optionally be retrieved from the dataset
+    by setting :obj:`return_bb = True`.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
-        crop_bbox (bool): If true, this class returns an image cropped
-            by the bounding box of the bird inside it.
+        return_bb (bool): If :obj:`True`, this returns a bounding box
+            around a bird. The default value is :obj:`False`.
 
     """
 
-    def __init__(self, data_dir='auto', crop_bbox=True):
+    def __init__(self, data_dir='auto', return_bb=False):
         super(CUBLabelDataset, self).__init__(
-            data_dir=data_dir, crop_bbox=crop_bbox)
+            data_dir=data_dir, return_bb=return_bb)
 
         image_class_labels_file = os.path.join(
             self.data_dir, 'image_class_labels.txt')
-        self._data_labels = [int(d_label.split()[1]) - 1 for
-                             d_label in open(image_class_labels_file)]
+        labels = [int(d_label.split()[1]) - 1 for
+                  d_label in open(image_class_labels_file)]
+        self._labels = np.array(labels, dtype=np.int32)
 
     def get_example(self, i):
         """Returns the i-th example.
@@ -50,10 +56,8 @@ class CUBLabelDataset(CUBDatasetBase):
         img = utils.read_image(
             os.path.join(self.data_dir, 'images', self.paths[i]),
             color=True)
+        label = self._labels[i]
 
-        if self.crop_bbox:
-            # (y_min, x_min, y_max, x_max)
-            bbox = self.bboxes[i].astype(np.int32)
-            img = img[:, bbox[0]: bbox[2], bbox[1]: bbox[3]]
-        label = self._data_labels[i]
+        if self.return_bb:
+            return img, label, self.bbs[i]
         return img, label
