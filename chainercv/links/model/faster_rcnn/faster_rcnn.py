@@ -270,22 +270,21 @@ class FasterRCNN(chainer.Chain):
 
         """
         prepared_imgs = list()
-        scales = list()
+        sizes = list()
         for img in imgs:
-            _, H, W = img.shape
+            size = img.shape[1:]
             img = self.prepare(img.astype(np.float32))
-            scale = img.shape[2] / W
             prepared_imgs.append(img)
-            scales.append(scale)
+            sizes.append(size)
 
         bboxes = list()
         labels = list()
         scores = list()
-        for img, scale in zip(prepared_imgs, scales):
+        for img, size in zip(prepared_imgs, sizes):
             with chainer.using_config('train', False), \
                     chainer.function.no_backprop_mode():
                 img_var = chainer.Variable(self.xp.asarray(img[None]))
-                H, W = img_var.shape[2:]
+                scale = img_var.shape[3] / size[1]
                 roi_cls_locs, roi_scores, rois, _ = self.__call__(
                     img_var, scale=scale)
             # We are assuming that batch size is 1.
@@ -306,8 +305,8 @@ class FasterRCNN(chainer.Chain):
                                 roi_cls_loc.reshape((-1, 4)))
             cls_bbox = cls_bbox.reshape((-1, self.n_class * 4))
             # clip bounding box
-            cls_bbox[:, 0::2] = self.xp.clip(cls_bbox[:, 0::2], 0, H / scale)
-            cls_bbox[:, 1::2] = self.xp.clip(cls_bbox[:, 1::2], 0, W / scale)
+            cls_bbox[:, 0::2] = self.xp.clip(cls_bbox[:, 0::2], 0, size[0])
+            cls_bbox[:, 1::2] = self.xp.clip(cls_bbox[:, 1::2], 0, size[1])
 
             prob = F.softmax(roi_score).data
 
