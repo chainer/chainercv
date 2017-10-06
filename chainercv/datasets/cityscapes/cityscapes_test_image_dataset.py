@@ -8,7 +8,7 @@ from chainercv.utils import read_image
 
 class CityscapesTestImageDataset(dataset.DatasetMixin):
 
-    """Dataset class for test images of `Cityscapes dataset`_.
+    """Image dataset for test split of `Cityscapes dataset`_.
 
     .. _`Cityscapes dataset`: https://www.cityscapes-dataset.com
 
