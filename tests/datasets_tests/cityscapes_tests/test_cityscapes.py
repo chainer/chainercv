@@ -69,13 +69,13 @@ class TestCityscapesTestImageDataset(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp()
         img_dir = os.path.join(
-            self.temp_dir, 'leftImg8bit/{}/aachen'.format(self.split))
+            self.temp_dir, 'leftImg8bit/test/berlin')
         os.makedirs(img_dir)
         for i in range(10):
             img = np.random.randint(
                 0, 255, size=(3, 128, 160)).astype(np.uint8)
             write_image(img, os.path.join(
-                img_dir, 'aachen_000000_0000{:02d}_leftImg8bit.png'.format(i)))
+                img_dir, 'berlin_000000_0000{:02d}_leftImg8bit.png'.format(i)))
 
         self.dataset = CityscapesTestImageDataset(self.temp_dir)
 
