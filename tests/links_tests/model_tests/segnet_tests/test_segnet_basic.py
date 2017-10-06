@@ -27,7 +27,7 @@ class TestSegNetBasic(unittest.TestCase):
         y = self.link(x)
 
         self.assertIsInstance(y, chainer.Variable)
-        self.assertIsInstance(y.data, xp.ndarray)
+        self.assertIsInstance(y.array, xp.ndarray)
         self.assertEqual(y.shape, (2, self.n_class, 128, 160))
 
     def test_call_cpu(self):

@@ -42,9 +42,9 @@ class TestRegionProposalNetwork(unittest.TestCase):
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.link(
             chainer.Variable(x), img_size)
         self.assertIsInstance(rpn_locs, chainer.Variable)
-        self.assertIsInstance(rpn_locs.data, type(x))
+        self.assertIsInstance(rpn_locs.array, type(x))
         self.assertIsInstance(rpn_scores, chainer.Variable)
-        self.assertIsInstance(rpn_scores.data, type(x))
+        self.assertIsInstance(rpn_scores.array, type(x))
 
         A = len(self.ratios) * len(self.anchor_scales)
         self.assertEqual(rpn_locs.shape, (self.B, H * W * A, 4))

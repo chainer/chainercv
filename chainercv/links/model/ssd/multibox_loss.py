@@ -73,9 +73,9 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
     if not isinstance(gt_mb_labels, chainer.Variable):
         gt_mb_labels = chainer.Variable(gt_mb_labels)
 
-    xp = chainer.cuda.get_array_module(gt_mb_labels.data)
+    xp = chainer.cuda.get_array_module(gt_mb_labels.array)
 
-    positive = gt_mb_labels.data > 0
+    positive = gt_mb_labels.array > 0
     n_positive = positive.sum()
     if n_positive == 0:
         z = chainer.Variable(xp.zeros((), dtype=np.float32))
@@ -87,7 +87,7 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
     loc_loss = F.sum(loc_loss) / n_positive
 
     conf_loss = _elementwise_softmax_cross_entropy(mb_confs, gt_mb_labels)
-    hard_negative = _hard_negative(conf_loss.data, positive, k)
+    hard_negative = _hard_negative(conf_loss.array, positive, k)
     conf_loss *= xp.logical_or(positive, hard_negative).astype(conf_loss.dtype)
     conf_loss = F.sum(conf_loss) / n_positive
 

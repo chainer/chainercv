@@ -288,8 +288,8 @@ class FasterRCNN(chainer.Chain):
                 roi_cls_locs, roi_scores, rois, _ = self.__call__(
                     img_var, scale=scale)
             # We are assuming that batch size is 1.
-            roi_cls_loc = roi_cls_locs.data
-            roi_score = roi_scores.data
+            roi_cls_loc = roi_cls_locs.array
+            roi_score = roi_scores.array
             roi = rois / scale
 
             # Convert predictions to bounding boxes in image coordinates.
@@ -308,7 +308,7 @@ class FasterRCNN(chainer.Chain):
             cls_bbox[:, 0::2] = self.xp.clip(cls_bbox[:, 0::2], 0, size[0])
             cls_bbox[:, 1::2] = self.xp.clip(cls_bbox[:, 1::2], 0, size[1])
 
-            prob = F.softmax(roi_score).data
+            prob = F.softmax(roi_score).array
 
             raw_cls_bbox = cuda.to_cpu(cls_bbox)
             raw_prob = cuda.to_cpu(prob)

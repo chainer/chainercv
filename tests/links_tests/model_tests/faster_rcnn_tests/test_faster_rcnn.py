@@ -39,11 +39,11 @@ class TestFasterRCNN(unittest.TestCase):
         roi_cls_locs, roi_scores, rois, roi_indices = self.link(x1)
 
         self.assertIsInstance(roi_cls_locs, chainer.Variable)
-        self.assertIsInstance(roi_cls_locs.data, xp.ndarray)
+        self.assertIsInstance(roi_cls_locs.array, xp.ndarray)
         self.assertEqual(roi_cls_locs.shape, (self.n_roi, self.n_class * 4))
 
         self.assertIsInstance(roi_scores, chainer.Variable)
-        self.assertIsInstance(roi_scores.data, xp.ndarray)
+        self.assertIsInstance(roi_scores.array, xp.ndarray)
         self.assertEqual(roi_scores.shape, (self.n_roi, self.n_class))
 
         self.assertIsInstance(rois, xp.ndarray)
