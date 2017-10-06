@@ -36,8 +36,9 @@ For additional features
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
 
-+ The master branch will work on both the stable version (v2) and the development version (v3).
++ The master branch will work on both the stable version (v3) and the development version (v4).
 + For users using Chainer v1, please use version `0.4.11`, which can be installed by `pip install chainercv==0.4.11`. This branch is unmaintained.
++ For users using Chainer v2, please use version `0.7`, which can be installed by `pip install chainercv==0.7`. This branch is unmaintained.
 
 
 # Features
