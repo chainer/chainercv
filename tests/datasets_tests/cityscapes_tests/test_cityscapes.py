@@ -79,6 +79,9 @@ class TestCityscapesTestImageDataset(unittest.TestCase):
 
         self.dataset = CityscapesTestImageDataset(self.temp_dir)
 
+    def tearDown(self):
+        shutil.rmtree(self.temp_dir)
+
     @attr.slow
     def test_cityscapes_dataset(self):
         indices = np.random.permutation(np.arange(len(self.dataset)))
