@@ -64,14 +64,10 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
         This function returns two :obj:`chainer.Variable`: :obj:`loc_loss` and
         :obj:`conf_loss`.
     """
-    if not isinstance(mb_locs, chainer.Variable):
-        mb_locs = chainer.Variable(mb_locs)
-    if not isinstance(mb_confs, chainer.Variable):
-        mb_confs = chainer.Variable(mb_confs)
-    if not isinstance(gt_mb_locs, chainer.Variable):
-        gt_mb_locs = chainer.Variable(gt_mb_locs)
-    if not isinstance(gt_mb_labels, chainer.Variable):
-        gt_mb_labels = chainer.Variable(gt_mb_labels)
+    mb_locs = chainer.as_variable(mb_locs)
+    mb_confs = chainer.as_variable(mb_confs)
+    gt_mb_locs = chainer.as_variable(gt_mb_locs)
+    gt_mb_labels = chainer.as_variable(gt_mb_labels)
 
     xp = chainer.cuda.get_array_module(gt_mb_labels.array)
 
