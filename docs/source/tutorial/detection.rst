@@ -2,6 +2,8 @@ Object Detection Tutorial
 =========================
 
 This tutorial will walk you through the implementations and tools for Object Detection provided by ChainerCV.
+We asume that readers have a basic understanding of Chainer framework and terms used there such as :class:`chainer.Link`.
+For users new to Chainer, please read `Introduction to Chainer <https://docs.chainer.org/en/stable/tutorial/basic.html#write-a-model-as-a-chain>`_ first.
 
 In ChainerCV, we define the object detection task as a problem of predicting bounding boxes around regions where objects are located from an image and recognizing the category of the objects.
 ChainerCV supports this task by providing following features:
@@ -81,7 +83,7 @@ Note that the example downloads VOC 2012 dataset at runtime in the first run.
 Detection Link
 --------------
 ChainerCV provides several implementations that predicts solutions of the object detection problem.
-For example, we support Single Shot MultiBox Detector (SSD) and Faster R-CNN.
+For example, we support Single Shot MultiBox Detector (SSD) [Liu16]_ and Faster R-CNN [Ren15]_.
 Despite the difference between the models in how prediction is carried out internally,
 they support the common interface for prediction using the method :meth:`predict`.
 This method takes a list of images and returns prediction results.
@@ -170,3 +172,15 @@ Also, ChainerCV posts the performance achieved through running the training scri
 
 + `Faster R-CNN examples <https://github.com/chainer/chainercv/tree/master/examples/faster_rcnn>`_
 + `SSD examples <https://github.com/chainer/chainercv/tree/master/examples/ssd>`_
+
+
+References
+..........
+
+.. [Ren15] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
+    Faster R-CNN: Towards Real-Time Object Detection with \
+    Region Proposal Networks. NIPS 2015.
+
+.. [Liu16] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+    Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+    SSD: Single Shot MultiBox Detector. ECCV 2016.
