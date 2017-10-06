@@ -50,7 +50,7 @@ class TestNormalize(unittest.TestCase):
         self._check_forward(np.zeros_like(self.x))
 
     @attr.gpu
-    def test_forward_zero__gpu(self):
+    def test_forward_zero_gpu(self):
         self.link.to_gpu()
         self._check_forward(chainer.cuda.to_gpu(np.zeros_like(self.x)))
 
