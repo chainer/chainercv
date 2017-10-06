@@ -10,7 +10,7 @@ from chainercv import utils
 root = 'pfnet/chainercv/cub'
 url = 'http://www.vision.caltech.edu/visipedia-data/CUB-200-2011/'\
     'CUB_200_2011.tgz'
-mask_url = 'http://www.vision.caltech.edu/visipedia-data/'\
+prob_map_url = 'http://www.vision.caltech.edu/visipedia-data/'\
     'CUB-200-2011/segmentations.tgz'
 
 
@@ -27,17 +27,17 @@ def get_cub():
     return base_path
 
 
-def get_cub_mask():
+def get_cub_prob_map():
     data_root = download.get_dataset_directory(root)
     base_path = os.path.join(data_root, 'segmentations')
     if os.path.exists(base_path):
         # skip downloading
         return base_path
 
-    download_file_path_mask = utils.cached_download(mask_url)
-    ext_mask = os.path.splitext(mask_url)[1]
+    prob_map_download_file_path = utils.cached_download(prob_map_url)
+    prob_map_ext = os.path.splitext(prob_map_url)[1]
     utils.extractall(
-        download_file_path_mask, data_root, ext_mask)
+        prob_map_download_file_path, data_root, prob_map_ext)
     return base_path
 
 
@@ -47,13 +47,14 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
 
     """
 
-    def __init__(self, data_dir='auto', mask_dir='auto', return_bb=False):
+    def __init__(self, data_dir='auto', return_bb=False,
+                 prob_map_dir='auto', return_prob_map=False):
         if data_dir == 'auto':
             data_dir = get_cub()
-        if mask_dir == 'auto':
-            mask_dir = get_cub_mask()
+        if prob_map_dir == 'auto':
+            prob_map_dir = get_cub_prob_map()
         self.data_dir = data_dir
-        self.mask_dir = mask_dir
+        self.prob_map_dir = prob_map_dir
 
         imgs_file = os.path.join(data_dir, 'images.txt')
         bbs_file = os.path.join(data_dir, 'bounding_boxes.txt')
@@ -71,7 +72,12 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
         bbs[:] = bbs[:, [1, 0, 3, 2]]
         self.bbs = bbs.astype(np.float32)
 
+        self.prob_map_paths = [
+            os.path.join(self.prob_map_dir, os.path.splitext(path)[0] + '.png')
+            for path in self.paths]
+
         self.return_bb = return_bb
+        self.return_prob_map = return_prob_map
 
     def __len__(self):
         return len(self.paths)
