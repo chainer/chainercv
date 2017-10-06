@@ -34,10 +34,10 @@ def get_cub_prob_map():
         # skip downloading
         return base_path
 
-    download_file_path_prob_map = utils.cached_download(prob_map_url)
-    ext_prob_map = os.path.splitext(prob_map_url)[1]
+    prob_map_download_file_path = utils.cached_download(prob_map_url)
+    prob_map_ext = os.path.splitext(prob_map_url)[1]
     utils.extractall(
-        download_file_path_prob_map, data_root, ext_prob_map)
+        prob_map_download_file_path, data_root, prob_map_ext)
     return base_path
 
 
