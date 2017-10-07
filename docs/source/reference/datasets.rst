@@ -40,6 +40,10 @@ CityscapesSemanticSegmentationDataset
 -------------------------------------
 .. autoclass:: CityscapesSemanticSegmentationDataset
 
+CityscapesTestImageDataset
+--------------------------
+.. autoclass:: CityscapesTestImageDataset
+
 CUB
 ---
 
