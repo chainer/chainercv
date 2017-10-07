@@ -19,14 +19,14 @@ class CityscapesTestImageDataset(dataset.DatasetMixin):
 
     Args:
         data_dir (string): Path to the dataset directory. The directory should
-            contain the :obj:`leftImg8bit` directory. If :obj:`None` is given,
+            contain the :obj:`leftImg8bit` directory. If :obj:`auto` is given,
             it uses :obj:`$CHAINER_DATSET_ROOT/pfnet/chainercv/cityscapes` by
             default.
 
     """
 
-    def __init__(self, data_dir=None):
-        if data_dir is None:
+    def __init__(self, data_dir='auto'):
+        if data_dir == 'auto':
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/cityscapes')
 
