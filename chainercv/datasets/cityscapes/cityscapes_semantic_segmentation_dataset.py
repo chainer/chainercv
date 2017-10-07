@@ -23,7 +23,7 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
     Args:
         data_dir (string): Path to the dataset directory. The directory should
             contain at least two directories, :obj:`leftImg8bit` and either
-            :obj:`gtFine` or :obj:`gtCoarse`. If :obj:`None` is given, it uses
+            :obj:`gtFine` or :obj:`gtCoarse`. If :obj:`auto` is given, it uses
             :obj:`$CHAINER_DATSET_ROOT/pfnet/chainercv/cityscapes` by default.
         label_resolution ({'fine', 'coarse'}): The resolution of the labels. It
             should be either :obj:`fine` or :obj:`coarse`.
@@ -37,9 +37,9 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
 
     """
 
-    def __init__(self, data_dir=None, label_resolution=None, split='train',
+    def __init__(self, data_dir='auto', label_resolution=None, split='train',
                  ignore_labels=True):
-        if data_dir is None:
+        if data_dir == 'auto':
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/cityscapes')
         if label_resolution not in ['fine', 'coarse']:
