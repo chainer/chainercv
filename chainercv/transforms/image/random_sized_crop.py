@@ -34,7 +34,7 @@ def random_sized_crop(img,
 
     .. note::
 
-        When it fails to sample valid scale and aspect ratios for ten
+        When it fails to sample a valid scale and aspect ratio for ten
         times, it picks values in a non-uniform way.
         If this happens, the selected scale ratio can be smaller
         than :obj:`scale_ratio_interval[0]`.
@@ -47,7 +47,7 @@ def random_sized_crop(img,
             8~100% of the original image. This is the default
             setting used to train ResNets in Torch style.
         aspect_ratio_interval (tuple of two floats): Determines
-            the distribution from which an aspect ratios is sampled.
+            the distribution from which an aspect ratio is sampled.
             The default values are
             :math:`\\frac{3}{4}` and :math:`\\frac{4}{3}`, which
             are also the default setting to train ResNets in Torch style.
