@@ -7,8 +7,8 @@ import chainer.functions as F
 from chainer import initializers
 import chainer.links as L
 
-from chainercv.links.model.resnet.building_block import BuildingBlock
 from chainercv.links import Conv2DBNActiv
+from chainercv.links.model.resnet.building_block import BuildingBlock
 from chainercv.links import PickableSequentialChain
 from chainercv.utils import download_model
 
