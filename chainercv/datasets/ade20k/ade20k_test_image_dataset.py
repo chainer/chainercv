@@ -2,19 +2,13 @@ import glob
 import os
 
 from chainer import dataset
-from chainer.dataset import download
-from chainercv import utils
 from chainercv.utils import read_image
+
+from chainercv.datasets.ade20k.ade20k_utils import get_ade20k
+
 
 root = 'pfnet/chainercv/ade20k'
 url = 'http://data.csail.mit.edu/places/ADEchallenge/release_test.zip'
-
-
-def get_ade20k():
-    data_root = download.get_dataset_directory(root)
-    cache_path = utils.cached_download(url)
-    utils.extractall(cache_path, data_root, os.path.splitext(url)[1])
-    return data_root
 
 
 class ADE20KTestImageDataset(dataset.DatasetMixin):
@@ -36,7 +30,7 @@ class ADE20KTestImageDataset(dataset.DatasetMixin):
 
     def __init__(self, data_dir='auto'):
         if data_dir is 'auto':
-            data_dir = get_ade20k()
+            data_dir = get_ade20k(root, url)
         img_dir = os.path.join(data_dir, 'release_test', 'testing')
         self.img_paths = sorted(glob.glob(os.path.join(img_dir, '*.jpg')))
 

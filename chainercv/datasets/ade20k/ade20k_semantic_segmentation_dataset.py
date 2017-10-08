@@ -4,19 +4,13 @@ import os
 import numpy as np
 
 from chainer import dataset
-from chainer.dataset import download
-from chainercv import utils
 from chainercv.utils import read_image
+
+from chainercv.datasets.ade20k.ade20k_utils import get_ade20k
+
 
 root = 'pfnet/chainercv/ade20k'
 url = 'http://data.csail.mit.edu/places/ADEchallenge/ADEChallengeData2016.zip'
-
-
-def get_ade20k():
-    data_root = download.get_dataset_directory(root)
-    cache_path = utils.cached_download(url)
-    utils.extractall(cache_path, data_root, os.path.splitext(url)[1])
-    return data_root
 
 
 class ADE20KSemanticSegmentationDataset(dataset.DatasetMixin):
@@ -42,7 +36,7 @@ class ADE20KSemanticSegmentationDataset(dataset.DatasetMixin):
 
     def __init__(self, data_dir='auto', split='train'):
         if data_dir is 'auto':
-            data_dir = get_ade20k()
+            data_dir = get_ade20k(root, url)
 
         if split == 'train' or split == 'val':
             img_dir = os.path.join(
