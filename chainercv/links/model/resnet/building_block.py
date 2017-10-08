@@ -29,18 +29,16 @@ class BuildingBlock(PickableSequentialChain):
 
     def __init__(self, n_layer, in_channels, mid_channels,
                  out_channels, stride, initialW=None, stride_first=False):
-        shortcut = Conv2DBNActiv(in_channels, out_channels, 1, stride, 0,
-                                 nobias=True, initialW=initialW,
-                                 activ=lambda x: x)
         super(BuildingBlock, self).__init__()
         with self.init_scope():
             self.a = Bottleneck(
                 in_channels, mid_channels, out_channels, stride, initialW,
-                shortcut=shortcut, stride_first=stride_first)
+                conv_shortcut=True, stride_first=stride_first)
             for i in range(n_layer - 1):
                 name = 'b{}'.format(i + 1)
                 bottleneck = Bottleneck(out_channels, mid_channels,
-                                        out_channels, initialW=initialW)
+                                        out_channels, stride=1,
+                                        initialW=initialW, conv_shortcut=True)
                 setattr(self, name, bottleneck)
 
 
@@ -55,9 +53,8 @@ class Bottleneck(chainer.Chain):
         stride (int or tuple of ints): Stride of filter application.
         initialW (4-D array): Initial weight value used in
             the convolutional layers.
-        shortcut (callable): The residual is calculated with this.
-            If this is :obj:`None`, the residual is the same
-            as the input.
+        conv_shortcut (bool): If :obj:`True`, apply a 1x1 convolution
+            to the residual.
         stride_first (bool): If :obj:`True`, apply strided convolution
             with the first convolution layer. Otherwise, apply
             strided convolution with the second convolution layer.
@@ -65,7 +62,7 @@ class Bottleneck(chainer.Chain):
     """
 
     def __init__(self, in_channels, mid_channels, out_channels,
-                 stride=1, initialW=None, shortcut=None,
+                 stride=1, initialW=None, conv_shortcut=False,
                  stride_first=False):
         if stride_first:
             first_stride = stride
@@ -84,16 +81,18 @@ class Bottleneck(chainer.Chain):
             self.conv3 = Conv2DBNActiv(mid_channels, out_channels, 1, 1, 0,
                                        initialW=initialW, nobias=True,
                                        activ=lambda x: x)
-            if shortcut is not None:
-                self.shortcut = shortcut
+            if conv_shortcut:
+                self.conv_shortcut = Conv2DBNActiv(
+                    in_channels, out_channels, 1, stride, 0,
+                    nobias=True, initialW=initialW, activ=lambda x: x)
 
     def __call__(self, x):
         h = self.conv1(x)
         h = self.conv2(h)
         h = self.conv3(h)
 
-        if hasattr(self, 'shortcut'):
-            residual = self.shortcut(x)
+        if hasattr(self, 'conv_shortcut'):
+            residual = self.conv_shortcut(x)
         else:
             residual = x
         h += residual
