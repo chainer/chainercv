@@ -3,10 +3,8 @@ import chainer.functions as F
 
 from chainercv.links import Conv2DBNActiv
 
-from chainercv.links import PickableSequentialChain
 
-
-class BuildingBlock(PickableSequentialChain):
+class BuildingBlock(chainer.ChainList):
 
     """A building block that consists of several Bottleneck layers.
 
@@ -30,16 +28,19 @@ class BuildingBlock(PickableSequentialChain):
     def __init__(self, n_layer, in_channels, mid_channels,
                  out_channels, stride, initialW=None, stride_first=False):
         super(BuildingBlock, self).__init__()
-        with self.init_scope():
-            self.a = Bottleneck(
-                in_channels, mid_channels, out_channels, stride, initialW,
-                conv_shortcut=True, stride_first=stride_first)
-            for i in range(n_layer - 1):
-                name = 'b{}'.format(i + 1)
-                bottleneck = Bottleneck(out_channels, mid_channels,
-                                        out_channels, stride=1,
-                                        initialW=initialW, conv_shortcut=True)
-                setattr(self, name, bottleneck)
+        self.add_link(Bottleneck(
+            in_channels, mid_channels, out_channels, stride,
+            initialW, conv_shortcut=True, stride_first=stride_first))
+        for i in range(n_layer - 1):
+            self.add_link(Bottleneck(
+                out_channels, mid_channels, out_channels, stride=1,
+                initialW=initialW, conv_shortcut=False))
+
+    def __call__(self, x):
+        h = x
+        for func in self:
+            h = func(h)
+        return h
 
 
 class Bottleneck(chainer.Chain):
