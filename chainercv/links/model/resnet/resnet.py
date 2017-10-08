@@ -88,6 +88,7 @@ class ResNet(PickableSequentialChain):
             by `the original ResNet paper \
             <https://arxiv.org/pdf/1512.03385.pdf>`_.
             This option changes where to apply strided convolution.
+            The default value is :obj:`True`.
 
     """
 
@@ -133,7 +134,7 @@ class ResNet(PickableSequentialChain):
     def __init__(self, model_name,
                  n_class=None,
                  pretrained_model=None,
-                 mean=None, initialW=None, fb_resnet=False):
+                 mean=None, initialW=None, fb_resnet=True):
         if fb_resnet:
             if pretrained_model == 'imagenet':
                 raise ValueError(
