@@ -4,7 +4,6 @@ import numpy as np
 
 from chainer import testing
 from chainer.testing import attr
-from chainer.testing import condition
 
 from chainercv.datasets import coco_bbox_label_names
 from chainercv.datasets import COCOBboxDataset
@@ -42,7 +41,6 @@ class TestCOCOBboxDataset(unittest.TestCase):
 
             if not self.use_crowded:
                 np.testing.assert_equal(crowded, 0)
-
 
 
 testing.run_module(__name__, __file__)

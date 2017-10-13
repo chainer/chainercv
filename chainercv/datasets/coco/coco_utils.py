@@ -21,6 +21,7 @@ anno_urls = {
     'instances_minival2014.json.zip'
 }
 
+
 def get_coco(split, img_split):
     url = img_urls[img_split]
     data_dir = download.get_dataset_directory(root)
