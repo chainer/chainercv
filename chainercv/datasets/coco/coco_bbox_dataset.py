@@ -166,6 +166,7 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
         if not self.use_crowded:
             bbox = bbox[np.logical_not(crowded)]
             label = label[np.logical_not(crowded)]
+            crowded = crowded[np.logical_not(crowded)]
 
         if self.return_crowded:
             return img, bbox, label, crowded
