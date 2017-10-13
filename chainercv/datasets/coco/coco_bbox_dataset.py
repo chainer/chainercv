@@ -12,9 +12,9 @@ from chainercv.datasets.coco.coco_utils import get_coco
 
 class COCOBboxDataset(chainer.dataset.DatasetMixin):
 
-    """Dataset class for the detection task of `MS COCO`_.
+    """Dataset class for the detection task of `MS COCO2014`_.
 
-    .. _`MS COCO`: http://mscoco.org/dataset/#detections-challenge2015
+    .. _`MS COCO2014`: http://mscoco.org/dataset/#detections-challenge2015
 
     When queried by an index, if :obj:`return_crowded == False`,
     this dataset returns a corresponding
