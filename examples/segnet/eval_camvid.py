@@ -50,11 +50,10 @@ def main():
         n_class=len(camvid_label_names),
         pretrained_model=args.pretrained_model)
     if args.gpu >= 0:
-        model.to_gpu(args.gpu)
+        chainer.cuda.get_device_from_id(args.gpu).use()
+        model.to_gpu()
 
     model = calc_bn_statistics(model, args.batchsize)
-
-    chainer.config.train = False
 
     test = CamVidDataset(split='test')
     it = chainer.iterators.SerialIterator(test, batch_size=args.batchsize,

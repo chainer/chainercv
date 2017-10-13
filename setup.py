@@ -66,7 +66,7 @@ ext_data = {
     'utils.bbox._nms_gpu_post': {'pyxfile': 'utils/bbox/_nms_gpu_post'}
 }
 
-extensions = []
+extensions = list()
 for name, data in ext_data.items():
     sources = [os.path.join('chainercv', data['pyxfile'] + suffix)]
 
@@ -78,7 +78,7 @@ for name, data in ext_data.items():
 
 setup(
     name='chainercv',
-    version='0.6.0',
+    version='0.7.0',
     packages=find_packages(),
     author='Yusuke Niitani',
     author_email='yuyuniitani@gmail.com',

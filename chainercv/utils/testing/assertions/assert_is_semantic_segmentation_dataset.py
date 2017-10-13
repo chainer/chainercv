@@ -8,7 +8,7 @@ def assert_is_semantic_segmentation_dataset(dataset, n_class, n_example=None):
     """Checks if a dataset satisfies semantic segmentation dataset APIs.
 
     This function checks if a given dataset satisfies semantic segmentation
-    dataset dataset APIs or not.
+    dataset APIs or not.
     If the dataset does not satifiy the APIs, this function raises an
     :class:`AssertionError`.
 
