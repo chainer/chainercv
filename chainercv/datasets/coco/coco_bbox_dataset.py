@@ -12,7 +12,7 @@ from chainercv.datasets.coco.coco_utils import get_coco
 
 class COCOBboxDataset(chainer.dataset.DatasetMixin):
 
-    """Dataset class for the detection task of `MS COCO2014`_.
+    """Bounding box dataset for `MS COCO2014`_.
 
     .. _`MS COCO2014`: http://mscoco.org/dataset/#detections-challenge2015
 
