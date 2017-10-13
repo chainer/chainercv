@@ -95,10 +95,10 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
         self.data_dir = data_dir
         anno = json.load(open(anno_fn, 'r'))
 
-        self.imgs = dict()
+        self.img_props = dict()
         for img in anno['images']:
-            self.imgs[img['id']] = img
-        self.ids = list(self.imgs.keys())
+            self.img_props[img['id']] = img
+        self.ids = list(self.img_props.keys())
 
         cats = anno['categories']
         self.cat_ids = [cat['id'] for cat in cats]
@@ -122,6 +122,8 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
         # List[{'segmentation', 'area', 'iscrowd',
         #       'image_id', 'bbox', 'category_id', 'id'}]
         annotation = self.imgToAnns[img_id]
+        H = self.img_props[img_id]['height']
+        W = self.img_props[img_id]['width']
         bbox = np.array([ann['bbox'] for ann in annotation],
                         dtype=np.float32)
         if len(bbox) == 0:
@@ -131,6 +133,11 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
         bbox[:, 3] = bbox[:, 1] + bbox[:, 3]
         # (x_min, y_min, x_max, y_max) -> (y_min, x_min, y_max, x_max)
         bbox = bbox[:, [1, 0, 3, 2]]
+        # Sanitize boxes using image shape
+        bbox[:, :2] = np.maximum(bbox[:, :2], 0)
+        bbox[:, 2] = np.minimum(bbox[:, 2], H)
+        bbox[:, 3] = np.minimum(bbox[:, 3], W)
+
         label = np.array([self.cat_ids.index(ann['category_id'])
                           for ann in annotation], dtype=np.int32)
 
@@ -152,16 +159,12 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
 
     def get_example(self, i):
         img_id = self.ids[i]
-        img_fn = os.path.join(self.img_root, self.imgs[img_id]['file_name'])
+        img_fn = os.path.join(
+            self.img_root, self.img_props[img_id]['file_name'])
         img = utils.read_image(img_fn, dtype=np.float32, color=True)
         _, H, W = img.shape
 
         bbox, label, crowded = self._get_annotations(i)
-
-        # Sanitize boxes using image shape
-        bbox[:, :2] = np.maximum(bbox[:, :2], 0)
-        bbox[:, 2] = np.minimum(bbox[:, 2], H)
-        bbox[:, 3] = np.minimum(bbox[:, 3], W)
 
         if not self.use_crowded:
             bbox = bbox[np.logical_not(crowded)]
