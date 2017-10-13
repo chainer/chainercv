@@ -122,8 +122,6 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
         # List[{'segmentation', 'area', 'iscrowd',
         #       'image_id', 'bbox', 'category_id', 'id'}]
         annotation = self.imgToAnns[img_id]
-        H = self.img_props[img_id]['height']
-        W = self.img_props[img_id]['width']
         bbox = np.array([ann['bbox'] for ann in annotation],
                         dtype=np.float32)
         if len(bbox) == 0:
@@ -133,10 +131,6 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
         bbox[:, 3] = bbox[:, 1] + bbox[:, 3]
         # (x_min, y_min, x_max, y_max) -> (y_min, x_min, y_max, x_max)
         bbox = bbox[:, [1, 0, 3, 2]]
-        # Sanitize boxes using image shape
-        bbox[:, :2] = np.maximum(bbox[:, :2], 0)
-        bbox[:, 2] = np.minimum(bbox[:, 2], H)
-        bbox[:, 3] = np.minimum(bbox[:, 3], W)
 
         label = np.array([self.cat_ids.index(ann['category_id'])
                           for ann in annotation], dtype=np.int32)
