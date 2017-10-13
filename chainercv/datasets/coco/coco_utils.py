@@ -17,7 +17,7 @@ anno_urls = {
     'instances_train-val2014.zip',
     'valminusminival': 'https://dl.dropboxusercontent.com/s/s3tw5zcg7395368/'
     'instances_valminusminival2014.json.zip',
-    'minval': 'https://dl.dropboxusercontent.com/s/o43o90bna78omob/'
+    'minival': 'https://dl.dropboxusercontent.com/s/o43o90bna78omob/'
     'instances_minival2014.json.zip'
 }
 
@@ -36,7 +36,7 @@ def get_coco(split, img_split):
         anno_url = anno_urls[split]
         download_file_path = utils.cached_download(anno_url)
         ext = os.path.splitext(anno_url)[1]
-        utils.extractall(download_file_path, data_dir, ext)
+        utils.extractall(download_file_path, annos_root, ext)
     return data_dir
 
 

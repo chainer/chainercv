@@ -66,7 +66,7 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/coco`.
-        split ({'train', 'val', 'minval', 'minvalminus'}): Select
+        split ({'train', 'val', 'minival', 'valminusminival'}): Select
             a split of the dataset.
         use_crowded (bool): If true, use bounding boxes that are labeled as
             crowded in the original annotation.
@@ -80,7 +80,7 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
                  use_crowded=False, return_crowded=False):
         self.use_crowded = use_crowded
         self.return_crowded = return_crowded
-        if split in ['val', 'minval', 'minvalminus']:
+        if split in ['val', 'minival', 'valminusminival']:
             img_split = 'val'
         else:
             img_split = 'train'
