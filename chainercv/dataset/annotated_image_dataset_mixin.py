@@ -22,5 +22,6 @@ class AnnotatedImageDatasetMixin(chainer.dataset.DatasetMixin):
             anno = (anno,)
         return (img,) + anno
 
+    @property
     def annotations(self):
         return AnnotationDataset(self)
