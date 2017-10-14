@@ -98,7 +98,7 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
         self.img_props = dict()
         for img in anno['images']:
             self.img_props[img['id']] = img
-        self.ids = list(self.img_props.keys())
+        self.ids = sorted(list(self.img_props.keys()))
 
         cats = anno['categories']
         self.cat_ids = [cat['id'] for cat in cats]
