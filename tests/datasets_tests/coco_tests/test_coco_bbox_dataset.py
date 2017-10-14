@@ -21,7 +21,9 @@ class TestCOCOBboxDataset(unittest.TestCase):
     def setUp(self):
         self.dataset = COCOBboxDataset(
             split=self.split,
-            use_crowded=self.use_crowded, return_crowded=self.return_crowded)
+            use_crowded=self.use_crowded, return_crowded=self.return_crowded,
+            return_area=self.return_area
+        )
 
     @attr.slow
     def test_coco_bbox_dataset(self):
