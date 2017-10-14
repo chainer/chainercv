@@ -18,10 +18,11 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
 
     When queried by an index, if :obj:`return_crowded == False`,
     this dataset returns a corresponding
-    :obj:`img, bbox, label`, a tuple of an image, bounding boxes and labels.
-    This is the default behaviour.
-    If :obj:`return_crowded == True`, this dataset returns corresponding
-    :obj:`img, bbox, label, crowded`. :obj:`crowded` is a boolean array
+    :obj:`img, bbox, label, crowded, area`, a tuple of an image, bounding
+    boxes, labels, crowdness indicators and areas of masks.
+    The parameters :obj:`return_crowded` and :obj:`return_area` decide
+    whether to return :obj:`crowded` and :obj:`area`.
+    :obj:`crowded` is a boolean array
     that indicates whether bounding boxes are for crowd labeling.
     When there are more than ten objects from the same category,
     bounding boxes correspond to crowd of instances instead of individual
@@ -44,17 +45,20 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
     vertices.
 
     The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
-    :math:`R` is the number of bounding boxes in the image.
     The class name of the label :math:`l` is :math:`l` th element of
     :obj:`chainercv.datasets.coco_bbox_label_names`.
 
     The array :obj:`crowded` is a one dimensional boolean array of shape
-    :math:`(R,)`. :math:`R` is the number of bounding boxes in the image.
+    :math:`(R,)`.
+
+    The array :obj:`area` is a one dimensional flaot array of shape
+    :math:`(R,)`.
 
     * :obj:`img.dtype == numpy.float32`
     * :obj:`bbox.dtype == numpy.float32`
     * :obj:`label.dtype == numpy.int32`
     * :obj:`crowded.dtype == numpy.bool`
+    * :obj:`area.dtype == np.float32`
 
     .. [#] Tsung-Yi Lin, Michael Maire, Serge Belongie, Lubomir Bourdev, \
         Ross Girshick, James Hays, Pietro Perona, Deva Ramanan, \
@@ -73,13 +77,16 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
         return_crowded (bool): If true, this dataset returns a boolean array
             that indicates whether bounding boxes are labeled as crowded
             or not. The default value is :obj:`False`.
+        return_area (bool): If true, this dataset returns areas of masks
+            around objects.
 
     """
 
     def __init__(self, data_dir='auto', split='train',
-                 use_crowded=False, return_crowded=False):
+                 use_crowded=False, return_crowded=False, return_area=False):
         self.use_crowded = use_crowded
         self.return_crowded = return_crowded
+        self.return_area = return_area
         if split in ['val', 'minival', 'valminusminival']:
             img_split = 'val'
         else:
@@ -138,15 +145,19 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
         crowded = np.array([ann['iscrowd']
                             for ann in annotation], dtype=np.bool)
 
+        area = np.array([ann['area']
+                         for ann in annotation], dtype=np.float32)
+
         # Remove invalid boxes
-        area = np.prod(bbox[:, 2:] - bbox[:, :2], axis=1)
+        bbox_area = np.prod(bbox[:, 2:] - bbox[:, :2], axis=1)
         keep_mask = np.logical_and(bbox[:, 0] <= bbox[:, 2],
                                    bbox[:, 1] <= bbox[:, 3])
-        keep_mask = np.logical_and(keep_mask, area > 0)
+        keep_mask = np.logical_and(keep_mask, bbox_area > 0)
         bbox = bbox[keep_mask]
         label = label[keep_mask]
         crowded = crowded[keep_mask]
-        return bbox, label, crowded
+        area = area[keep_mask]
+        return bbox, label, crowded, area
 
     def __len__(self):
         return len(self.ids)
@@ -158,13 +169,17 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
         img = utils.read_image(img_fn, dtype=np.float32, color=True)
         _, H, W = img.shape
 
-        bbox, label, crowded = self._get_annotations(i)
+        bbox, label, crowded, area = self._get_annotations(i)
 
         if not self.use_crowded:
             bbox = bbox[np.logical_not(crowded)]
             label = label[np.logical_not(crowded)]
+            area = area[np.logical_not(crowded)]
             crowded = crowded[np.logical_not(crowded)]
 
+        example = [img, bbox, label]
         if self.return_crowded:
-            return img, bbox, label, crowded
-        return img, bbox, label
+            example += [crowded]
+        if self.return_area:
+            example += [area]
+        return tuple(example)
