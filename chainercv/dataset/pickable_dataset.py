@@ -54,5 +54,5 @@ class PickableDataset(chainer.dataset.DatasetMixin):
     def get_example(self, i):
         return self._pick_example(i, self.data_names)
 
-    def pick(self, pick):
+    def pick(self, *pick):
         return PickedDataset(self, pick)
