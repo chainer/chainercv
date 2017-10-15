@@ -1,7 +1,5 @@
 import unittest
 
-import numpy as np
-
 from chainer import testing
 from chainercv.dataset import PickableDataset
 
