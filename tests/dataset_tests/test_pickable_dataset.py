@@ -6,7 +6,7 @@ from chainercv.dataset import PickableDataset
 
 class SampleDataset(PickableDataset):
     def __init__(self, len):
-        super().__init__()
+        super(SampleDataset, self).__init__()
 
         self.data_names = ('img', 'bbox', 'label', 'mask')
         self.add_getter('img', self.get_image)
