@@ -10,5 +10,3 @@ dependencies:
   - matplotlib
   - numpy
   - Pillow
-  - pip:
-    - "--editable=git+https://github.com/pdollar/coco.git#egg=pycocotools&subdirectory=PythonAPI"

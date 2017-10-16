@@ -30,6 +30,7 @@ install:
   - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
       conda env create -f environment.yml;
       source activate chainercv;
+      (cd ..; pip install -e 'git+https://github.com/pdollar/coco.git#egg=pycocotools&subdirectory=PythonAPI')
     else
       conda env create -f environment_minimum.yml;
       source activate chainercv_minimum;
@@ -44,7 +45,7 @@ script:
   - pip install autopep8
   - pip install mock
   - pip install nose
-  - flake8 . --exclude src
+  - flake8 .
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
   - python style_checker.py .
