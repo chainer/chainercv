@@ -7,6 +7,12 @@ from chainer import testing
 
 from chainercv.evaluations import eval_detection_coco
 
+try:
+    import pycocotools  # NOQA
+    optional_modules = True
+except ImportError:
+    optional_modules = False
+
 
 data = {
     'pred_bboxes': [
@@ -31,6 +37,8 @@ class TestEvalDetectionCOCOSimple(unittest.TestCase):
         self.gt_labels = (np.array(label) for label in data['gt_labels'])
 
     def test_crowded(self):
+        if not optional_modules:
+            return
         result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
                                      self.pred_scores,
                                      self.gt_bboxes, self.gt_labels,
@@ -45,6 +53,8 @@ class TestEvalDetectionCOCOSimple(unittest.TestCase):
             np.isnan(result['map/iou=0.50:0.95/area=large/maxDets=100']))
 
     def test_area_default(self):
+        if not optional_modules:
+            return
         result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
                                      self.pred_scores,
                                      self.gt_bboxes, self.gt_labels)
@@ -59,7 +69,9 @@ class TestEvalDetectionCOCOSimple(unittest.TestCase):
         self.assertTrue(
             np.isnan(result['map/iou=0.50:0.95/area=large/maxDets=100']))
 
-    def test_area_2(self):
+    def test_area_specified(self):
+        if not optional_modules:
+            return
         result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
                                      self.pred_scores,
                                      self.gt_bboxes, self.gt_labels,
@@ -82,12 +94,14 @@ class TestEvalDetectionCOCO(unittest.TestCase):
 
         cls.dataset = np.load(request.urlretrieve(os.path.join(
             base_url,
-            'coco_detection_dataset_val2014_fakebbox100_2017_10_15.npz'))[0])
+            'coco_detection_dataset_val2014_fakebbox100_2017_10_16.npz'))[0])
         cls.result = np.load(request.urlretrieve(os.path.join(
             base_url,
-            'coco_detection_result_val2014_fakebbox100_2017_10_15.npz'))[0])
+            'coco_detection_result_val2014_fakebbox100_2017_10_16.npz'))[0])
 
     def test_eval_detection_voc(self):
+        if not optional_modules:
+            return
         pred_bboxes = self.result['bboxes']
         pred_labels = self.result['labels']
         pred_scores = self.result['scores']
