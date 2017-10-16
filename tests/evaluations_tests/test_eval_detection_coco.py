@@ -5,10 +5,75 @@ import unittest
 
 from chainer import testing
 
-from eval_detection_coco import eval_detection_coco
+from chainercv.evaluations import eval_detection_coco
 
 
-class TestEvalDetectionCOCOAP(unittest.TestCase):
+data = {
+    'pred_bboxes': [
+        [[0, 0, 10, 10], [0, 0, 20, 20]]],
+    'pred_labels': [
+        [0, 0]],
+    'pred_scores': [
+        [0.8, 0.9]],
+    'gt_bboxes': [
+        [[0, 0, 10, 9]]],
+    'gt_labels': [
+        [0, 0]]}
+
+
+class TestEvalDetectionCOCOSimple(unittest.TestCase):
+
+    def setUp(self):
+        self.pred_bboxes = (np.array(bbox) for bbox in data['pred_bboxes'])
+        self.pred_labels = (np.array(label) for label in data['pred_labels'])
+        self.pred_scores = (np.array(score) for score in data['pred_scores'])
+        self.gt_bboxes = (np.array(bbox) for bbox in data['gt_bboxes'])
+        self.gt_labels = (np.array(label) for label in data['gt_labels'])
+
+    def test_crowded(self):
+        result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
+                                     self.pred_scores,
+                                     self.gt_bboxes, self.gt_labels,
+                                     gt_crowdeds=[[True]])
+        # When the only ground truth is crowded, nothing is evaluated.
+        # In that case, all the results are nan.
+        self.assertTrue(
+            np.isnan(result['map/iou=0.50:0.95/area=small/maxDets=100']))
+        self.assertTrue(
+            np.isnan(result['map/iou=0.50:0.95/area=medium/maxDets=100']))
+        self.assertTrue(
+            np.isnan(result['map/iou=0.50:0.95/area=large/maxDets=100']))
+
+    def test_area_default(self):
+        result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
+                                     self.pred_scores,
+                                     self.gt_bboxes, self.gt_labels)
+        # Test that the original bbox area is used, which is 90.
+        # In that case, the ground truth bounding box is assigned to segment
+        # "small".
+        # Therefore, the score for segments "medium" and "large" will be nan.
+        self.assertFalse(
+            np.isnan(result['map/iou=0.50:0.95/area=small/maxDets=100']))
+        self.assertTrue(
+            np.isnan(result['map/iou=0.50:0.95/area=medium/maxDets=100']))
+        self.assertTrue(
+            np.isnan(result['map/iou=0.50:0.95/area=large/maxDets=100']))
+
+    def test_area_2(self):
+        result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
+                                     self.pred_scores,
+                                     self.gt_bboxes, self.gt_labels,
+                                     gt_areas=[[2048]]
+                                     )
+        self.assertFalse(
+            np.isnan(result['map/iou=0.50:0.95/area=medium/maxDets=100']))
+        self.assertTrue(
+            np.isnan(result['map/iou=0.50:0.95/area=small/maxDets=100']))
+        self.assertTrue(
+            np.isnan(result['map/iou=0.50:0.95/area=large/maxDets=100']))
+
+
+class TestEvalDetectionCOCO(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -52,6 +117,9 @@ class TestEvalDetectionCOCOAP(unittest.TestCase):
         }
 
         for key, item in expected.items():
+            non_mean_key = key[1:]
+            self.assertIsInstance(result[non_mean_key], np.ndarray)
+            self.assertEqual(result[non_mean_key].shape, (76,))
             np.testing.assert_almost_equal(
                 result[key], expected[key], decimal=5)
 

@@ -145,6 +145,10 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
             gt_crowded, gt_area) in enumerate(six.moves.zip(
                 pred_bboxes, pred_labels, pred_scores,
                 gt_bboxes, gt_labels, gt_crowdeds, gt_areas)):
+        if gt_crowded is None:
+            gt_crowded = itertools.repeat(None)
+        if gt_area is None:
+            gt_area = itertools.repeat(None)
         # Starting ids from 1 is important when using COCO.
         img_id = i + 1
 
