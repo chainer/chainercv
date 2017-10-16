@@ -44,7 +44,7 @@ script:
   - pip install autopep8
   - pip install mock
   - pip install nose
-  - flake8 .
+  - flake8 . --exclude src
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
   - python style_checker.py .
