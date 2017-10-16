@@ -8,9 +8,9 @@ import sys
 try:
     import pycocotools.coco
     import pycocotools.cocoeval
-    _availabel = True
+    _available = True
 except ImportError:
-    _availabel = False
+    _available = False
 
 
 def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
@@ -48,7 +48,7 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
             labels which are organized similarly to :obj:`gt_bboxes`.
 
     """
-    if not _availabel:
+    if not _available:
         raise ValueError(
             'Please install pycocotools \n'
             'pip install -e \'git+https://github.com/pdollar/coco.git'
