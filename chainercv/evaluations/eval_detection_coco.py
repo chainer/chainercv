@@ -21,6 +21,8 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
     which has :math:`N` images by using average precision for each class.
     The code is based on the evaluation code used in MS COCO.
 
+    .. _`evaluation page`: http://cocodataset.org/#detections-eval
+
     Args:
         pred_bboxes (iterable of numpy.ndarray): An iterable of :math:`N`
             sets of bounding boxes.
@@ -46,6 +48,74 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
             of corresponding predicted boxes.
         gt_labels (iterable of numpy.ndarray): An iterable of ground truth
             labels which are organized similarly to :obj:`gt_bboxes`.
+        gt_crowdeds (iterable of numpy.ndarray): An iterable of boolean
+            arrays which is organized similarly to :obj:`gt_bboxes`.
+            This tells whether the "crowded" label is assigned to the
+            corresponding bounding boxes.
+            By default, this is :obj:`None`. In that case, this function
+            considers all bounding boxes to be not crowded.
+        gt_area (iterable of numpy.ndarray): An iterable of float
+            arrays which is organized similarly to :obj:`gt_bboxes`.
+            This contains the area of the instance mask of an object
+            for each bounding box. By default, this is :obj:`None`.
+            In that case, this function uses the area of the
+            bounding box (i.e. width multiplied by height).
+
+    Returns:
+        dict:
+
+        The keys, value-types and the description of the values are listed
+        below. Each key contains four information: AP or AR, the iou
+        thresholds, the size of objects, and the number of detections
+        per image. For more details on the 12 patterns of evaluation metrics,
+        please refer to COCO's official `evaluation page`_.
+
+        * **ap/iou=0.50:0.95/area=all/maxDets=100** (*numpy.ndarray*): An \
+            array of average precisions. \
+            The :math:`l`-th value corresponds to the average precision \
+            for class :math:`l`. If class :math:`l` does not exist in \
+            either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding \
+            value is set to :obj:`numpy.nan`.
+        * **ap/iou=0.50/area=all/maxDets=100** (*numpy.ndarray*): See above.
+        * **ap/iou=0.75/area=all/maxDets=100** (*numpy.ndarray*): See above.
+        * **ap/iou=0.50:0.95/area=small/maxDets=100** (*numpy.ndarray*): See \
+            above.
+        * **ap/iou=0.50:0.95/area=medium/maxDets=100** (*numpy.ndarray*): See \
+            above.
+        * **ap/iou=0.50:0.95/area=large/maxDets=100** (*numpy.ndarray*): See \
+            above.
+        * **ar/iou=0.50:0.95/area=all/maxDets=1** (*numpy.array*): An \
+            array of average recalls. \
+            The :math:`l`-th value corresponds to the average precision \
+            for class :math:`l`. If class :math:`l` does not exist in \
+            either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding \
+            value is set to :obj:`numpy.nan`.
+        * **ar/iou=0.50:0.95/area=all/maxDets=10** (*numpy.array*): See above.
+        * **ar/iou=0.50:0.95/area=all/maxDets=100** (*numpy.array*): See above.
+        * **ar/iou=0.50:0.95/area=small/maxDets=100** (*numpy.array*): See \
+            above.
+        * **ar/iou=0.50:0.95/area=medium/maxDets=100** (*numpy.array*): See \
+            above.
+        * **ar/iou=0.50:0.95/area=large/maxDets=100** (*numpy.array*): See \
+            above.
+        * **map/iou=0.50:0.95/area=all/maxDets=100** (*float*): The average \
+            of Average Precisions over classes.
+        * **map/iou=0.50/area=all/maxDets=100** (*float*): See above.
+        * **map/iou=0.75/area=all/maxDets=100** (*float*): See above.
+        * **map/iou=0.50:0.95/area=small/maxDets=100** (*float*): See \
+            above.
+        * **map/iou=0.50:0.95/area=medium/maxDets=100** (*float*): See above.
+        * **map/iou=0.50:0.95/area=large/maxDets=100** (*float*): See above.
+        * **mar/iou=0.50:0.95/area=all/maxDets=1** (*float*): The average \
+            of average recalls over classes.
+        * **mar/iou=0.50:0.95/area=all/maxDets=10** (*float*): See above.
+        * **mar/iou=0.50:0.95/area=all/maxDets=100** (*float*): See above.
+        * **mar/iou=0.50:0.95/area=small/maxDets=100** (*float*): See above.
+        * **mar/iou=0.50:0.95/area=medium/maxDets=100** (*float*): See above.
+        * **mar/iou=0.50:0.95/area=large/maxDets=100** (*float*): See above.
+        * **coco_eval** (*pycocotools.cocoeval.COCOeval*): The \
+            :class:`pycocotools.cocoeval.COCOeval` object used to conduct \
+            evaluation.
 
     """
     if not _available:
@@ -105,15 +175,15 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
     with _redirect_stdout(open(os.devnull, 'w')):
         pred_coco.createIndex()
         gt_coco.createIndex()
-        ev = pycocotools.cocoeval.COCOeval(gt_coco, pred_coco, 'bbox')
-        ev.evaluate()
-        ev.accumulate()
+        coco_eval = pycocotools.cocoeval.COCOeval(gt_coco, pred_coco, 'bbox')
+        coco_eval.evaluate()
+        coco_eval.accumulate()
 
-    results = {'coco_eval': ev}
-    p = ev.params
+    results = {'coco_eval': coco_eval}
+    p = coco_eval.params
     common_kwargs = {
-        'prec': ev.eval['precision'],
-        'rec': ev.eval['recall'],
+        'prec': coco_eval.eval['precision'],
+        'rec': coco_eval.eval['recall'],
         'iou_threshs': p.iouThrs,
         'area_ranges': p.areaRngLbl,
         'max_detection_list': p.maxDets}
