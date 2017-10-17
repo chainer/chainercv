@@ -5,11 +5,12 @@ import xml.etree.ElementTree as ET
 
 import chainer
 
+from chainercv.dataset import PickableDataset
 from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
 
 
-class VOCBboxDataset(chainer.dataset.DatasetMixin):
+class VOCBboxDataset(PickableDataset):
 
     """Bounding box dataset for PASCAL `VOC`_.
 
@@ -68,6 +69,7 @@ class VOCBboxDataset(chainer.dataset.DatasetMixin):
 
     def __init__(self, data_dir='auto', split='train', year='2012',
                  use_difficult=False, return_difficult=False):
+        super(VOCBboxDataset, self).__init__()
         if data_dir == 'auto' and year in ['2007', '2012']:
             data_dir = voc_utils.get_voc(year, split)
 
@@ -85,24 +87,45 @@ class VOCBboxDataset(chainer.dataset.DatasetMixin):
 
         self.data_dir = data_dir
         self.use_difficult = use_difficult
-        self.return_difficult = return_difficult
+
+        if return_difficult:
+            self.data_names = ('img', 'bbox', 'label', 'difficult')
+        else:
+            self.data_names = ('img', 'bbox', 'label')
+        self.add_getter('img', self.get_image)
+        self.add_getter(('bbox', 'label', 'difficult'), self.get_annotations)
 
     def __len__(self):
         return len(self.ids)
 
-    def get_example(self, i):
-        """Returns the i-th example.
+    def get_image(self, i):
+        """Returns the i-th image.
 
-        Returns a color image and bounding boxes. The image is in CHW format.
-        The returned image is RGB.
+        Returns a color image. The image is in CHW and RGB format.
 
         Args:
             i (int): The index of the example.
 
         Returns:
-            tuple of an image and bounding boxes
-
+            An image.
         """
+        id_ = self.ids[i]
+        img_path = os.path.join(self.data_dir, 'JPEGImages', id_ + '.jpg')
+        img = read_image(img_path, color=True)
+        return img
+
+    def get_annotations(self, i):
+        """Returns the annotations of the i-th example.
+
+        Returns bounding boxes, labels and difficulties.
+
+        Args:
+            i (int): The index of the example.
+
+        Returns:
+            A tuple of three arrays.
+        """
+
         id_ = self.ids[i]
         anno = ET.parse(
             os.path.join(self.data_dir, 'Annotations', id_ + '.xml'))
@@ -127,10 +150,4 @@ class VOCBboxDataset(chainer.dataset.DatasetMixin):
         label = np.stack(label).astype(np.int32)
         # When `use_difficult==False`, all elements in `difficult` are False.
         difficult = np.array(difficult, dtype=np.bool)
-
-        # Load a image
-        img_file = os.path.join(self.data_dir, 'JPEGImages', id_ + '.jpg')
-        img = read_image(img_file, color=True)
-        if self.return_difficult:
-            return img, bbox, label, difficult
-        return img, bbox, label
+        return bbox, label, difficult
