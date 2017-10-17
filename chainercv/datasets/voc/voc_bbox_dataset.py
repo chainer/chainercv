@@ -3,8 +3,6 @@ import os
 import warnings
 import xml.etree.ElementTree as ET
 
-import chainer
-
 from chainercv.dataset import PickableDataset
 from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
