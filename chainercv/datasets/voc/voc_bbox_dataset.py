@@ -68,6 +68,13 @@ class VOCBboxDataset(PickableDataset):
     def __init__(self, data_dir='auto', split='train', year='2012',
                  use_difficult=False, return_difficult=False):
         super(VOCBboxDataset, self).__init__()
+        if return_difficult:
+            self.data_names = ('img', 'bbox', 'label', 'difficult')
+        else:
+            self.data_names = ('img', 'bbox', 'label')
+        self.add_getter('img', self.get_image)
+        self.add_getter(('bbox', 'label', 'difficult'), self.get_annotations)
+
         if data_dir == 'auto' and year in ['2007', '2012']:
             data_dir = voc_utils.get_voc(year, split)
 
@@ -85,13 +92,6 @@ class VOCBboxDataset(PickableDataset):
 
         self.data_dir = data_dir
         self.use_difficult = use_difficult
-
-        if return_difficult:
-            self.data_names = ('img', 'bbox', 'label', 'difficult')
-        else:
-            self.data_names = ('img', 'bbox', 'label')
-        self.add_getter('img', self.get_image)
-        self.add_getter(('bbox', 'label', 'difficult'), self.get_annotations)
 
     def __len__(self):
         return len(self.ids)
