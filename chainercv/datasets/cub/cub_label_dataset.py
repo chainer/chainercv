@@ -2,7 +2,6 @@ import numpy as np
 import os
 
 from chainercv.datasets.cub.cub_utils import CUBDatasetBase
-from chainercv import utils
 
 
 class CUBLabelDataset(CUBDatasetBase):
@@ -53,9 +52,13 @@ class CUBLabelDataset(CUBDatasetBase):
 
     def __init__(self, data_dir='auto', return_bb=False,
                  prob_map_dir='auto', return_prob_map=False):
-        super(CUBLabelDataset, self).__init__(
-            data_dir=data_dir, return_bb=return_bb,
-            prob_map_dir=prob_map_dir, return_prob_map=return_prob_map)
+        super(CUBLabelDataset, self).__init__(data_dir, prob_map_dir)
+        self.data_names = ('img', 'label')
+        if return_bb:
+            self.data_names += ('bb',)
+        if return_prob_map:
+            self.data_names += ('prob_map',)
+        self.add_getter('label', self.get_label)
 
         image_class_labels_file = os.path.join(
             self.data_dir, 'image_class_labels.txt')
@@ -63,38 +66,14 @@ class CUBLabelDataset(CUBDatasetBase):
                   d_label in open(image_class_labels_file)]
         self._labels = np.array(labels, dtype=np.int32)
 
-    def get_example(self, i):
-        """Returns the i-th example.
+    def get_label(self, i):
+        """Returns the label of the i-th example.
 
         Args:
             i (int): The index of the example.
 
         Returns:
-            tuple of an image and its label.
-            The image is in CHW format and its color channel is ordered in
-            RGB.
-            If :obj:`return_bb = True`,
-            a bounding box is appended to the returned value.
-            If :obj:`return_mask = True`,
-            a probability map is appended to the returned value.
+            A label.
 
         """
-        img = utils.read_image(
-            os.path.join(self.data_dir, 'images', self.paths[i]),
-            color=True)
-        label = self._labels[i]
-
-        if not self.return_prob_map:
-            if self.return_bb:
-                return img, label, self.bbs[i]
-            else:
-                return img, label
-
-        prob_map = utils.read_image(self.prob_map_paths[i],
-                                    dtype=np.uint8, color=False)
-        prob_map = prob_map.astype(np.float32) / 255  # [0, 255] -> [0, 1]
-        prob_map = prob_map[0]  # (1, H, W) --> (H, W)
-        if self.return_bb:
-            return img, label, self.bbs[i], prob_map
-        else:
-            return img, label, prob_map
+        return self._labels[i]

@@ -3,7 +3,6 @@ import numpy as np
 import os
 
 from chainercv.datasets.cub.cub_utils import CUBDatasetBase
-from chainercv import utils
 
 
 class CUBKeypointDataset(CUBDatasetBase):
@@ -67,9 +66,13 @@ class CUBKeypointDataset(CUBDatasetBase):
 
     def __init__(self, data_dir='auto', return_bb=False,
                  prob_map_dir='auto', return_prob_map=False):
-        super(CUBKeypointDataset, self).__init__(
-            data_dir=data_dir, return_bb=return_bb,
-            prob_map_dir=prob_map_dir, return_prob_map=return_prob_map)
+        super(CUBKeypointDataset, self).__init__(data_dir, prob_map_dir)
+        self.data_names = ('img', 'keypoint', 'kp_mask')
+        if return_bb:
+            self.data_names += ('bb',)
+        if return_prob_map:
+            self.data_names += ('prob_map',)
+        self.add_getter(('keypoint', 'kp_mask'), self.get_kp)
 
         # load keypoint
         parts_loc_file = os.path.join(self.data_dir, 'parts', 'part_locs.txt')
@@ -91,39 +94,17 @@ class CUBKeypointDataset(CUBDatasetBase):
             self.kp_dict[id_].append(keypoint)
             self.kp_mask_dict[id_].append(kp_mask)
 
-    def get_example(self, i):
-        """Returns the i-th example.
+    def get_kp(self, i):
+        """Returns the keypoints and their mask of the i-th example.
 
         Args:
             i (int): The index of the example.
 
         Returns:
-            tuple of an image, keypoints and a keypoint mask.
-            The image is in CHW format and its color channel is ordered in
-            RGB.
-            If :obj:`return_bb = True`,
-            a bounding box is appended to the returned value.
-            If :obj:`return_mask = True`,
-            a probability map is appended to the returned value.
+            Keypoints and their mask.
 
         """
-        img = utils.read_image(
-            os.path.join(self.data_dir, 'images', self.paths[i]),
-            color=True)
+
         keypoint = np.array(self.kp_dict[i], dtype=np.float32)
         kp_mask = np.array(self.kp_mask_dict[i], dtype=np.bool)
-
-        if not self.return_prob_map:
-            if self.return_bb:
-                return img, keypoint, kp_mask, self.bbs[i]
-            else:
-                return img, keypoint, kp_mask
-
-        prob_map = utils.read_image(self.prob_map_paths[i],
-                                    dtype=np.uint8, color=False)
-        prob_map = prob_map.astype(np.float32) / 255  # [0, 255] -> [0, 1]
-        prob_map = prob_map[0]  # (1, H, W) --> (H, W)
-        if self.return_bb:
-            return img, keypoint, kp_mask, self.bbs[i], prob_map
-        else:
-            return img, keypoint, kp_mask, prob_map
+        return keypoint, kp_mask
