@@ -32,7 +32,7 @@ class SampleDataset(PickableDataset):
         return 'bbox_{:d}'.format(i), 'label_{:d}'.format(i)
 
 
-class TestAnnotatedImageDatasetMixin(unittest.TestCase):
+class TestPickableDataset(unittest.TestCase):
 
     def setUp(self):
         self.len = 10
