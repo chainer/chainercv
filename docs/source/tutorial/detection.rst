@@ -1,12 +1,12 @@
 Object Detection Tutorial
 =========================
 
-This tutorial will walk you through the implementations and tools for Object Detection provided by ChainerCV.
-We asume that readers have a basic understanding of Chainer framework (e.g. understand what :class:`chainer.Link` is).
+This tutorial will walk you through the features related to object detection that ChainerCV supports.
+We asume that readers have a basic understanding of Chainer framework (e.g. have a basic understanding of :class:`chainer.Link`).
 For users new to Chainer, please first read `Introduction to Chainer <https://docs.chainer.org/en/stable/tutorial/basic.html#write-a-model-as-a-chain>`_.
 
-In ChainerCV, we define the object detection task as a problem of, given an image, predicting bounding boxes around regions where objects are located and category of the objects.
-ChainerCV supports this task by providing following features:
+In ChainerCV, we define the object detection task as a problem of, given an image, bounding box based localization and categorization of objects.
+ChainerCV supports the task by providing following features:
 
 + Visualization
 + BboxDataset
@@ -19,9 +19,9 @@ Bounding boxes in ChainerCV
 ---------------------------
 Bounding boxes in an image are represented as a two-dimensional array of shape :math:`(R, 4)`,
 where :math:`R` is the number of bounding boxes and the second axis corresponds to the coordinates of bounding boxes.
-They coordinates are ordered in an array by :obj:`(y_min, x_min, y_max, x_max)`, where
-:obj:`(y_min, x_min)` and :obj:`(y_max, x_max)` are the left bottom and the right bottom coordinates.
-Notice that ChainerCV orders coordinates by :obj:`yx` order, which is the opposite from the convention used by some other libraries such as OpenCV.
+The coordinates are ordered in the array by :obj:`(y_min, x_min, y_max, x_max)`, where
+:obj:`(y_min, x_min)` and :obj:`(y_max, x_max)` are the :obj:`(y, x)` coordinates of the left bottom and the right bottom vertices.
+Notice that ChainerCV orders coordinates in :obj:`yx` order, which is the opposite of the convention used by other libraries such as OpenCV.
 This convention is adopted because it is more consistent with the memory order of an image that follows row-column order.
 
 Here is an example with a simple toy data.
@@ -48,13 +48,13 @@ bounding boxes and an image together.
 
 Bounding Box Dataset
 --------------------
-ChainerCV supports datasets that contain bounding box annotations.
-Dataset classes whose names end with :obj:`BboxDataset` have bounding boxes as its main annotation.
+ChainerCV supports dataset loaders, which can be used to easily index examples with list-like interface.
+Dataset classes whose names end with :obj:`BboxDataset` contain annotations of where objects locate in an image and which categories they are assigned to.
 These datasets can be indexed to return a tuple of an image, bounding boxes and labels.
-The labels is an :obj:`np.int32` array of shape :math:`(R,)`. Each element corresponds to a label of an object in the corresponding bounding box.
+The labels are stored in an :obj:`np.int32` array of shape :math:`(R,)`. Each element corresponds to a label of an object in the corresponding bounding box.
 
 A mapping between an integer label and a category differs between datasets.
-This mapping can be obtained from objects whose names end with :obj:`label_names`.
+This mapping can be obtained from objects whose names end with :obj:`label_names`, such as :obj:`chainercv.datasets.voc_bbox_label_names`.
 These mappings become helpful when bounding boxes need to be visualized with label names.
 In the next example, the interface of :obj:`BboxDataset` and the functionality of :obj:`vis_bbox` to visualize label names are illustrated.
 
@@ -81,11 +81,10 @@ Note that the example downloads VOC 2012 dataset at runtime when it is used for 
 Detection Link
 --------------
 ChainerCV provides several implementations that can carry out object detection.
-For example, we support Single Shot MultiBox Detector (SSD) [Liu16]_ and Faster R-CNN [Ren15]_.
+For example, Single Shot MultiBox Detector (SSD) [Liu16]_ and Faster R-CNN [Ren15]_ are supported.
 Despite the difference between the models in how prediction is carried out internally,
 they support the common method for prediction called :meth:`predict`.
-This method takes a list of images and returns prediction results.
-The results are tuple of lists, :obj:`bboxes, labels, scores`.
+This method takes a list of images and returns prediction result, which is a tuple of lists :obj:`bboxes, labels, scores`.
 The more description can be found here (:meth:`chainercv.links.SSD.predict`).
 Inference on these models runs smoothly by downloading necessary pre-trained weights from the internet automatically.
 
@@ -120,24 +119,20 @@ Detection Evaluator
 ChainerCV provides functionalities that makes evaluating detection links easy.
 They are provided at two levels: evaluator extensions and evaluation functions.
 
-The evaluation on the detection task can be done using evaluator extensions such as
-:class:`chainercv.extensions.DetectionVOCEvaluator`.
-The extension inherits from :class:`chainer.training.extensions.Evaluator`,
-and have similar interface.
-They are initialized by taking an iterator and a network that carries out prediction.
+Evaluator extensions such as :class:`chainercv.extensions.DetectionVOCEvaluator` inherits from :class:`chainer.training.extensions.Evaluator`, and have similar interface.
+They are initialized by taking an iterator and a network that carries out prediction with method :meth:`predict`.
 When this class is called (i.e. :meth:`DetectionVOCEvaluator.__call__`), several actions are taken.
 First, it iterates over a dataset based on an iterator.
 Second, the network makes prediction using the images collected from the dataset.
 Last, an evaluation function is called with the ground truth annotations and the prediction results.
-Importantlly, detection evaluators only accept networks that support detection link interface.
 
-In contrast to detection evaluators that take a coarse approach,
+In contrast to evaluators that hide details,
 evaluation functions such as :meth:`chainercv.evaluations.eval_detection_voc`
 are provided for those who need finer level of control.
 These functions take the ground truth annotations and prediction results as arguments
 and return measured performance.
 
-Here is a minimum example that uses a detection evaluator.
+Here is a simple example that uses a detection evaluator.
 
 .. code-block:: python
 
