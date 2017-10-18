@@ -80,7 +80,7 @@ Note that the example downloads VOC 2012 dataset at runtime when it is used for 
 
 Detection Link
 --------------
-ChainerCV provides several implementations that can carry out object detection.
+ChainerCV provides several network implementations that carry out object detection.
 For example, Single Shot MultiBox Detector (SSD) [Liu16]_ and Faster R-CNN [Ren15]_ are supported.
 Despite the difference between the models in how prediction is carried out internally,
 they support the common method for prediction called :meth:`predict`.
@@ -116,10 +116,10 @@ Note that in this case, confidence scores are visualized together with other dat
 
 Detection Evaluator
 -------------------
-ChainerCV provides functionalities that makes evaluating detection links easy.
+ChainerCV provides functionalities that make evaluating detection links easy.
 They are provided at two levels: evaluator extensions and evaluation functions.
 
-Evaluator extensions such as :class:`chainercv.extensions.DetectionVOCEvaluator` inherits from :class:`chainer.training.extensions.Evaluator`, and have similar interface.
+Evaluator extensions such as :class:`chainercv.extensions.DetectionVOCEvaluator` inherit from :class:`chainer.training.extensions.Evaluator`, and have similar interface.
 They are initialized by taking an iterator and a network that carries out prediction with method :meth:`predict`.
 When this class is called (i.e. :meth:`DetectionVOCEvaluator.__call__`), several actions are taken.
 First, it iterates over a dataset based on an iterator.
