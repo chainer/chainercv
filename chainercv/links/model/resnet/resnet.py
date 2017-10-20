@@ -170,7 +170,7 @@ class ResNet(PickableSequentialChain):
         super(ResNet, self).__init__()
         with self.init_scope():
             self.conv1 = Conv2DBNActiv(None, 64, 7, 2, 3, nobias=fb_resnet,
-                                       initialW=initialW)
+                                       initialW=conv_initialW)
             self.pool1 = lambda x: F.max_pooling_2d(x, ksize=3, stride=2)
             self.res2 = BuildingBlock(block[0], None, 64, 256, 1, **kwargs)
             self.res3 = BuildingBlock(block[1], None, 128, 512, 2, **kwargs)
