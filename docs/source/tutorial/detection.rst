@@ -2,7 +2,7 @@ Object Detection Tutorial
 =========================
 
 This tutorial will walk you through the features related to object detection that ChainerCV supports.
-We asume that readers have a basic understanding of Chainer framework (e.g. have a basic understanding of :class:`chainer.Link`).
+We assume that readers have a basic understanding of Chainer framework (e.g. have a basic understanding of :class:`chainer.Link`).
 For users new to Chainer, please first read `Introduction to Chainer <https://docs.chainer.org/en/stable/tutorial/basic.html#write-a-model-as-a-chain>`_.
 
 In ChainerCV, we define the object detection task as a problem of, given an image, bounding box based localization and categorization of objects.
@@ -20,9 +20,10 @@ Bounding boxes in ChainerCV
 Bounding boxes in an image are represented as a two-dimensional array of shape :math:`(R, 4)`,
 where :math:`R` is the number of bounding boxes and the second axis corresponds to the coordinates of bounding boxes.
 The coordinates are ordered in the array by :obj:`(y_min, x_min, y_max, x_max)`, where
-:obj:`(y_min, x_min)` and :obj:`(y_max, x_max)` are the :obj:`(y, x)` coordinates of the left bottom and the right bottom vertices.
+:obj:`(y_min, x_min)` and :obj:`(y_max, x_max)` are the :obj:`(y, x)` coordinates of the top left and the bottom right vertices.
 Notice that ChainerCV orders coordinates in :obj:`yx` order, which is the opposite of the convention used by other libraries such as OpenCV.
 This convention is adopted because it is more consistent with the memory order of an image that follows row-column order.
+Also, the :obj:`dtype` of bounding box array is :obj:`numpy.float32`.
 
 Here is an example with a simple toy data.
 
@@ -32,12 +33,13 @@ Here is an example with a simple toy data.
     from chainercv.visualizations import vis_bbox
     import matplotlib.pyplot as plt
     img = np.zeros((3, 224, 224), dtype=np.float32)
-    bbox = np.array([[10, 10, 20, 40], [150, 150, 200, 200]])
+    # We call a variable/array of bounding boxes as `bbox` throughout the library
+    bbox = np.array([[10, 10, 20, 40], [150, 150, 200, 200]], dtype=np.float32)
 
     chainercv.visualizations.vis_bbox(img, bbox)
     plt.show()
 
-.. figure:: ../../image/detection_tutorial_green_bbox.png 
+.. figure:: ../../image/detection_tutorial_simple_bbox.png 
     :scale: 60%
     :align: center
 
@@ -98,6 +100,7 @@ Inference on these models runs smoothly by downloading necessary pre-trained wei
     dataset = VOCBboxDataset(year='2007', split='test')
     img, _, _ = dataset[0]
     model = SSD300(pretrained_model='voc0712')
+    # Note that `predict` takes a list of images.
     bboxes, labels, scores = model.predict([img])
     vis_bbox(img, bboxes[0], labels[0], scores[0],
              label_names=voc_bbox_label_names)
@@ -145,8 +148,8 @@ Here is a simple example that uses a detection evaluator.
 
    # Only use subset of dataset so that evaluation finishes quickly.
    dataset = VOCBboxDataset(year='2007', split='test')
-   dataset = dataset[:5]
-   it = SerialIterator(dataset, 1, repeat=False, shuffle=False)
+   dataset = dataset[:6]
+   it = SerialIterator(dataset, 2, repeat=False, shuffle=False)
    model = SSD300(pretrained_model='voc0712')
    evaluator = DetectionVOCEvaluator(it, model,
                                      label_names=voc_bbox_label_names)
