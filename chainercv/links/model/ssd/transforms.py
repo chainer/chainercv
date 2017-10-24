@@ -66,38 +66,38 @@ def random_distort(
         img[img > 255] = 255
         return img.astype(np.uint8)
 
-    def brightness(cv_img, brightness_delta):
+    def brightness(cv_img, delta):
         if random.randrange(2):
             return convert(
                 cv_img,
-                beta=random.uniform(-brightness_delta, brightness_delta))
+                beta=random.uniform(-delta, delta))
         else:
             return cv_img
 
-    def contrast(cv_img, contrast_low, contrast_high):
+    def contrast(cv_img, low, high):
         if random.randrange(2):
             return convert(
                 cv_img,
-                alpha=random.uniform(contrast_low, contrast_high))
+                alpha=random.uniform(low, high))
         else:
             return cv_img
 
-    def saturation(cv_img, saturation_low, saturation_high):
+    def saturation(cv_img, low, high):
         if random.randrange(2):
             cv_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2HSV)
             cv_img[:, :, 1] = convert(
                 cv_img[:, :, 1],
-                alpha=random.uniform(saturation_low, saturation_high))
+                alpha=random.uniform(low, high))
             return cv2.cvtColor(cv_img, cv2.COLOR_HSV2BGR)
         else:
             return cv_img
 
-    def hue(cv_img, hue_delta):
+    def hue(cv_img, delta):
         if random.randrange(2):
             cv_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2HSV)
             cv_img[:, :, 0] = (
                 cv_img[:, :, 0].astype(int) +
-                random.randint(-hue_delta, hue_delta)) % 180
+                random.randint(-delta, delta)) % 180
             return cv2.cvtColor(cv_img, cv2.COLOR_HSV2BGR)
         else:
             return cv_img
