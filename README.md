@@ -19,7 +19,7 @@ ChainerCV is developed under the following three guiding principles.
 
 + **Ease of Use** -- Implementations of computer vision networks with a cohesive and simple interface.
 + **Reproducibility** -- Training scripts that are perfect for being used as reference implementations.
-+ **Compositionality** -- Tools such as Data loaders and evaluation scripts that have common API.
++ **Compositionality** -- Tools such as data loaders and evaluation scripts that have common API.
 
 # Installation
 
