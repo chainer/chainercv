@@ -39,6 +39,13 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 + The master branch will work on both the stable version (v2) and the development version (v3).
 + For users using Chainer v1, please use version `0.4.11`, which can be installed by `pip install chainercv==0.4.11`. This branch is unmaintained.
 
+# Guiding Principles
+ChainerCV is developed under the following three guiding principles.
+
++ **Ease of Use** -- Implementations of computer vision networks with a cohesive and simple interface.
++ **Reproducibility** -- Training scripts that are perfect for being used as reference implementations.
++ **Compositionality** -- Tools that can be put together in various ways.
+
 # Data conventions
 
 This is **very** important.
