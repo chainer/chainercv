@@ -68,8 +68,8 @@ These are the outputs of the detection models supported by ChainerCV.
 
 # Citation
 
-If ChainerCV helps your research, please cite the paper for ACM Multimedia Open Source competition.
-Here is a BibTex entry:
+If ChainerCV helps your research, please cite the paper for ACM Multimedia Open Source Software Competition.
+Here is a BibTeX entry:
 
 ```
 @inproceedings{ChainerCV2017,
