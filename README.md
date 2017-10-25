@@ -10,7 +10,7 @@ You can find the documentation [here](http://chainercv.readthedocs.io/en/stable/
 
 Supported tasks:
 
-+ Object Detection ([Faster R-CNN](examples/faster_rcnn), [SSD](examples/ssd))
++ Object Detection ([tutorial](http://chainercv.readthedocs.io/en/latest/tutorial/detection.html), ([Faster R-CNN](examples/faster_rcnn), [SSD](examples/ssd))
 + Semantic Segmentation
 + Image Classification
 
