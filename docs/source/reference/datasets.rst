@@ -32,12 +32,15 @@ CamVidDataset
 ~~~~~~~~~~~~~
 .. autoclass:: CamVidDataset
 
+Cityscapes
+----------
+
 CityscapesSemanticSegmentationDataset
--------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: CityscapesSemanticSegmentationDataset
 
 CityscapesTestImageDataset
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: CityscapesTestImageDataset
 
 CUB
