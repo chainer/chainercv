@@ -3,20 +3,27 @@ Datasets
 
 .. module:: chainercv.datasets
 
-DirectoryParsingClassificationDataset
--------------------------------------
-.. autoclass:: DirectoryParsingClassificationDataset
-
-directory_parsing_label_names
------------------------------
-.. autofunction:: directory_parsing_label_names
-
-TransformDataset
+General datasets
 ----------------
 
-TransformDataset
-~~~~~~~~~~~~~~~~
-.. autoclass:: TransformDataset
+DirectoryParsingLabelDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: DirectoryParsingLabelDataset
+
+directory_parsing_label_names
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: directory_parsing_label_names
+
+ADE20K
+------
+
+ADE20KSemanticSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: ADE20KSemanticSegmentationDataset
+
+ADE20KTestImageDataset
+~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: ADE20KTestImageDataset
 
 CamVid
 ------
@@ -28,6 +35,10 @@ CamVidDataset
 CityscapesSemanticSegmentationDataset
 -------------------------------------
 .. autoclass:: CityscapesSemanticSegmentationDataset
+
+CityscapesTestImageDataset
+--------------------------
+.. autoclass:: CityscapesTestImageDataset
 
 CUB
 ---
@@ -52,9 +63,9 @@ OnlineProductsDataset
 PASCAL VOC
 ----------
 
-VOCDetectionDataset
-~~~~~~~~~~~~~~~~~~~
-.. autoclass:: VOCDetectionDataset
+VOCBboxDataset
+~~~~~~~~~~~~~~
+.. autoclass:: VOCBboxDataset
 
 VOCSemanticSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

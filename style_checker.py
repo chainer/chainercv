@@ -25,6 +25,16 @@ This script checks the following coding rules.
         a.transpose((2, 0, 1))  # OK
         a.reshape(2, 0, 1)  # NG
 
+- Initialization of empty `list`/`dict`.
+    An empty `list`/`dict` should be initialized by `list()`/`dict()`.
+
+    Example:
+        a = list()  # OK
+        b = dict()  # OK
+
+        a = []  # NG
+        b = {}  # NG
+
  """
 
 import argparse
@@ -37,6 +47,8 @@ def check(source):
     checkers = (
         check_reshape,
         check_transpose,
+        check_empty_list,
+        check_empty_dict,
     )
 
     for node in ast.walk(ast.parse(source)):
@@ -83,6 +95,22 @@ def check_transpose(node):
        isinstance(node.args[0], ast.Tuple) and \
        len(node.args[0].elts) == 1:
         yield (node.lineno, 'transpose((A,))')
+
+
+def check_empty_list(node):
+    if not isinstance(node, ast.List):
+        return
+
+    if len(node.elts) == 0:
+        yield (node.lineno, 'init by []')
+
+
+def check_empty_dict(node):
+    if not isinstance(node, ast.Dict):
+        return
+
+    if len(node.keys) == 0 and len(node.values) == 0:
+        yield (node.lineno, 'init by {}')
 
 
 def main():

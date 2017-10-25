@@ -12,7 +12,7 @@ def directory_parsing_label_names(root, numerical_sort=False):
     layer below the root directory.
 
     The label names can be used together with
-    :class:`chainercv.datasets.DirectoryParsingClassificationDataset`.
+    :class:`chainercv.datasets.DirectoryParsingLabelDataset`.
     The index of a label name corresponds to the label id
     that is used by the dataset to refer the label.
 
@@ -38,16 +38,16 @@ def directory_parsing_label_names(root, numerical_sort=False):
     return label_names
 
 
-def _check_img_ext(filename):
+def _check_img_ext(path):
     img_extensions = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp']
-    return any(os.path.splitext(filename)[1].lower() == extension for
+    return any(os.path.splitext(path)[1].lower() == extension for
                extension in img_extensions)
 
 
-def _parse_classification_dataset(root, label_names,
-                                  check_img_file=_check_img_ext):
-    img_filenames = []
-    labels = []
+def _parse_label_dataset(root, label_names,
+                         check_img_file=_check_img_ext):
+    img_paths = list()
+    labels = list()
     for label, label_name in enumerate(label_names):
         label_dir = os.path.join(root, label_name)
         if not os.path.isdir(label_dir):
@@ -57,16 +57,16 @@ def _parse_classification_dataset(root, label_names,
         for cur_dir, _, names in walk_dir:
             names = sorted(names)
             for name in names:
-                img_filename = os.path.join(cur_dir, name)
-                if check_img_file(img_filename):
-                    img_filenames.append(img_filename)
+                img_path = os.path.join(cur_dir, name)
+                if check_img_file(img_path):
+                    img_paths.append(img_path)
                     labels.append(label)
 
-    return img_filenames, np.array(labels, np.int32)
+    return img_paths, np.array(labels, np.int32)
 
 
-class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
-    """A classification dataset for directories whose names are label names.
+class DirectoryParsingLabelDataset(chainer.dataset.DatasetMixin):
+    """A label dataset whose label names are the names of the subdirectories.
 
     The label names are the names of the directories that locate a layer below
     the root directory.
@@ -91,9 +91,9 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
             --- class_1
                 |-- img_0.png
 
-        >>> from chainercv.dataset import DirectoryParsingClassificationDataset
-        >>> dataset = DirectoryParsingClassificationDataset('root')
-        >>> dataset.filenames
+        >>> from chainercv.datasets import DirectoryParsingLabelDataset
+        >>> dataset = DirectoryParsingLabelDataset('root')
+        >>> dataset.paths
         ['root/class_0/img_0.png', 'root/class_0/img_1.png',
         'root_class_1/img_0.png']
         >>> dataset.labels
@@ -123,13 +123,13 @@ class DirectoryParsingClassificationDataset(chainer.dataset.DatasetMixin):
         if check_img_file is None:
             check_img_file = _check_img_ext
 
-        self.img_filenames, self.labels = _parse_classification_dataset(
+        self.img_paths, self.labels = _parse_label_dataset(
             root, label_names, check_img_file)
 
     def __len__(self):
-        return len(self.img_filenames)
+        return len(self.img_paths)
 
     def get_example(self, i):
-        img = read_image(self.img_filenames[i], color=self.color)
+        img = read_image(self.img_paths[i], color=self.color)
         label = self.labels[i]
         return img, label

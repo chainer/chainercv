@@ -7,8 +7,8 @@ import tempfile
 from chainer import testing
 
 from chainercv.datasets import directory_parsing_label_names
-from chainercv.datasets import DirectoryParsingClassificationDataset
-from chainercv.utils import assert_is_classification_dataset
+from chainercv.datasets import DirectoryParsingLabelDataset
+from chainercv.utils import assert_is_label_dataset
 from chainercv.utils import write_image
 
 
@@ -28,8 +28,8 @@ def _setup_depth_one_dummy_data(tmp_dir, n_class, n_img_per_class,
         class_dir = os.path.join(tmp_dir, 'class_{}'.format(i))
         os.makedirs(class_dir)
         for j in range(n_img_per_class):
-            filename = os.path.join(class_dir, 'img{}.{}'.format(j, suffix))
-            _save_img_file(filename, size, color)
+            path = os.path.join(class_dir, 'img{}.{}'.format(j, suffix))
+            _save_img_file(path, size, color)
         open(os.path.join(class_dir, 'dummy_file.XXX'), 'a').close()
 
 
@@ -42,9 +42,9 @@ def _setup_depth_two_dummy_data(tmp_dir, n_class, n_img_per_class,
             nested_dir = os.path.join(class_dir, 'nested_{}'.format(j))
             os.makedirs(nested_dir)
             for k in range(n_img_per_class):
-                filename = os.path.join(
+                path = os.path.join(
                     nested_dir, 'img{}.{}'.format(k, suffix))
-                _save_img_file(filename, size, color)
+                _save_img_file(path, size, color)
             open(os.path.join(nested_dir, 'dummy_file.XXX'), 'a').close()
 
 
@@ -55,7 +55,7 @@ def _setup_depth_two_dummy_data(tmp_dir, n_class, n_img_per_class,
     'suffix': ['bmp', 'jpg', 'png', 'ppm', 'jpeg'],
     'depth': [1, 2]}
 ))
-class TestDirectoryParsingClassificationDataset(unittest.TestCase):
+class TestDirectoryParsingLabelDataset(unittest.TestCase):
 
     n_img_per_class = 5
     n_sub_directory = 6
@@ -73,8 +73,8 @@ class TestDirectoryParsingClassificationDataset(unittest.TestCase):
                                         self.n_sub_directory, self.size,
                                         self.color, self.suffix)
 
-    def test_directory_parsing_classification_dataset(self):
-        dataset = DirectoryParsingClassificationDataset(
+    def test_directory_parsing_label_dataset(self):
+        dataset = DirectoryParsingLabelDataset(
             self.tmp_dir, color=self.color)
 
         if self.depth == 1:
@@ -84,8 +84,7 @@ class TestDirectoryParsingClassificationDataset(unittest.TestCase):
                 self.n_img_per_class * self.n_sub_directory * self.n_class
         self.assertEqual(len(dataset), expected_legnth)
 
-        assert_is_classification_dataset(
-            dataset, self.n_class, color=self.color)
+        assert_is_label_dataset(dataset, self.n_class, color=self.color)
 
         label_names = directory_parsing_label_names(self.tmp_dir)
         self.assertEqual(
@@ -93,13 +92,13 @@ class TestDirectoryParsingClassificationDataset(unittest.TestCase):
 
         if self.depth == 1:
             self.assertEqual(
-                dataset.img_filenames,
+                dataset.img_paths,
                 ['{}/class_{}/img{}.{}'.format(self.tmp_dir, i, j, self.suffix)
                  for i in range(self.n_class)
                  for j in range(self.n_img_per_class)])
         elif self.depth == 2:
             self.assertEqual(
-                dataset.img_filenames,
+                dataset.img_paths,
                 ['{}/class_{}/nested_{}/img{}.{}'.format(
                     self.tmp_dir, i, j, k, self.suffix)
                  for i in range(self.n_class)
@@ -107,7 +106,7 @@ class TestDirectoryParsingClassificationDataset(unittest.TestCase):
                  for k in range(self.n_img_per_class)])
 
 
-class TestNumericalSortDirectoryParsingClassificationDataset(
+class TestNumericalSortDirectoryParsingLabelDataset(
         unittest.TestCase):
 
     n_class = 11
@@ -123,11 +122,10 @@ class TestNumericalSortDirectoryParsingClassificationDataset(
                            (48, 32), color=True)
 
     def test_numerical_sort(self):
-        dataset = DirectoryParsingClassificationDataset(
+        dataset = DirectoryParsingLabelDataset(
             self.tmp_dir, numerical_sort=True)
 
-        assert_is_classification_dataset(
-            dataset, self.n_class)
+        assert_is_label_dataset(dataset, self.n_class)
 
         label_names = directory_parsing_label_names(
             self.tmp_dir, numerical_sort=True)

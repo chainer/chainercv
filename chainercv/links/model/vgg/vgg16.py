@@ -15,8 +15,8 @@ from chainer.links import Linear
 from chainercv.utils import download_model
 
 from chainercv.links.connection.conv_2d_activ import Conv2DActiv
-from chainercv.links.model.sequential_feature_extractor import \
-    SequentialFeatureExtractor
+from chainercv.links.model.pickable_sequential_chain import \
+    PickableSequentialChain
 
 
 # RGB order
@@ -24,34 +24,32 @@ _imagenet_mean = np.array(
     [123.68, 116.779, 103.939], dtype=np.float32)[:, np.newaxis, np.newaxis]
 
 
-class VGG16(SequentialFeatureExtractor):
+class VGG16(PickableSequentialChain):
 
-    """VGG-16 Network for classification and feature extraction.
+    """VGG-16 Network.
 
-    This is a feature extraction model.
-    The network can choose output features from set of all
-    intermediate features.
-    The value of :obj:`VGG16.feature_names` selects the features that are going
-    to be collected by :meth:`__call__`.
-    :obj:`self.all_feature_names` is the list of the names of features
-    that can be collected.
+    This is a feature extraction link.
+    The network can choose output layers from set of all
+    intermediate layers.
+    The attribute :obj:`pick` is the names of the layers that are going
+    to be picked by :meth:`__call__`.
+    The attribute :obj:`layer_names` is the names of all layers
+    that can be picked.
 
     Examples:
 
         >>> model = VGG16()
         # By default, __call__ returns a probability score (after Softmax).
         >>> prob = model(imgs)
-
-        >>> model.feature_names = 'conv5_3'
-        # This is feature conv5_3 (after ReLU).
-        >>> feat5_3 = model(imgs)
-
-        >>> model.feature_names = ['conv5_3', 'fc6']
-        >>> # These are features conv5_3 (after ReLU) and fc6 (before ReLU).
-        >>> feat5_3, feat6 = model(imgs)
+        >>> model.pick = 'conv5_3'
+        # This is layer conv5_3 (after ReLU).
+        >>> conv5_3 = model(imgs)
+        >>> model.pick = ['conv5_3', 'fc6']
+        >>> # These are layers conv5_3 (after ReLU) and fc6 (before ReLU).
+        >>> conv5_3, fc6 = model(imgs)
 
     .. seealso::
-        :class:`chainercv.links.model.SequentialFeatureExtractor`
+        :class:`chainercv.links.model.PickableSequentialChain`
 
     When :obj:`pretrained_model` is the path of a pre-trained chainer model
     serialized as a :obj:`.npz` file in the constructor, this chain model
@@ -65,6 +63,12 @@ class VGG16(SequentialFeatureExtractor):
         <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_.
 
     Args:
+        n_class (int): The number of classes. If :obj:`None`,
+            the default values are used.
+            If a supported pretrained model is used,
+            the number of classes used to train the pretrained model
+            is used. Otherwise, the number of classes in ILSVRC 2012 dataset
+            is used.
         pretrained_model (str): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
@@ -73,12 +77,6 @@ class VGG16(SequentialFeatureExtractor):
             where :obj:`$CHAINER_DATASET_ROOT` is set as
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
-        n_class (int): The number of classes. If :obj:`None`,
-            the default values are used.
-            If a supported pretrained model is used,
-            the number of classes used to train the pretrained model
-            is used. Otherwise, the number of classes in ILSVRC 2012 dataset
-            is used.
         mean (numpy.ndarray): A mean value. If :obj:`None`,
             the default values are used.
             If a supported pretrained model is used,
@@ -100,7 +98,7 @@ class VGG16(SequentialFeatureExtractor):
     }
 
     def __init__(self,
-                 pretrained_model=None, n_class=None, mean=None,
+                 n_class=None, pretrained_model=None, mean=None,
                  initialW=None, initial_bias=None):
         if n_class is None:
             if pretrained_model in self._models:

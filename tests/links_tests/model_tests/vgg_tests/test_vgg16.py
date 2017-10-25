@@ -11,9 +11,9 @@ from chainercv.links import VGG16
 
 
 @testing.parameterize(
-    {'feature_names': 'prob', 'shapes': (1, 200), 'n_class': 200},
-    {'feature_names': 'pool5', 'shapes': (1, 512, 7, 7), 'n_class': None},
-    {'feature_names': ['conv5_3', 'conv4_2'],
+    {'pick': 'prob', 'shapes': (1, 200), 'n_class': 200},
+    {'pick': 'pool5', 'shapes': (1, 512, 7, 7), 'n_class': None},
+    {'pick': ['conv5_3', 'conv4_2'],
      'shapes': ((1, 512, 14, 14), (1, 512, 28, 28)), 'n_class': None},
 )
 @attr.slow
@@ -21,9 +21,9 @@ class TestVGG16Call(unittest.TestCase):
 
     def setUp(self):
         self.link = VGG16(
-            pretrained_model=None, n_class=self.n_class,
+            n_class=self.n_class, pretrained_model=None,
             initialW=Zero())
-        self.link.feature_names = self.feature_names
+        self.link.pick = self.pick
 
     def check_call(self):
         xp = self.link.xp

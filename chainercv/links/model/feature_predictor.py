@@ -12,7 +12,7 @@ from chainercv.transforms import ten_crop
 
 class FeaturePredictor(chainer.Chain):
 
-    """Wrapper that adds a prediction method to a feature extraction model.
+    """Wrapper that adds a prediction method to a feature extraction link.
 
     The :meth:`predict` takes three steps to make a prediction.
 
@@ -28,7 +28,7 @@ class FeaturePredictor(chainer.Chain):
         >>> model = FeaturePredictor(base_model, 224, 256)
         >>> prob = model.predict([img])
         # Predicting multiple features
-        >>> model.extractor.feature_names = ['conv5_3', 'fc7']
+        >>> model.extractor.pick = ['conv5_3', 'fc7']
         >>> conv5_3, fc7 = model.predict([img])
 
     When :obj:`self.crop == 'center'`, :meth:`predict` extracts features from
@@ -41,7 +41,7 @@ class FeaturePredictor(chainer.Chain):
     crops.
 
     Args:
-        extractor: A feature extraction model. This is a callable chain
+        extractor: A feature extraction link. This is a callable chain
             that takes a batch of images and returns a variable or a
             tuple of variables.
         crop_size (int or tuple): The height and the width of an image after
@@ -154,7 +154,7 @@ class FeaturePredictor(chainer.Chain):
             features = self.extractor(imgs)
 
         if isinstance(features, tuple):
-            output = []
+            output = list()
             for feature in features:
                 feature = feature.data
                 if n_crop > 1:

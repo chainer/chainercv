@@ -1,6 +1,6 @@
 # VGG
 
-For evaluation, please go to [`examples/classification`](https://github.com/chainer/chainercv/tree/master/examples).
+For evaluation, please go to [`examples/classification`](https://github.com/chainer/chainercv/tree/master/examples/classification).
 
 ## Convert Caffe model
 Convert `*.caffemodel` to `*.npz`.

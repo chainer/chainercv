@@ -9,9 +9,9 @@ from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
 
 
-class VOCDetectionDataset(chainer.dataset.DatasetMixin):
+class VOCBboxDataset(chainer.dataset.DatasetMixin):
 
-    """Dataset class for the detection task of PASCAL `VOC`_.
+    """Bounding box dataset for PASCAL `VOC`_.
 
     .. _`VOC`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
@@ -35,7 +35,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
     The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
     :math:`R` is the number of bounding boxes in the image.
     The class name of the label :math:`l` is :math:`l` th element of
-    :obj:`chainercv.datasets.voc_detection_label_names`.
+    :obj:`chainercv.datasets.voc_bbox_label_names`.
 
     The array :obj:`difficult` is a one dimensional boolean array of shape
     :math:`(R,)`. :math:`R` is the number of bounding boxes in the image.
@@ -58,9 +58,10 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
             2007 dataset.
         year ({'2007', '2012'}): Use a dataset prepared for a challenge
             held in :obj:`year`.
-        use_difficult (bool): If true, use images that are labeled as
+        use_difficult (bool): If :obj:`True`, use images that are labeled as
             difficult in the original annotation.
-        return_difficult (bool): If true, this dataset returns a boolean array
+        return_difficult (bool): If :obj:`True`, this dataset returns
+            a boolean array
             that indicates whether bounding boxes are labeled as difficult
             or not. The default value is :obj:`False`.
 
@@ -106,9 +107,9 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
         id_ = self.ids[i]
         anno = ET.parse(
             os.path.join(self.data_dir, 'Annotations', id_ + '.xml'))
-        bbox = []
-        label = []
-        difficult = []
+        bbox = list()
+        label = list()
+        difficult = list()
         for obj in anno.findall('object'):
             # when in not using difficult split, and the object is
             # difficult, skipt it.
@@ -122,7 +123,7 @@ class VOCDetectionDataset(chainer.dataset.DatasetMixin):
                 int(bndbox_anno.find(tag).text) - 1
                 for tag in ('ymin', 'xmin', 'ymax', 'xmax')])
             name = obj.find('name').text.lower().strip()
-            label.append(voc_utils.voc_detection_label_names.index(name))
+            label.append(voc_utils.voc_bbox_label_names.index(name))
         bbox = np.stack(bbox).astype(np.float32)
         label = np.stack(label).astype(np.int32)
         # When `use_difficult==False`, all elements in `difficult` are False.

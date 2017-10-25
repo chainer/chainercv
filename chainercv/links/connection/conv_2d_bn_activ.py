@@ -22,7 +22,7 @@ class Conv2DBNActiv(chainer.Chain):
 
         1. Give the first three arguments explicitly:
 
-            >>> l = Conv2DActiv(5, 10, 3)
+            >>> l = Conv2DBNActiv(5, 10, 3)
 
         2. Omit :obj:`in_channels` or fill it with :obj:`None`:
 

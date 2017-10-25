@@ -10,6 +10,21 @@ from chainercv import utils
 root = 'pfnet/chainercv/online_products'
 url = 'ftp://cs.stanford.edu/cs/cvgl/Stanford_Online_Products.zip'
 
+online_products_super_label_names = (
+    'bicycle',
+    'cabinet',
+    'chainer',
+    'coffe_maker',
+    'fan',
+    'kettle',
+    'lamp',
+    'mug',
+    'sofa',
+    'stapler',
+    'table',
+    'toaster'
+)
+
 
 def _get_online_products():
     data_root = download.get_dataset_directory(root)
@@ -36,6 +51,8 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
     a coarse level class id.
     Images are in RGB and CHW format.
     Class ids start from 0.
+    The name of the :math:`l` th coarse level class is :math:`l` th
+    element of :obj:`chainercv.datasets.online_products_super_label_names`.
 
     The :obj:`split` selects train and test split of the dataset as done in
     [#]_. The train split contains the first 11318 classes and the test
@@ -58,9 +75,9 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
             data_dir = _get_online_products()
         self.data_dir = data_dir
 
-        self.class_ids = []
-        self.super_class_ids = []
-        self.paths = []
+        self.class_ids = list()
+        self.super_class_ids = list()
+        self.paths = list()
         # for split in ['train', 'test']:
         id_list_file = os.path.join(data_dir, 'Ebay_{}.txt'.format(split))
         ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
