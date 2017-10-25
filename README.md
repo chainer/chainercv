@@ -12,7 +12,7 @@ Supported tasks:
 
 + Object Detection ([tutorial](http://chainercv.readthedocs.io/en/latest/tutorial/detection.html), [Faster R-CNN](examples/faster_rcnn), [SSD](examples/ssd))
 + Semantic Segmentation ([SegNet](examples/segnet),)
-+ Image Classification ([ImageNet](examples/classification),)
++ Image Classification ([VGG](examples/vgg),)
 
 # Guiding Principles
 ChainerCV is developed under the following three guiding principles.
