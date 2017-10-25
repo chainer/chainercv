@@ -55,7 +55,7 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
   + Size is represented by row-column order (i.e. `(height, width)`).
 + Bounding Boxes
   + Shape is `(R, 4)`.
-  + Coordinates are ordered as `(y_min, x_min, y_max, x_max`). The order is the opposite of OpenCV.
+  + Coordinates are ordered as `(y_min, x_min, y_max, x_max)`. The order is the opposite of OpenCV.
 + Semantic Segmentation Image
   + Shape is `(height, weight)`. 
   + The value is class id, which is in range `[0, n_class - 1]`.
