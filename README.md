@@ -53,6 +53,7 @@ This is **very** important.
   + Coordinates are ordered as `(y_min, x_min, y_max, x_max`). The order is the opposite of OpenCV.
 + Semantic Segmentation Image
   + Shape is `(height, weight)`. 
+  + The value is class id, which is in range `[0, n_class - 1]`.
 
 # Sample Visualization
 
