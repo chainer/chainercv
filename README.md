@@ -2,7 +2,7 @@
 
 [![travis](https://travis-ci.org/chainer/chainercv.svg?branch=master)](https://travis-ci.org/chainer/chainercv)
 
-# ChainerCV
+# ChainerCV: a Library for Deep Learning in Computer Vision
 
 ChainerCV is a collection of tools to train and run neural networks for computer vision tasks using [Chainer](https://github.com/chainer/chainer).
 
