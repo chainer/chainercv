@@ -58,9 +58,10 @@ class VOCBboxDataset(chainer.dataset.DatasetMixin):
             2007 dataset.
         year ({'2007', '2012'}): Use a dataset prepared for a challenge
             held in :obj:`year`.
-        use_difficult (bool): If true, use images that are labeled as
+        use_difficult (bool): If :obj:`True`, use images that are labeled as
             difficult in the original annotation.
-        return_difficult (bool): If true, this dataset returns a boolean array
+        return_difficult (bool): If :obj:`True`, this dataset returns
+            a boolean array
             that indicates whether bounding boxes are labeled as difficult
             or not. The default value is :obj:`False`.
 
