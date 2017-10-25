@@ -48,8 +48,6 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 
 # Data conventions
 
-This is **very** important.
-
 + Image
   + The order of color channel is RGB.
   + Shape is CHW (i.e. `(channel, height, width)`).
