@@ -17,7 +17,7 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
 
     .. note::
 
-        Please manually downalod the data because it is not allowed to
+        Please manually download the data because it is not allowed to
         re-distribute Cityscapes dataset.
 
     Args:
