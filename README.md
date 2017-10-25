@@ -39,10 +39,8 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 + The master branch will work on both the stable version (v2) and the development version (v3).
 + For users using Chainer v1, please use version `0.4.11`, which can be installed by `pip install chainercv==0.4.11`. This branch is unmaintained.
 
-
 # Data conventions
 
-<!--ChainerCV follows the following conventions.-->
 This is **very** important.
 
 + Image
@@ -53,9 +51,8 @@ This is **very** important.
 + Bounding Boxes
   + Shape is `(R, 4)`.
   + Coordinates are ordered as `(y_min, x_min, y_max, x_max`). The order is the opposite of OpenCV.
-+ Keypoints
-  + Shape is `(K, 2)`.
-  + Coordinates are ordered as `(y, x)`.
++ Semantic Segmentation Image
+  + Shape is `(height, weight)`. 
 
 # Sample Visualization
 
