@@ -152,7 +152,7 @@ Note that in this case, confidence scores are visualized together with other dat
 Many detection algorithms post-process bounding box proposals calculated from the output of neural networks by removing unnecessary ones.
 In the case of Faster R-CNN and SSD, bounding boxes with low confidence are suppressed and overlapping boxes are removed using non-maximum suppression.
 These two models have attributes :obj:`nms_thresh` and :obj:`score_thresh`, which configure the post-processing.
-In the following example, the algorithm runs with very low :obj:`score_thresh` so that bounding boxes with low scores are kept.
+In the following example, the algorithm runs with a very low :obj:`score_thresh` so that bounding boxes with low scores are kept.
 It is known that lower :obj:`score_thresh` produces higher mAP.
 
 .. code-block:: python
