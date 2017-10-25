@@ -1,4 +1,4 @@
-![](docs/images/logo.png)
+[![](docs/images/logo.png)](http://chainercv.readthedocs.io/en/stable/)
 
 [![travis](https://travis-ci.org/chainer/chainercv.svg?branch=master)](https://travis-ci.org/chainer/chainercv)
 
