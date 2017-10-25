@@ -2,17 +2,41 @@ Object Detection Tutorial
 =========================
 
 This tutorial will walk you through the features related to object detection that ChainerCV supports.
-We assume that readers have a basic understanding of Chainer framework (e.g. have a basic understanding of :class:`chainer.Link`).
+We assume that readers have a basic understanding of Chainer framework (e.g. understand :class:`chainer.Link`).
 For users new to Chainer, please first read `Introduction to Chainer <https://docs.chainer.org/en/stable/tutorial/basic.html#write-a-model-as-a-chain>`_.
 
 In ChainerCV, we define the object detection task as a problem of, given an image, bounding box based localization and categorization of objects.
-ChainerCV supports the task by providing following features:
+ChainerCV supports the task by providing the following features:
 
 + Visualization
 + BboxDataset
 + Detection Link
 + DetectionEvaluator
 + Training script for various detection models
+
+Here is a short example that conducts inference and visualizes output.
+Please download an image from a link below, and name it as :obj:`sample.jpg`.
+https://cloud.githubusercontent.com/assets/2062128/26187667/9cb236da-3bd5-11e7-8bcf-7dbd4302e2dc.jpg
+
+.. code-block:: python
+
+    from chainercv.visualizations import vis_bbox
+    from chainercv.datasets import voc_bbox_label_names
+    from chainercv.links import SSD300
+    from chainercv.utils import read_image
+    import matplotlib.pyplot as plt
+
+    # Read an RGB image and return it in CHW format.
+    img = read_image('sample.jpg')
+    model = SSD300(pretrained_model='voc0712')
+    bboxes, labels, scores = model.predict([img])
+    vis_bbox(img, bboxes[0], labels[0], scores[0],
+             label_names=voc_bbox_label_names)
+    plt.show()
+
+.. figure:: ../../image/detection_tutorial_link_simple.png 
+    :scale: 60%
+    :align: center
 
 
 Bounding boxes in ChainerCV
@@ -98,15 +122,24 @@ Inference on these models runs smoothly by downloading necessary pre-trained wei
     from chainercv.links import SSD300
     import matplotlib.pyplot as plt
     dataset = VOCBboxDataset(year='2007', split='test')
-    img, _, _ = dataset[0]
+    img_0, _, _ = dataset[0]
+    img_1, _, _ = dataset[1]
     model = SSD300(pretrained_model='voc0712')
     # Note that `predict` takes a list of images.
-    bboxes, labels, scores = model.predict([img])
-    vis_bbox(img, bboxes[0], labels[0], scores[0],
-             label_names=voc_bbox_label_names)
+    bboxes, labels, scores = model.predict([img_0, img_1])
+
+    # Visualize output of the first image on the left and
+    # the second image on the right.
+    fig = plt.figure()
+    ax1 = fig.add_subplot(1, 2, 1)
+    ax2 = fig.add_subplot(1, 2, 2)
+    vis_bbox(img_0, bboxes[0], labels[0], scores[0],
+             label_names=voc_bbox_label_names, ax=ax1)
+    vis_bbox(img_1, bboxes[1], labels[1], scores[1],
+             label_names=voc_bbox_label_names, ax=ax2)
     plt.show()
 
-.. figure:: ../../image/detection_tutorial_link.png 
+.. figure:: ../../image/detection_tutorial_link_two_images.png 
     :scale: 60%
     :align: center
 
@@ -115,6 +148,34 @@ It instantiates SSD300 model with weights trained on VOC 2007 and VOC 2012 datas
 The model runs prediction using :meth:`predict`, and the ouptus are visualized using
 :func:`chainercv.visualizations.vis_bbox`.
 Note that in this case, confidence scores are visualized together with other data.
+
+Many detection algorithms post-process bounding box proposals calculated from the output of neural networks by removing unnecessary ones.
+In the case of Faster R-CNN and SSD, bounding boxes with low confidence are suppressed and overlapping boxes are removed using non-maximum suppression.
+These two models have attributes :obj:`nms_thresh` and :obj:`score_thresh`, which configure the post-processing.
+In the following example, the algorithm runs with very low :obj:`score_thresh` so that bounding boxes with low scores are kept.
+It is known that lower :obj:`score_thresh` produces higher mAP.
+
+.. code-block:: python
+
+    from chainercv.visualizations import vis_bbox
+    from chainercv.datasets import VOCBboxDataset
+    from chainercv.datasets import voc_bbox_label_names
+    from chainercv.links import SSD300
+    import matplotlib.pyplot as plt
+    dataset = VOCBboxDataset(year='2007', split='test')
+    img, _, _ = dataset[0]
+    model = SSD300(pretrained_model='voc0712')
+    # Alternatively, you can use predefined parameters by
+    # model.use_preset('evaluate')
+    model.score_thresh = 0.01
+    bboxes, labels, scores = model.predict([img])
+    vis_bbox(img, bboxes[0], labels[0], scores[0],
+             label_names=voc_bbox_label_names)
+    plt.show()
+
+.. figure:: ../../image/detection_tutorial_link_low_score_thresh.png
+    :scale: 60%
+    :align: center
 
 
 Detection Evaluator
