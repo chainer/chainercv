@@ -15,7 +15,7 @@ class CUBLabelDataset(CUBDatasetBase):
     When queried by an index, this dataset returns a corresponding
     :obj:`img, label`, a tuple of an image and class id.
     The image is in RGB and CHW format.
-    The class id are between 0 and 199.
+    The class id is between 0 and 199.
     If :obj:`return_bb = True`, a bounding box :obj:`bb` is appended to the
     tuple.
     If :obj:`return_prob_map = True`, a probability map :obj:`prob_map` is
