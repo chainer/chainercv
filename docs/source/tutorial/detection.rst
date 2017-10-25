@@ -145,7 +145,7 @@ Inference on these models runs smoothly by downloading necessary pre-trained wei
 
 The above example puts together functinality of detection link.
 It instantiates SSD300 model with weights trained on VOC 2007 and VOC 2012 datasets.
-The model runs prediction using :meth:`predict`, and the ouptus are visualized using
+The model runs prediction using :meth:`predict`, and the outputs are visualized using
 :func:`chainercv.visualizations.vis_bbox`.
 Note that in this case, confidence scores are visualized together with other data.
 
