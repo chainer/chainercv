@@ -29,6 +29,7 @@ class TestProgressHook(unittest.TestCase):
             self.predict, iterator,
             hook=ProgressHook(n_total=len(self.dataset)))
 
+        # consume all data
         for _ in imgs:
             pass
 
@@ -36,7 +37,7 @@ class TestProgressHook(unittest.TestCase):
         iterator = SerialIterator(self.dataset, 2)
 
         imgs, pred_values, gt_values = apply_prediction_to_iterator(
-            self.predict, iterator)
+            self.predict, iterator, hook=ProgressHook())
 
         for _ in range(10):
             next(imgs)
