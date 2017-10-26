@@ -20,11 +20,14 @@ https://cloud.githubusercontent.com/assets/2062128/26187667/9cb236da-3bd5-11e7-8
 
 .. code-block:: python
 
+    # In the rest of the tutorial, we assume that the `plt`
+    # is imported before every code snippet.
+    import matplotlib.pyplot as plt
+
     from chainercv.datasets import voc_bbox_label_names
     from chainercv.links import SSD300
     from chainercv.utils import read_image
     from chainercv.visualizations import vis_bbox
-    import matplotlib.pyplot as plt
 
     # Read an RGB image and return it in CHW format.
     img = read_image('sample.jpg')
@@ -54,7 +57,6 @@ Here is an example with a simple toy data.
 .. code-block:: python
 
     from chainercv.visualizations import vis_bbox
-    import matplotlib.pyplot as plt
     import numpy as np
 
     img = np.zeros((3, 224, 224), dtype=np.float32)
@@ -90,7 +92,6 @@ In the next example, the interface of :obj:`BboxDataset` and the functionality o
     from chainercv.datasets import VOCBboxDataset
     from chainercv.datasets import voc_bbox_label_names
     from chainercv.visualizations import vis_bbox
-    import matplotlib.pyplot as plt
 
     dataset = VOCBboxDataset(year='2012')
     img, bbox, label = dataset[0]
@@ -122,7 +123,6 @@ Inference on these models runs smoothly by downloading necessary pre-trained wei
     from chainercv.datasets import voc_bbox_label_names
     from chainercv.links import SSD300
     from chainercv.visualizations import vis_bbox
-    import matplotlib.pyplot as plt
 
     dataset = VOCBboxDataset(year='2007', split='test')
     img_0, _, _ = dataset[0]
@@ -164,7 +164,6 @@ It is known that lower :obj:`score_thresh` produces higher mAP.
     from chainercv.datasets import voc_bbox_label_names
     from chainercv.links import SSD300
     from chainercv.visualizations import vis_bbox
-    import matplotlib.pyplot as plt
 
     dataset = VOCBboxDataset(year='2007', split='test')
     img, _, _ = dataset[0]
