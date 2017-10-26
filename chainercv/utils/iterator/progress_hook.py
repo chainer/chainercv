@@ -5,7 +5,7 @@ import time
 
 
 class ProgressHook(object):
-    """A progress hook for chainercv.utils.apply_prediction_to_iterator
+    """A hook class reporting the progress of iteration.
 
     This is a hook class designed for
     :func:`~chainercv.utils.apply_prediction_to_iterator`.
