@@ -233,7 +233,7 @@ Also, ChainerCV posts the performance achieved through running the training scri
 
 
 References
-..........
+----------
 
 .. [Ren15] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
     Faster R-CNN: Towards Real-Time Object Detection with \
