@@ -60,7 +60,7 @@ class SSD(chainer.Chain):
 
     Parameters:
         nms_thresh (float): The threshold value
-            for :meth:`~chainercv.utils.non_maximum_suppression`.
+            for :func:`~chainercv.utils.non_maximum_suppression`.
             The default value is :obj:`0.45`.
             This value can be changed directly or by using :meth:`use_preset`.
         score_thresh (float): The threshold value for confidence score.

@@ -198,7 +198,7 @@ class MultiboxCoder(object):
             mb_conf (array): A float array whose shape is
                 :math:`(K, n\_fg\_class + 1)`.
             nms_thresh (float): The threshold value
-                for :meth:`~chainercv.utils.non_maximum_suppression`.
+                for :func:`~chainercv.utils.non_maximum_suppression`.
                 The default value is :obj:`0.45`.
             score_thresh (float): The threshold value for confidence score.
                 If a bounding box whose confidence score is lower than
