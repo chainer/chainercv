@@ -68,7 +68,7 @@ Here is an example with a simple toy data.
     :align: center
 
 In this example, two bounding boxes are displayed on top of a black image.
-:func:`chainercv.visualizations.vis_bbox` is a utility function that visualizes
+:func:`~chainercv.visualizations.vis_bbox` is a utility function that visualizes
 bounding boxes and an image together.
 
 
@@ -80,9 +80,9 @@ These datasets can be indexed to return a tuple of an image, bounding boxes and 
 The labels are stored in an :obj:`np.int32` array of shape :math:`(R,)`. Each element corresponds to a label of an object in the corresponding bounding box.
 
 A mapping between an integer label and a category differs between datasets.
-This mapping can be obtained from objects whose names end with :obj:`label_names`, such as :obj:`chainercv.datasets.voc_bbox_label_names`.
+This mapping can be obtained from objects whose names end with :obj:`label_names`, such as :obj:`~chainercv.datasets.voc_bbox_label_names`.
 These mappings become helpful when bounding boxes need to be visualized with label names.
-In the next example, the interface of :obj:`BboxDataset` and the functionality of :obj:`vis_bbox` to visualize label names are illustrated.
+In the next example, the interface of :obj:`BboxDataset` and the functionality of :func:`~chainercv.visualizations.vis_bbox` to visualize label names are illustrated.
 
 .. code-block:: python
 
@@ -109,9 +109,9 @@ Detection Link
 ChainerCV provides several network implementations that carry out object detection.
 For example, Single Shot MultiBox Detector (SSD) [Liu16]_ and Faster R-CNN [Ren15]_ are supported.
 Despite the difference between the models in how prediction is carried out internally,
-they support the common method for prediction called :meth:`predict`.
+they support the common method for prediction called :meth:`~chainercv.links.model.ssd.SSD.predict`.
 This method takes a list of images and returns prediction result, which is a tuple of lists :obj:`bboxes, labels, scores`.
-The more description can be found here (:meth:`chainercv.links.SSD.predict`).
+The more description can be found here (:meth:`~chainercv.links.model.ssd.SSD.predict`).
 Inference on these models runs smoothly by downloading necessary pre-trained weights from the internet automatically.
 
 .. code-block:: python
@@ -145,8 +145,8 @@ Inference on these models runs smoothly by downloading necessary pre-trained wei
 
 The above example puts together functinality of detection link.
 It instantiates SSD300 model with weights trained on VOC 2007 and VOC 2012 datasets.
-The model runs prediction using :meth:`predict`, and the outputs are visualized using
-:func:`chainercv.visualizations.vis_bbox`.
+The model runs prediction using :meth:`~chainercv.links.model.ssd.SSD.predict`, and the outputs are visualized using
+:func:`~chainercv.visualizations.vis_bbox`.
 Note that in this case, confidence scores are visualized together with other data.
 
 Many detection algorithms post-process bounding box proposals calculated from the output of neural networks by removing unnecessary ones.
@@ -183,15 +183,15 @@ Detection Evaluator
 ChainerCV provides functionalities that make evaluating detection links easy.
 They are provided at two levels: evaluator extensions and evaluation functions.
 
-Evaluator extensions such as :class:`chainercv.extensions.DetectionVOCEvaluator` inherit from :class:`chainer.training.extensions.Evaluator`, and have similar interface.
-They are initialized by taking an iterator and a network that carries out prediction with method :meth:`predict`.
-When this class is called (i.e. :meth:`DetectionVOCEvaluator.__call__`), several actions are taken.
+Evaluator extensions such as :class:`~chainercv.extensions.DetectionVOCEvaluator` inherit from :class:`~chainer.training.extensions.Evaluator`, and have similar interface.
+They are initialized by taking an iterator and a network that carries out prediction with method :meth:`~chainercv.links.model.ssd.SSD.predict`.
+When this class is called (i.e. :meth:`__call__` of :class:`~chainercv.extensions.DetectionVOCEvaluator`), several actions are taken.
 First, it iterates over a dataset based on an iterator.
 Second, the network makes prediction using the images collected from the dataset.
 Last, an evaluation function is called with the ground truth annotations and the prediction results.
 
 In contrast to evaluators that hide details,
-evaluation functions such as :meth:`chainercv.evaluations.eval_detection_voc`
+evaluation functions such as :meth:`~chainercv.evaluations.eval_detection_voc`
 are provided for those who need a finer level of control.
 These functions take the ground truth annotations and prediction results as arguments
 and return measured performance.
