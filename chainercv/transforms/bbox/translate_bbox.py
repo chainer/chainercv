@@ -4,7 +4,7 @@ def translate_bbox(bbox, y_offset=0, x_offset=0):
     This method is mainly used together with image transforms, such as padding
     and cropping, which translates the left top point of the image from
     coordinate :math:`(0, 0)` to coordinate
-    :math:`(y, x) = (y\_offset, x\_offset)`.
+    :math:`(y, x) = (y_{offset}, x_{offset})`.
 
     The bounding boxes are expected to be packed into a two dimensional
     tensor of shape :math:`(R, 4)`, where :math:`R` is the number of
