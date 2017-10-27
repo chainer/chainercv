@@ -55,6 +55,10 @@ apply_prediction_to_iterator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: apply_prediction_to_iterator
 
+ProgressHook
+~~~~~~~~~~~~
+.. autoclass:: ProgressHook
+
 unzip
 ~~~~~
 .. autofunction:: unzip
