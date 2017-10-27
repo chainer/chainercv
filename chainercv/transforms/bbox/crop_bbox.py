@@ -42,7 +42,7 @@ def crop_bbox(
         contents are listed below with key, value-type and the description
         of the value.
 
-        * **index** (*numpy.ndarray*): An array holding indices of used
+        * **index** (*numpy.ndarray*): An array holding indices of used \
             bounding boxes.
 
     """
