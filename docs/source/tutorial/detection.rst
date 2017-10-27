@@ -192,7 +192,7 @@ Last, an evaluation function is called with the ground truth annotations and the
 
 In contrast to evaluators that hide details,
 evaluation functions such as :meth:`chainercv.evaluations.eval_detection_voc`
-are provided for those who need finer level of control.
+are provided for those who need a finer level of control.
 These functions take the ground truth annotations and prediction results as arguments
 and return measured performance.
 

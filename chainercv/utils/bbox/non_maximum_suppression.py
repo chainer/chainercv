@@ -40,8 +40,8 @@ def non_maximum_suppression(bbox, thresh, score=None,
 
     This function accepts both :obj:`numpy.ndarray` and :obj:`cupy.ndarray` as
     inputs. Please note that both :obj:`bbox` and :obj:`score` need to be
-    same type.
-    The output is same type as the type of the inputs.
+    the same type.
+    The type of the output is the same as the inputs.
 
     Args:
         bbox (array): Bounding boxes to be transformed. The shape is
