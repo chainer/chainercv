@@ -39,9 +39,9 @@ def non_maximum_suppression(bbox, thresh, score=None,
     confidence of prediction.
 
     This function accepts both :obj:`numpy.ndarray` and :obj:`cupy.ndarray` as
-    inputs. Please note that both :obj:`bbox` and :obj:`score` need to be
+    an input. Please note that both :obj:`bbox` and :obj:`score` need to be
     the same type.
-    The type of the output is the same as the inputs.
+    The type of the output is the same as the input.
 
     Args:
         bbox (array): Bounding boxes to be transformed. The shape is
