@@ -49,7 +49,7 @@ class VGG16(PickableSequentialChain):
         >>> conv5_3, fc6 = model(imgs)
 
     .. seealso::
-        :class:`chainercv.links.model.PickableSequentialChain`
+        :class:`~chainercv.links.model.PickableSequentialChain`
 
     When :obj:`pretrained_model` is the path of a pre-trained chainer model
     serialized as a :obj:`.npz` file in the constructor, this chain model
