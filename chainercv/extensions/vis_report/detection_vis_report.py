@@ -31,7 +31,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
 
     Internally, this extension takes examples from an iterator,
     predict bounding boxes from the images in the examples,
-    and visualizes them using :meth:`~chainercv.visualizations.vis_bbox`.
+    and visualizes them using :meth:`chainercv.visualizations.vis_bbox`.
     The process can be illustrated in the following code.
 
     .. code:: python

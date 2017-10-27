@@ -40,10 +40,10 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
     calculation.
 
     For details on the evaluation metrics, please see the documentation
-    for :func:`~chainercv.evaluations.eval_semantic_segmentation`.
+    for :func:`chainercv.evaluations.eval_semantic_segmentation`.
 
     .. seealso::
-        :func:`~chainercv.evaluations.eval_semantic_segmentation`.
+        :func:`chainercv.evaluations.eval_semantic_segmentation`.
 
     Args:
         iterator (chainer.Iterator): An iterator. Each sample should be
