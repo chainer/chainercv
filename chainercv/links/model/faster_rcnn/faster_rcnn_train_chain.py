@@ -39,9 +39,9 @@ class FasterRCNNTrainChain(chainer.Chain):
             the head. The default value is 1, which is the value used
             in [#FRCNN]_.
         anchor_target_creator: An instantiation of
-            :obj:`chainercv.links.model.faster_rcnn.AnchorTargetCreator`.
+            :obj:`~chainercv.links.model.faster_rcnn.AnchorTargetCreator`.
         proposal_target_creator_params: An instantiation of
-            :obj:`chainercv.links.model.faster_rcnn.ProposalTargetCreator`.
+            :obj:`~chainercv.links.model.faster_rcnn.ProposalTargetCreator`.
 
     """
 
