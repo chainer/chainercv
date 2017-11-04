@@ -23,7 +23,7 @@ def directory_parsing_label_names(root, numerical_sort=False):
             which is not the case when string sort is used.
             The default value is :obj:`False`.
 
-    Retruns:
+    Returns:
         list of strings:
         Sorted names of classes.
 

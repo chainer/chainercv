@@ -1,6 +1,4 @@
 import argparse
-import sys
-import time
 
 import numpy as np
 
@@ -14,22 +12,7 @@ from chainercv.links import FeaturePredictor
 from chainercv.links import VGG16
 
 from chainercv.utils import apply_prediction_to_iterator
-
-
-class ProgressHook(object):
-
-    def __init__(self, n_total):
-        self.n_total = n_total
-        self.start = time.time()
-        self.n_processed = 0
-
-    def __call__(self, imgs, pred_values, gt_values):
-        self.n_processed += len(imgs)
-        fps = self.n_processed / (time.time() - self.start)
-        sys.stdout.write(
-            '\r{:d} of {:d} images, {:.2f} FPS'.format(
-                self.n_processed, self.n_total, fps))
-        sys.stdout.flush()
+from chainercv.utils import ProgressHook
 
 
 def main():

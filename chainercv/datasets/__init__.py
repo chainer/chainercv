@@ -1,8 +1,13 @@
+from chainercv.datasets.ade20k.ade20k_semantic_segmentation_dataset import ADE20KSemanticSegmentationDataset  # NOQA
+from chainercv.datasets.ade20k.ade20k_test_image_dataset import ADE20KTestImageDataset  # NOQA
+from chainercv.datasets.ade20k.ade20k_utils import ade20k_semantic_segmentation_label_colors  # NOQA
+from chainercv.datasets.ade20k.ade20k_utils import ade20k_semantic_segmentation_label_names  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import camvid_ignore_label_color  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import camvid_label_colors  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import camvid_label_names  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import CamVidDataset  # NOQA
 from chainercv.datasets.cityscapes.cityscapes_semantic_segmentation_dataset import CityscapesSemanticSegmentationDataset  # NOQA
+from chainercv.datasets.cityscapes.cityscapes_test_image_dataset import CityscapesTestImageDataset  # NOQA
 from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_semantic_segmentation_label_colors  # NOQA
 from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_semantic_segmentation_label_names  # NOQA
 from chainercv.datasets.cub.cub_keypoint_dataset import CUBKeypointDataset  # NOQA

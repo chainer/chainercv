@@ -66,46 +66,52 @@ def random_distort(
         img[img > 255] = 255
         return img.astype(np.uint8)
 
-    def brightness(cv_img):
+    def brightness(cv_img, delta):
         if random.randrange(2):
-            return convert(cv_img, beta=random.uniform(-32, 32))
+            return convert(
+                cv_img,
+                beta=random.uniform(-delta, delta))
         else:
             return cv_img
 
-    def contrast(cv_img):
+    def contrast(cv_img, low, high):
         if random.randrange(2):
-            return convert(cv_img, alpha=random.uniform(0.5, 1.5))
+            return convert(
+                cv_img,
+                alpha=random.uniform(low, high))
         else:
             return cv_img
 
-    def saturation(cv_img):
+    def saturation(cv_img, low, high):
         if random.randrange(2):
             cv_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2HSV)
             cv_img[:, :, 1] = convert(
-                cv_img[:, :, 1], alpha=random.uniform(0.5, 1.5))
+                cv_img[:, :, 1],
+                alpha=random.uniform(low, high))
             return cv2.cvtColor(cv_img, cv2.COLOR_HSV2BGR)
         else:
             return cv_img
 
-    def hue(cv_img):
+    def hue(cv_img, delta):
         if random.randrange(2):
             cv_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2HSV)
             cv_img[:, :, 0] = (
-                cv_img[:, :, 0].astype(int) + random.randint(-18, 18)) % 180
+                cv_img[:, :, 0].astype(int) +
+                random.randint(-delta, delta)) % 180
             return cv2.cvtColor(cv_img, cv2.COLOR_HSV2BGR)
         else:
             return cv_img
 
-    cv_img = brightness(cv_img)
+    cv_img = brightness(cv_img, brightness_delta)
 
     if random.randrange(2):
-        cv_img = contrast(cv_img)
-        cv_img = saturation(cv_img)
-        cv_img = hue(cv_img)
+        cv_img = contrast(cv_img, contrast_low, contrast_high)
+        cv_img = saturation(cv_img, saturation_low, saturation_high)
+        cv_img = hue(cv_img, hue_delta)
     else:
-        cv_img = saturation(cv_img)
-        cv_img = hue(cv_img)
-        cv_img = contrast(cv_img)
+        cv_img = saturation(cv_img, saturation_low, saturation_high)
+        cv_img = hue(cv_img, hue_delta)
+        cv_img = contrast(cv_img, contrast_low, contrast_high)
 
     return cv_img.astype(np.float32).transpose((2, 0, 1))[::-1]
 
