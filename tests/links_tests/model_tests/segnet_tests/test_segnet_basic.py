@@ -13,7 +13,6 @@ from chainercv.utils import assert_is_semantic_segmentation_link
     {'train': False},
     {'train': True}
 )
-@attr.slow
 class TestSegNetBasic(unittest.TestCase):
 
     def setUp(self):
