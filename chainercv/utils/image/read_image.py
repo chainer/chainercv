@@ -1,5 +1,7 @@
 import numpy as np
 from PIL import Image
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 def read_image(path, dtype=np.float32, color=True):
