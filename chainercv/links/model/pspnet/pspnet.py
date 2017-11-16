@@ -115,23 +115,9 @@ class BottleneckIdentity(chainer.Chain):
 
 class ResBlock(chainer.ChainList):
 
-    def __init__(self, n_layer, in_ch, mid_ch, out_ch, stride):
+    def __init__(self, n_layer, in_ch, mid_ch, out_ch, stride=1, dilate=False):
         super(ResBlock, self).__init__()
-        self.add_link(BottleneckConv(in_ch, mid_ch, out_ch, stride))
-        for _ in six.moves.xrange(1, n_layer):
-            self.add_link(BottleneckIdentity(out_ch, mid_ch))
-
-    def __call__(self, x):
-        for f in self:
-            x = f(x)
-        return x
-
-
-class DilatedResBlock(chainer.ChainList):
-
-    def __init__(self, n_layer, in_ch, mid_ch, out_ch, dilate):
-        super(DilatedResBlock, self).__init__()
-        self.add_link(BottleneckConv(in_ch, mid_ch, out_ch, 1, dilate))
+        self.add_link(BottleneckConv(in_ch, mid_ch, out_ch, stride, dilate))
         for _ in six.moves.xrange(1, n_layer):
             self.add_link(BottleneckIdentity(out_ch, mid_ch, dilate))
 
@@ -151,8 +137,8 @@ class DilatedFCN(chainer.Chain):
             self.cbr1_3 = ConvBNReLU(64, 128, 3, 1, 1)
             self.res2 = ResBlock(n_blocks[0], 128, 64, 256, 1)
             self.res3 = ResBlock(n_blocks[1], 256, 128, 512, 2)
-            self.res4 = DilatedResBlock(n_blocks[2], 512, 256, 1024, 2)
-            self.res5 = DilatedResBlock(n_blocks[3], 1024, 512, 2048, 4)
+            self.res4 = ResBlock(n_blocks[2], 512, 256, 1024, 2, dilate=True)
+            self.res5 = ResBlock(n_blocks[3], 1024, 512, 2048, 4, dilate=True)
 
     def __call__(self, x):
         h = self.cbr1_3(self.cbr1_2(self.cbr1_1(x)))  # 1/2
