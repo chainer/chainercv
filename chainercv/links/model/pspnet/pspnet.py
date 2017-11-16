@@ -76,21 +76,21 @@ class BottleneckConv(chainer.Chain):
         mid_stride = chainer.config.mid_stride
         super(BottleneckConv, self).__init__()
         with self.init_scope():
-            self.cbr1 = ConvBNReLU(
+            self.conv1 = ConvBNReLU(
                 in_ch, mid_ch, 1, 1 if mid_stride else stride, 0)
             if dilate:
-                self.cbr2 = ConvBNReLU(mid_ch, mid_ch, 3, 1, dilate, dilate)
+                self.conv2 = ConvBNReLU(mid_ch, mid_ch, 3, 1, dilate, dilate)
             else:
-                self.cbr2 = ConvBNReLU(
+                self.conv2 = ConvBNReLU(
                     mid_ch, mid_ch, 3, stride if mid_stride else 1, 1)
-            self.cbr3 = ConvBNReLU(mid_ch, out_ch, 1, 1, 0)
-            self.cbr4 = ConvBNReLU(in_ch, out_ch, 1, stride, 0)
+            self.conv3 = ConvBNReLU(mid_ch, out_ch, 1, 1, 0)
+            self.conv4 = ConvBNReLU(in_ch, out_ch, 1, stride, 0)
 
     def __call__(self, x):
-        h = self.cbr1(x)
-        h = self.cbr2(h)
-        h1 = self.cbr3(h, relu=False)
-        h2 = self.cbr4(x, relu=False)
+        h = self.conv1(x)
+        h = self.conv2(h)
+        h1 = self.conv3(h, relu=False)
+        h2 = self.conv4(x, relu=False)
         return F.relu(h1 + h2)
 
 
