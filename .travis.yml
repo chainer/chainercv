@@ -44,6 +44,7 @@ script:
   - pip install autopep8
   - pip install mock
   - pip install nose
+  - pip install pytest
   - flake8 .
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
