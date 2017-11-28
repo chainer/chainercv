@@ -53,11 +53,11 @@ class SSDCaffeFunction(caffe.CaffeFunction):
 
             if new_name == 'extractor/conv1_1':
                 # BGR -> RGB
-                value.W.data[:, ::-1] = value.W.data
+                value.W.array[:, ::-1] = value.W.array
                 print('{:s} -> {:s} (BGR -> RGB)'.format(name, new_name))
             elif new_name.startswith('multibox/loc/'):
                 # xy -> yx
-                for data in (value.W.data, value.b.data):
+                for data in (value.W.array, value.b.array):
                     data = data.reshape((-1, 4) + data.shape[1:])
                     data[:, [1, 0, 3, 2]] = data.copy()
                 print('{:s} -> {:s} (xy -> yx)'.format(name, new_name))
@@ -72,7 +72,7 @@ class SSDCaffeFunction(caffe.CaffeFunction):
     def _setup_normarize(self, layer):
         blobs = layer.blobs
         func = Normalize(caffe._get_num(blobs[0]))
-        func.scale.data[:] = np.array(blobs[0].data)
+        func.scale.array[:] = np.array(blobs[0].array)
         with self.init_scope():
             setattr(self, layer.name, func)
 

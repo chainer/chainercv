@@ -26,13 +26,13 @@ class TestNormalize(unittest.TestCase):
         y = self.link(x)
 
         self.assertIsInstance(y, chainer.Variable)
-        self.assertIsInstance(y.data, type(x))
+        self.assertIsInstance(y.array, type(x))
         self.assertEqual(y.shape, x.shape)
         self.assertEqual(y.dtype, x.dtype)
 
         x = chainer.cuda.to_cpu(x)
-        y = chainer.cuda.to_cpu(y.data)
-        scale = chainer.cuda.to_cpu(self.link.scale.data)
+        y = chainer.cuda.to_cpu(y.array)
+        scale = chainer.cuda.to_cpu(self.link.scale.array)
 
         norm = np.linalg.norm(x, axis=1, keepdims=True) + self.eps
         expect = x / norm * scale[:, np.newaxis, np.newaxis]
@@ -50,7 +50,7 @@ class TestNormalize(unittest.TestCase):
         self._check_forward(np.zeros_like(self.x))
 
     @attr.gpu
-    def test_forward_zero__gpu(self):
+    def test_forward_zero_gpu(self):
         self.link.to_gpu()
         self._check_forward(chainer.cuda.to_gpu(np.zeros_like(self.x)))
 

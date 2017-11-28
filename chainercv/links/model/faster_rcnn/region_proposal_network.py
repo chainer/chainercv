@@ -126,7 +126,7 @@ class RegionProposalNetwork(chainer.Chain):
         roi_indices = list()
         for i in range(n):
             roi = self.proposal_layer(
-                rpn_locs[i].data, rpn_fg_scores[i].data, anchor, img_size,
+                rpn_locs[i].array, rpn_fg_scores[i].array, anchor, img_size,
                 scale=scale)
             batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
             rois.append(roi)

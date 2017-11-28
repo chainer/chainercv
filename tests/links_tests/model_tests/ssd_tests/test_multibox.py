@@ -34,12 +34,12 @@ class TestMultibox(unittest.TestCase):
         mb_locs, mb_confs = self.link(xs)
 
         self.assertIsInstance(mb_locs, chainer.Variable)
-        self.assertIsInstance(mb_locs.data, type(xs[0]))
+        self.assertIsInstance(mb_locs.array, type(xs[0]))
         self.assertEqual(mb_locs.shape, (self.batchsize, self.n_bbox, 4))
         self.assertEqual(mb_locs.dtype, xs[0].dtype)
 
         self.assertIsInstance(mb_confs, chainer.Variable)
-        self.assertIsInstance(mb_confs.data, type(xs[0]))
+        self.assertIsInstance(mb_confs.array, type(xs[0]))
         self.assertEqual(
             mb_confs.shape, (self.batchsize, self.n_bbox, self.n_class))
         self.assertEqual(mb_confs.dtype, xs[0].dtype)

@@ -90,11 +90,11 @@ class FasterRCNNTrainChain(chainer.Chain):
 
         """
         if isinstance(bboxes, chainer.Variable):
-            bboxes = bboxes.data
+            bboxes = bboxes.array
         if isinstance(labels, chainer.Variable):
-            labels = labels.data
+            labels = labels.array
         if isinstance(scale, chainer.Variable):
-            scale = scale.data
+            scale = scale.array
         scale = np.asscalar(cuda.to_cpu(scale))
         n = bboxes.shape[0]
         if n != 1:
@@ -151,7 +151,7 @@ def _smooth_l1_loss(x, t, in_weight, sigma):
     sigma2 = sigma ** 2
     diff = in_weight * (x - t)
     abs_diff = F.absolute(diff)
-    flag = (abs_diff.data < (1. / sigma2)).astype(np.float32)
+    flag = (abs_diff.array < (1. / sigma2)).astype(np.float32)
 
     y = (flag * (sigma2 / 2.) * F.square(diff) +
          (1 - flag) * (abs_diff - 0.5 / sigma2))

@@ -33,7 +33,7 @@ class VGGCaffeFunction(caffe.CaffeFunction):
 
             if new_name == 'conv1_1/conv':
                 # BGR -> RGB
-                value.W.data[:, ::-1] = value.W.data
+                value.W.array[:, ::-1] = value.W.array
                 print('{:s} -> {:s} (BGR -> RGB)'.format(name, new_name))
             else:
                 print('{:s} -> {:s}'.format(name, new_name))

@@ -59,17 +59,17 @@ class TestMultiboxLoss(unittest.TestCase):
         self.assertEqual(conf_loss.dtype, mb_confs.dtype)
 
         if self.variable:
-            mb_locs = mb_locs.data
-            mb_confs = mb_confs.data
-            gt_mb_locs = gt_mb_locs.data
-            gt_mb_labels = gt_mb_labels.data
+            mb_locs = mb_locs.array
+            mb_confs = mb_confs.array
+            gt_mb_locs = gt_mb_locs.array
+            gt_mb_labels = gt_mb_labels.array
 
         mb_locs = cuda.to_cpu(mb_locs)
         mb_confs = cuda.to_cpu(mb_confs)
         gt_mb_locs = cuda.to_cpu(gt_mb_locs)
         gt_mb_labels = cuda.to_cpu(gt_mb_labels)
-        loc_loss = cuda.to_cpu(loc_loss.data)
-        conf_loss = cuda.to_cpu(conf_loss.data)
+        loc_loss = cuda.to_cpu(loc_loss.array)
+        conf_loss = cuda.to_cpu(conf_loss.array)
 
         n_positive_total = 0
         expect_loc_loss = 0
@@ -80,10 +80,10 @@ class TestMultiboxLoss(unittest.TestCase):
             for j in six.moves.xrange(gt_mb_labels.shape[1]):
                 loc = F.huber_loss(
                     mb_locs[np.newaxis, i, j],
-                    gt_mb_locs[np.newaxis, i, j], 1).data
+                    gt_mb_locs[np.newaxis, i, j], 1).array
                 conf = F.softmax_cross_entropy(
                     mb_confs[np.newaxis, i, j],
-                    gt_mb_labels[np.newaxis, i, j]).data
+                    gt_mb_labels[np.newaxis, i, j]).array
 
                 if gt_mb_labels[i, j] > 0:
                     n_positive += 1
