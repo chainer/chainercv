@@ -23,7 +23,7 @@ class CUBLabelDataset(CUBDatasetBase):
 
     A bounding box is a one-dimensional array of shape :math:`(4,)`.
     The elements of the bounding box corresponds to
-    :obj:`(y_min, x_min, y_max, x_max)`, where the four attributes are
+    :math:`(y_{min}, x_{min}, y_{max}, x_{max})`, where the four attributes are
     coordinates of the top left and the bottom right vertices.
     This information can optionally be retrieved from the dataset
     by setting :obj:`return_bb = True`.

@@ -28,7 +28,7 @@ class VOCBboxDataset(chainer.dataset.DatasetMixin):
     The bounding boxes are packed into a two dimensional tensor of shape
     :math:`(R, 4)`, where :math:`R` is the number of bounding boxes in
     the image. The second axis represents attributes of the bounding box.
-    They are :obj:`(y_min, x_min, y_max, x_max)`, where the
+    They are :math:`(y_{min}, x_{min}, y_{max}, x_{max})`, where the
     four attributes are coordinates of the top left and the bottom right
     vertices.
 
