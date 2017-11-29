@@ -57,7 +57,7 @@ class FasterRCNN(chainer.Chain):
     are needed, for instance, for training and debugging.
 
     Links that support obejct detection API have method :meth:`predict` with
-    the same interface. Please refer to :func:`FasterRCNN.predict` for
+    the same interface. Please refer to :meth:`predict` for
     further details.
 
     .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
@@ -68,8 +68,8 @@ class FasterRCNN(chainer.Chain):
         extractor (callable Chain): A callable that takes a BCHW image
             array and returns feature maps.
         rpn (callable Chain): A callable that has the same interface as
-            :class:`chainercv.links.RegionProposalNetwork`. Please refer to
-            the documentation found there.
+            :class:`~chainercv.links.model.faster_rcnn.RegionProposalNetwork`.
+            Please refer to the documentation found there.
         head (callable Chain): A callable that takes
             a BCHW array, RoIs and batch indices for RoIs. This returns class
             dependent localization paramters and class scores.
