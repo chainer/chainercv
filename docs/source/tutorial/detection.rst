@@ -20,11 +20,14 @@ https://cloud.githubusercontent.com/assets/2062128/26187667/9cb236da-3bd5-11e7-8
 
 .. code-block:: python
 
-    from chainercv.visualizations import vis_bbox
+    # In the rest of the tutorial, we assume that the `plt`
+    # is imported before every code snippet.
+    import matplotlib.pyplot as plt
+
     from chainercv.datasets import voc_bbox_label_names
     from chainercv.links import SSD300
     from chainercv.utils import read_image
-    import matplotlib.pyplot as plt
+    from chainercv.visualizations import vis_bbox
 
     # Read an RGB image and return it in CHW format.
     img = read_image('sample.jpg')
@@ -53,9 +56,9 @@ Here is an example with a simple toy data.
 
 .. code-block:: python
 
-    import numpy as np
     from chainercv.visualizations import vis_bbox
-    import matplotlib.pyplot as plt
+    import numpy as np
+
     img = np.zeros((3, 224, 224), dtype=np.float32)
     # We call a variable/array of bounding boxes as `bbox` throughout the library
     bbox = np.array([[10, 10, 20, 40], [150, 150, 200, 200]], dtype=np.float32)
@@ -86,10 +89,10 @@ In the next example, the interface of :obj:`BboxDataset` and the functionality o
 
 .. code-block:: python
 
-    from chainercv.visualizations import vis_bbox
     from chainercv.datasets import VOCBboxDataset
     from chainercv.datasets import voc_bbox_label_names
-    import matplotlib.pyplot as plt
+    from chainercv.visualizations import vis_bbox
+
     dataset = VOCBboxDataset(year='2012')
     img, bbox, label = dataset[0]
     print(bbox.shape)  # (2, 4)
@@ -116,11 +119,11 @@ Inference on these models runs smoothly by downloading necessary pre-trained wei
 
 .. code-block:: python
 
-    from chainercv.visualizations import vis_bbox
     from chainercv.datasets import VOCBboxDataset
     from chainercv.datasets import voc_bbox_label_names
     from chainercv.links import SSD300
-    import matplotlib.pyplot as plt
+    from chainercv.visualizations import vis_bbox
+
     dataset = VOCBboxDataset(year='2007', split='test')
     img_0, _, _ = dataset[0]
     img_1, _, _ = dataset[1]
@@ -157,11 +160,11 @@ It is known that lower :obj:`score_thresh` produces higher mAP.
 
 .. code-block:: python
 
-    from chainercv.visualizations import vis_bbox
     from chainercv.datasets import VOCBboxDataset
     from chainercv.datasets import voc_bbox_label_names
     from chainercv.links import SSD300
-    import matplotlib.pyplot as plt
+    from chainercv.visualizations import vis_bbox
+
     dataset = VOCBboxDataset(year='2007', split='test')
     img, _, _ = dataset[0]
     model = SSD300(pretrained_model='voc0712')
@@ -203,9 +206,9 @@ Here is a simple example that uses a detection evaluator.
    from chainer.iterators import SerialIterator
    from chainer.datasets import SubDataset
    from chainercv.datasets import VOCBboxDataset
-   from chainercv.links import SSD300
-   from chainercv.extensions import DetectionVOCEvaluator
    from chainercv.datasets import voc_bbox_label_names
+   from chainercv.extensions import DetectionVOCEvaluator
+   from chainercv.links import SSD300
 
    # Only use subset of dataset so that evaluation finishes quickly.
    dataset = VOCBboxDataset(year='2007', split='test')
@@ -229,7 +232,7 @@ Also, ChainerCV posts the performance achieved through running the training scri
 
 
 References
-..........
+----------
 
 .. [Ren15] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
     Faster R-CNN: Towards Real-Time Object Detection with \
