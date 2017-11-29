@@ -47,10 +47,10 @@ def main():
     del imgs
 
     pred_probs, = pred_values
-    gt_probs, = gt_values
+    gt_labels, = gt_values
 
     accuracy = F.accuracy(
-        np.array(list(pred_probs)), np.array(list(gt_probs))).data
+        np.array(list(pred_probs)), np.array(list(gt_labels))).data
     print()
     print('Top 1 Error {}'.format(1. - accuracy))
 
