@@ -65,7 +65,7 @@ class FasterRCNNVGG16(FasterRCNN):
         loc_initialW (callable): Initializer for the localization head.
         score_initialW (callable): Initializer for the score head.
         proposal_creator_params (dict): Key valued paramters for
-            :obj:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
+            :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
 
     """
 

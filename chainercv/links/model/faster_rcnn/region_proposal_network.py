@@ -39,10 +39,10 @@ class RegionProposalNetwork(chainer.Chain):
             initialize weight.
             May also be a callable that takes an array and edits its values.
         proposal_creator_params (dict): Key valued paramters for
-            :obj:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
+            :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
 
     .. seealso::
-        :obj:`~chainercv.links.model.faster_rcnn.ProposalCreator`
+        :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`
 
     """
 
