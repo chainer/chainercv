@@ -21,7 +21,8 @@ def _hard_negative(x, positive, k):
     return hard_negative
 
 
-def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
+def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k,
+                  n_positive=None):
     """Computes multibox losses.
 
     This is a loss function used in [#]_.
@@ -55,6 +56,9 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
             This value determines the ratio between the number of positives
             and that of mined negatives. The value used in the original paper
             is :obj:`3`.
+        n_positive (int): The number of positive examples in the batch.
+            If this value is not specified, it is computed from
+            :obj:`gt_mb_labels`.
 
     Returns:
         tuple of chainer.Variable:
@@ -69,7 +73,8 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
     xp = chainer.cuda.get_array_module(gt_mb_labels.array)
 
     positive = gt_mb_labels.array > 0
-    n_positive = positive.sum()
+    if n_positive is None:
+        n_positive = positive.sum()
     if n_positive == 0:
         z = chainer.Variable(xp.zeros((), dtype=np.float32))
         return z, z
