@@ -1,7 +1,7 @@
 from chainer.testing.attr import cudnn  # NOQA
-from chainer.testing.attr import slow  # NOQA
-from chainer.testing.attr import multi_gpu  # NOQA
 from chainer.testing.attr import gpu  # NOQA
+from chainer.testing.attr import multi_gpu  # NOQA
+from chainer.testing.attr import slow  # NOQA
 
 try:
     import pytest
