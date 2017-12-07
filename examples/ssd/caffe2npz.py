@@ -72,7 +72,7 @@ class SSDCaffeFunction(caffe.CaffeFunction):
     def _setup_normarize(self, layer):
         blobs = layer.blobs
         func = Normalize(caffe._get_num(blobs[0]))
-        func.scale.array[:] = np.array(blobs[0].array)
+        func.scale.array[:] = np.array(blobs[0].data)
         with self.init_scope():
             setattr(self, layer.name, func)
 
