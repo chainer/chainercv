@@ -114,7 +114,7 @@ class TestConv2DBNActiv(unittest.TestCase):
 
 
 @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
-class TestConv2DBNActiv(unittest.TestCase):
+class TestConv2DMultiNodeBNActiv(unittest.TestCase):
 
     in_channels = 1
     out_channels = 1
