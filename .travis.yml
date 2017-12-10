@@ -31,13 +31,12 @@ install:
       export LIBRARY_PATH="$HOME/miniconda/lib:$LIBRARY_PATH";
       conda env create -f environment.yml;
       source activate chainercv;
-      BUILD_DIR=$PWD
       cd $HOME;
       wget https://github.com/chainer/chainermn/archive/v1.0.0.tar.gz -O chainermn.tar.gz;
       tar zxf chainermn.tar.gz;
       cd chainermn-1.0.0;
       python setup.py install --no-nccl;
-      cd $BUILD_DIR;
+      cd $TRAVIS_BUILD_DIR;
     else
       conda env create -f environment_minimum.yml;
       source activate chainercv_minimum;
