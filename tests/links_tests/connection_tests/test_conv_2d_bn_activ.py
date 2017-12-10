@@ -113,12 +113,40 @@ class TestConv2DBNActiv(unittest.TestCase):
         self.check_backward(cuda.to_gpu(self.x), cuda.to_gpu(self.gy))
 
     @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
-    def test_multi_node_bach_normalization(self):
+    def test_multi_node_bach_normalization_forward_cpu(self):
         comm = create_communicator('naive')
-        l = Conv2DBNActiv(
+        self.l = Conv2DBNActiv(
             self.in_channels, self.out_channels, self.ksize, self.stride,
             self.pad, self.dilate, comm=comm)
-        y = l(self.x)
+        self.check_forward(self.x)
+
+    @attr.gpu
+    @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
+    def test_multi_node_bach_normalization_forward_cpu(self):
+        comm = create_communicator('naive')
+        self.l = Conv2DBNActiv(
+            self.in_channels, self.out_channels, self.ksize, self.stride,
+            self.pad, self.dilate, comm=comm)
+        self.l.to_gpu()
+        self.check_forward(cuda.to_gpu(self.x))
+
+    @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
+    def test_multi_node_bach_normalization_forward_cpu(self):
+        comm = create_communicator('naive')
+        self.l = Conv2DBNActiv(
+            self.in_channels, self.out_channels, self.ksize, self.stride,
+            self.pad, self.dilate, comm=comm)
+        self.check_backward(self.x, self.gy)
+
+    @attr.gpu
+    @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
+    def test_multi_node_bach_normalization_forward_cpu(self):
+        comm = create_communicator('naive')
+        self.l = Conv2DBNActiv(
+            self.in_channels, self.out_channels, self.ksize, self.stride,
+            self.pad, self.dilate, comm=comm)
+        self.l.to_gpu()
+        self.check_backward(cuda.to_gpu(self.x), cuda.to_gpu(self.gy))
 
 
 testing.run_module(__name__, __file__)
