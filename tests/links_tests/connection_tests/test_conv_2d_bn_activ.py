@@ -142,7 +142,6 @@ class TestConv2DBNActiv(unittest.TestCase):
             initial_bias=initial_bias, activ=activ, bn_kwargs=bn_kwargs,
             comm=comm)
 
-
     def check_forward(self, x_data):
         x = chainer.Variable(x_data)
         # Make the batch normalization to be the identity function.
