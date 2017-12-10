@@ -16,6 +16,7 @@ def _add_one(x):
 
 
 @testing.parameterize(*testing.product({
+    'dilate': [1, 2],
     'args_style': ['explicit', 'None', 'omit'],
     'activ': ['relu', 'add_one'],
 }))
@@ -45,19 +46,19 @@ class TestConv2DBNActiv(unittest.TestCase):
         if self.args_style == 'explicit':
             self.l = Conv2DBNActiv(
                 self.in_channels, self.out_channels, self.ksize,
-                self.stride, self.pad,
+                self.stride, self.pad, self.dilate,
                 initialW=initialW, initial_bias=initial_bias,
                 activ=activ, bn_kwargs=bn_kwargs)
         elif self.args_style == 'None':
             self.l = Conv2DBNActiv(
                 None, self.out_channels, self.ksize, self.stride, self.pad,
-                initialW=initialW, initial_bias=initial_bias,
+                self.dilate, initialW=initialW, initial_bias=initial_bias,
                 activ=activ, bn_kwargs=bn_kwargs)
         elif self.args_style == 'omit':
             self.l = Conv2DBNActiv(
                 self.out_channels, self.ksize, stride=self.stride,
-                pad=self.pad, initialW=initialW, initial_bias=initial_bias,
-                activ=activ, bn_kwargs=bn_kwargs)
+                pad=self.pad, dilate=self.dilate, initialW=initialW,
+                initial_bias=initial_bias, activ=activ, bn_kwargs=bn_kwargs)
 
     def check_forward(self, x_data):
         x = chainer.Variable(x_data)
@@ -70,14 +71,15 @@ class TestConv2DBNActiv(unittest.TestCase):
         self.assertIsInstance(y, chainer.Variable)
         self.assertIsInstance(y.array, self.l.xp.ndarray)
 
+        _x_data = x_data if self.dilate == 1 else x_data[:, :, 1:-1, 1:-1]
         if self.activ == 'relu':
             np.testing.assert_almost_equal(
-                cuda.to_cpu(y.array), np.maximum(cuda.to_cpu(x_data), 0),
+                cuda.to_cpu(y.array), np.maximum(cuda.to_cpu(_x_data), 0),
                 decimal=4
             )
         elif self.activ == 'add_one':
             np.testing.assert_almost_equal(
-                cuda.to_cpu(y.array), cuda.to_cpu(x_data) + 1,
+                cuda.to_cpu(y.array), cuda.to_cpu(_x_data) + 1,
                 decimal=4
             )
 
@@ -92,7 +94,7 @@ class TestConv2DBNActiv(unittest.TestCase):
     def check_backward(self, x_data, y_grad):
         x = chainer.Variable(x_data)
         y = self.l(x)
-        y.grad = y_grad
+        y.grad = y_grad if self.dilate == 1 else y_grad[:, :, 1:-1, 1:-1]
         y.backward()
 
     def test_backward_cpu(self):
@@ -103,5 +105,12 @@ class TestConv2DBNActiv(unittest.TestCase):
         self.l.to_gpu()
         self.check_backward(cuda.to_gpu(self.x), cuda.to_gpu(self.gy))
 
+    @attr.slow
+    def test_multi_node_bach_normalization(self):
+        from chainermn import create_communicator
+        comm = create_communicator('naive')
+        l = Conv2DBNActiv(
+            self.in_channels, self.out_channels, self.ksize, self.stride,
+            self.pad, self.dilate, comm=comm)
 
 testing.run_module(__name__, __file__)
