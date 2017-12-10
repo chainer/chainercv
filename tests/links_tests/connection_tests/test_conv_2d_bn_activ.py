@@ -15,6 +15,13 @@ def _add_one(x):
     return x + 1
 
 
+try:
+    from chainermn import create_communicator
+    _chainermn_available = True
+except (ImportError, TypeError):
+    _chainermn_available = False
+
+
 @testing.parameterize(*testing.product({
     'dilate': [1, 2],
     'args_style': ['explicit', 'None', 'omit'],
@@ -105,8 +112,8 @@ class TestConv2DBNActiv(unittest.TestCase):
         self.l.to_gpu()
         self.check_backward(cuda.to_gpu(self.x), cuda.to_gpu(self.gy))
 
+    @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
     def test_multi_node_bach_normalization(self):
-        from chainermn import create_communicator
         comm = create_communicator('naive')
         l = Conv2DBNActiv(
             self.in_channels, self.out_channels, self.ksize, self.stride,
