@@ -4,6 +4,12 @@ from chainer.links import BatchNormalization
 from chainer.links import Convolution2D
 from chainer.links import DilatedConvolution2D
 
+try:
+    from chainermn.links import MultiNodeBatchNormalization
+    _chainermn_available = True
+except (ImportError, TypeError):
+    _chainermn_available = False
+
 
 class Conv2DBNActiv(chainer.Chain):
     """Convolution2D --> Batch Normalization --> Activation
@@ -88,8 +94,7 @@ class Conv2DBNActiv(chainer.Chain):
                 self.conv = Convolution2D(
                     in_channels, out_channels, ksize, stride, pad,
                     nobias, initialW, initial_bias)
-            if comm is not None:
-                from chainermn.links import MultiNodeBatchNormalization
+            if comm is not None and _chainermn_available:
                 self.bn = MultiNodeBatchNormalization(
                     out_channels, comm, **bn_kwargs)
             else:
