@@ -105,7 +105,6 @@ class TestConv2DBNActiv(unittest.TestCase):
         self.l.to_gpu()
         self.check_backward(cuda.to_gpu(self.x), cuda.to_gpu(self.gy))
 
-    @attr.slow
     def test_multi_node_bach_normalization(self):
         from chainermn import create_communicator
         comm = create_communicator('naive')

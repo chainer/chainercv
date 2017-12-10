@@ -3,6 +3,8 @@ channels:
 - !!python/unicode
   'menpo'
 - !!python/unicode
+  'mpi4py'
+- !!python/unicode
   'defaults'
 dependencies:
   - Cython
@@ -10,3 +12,4 @@ dependencies:
   - matplotlib
   - numpy
   - Pillow
+  - openmpi
