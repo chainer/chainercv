@@ -112,39 +112,72 @@ class TestConv2DBNActiv(unittest.TestCase):
         self.l.to_gpu()
         self.check_backward(cuda.to_gpu(self.x), cuda.to_gpu(self.gy))
 
-    @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
-    def test_multi_node_bach_normalization_forward_cpu(self):
+
+@unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
+class TestConv2DBNActiv(unittest.TestCase):
+
+    in_channels = 1
+    out_channels = 1
+    ksize = 3
+    stride = 1
+    pad = 1
+    dilate = 1
+
+    def setUp(self):
+        self.x = np.random.uniform(
+            -1, 1, (5, self.in_channels, 5, 5)).astype(np.float32)
+        self.gy = np.random.uniform(
+            -1, 1, (5, self.out_channels, 5, 5)).astype(np.float32)
+
+        # Convolution is the identity function.
+        initialW = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]],
+                            dtype=np.float32).reshape((1, 1, 3, 3))
+        bn_kwargs = {'decay': 0.8}
+        initial_bias = 0
         comm = create_communicator('naive')
+        activ = relu
         self.l = Conv2DBNActiv(
             self.in_channels, self.out_channels, self.ksize, self.stride,
-            self.pad, self.dilate, comm=comm)
+            self.pad, self.dilate, initialW=initialW,
+            initial_bias=initial_bias, activ=activ, bn_kwargs=bn_kwargs,
+            comm=comm)
+
+
+    def check_forward(self, x_data):
+        x = chainer.Variable(x_data)
+        # Make the batch normalization to be the identity function.
+        self.l.bn.avg_var[:] = 1
+        self.l.bn.avg_mean[:] = 0
+        with chainer.using_config('train', False):
+            y = self.l(x)
+
+        self.assertIsInstance(y, chainer.Variable)
+        self.assertIsInstance(y.array, self.l.xp.ndarray)
+
+        np.testing.assert_almost_equal(
+            cuda.to_cpu(y.array), np.maximum(cuda.to_cpu(x_data), 0),
+            decimal=4
+        )
+
+    def test_multi_node_bach_normalization_forward_cpu(self):
         self.check_forward(self.x)
 
     @attr.gpu
-    @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
     def test_multi_node_bach_normalization_forward_gpu(self):
-        comm = create_communicator('naive')
-        self.l = Conv2DBNActiv(
-            self.in_channels, self.out_channels, self.ksize, self.stride,
-            self.pad, self.dilate, comm=comm)
         self.l.to_gpu()
         self.check_forward(cuda.to_gpu(self.x))
 
-    @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
+    def check_backward(self, x_data, y_grad):
+        x = chainer.Variable(x_data)
+        y = self.l(x)
+        y.grad = y_grad
+        y.backward()
+
     def test_multi_node_bach_normalization_backward_cpu(self):
-        comm = create_communicator('naive')
-        self.l = Conv2DBNActiv(
-            self.in_channels, self.out_channels, self.ksize, self.stride,
-            self.pad, self.dilate, comm=comm)
         self.check_backward(self.x, self.gy)
 
     @attr.gpu
-    @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
     def test_multi_node_bach_normalization_backward_gpu(self):
-        comm = create_communicator('naive')
-        self.l = Conv2DBNActiv(
-            self.in_channels, self.out_channels, self.ksize, self.stride,
-            self.pad, self.dilate, comm=comm)
         self.l.to_gpu()
         self.check_backward(cuda.to_gpu(self.x), cuda.to_gpu(self.gy))
 

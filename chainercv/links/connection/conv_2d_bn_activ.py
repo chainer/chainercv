@@ -92,6 +92,7 @@ class Conv2DBNActiv(chainer.Chain):
                 from chainermn.links import MultiNodeBatchNormalization
                 self.bn = MultiNodeBatchNormalization(
                     out_channels, comm, **bn_kwargs)
+                print('Multinode!')
             else:
                 self.bn = BatchNormalization(out_channels, **bn_kwargs)
 
