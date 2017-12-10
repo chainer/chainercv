@@ -28,12 +28,12 @@ install:
   - conda info -a
 
   - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
+      export LIBRARY_PATH="$HOME/miniconda/lib:$LIBRARY_PATH";
       conda env create -f environment.yml;
       source activate chainercv;
-      export LIBRARY_PATH="$HOME/miniconda/lib:$LIBRARY_PATH";
-      wget https://github.com/chainer/chainermn/archive/v1.0.0.tar.gz -O chainermn.tar.gz;
-      tar zxf chainermn.tar.gz;
-      cd chainermn-1.0.0;
+      wget https://github.com/chainer/chainermn/archive/v1.0.0.tar.gz -O $HOME/chainermn.tar.gz;
+      tar zxf $HOME/chainermn.tar.gz;
+      cd $HOME/chainermn-1.0.0;
       python setup.py install --no-nccl;
     else
       conda env create -f environment_minimum.yml;
@@ -54,4 +54,8 @@ script:
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
   - python style_checker.py .
-  - MPLBACKEND="agg" nosetests -a '!gpu,!slow' tests
+  - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
+      MPLBACKEND="agg" mpiexec -np 1 nosetests -a '!gpu,!slow' tests
+    else
+      MPLBACKEND="agg" nosetests -a '!gpu,!slow' tests
+    fi
