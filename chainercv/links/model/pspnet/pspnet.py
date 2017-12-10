@@ -22,22 +22,24 @@ except Exception:
 
 class ConvBNReLU(chainer.Chain):
 
-    def __init__(self, in_ch, out_ch, ksize, stride=1, pad=1, dilation=1):
+    def __init__(
+            self, in_channels, out_channels, ksize, stride=1, pad=1,
+            dilate=1, initialW=chainer.initializers.HeNormal(), comm=None):
         super(ConvBNReLU, self).__init__()
-        comm = chainer.config.comm
-        w = chainer.config.initialW
         with self.init_scope():
-            if dilation > 1:
+            if dilate > 1:
                 self.conv = L.DilatedConvolution2D(
-                    in_ch, out_ch, ksize, stride, pad, dilation, True, w)
+                    in_channels, out_channels, ksize, stride, pad, dilate,
+                    True, initialW)
             else:
                 self.conv = L.Convolution2D(
-                    in_ch, out_ch, ksize, stride, pad, True, w)
+                    in_channels, out_channels, ksize, stride, pad, True,
+                    initialW)
             if comm is not None:
                 self.bn = MultiNodeBatchNormalization(
-                    out_ch, comm, eps=1e-5, decay=0.95)
+                    out_channels, comm, eps=1e-5, decay=0.95)
             else:
-                self.bn = L.BatchNormalization(out_ch, eps=1e-5, decay=0.95)
+                self.bn = L.BatchNormalization(out_channels, eps=1e-5, decay=0.95)
 
     def __call__(self, x, relu=True):
         h = self.bn(self.conv(x))
@@ -46,12 +48,22 @@ class ConvBNReLU(chainer.Chain):
 
 class PyramidPoolingModule(chainer.ChainList):
 
-    def __init__(self, in_ch, feat_size, pyramids):
+    def __init__(self, in_channels, feat_size, pyramids,
+                 initialW=chainer.initializers.HeNormal(), comm=None):
         super(PyramidPoolingModule, self).__init__(
-            ConvBNReLU(in_ch, in_ch // len(pyramids), 1, 1, 0),
-            ConvBNReLU(in_ch, in_ch // len(pyramids), 1, 1, 0),
-            ConvBNReLU(in_ch, in_ch // len(pyramids), 1, 1, 0),
-            ConvBNReLU(in_ch, in_ch // len(pyramids), 1, 1, 0))
+            ConvBNReLU(
+                in_channels, in_channels // len(pyramids), 1, 1, 0, 1,
+                initialW, comm),
+            ConvBNReLU(
+                in_channels, in_channels // len(pyramids), 1, 1, 0, 1,
+                initialW, comm),
+            ConvBNReLU(
+                in_channels, in_channels // len(pyramids), 1, 1, 0, 1,
+                initialW, comm),
+            ConvBNReLU(
+                in_channels, in_channels // len(pyramids), 1, 1, 0, 1,
+                initialW, comm)
+        )
         if isinstance(feat_size, int):
             self.ksizes = (feat_size // np.array(pyramids)).tolist()
         elif isinstance(feat_size, (list, tuple)) and len(feat_size) == 2:
@@ -72,19 +84,25 @@ class PyramidPoolingModule(chainer.ChainList):
 
 class BottleneckConv(chainer.Chain):
 
-    def __init__(self, in_ch, mid_ch, out_ch, stride=2, dilate=False):
+    def __init__(
+            self, in_channels, mid_channels, out_channels, stride=2,
+            mid_downsample=False, dilate=1,
+            initialW=chainer.initializers.HeNormal(), comm=None):
         mid_stride = chainer.config.mid_stride
         super(BottleneckConv, self).__init__()
         with self.init_scope():
             self.conv1 = ConvBNReLU(
-                in_ch, mid_ch, 1, 1 if mid_stride else stride, 0)
-            if dilate:
-                self.conv2 = ConvBNReLU(mid_ch, mid_ch, 3, 1, dilate, dilate)
+                in_channels, mid_channels, 1,
+                1 if mid_downsample else stride, 0)
+            if dilate > 1:
+                self.conv2 = ConvBNReLU(
+                    mid_channels, mid_channels, 3, 1, dilate, dilate, initialW, comm)
             else:
                 self.conv2 = ConvBNReLU(
-                    mid_ch, mid_ch, 3, stride if mid_stride else 1, 1)
-            self.conv3 = ConvBNReLU(mid_ch, out_ch, 1, 1, 0)
-            self.conv4 = ConvBNReLU(in_ch, out_ch, 1, stride, 0)
+                    mid_channels, mid_channels, 3,
+                    stride if mid_downsample else 1, 1)
+            self.conv3 = ConvBNReLU(mid_channels, out_channels, 1, 1, 0)
+            self.conv4 = ConvBNReLU(in_channels, out_channels, 1, stride, 0)
 
     def __call__(self, x):
         h = self.conv1(x)
@@ -96,30 +114,40 @@ class BottleneckConv(chainer.Chain):
 
 class BottleneckIdentity(chainer.Chain):
 
-    def __init__(self, in_ch, mid_ch, dilate=False):
+    def __init__(self, in_channels, mid_channels, dilate=1,
+                 initialW=chainer.initializers.HeNormal(), comm=None):
         super(BottleneckIdentity, self).__init__()
         with self.init_scope():
-            self.cbr1 = ConvBNReLU(in_ch, mid_ch, 1, 1, 0)
-            if dilate:
-                self.cbr2 = ConvBNReLU(mid_ch, mid_ch, 3, 1, dilate, dilate)
+            self.conv1 = ConvBNReLU(
+                in_channels, mid_channels, 1, 1, 0, 0, initialW, comm)
+            if dilate > 1:
+                self.conv2 = ConvBNReLU(
+                    mid_channels, mid_channels, 3, 1, dilate,
+                    dilate, initialW, comm)
             else:
-                self.cbr2 = ConvBNReLU(mid_ch, mid_ch, 3, 1, 1)
-            self.cbr3 = ConvBNReLU(mid_ch, in_ch, 1, 1, 0)
+                self.conv2 = ConvBNReLU(
+                    mid_channels, mid_channels, 3, 1, 1, 0, initialW, comm)
+            self.conv3 = ConvBNReLU(mid_channels, in_channels, 1, 1, 0)
 
     def __call__(self, x):
-        h = self.cbr1(x)
-        h = self.cbr2(h)
-        h = self.cbr3(h, relu=False)
+        h = self.conv1(x)
+        h = self.conv2(h)
+        h = self.conv3(h, relu=False)
         return F.relu(h + x)
 
 
 class ResBlock(chainer.ChainList):
 
-    def __init__(self, n_layer, in_ch, mid_ch, out_ch, stride=1, dilate=False):
+    def __init__(
+            self, n_layer, in_channels, mid_channels, out_channels, stride=1,
+            dilate=1, initialW=chainer.initializers.HeNormal(), comm=None):
         super(ResBlock, self).__init__()
-        self.add_link(BottleneckConv(in_ch, mid_ch, out_ch, stride, dilate))
+        self.add_link(BottleneckConv(
+            in_channels, mid_channels, out_channels, stride,
+            dilate, initialW, comm))
         for _ in six.moves.xrange(1, n_layer):
-            self.add_link(BottleneckIdentity(out_ch, mid_ch, dilate))
+            self.add_link(BottleneckIdentity(
+                out_channels, mid_channels, dilate, initialW, comm))
 
     def __call__(self, x):
         for f in self:
@@ -129,19 +157,23 @@ class ResBlock(chainer.ChainList):
 
 class DilatedFCN(chainer.Chain):
 
-    def __init__(self, n_blocks):
+    def __init__(self, n_blocks, initialW, comm):
         super(DilatedFCN, self).__init__()
         with self.init_scope():
-            self.cbr1_1 = ConvBNReLU(None, 64, 3, 2, 1)
-            self.cbr1_2 = ConvBNReLU(64, 64, 3, 1, 1)
-            self.cbr1_3 = ConvBNReLU(64, 128, 3, 1, 1)
-            self.res2 = ResBlock(n_blocks[0], 128, 64, 256, 1)
-            self.res3 = ResBlock(n_blocks[1], 256, 128, 512, 2)
-            self.res4 = ResBlock(n_blocks[2], 512, 256, 1024, 2, dilate=True)
-            self.res5 = ResBlock(n_blocks[3], 1024, 512, 2048, 4, dilate=True)
+            self.conv1_1 = ConvBNReLU(None, 64, 3, 2, 1, 1, initialW, comm)
+            self.conv1_2 = ConvBNReLU(64, 64, 3, 1, 1, 1, initialW, comm)
+            self.conv1_3 = ConvBNReLU(64, 128, 3, 1, 1, 1, initialW, comm)
+            self.res2 = ResBlock(
+                n_blocks[0], 128, 64, 256, 1, 1, initialW, comm)
+            self.res3 = ResBlock(
+                n_blocks[1], 256, 128, 512, 2, 1, initialW, comm)
+            self.res4 = ResBlock(
+                n_blocks[2], 512, 256, 1024, 1, 2, initialW, comm)
+            self.res5 = ResBlock(
+                n_blocks[3], 1024, 512, 2048, 1, 4, initialW, comm)
 
     def __call__(self, x):
-        h = self.cbr1_3(self.cbr1_2(self.cbr1_1(x)))  # 1/2
+        h = self.conv1_3(self.conv1_2(self.conv1_1(x)))  # 1/2
         h = F.max_pooling_2d(h, 3, 2, 1)  # 1/4
         h = self.res2(h)
         h = self.res3(h)  # 1/8
@@ -168,6 +200,10 @@ class PSPNet(chainer.Chain):
         PASCAL VOC2012 Semantic Segmentation Dataset.
     * :obj:`cityscapes`: Loads weights trained with Cityscapes dataset.
     * :obj:`ade20k`: Loads weights trained with ADE20K dataset.
+
+    ..note::
+
+        Somehow
 
     Args:
         n_class (int): The number of channels in the last convolution layer.
@@ -247,7 +283,9 @@ class PSPNet(chainer.Chain):
 
     def __init__(self, n_class=None, input_size=None, n_blocks=None,
                  pyramids=None, mid_stride=None, mean=None, comm=None,
-                 pretrained_model=None, initialW=None):
+                 pretrained_model=None,
+                 initialW=chainer.initializers.HeNormal(),
+                 compute_aux=True):
         super(PSPNet, self).__init__()
 
         if pretrained_model in self._models:
@@ -268,23 +306,17 @@ class PSPNet(chainer.Chain):
         chainer.config.mid_stride = mid_stride
         chainer.config.comm = comm
 
-        if initialW is None:
-            chainer.config.initialW = chainer.initializers.HeNormal()
-        else:
-            chainer.config.initialW = initialW
-
         if not isinstance(input_size, (list, tuple)):
             input_size = (int(input_size), int(input_size))
 
         with self.init_scope():
             self.input_size = input_size
-            self.trunk = DilatedFCN(n_blocks=n_blocks)
+            self.extractor = DilatedFCN(n_blocks=n_blocks, initialW=initialW)
 
             # To calculate auxirally loss
-            if chainer.config.train:
-                self.cbr_aux = ConvBNReLU(None, 512, 3, 1, 1)
-                self.out_aux = L.Convolution2D(
-                    512, n_class, 3, 1, 1, False, initialW)
+            self.cbr_aux = ConvBNReLU(None, 512, 3, 1, 1)
+            self.out_aux = L.Convolution2D(
+                512, n_class, 3, 1, 1, False, initialW)
 
             # Main branch
             feat_size = (input_size[0] // 8, input_size[1] // 8)
@@ -327,13 +359,13 @@ class PSPNet(chainer.Chain):
                 constructor. ``H, W`` is the input image size.
 
         """
-        if chainer.config.train:
-            aux, h = self.trunk(x)
+        if self.compute_aux:
+            aux, h = self.extractor(x)
             aux = F.dropout(self.cbr_aux(aux), ratio=0.1)
             aux = self.out_aux(aux)
             aux = F.resize_images(aux, x.shape[2:])
         else:
-            h = self.trunk(x)
+            h = self.extractor(x)
 
         h = self.ppm(h)
         h = F.dropout(self.cbr_main(h), ratio=0.1)
@@ -362,9 +394,6 @@ class PSPNet(chainer.Chain):
         if self.mean is not None:
             img -= self.mean[:, None, None]
             img = img.astype(np.float32, copy=False)
-            if self._use_pretrained_model:
-                # Pre-trained model is trained for BGR images
-                img = img[::-1, ...]
         return img
 
     def _predict(self, img):

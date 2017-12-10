@@ -44,9 +44,13 @@ def get_param_net(prodo_dir, param_fn, proto_fn):
     return param, net
 
 
-def copy_conv(layer, config, conv, has_bias=False):
+def copy_conv(layer, config, conv, has_bias=False, inverse_ch=False):
     data = np.array(layer.blobs[0].data)
-    conv.W.data[:] = data.reshape(conv.W.shape)
+    if inverse_ch:
+        conv.W.data[:] = data.reshape(conv.W.shape)
+        conv.W.data[:] = conv.W.data[:, ::-1, ...]
+    else:
+        conv.W.data[:] = data.reshape(conv.W.shape)
     if has_bias:
         data = np.array(layer.blobs[1].data)
         conv.b.data[:] = data.reshape(conv.b.shape)
@@ -85,9 +89,9 @@ def copy_conv(layer, config, conv, has_bias=False):
     return conv
 
 
-def copy_cbr(layer, config, cbr):
+def copy_cbr(layer, config, cbr, inverse_ch=False):
     if 'Convolution' in layer.type:
-        cbr.conv = copy_conv(layer, config, cbr.conv)
+        cbr.conv = copy_conv(layer, config, cbr.conv, inverse_ch)
     elif 'BN' in layer.type:
         cbr.bn.eps = config.bn_param.eps
         cbr.bn.decay = config.bn_param.momentum
@@ -102,7 +106,7 @@ def copy_cbr(layer, config, cbr):
 
 def copy_head(layer, config, block):
     if layer.name.startswith('conv1_1'):
-        block.cbr1_1 = copy_cbr(layer, config, block.cbr1_1)
+        block.cbr1_1 = copy_cbr(layer, config, block.cbr1_1, inverse_ch=True)
     elif layer.name.startswith('conv1_2'):
         block.cbr1_2 = copy_cbr(layer, config, block.cbr1_2)
     elif layer.name.startswith('conv1_3'):
