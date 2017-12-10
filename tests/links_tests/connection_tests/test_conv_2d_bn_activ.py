@@ -118,6 +118,7 @@ class TestConv2DBNActiv(unittest.TestCase):
         l = Conv2DBNActiv(
             self.in_channels, self.out_channels, self.ksize, self.stride,
             self.pad, self.dilate, comm=comm)
+        y = l(self.x)
 
 
 testing.run_module(__name__, __file__)
