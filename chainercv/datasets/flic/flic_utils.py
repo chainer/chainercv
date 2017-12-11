@@ -57,12 +57,4 @@ def get_flic():
                          data_root,
                          ext)
 
-    if not os.path.exists(os.path.join(data_root,
-                                       'tr_plus_indices.mat')):
-        download_file_path = utils.cached_download(urls[1])
-        shutil.copy(download_file_path,
-
-                    os.path.join(data_root,
-                                 'tr_plus_indices.mat'))
-
     return data_root

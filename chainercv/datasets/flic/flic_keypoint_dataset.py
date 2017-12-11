@@ -106,6 +106,9 @@ class FLICKeypointDataset(chainer.dataset.DatasetMixin):
             if return_torsobox:
                 self.torsoboxes.append(label['torsobox'][0, [1, 0, 3, 2]])
 
+    def __len__(self):
+        return len(self.img_paths)
+
     def get_example(self, i):
         """Returns the i-th example.
 
