@@ -21,8 +21,8 @@ class Conv2DBNActiv(chainer.Chain):
     :class:`chainer.links.Convolution2D`
     except for :obj:`activ`, :obj:`bn_kwargs`, and :obj:`comm`.
     :obj:`comm` is a communicator of ChainerMN which is used for
-    :obj:`MultiNodeBatchNormalization`. If :obj:`None` is given to the argument
-    :obj:`comm`, :obj:`BatchNormalization` link from Chainer is used.
+    :class:`chainermn.links.MultiNodeBatchNormalization`. If
+    :obj:`None` is given to the argument :obj:`comm`, :obj:`BatchNormalization` link from Chainer is used.
     Note that the default value for the :obj:`nobias`
     is changed to :obj:`True`.
 
@@ -68,11 +68,11 @@ class Conv2DBNActiv(chainer.Chain):
         activ (callable): An activation function. The default value is
             :func:`chainer.functions.relu`.
         bn_kwargs (dict): Keyword arguments passed to initialize
-            :class:`chainer.links.BatchNormalization`.
-        comm (:class:`~chainermn.communicators.CommunicatorBase):
-            If a ChainerMN communicator is given,
+            :class:`chainer.links.BatchNormalization`. If a ChainerMN
+            communicator (:class:`~chainermn.communicators.CommunicatorBase)
+            is given with the key :obj:`comm`,
             :obj:`~chainermn.links.MultiNodeBatchNormalization` will be used
-            for the batch normalization. If :obj:`None`,
+            for the batch normalization. Otherwise,
             :obj:`~chainer.links.BatchNormalization` will be used.
 
     """
@@ -94,9 +94,9 @@ class Conv2DBNActiv(chainer.Chain):
                 self.conv = Convolution2D(
                     in_channels, out_channels, ksize, stride, pad,
                     nobias, initialW, initial_bias)
-            if comm is not None and _chainermn_available:
+            if 'comm' in bn_kwargs and _chainermn_available:
                 self.bn = MultiNodeBatchNormalization(
-                    out_channels, comm, **bn_kwargs)
+                    out_channels, [**bn_kwargs)
             else:
                 self.bn = BatchNormalization(out_channels, **bn_kwargs)
 
