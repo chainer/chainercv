@@ -52,10 +52,15 @@ class FLICKeypointDataset(chainer.dataset.DatasetMixin):
             the FLIC dataset.
         return_torsobox (bool): If :obj:`True`, this returns a bounding box
             around the torso. The default value is :obj:`False`.
+        skip_bad (bool): If :obj:`True`, the data which have :obj:`isbad = 1`
+            will be ignored. The default is :obj:`True`.
+        skip_unchecked (bool): If :obj:`True`, the data which have
+            :obj:`isunchecked = 1` will be ignored. The default is :obj:`True`.
 
     """
 
-    def __init__(self, data_dir='auto', split='train', return_torsobox=False):
+    def __init__(self, data_dir='auto', split='train', return_torsobox=False,
+                 skip_bad=True, skip_unchecked=True):
         super(FLICKeypointDataset, self).__init__()
         if split not in ['train', 'test']:
             raise ValueError(
@@ -95,7 +100,9 @@ class FLICKeypointDataset(chainer.dataset.DatasetMixin):
 
         for label in labels['examples'][0]:
             label = {label_keys[i]: val for i, val in enumerate(label)}
-            if int(label['isbad']) == 1 or int(label['isunchecked']) == 1:
+            if skip_bad and int(label['isbad']) == 1:
+                continue
+            if skip_unchecked and int(label['isunchecked']) == 1:
                 continue
             if ((split == 'train' and int(label['istrain']) == 0)
                     or (split == 'test' and int(label['istest']) == 0)):
