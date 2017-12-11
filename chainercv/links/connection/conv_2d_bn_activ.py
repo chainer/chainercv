@@ -96,7 +96,7 @@ class Conv2DBNActiv(chainer.Chain):
                     nobias, initialW, initial_bias)
             if 'comm' in bn_kwargs and _chainermn_available:
                 self.bn = MultiNodeBatchNormalization(
-                    out_channels, [**bn_kwargs)
+                    out_channels, **bn_kwargs)
             else:
                 self.bn = BatchNormalization(out_channels, **bn_kwargs)
 
