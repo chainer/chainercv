@@ -19,10 +19,12 @@ class Conv2DBNActiv(chainer.Chain):
 
     The arguments are the same as that of
     :class:`chainer.links.Convolution2D`
-    except for :obj:`activ`, :obj:`bn_kwargs`, and :obj:`comm`.
-    :obj:`comm` is a communicator of ChainerMN which is used for
+    except for :obj:`activ` and :obj:`bn_kwargs`.
+    :obj:`bn_kwargs` can include :obj:`comm` key and a communicator of 
+    ChainerMN as the value to use
     :class:`chainermn.links.MultiNodeBatchNormalization`. If
-    :obj:`None` is given to the argument :obj:`comm`, :obj:`BatchNormalization` link from Chainer is used.
+    :obj:`comm` is not included in :obj:`bn_kwargs`,
+    :class:`chainer.links.BatchNormalization` link from Chainer is used.
     Note that the default value for the :obj:`nobias`
     is changed to :obj:`True`.
 
