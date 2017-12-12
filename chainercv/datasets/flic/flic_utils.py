@@ -1,5 +1,4 @@
 import os
-import shutil
 
 from chainer.dataset import download
 from chainercv import utils
