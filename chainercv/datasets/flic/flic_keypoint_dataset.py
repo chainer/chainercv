@@ -1,12 +1,11 @@
-import collections
 import glob
 import os
 
 import numpy as np
 
 import chainer
-from chainercv import utils
 from chainercv.datasets.flic import flic_utils
+from chainercv import utils
 
 try:
     from scipy.io import loadmat
@@ -93,9 +92,9 @@ class FLICKeypointDataset(chainer.dataset.DatasetMixin):
         ]
         labels = loadmat(os.path.join(data_dir, 'FLIC-full', 'examples.mat'))
 
-        self.img_paths = []
-        self.keypoints = []
-        self.torsoboxes = []
+        self.img_paths = list()
+        self.keypoints = list()
+        self.torsoboxes = list()
         self.return_torsobox = return_torsobox
 
         for label in labels['examples'][0]:
