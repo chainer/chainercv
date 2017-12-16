@@ -148,8 +148,10 @@ def _enumerate_shifted_anchor(anchor_base, feat_stride, height, width):
     shift_y = xp.arange(0, height * feat_stride, feat_stride)
     shift_x = xp.arange(0, width * feat_stride, feat_stride)
     shift_x, shift_y = xp.meshgrid(shift_x, shift_y)
-    shift = xp.stack((shift_y.ravel(), shift_x.ravel(),
-                      shift_y.ravel(), shift_x.ravel()), axis=1)
+    shift = xp.concatenate(
+        (shift_y.ravel()[:, None], shift_x.ravel()[:, None],
+         shift_y.ravel()[:, None], shift_x.ravel()[:, None]),
+        axis=1)
 
     A = anchor_base.shape[0]
     K = shift.shape[0]
