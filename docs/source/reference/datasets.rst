@@ -6,6 +6,10 @@ Datasets
 General datasets
 ----------------
 
+BetweenClassLabeledImageDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: BetweenClassLabeledImageDataset
+
 DirectoryParsingLabelDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: DirectoryParsingLabelDataset
