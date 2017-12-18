@@ -8,7 +8,7 @@ class BuildingBlock(chainer.Chain):
 
     """A building block that consists of several Bottleneck layers.
 
-    input --> Bottleneck (shortcut) --> Bottleneck * (n_layer - 1) --> output
+    in --> Bottleneck with shortcut --> Bottleneck * (n_layer - 1) --> out
 
     Args:
         n_layer (int): The number of layers used in the building block.
