@@ -57,4 +57,3 @@ The ImageNet Large Scale Visual Recognition Challenge (ILSVRC) dataset has 1000 
 
 1. Karen Simonyan, Andrew Zisserman. "Very Deep Convolutional Networks for Large-Scale Image Recognition" ICLR 2015
 2. Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. "Deep Residual Learning for Image Recognition" CVPR 2016
-
