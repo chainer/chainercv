@@ -39,7 +39,7 @@ def main():
         n_processes=6, shared_mem=300000000)
 
     if args.model == 'vgg16':
-        extractor = VGG16(len(label_names), args.pretrained_model)
+        extractor = VGG16(n_class, args.pretrained_model)
     elif args.model == 'resnet50':
         extractor = ResNet50(
             n_class, args.pretrained_model, mode=args.resnet_mode)
