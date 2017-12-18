@@ -25,7 +25,8 @@ def _transfer_bottleneckA(src, dst, name):
     _transfer_components(src, dst.conv1.conv, dst.conv1.bn, name, '2a')
     _transfer_components(src, dst.conv2.conv, dst.conv2.bn, name, '2b')
     _transfer_components(src, dst.conv3.conv, dst.conv3.bn, name, '2c')
-    _transfer_components(src, dst.shortcut.conv, dst.shortcut.bn, name, '1')
+    _transfer_components(
+        src, dst.conv_shortcut.conv, dst.conv_shortcut.bn, name, '1')
 
 
 def _transfer_bottleneckB(src, dst, name):
@@ -45,7 +46,7 @@ def _transfer_resnet50(src, dst):
     # Reorder weights to work on RGB and not on BGR
     dst.conv1.conv.W.data[:] = src.conv1.W.data[:, ::-1]
     dst.conv1.conv.b.data[:] = src.conv1.b.data
-    dst.conv1.conv.bn1.avg_mean[:] = src.bn_conv1.avg_mean
+    dst.conv1.bn.avg_mean[:] = src.bn_conv1.avg_mean
     dst.conv1.bn.avg_var[:] = src.bn_conv1.avg_var
     dst.conv1.bn.gamma.data[:] = src.scale_conv1.W.data
     dst.conv1.bn.beta.data[:] = src.scale_conv1.bias.b.data
@@ -102,24 +103,28 @@ def main():
     parser.add_argument(
         'model_name', choices=('resnet50', 'resnet101', 'resnet152'))
     parser.add_argument('caffemodel')
+    parser.add_argument('output', nargs='?', default=None)
     args = parser.parse_args()
 
     caffemodel = CaffeFunction(args.caffemodel)
     if args.model_name == 'resnet50':
-        model = ResNet50(pretrained_model=None, n_class=1000, fb_resnet=False)
+        model = ResNet50(pretrained_model=None, n_class=1000, mode='he')
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet50(caffemodel, model)
     elif args.model_name == 'resnet101':
-        model = ResNet101(pretrained_model=None, n_class=1000, fb_resnet=False)
+        model = ResNet101(pretrained_model=None, n_class=1000, mode='he')
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet101(caffemodel, model)
     elif args.model_name == 'resnet152':
-        model = ResNet152(pretrained_model=None, n_class=1000, fb_resnet=False)
+        model = ResNet152(pretrained_model=None, n_class=1000, mode='he')
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet152(caffemodel, model)
 
-    chainer.serializers.save_npz(
-        '{}_imagenet_convert.npz'.format(args.model_name), model)
+    if args.output is None:
+        output = '{}_imagenet_convert.npz'.format(args.model_name)
+    else:
+        output = args.output
+    chainer.serializers.save_npz(output, model)
 
 
 if __name__ == '__main__':
