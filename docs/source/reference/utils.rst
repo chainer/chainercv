@@ -39,6 +39,10 @@ read_image
 ~~~~~~~~~~
 .. autofunction:: read_image
 
+tile_images
+~~~~~~~~~~~
+.. autofunction:: tile_images
+
 write_image
 ~~~~~~~~~~~
 .. autofunction:: write_image
@@ -50,6 +54,10 @@ Iterator Utilities
 apply_prediction_to_iterator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: apply_prediction_to_iterator
+
+ProgressHook
+~~~~~~~~~~~~
+.. autoclass:: ProgressHook
 
 unzip
 ~~~~~
@@ -63,9 +71,9 @@ assert_is_bbox
 ~~~~~~~~~~~~~~
 .. autofunction:: assert_is_bbox
 
-assert_is_detection_dataset
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: assert_is_detection_dataset
+assert_is_bbox_dataset
+~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: assert_is_bbox_dataset
 
 assert_is_detection_link
 ~~~~~~~~~~~~~~~~~~~~~~~~

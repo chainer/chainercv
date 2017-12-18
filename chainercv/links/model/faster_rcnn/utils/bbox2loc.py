@@ -27,10 +27,12 @@ def bbox2loc(src_bbox, dst_bbox):
     Args:
         src_bbox (array): An image coordinate array whose shape is
             :math:`(R, 4)`. :math:`R` is the number of bounding boxes.
-            These coordinates are used to compute :math:`p_y, p_x, p_h, p_w`.
+            These coordinates are
+            :math:`p_{ymin}, p_{xmin}, p_{ymax}, p_{xmax}`.
         dst_bbox (array): An image coordinate array whose shape is
             :math:`(R, 4)`.
-            These coordinates are used to compute :math:`g_y, g_x, g_h, g_w`.
+            These coordinates are
+            :math:`g_{ymin}, g_{xmin}, g_{ymax}, g_{xmax}`.
 
     Returns:
         array:
@@ -51,6 +53,10 @@ def bbox2loc(src_bbox, dst_bbox):
     base_width = dst_bbox[:, 3] - dst_bbox[:, 1]
     base_ctr_y = dst_bbox[:, 0] + 0.5 * base_height
     base_ctr_x = dst_bbox[:, 1] + 0.5 * base_width
+
+    eps = xp.finfo(height.dtype).eps
+    height = xp.maximum(height, eps)
+    width = xp.maximum(width, eps)
 
     dy = (base_ctr_y - ctr_y) / height
     dx = (base_ctr_x - ctr_x) / width

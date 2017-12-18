@@ -61,9 +61,10 @@ def get_camvid():
 
 class CamVidDataset(chainer.dataset.DatasetMixin):
 
-    """Semantic segmentation dataset for CamVid `u`_.
+    """Semantic segmentation dataset for `CamVid`_.
 
-    .. _`u`: https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid
+    .. _`CamVid`:
+        https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid
 
     Args:
         data_dir (string): Path to the root of the training data. If this is

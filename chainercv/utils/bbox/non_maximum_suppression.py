@@ -31,7 +31,7 @@ def non_maximum_suppression(bbox, thresh, score=None,
     The bounding boxes are expected to be packed into a two dimensional
     tensor of shape :math:`(R, 4)`, where :math:`R` is the number of
     bounding boxes in the image. The second axis represents attributes of
-    the bounding box. They are :obj:`(y_min, x_min, y_max, x_max)`,
+    the bounding box. They are :math:`(y_{min}, x_{min}, y_{max}, x_{max})`,
     where the four attributes are coordinates of the top left and the
     bottom right vertices.
 
@@ -39,9 +39,9 @@ def non_maximum_suppression(bbox, thresh, score=None,
     confidence of prediction.
 
     This function accepts both :obj:`numpy.ndarray` and :obj:`cupy.ndarray` as
-    inputs. Please note that both :obj:`bbox` and :obj:`score` need to be
-    same type.
-    The output is same type as the type of the inputs.
+    an input. Please note that both :obj:`bbox` and :obj:`score` need to be
+    the same type.
+    The type of the output is the same as the input.
 
     Args:
         bbox (array): Bounding boxes to be transformed. The shape is
@@ -105,9 +105,7 @@ def _non_maximum_suppression_gpu(bbox, thresh, score=None, limit=None):
     n_bbox = bbox.shape[0]
 
     if score is not None:
-        # CuPy does not currently support argsort.
-        order = cuda.to_cpu(score).argsort()[::-1].astype(np.int32)
-        order = cuda.to_gpu(order)
+        order = score.argsort()[::-1].astype(np.int32)
     else:
         order = cp.arange(n_bbox, dtype=np.int32)
 

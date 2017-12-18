@@ -66,10 +66,10 @@ class TestPickableSequentialChain(unittest.TestCase):
 
         for out, layer_name in zip(outs, pick):
             self.assertIsInstance(out, chainer.Variable)
-            self.assertIsInstance(out.data, self.link.xp.ndarray)
+            self.assertIsInstance(out.array, self.link.xp.ndarray)
 
-            out = to_cpu(out.data)
-            np.testing.assert_equal(out, to_cpu(expects[layer_name].data))
+            out = to_cpu(out.array)
+            np.testing.assert_equal(out, to_cpu(expects[layer_name].array))
 
     def check_basic(self):
         x = self.link.xp.asarray(self.x)

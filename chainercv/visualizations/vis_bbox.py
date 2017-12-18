@@ -7,13 +7,13 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
     Example:
 
         >>> from chainercv.datasets import VOCDetectionDataset
-        >>> from chainercv.datasets import voc_detection_label_names
+        >>> from chainercv.datasets import voc_bbox_label_names
         >>> from chainercv.visualizations import vis_bbox
         >>> import matplotlib.pyplot as plot
         >>> dataset = VOCDetectionDataset()
         >>> img, bbox, label = dataset[60]
         >>> vis_bbox(img, bbox, label,
-        ...         label_names=voc_detection_label_names)
+        ...         label_names=voc_bbox_label_names)
         >>> plot.show()
 
     Args:
@@ -23,7 +23,7 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
         bbox (~numpy.ndarray): An array of shape :math:`(R, 4)`, where
             :math:`R` is the number of bounding boxes in the image.
             Each element is organized
-            by :obj:`(y_min, x_min, y_max, x_max)` in the second axis.
+            by :math:`(y_{min}, x_{min}, y_{max}, x_{max})` in the second axis.
         label (~numpy.ndarray): An integer array of shape :math:`(R,)`.
             The values correspond to id for label names stored in
             :obj:`label_names`. This is optional.

@@ -22,7 +22,7 @@ def flip_keypoint(keypoint, size, y_flip=False, x_flip=False):
     H, W = size
     keypoint = keypoint.copy()
     if y_flip:
-        keypoint[:, 0] = H - 1 - keypoint[:, 0]
+        keypoint[:, 0] = H - keypoint[:, 0]
     if x_flip:
-        keypoint[:, 1] = W - 1 - keypoint[:, 1]
+        keypoint[:, 1] = W - keypoint[:, 1]
     return keypoint

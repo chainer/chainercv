@@ -32,10 +32,10 @@ class TestSSDVGG16(unittest.TestCase):
         loc, conf = self.link(x)
 
         self.assertIsInstance(loc, chainer.Variable)
-        self.assertIsInstance(loc.data, self.link.xp.ndarray)
+        self.assertIsInstance(loc.array, self.link.xp.ndarray)
         self.assertEqual(loc.shape, (1, self.n_bbox, 4))
         self.assertIsInstance(conf, chainer.Variable)
-        self.assertIsInstance(conf.data, self.link.xp.ndarray)
+        self.assertIsInstance(conf.array, self.link.xp.ndarray)
         self.assertEqual(conf.shape, (1, self.n_bbox, self.n_fg_class + 1))
 
     @attr.slow

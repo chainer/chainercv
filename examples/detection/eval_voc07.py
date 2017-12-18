@@ -1,35 +1,16 @@
-from __future__ import division
-
 import argparse
-import sys
-import time
 
 import chainer
 from chainer import iterators
 
-from chainercv.datasets import voc_detection_label_names
-from chainercv.datasets import VOCDetectionDataset
+from chainercv.datasets import voc_bbox_label_names
+from chainercv.datasets import VOCBboxDataset
 from chainercv.evaluations import eval_detection_voc
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
 from chainercv.utils import apply_prediction_to_iterator
-
-
-class ProgressHook(object):
-
-    def __init__(self, n_total):
-        self.n_total = n_total
-        self.start = time.time()
-        self.n_processed = 0
-
-    def __call__(self, imgs, pred_values, gt_values):
-        self.n_processed += len(imgs)
-        fps = self.n_processed / (time.time() - self.start)
-        sys.stdout.write(
-            '\r{:d} of {:d} images, {:.2f} FPS'.format(
-                self.n_processed, self.n_total, fps))
-        sys.stdout.flush()
+from chainercv.utils import ProgressHook
 
 
 def main():
@@ -70,7 +51,7 @@ def main():
 
     model.use_preset('evaluate')
 
-    dataset = VOCDetectionDataset(
+    dataset = VOCBboxDataset(
         year='2007', split='test', use_difficult=True, return_difficult=True)
     iterator = iterators.SerialIterator(
         dataset, args.batchsize, repeat=False, shuffle=False)
@@ -90,7 +71,7 @@ def main():
 
     print()
     print('mAP: {:f}'.format(result['map']))
-    for l, name in enumerate(voc_detection_label_names):
+    for l, name in enumerate(voc_bbox_label_names):
         if result['ap'][l]:
             print('{:s}: {:f}'.format(name, result['ap'][l]))
         else:

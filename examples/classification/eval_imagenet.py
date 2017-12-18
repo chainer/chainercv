@@ -1,6 +1,4 @@
 import argparse
-import sys
-import time
 
 import numpy as np
 
@@ -17,22 +15,7 @@ from chainercv.links import ResNet50
 from chainercv.links import VGG16
 
 from chainercv.utils import apply_prediction_to_iterator
-
-
-class ProgressHook(object):
-
-    def __init__(self, n_total):
-        self.n_total = n_total
-        self.start = time.time()
-        self.n_processed = 0
-
-    def __call__(self, imgs, pred_values, gt_values):
-        self.n_processed += len(imgs)
-        fps = self.n_processed / (time.time() - self.start)
-        sys.stdout.write(
-            '\r{:d} of {:d} images, {:.2f} FPS'.format(
-                self.n_processed, self.n_total, fps))
-        sys.stdout.flush()
+from chainercv.utils import ProgressHook
 
 
 def main():
@@ -79,10 +62,10 @@ def main():
     del imgs
 
     pred_probs, = pred_values
-    gt_probs, = gt_values
+    gt_labels, = gt_values
 
     accuracy = F.accuracy(
-        np.array(list(pred_probs)), np.array(list(gt_probs))).data
+        np.array(list(pred_probs)), np.array(list(gt_labels))).data
     print()
     print('Top 1 Error {}'.format(1. - accuracy))
 

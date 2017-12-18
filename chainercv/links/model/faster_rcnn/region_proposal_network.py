@@ -39,10 +39,10 @@ class RegionProposalNetwork(chainer.Chain):
             initialize weight.
             May also be a callable that takes an array and edits its values.
         proposal_creator_params (dict): Key valued paramters for
-            :obj:`chainercv.links.model.faster_rcnn.ProposalCreator`.
+            :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
 
     .. seealso::
-        :obj:`chainercv.links.model.faster_rcnn.ProposalCreator`
+        :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`
 
     """
 
@@ -126,7 +126,7 @@ class RegionProposalNetwork(chainer.Chain):
         roi_indices = list()
         for i in range(n):
             roi = self.proposal_layer(
-                rpn_locs[i].data, rpn_fg_scores[i].data, anchor, img_size,
+                rpn_locs[i].array, rpn_fg_scores[i].array, anchor, img_size,
                 scale=scale)
             batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
             rois.append(roi)
