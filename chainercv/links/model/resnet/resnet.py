@@ -108,24 +108,27 @@ class ResNet(PickableSequentialChain):
             'resnet50': {
                 'imagenet': {
                     'n_class': 1000,
-                    'url': 'https://github.com/yuyu2172/share-weights/releases/'
-                    'download/0.0.3/resnet50_imagenet_convert_2017_07_06.npz',
+                    'url': 'https://github.com/yuyu2172/share-weights/'
+                    'releases/download/0.0.5/'
+                    'resnet50_imagenet_convert_2017_12_18.npz',
                     'mean': _imagenet_mean
                 },
             },
             'resnet101': {
                 'imagenet': {
                     'n_class': 1000,
-                    'url': 'https://github.com/yuyu2172/share-weights/releases/'
-                    'download/0.0.3/resnet101_imagenet_convert_2017_07_06.npz',
+                    'url': 'https://github.com/yuyu2172/share-weights/'
+                    'releases/download/0.0.5/'
+                    'resnet101_imagenet_convert_2017_12_18.npz',
                     'mean': _imagenet_mean
                 },
             },
             'resnet152': {
                 'imagenet': {
                     'n_class': 1000,
-                    'url': 'https://github.com/yuyu2172/share-weights/releases/'
-                    'download/0.0.3/resnet152_imagenet_convert_2017_07_06.npz',
+                    'url': 'https://github.com/yuyu2172/share-weights/'
+                    'releases/download/0.0.5/'
+                    'resnet152_imagenet_convert_2017_12_18.npz',
                     'mean': _imagenet_mean
                 },
             }
