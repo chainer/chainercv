@@ -140,7 +140,7 @@ class ResNet(PickableSequentialChain):
             if pretrained_model == 'imagenet':
                 raise ValueError(
                     'Pretrained weights for Facebook ResNet models '
-                    'are not supported.')
+                    'are not supported. Please set mode to \'he\'.')
             stride_first = False
             conv1_no_bias = True
         elif mode == 'he':
