@@ -31,7 +31,7 @@ from chainercv.links import ResNet50
         ]
     )
 ))
-@attr.slow
+
 class TestResNetCall(unittest.TestCase):
 
     def setUp(self):
@@ -52,10 +52,12 @@ class TestResNetCall(unittest.TestCase):
             self.assertEqual(features.shape, self.shapes)
             self.assertEqual(features.dtype, np.float32)
 
+    @attr.slow
     def test_call_cpu(self):
         self.check_call()
 
     @attr.gpu
+    @attr.slow
     def test_call_gpu(self):
         self.link.to_gpu()
         self.check_call()
