@@ -48,7 +48,7 @@ def main():
             n_class, args.pretrained_model, mode=args.resnet_mode)
     elif args.model == 'resnet152':
         extractor = ResNet152(
-            n_class, args.pretrained_moden, mode=args.resnet_mode)
+            n_class, args.pretrained_model, mode=args.resnet_mode)
     model = FeaturePredictor(
         extractor, crop_size=224, scale_size=256, crop=args.crop)
 
