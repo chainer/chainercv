@@ -41,9 +41,9 @@ class TestResNetCall(unittest.TestCase):
     def check_call(self):
         xp = self.link.xp
 
-        x1 = Variable(xp.asarray(np.random.uniform(
+        x = Variable(xp.asarray(np.random.uniform(
             -1, 1, (1, 3, 224, 224)).astype(np.float32)))
-        features = self.link(x1)
+        features = self.link(x)
         if isinstance(features, tuple):
             for activation, shape in zip(features, self.shapes):
                 self.assertEqual(activation.shape, shape)
