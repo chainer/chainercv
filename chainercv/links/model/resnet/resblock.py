@@ -6,7 +6,7 @@ from chainercv.links import Conv2DBNActiv
 
 class ResBlock(chainer.Chain):
 
-    """A building block for ResNets that consists of several Bottleneck layers.
+    """A building block for ResNets.
 
     in --> Bottleneck with shortcut --> Bottleneck * (n_layer - 1) --> out
 
