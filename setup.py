@@ -78,7 +78,7 @@ for name, data in ext_data.items():
 
 setup(
     name='chainercv',
-    version='0.7.0',
+    version='0.8.0',
     packages=find_packages(),
     author='Yusuke Niitani',
     author_email='yuyuniitani@gmail.com',
