@@ -31,7 +31,6 @@ from chainercv.links import ResNet50
         ]
     )
 ))
-
 class TestResNetCall(unittest.TestCase):
 
     def setUp(self):
