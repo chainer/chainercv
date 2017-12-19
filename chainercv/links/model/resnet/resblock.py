@@ -4,9 +4,9 @@ import chainer.functions as F
 from chainercv.links import Conv2DBNActiv
 
 
-class BuildingBlock(chainer.Chain):
+class ResBlock(chainer.Chain):
 
-    """A building block that consists of several Bottleneck layers.
+    """A building block for ResNets that consists of several Bottleneck layers.
 
     in --> Bottleneck with shortcut --> Bottleneck * (n_layer - 1) --> out
 
@@ -27,7 +27,7 @@ class BuildingBlock(chainer.Chain):
 
     def __init__(self, n_layer, in_channels, mid_channels,
                  out_channels, stride, initialW=None, stride_first=False):
-        super(BuildingBlock, self).__init__()
+        super(ResBlock, self).__init__()
         with self.init_scope():
             self.a = Bottleneck(
                 in_channels, mid_channels, out_channels, stride,

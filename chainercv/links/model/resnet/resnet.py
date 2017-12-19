@@ -8,7 +8,7 @@ from chainer import initializers
 import chainer.links as L
 
 from chainercv.links import Conv2DBNActiv
-from chainercv.links.model.resnet.building_block import BuildingBlock
+from chainercv.links.model.resnet.resblock import ResBlock
 from chainercv.links import PickableSequentialChain
 from chainercv.utils import download_model
 
@@ -181,10 +181,10 @@ class ResNet(PickableSequentialChain):
             self.conv1 = Conv2DBNActiv(None, 64, 7, 2, 3, nobias=conv1_no_bias,
                                        initialW=conv_initialW)
             self.pool1 = lambda x: F.max_pooling_2d(x, ksize=3, stride=2)
-            self.res2 = BuildingBlock(blocks[0], None, 64, 256, 1, **kwargs)
-            self.res3 = BuildingBlock(blocks[1], None, 128, 512, 2, **kwargs)
-            self.res4 = BuildingBlock(blocks[2], None, 256, 1024, 2, **kwargs)
-            self.res5 = BuildingBlock(blocks[3], None, 512, 2048, 2, **kwargs)
+            self.res2 = ResBlock(blocks[0], None, 64, 256, 1, **kwargs)
+            self.res3 = ResBlock(blocks[1], None, 128, 512, 2, **kwargs)
+            self.res4 = ResBlock(blocks[2], None, 256, 1024, 2, **kwargs)
+            self.res5 = ResBlock(blocks[3], None, 512, 2048, 2, **kwargs)
             self.pool5 = _global_average_pooling_2d
             self.fc6 = L.Linear(None, n_class, initialW=fc_initialW)
             self.prob = F.softmax
