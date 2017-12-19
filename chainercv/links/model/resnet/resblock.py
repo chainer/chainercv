@@ -18,8 +18,9 @@ class ResBlock(chainer.Chain):
         stride (int or tuple of ints): Stride of filter application.
         initialW (4-D array): Initial weight value used in
             the convolutional layers.
-        stride_first (bool): If :obj:`True`, apply strided convolution
-            with the first convolution layer of the BottleneckA layer.
+        stride_first (bool): This determines the behavior of the
+            bottleneck with a shortcut. If :obj:`True`, apply strided
+            convolution with the first convolution layer.
             Otherwise, apply strided convolution with the
             second convolution layer.
 
