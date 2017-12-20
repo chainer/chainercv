@@ -34,6 +34,11 @@ Note that this code requires `cv2` module.
 $ python train.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--gpu <gpu>]
 ```
 
+If you want to use multiple GPUs, use `train_mulit.py`.
+```
+$ python train_multi.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--gpu <gpu> [<gpu>...]]
+```
+
 You can download weights that were trained by ChainerCV.
 - [SSD300](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/ssd300_voc0712_trained_2017_08_08.npz)
 - [SSD512](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/ssd512_voc0712_trained_batchsize_24_2017_08_08.npz)
