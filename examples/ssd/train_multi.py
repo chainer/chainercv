@@ -109,7 +109,7 @@ def main():
     parser.add_argument(
         '--model', choices=('ssd300', 'ssd512'), default='ssd300')
     parser.add_argument('--batchsize', type=int, default=32)
-    parser.add_argument('--gpu', type=int, default=-1)
+    parser.add_argument('--gpu', type=int, nargs='+')
     parser.add_argument('--out', default='result')
     parser.add_argument('--resume')
     args = parser.parse_args()
@@ -152,7 +152,10 @@ def main():
         else:
             param.update_rule.add_hook(WeightDecay(0.0005))
 
-    updater = training.ParallelUpdater(train_iter, optimizer, device=args.gpu)
+    updater = training.ParallelUpdater(
+        train_iter, optimizer,
+        devices={'main': args.gpu[0]}.update(
+            ('sub-{:d}'.format(i), gpu) for i, gpu in enumerate(args.gpu[1:])))
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1, init=1e-3),
