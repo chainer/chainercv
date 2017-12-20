@@ -103,7 +103,7 @@ class Transform(object):
         return img, mb_loc, mb_label
 
 
-class TransformIterator(object):
+class TransformIterator(chainer.dataset.Iterator):
 
     def __init__(self, iterator):
         self._iterator = iterator
@@ -114,8 +114,6 @@ class TransformIterator(object):
         return [(img, mb_loc, mb_label, n_positive)
                 for img, mb_loc, mb_label in batch]
 
-    next = __next__
-
     @property
     def epoch_detail(self):
         return self._iterator.epoch_detail
@@ -123,6 +121,9 @@ class TransformIterator(object):
     @property
     def previous_epoch_detail(self):
         return self._iterator.previous_epoch_detail
+
+    def finalize(self):
+        self._iterator.finalize()
 
     def serialize(self, serializer):
         self._iterator.serialize(serializer)
