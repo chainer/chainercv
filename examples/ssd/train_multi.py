@@ -115,12 +115,20 @@ class TransformIterator(chainer.dataset.Iterator):
                 for img, mb_loc, mb_label in batch]
 
     @property
+    def epoch(self):
+        return self._iterator.epoch
+
+    @property
     def epoch_detail(self):
         return self._iterator.epoch_detail
 
     @property
     def previous_epoch_detail(self):
         return self._iterator.previous_epoch_detail
+
+    @property
+    def is_new_epoch(self):
+        return self._iterator.is_new_epoch
 
     def finalize(self):
         self._iterator.finalize()
