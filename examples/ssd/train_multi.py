@@ -191,7 +191,7 @@ def main():
 
     devices = {'main': args.gpu[0]}
     devices.update(
-        ('other-{:d}'.format(i), gpu) for i, gpu in enumerate(args.gpu[1:]))
+        ('other{:d}'.format(i + 1), gpu) for i, gpu in enumerate(args.gpu[1:]))
     updater = training.ParallelUpdater(train_iter, optimizer, devices=devices)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
     trainer.extend(
