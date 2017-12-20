@@ -22,7 +22,7 @@ Collection of Deep Learning Computer Vision Algorithms implemented in Chainer
 
 setup_requires = ['numpy']
 install_requires = [
-    'chainer>=2.0',
+    'chainer>=3.2',
     'Pillow'
 ]
 
