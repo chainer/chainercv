@@ -115,6 +115,20 @@ class TransformIterator(object):
 
     next = __next__
 
+    @property
+    def epoch_detail(self):
+        return self._iterator.epoch_detail()
+
+    @property
+    def previous_epoch_detail(self):
+        return self._iterator.previous_epoch_detail()
+
+    def serialize(self, serializer):
+        self._iterator.serialize(serializer)
+
+    def reset(self):
+        self._iterator.reset()
+
 
 def main():
     parser = argparse.ArgumentParser()
