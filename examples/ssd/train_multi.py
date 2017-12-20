@@ -104,6 +104,7 @@ class Transform(object):
 
 
 class TransformIterator(object):
+
     def __init__(self, iterator):
         self._iterator = iterator
 
@@ -117,11 +118,11 @@ class TransformIterator(object):
 
     @property
     def epoch_detail(self):
-        return self._iterator.epoch_detail()
+        return self._iterator.epoch_detail
 
     @property
     def previous_epoch_detail(self):
-        return self._iterator.previous_epoch_detail()
+        return self._iterator.previous_epoch_detail
 
     def serialize(self, serializer):
         self._iterator.serialize(serializer)
