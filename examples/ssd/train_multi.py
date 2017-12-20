@@ -45,9 +45,9 @@ class MultiboxTrainChain(chainer.Chain):
             self)
 
         # use the number of positives in all GPUs instead of that in this GPU
-        with chainer.cuda.get_device_from_array(gt_mb_labels.array):
+        with chainer.cuda.get_device_from_array(gt_mb_labels):
             if n_positive[0] > 0:
-                loss *= (gt_mb_labels.array > 0).sum() / n_positive[0]
+                loss *= (gt_mb_labels > 0).sum() / n_positive[0]
         return loss
 
 
