@@ -99,9 +99,21 @@ class Transform(object):
         # Preparation for SSD network
         img -= self.mean
         mb_loc, mb_label = self.coder.encode(bbox, label)
-        n_positive = sum(mb_label > 0)
 
-        return img, mb_loc, mb_label, n_positive
+        return img, mb_loc, mb_label
+
+
+class TransformIterator(object):
+    def __init__(self, iterator):
+        self._iterator = iterator
+
+    def __next__(self):
+        batch = next(self._iterator)
+        n_positive = sum((mb_label > 0).sum() for _, _, mb_label in batch)
+        return [(img, mb_loc, mb_label, n_positive)
+                for img, mb_loc, mb_label in batch]
+
+    next = __next__
 
 
 def main():
@@ -133,7 +145,8 @@ def main():
             VOCBboxDataset(year='2012', split='trainval')
         ),
         Transform(model.coder, model.insize, model.mean))
-    train_iter = chainer.iterators.MultiprocessIterator(train, args.batchsize)
+    train_iter = TransformIterator(
+        chainer.iterators.MultiprocessIterator(train, args.batchsize))
 
     test = VOCBboxDataset(
         year='2007', split='test',
