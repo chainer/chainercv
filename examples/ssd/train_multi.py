@@ -108,6 +108,8 @@ class TransformIterator(chainer.dataset.Iterator):
     def __init__(self, iterator):
         self._iterator = iterator
 
+    # (img, mb_loc, mb_label) -> (img, mb_loc, mb_label, n_positive),
+    # where n_positive is the total number of positives in the batch
     def __next__(self):
         batch = next(self._iterator)
         n_positive = sum((mb_label > 0).sum() for _, _, mb_label in batch)
