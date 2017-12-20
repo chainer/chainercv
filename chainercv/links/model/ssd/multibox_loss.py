@@ -71,22 +71,23 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k,
     gt_mb_labels = chainer.as_variable(gt_mb_labels)
 
     xp = chainer.cuda.get_array_module(gt_mb_labels.array)
+    with chainer.cuda.get_device_from_array(gt_mb_labels.array):
+        positive = gt_mb_labels.array > 0
+        if n_positive is None:
+            n_positive = positive.sum()
+        if n_positive == 0:
+            z = chainer.Variable(xp.zeros((), dtype=np.float32))
+            return z, z
 
-    positive = gt_mb_labels.array > 0
-    if n_positive is None:
-        n_positive = positive.sum()
-    if n_positive == 0:
-        z = chainer.Variable(xp.zeros((), dtype=np.float32))
-        return z, z
+        loc_loss = F.huber_loss(mb_locs, gt_mb_locs, 1, reduce='no')
+        loc_loss = F.sum(loc_loss, axis=-1)
+        loc_loss *= positive.astype(loc_loss.dtype)
+        loc_loss = F.sum(loc_loss) / n_positive
 
-    loc_loss = F.huber_loss(mb_locs, gt_mb_locs, 1, reduce='no')
-    loc_loss = F.sum(loc_loss, axis=-1)
-    loc_loss *= positive.astype(loc_loss.dtype)
-    loc_loss = F.sum(loc_loss) / n_positive
-
-    conf_loss = _elementwise_softmax_cross_entropy(mb_confs, gt_mb_labels)
-    hard_negative = _hard_negative(conf_loss.array, positive, k)
-    conf_loss *= xp.logical_or(positive, hard_negative).astype(conf_loss.dtype)
-    conf_loss = F.sum(conf_loss) / n_positive
+        conf_loss = _elementwise_softmax_cross_entropy(mb_confs, gt_mb_labels)
+        hard_negative = _hard_negative(conf_loss.array, positive, k)
+        conf_loss *= xp.logical_or(
+            positive, hard_negative).astype(conf_loss.dtype)
+        conf_loss = F.sum(conf_loss) / n_positive
 
     return loc_loss, conf_loss
