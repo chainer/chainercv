@@ -180,10 +180,8 @@ def main():
 
     devices = {'main': args.gpu[0]}
     devices.update(
-        ('sub-{:d}'.format(i), gpu) for i, gpu in enumerate(args.gpu[1:]))
-    updater = training.ParallelUpdater(
-        train_iter, optimizer,
-        devices=devices)
+        ('other-{:d}'.format(i), gpu) for i, gpu in enumerate(args.gpu[1:]))
+    updater = training.ParallelUpdater(train_iter, optimizer, devices=devices)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1, init=1e-3),
