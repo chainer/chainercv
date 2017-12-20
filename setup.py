@@ -22,7 +22,7 @@ Collection of Deep Learning Computer Vision Algorithms implemented in Chainer
 
 setup_requires = ['numpy']
 install_requires = [
-    'chainer>=2.0',
+    'chainer>=3.2',
     'Pillow'
 ]
 
@@ -78,7 +78,7 @@ for name, data in ext_data.items():
 
 setup(
     name='chainercv',
-    version='0.7.0',
+    version='0.8.0',
     packages=find_packages(),
     author='Yusuke Niitani',
     author_email='yuyuniitani@gmail.com',
