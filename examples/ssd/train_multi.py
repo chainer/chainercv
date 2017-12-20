@@ -37,13 +37,17 @@ class MultiboxTrainChain(chainer.Chain):
     def __call__(self, imgs, gt_mb_locs, gt_mb_labels, n_positive):
         mb_locs, mb_confs = self.model(imgs)
         loc_loss, conf_loss = multibox_loss(
-            mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, self.k, n_positive[0])
+            mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, self.k)
         loss = loc_loss * self.alpha + conf_loss
 
         chainer.reporter.report(
             {'loss': loss, 'loss/loc': loc_loss, 'loss/conf': conf_loss},
             self)
 
+        # use the number of positives in all GPUs instead of that in this GPU
+        with chainer.cuda.get_device_from_array(gt_mb_labels.array):
+            if n_positive[0] > 0:
+                loss *= (gt_mb_labels.array > 0).sum() / n_positive[0]
         return loss
 
 
