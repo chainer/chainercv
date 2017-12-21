@@ -34,7 +34,7 @@ Note that this code requires `cv2` module.
 $ python train.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--gpu <gpu>]
 ```
 
-If you want to use multiple GPUs, use `train_mulit.py`.
+If you want to use multiple GPUs, use `train_multi.py`.
 ```
 $ python train_multi.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--gpu <gpu> [<gpu>...]]
 ```
