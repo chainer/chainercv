@@ -36,7 +36,7 @@ $ python train.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--gpu <gpu>
 
 If you want to use multiple GPUs, use `train_multi.py`.
 ```
-$ python train_multi.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--gpu <gpu> [<gpu>...]]
+$ python train_multi.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--test_batchsize <batchsize>] [--gpu <gpu> [<gpu>...]]
 ```
 
 You can download weights that were trained by ChainerCV.

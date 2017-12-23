@@ -151,6 +151,7 @@ def main():
     parser.add_argument(
         '--model', choices=('ssd300', 'ssd512'), default='ssd300')
     parser.add_argument('--batchsize', type=int, default=32)
+    parser.add_argument('--test_batchsize', type=int, default=32)
     parser.add_argument('--gpu', type=int, nargs='+')
     parser.add_argument('--out', default='result')
     parser.add_argument('--resume')
@@ -182,7 +183,7 @@ def main():
         year='2007', split='test',
         use_difficult=True, return_difficult=True)
     test_iter = chainer.iterators.SerialIterator(
-        test, args.batchsize, repeat=False, shuffle=False)
+        test, args.test_batchsize, repeat=False, shuffle=False)
 
     # initial lr is set to 1e-3 by ExponentialShift
     optimizer = chainer.optimizers.MomentumSGD()
