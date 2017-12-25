@@ -111,7 +111,8 @@ class ProposalCreator(object):
         anchor = cuda.to_cpu(anchor)
 
         # Convert anchors into proposal via bbox transformations.
-        roi = loc2bbox(anchor, loc)
+        roi = loc2bbox(anchor.astype(np.float64), loc.astype(np.float64))
+        roi = roi.astype(loc.dtype)
 
         # Clip predicted boxes to image.
         roi[:, slice(0, 4, 2)] = np.clip(
