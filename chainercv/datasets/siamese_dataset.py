@@ -5,10 +5,10 @@ import chainer
 
 def _construct_label_to_key(labels):
     d = dict()
-    for i, l in enumerate(labels):
-        if l not in d:
-            d[l] = list()
-        d[l].append(i)
+    for i, label in enumerate(labels):
+        if label not in d:
+            d[label] = list()
+        d[label].append(i)
     return d
 
 
@@ -102,18 +102,18 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
         else:
             # get pos-pair
             if np.random.binomial(1, self._pos_ratio):
-                l = np.random.choice(self._exist_pos_pair_labels_0)
-                idx0 = np.random.choice(self._label_to_index_0[l])
-                idx1 = np.random.choice(self._label_to_index_1[l])
+                label = np.random.choice(self._exist_pos_pair_labels_0)
+                idx0 = np.random.choice(self._label_to_index_0[label])
+                idx1 = np.random.choice(self._label_to_index_1[label])
             # get neg-pair
             else:
-                l0 = np.random.choice(self._exist_neg_pair_labels_0)
+                label_0 = np.random.choice(self._exist_neg_pair_labels_0)
                 keys = list(self._label_to_index_1.keys())
-                if l0 in keys:
-                    keys.remove(l0)
-                l1 = np.random.choice(keys)
-                idx0 = np.random.choice(self._label_to_index_0[l0])
-                idx1 = np.random.choice(self._label_to_index_1[l1])
+                if label_0 in keys:
+                    keys.remove(label_0)
+                label_1 = np.random.choice(keys)
+                idx0 = np.random.choice(self._label_to_index_0[label_0])
+                idx1 = np.random.choice(self._label_to_index_1[label_1])
 
         example_0 = self._dataset_0[idx0]
         example_1 = self._dataset_1[idx1]
