@@ -70,7 +70,7 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
                     and len(labels_1) == len(dataset_1)):
                 raise ValueError('the labels are invalid.')
 
-            # label -> idx
+            # Construct mapping label->idx
             self._label_to_index_0 = _construct_label_to_key(labels_0)
             self._label_to_index_1 = _construct_label_to_key(labels_1)
             # construct array of labels with positive pairs
