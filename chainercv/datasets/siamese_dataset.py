@@ -73,7 +73,7 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
             # Construct mapping label->idx
             self._label_to_index_0 = _construct_label_to_key(labels_0)
             self._label_to_index_1 = _construct_label_to_key(labels_1)
-            # construct array of labels with positive pairs
+            # select labels with positive pairs
             unique_0 = np.array(self._label_to_index_0.keys())
             self._exist_pos_pair_labels_0 =\
                 np.array([l for l in unique_0 if np.any(labels_1 == l)])
@@ -81,7 +81,7 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
                 raise ValueError(
                     'There is no positive pairs. For the given pair of '
                     'datasets, please set pos_ratio to None.')
-            # const array of labels in dataset_0 with negative pairs
+            # select labels in dataset_0 with negative pairs
             self._exist_neg_pair_labels_0 = \
                 np.array([l for l in unique_0 if np.any(labels_1 != l)])
             if len(self._exist_neg_pair_labels_0) == 0 and pos_ratio < 1:
