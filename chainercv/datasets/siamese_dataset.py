@@ -74,7 +74,7 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
             self._label_to_index_0 = _construct_label_to_key(labels_0)
             self._label_to_index_1 = _construct_label_to_key(labels_1)
             # select labels with positive pairs
-            unique_0 = np.array(self._label_to_index_0.keys())
+            unique_0 = np.array(list(self._label_to_index_0.keys()))
             self._exist_pos_pair_labels_0 =\
                 np.array([l for l in unique_0 if np.any(labels_1 == l)])
             if len(self._exist_pos_pair_labels_0) == 0 and pos_ratio > 0:
