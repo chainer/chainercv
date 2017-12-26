@@ -65,7 +65,8 @@ class TestSiameseDataset(unittest.TestCase):
     def test_pos_ratio(self):
         if self.pos_exist and self.neg_exist:
             dataset = SiameseDataset(self.dataset_0, self.dataset_1, 0.5,
-                                     self.labels_0, self.labels_1)
+                                     labels_0=self.labels_0,
+                                     labels_1=self.labels_1)
             for i in range(10):
                 example = dataset[i]
                 self._check_example(example)
@@ -73,7 +74,8 @@ class TestSiameseDataset(unittest.TestCase):
         else:
             with self.assertRaises(ValueError):
                 dataset = SiameseDataset(self.dataset_0, self.dataset_1, 0.5,
-                                         self.labels_0, self.labels_1)
+                                         labels_0=self.labels_0,
+                                         labels_1=self.labels_1)
 
     def test_pos_ratio_equals_0(self):
         if self.neg_exist:

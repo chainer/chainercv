@@ -32,6 +32,9 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
             given rate. If :obj:`None`,
             this dataset randomly samples examples from the base
             datasets. The default value is :obj:`None`.
+        length (None): The length of this dataset. If :obj:`None`,
+            the length of the first base dataset is the length of this
+            dataset.
         labels_0 (None or numpy.ndarray): The labels associated to
             the first base dataset. The length should be the same as
             the length of the first dataset. If this is :obj:`None`,
@@ -42,14 +45,11 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
         labels_1 (None or numpy.ndarray): The labels associated to
             the second base dataset. Please consult the explanation for
             :obj:`labels_0`.
-        length (None): The length of this dataset. If :obj:`None`,
-            the length of the first base dataset is the length of this
-            dataset.
 
     """
 
     def __init__(self, dataset_0, dataset_1,
-                 pos_ratio=None, labels_0=None, labels_1=None, length=None):
+                 pos_ratio=None, length=None, labels_0=None, labels_1=None):
         self._dataset_0 = dataset_0
         self._dataset_1 = dataset_1
         self._pos_ratio = pos_ratio
