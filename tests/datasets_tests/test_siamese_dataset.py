@@ -9,7 +9,7 @@ from chainercv.datasets import SiameseDataset
 from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
 
 
-N = 10
+N = 15
 
 
 @testing.parameterize(
@@ -55,36 +55,57 @@ class TestSiameseDataset(unittest.TestCase):
         self.assertEqual(example[3].ndim, 0)
         self.assertTrue(example[3] >= 0 and example[1] < self.n_class)
 
-    def test_compute_labels_automatically(self):
+    def test_no_pos_ratio(self):
         dataset = SiameseDataset(self.dataset_0, self.dataset_1)
         for i in range(10):
             example = dataset[i]
             self._check_example(example)
+        self.assertEqual(len(dataset), N)
 
     def test_pos_ratio(self):
-        dataset = SiameseDataset(self.dataset_0, self.dataset_1, 0.5,
-                                 self.labels_0, self.labels_1)
-        for i in range(10):
-            example = dataset[i]
-            self._check_example(example)
+        if self.pos_exist and self.neg_exist:
+            dataset = SiameseDataset(self.dataset_0, self.dataset_1, 0.5,
+                                     self.labels_0, self.labels_1)
+            for i in range(10):
+                example = dataset[i]
+                self._check_example(example)
+            self.assertEqual(len(dataset), N)
+        else:
+            with self.assertRaises(ValueError):
+                dataset = SiameseDataset(self.dataset_0, self.dataset_1, 0.5,
+                                         self.labels_0, self.labels_1)
 
     def test_pos_ratio_equals_0(self):
-        dataset = SiameseDataset(self.dataset_0, self.dataset_1, 0)
+        if self.neg_exist:
+            dataset = SiameseDataset(self.dataset_0, self.dataset_1, 0)
 
-        for i in range(10):
-            example = dataset[i]
-            self._check_example(example)
-            if self.neg_exist:
-                self.assertNotEqual(example[1], example[3])
+            for i in range(10):
+                example = dataset[i]
+                self._check_example(example)
+                if self.neg_exist:
+                    self.assertNotEqual(example[1], example[3])
+            self.assertEqual(len(dataset), N)
+        else:
+            with self.assertRaises(ValueError):
+                dataset = SiameseDataset(self.dataset_0, self.dataset_1, 0)
 
     def test_pos_ratio_equals_1(self):
-        dataset = SiameseDataset(self.dataset_0, self.dataset_1, 1)
+        if self.pos_exist:
+            dataset = SiameseDataset(self.dataset_0, self.dataset_1, 1)
 
-        for i in range(10):
-            example = dataset[i]
-            self._check_example(example)
-            if self.pos_exist:
-                self.assertEqual(example[1], example[3])
+            for i in range(10):
+                example = dataset[i]
+                self._check_example(example)
+                if self.pos_exist:
+                    self.assertEqual(example[1], example[3])
+            self.assertEqual(len(dataset), N)
+        else:
+            with self.assertRaises(ValueError):
+                dataset = SiameseDataset(self.dataset_0, self.dataset_1, 1)
+
+    def test_length_manual(self):
+        dataset = SiameseDataset(self.dataset_0, self.dataset_1, length=100)
+        self.assertEqual(len(dataset), 100)
 
 
 testing.run_module(__name__, __file__)
