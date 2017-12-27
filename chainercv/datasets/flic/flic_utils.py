@@ -5,14 +5,9 @@ from chainercv import utils
 
 root = 'pfnet/chainercv/flic'
 
-urls = [
-    'http://vision.grasp.upenn.edu/video/FLIC-full.zip',
+url = 'http://vision.grasp.upenn.edu/video/FLIC-full.zip'
 
-    'http://cims.nyu.edu/~tompson/data/tr_plus_indices.mat',
-
-]
-
-flic_joint_label_names = [
+flic_joint_names = [
     'lsho',
     'lelb',
     'lwri',
@@ -47,13 +42,10 @@ flic_joint_label_names = [
 
 def get_flic():
     data_root = download.get_dataset_directory(root)
+    dataset_dir = os.path.join(data_root, 'FLIC-full')
+    if not os.path.exists(dataset_dir):
+        download_file_path = utils.cached_download(url)
+        ext = os.path.splitext(url)[1]
+        utils.extractall(download_file_path, data_root, ext)
 
-    if not os.path.exists(os.path.join(data_root,
-                                       'FLIC-full')):
-        download_file_path = utils.cached_download(urls[0])
-        ext = os.path.splitext(urls[0])[1]
-        utils.extractall(download_file_path,
-                         data_root,
-                         ext)
-
-    return data_root
+    return dataset_dir

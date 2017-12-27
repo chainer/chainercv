@@ -46,20 +46,21 @@ class FLICKeypointDataset(chainer.dataset.DatasetMixin):
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
-            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/flic/FLIC-full`.
         split ({'train', 'test'}): Select from dataset splits used in
             the FLIC dataset.
         return_torsobox (bool): If :obj:`True`, this returns a bounding box
             around the torso. The default value is :obj:`False`.
-        skip_bad (bool): If :obj:`True`, the data which have :obj:`isbad = 1`
-            will be ignored. The default is :obj:`True`.
-        skip_unchecked (bool): If :obj:`True`, the data which have
-            :obj:`isunchecked = 1` will be ignored. The default is :obj:`True`.
+        use_bad (bool): If :obj:`False`, the data which have :obj:`isbad = 1`
+            will be ignored. The default is :obj:`False`.
+        use_unchecked (bool): If :obj:`False`, the data which have
+            :obj:`isunchecked = 1` will be ignored. The default is
+            :obj:`False`.
 
     """
 
     def __init__(self, data_dir='auto', split='train', return_torsobox=False,
-                 skip_bad=True, skip_unchecked=True):
+                 use_bad=False, use_unchecked=False):
         super(FLICKeypointDataset, self).__init__()
         if split not in ['train', 'test']:
             raise ValueError(
@@ -75,9 +76,9 @@ class FLICKeypointDataset(chainer.dataset.DatasetMixin):
             data_dir = flic_utils.get_flic()
 
         img_paths = {os.path.basename(fn): fn for fn in glob.glob(
-            os.path.join(data_dir, 'FLIC-full', 'images', '*.jpg'))}
+            os.path.join(data_dir, 'images', '*.jpg'))}
 
-        label_keys = [
+        label_annos = [
             'poselet_hit_idx',
             'moviename',
             'coords',
@@ -90,18 +91,18 @@ class FLICKeypointDataset(chainer.dataset.DatasetMixin):
             'isbad',
             'isunchecked',
         ]
-        labels = loadmat(os.path.join(data_dir, 'FLIC-full', 'examples.mat'))
+        annos = loadmat(os.path.join(data_dir, 'examples.mat'))
 
         self.img_paths = list()
         self.keypoints = list()
         self.torsoboxes = list()
         self.return_torsobox = return_torsobox
 
-        for label in labels['examples'][0]:
-            label = {label_keys[i]: val for i, val in enumerate(label)}
-            if skip_bad and int(label['isbad']) == 1:
+        for label in annos['examples'][0]:
+            label = {label_annos[i]: val for i, val in enumerate(label)}
+            if not use_bad and int(label['isbad']) == 1:
                 continue
-            if skip_unchecked and int(label['isunchecked']) == 1:
+            if not use_unchecked and int(label['isunchecked']) == 1:
                 continue
             if ((split == 'train' and int(label['istrain']) == 0)
                     or (split == 'test' and int(label['istest']) == 0)):
