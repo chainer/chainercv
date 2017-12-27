@@ -6,7 +6,7 @@ PASCAL VOC2007 Test
 | Model | Original | ChainerCV (weight conversion) | ChainerCV (train) |
 |:-:|:-:|:-:|:-:|
 | SSD300 | 77.5 % [2] | 77.8 % | 77.5 % / 77.5 % (2 GPUs) / 77.6 % (4 GPUs) |
-| SSD512 | 79.5 % [2] | 79.7 % | 80.1 % * |
+| SSD512 | 79.5 % [2] | 79.7 % | 80.1 % * / 80.1 % (2 GPUs) / 80.4 % (4 GPUs) |
 
 Scores are mean Average Precision (mAP) with PASCAL VOC2007 metric.
 
