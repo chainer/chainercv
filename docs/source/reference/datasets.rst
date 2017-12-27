@@ -54,6 +54,12 @@ CUBKeypointDataset
 ~~~~~~~~~~~~~~~~~~~
 .. autoclass:: CUBKeypointDataset
 
+FLIC
+----
+
+FLICKeypointDataset
+~~~~~~~~~~~~~~~~~~~
+.. autoclass:: FLICKeypointDataset
 
 OnlineProducts
 --------------
