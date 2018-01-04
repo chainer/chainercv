@@ -1,5 +1,5 @@
-from collections import OrderedDict
 import base64
+from collections import OrderedDict
 import csv
 import hashlib
 import multiprocessing as mp
@@ -11,9 +11,10 @@ from chainer.dataset import download
 
 
 root = 'pfnet/chainercv/openimages'
-img_url = 'https://storage.googleapis.com/openimages/2017_11/images_2017_11.tar.gz'
-anno_url = 'https://storage.googleapis.com/openimages/2017_11/annotations_human_bbox_2017_11.tar.gz'
-cls_url = 'https://storage.googleapis.com/openimages/2017_11/classes_2017_11.tar.gz'
+url_base = 'https://storage.googleapis.com/openimages/2017_11/'
+img_url = url_base + 'images_2017_11.tar.gz'
+anno_url = url_base + 'annotations_human_bbox_2017_11.tar.gz'
+cls_url = url_base + 'classes_2017_11.tar.gz'
 mimetypes = {
     '.jpg': 'image/jpeg',
     '.png': 'image/png',
@@ -38,7 +39,8 @@ def get_image(prop):
 
     resp = urllib2.urlopen(url)
     if resp.info().type != mimetypes[ext]:
-        raise RuntimeError("File type mismatch %s != %s" % (resp.info().type, mimetypes[ext]))
+        raise RuntimeError(
+            "File type mismatch %s != %s" % (resp.info().type, mimetypes[ext]))
 
     data = resp.read()
     checksum = hashlib.md5(data).hexdigest()

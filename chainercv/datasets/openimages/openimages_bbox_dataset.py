@@ -1,3 +1,4 @@
+from __future__ import print_function
 from collections import defaultdict
 import csv
 import numpy as np
@@ -9,7 +10,7 @@ from chainercv import utils
 
 from chainercv.datasets.openimages.openimages_utils import get_image
 from chainercv.datasets.openimages.openimages_utils import get_openimages
-from chainercv.datasets.openimages.openimages_utils import openimages_bbox_labels
+from chainercv.datasets.openimages.openimages_utils import openimages_bbox_labels  # NOQA
 
 
 class OpenImagesBboxDataset(chainer.dataset.DatasetMixin):
@@ -82,22 +83,23 @@ class OpenImagesBboxDataset(chainer.dataset.DatasetMixin):
                 float(a["YMax"]) * height,
                 float(a["XMax"]) * width,
             ] for a in annos], dtype=np.float32)
-        label = np.array([self.label_keys.index(a["LabelName"]) for a in annos],
-                         dtype=np.int32)
+        label = np.array(
+            [self.label_keys.index(a["LabelName"]) for a in annos],
+            dtype=np.int32)
         return bbox, label
 
 
 if __name__ == '__main__':
-    import traceback
-    import matplotlib.pyplot as plt
+    from chainercv.datasets.openimages.openimages_utils import openimages_bbox_label_names  # NOQA
     from chainercv.visualizations import vis_bbox
-    from chainercv.datasets.openimages.openimages_utils import openimages_bbox_label_names
+    import matplotlib.pyplot as plt
+    import traceback
     dataset = OpenImagesBboxDataset(split='test', predownload=True)
     for i in range(len(dataset)):
         try:
             img, bbox, label = dataset.get_example(i)
         except Exception as e:
-            print e
+            print(e)
             traceback.print_exc()
             continue
         vis_bbox(img, bbox, label,
