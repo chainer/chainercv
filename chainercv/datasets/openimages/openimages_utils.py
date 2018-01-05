@@ -6,8 +6,8 @@ import multiprocessing as mp
 import os
 import urllib2
 
-from chainercv import utils
 from chainer.dataset import download
+from chainercv import utils
 
 
 root = 'pfnet/chainercv/openimages'
