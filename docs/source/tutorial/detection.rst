@@ -63,7 +63,7 @@ Here is an example with a simple toy data.
     # We call a variable/array of bounding boxes as `bbox` throughout the library
     bbox = np.array([[10, 10, 20, 40], [150, 150, 200, 200]], dtype=np.float32)
 
-    chainercv.visualizations.vis_bbox(img, bbox)
+    vis_bbox(img, bbox)
     plt.show()
 
 .. figure:: ../../image/detection_tutorial_simple_bbox.png 
