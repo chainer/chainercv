@@ -153,7 +153,8 @@ The model runs prediction using :meth:`~chainercv.links.model.ssd.SSD.predict`, 
 Note that in this case, confidence scores are visualized together with other data.
 
 Many detection algorithms post-process bounding box proposals calculated from the output of neural networks by removing unnecessary ones.
-In the case of Faster R-CNN and SSD, non-maximum suppression suppresses bounding boxes with low confidence and removes overlapping boxes.
+Faster R-CNN and SSD use non-maximum suppression to remove overlapping bounding boxes.
+Also, they remove bounding boxes with low confidence scores.
 These two models have attributes :obj:`nms_thresh` and :obj:`score_thresh`, which configure the post-processing.
 In the following example, the algorithm runs with a very low :obj:`score_thresh` so that bounding boxes with low scores are kept.
 It is known that lower :obj:`score_thresh` produces higher mAP.
