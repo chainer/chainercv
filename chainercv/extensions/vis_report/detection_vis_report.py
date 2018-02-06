@@ -7,7 +7,7 @@ import chainer
 from chainercv.visualizations.vis_bbox import vis_bbox
 
 try:
-    import matplotlib
+    import matplotlib  # NOQA
     _available = True
 
 except (ImportError, TypeError):
