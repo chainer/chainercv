@@ -7,10 +7,10 @@ import chainer
 from chainercv.visualizations.vis_bbox import vis_bbox
 
 try:
-    from matplotlib import pyplot as plot
+    import matplotlib
     _available = True
 
-except ImportError:
+except (ImportError, TypeError):
     _available = False
 
 
@@ -89,7 +89,11 @@ class DetectionVisReport(chainer.training.extension.Extension):
         return _available
 
     def __call__(self, trainer):
-        if not _available:
+        if _available:
+            # Dynamically import pyplot so that the backend of matplotlib
+            # can be configured after importing chainercv.
+            import matplotlib.pyplot as plot
+        else:
             return
 
         if hasattr(self.iterator, 'reset'):
