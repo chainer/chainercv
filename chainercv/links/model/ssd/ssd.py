@@ -60,7 +60,7 @@ class SSD(chainer.Chain):
 
     Parameters:
         nms_thresh (float): The threshold value
-            for :meth:`chainercv.transfroms.non_maximum_suppression`.
+            for :func:`~chainercv.utils.non_maximum_suppression`.
             The default value is :obj:`0.45`.
             This value can be changed directly or by using :meth:`use_preset`.
         score_thresh (float): The threshold value for confidence score.
@@ -180,7 +180,7 @@ class SSD(chainer.Chain):
            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
                where :math:`R` is the number of bounding boxes in a image. \
                Each bouding box is organized by \
-               :obj:`(y_min, x_min, y_max, x_max)` \
+               :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
                Each value indicates the class of the bounding box. \
@@ -203,7 +203,7 @@ class SSD(chainer.Chain):
                 chainer.function.no_backprop_mode():
             x = chainer.Variable(self.xp.stack(x))
             mb_locs, mb_confs = self(x)
-        mb_locs, mb_confs = mb_locs.data, mb_confs.data
+        mb_locs, mb_confs = mb_locs.array, mb_confs.array
 
         bboxes = list()
         labels = list()
