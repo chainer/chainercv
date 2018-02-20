@@ -15,8 +15,8 @@ class GetterDataset(SliceableDataset):
     """
 
     def __init__(self):
-        self._keys = []
-        self._getters = []
+        self._keys = list()
+        self._getters = list()
 
     def __len__(self):
         raise NotImplementedError
@@ -47,8 +47,8 @@ class GetterDataset(SliceableDataset):
             self._keys.append((keys, len(self._getters) - 1, None))
 
     def get_example_by_keys(self, index, key_indices):
-        example = []
-        cache = {}
+        example = list()
+        cache = dict()
         for key_index in key_indices:
             _, getter_index, key_index = self._keys[key_index]
             if getter_index not in cache:

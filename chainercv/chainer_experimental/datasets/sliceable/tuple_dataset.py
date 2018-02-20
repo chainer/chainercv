@@ -29,8 +29,8 @@ class TupleDataset(SliceableDataset):
         if len(datasets) == 0:
             raise ValueError('At least one dataset is required')
         self._len = None
-        self._keys = []
-        self._datasets = []
+        self._keys = list()
+        self._datasets = list()
         for dataset in datasets:
             if isinstance(dataset, SliceableDataset):
                 self._datasets.append(dataset)
@@ -66,7 +66,7 @@ class TupleDataset(SliceableDataset):
             else:
                 datasets_key_indices[dataset_index].add(key_index)
 
-        values = {}
+        values = dict()
         for dataset_index, dataset_key_indices in \
                 six.iteritems(datasets_key_indices):
             dataset = self._datasets[dataset_index]
