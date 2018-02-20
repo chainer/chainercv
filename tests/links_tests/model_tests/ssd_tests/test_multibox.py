@@ -18,7 +18,7 @@ class TestMultibox(unittest.TestCase):
     def setUp(self):
         self.link = Multibox(self.n_class, self.aspect_ratios)
 
-        xs = list()
+        xs = []
         n_bbox = 0
         for ar in self.aspect_ratios:
             C, H, W = np.random.randint(1, 10, size=3)
