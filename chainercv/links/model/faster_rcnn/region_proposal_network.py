@@ -50,7 +50,7 @@ class RegionProposalNetwork(chainer.Chain):
             self, in_channels=512, mid_channels=512, ratios=[0.5, 1, 2],
             anchor_scales=[8, 16, 32], feat_stride=16,
             initialW=None,
-            proposal_creator_params=dict(),
+            proposal_creator_params={},
     ):
         self.anchor_base = generate_anchor_base(
             anchor_scales=anchor_scales, ratios=ratios)
@@ -122,8 +122,8 @@ class RegionProposalNetwork(chainer.Chain):
         rpn_fg_scores = rpn_fg_scores.reshape((n, -1))
         rpn_scores = rpn_scores.reshape((n, -1, 2))
 
-        rois = list()
-        roi_indices = list()
+        rois = []
+        roi_indices = []
         for i in range(n):
             roi = self.proposal_layer(
                 rpn_locs[i].array, rpn_fg_scores[i].array, anchor, img_size,

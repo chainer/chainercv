@@ -110,8 +110,8 @@ def _apply(predict, iterator, hook):
     for batch in iterator:
         # batch: [(img, gt_val0, gt_val1, ...)] or [img]
 
-        imgs = list()
-        gt_values = list()
+        imgs = []
+        gt_values = []
         for sample in batch:
             if isinstance(sample, tuple):
                 imgs.append(sample[0])
