@@ -77,7 +77,7 @@ class SliceHelper(object):
             keys, return_tuple = (keys,), False
 
         # convert name to index
-        key_indices = list()
+        key_indices = []
         for key in keys:
             if isinstance(key, int):
                 key_index = key
