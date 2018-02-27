@@ -27,7 +27,7 @@ def vis_point(img, point, mask=None, ax=None):
             The second axis corresponds to :math:`y` and :math:`x` coordinates
             of the points.
         mask (~numpy.ndarray, optional): A boolean array whose shape is
-            :math:`(P,)`. If :math:`i` th index is :obj:`True`, the
+            :math:`(P,)`. If :math:`i` th element is :obj:`True`, the
             :math:`i` th point is not displayed. If not specified,
             all points in :obj:`keypoint` will be displayed.
         ax (matplotlib.axes.Axes, optional): If provided, plot on this axis.
