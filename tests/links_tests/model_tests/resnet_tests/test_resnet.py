@@ -26,8 +26,8 @@ from chainercv.links import ResNet50
             {'model_class': ResNet152},
         ],
         [
-            {'mode': 'fb'},
-            {'mode': 'he'}
+            {'arch': 'fb'},
+            {'arch': 'he'}
         ]
     )
 ))
@@ -35,7 +35,7 @@ class TestResNetCall(unittest.TestCase):
 
     def setUp(self):
         self.link = self.model_class(
-            n_class=self.n_class, pretrained_model=None, mode=self.mode)
+            n_class=self.n_class, pretrained_model=None, arch=self.arch)
         self.link.pick = self.pick
 
     def check_call(self):

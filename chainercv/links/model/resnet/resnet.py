@@ -58,7 +58,7 @@ class ResNet(PickableSequentialChain):
     * :obj:`imagenet`: Loads weights trained with ImageNet and distributed \
         at `Model Zoo \
         <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_.
-        This is only supported when :obj:`mode=='he'`.
+        This is only supported when :obj:`arch=='he'`.
 
     Args:
         model_name (str): Name of the resnet model to instantiate.
@@ -83,7 +83,7 @@ class ResNet(PickableSequentialChain):
             Otherwise, the mean value calculated from ILSVRC 2012 dataset
             is used.
         initialW (callable): Initializer for the weights.
-        mode (str): If :obj:`fb`, use Facebook ResNet
+        arch (str): If :obj:`fb`, use Facebook ResNet
             architecture. When :obj:`he`, use the architecture presented
             by `the original ResNet paper \
             <https://arxiv.org/pdf/1512.03385.pdf>`_.
@@ -138,20 +138,20 @@ class ResNet(PickableSequentialChain):
     def __init__(self, model_name,
                  n_class=None,
                  pretrained_model=None,
-                 mean=None, initialW=None, mode='fb'):
-        if mode == 'fb':
+                 mean=None, initialW=None, arch='fb'):
+        if arch == 'fb':
             if pretrained_model == 'imagenet':
                 raise ValueError(
                     'Pretrained weights for Facebook ResNet models '
                     'are not supported. Please set mode to \'he\'.')
             stride_first = False
             conv1_no_bias = True
-        elif mode == 'he':
+        elif arch == 'he':
             stride_first = True
             conv1_no_bias = False
         else:
-            raise ValueError('mode is expected to be one of [\'he\', \'fb\']')
-        _models = self._models[mode][model_name]
+            raise ValueError('arch is expected to be one of [\'he\', \'fb\']')
+        _models = self._models[arch][model_name]
         blocks = self._blocks[model_name]
 
         if n_class is None:
@@ -215,10 +215,10 @@ class ResNet50(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, mode='fb'):
+                 mean=None, initialW=None, arch='fb'):
         super(ResNet50, self).__init__(
             'resnet50', n_class, pretrained_model,
-            mean, initialW, mode)
+            mean, initialW, arch)
 
 
 class ResNet101(ResNet):
@@ -233,10 +233,10 @@ class ResNet101(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, mode='fb'):
+                 mean=None, initialW=None, arch='fb'):
         super(ResNet101, self).__init__(
             'resnet101', n_class, pretrained_model,
-            mean, initialW, mode)
+            mean, initialW, arch)
 
 
 class ResNet152(ResNet):
@@ -251,10 +251,10 @@ class ResNet152(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, mode='fb'):
+                 mean=None, initialW=None, arch='fb'):
         super(ResNet152, self).__init__(
             'resnet152', n_class, pretrained_model,
-            mean, initialW, mode)
+            mean, initialW, arch)
 
 
 class HeNormal(chainer.initializer.Initializer):
