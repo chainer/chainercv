@@ -1,13 +1,12 @@
+import collections
 import numpy as np
 
 import chainer
 
 
 def _construct_label_to_key(labels):
-    d = dict()
+    d = collections.defaultdict(list)
     for i, label in enumerate(labels):
-        if label not in d:
-            d[label] = list()
         d[label].append(i)
     return d
 
