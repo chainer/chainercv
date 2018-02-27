@@ -73,8 +73,8 @@ class CUBPointDataset(CUBDatasetBase):
 
         # load point
         parts_loc_file = os.path.join(self.data_dir, 'parts', 'part_locs.txt')
-        self.point_dict = collections.defaultdict(list)
-        self.point_mask_dict = collections.defaultdict(list)
+        self._point_dict = collections.defaultdict(list)
+        self._point_mask_dict = collections.defaultdict(list)
         for loc in open(parts_loc_file):
             values = loc.split()
             id_ = int(values[0]) - 1
@@ -83,8 +83,8 @@ class CUBPointDataset(CUBDatasetBase):
             point = [float(v) for v in values[3:1:-1]]
             point_mask = bool(int(values[4]))
 
-            self.point_dict[id_].append(point)
-            self.point_mask_dict[id_].append(point_mask)
+            self._point_dict[id_].append(point)
+            self._point_mask_dict[id_].append(point_mask)
 
     def get_example(self, i):
         """Returns the i-th example.
@@ -105,8 +105,8 @@ class CUBPointDataset(CUBDatasetBase):
         img = utils.read_image(
             os.path.join(self.data_dir, 'images', self.paths[i]),
             color=True)
-        point = np.array(self.point_dict[i], dtype=np.float32)
-        point_mask = np.array(self.point_mask_dict[i], dtype=np.bool)
+        point = np.array(self._point_dict[i], dtype=np.float32)
+        point_mask = np.array(self._point_mask_dict[i], dtype=np.bool)
 
         if not self.return_prob_map:
             if self.return_bb:
