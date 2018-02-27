@@ -16,7 +16,7 @@ directory_parsing_label_names
 
 SiameseDataset
 ~~~~~~~~~~~~~~
-.. autofunction:: SiameseDataset
+.. autoclass:: SiameseDataset
 
 ADE20K
 ------
