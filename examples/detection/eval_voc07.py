@@ -9,7 +9,7 @@ from chainercv.evaluations import eval_detection_voc
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
-from chainercv.utils import apply_prediction_to_iterator
+from chainercv.utils import apply_to_batch
 from chainercv.utils import ProgressHook
 
 
@@ -56,13 +56,13 @@ def main():
     iterator = iterators.SerialIterator(
         dataset, args.batchsize, repeat=False, shuffle=False)
 
-    imgs, pred_values, gt_values = apply_prediction_to_iterator(
+    in_values, out_values, rest_values = apply_to_batch(
         model.predict, iterator, hook=ProgressHook(len(dataset)))
-    # delete unused iterator explicitly
-    del imgs
+    # delete unused iterators explicitly
+    del in_values
 
-    pred_bboxes, pred_labels, pred_scores = pred_values
-    gt_bboxes, gt_labels, gt_difficults = gt_values
+    pred_bboxes, pred_labels, pred_scores = out_values
+    gt_bboxes, gt_labels, gt_difficults = rest_values
 
     result = eval_detection_voc(
         pred_bboxes, pred_labels, pred_scores,
