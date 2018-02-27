@@ -5,7 +5,7 @@ from chainer import reporter
 import chainer.training.extensions
 
 from chainercv.evaluations import eval_semantic_segmentation
-from chainercv.utils import apply_prediction_to_iterator
+from chainercv.utils import apply_to_batch
 
 
 class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
@@ -79,13 +79,12 @@ class SemanticSegmentationEvaluator(chainer.training.extensions.Evaluator):
         else:
             it = copy.copy(iterator)
 
-        imgs, pred_values, gt_values = apply_prediction_to_iterator(
-            target.predict, it)
-        # delete unused iterator explicitly
-        del imgs
+        in_values, out_values, rest_values = apply_to_batch(target.predict, it)
+        # delete unused iterators explicitly
+        del in_values
 
-        pred_labels, = pred_values
-        gt_labels, = gt_values
+        pred_labels, = out_values
+        gt_labels, = rest_values
 
         result = eval_semantic_segmentation(pred_labels, gt_labels)
 
