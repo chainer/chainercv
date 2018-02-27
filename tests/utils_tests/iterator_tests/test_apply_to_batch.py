@@ -6,7 +6,7 @@ import chainer
 from chainer.iterators import SerialIterator
 from chainer import testing
 
-from chainercv.utils import apply_prediction_to_iterator
+from chainercv.utils import apply_to_batch
 
 
 @testing.parameterize(*testing.product({
@@ -17,7 +17,7 @@ from chainercv.utils import apply_prediction_to_iterator
 }))
 class TestApplyPredictionToIterator(unittest.TestCase):
 
-    def test_apply_prediction_to_iterator(self):
+    def test_apply_to_batch(self):
         if self.multi_in_values:
             n_input = 2
         else:
@@ -83,7 +83,7 @@ class TestApplyPredictionToIterator(unittest.TestCase):
         else:
             hook = None
 
-        in_values, out_values, rest_values = apply_prediction_to_iterator(
+        in_values, out_values, rest_values = apply_to_batch(
             func, iterator, n_input=n_input, hook=hook)
 
         self.assertEqual(len(in_values), n_input)
@@ -109,7 +109,7 @@ class TestApplyPredictionToIterator(unittest.TestCase):
 
 class TestApplyPredictionToIteratorWithInfiniteIterator(unittest.TestCase):
 
-    def test_apply_prediction_to_iterator_with_infinite_iterator(self):
+    def test_apply_to_batch_with_infinite_iterator(self):
         def func(*in_values):
             n_sample = len(in_values[0])
             return [np.random.uniform(size=(48, 64)) for _ in range(n_sample)]
@@ -121,8 +121,7 @@ class TestApplyPredictionToIteratorWithInfiniteIterator(unittest.TestCase):
 
         iterator = SerialIterator(dataset, 2)
 
-        in_values, out_values, rest_values = apply_prediction_to_iterator(
-            func, iterator)
+        in_values, out_values, rest_values = apply_to_batch(func, iterator)
 
         for _ in range(10):
             next(in_values[0])

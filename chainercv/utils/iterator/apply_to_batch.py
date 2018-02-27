@@ -1,32 +1,31 @@
 from chainercv.utils.iterator.unzip import unzip
 
 
-def apply_prediction_to_iterator(func, iterator, n_input=1, hook=None):
-    """Apply a prediction function/method to an iterator.
+def apply_to_batch(func, iterator, n_input=1, hook=None):
+    """Apply a function/method to an iterator of batches.
 
-    This function applies a prediction function/method to an iterator.
-    It assumes that the iterator returns a batch of images or
-    a batch of tuples whose first element is an image. In the case that
-    it returns a batch of tuples, the rests are treated as ground truth
-    values.
+    This function applies a function/method to an iterator of batches.
+    It assumes that the iterator returns a batch of input data or
+    a batch of tuples whose first elements ara input data.
 
-    >>> imgs = next(iterator)
-    >>> # imgs: [img]
-    or
     >>> batch = next(iterator)
-    >>> # batch: [(img, gt_val0, gt_val1)]
-
-    This function applys :func:`predict` to a batch of images and gets
-    predicted value(s). :func:`predict` should take a batch of images and
-    return a batch of prediction values
-    or a tuple of batches of prediction values.
-
-    >>> pred_vals0 = predict(imgs)
-    >>> # pred_vals0: [pred_val0]
+    >>> # batch: [in_val]
     or
-    >>> pred_vals0, pred_vals1 = predict(imgs)
-    >>> # pred_vals0: [pred_val0]
-    >>> # pred_vals1: [pred_val1]
+    >>> # batch: [(in_val0, in_val1, ...)]
+    or
+    >>> # batch: [(in_val0, in_val1, ..., rest_val0, rest_val1, ...)]
+
+    This function applies :func:`func` to batch(es) of input data and gets
+    computed value(s). :func:`func` should take a batch of data and
+    return a batch of computed values
+    or a tuple of batches of computed values.
+
+    >>> out_vals = func(in_val0, in_val1, ...)
+    >>> # out_vals: [out_val]
+    or
+    >>> out_vals0, out_vals1, ... = func(in_val0, in_val1)
+    >>> # out_vals0: [out_val0]
+    >>> # out_vals1: [out_val1]
 
     Here is an exmple, which applies a pretrained Faster R-CNN to
     PASCAL VOC dataset.
@@ -35,7 +34,7 @@ def apply_prediction_to_iterator(func, iterator, n_input=1, hook=None):
     >>>
     >>> from chainercv.datasets import VOCDetectionDataset
     >>> from chainercv.links import FasterRCNNVGG16
-    >>> from chainercv.utils import apply_prediction_to_iterator
+    >>> from chainercv.utils import apply_to_batch
     >>>
     >>> dataset = VOCDetectionDataset(year='2007', split='test')
     >>> # next(iterator) -> [(img, gt_bbox, gt_label)]
@@ -45,47 +44,55 @@ def apply_prediction_to_iterator(func, iterator, n_input=1, hook=None):
     >>> # model.predict([img]) -> ([pred_bbox], [pred_label], [pred_score])
     >>> model = FasterRCNNVGG16(pretrained_model='voc07')
     >>>
-    >>> imgs, pred_values, gt_values = apply_prediction_to_iterator(
+    >>> in_values, out_values, rest_values = apply_to_batch(
     ...     model.predict, iterator)
     >>>
-    >>> # pred_values contains three iterators
-    >>> pred_bboxes, pred_labels, pred_scores = pred_values
-    >>> # gt_values contains two iterators
-    >>> gt_bboxes, gt_labels = gt_values
+    >>> # in_values contains one iterator
+    >>> imgs, = in_values
+    >>> # out_values contains three iterators
+    >>> pred_bboxes, pred_labels, pred_scores = out_values
+    >>> # rest_values contains two iterators
+    >>> gt_bboxes, gt_labels = rest_values
 
     Args:
-        predict: A callable that takes a batch of images and returns
-            prediction.
-        iterator (chainer.Iterator): An iterator. Each sample should have
-            an image as its first element. This image is passed to
-            :func:`predict` as an argument.
-            The rests are treated as ground truth values.
+        func: A callable that takes batch(es) of input data and returns
+            computed data.
+        iterator (chainer.Iterator): An iterator of batch.
+            The first :obj:`n_input` elements in each sample are
+            treated as input values. They are passed to :obj:`func`.
+        n_input (int): The number of input data. The default value is :obj:`1`.
         hook: A callable that is called after each iteration.
-            :obj:`imgs`, :obj:`pred_values` and :obj:`gt_values` are passed as
-            arguments.
+            :obj:`in_values`, :obj:`out_values`, and :obj:`rest_values`
+            are passed as arguments.
             Note that these values do not contain data from the previous
             iterations.
 
     Returns:
-        An iterator and two tuples of iterators:
-        This function returns an iterator and two tuples of iterators:
-        :obj:`imgs`, :obj:`pred_values` and :obj:`gt_values`.
+        Three tuples of iterators:
+        This function returns three tuples of iterators:
+        :obj:`in_values`, :obj:`out_values` and :obj:`rest_values`.
 
-        * :obj:`imgs`: An iterator that returns an image.
-        * :obj:`pred_values`: A tuple of iterators. Each iterator \
-            returns a corresponding predicted value. \
-            For example, if :func:`predict` returns \
-            :obj:`([pred_val0], [pred_val1])`, :obj:`next(pred_values[0])` \
-            and :obj:`next(pred_values[1])` will be \
-            :obj:`pred_val0` and :obj:`pred_val1`.
-        * :obj:`gt_values`: A tuple of iterators. Each iterator \
-            returns a corresponding ground truth value. \
+        * :obj:`in_values`: A tuple of iterators. Each iterator \
+            returns a corresponding input value. \
+            For example, if :func:`func` takes \
+            :obj:`[in_val0], [in_val1]`, :obj:`next(in_values[0])` \
+            and :obj:`next(in_values[1])` will be \
+            :obj:`in_val0` and :obj:`in_val1`.
+        * :obj:`out_values`: A tuple of iterators. Each iterator \
+            returns a corresponding computed value. \
+            For example, if :func:`func` returns \
+            :obj:`([out_val0], [out_val1])`, :obj:`next(out_values[0])` \
+            and :obj:`next(out_values[1])` will be \
+            :obj:`out_val0` and :obj:`out_val1`.
+        * :obj:`rest_values`: A tuple of iterators. Each iterator \
+            returns a corresponding rest value. \
             For example, if the :obj:`iterator` returns \
-            :obj:`[(img, gt_val0, gt_val1)]`, :obj:`next(gt_values[0])` \
-            and :obj:`next(gt_values[1])` will be \
-            :obj:`gt_val0` and :obj:`gt_val1`. \
+            :obj:`[(in_val0, in_val1, rest_val0, rest_val1)]`, \
+            :obj:`next(rest_values[0])` \
+            and :obj:`next(rest_values[1])` will be \
+            :obj:`rest_val0` and :obj:`rest_val1`. \
             If the input \
-            iterator does not give any ground truth values, this tuple \
+            iterator does not give any rest values, this tuple \
             will be empty.
     """
 
