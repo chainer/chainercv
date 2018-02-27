@@ -99,7 +99,7 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
                 except IndexError:
                     report['ap/{:s}'.format(label_name)] = np.nan
 
-        observation = dict()
+        observation = {}
         with reporter.report_scope(observation):
             reporter.report(report, target)
         return observation

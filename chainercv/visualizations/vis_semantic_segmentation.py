@@ -121,7 +121,7 @@ def vis_semantic_segmentation(
 
     ax.imshow(img)
 
-    legend_handles = list()
+    legend_handles = []
     if all_label_names_in_legend:
         legend_labels = [l for l in np.unique(label) if l >= 0]
     else:
