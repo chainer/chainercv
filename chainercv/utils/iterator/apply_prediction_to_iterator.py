@@ -94,7 +94,7 @@ def apply_prediction_to_iterator(func, iterator, n_input=1, hook=None):
 
     # in_values: iter of ([in_val0], [in_val1], ...)
     #     -> (iter of in_val0, iter of in_val1, ...)
-    in_values = _flatten(in_values)
+    in_values = tuple(map(_flatten, unzip(in_values)))
 
     # out_values: iter of ([out_val0], [out_val1], ...)
     #     -> (iter of out_val0, iter of out_val1, ...)
