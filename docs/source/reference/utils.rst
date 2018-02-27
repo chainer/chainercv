@@ -51,9 +51,9 @@ write_image
 Iterator Utilities
 ------------------
 
-apply_to_batch
-~~~~~~~~~~~~~~
-.. autofunction:: apply_to_batch
+apply_to_iterator
+~~~~~~~~~~~~~~~~~
+.. autofunction:: apply_to_iterator
 
 ProgressHook
 ~~~~~~~~~~~~

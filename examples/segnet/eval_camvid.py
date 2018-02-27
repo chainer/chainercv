@@ -11,7 +11,7 @@ from chainercv.datasets import camvid_label_names
 from chainercv.datasets import CamVidDataset
 from chainercv.evaluations import eval_semantic_segmentation
 from chainercv.links import SegNetBasic
-from chainercv.utils import apply_to_batch
+from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
 
 
@@ -60,7 +60,7 @@ def main():
     it = chainer.iterators.SerialIterator(test, batch_size=args.batchsize,
                                           repeat=False, shuffle=False)
 
-    in_values, out_values, rest_values = apply_to_batch(
+    in_values, out_values, rest_values = apply_to_iterator(
         model.predict, it, hook=ProgressHook(len(test)))
     # Delete an iterator of images to save memory usage.
     del in_values

@@ -1,7 +1,7 @@
 from chainercv.utils.iterator.unzip import unzip
 
 
-def apply_to_batch(func, iterator, n_input=1, hook=None):
+def apply_to_iterator(func, iterator, n_input=1, hook=None):
     """Apply a function/method to an iterator of batches.
 
     This function applies a function/method to an iterator of batches.
@@ -34,7 +34,7 @@ def apply_to_batch(func, iterator, n_input=1, hook=None):
     >>>
     >>> from chainercv.datasets import VOCDetectionDataset
     >>> from chainercv.links import FasterRCNNVGG16
-    >>> from chainercv.utils import apply_to_batch
+    >>> from chainercv.utils import apply_to_iterator
     >>>
     >>> dataset = VOCDetectionDataset(year='2007', split='test')
     >>> # next(iterator) -> [(img, gt_bbox, gt_label)]
@@ -44,7 +44,7 @@ def apply_to_batch(func, iterator, n_input=1, hook=None):
     >>> # model.predict([img]) -> ([pred_bbox], [pred_label], [pred_score])
     >>> model = FasterRCNNVGG16(pretrained_model='voc07')
     >>>
-    >>> in_values, out_values, rest_values = apply_to_batch(
+    >>> in_values, out_values, rest_values = apply_to_iterator(
     ...     model.predict, iterator)
     >>>
     >>> # in_values contains one iterator

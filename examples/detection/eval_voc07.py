@@ -9,7 +9,7 @@ from chainercv.evaluations import eval_detection_voc
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
-from chainercv.utils import apply_to_batch
+from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
 
 
@@ -56,7 +56,7 @@ def main():
     iterator = iterators.SerialIterator(
         dataset, args.batchsize, repeat=False, shuffle=False)
 
-    in_values, out_values, rest_values = apply_to_batch(
+    in_values, out_values, rest_values = apply_to_iterator(
         model.predict, iterator, hook=ProgressHook(len(dataset)))
     # delete unused iterators explicitly
     del in_values

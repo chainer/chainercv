@@ -11,7 +11,7 @@ from chainercv.datasets import DirectoryParsingLabelDataset
 from chainercv.links import FeaturePredictor
 from chainercv.links import VGG16
 
-from chainercv.utils import apply_to_batch
+from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
 
 
@@ -42,7 +42,7 @@ def main():
         model.to_gpu()
 
     print('Model has been prepared. Evaluation starts.')
-    in_values, out_values, rest_values = apply_to_batch(
+    in_values, out_values, rest_values = apply_to_iterator(
         model.predict, iterator, hook=ProgressHook(len(dataset)))
     del in_values
 

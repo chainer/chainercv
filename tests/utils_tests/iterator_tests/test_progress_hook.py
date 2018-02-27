@@ -4,7 +4,7 @@ import unittest
 from chainer.iterators import SerialIterator
 from chainer import testing
 
-from chainercv.utils import apply_to_batch
+from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
 
 
@@ -25,7 +25,7 @@ class TestProgressHook(unittest.TestCase):
     def test_progress_hook(self):
         iterator = SerialIterator(self.dataset, 2, repeat=False)
 
-        in_values, out_values, rest_values = apply_to_batch(
+        in_values, out_values, rest_values = apply_to_iterator(
             self.func, iterator,
             hook=ProgressHook(n_total=len(self.dataset)))
 
@@ -36,7 +36,7 @@ class TestProgressHook(unittest.TestCase):
     def test_progress_hook_with_infinite_iterator(self):
         iterator = SerialIterator(self.dataset, 2)
 
-        in_values, out_values, rest_values = apply_to_batch(
+        in_values, out_values, rest_values = apply_to_iterator(
             self.func, iterator, hook=ProgressHook())
 
         for _ in range(10):

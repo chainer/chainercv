@@ -5,7 +5,7 @@ from chainer import reporter
 import chainer.training.extensions
 
 from chainercv.evaluations import eval_detection_voc
-from chainercv.utils import apply_to_batch
+from chainercv.utils import apply_to_iterator
 
 
 class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
@@ -72,7 +72,8 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
         else:
             it = copy.copy(iterator)
 
-        in_values, out_values, rest_values = apply_to_batch(target.predict, it)
+        in_values, out_values, rest_values = apply_to_iterator(
+            target.predict, it)
         # delete unused iterators explicitly
         del in_values
 
