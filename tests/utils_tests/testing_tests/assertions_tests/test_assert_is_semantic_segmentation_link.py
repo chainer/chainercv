@@ -10,7 +10,7 @@ from chainercv.utils import assert_is_semantic_segmentation_link
 class SemanticSegmentationLink(chainer.Link):
 
     def predict(self, imgs):
-        labels = list()
+        labels = []
 
         for img in imgs:
             labels.append(np.random.randint(

@@ -119,8 +119,8 @@ def _apply(func, iterator, n_input, hook):
         # batch: [(in_val0, in_val1, ... , rest_val0, rest_val1, ...)] or
         #     [in_val]
 
-        in_values = list()
-        rest_values = list()
+        in_values = []
+        rest_values = []
         for sample in batch:
             if isinstance(sample, tuple):
                 in_values.append(sample[0:n_input])

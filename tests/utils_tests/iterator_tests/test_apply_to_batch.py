@@ -23,9 +23,9 @@ class TestApplyPredictionToIterator(unittest.TestCase):
         else:
             n_input = 1
 
-        in_values_expect = list()
+        in_values_expect = []
         for _ in range(n_input):
-            in_value = list()
+            in_value = []
             for _ in range(5):
                 H, W = np.random.randint(8, 16, size=2)
                 in_value.append(np.random.randint(0, 256, size=(3, H, W)))
@@ -114,7 +114,7 @@ class TestApplyPredictionToIteratorWithInfiniteIterator(unittest.TestCase):
             n_sample = len(in_values[0])
             return [np.random.uniform(size=(48, 64)) for _ in range(n_sample)]
 
-        dataset = list()
+        dataset = []
         for _ in range(5):
             H, W = np.random.randint(8, 16, size=2)
             dataset.append(np.random.randint(0, 256, size=(3, H, W)))

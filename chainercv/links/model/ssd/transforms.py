@@ -192,7 +192,7 @@ def random_crop_with_bbox_constraints(
         'constraint': None, 'y_slice': slice(0, H), 'x_slice': slice(0, W)}]
 
     if len(bbox) == 0:
-        constraints = list()
+        constraints = []
 
     for min_iou, max_iou in constraints:
         if min_iou is None:

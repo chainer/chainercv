@@ -58,9 +58,9 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
 
         self.ignore_labels = ignore_labels
 
-        self.label_paths = list()
-        self.img_paths = list()
-        city_dnames = list()
+        self.label_paths = []
+        self.img_paths = []
+        city_dnames = []
         for dname in glob.glob(os.path.join(label_dir, '*')):
             if split in dname:
                 for city_dname in glob.glob(os.path.join(dname, '*')):

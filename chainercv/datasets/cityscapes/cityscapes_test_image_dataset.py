@@ -38,7 +38,7 @@ class CityscapesTestImageDataset(dataset.DatasetMixin):
                 'Then place directory leftImg8bit at {}.'.format(
                     os.path.join(data_dir, 'leftImg8bit')))
 
-        self.img_paths = list()
+        self.img_paths = []
         for city_dname in sorted(glob.glob(os.path.join(img_dir, '*'))):
             for img_path in sorted(glob.glob(
                     os.path.join(city_dname, '*_leftImg8bit.png'))):

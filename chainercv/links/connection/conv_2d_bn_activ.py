@@ -62,7 +62,7 @@ class Conv2DBNActiv(chainer.Chain):
 
     def __init__(self, in_channels, out_channels, ksize=None,
                  stride=1, pad=0, nobias=True, initialW=None,
-                 initial_bias=None, activ=relu, bn_kwargs=dict()):
+                 initial_bias=None, activ=relu, bn_kwargs={}):
         if ksize is None:
             out_channels, ksize, in_channels = in_channels, out_channels, None
 
