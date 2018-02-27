@@ -56,7 +56,7 @@ class TestApplyPredictionToIterator(unittest.TestCase):
             n_rest = 3
 
             dataset = chainer.datasets.TupleDataset(
-                *in_values_expect, *rest_values_expect)
+                *(in_values_expect + rest_values_expect))
         else:
             rest_values_expect = tuple()
             n_rest = 0
