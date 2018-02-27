@@ -30,6 +30,7 @@ class TestApplyPredictionToIterator(unittest.TestCase):
                 H, W = np.random.randint(8, 16, size=2)
                 in_value.append(np.random.randint(0, 256, size=(3, H, W)))
             in_values_expect.append(in_value)
+        in_values_expect = tuple(in_values_expect)
 
         if self.multi_out_values:
             def func(*in_values):
