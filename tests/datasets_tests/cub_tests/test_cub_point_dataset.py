@@ -6,8 +6,8 @@ from chainer import testing
 
 from chainercv.datasets import CUBPointDataset
 from chainercv.testing import attr
-from chainercv.utils import assert_is_point_dataset
 from chainercv.utils import assert_is_bbox
+from chainercv.utils import assert_is_point_dataset
 
 
 @testing.parameterize(*testing.product({
