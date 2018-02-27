@@ -100,9 +100,9 @@ class ResNet(PickableSequentialChain):
 
     _models = {
         'fb': {
-            'resnet50': dict(),
-            'resnet101': dict(),
-            'resnet152': dict()
+            'resnet50': {},
+            'resnet101': {},
+            'resnet152': {}
         },
         'he': {
             'resnet50': {
