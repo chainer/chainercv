@@ -1,7 +1,7 @@
 from chainercv.utils.iterator.unzip import unzip
 
 
-def apply_prediction_to_iterator(predict, iterator, hook=None):
+def apply_prediction_to_iterator(func, iterator, n_input=1, hook=None):
     """Apply a prediction function/method to an iterator.
 
     This function applies a prediction function/method to an iterator.
@@ -89,52 +89,57 @@ def apply_prediction_to_iterator(predict, iterator, hook=None):
             will be empty.
     """
 
-    imgs, pred_values, gt_values = unzip(
-        _apply(predict, iterator, hook))
+    in_values, out_values, rest_values = unzip(
+        _apply(func, iterator, n_input, hook))
 
-    # imgs: iter of [img] -> iter of img
-    imgs = _flatten(imgs)
+    # in_values: iter of ([in_val0], [in_val1], ...)
+    #     -> (iter of in_val0, iter of in_val1, ...)
+    in_values = _flatten(in_values)
 
-    # pred_values: iter of ([pred_val0], [pred_val1], ...)
-    #    -> (iter of pred_val0, iter of pred_val1, ...)
-    pred_values = tuple(map(_flatten, unzip(pred_values)))
+    # out_values: iter of ([out_val0], [out_val1], ...)
+    #     -> (iter of out_val0, iter of out_val1, ...)
+    out_values = tuple(map(_flatten, unzip(out_values)))
 
-    # gt_values: iter of ([gt_val0], [gt_val1], ...)
-    #    -> (iter of gt_val0, iter of gt_val1, ...)
-    gt_values = tuple(map(_flatten, unzip(gt_values)))
+    # rest_values: iter of ([rest_val0], [rest_val1], ...)
+    #     -> (iter of rest_val0, iter of rest_val1, ...)
+    rest_values = tuple(map(_flatten, unzip(rest_values)))
 
-    return imgs, pred_values, gt_values
+    return in_values, out_values, rest_values
 
 
-def _apply(predict, iterator, hook):
+def _apply(func, iterator, n_input, hook):
     for batch in iterator:
-        # batch: [(img, gt_val0, gt_val1, ...)] or [img]
+        # batch: [(in_val0, in_val1, ... , rest_val0, rest_val1, ...)] or
+        #     [in_val]
 
-        imgs = list()
-        gt_values = list()
+        in_values = list()
+        rest_values = list()
         for sample in batch:
             if isinstance(sample, tuple):
-                imgs.append(sample[0])
-                gt_values.append(sample[1:])
+                in_values.append(sample[0:n_input])
+                rest_values.append(sample[n_input:])
             else:
-                imgs.append(sample)
-                gt_values.append(tuple())
+                in_values.append((sample,))
+                rest_values.append(tuple())
 
-        # imgs: [img]
+        # in_values: [(in_val0, in_val1, ...)]
+        #     ->  ([in_val0], [in_val1], ...)
+        in_values = tuple(list(v) for v in zip(*in_values))
 
-        # gt_values: [(gt_val0, gt_val1, ...)] -> ([gt_val0], [gt_val1], ...)
-        gt_values = tuple(list(v) for v in zip(*gt_values))
+        # rest_values: [(rest_val0, rest_val1, ...)]
+        #     -> ([rest_val0], [rest_val1], ...)
+        rest_values = tuple(list(v) for v in zip(*rest_values))
 
-        # pred_values: ([pred_val0], [pred_val1], ...) or [pred_val]
-        pred_values = predict(imgs)
-        if not isinstance(pred_values, tuple):
-            # pred_values: [pred_val] -> ([pred_val],)
-            pred_values = pred_values,
+        # out_values: ([out_val0], [out_val1], ...) or [out_val]
+        out_values = func(*in_values)
+        if not isinstance(out_values, tuple):
+            # pred_values: [out_val] -> ([out_val],)
+            out_values = out_values,
 
         if hook:
-            hook(imgs, pred_values, gt_values)
+            hook(in_values, out_values, rest_values)
 
-        yield imgs, pred_values, gt_values
+        yield in_values, out_values, rest_values
 
 
 def _flatten(iterator):
