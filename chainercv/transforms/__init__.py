@@ -13,6 +13,6 @@ from chainercv.transforms.image.resize import resize  # NOQA
 from chainercv.transforms.image.resize_contain import resize_contain  # NOQA
 from chainercv.transforms.image.scale import scale  # NOQA
 from chainercv.transforms.image.ten_crop import ten_crop  # NOQA
-from chainercv.transforms.keypoint.flip_keypoint import flip_keypoint  # NOQA
-from chainercv.transforms.keypoint.resize_keypoint import resize_keypoint  # NOQA
-from chainercv.transforms.keypoint.translate_keypoint import translate_keypoint  # NOQA
+from chainercv.transforms.point.flip_point import flip_point  # NOQA
+from chainercv.transforms.point.resize_point import resize_point  # NOQA
+from chainercv.transforms.point.translate_point import translate_point  # NOQA
