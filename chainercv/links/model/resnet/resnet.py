@@ -23,9 +23,9 @@ _imagenet_mean = np.array(
 
 class ResNet(PickableSequentialChain):
 
-    """Base class for ResNet Network.
+    """Base class for ResNet architecture.
 
-    This is a feature extraction link.
+    This is a pickable sequential link.
     The network can choose output layers from set of all
     intermediate layers.
     The attribute :obj:`pick` is the names of the layers that are going
@@ -61,7 +61,7 @@ class ResNet(PickableSequentialChain):
         This is only supported when :obj:`arch=='he'`.
 
     Args:
-        model_name (str): Name of the resnet model to instantiate.
+        n_layer (int): The number of layers.
         n_class (int): The number of classes. If :obj:`None`,
             the default values are used.
             If a supported pretrained model is used,
@@ -82,7 +82,8 @@ class ResNet(PickableSequentialChain):
             the mean value used to train the pretrained model is used.
             Otherwise, the mean value calculated from ILSVRC 2012 dataset
             is used.
-        initialW (callable): Initializer for the weights.
+        initialW (callable): Initializer for the weights of
+            convolution kernels.
         arch (str): If :obj:`fb`, use Facebook ResNet
             architecture. When :obj:`he`, use the architecture presented
             by `the original ResNet paper \
@@ -93,19 +94,19 @@ class ResNet(PickableSequentialChain):
     """
 
     _blocks = {
-        'resnet50': [3, 4, 6, 3],
-        'resnet101': [3, 4, 23, 3],
-        'resnet152': [3, 8, 36, 3]
+        50: [3, 4, 6, 3],
+        101: [3, 4, 23, 3],
+        152: [3, 8, 36, 3]
     }
 
     _models = {
         'fb': {
-            'resnet50': {},
-            'resnet101': {},
-            'resnet152': {}
+            50: {},
+            101: {},
+            152: {}
         },
         'he': {
-            'resnet50': {
+            50: {
                 'imagenet': {
                     'n_class': 1000,
                     'url': 'https://github.com/yuyu2172/share-weights/'
@@ -114,7 +115,7 @@ class ResNet(PickableSequentialChain):
                     'mean': _imagenet_mean
                 },
             },
-            'resnet101': {
+            101: {
                 'imagenet': {
                     'n_class': 1000,
                     'url': 'https://github.com/yuyu2172/share-weights/'
@@ -123,7 +124,7 @@ class ResNet(PickableSequentialChain):
                     'mean': _imagenet_mean
                 },
             },
-            'resnet152': {
+            152: {
                 'imagenet': {
                     'n_class': 1000,
                     'url': 'https://github.com/yuyu2172/share-weights/'
@@ -135,7 +136,7 @@ class ResNet(PickableSequentialChain):
         }
     }
 
-    def __init__(self, model_name,
+    def __init__(self, n_layer,
                  n_class=None,
                  pretrained_model=None,
                  mean=None, initialW=None, arch='fb'):
@@ -151,8 +152,8 @@ class ResNet(PickableSequentialChain):
             conv1_no_bias = False
         else:
             raise ValueError('arch is expected to be one of [\'he\', \'fb\']')
-        _models = self._models[arch][model_name]
-        blocks = self._blocks[model_name]
+        _models = self._models[arch][n_layer]
+        blocks = self._blocks[n_layer]
 
         if n_class is None:
             if pretrained_model in _models:
@@ -217,7 +218,7 @@ class ResNet50(ResNet):
     def __init__(self, n_class=None, pretrained_model=None,
                  mean=None, initialW=None, arch='fb'):
         super(ResNet50, self).__init__(
-            'resnet50', n_class, pretrained_model,
+            50, n_class, pretrained_model,
             mean, initialW, arch)
 
 
@@ -235,7 +236,7 @@ class ResNet101(ResNet):
     def __init__(self, n_class=None, pretrained_model=None,
                  mean=None, initialW=None, arch='fb'):
         super(ResNet101, self).__init__(
-            'resnet101', n_class, pretrained_model,
+            101, n_class, pretrained_model,
             mean, initialW, arch)
 
 
@@ -253,7 +254,7 @@ class ResNet152(ResNet):
     def __init__(self, n_class=None, pretrained_model=None,
                  mean=None, initialW=None, arch='fb'):
         super(ResNet152, self).__init__(
-            'resnet152', n_class, pretrained_model,
+            152, n_class, pretrained_model,
             mean, initialW, arch)
 
 
