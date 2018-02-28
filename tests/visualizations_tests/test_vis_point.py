@@ -4,7 +4,7 @@ import numpy as np
 
 from chainer import testing
 
-from chainercv.visualizations import vis_keypoint
+from chainercv.visualizations import vis_point
 
 try:
     import matplotlib  # NOQA
@@ -14,17 +14,17 @@ except ImportError:
 
 
 @testing.parameterize(
-    {'kp_mask': np.array([True, True, False])},
-    {'kp_mask': None}
+    {'mask': np.array([True, True, False])},
+    {'mask': None}
 )
-class TestVisKeypoint(unittest.TestCase):
+class TestVisPoint(unittest.TestCase):
 
-    def test_vis_keypoint(self):
+    def test_vis_point(self):
         if optional_modules:
             img = np.random.randint(
                 0, 255, size=(3, 32, 32)).astype(np.float32)
-            keypoint = np.random.uniform(size=(3, 2)).astype(np.float32)
-            ax = vis_keypoint(img, keypoint, self.kp_mask)
+            point = np.random.uniform(size=(3, 2)).astype(np.float32)
+            ax = vis_point(img, point, self.mask)
 
             self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
