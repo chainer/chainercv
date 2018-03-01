@@ -141,7 +141,7 @@ def _apply(func, iterator, n_input, hook):
                 rest_values.append(sample[n_input:])
             else:
                 in_values.append((sample,))
-                rest_values.append(tuple())
+                rest_values.append(())
 
         # in_values: [(in_val0, in_val1, ...)]
         #     ->  ([in_val0], [in_val1], ...)
