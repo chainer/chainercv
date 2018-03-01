@@ -43,6 +43,9 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
             iteration, the computation cost can be reduced.
             Also, if :obj:`pos_ratio` is :obj:`None`, this value
             is ignored. The default value is :obj:`None`.
+            If :obj:`labels_1` is spcified and
+            :obj:`dataset_0` and :obj:`dataset_1` are the same,
+            :obj:`labels_0` can be skipped.
         labels_1 (numpy.ndarray): The labels associated to
             the second base dataset. If :obj:`labels_0` is spcified and
             :obj:`dataset_0` and :obj:`dataset_1` are the same,
