@@ -54,7 +54,9 @@ class Conv2DBNActiv(chainer.Chain):
             May also be a callable that takes :obj:`numpy.ndarray` or
             :obj:`cupy.ndarray` and edits its value.
         activ (callable): An activation function. The default value is
-            :func:`chainer.functions.relu`.
+            :func:`chainer.functions.relu`. If this is :obj:`None`,
+            no activation is applied (i.e. the activation is the identity
+            function).
         bn_kwargs (dict): Keyword arguments passed to initialize
             :class:`chainer.links.BatchNormalization`.
 
@@ -77,4 +79,7 @@ class Conv2DBNActiv(chainer.Chain):
     def __call__(self, x):
         h = self.conv(x)
         h = self.bn(h)
-        return self.activ(h)
+        if self.activ is None:
+            return h
+        else:
+            return self.activ(h)
