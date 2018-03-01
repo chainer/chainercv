@@ -67,7 +67,7 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
             # handle cases when labels_0 and labels_1 are not set
             if dataset_0 is dataset_1:
                 if labels_0 is None and labels_1 is None:
-                    labels_0 = [example[1] for example in dataset_0]
+                    labels_0 = np.array([example[1] for example in dataset_0])
                     labels_1 = labels_0
                 elif labels_0 is None:
                     labels_0 = labels_1
@@ -75,12 +75,10 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
                     labels_1 = labels_0
             else:
                 if labels_0 is None:
-                    labels_0 = [example[1] for example in dataset_0]
+                    labels_0 = np.array([example[1] for example in dataset_0])
                 if labels_1 is None:
-                    labels_1 = [example[1] for example in dataset_1]
+                    labels_1 = np.array([example[1] for example in dataset_1])
 
-            labels_0 = np.array(labels_0)
-            labels_1 = np.array(labels_1)
             if not (labels_0.dtype == np.int32 and labels_0.ndim == 1
                     and len(labels_0) == len(dataset_0) and
                     labels_1.dtype == np.int32 and labels_1.ndim == 1
@@ -89,7 +87,10 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
 
             # Construct mapping label->idx
             self._label_to_index_0 = _construct_label_to_key(labels_0)
-            self._label_to_index_1 = _construct_label_to_key(labels_1)
+            if dataset_0 is dataset_1:
+                self._label_to_index_1 = self._label_to_index_0
+            else:
+                self._label_to_index_1 = _construct_label_to_key(labels_1)
             # select labels with positive pairs
             unique_0 = np.array(list(self._label_to_index_0.keys()))
             self._exist_pos_pair_labels_0 =\
