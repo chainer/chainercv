@@ -8,7 +8,8 @@ def apply_to_iterator(func, iterator, n_input=1, hook=None):
 
     It assumes that the iterator iterates over a collection of tuples
     that contain inputs to :func:`func`.
-    Additionally, the tuples may contain values that are not used by func.
+    Additionally, the tuples may contain values
+    that are not used by :func:`func`.
     For convenience, we allow the iterator to iterate over a collection of
     inputs that are not tuple.
     Here is an illustration of the expected behavior of the iterator.
