@@ -24,10 +24,10 @@ def apply_to_iterator(func, iterator, n_input=1, hook=None):
     return batch(es) of computed values.
     Here is an illustration of the expected behavior of the function.
 
-    >>> out_vals = func(in_val0, ..., in_val{n_input})
+    >>> out_vals = func([in_val0], ..., [in_val{n_input}])
     >>> # out_vals: [out_val]
     or
-    >>> out_vals0, out_vals1, ... = func(in_val0, ..., in_val{n_input})
+    >>> out_vals0, out_vals1, ... = func([in_val0], ..., [in_val{n_input}])
     >>> # out_vals0: [out_val0]
     >>> # out_vals1: [out_val1]
 
