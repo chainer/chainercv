@@ -13,6 +13,7 @@ def apply_to_iterator(func, iterator, n_input=1, hook=None):
     For convenience, we allow the iterator to iterate over a collection of
     inputs that are not tuple.
     Here is an illustration of the expected behavior of the iterator.
+    This behaviour is the same as :class:`chainer.Iterator`.
 
     >>> batch = next(iterator)
     >>> # batch: [in_val]
