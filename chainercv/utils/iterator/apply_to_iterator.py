@@ -72,7 +72,7 @@ def apply_to_iterator(func, iterator, n_input=1, hook=None):
     Args:
         func: A callable that takes batch(es) of input data and returns
             computed data.
-        iterator (iterator): An iterator of batch.
+        iterator (iterator): An iterator of batches.
             The first :obj:`n_input` elements in each sample are
             treated as input values. They are passed to :obj:`func`.
         n_input (int): The number of input data. The default value is :obj:`1`.
