@@ -2,41 +2,55 @@ from chainercv.utils.iterator.unzip import unzip
 
 
 def apply_to_iterator(func, iterator, n_input=1, hook=None):
-    """Apply a function/method to an iterator of batches.
+    """Apply a function/method to batches from an iterator.
 
     This function applies a function/method to an iterator of batches.
-    It assumes that the iterator returns a batch of input data or
-    a batch of tuples whose first elements ara input data.
+
+    It assumes that the iterator iterates over a collection of tuples
+    that contain inputs to :func:`func`.
+    Additionally, the tuples may contain values that are not used by func.
+    For convenience, we allow the iterator to iterate over a collection of
+    inputs that are not tuple.
+    Here is an illustration of the expected behavior of the iterator.
 
     >>> batch = next(iterator)
     >>> # batch: [in_val]
     or
-    >>> # batch: [(in_val0, in_val1, ...)]
+    >>> # batch: [(in_val0, ..., in_val{n_input})]
     or
-    >>> # batch: [(in_val0, in_val1, ..., rest_val0, rest_val1, ...)]
+    >>> # batch: [(in_val0, ..., in_val{n_input}, rest_val0, ...)]
 
-    This function applies :func:`func` to batch(es) of input data and gets
-    computed value(s). :func:`func` should take a batch of data and
-    return a batch of computed values
-    or a tuple of batches of computed values.
+    :func:`func` should take batch(es) of data and
+    return batch(es) of computed values.
+    Here is an illustration of the expected behavior of the function.
 
-    >>> out_vals = func(in_val0, in_val1, ...)
+    >>> out_vals = func(in_val0, ..., in_val{n_input})
     >>> # out_vals: [out_val]
     or
-    >>> out_vals0, out_vals1, ... = func(in_val0, in_val1)
+    >>> out_vals0, out_vals1, ... = func(in_val0, ..., in_val{n_input})
     >>> # out_vals0: [out_val0]
     >>> # out_vals1: [out_val1]
+
+    With :func:`apply_to_iterator`, users can get iterator(s) of values
+    returned by :func:`func`. It also returns iterator(s) of input values and
+    values that are not used for computation.
+
+    >>> in_values, out_values, rest_values = apply_to_iterator(
+    >>>     func, iterator, n_input)
+    >>> # in_values: (iter of in_val0, ..., iter of in_val{n_input})
+    >>> # out_values: (iter of out_val0, ...)
+    >>> # rest_values: (iter of rest_val0, ...)
 
     Here is an exmple, which applies a pretrained Faster R-CNN to
     PASCAL VOC dataset.
 
     >>> from chainer import iterators
     >>>
-    >>> from chainercv.datasets import VOCDetectionDataset
+    >>> from chainercv.datasets import VOCBBoxDataset
     >>> from chainercv.links import FasterRCNNVGG16
     >>> from chainercv.utils import apply_to_iterator
     >>>
-    >>> dataset = VOCDetectionDataset(year='2007', split='test')
+    >>> dataset = VOCBBoxDataset(year='2007', split='test')
     >>> # next(iterator) -> [(img, gt_bbox, gt_label)]
     >>> iterator = iterators.SerialIterator(
     ...     dataset, 2, repeat=False, shuffle=False)
