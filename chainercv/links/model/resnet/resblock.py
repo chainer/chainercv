@@ -87,11 +87,11 @@ class Bottleneck(chainer.Chain):
                                        nobias=True)
             self.conv3 = Conv2DBNActiv(mid_channels, out_channels, 1, 1, 0,
                                        initialW=initialW, nobias=True,
-                                       activ=lambda x: x)
+                                       activ=None)
             if residual_conv:
                 self.residual_conv = Conv2DBNActiv(
                     in_channels, out_channels, 1, stride, 0,
-                    nobias=True, initialW=initialW, activ=lambda x: x)
+                    nobias=True, initialW=initialW, activ=None)
 
     def __call__(self, x):
         h = self.conv1(x)
