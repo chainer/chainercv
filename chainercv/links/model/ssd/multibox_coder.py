@@ -73,7 +73,7 @@ class MultiboxCoder(object):
         if not len(sizes) == len(grids) + 1:
             raise ValueError('The length of sizes is wrong.')
 
-        default_bbox = list()
+        default_bbox = []
 
         for k, grid in enumerate(grids):
             for v, u in itertools.product(range(grid), repeat=2):
@@ -237,9 +237,9 @@ class MultiboxCoder(object):
         mb_score = xp.exp(mb_conf)
         mb_score /= mb_score.sum(axis=1, keepdims=True)
 
-        bbox = list()
-        label = list()
-        score = list()
+        bbox = []
+        label = []
+        score = []
         for l in range(mb_conf.shape[1] - 1):
             bbox_l = mb_bbox
             # the l-th class corresponds for the (l + 1)-th column.
@@ -270,7 +270,7 @@ def _unravel_index(index, shape):
     if isinstance(index, np.int64):
         return np.unravel_index(index, shape)
 
-    indices = list()
+    indices = []
     for s in shape[::-1]:
         indices.append(index % s)
         index //= s

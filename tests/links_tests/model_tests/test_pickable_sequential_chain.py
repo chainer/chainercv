@@ -74,7 +74,7 @@ class TestPickableSequentialChain(unittest.TestCase):
     def check_basic(self):
         x = self.link.xp.asarray(self.x)
 
-        expects = dict()
+        expects = {}
         expects['l1'] = self.l1(x)
         expects['f1'] = self.f1(expects['l1'])
         expects['f2'] = self.f2(expects['f1'])
@@ -102,7 +102,7 @@ class TestPickableSequentialChain(unittest.TestCase):
         else:
             del self.link.l1
 
-        expects = dict()
+        expects = {}
         expects['f1'] = self.f1(x)
         expects['f2'] = self.f2(expects['f1'])
         expects['l2'] = self.l2(expects['f2'])

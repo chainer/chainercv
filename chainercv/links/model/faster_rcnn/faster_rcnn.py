@@ -220,9 +220,9 @@ class FasterRCNN(chainer.Chain):
         return img
 
     def _suppress(self, raw_cls_bbox, raw_prob):
-        bbox = list()
-        label = list()
-        score = list()
+        bbox = []
+        label = []
+        score = []
         # skip cls_id = 0 because it is the background class
         for l in range(1, self.n_class):
             cls_bbox_l = raw_cls_bbox.reshape((-1, self.n_class, 4))[:, l, :]
@@ -269,17 +269,17 @@ class FasterRCNN(chainer.Chain):
                Each value indicates how confident the prediction is.
 
         """
-        prepared_imgs = list()
-        sizes = list()
+        prepared_imgs = []
+        sizes = []
         for img in imgs:
             size = img.shape[1:]
             img = self.prepare(img.astype(np.float32))
             prepared_imgs.append(img)
             sizes.append(size)
 
-        bboxes = list()
-        labels = list()
-        scores = list()
+        bboxes = []
+        labels = []
+        scores = []
         for img, size in zip(prepared_imgs, sizes):
             with chainer.using_config('train', False), \
                     chainer.function.no_backprop_mode():

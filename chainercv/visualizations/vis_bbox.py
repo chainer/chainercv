@@ -61,7 +61,7 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
         ax.add_patch(plot.Rectangle(
             xy, width, height, fill=False, edgecolor='red', linewidth=3))
 
-        caption = list()
+        caption = []
 
         if label is not None and label_names is not None:
             lb = label[i]
