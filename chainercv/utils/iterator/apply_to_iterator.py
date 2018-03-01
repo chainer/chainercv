@@ -16,18 +16,18 @@ def apply_to_iterator(func, iterator, n_input=1, hook=None):
     >>> batch = next(iterator)
     >>> # batch: [in_val]
     or
-    >>> # batch: [(in_val0, ..., in_val{n_input})]
+    >>> # batch: [(in_val0, ..., in_val{n_input - 1})]
     or
-    >>> # batch: [(in_val0, ..., in_val{n_input}, rest_val0, ...)]
+    >>> # batch: [(in_val0, ..., in_val{n_input - 1}, rest_val0, ...)]
 
     :func:`func` should take batch(es) of data and
     return batch(es) of computed values.
     Here is an illustration of the expected behavior of the function.
 
-    >>> out_vals = func([in_val0], ..., [in_val{n_input}])
+    >>> out_vals = func([in_val0], ..., [in_val{n_input - 1}])
     >>> # out_vals: [out_val]
     or
-    >>> out_vals0, out_vals1, ... = func([in_val0], ..., [in_val{n_input}])
+    >>> out_vals0, out_vals1, ... = func([in_val0], ..., [in_val{n_input - 1}])
     >>> # out_vals0: [out_val0]
     >>> # out_vals1: [out_val1]
 
@@ -37,7 +37,7 @@ def apply_to_iterator(func, iterator, n_input=1, hook=None):
 
     >>> in_values, out_values, rest_values = apply_to_iterator(
     >>>     func, iterator, n_input)
-    >>> # in_values: (iter of in_val0, ..., iter of in_val{n_input})
+    >>> # in_values: (iter of in_val0, ..., iter of in_val{n_input - 1})
     >>> # out_values: (iter of out_val0, ...)
     >>> # rest_values: (iter of rest_val0, ...)
 
