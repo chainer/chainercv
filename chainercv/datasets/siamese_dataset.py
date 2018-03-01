@@ -26,24 +26,28 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
     Args:
         dataset_0: The first base dataset.
         dataset_1: The second base dataset.
-        pos_ratio (None or float): If this is not :obj:`None`,
+        pos_ratio (float): If this is not :obj:`None`,
             this dataset tries to construct positive pairs at the
             given rate. If :obj:`None`,
             this dataset randomly samples examples from the base
             datasets. The default value is :obj:`None`.
-        length (None): The length of this dataset. If :obj:`None`,
+        length (int): The length of this dataset. If :obj:`None`,
             the length of the first base dataset is the length of this
             dataset.
-        labels_0 (None or numpy.ndarray): The labels associated to
+        labels_0 (numpy.ndarray): The labels associated to
             the first base dataset. The length should be the same as
             the length of the first dataset. If this is :obj:`None`,
             the labels are automatically fetched using the following
             line of code: :obj:`[ex[1] for ex in dataset_0]`.
+            By setting :obj:`labels_0` and skipping the fetching
+            iteration, the computation cost can be reduced.
             Also, if :obj:`pos_ratio` is :obj:`None`, this value
             is ignored. The default value is :obj:`None`.
-        labels_1 (None or numpy.ndarray): The labels associated to
-            the second base dataset. Please consult the explanation for
-            :obj:`labels_0`.
+        labels_1 (numpy.ndarray): The labels associated to
+            the second base dataset. If :obj:`labels_0` is spcified and
+            :obj:`dataset_0` and :obj:`dataset_1` are the same,
+            :obj:`labels_1` can be skipped.
+            Please consult the explanation for :obj:`labels_0`.
 
     """
 
@@ -57,6 +61,8 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
         self._length = length
 
         if pos_ratio is not None:
+            if labels_1 is None and  dataset_0 is dataset_1:
+                labels_1 = labels_0
             if labels_0 is None:
                 labels_0 = [example[1] for example in dataset_0]
             if labels_1 is None:
