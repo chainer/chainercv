@@ -59,7 +59,7 @@ class TestApplyToIterator(unittest.TestCase):
             dataset = chainer.datasets.TupleDataset(
                 *(in_values_expect + rest_values_expect))
         else:
-            rest_values_expect = tuple()
+            rest_values_expect = ()
             n_rest = 0
 
             dataset = list(zip(*in_values_expect))
