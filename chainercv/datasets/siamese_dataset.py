@@ -61,8 +61,10 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
         self._length = length
 
         if pos_ratio is not None:
-            if labels_1 is None and  dataset_0 is dataset_1:
+            if labels_1 is None and dataset_0 is dataset_1:
                 labels_1 = labels_0
+            if labels_0 is None and dataset_0 is dataset_1:
+                labels_0 = labels_1
             if labels_0 is None:
                 labels_0 = [example[1] for example in dataset_0]
             if labels_1 is None:
