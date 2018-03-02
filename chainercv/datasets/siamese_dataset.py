@@ -36,6 +36,11 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
             # The probability of the two samples having the same label
             # is 0.3 as specified by pos_ratio.
             >>> img_0, label_0, img_1, label_1 = dataset[0]
+            # The returned examples may change in the next
+            # call even if the index is the same as before
+            # because SiameseDataset picks examples randomly
+            # (e.g., img_0_new may differ from img_0).
+            >>> img_0_new, label_0_new, img_1_new, label_1_new = dataset[0]
 
 
     Args:
