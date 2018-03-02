@@ -23,6 +23,21 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
     In this mode, the base datasets are assumed to be label datasets that
     return an image and a label as a sample.
 
+    Example:
+
+        We construct a siaemse dataset from MNIST.
+
+        .. code::
+
+            >>> from chainer.datasets import get_mnist
+            >>> from chainercv.datasets import SiameseDataset
+            >>> mnist, _ = get_mnist()
+            >>> dataset = SiameseDataset(mnist, mnist, pos_ratio=0.3)
+            # The probability of the two samples having the same label
+            # is 0.3 as specified by pos_ratio.
+            >>> img_0, label_0, img_1, label_1 = dataset[0]
+
+
     Args:
         dataset_0: The first base dataset.
         dataset_1: The second base dataset.
