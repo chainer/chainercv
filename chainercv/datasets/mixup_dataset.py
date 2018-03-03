@@ -5,7 +5,7 @@ from chainer.dataset import dataset_mixin
 
 class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
 
-    """Dataset which returns mixed images and labels for bc learning[1].
+    """Dataset which returns mixed images and labels for mixup learning[1].
 
     `MixUpSoftLabelDataset` chooses two images randomly and mix these images
     and labels respectively by weighted average.

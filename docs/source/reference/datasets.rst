@@ -6,10 +6,6 @@ Datasets
 General datasets
 ----------------
 
-BetweenClassLabeledImageDataset
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: BetweenClassLabeledImageDataset
-
 DirectoryParsingLabelDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: DirectoryParsingLabelDataset
@@ -21,6 +17,10 @@ directory_parsing_label_names
 SiameseDataset
 ~~~~~~~~~~~~~~
 .. autoclass:: SiameseDataset
+
+MixUpSoftLabelDataset
+~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: MixUpSoftLabelDataset
 
 ADE20K
 ------

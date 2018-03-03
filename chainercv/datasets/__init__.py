@@ -2,7 +2,6 @@ from chainercv.datasets.ade20k.ade20k_semantic_segmentation_dataset import ADE20
 from chainercv.datasets.ade20k.ade20k_test_image_dataset import ADE20KTestImageDataset  # NOQA
 from chainercv.datasets.ade20k.ade20k_utils import ade20k_semantic_segmentation_label_colors  # NOQA
 from chainercv.datasets.ade20k.ade20k_utils import ade20k_semantic_segmentation_label_names  # NOQA
-from chainercv.datasets.mixup_dataset import MixUpSoftLabelDataset  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import camvid_ignore_label_color  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import camvid_label_colors  # NOQA
 from chainercv.datasets.camvid.camvid_dataset import camvid_label_names  # NOQA
@@ -16,6 +15,7 @@ from chainercv.datasets.cub.cub_label_dataset import CUBLabelDataset  # NOQA
 from chainercv.datasets.cub.cub_utils import cub_label_names  # NOQA
 from chainercv.datasets.directory_parsing_label_dataset import directory_parsing_label_names  # NOQA
 from chainercv.datasets.directory_parsing_label_dataset import DirectoryParsingLabelDataset  # NOQA
+from chainercv.datasets.mixup_dataset import MixUpSoftLabelDataset  # NOQA
 from chainercv.datasets.online_products.online_products_dataset import online_products_super_label_names  # NOQA
 from chainercv.datasets.online_products.online_products_dataset import OnlineProductsDataset  # NOQA
 from chainercv.datasets.siamese_dataset import SiameseDataset  # NOQA
