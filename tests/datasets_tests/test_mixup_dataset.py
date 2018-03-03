@@ -5,8 +5,8 @@ import numpy as np
 from chainer import testing
 
 from chainer.datasets import TupleDataset
-from chainercv.datasets import SiameseDataset
 from chainercv.datasets import MixUpSoftLabelDataset
+from chainercv.datasets import SiameseDataset
 from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
 
 
