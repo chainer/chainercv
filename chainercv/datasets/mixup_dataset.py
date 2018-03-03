@@ -11,7 +11,7 @@ class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
     dataset respectively by weighted average.
 
     Unlike `LabeledImageDatasets`, label is a one-dimensional float array with
-    at most two nonzero weights (soft label). The summed weights is one.
+    at most two nonzero weights (i.e. soft label). The summed weights is one.
 
     The base dataset `__getitem__` should return image and label. Please see
     the following example.
