@@ -7,11 +7,11 @@ class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
 
     """Dataset which returns mixed images and labels for mixup learning[1].
 
-    `MixUpSoftLabelDataset` chooses two images randomly and mix these images
-    and labels respectively by weighted average.
+    `MixUpSoftLabelDataset` mix two images and labels which is chosen by base
+    dataset respectively by weighted average.
 
     Unlike `LabeledImageDatasets`, label is a one-dimensional float array with
-    two nonzero weights (soft label). The summed weights is one.
+    at most two nonzero weights (soft label). The summed weights is one.
 
     The base dataset `__getitem__` should return image and label. Please see
     the following example.
