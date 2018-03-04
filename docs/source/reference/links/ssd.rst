@@ -38,6 +38,13 @@ Normalize
    :members:
    :special-members:  __call__
 
+ResidualMultibox
+~~~~~~~~~~~~~~~~
+.. autoclass:: ResidualMultibox
+   :members:
+   :special-members:  __call__
+
+
 SSD
 ~~~
 .. autoclass:: SSD
