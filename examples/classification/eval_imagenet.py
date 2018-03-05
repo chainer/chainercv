@@ -14,7 +14,7 @@ from chainercv.links import ResNet152
 from chainercv.links import ResNet50
 from chainercv.links import VGG16
 
-from chainercv.utils import apply_prediction_to_iterator
+from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
 
 
@@ -57,12 +57,12 @@ def main():
         model.to_gpu()
 
     print('Model has been prepared. Evaluation starts.')
-    imgs, pred_values, gt_values = apply_prediction_to_iterator(
+    in_values, out_values, rest_values = apply_to_iterator(
         model.predict, iterator, hook=ProgressHook(len(dataset)))
-    del imgs
+    del in_values
 
-    pred_probs, = pred_values
-    gt_labels, = gt_values
+    pred_probs, = out_values
+    gt_labels, = rest_values
 
     accuracy = F.accuracy(
         np.array(list(pred_probs)), np.array(list(gt_labels))).data

@@ -17,6 +17,7 @@ from chainercv.datasets.directory_parsing_label_dataset import directory_parsing
 from chainercv.datasets.directory_parsing_label_dataset import DirectoryParsingLabelDataset  # NOQA
 from chainercv.datasets.online_products.online_products_dataset import online_products_super_label_names  # NOQA
 from chainercv.datasets.online_products.online_products_dataset import OnlineProductsDataset  # NOQA
+from chainercv.datasets.siamese_dataset import SiameseDataset  # NOQA
 from chainercv.datasets.transform_dataset import TransformDataset  # NOQA
 from chainercv.datasets.voc.voc_bbox_dataset import VOCBboxDataset  # NOQA
 from chainercv.datasets.voc.voc_semantic_segmentation_dataset import VOCSemanticSegmentationDataset  # NOQA

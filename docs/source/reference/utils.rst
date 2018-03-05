@@ -51,9 +51,9 @@ write_image
 Iterator Utilities
 ------------------
 
-apply_prediction_to_iterator
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: apply_prediction_to_iterator
+apply_to_iterator
+~~~~~~~~~~~~~~~~~
+.. autofunction:: apply_to_iterator
 
 ProgressHook
 ~~~~~~~~~~~~
