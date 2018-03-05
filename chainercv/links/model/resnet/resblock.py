@@ -8,7 +8,7 @@ class ResBlock(chainer.Chain):
 
     """A building block for ResNets.
 
-    in --> Bottleneck with shortcut --> Bottleneck * (n_layer - 1) --> out
+    in --> Bottleneck with residual_conv --> Bottleneck * (n_layer - 1) --> out
 
     Args:
         n_layer (int): The number of layers used in the building block.
