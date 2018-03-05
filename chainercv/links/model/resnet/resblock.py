@@ -14,7 +14,7 @@ class ResBlock(chainer.Chain):
         n_layer (int): The number of layers used in the building block.
         in_channels (int): The number of channels of the input array.
         mid_channels (int): The number of channels of intermediate arrays.
-        out_channels (int): The number of channels of output arrays.
+        out_channels (int): The number of channels of the output array.
         stride (int or tuple of ints): Stride of filter application.
         initialW (4-D array): Initial weight value used in
             the convolutional layers.
@@ -56,7 +56,7 @@ class Bottleneck(chainer.Chain):
     Args:
         in_channels (int): The number of channels of the input array.
         mid_channels (int): The number of channels of intermediate arrays.
-        out_channels (int): The number of channels of output arrays.
+        out_channels (int): The number of channels of the output array.
         stride (int or tuple of ints): Stride of filter application.
         initialW (4-D array): Initial weight value used in
             the convolutional layers.
