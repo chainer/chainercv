@@ -12,7 +12,7 @@ class ResBlock(chainer.Chain):
 
     Args:
         n_layer (int): The number of layers used in the building block.
-        in_channels (int): The number of channels of input arrays.
+        in_channels (int): The number of channels of the input array.
         mid_channels (int): The number of channels of intermediate arrays.
         out_channels (int): The number of channels of output arrays.
         stride (int or tuple of ints): Stride of filter application.
@@ -54,7 +54,7 @@ class Bottleneck(chainer.Chain):
     """A bottleneck layer.
 
     Args:
-        in_channels (int): The number of channels of input arrays.
+        in_channels (int): The number of channels of the input array.
         mid_channels (int): The number of channels of intermediate arrays.
         out_channels (int): The number of channels of output arrays.
         stride (int or tuple of ints): Stride of filter application.

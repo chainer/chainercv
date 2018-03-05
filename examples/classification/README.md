@@ -17,8 +17,8 @@ Ten crop error rate.
 |:-:|:-:|:-:|
 | VGG16 | 27.1 % |   |
 | ResNet50 | 23.0 % | 22.9 % [2] |
-| ResNet101 |21.8 % | 21.8 % [2] |
-| ResNet152 |21.4 % | 21.4 % [2] |
+| ResNet101 | 21.8 % | 21.8 % [2] |
+| ResNet152 | 21.4 % | 21.4 % [2] |
 
 
 The results can be reproduced by the following command.
