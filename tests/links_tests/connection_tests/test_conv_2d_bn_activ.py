@@ -18,7 +18,7 @@ def _add_one(x):
 try:
     from chainermn import create_communicator
     _chainermn_available = True
-except (ImportError, TypeError):
+except ImportError:
     _chainermn_available = False
 
 
