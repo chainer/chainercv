@@ -2,9 +2,10 @@ import chainer
 import chainer.functions as F
 
 from chainercv.links import Conv2DBNActiv
+from chainercv.links import PickableSequentialChain
 
 
-class ResBlock(chainer.Chain):
+class ResBlock(PickableSequentialChain):
 
     """A building block for ResNets.
 
@@ -33,20 +34,12 @@ class ResBlock(chainer.Chain):
             self.a = Bottleneck(
                 in_channels, mid_channels, out_channels, stride,
                 initialW, residual_conv=True, stride_first=stride_first)
-            self._forward = ['a']
             for i in range(n_layer - 1):
                 name = 'b{}'.format(i + 1)
                 bottleneck = Bottleneck(
                     out_channels, mid_channels, out_channels, stride=1,
                     initialW=initialW, residual_conv=False)
                 self.add_link(name, bottleneck)
-                self._forward.append(name)
-
-    def __call__(self, x):
-        for name in self._forward:
-            l = getattr(self, name)
-            x = l(x)
-        return x
 
 
 class Bottleneck(chainer.Chain):
