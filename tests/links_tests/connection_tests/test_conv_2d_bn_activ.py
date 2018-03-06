@@ -25,7 +25,7 @@ except (ImportError, TypeError):
 @testing.parameterize(*testing.product({
     'dilate': [1, 2],
     'args_style': ['explicit', 'None', 'omit'],
-    'activ': ['relu', 'add_one'],
+    'activ': ['relu', 'add_one', None],
 }))
 class TestConv2DBNActiv(unittest.TestCase):
 
@@ -40,6 +40,8 @@ class TestConv2DBNActiv(unittest.TestCase):
             activ = relu
         elif self.activ == 'add_one':
             activ = _add_one
+        elif self.activ is None:
+            activ = None
         self.x = np.random.uniform(
             -1, 1, (5, self.in_channels, 5, 5)).astype(np.float32)
         self.gy = np.random.uniform(
@@ -87,6 +89,11 @@ class TestConv2DBNActiv(unittest.TestCase):
         elif self.activ == 'add_one':
             np.testing.assert_almost_equal(
                 cuda.to_cpu(y.array), cuda.to_cpu(_x_data) + 1,
+                decimal=4
+            )
+        elif self.activ is None:
+            np.testing.assert_almost_equal(
+                cuda.to_cpu(y.array), cuda.to_cpu(x_data),
                 decimal=4
             )
 

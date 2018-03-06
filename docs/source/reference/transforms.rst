@@ -71,17 +71,17 @@ translate_bbox
 ~~~~~~~~~~~~~~
 .. autofunction:: translate_bbox
 
-Keypoint
---------
+Point
+-----
 
-flip_keypoint
-~~~~~~~~~~~~~
-.. autofunction:: flip_keypoint
+flip_point
+~~~~~~~~~~
+.. autofunction:: flip_point
 
-resize_keypoint
+resize_point
+~~~~~~~~~~~~
+.. autofunction:: resize_point
+
+translate_point
 ~~~~~~~~~~~~~~~
-.. autofunction:: resize_keypoint
-
-translate_keypoint
-~~~~~~~~~~~~~~~~~~
-.. autofunction:: translate_keypoint
+.. autofunction:: translate_point

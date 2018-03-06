@@ -5,10 +5,10 @@ python:
   - "2.7"
   - "3.6"
 env:
-  - CHAINER_VERSION=">=3.0" OPTIONAL_MODULES=0
-  - CHAINER_VERSION=">=3.0" OPTIONAL_MODULES=1
-  - CHAINER_VERSION="==4.0.0b1" OPTIONAL_MODULES=0
-  - CHAINER_VERSION="==4.0.0b1" OPTIONAL_MODULES=1
+  - CHAINER_VERSION=">=3.2" OPTIONAL_MODULES=0
+  - CHAINER_VERSION=">=3.2" OPTIONAL_MODULES=1
+  - CHAINER_VERSION="==4.0.0b2" OPTIONAL_MODULES=0
+  - CHAINER_VERSION="==4.0.0b2" OPTIONAL_MODULES=1
 notifications:
   email: false
 
@@ -57,7 +57,7 @@ script:
   - test ! -s check_autopep8
   - python style_checker.py .
   - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
-      MPLBACKEND="agg" mpiexec -n 2 nosetests -a '!gpu,!slow' tests;
+      MPLBACKEND="agg" mpiexec -n 2 nosetests -a '!gpu,!slow,!disk' tests;
     else
-      MPLBACKEND="agg" nosetests -a '!gpu,!slow' tests;
+      MPLBACKEND="agg" nosetests -a '!gpu,!slow,!disk' tests;
     fi
