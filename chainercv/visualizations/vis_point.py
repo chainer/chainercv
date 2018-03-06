@@ -32,7 +32,7 @@ def vis_point(img, point, mask=None, ax=None):
             :math:`(P,)`. If :math:`i` th element is :obj:`True`, the
             :math:`i` th point is not displayed. If not specified,
             all points in :obj:`point` will be displayed.
-        ax (matplotlib.axes.Axes, optional): If provided, plot on this axis.
+        ax (matplotlib.axes.Axes): If provided, plot on this axis.
 
     Returns:
         ~matploblib.axes.Axes:
