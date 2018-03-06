@@ -7,7 +7,7 @@ from chainer.links import DilatedConvolution2D
 try:
     from chainermn.links import MultiNodeBatchNormalization
     _chainermn_available = True
-except (ImportError, TypeError):
+except ImportError:
     _chainermn_available = False
 
 
@@ -83,7 +83,7 @@ class Conv2DBNActiv(chainer.Chain):
 
     def __init__(self, in_channels, out_channels, ksize=None,
                  stride=1, pad=0, dilate=1, nobias=True, initialW=None,
-                 initial_bias=None, activ=relu, bn_kwargs={}, comm=None):
+                 initial_bias=None, activ=relu, bn_kwargs={}):
         if ksize is None:
             out_channels, ksize, in_channels = in_channels, out_channels, None
 

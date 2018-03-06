@@ -68,15 +68,8 @@ class TestConv2DActiv(unittest.TestCase):
         self.assertIsInstance(y, chainer.Variable)
         self.assertIsInstance(y.array, self.l.xp.ndarray)
 
-        _x_data = x_data if self.dilate == 1 else x_data[:, :, 1:-1, 1:-1]
         if self.activ == 'relu':
             np.testing.assert_almost_equal(
-<<<<<<< HEAD
-                cuda.to_cpu(y.array), np.maximum(cuda.to_cpu(_x_data), 0))
-        elif self.activ == 'add_one':
-            np.testing.assert_almost_equal(
-                cuda.to_cpu(y.array), cuda.to_cpu(_x_data) + 1)
-=======
                 cuda.to_cpu(y.array), np.maximum(cuda.to_cpu(x_data), 0),
                 decimal=6
             )
@@ -89,7 +82,6 @@ class TestConv2DActiv(unittest.TestCase):
             np.testing.assert_almost_equal(
                 cuda.to_cpu(y.array), cuda.to_cpu(x_data),
                 decimal=6)
->>>>>>> fbe0331eb8199072f28a85861d38cfda410e2d14
 
     def test_forward_cpu(self):
         self.check_forward(self.x)

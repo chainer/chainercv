@@ -139,15 +139,13 @@ class TestConv2DMultiNodeBNActiv(unittest.TestCase):
         # Convolution is the identity function.
         initialW = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]],
                             dtype=np.float32).reshape((1, 1, 3, 3))
-        bn_kwargs = {'decay': 0.8}
+        bn_kwargs = {'decay': 0.8, 'comm': create_communicator('naive')}
         initial_bias = 0
-        comm = create_communicator('naive')
         activ = relu
         self.l = Conv2DBNActiv(
             self.in_channels, self.out_channels, self.ksize, self.stride,
             self.pad, self.dilate, initialW=initialW,
-            initial_bias=initial_bias, activ=activ, bn_kwargs=bn_kwargs,
-            comm=comm)
+            initial_bias=initial_bias, activ=activ, bn_kwargs=bn_kwargs)
 
     def check_forward(self, x_data):
         x = chainer.Variable(x_data)
