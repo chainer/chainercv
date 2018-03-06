@@ -1,3 +1,5 @@
+from __future__ import division
+
 import numpy as np
 import six
 
@@ -26,7 +28,7 @@ def vis_point(img, point, mask=None, ax=None):
             the number of points.
             The second axis corresponds to :math:`y` and :math:`x` coordinates
             of the points.
-        mask (~numpy.ndarray, optional): A boolean array whose shape is
+        mask (~numpy.ndarray): A boolean array whose shape is
             :math:`(P,)`. If :math:`i` th element is :obj:`True`, the
             :math:`i` th point is not displayed. If not specified,
             all points in :obj:`point` will be displayed.
@@ -49,7 +51,7 @@ def vis_point(img, point, mask=None, ax=None):
 
     cm = plot.get_cmap('gist_rainbow')
 
-    colors = [cm(1. * i / n_point) for i in six.moves.range(n_point)]
+    colors = [cm(i / n_point) for i in six.moves.range(n_point)]
 
     for i in range(n_point):
         if mask[i]:
