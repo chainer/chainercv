@@ -80,7 +80,10 @@ class TestConv2DBNActiv(unittest.TestCase):
         self.assertIsInstance(y, chainer.Variable)
         self.assertIsInstance(y.array, self.l.xp.ndarray)
 
-        _x_data = x_data if self.dilate == 1 else x_data[:, :, 1:-1, 1:-1]
+        if self.dilate == 1:
+            _x_data = x_data
+        elif self.dilate == 2:
+            x_data[:, :, 1:-1, 1:-1]
         if self.activ == 'relu':
             np.testing.assert_almost_equal(
                 cuda.to_cpu(y.array), np.maximum(cuda.to_cpu(_x_data), 0),
@@ -108,7 +111,10 @@ class TestConv2DBNActiv(unittest.TestCase):
     def check_backward(self, x_data, y_grad):
         x = chainer.Variable(x_data)
         y = self.l(x)
-        y.grad = y_grad if self.dilate == 1 else y_grad[:, :, 1:-1, 1:-1]
+        if self.dilate == 1:
+            y.grad = y_grad
+        elif self.dilate == 2:
+            y_grad[:, :, 1:-1, 1:-1]
         y.backward()
 
     def test_backward_cpu(self):

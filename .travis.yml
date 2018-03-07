@@ -35,7 +35,7 @@ install:
       wget https://github.com/chainer/chainermn/archive/v1.2.0.tar.gz -O chainermn.tar.gz;
       tar zxf chainermn.tar.gz;
       cd chainermn-1.2.0;
-      python setup.py install --no-nccl;
+      python setup.py install;
       cd $TRAVIS_BUILD_DIR;
     else
       conda env create -f environment_minimum.yml;

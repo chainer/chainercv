@@ -94,7 +94,10 @@ class TestConv2DActiv(unittest.TestCase):
     def check_backward(self, x_data, y_grad):
         x = chainer.Variable(x_data)
         y = self.l(x)
-        y.grad = y_grad if self.dilate == 1 else y_grad[:, :, 1:-1, 1:-1]
+        if self.dilate == 1:
+            y.grad = y_grad
+        elif self.dilate == 2:
+            y_grad[:, :, 1:-1, 1:-1]
         y.backward()
 
     def test_backward_cpu(self):
