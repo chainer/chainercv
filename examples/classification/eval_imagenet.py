@@ -1,7 +1,6 @@
 import argparse
 
 import numpy as np
-import warnings
 
 import chainer
 import chainer.functions as F
@@ -21,6 +20,7 @@ from chainercv.utils import ProgressHook
 try:
     import cv2  # NOQA
 except ImportError:
+    import warnings
     warnings.warn('cv2 is not installed on your environment. '
                   'The scores reported in the ChainerCV\'s Github page '
                   'are calculated using OpenCV as the backend.'
