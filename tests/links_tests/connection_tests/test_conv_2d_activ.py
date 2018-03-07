@@ -97,7 +97,7 @@ class TestConv2DActiv(unittest.TestCase):
         if self.dilate == 1:
             y.grad = y_grad
         elif self.dilate == 2:
-            y_grad[:, :, 1:-1, 1:-1]
+            y.grad = y_grad[:, :, 1:-1, 1:-1]
         y.backward()
 
     def test_backward_cpu(self):
