@@ -42,13 +42,13 @@ def main():
         extractor = VGG16(n_class, args.pretrained_model)
     elif args.model == 'resnet50':
         extractor = ResNet50(
-            n_class, args.pretrained_model, mode=args.resnet_mode)
+            n_class, args.pretrained_model, arch=args.resnet_mode)
     elif args.model == 'resnet101':
         extractor = ResNet101(
-            n_class, args.pretrained_model, mode=args.resnet_mode)
+            n_class, args.pretrained_model, arch=args.resnet_mode)
     elif args.model == 'resnet152':
         extractor = ResNet152(
-            n_class, args.pretrained_model, mode=args.resnet_mode)
+            n_class, args.pretrained_model, arch=args.resnet_mode)
     model = FeaturePredictor(
         extractor, crop_size=224, scale_size=256, crop=args.crop)
 
