@@ -36,7 +36,7 @@ Bottleneck
 .. autoclass:: Bottleneck
    :members:
 
-BuildingBlock
-~~~~~~~~~~~~~
-.. autoclass:: BuildingBlock
+ResBlock
+~~~~~~~~
+.. autoclass:: ResBlock
    :members:

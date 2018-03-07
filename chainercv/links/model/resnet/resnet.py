@@ -8,7 +8,7 @@ from chainer import initializers
 import chainer.links as L
 
 from chainercv.links import Conv2DBNActiv
-from chainercv.links.model.resnet.building_block import BuildingBlock
+from chainercv.links.model.resnet.resblock import ResBlock
 from chainercv.links import PickableSequentialChain
 from chainercv.utils import download_model
 
@@ -23,9 +23,9 @@ _imagenet_mean = np.array(
 
 class ResNet(PickableSequentialChain):
 
-    """Base class for ResNet Network.
+    """Base class for ResNet architecture.
 
-    This is a feature extraction link.
+    This is a pickable sequential link.
     The network can choose output layers from set of all
     intermediate layers.
     The attribute :obj:`pick` is the names of the layers that are going
@@ -58,10 +58,10 @@ class ResNet(PickableSequentialChain):
     * :obj:`imagenet`: Loads weights trained with ImageNet and distributed \
         at `Model Zoo \
         <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_.
-        This is only supported when :obj:`fb_resnet=False`.
+        This is only supported when :obj:`arch=='he'`.
 
     Args:
-        model_name (str): Name of the resnet model to instantiate.
+        n_layer (int): The number of layers.
         n_class (int): The number of classes. If :obj:`None`,
             the default values are used.
             If a supported pretrained model is used,
@@ -82,71 +82,78 @@ class ResNet(PickableSequentialChain):
             the mean value used to train the pretrained model is used.
             Otherwise, the mean value calculated from ILSVRC 2012 dataset
             is used.
-        initialW (callable): Initializer for the weights.
-        fb_resnet (bool): If :obj:`True`, use Facebook ResNet
-            architecture. Otherwise, use the architecture presented
+        initialW (callable): Initializer for the weights of
+            convolution kernels.
+        arch (str): If :obj:`fb`, use Facebook ResNet
+            architecture. When :obj:`he`, use the architecture presented
             by `the original ResNet paper \
             <https://arxiv.org/pdf/1512.03385.pdf>`_.
             This option changes where to apply strided convolution.
-            The default value is :obj:`True`.
+            The default value is :obj:`fb`.
 
     """
 
     _blocks = {
-        'resnet18': [2, 2, 2, 2],
-        'resnet50': [3, 4, 6, 3],
-        'resnet101': [3, 4, 23, 3],
-        'resnet152': [3, 8, 36, 3]
+        50: [3, 4, 6, 3],
+        101: [3, 4, 23, 3],
+        152: [3, 8, 36, 3]
     }
 
-    _he_models = {
-        'resnet18': {},
-        'resnet50': {
-            'imagenet': {
-                'n_class': 1000,
-                'url': 'https://github.com/yuyu2172/share-weights/releases/'
-                'download/0.0.3/resnet50_imagenet_convert_2017_07_06.npz',
-                'mean': _imagenet_mean
-            },
+    _models = {
+        'fb': {
+            50: {},
+            101: {},
+            152: {}
         },
-        'resnet101': {
-            'imagenet': {
-                'n_class': 1000,
-                'url': 'https://github.com/yuyu2172/share-weights/releases/'
-                'download/0.0.3/resnet101_imagenet_convert_2017_07_06.npz',
-                'mean': _imagenet_mean
+        'he': {
+            50: {
+                'imagenet': {
+                    'n_class': 1000,
+                    'url': 'https://github.com/yuyu2172/share-weights/'
+                    'releases/download/0.0.5/'
+                    'resnet50_imagenet_convert_2017_12_18.npz',
+                    'mean': _imagenet_mean
+                },
             },
-        },
-        'resnet152': {
-            'imagenet': {
-                'n_class': 1000,
-                'url': 'https://github.com/yuyu2172/share-weights/releases/'
-                'download/0.0.3/resnet152_imagenet_convert_2017_07_06.npz',
-                'mean': _imagenet_mean
+            101: {
+                'imagenet': {
+                    'n_class': 1000,
+                    'url': 'https://github.com/yuyu2172/share-weights/'
+                    'releases/download/0.0.5/'
+                    'resnet101_imagenet_convert_2017_12_18.npz',
+                    'mean': _imagenet_mean
+                },
             },
+            152: {
+                'imagenet': {
+                    'n_class': 1000,
+                    'url': 'https://github.com/yuyu2172/share-weights/'
+                    'releases/download/0.0.5/'
+                    'resnet152_imagenet_convert_2017_12_18.npz',
+                    'mean': _imagenet_mean
+                },
+            }
         }
     }
 
-    _fb_models = {
-        'resnet18': dict(),
-        'resnet50': dict(),
-        'resnet101': dict(),
-        'resnet152': dict()
-    }
-
-    def __init__(self, model_name,
+    def __init__(self, n_layer,
                  n_class=None,
                  pretrained_model=None,
-                 mean=None, initialW=None, fb_resnet=True):
-        if fb_resnet:
+                 mean=None, initialW=None, arch='fb'):
+        if arch == 'fb':
             if pretrained_model == 'imagenet':
                 raise ValueError(
                     'Pretrained weights for Facebook ResNet models '
-                    'are not supported.')
-            _models = self._fb_models[model_name]
+                    'are not supported. Please set mode to \'he\'.')
+            stride_first = False
+            conv1_no_bias = True
+        elif arch == 'he':
+            stride_first = True
+            conv1_no_bias = False
         else:
-            _models = self._he_models[model_name]
-        block = self._blocks[model_name]
+            raise ValueError('arch is expected to be one of [\'he\', \'fb\']')
+        _models = self._models[arch][n_layer]
+        blocks = self._blocks[n_layer]
 
         if n_class is None:
             if pretrained_model in _models:
@@ -168,17 +175,17 @@ class ResNet(PickableSequentialChain):
             # As a sampling process is time-consuming,
             # we employ a zero initializer for faster computation.
             initialW = initializers.constant.Zero()
-        kwargs = {'initialW': conv_initialW, 'stride_first': not fb_resnet}
+        kwargs = {'initialW': conv_initialW, 'stride_first': stride_first}
 
         super(ResNet, self).__init__()
         with self.init_scope():
-            self.conv1 = Conv2DBNActiv(None, 64, 7, 2, 3, nobias=fb_resnet,
-                                       initialW=initialW)
+            self.conv1 = Conv2DBNActiv(None, 64, 7, 2, 3, nobias=conv1_no_bias,
+                                       initialW=conv_initialW)
             self.pool1 = lambda x: F.max_pooling_2d(x, ksize=3, stride=2)
-            self.res2 = BuildingBlock(block[0], None, 64, 256, 1, **kwargs)
-            self.res3 = BuildingBlock(block[1], None, 128, 512, 2, **kwargs)
-            self.res4 = BuildingBlock(block[2], None, 256, 1024, 2, **kwargs)
-            self.res5 = BuildingBlock(block[3], None, 512, 2048, 2, **kwargs)
+            self.res2 = ResBlock(blocks[0], None, 64, 256, 1, **kwargs)
+            self.res3 = ResBlock(blocks[1], None, 128, 512, 2, **kwargs)
+            self.res4 = ResBlock(blocks[2], None, 256, 1024, 2, **kwargs)
+            self.res5 = ResBlock(blocks[3], None, 512, 2048, 2, **kwargs)
             self.pool5 = _global_average_pooling_2d
             self.fc6 = L.Linear(None, n_class, initialW=fc_initialW)
             self.prob = F.softmax
@@ -227,10 +234,10 @@ class ResNet50(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, fb_resnet=False):
+                 mean=None, initialW=None, arch='fb'):
         super(ResNet50, self).__init__(
-            'resnet50', n_class, pretrained_model,
-            mean, initialW, fb_resnet)
+            50, n_class, pretrained_model,
+            mean, initialW, arch)
 
 
 class ResNet101(ResNet):
@@ -245,10 +252,10 @@ class ResNet101(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, fb_resnet=False):
+                 mean=None, initialW=None, arch='fb'):
         super(ResNet101, self).__init__(
-            'resnet101', n_class, pretrained_model,
-            mean, initialW, fb_resnet)
+            101, n_class, pretrained_model,
+            mean, initialW, arch)
 
 
 class ResNet152(ResNet):
@@ -263,15 +270,16 @@ class ResNet152(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, fb_resnet=False):
+                 mean=None, initialW=None, arch='fb'):
         super(ResNet152, self).__init__(
-            'resnet152', n_class, pretrained_model,
-            mean, initialW, fb_resnet)
+            152, n_class, pretrained_model,
+            mean, initialW, arch)
 
 
 class HeNormal(chainer.initializer.Initializer):
 
     # fan_option is not supported in Chainer v3.
+    # Related: https://github.com/chainer/chainer/pull/3482
 
     def __init__(self, scale=1.0, dtype=None, fan_option='fan_in'):
         self.scale = scale

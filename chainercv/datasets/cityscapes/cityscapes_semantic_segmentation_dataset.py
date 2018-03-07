@@ -17,29 +17,29 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
 
     .. note::
 
-        Please manually downalod the data because it is not allowed to
+        Please manually download the data because it is not allowed to
         re-distribute Cityscapes dataset.
 
     Args:
         data_dir (string): Path to the dataset directory. The directory should
             contain at least two directories, :obj:`leftImg8bit` and either
-            :obj:`gtFine` or :obj:`gtCoarse`. If :obj:`None` is given, it uses
+            :obj:`gtFine` or :obj:`gtCoarse`. If :obj:`auto` is given, it uses
             :obj:`$CHAINER_DATSET_ROOT/pfnet/chainercv/cityscapes` by default.
         label_resolution ({'fine', 'coarse'}): The resolution of the labels. It
             should be either :obj:`fine` or :obj:`coarse`.
         split ({'train', 'val'}): Select from dataset splits used in
             Cityscapes dataset.
-        ignore_labels (bool): If True, the labels marked :obj:`ignoreInEval`
-            defined in the original
+        ignore_labels (bool): If :obj:`True`, the labels marked
+            :obj:`ignoreInEval` defined in the original
             `cityscapesScripts<https://github.com/mcordts/cityscapesScripts>_`
             will be replaced with :obj:`-1` in the :meth:`get_example` method.
             The default value is :obj:`True`.
 
     """
 
-    def __init__(self, data_dir=None, label_resolution=None, split='train',
+    def __init__(self, data_dir='auto', label_resolution=None, split='train',
                  ignore_labels=True):
-        if data_dir is None:
+        if data_dir == 'auto':
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/cityscapes')
         if label_resolution not in ['fine', 'coarse']:
@@ -58,9 +58,9 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
 
         self.ignore_labels = ignore_labels
 
-        self.label_paths = list()
-        self.img_paths = list()
-        city_dnames = list()
+        self.label_paths = []
+        self.img_paths = []
+        city_dnames = []
         for dname in glob.glob(os.path.join(label_dir, '*')):
             if split in dname:
                 for city_dname in glob.glob(os.path.join(dname, '*')):

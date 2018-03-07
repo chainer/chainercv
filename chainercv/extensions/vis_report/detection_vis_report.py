@@ -7,10 +7,10 @@ import chainer
 from chainercv.visualizations.vis_bbox import vis_bbox
 
 try:
-    from matplotlib import pyplot as plot
+    import matplotlib  # NOQA
     _available = True
 
-except ImportError:
+except (ImportError, TypeError):
     _available = False
 
 
@@ -52,7 +52,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         :obj:`gt_bbox` and :obj:`pred_bbox` are float arrays
         of shape :math:`(R, 4)`, where :math:`R` is the number of
         bounding boxes in the image. Each bounding box is organized
-        by :obj:`(y_min, x_min, y_max, x_max)` in the second axis.
+        by :math:`(y_{min}, x_{min}, y_{max}, x_{max})` in the second axis.
 
         :obj:`gt_label` and :obj:`pred_label` are intenger arrays
         of shape :math:`(R,)`. Each label indicates the class of
@@ -89,7 +89,11 @@ class DetectionVisReport(chainer.training.extension.Extension):
         return _available
 
     def __call__(self, trainer):
-        if not _available:
+        if _available:
+            # Dynamically import pyplot so that the backend of matplotlib
+            # can be configured after importing chainercv.
+            import matplotlib.pyplot as plot
+        else:
             return
 
         if hasattr(self.iterator, 'reset'):

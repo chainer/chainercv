@@ -16,7 +16,7 @@ class AnchorTargetCreator(object):
 
     Offsets and scales to match anchors to the ground truth are
     calculated using the encoding scheme of
-    :obj:`chainercv.links.model.faster_rcnn.bbox2loc`.
+    :func:`~chainercv.links.model.faster_rcnn.bbox2loc`.
 
     .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
     Faster R-CNN: Towards Real-Time Object Detection with \

@@ -15,10 +15,10 @@ Ten crop error rate.
 
 | Model | Top 1 | Reference Top 1 |
 |:-:|:-:|:-:|
-| VGG16 |  |   |
+| VGG16 | 27.1 % |   |
 | ResNet50 | 23.0 % | 22.9 % [2] |
-| ResNet101 |21.8 % | 21.8 % [2] |
-| ResNet152 | | 21.4 % [2] |
+| ResNet101 | 21.8 % | 21.8 % [2] |
+| ResNet152 | 21.4 % | 21.4 % [2] |
 
 
 The results can be reproduced by the following command.
@@ -69,4 +69,3 @@ The ImageNet Large Scale Visual Recognition Challenge (ILSVRC) dataset has 1000 
 
 1. Karen Simonyan, Andrew Zisserman. "Very Deep Convolutional Networks for Large-Scale Image Recognition" ICLR 2015
 2. Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. "Deep Residual Learning for Image Recognition" CVPR 2016
-

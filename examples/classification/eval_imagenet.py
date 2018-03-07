@@ -1,6 +1,4 @@
 import argparse
-import sys
-import time
 
 import numpy as np
 
@@ -16,23 +14,8 @@ from chainercv.links import ResNet152
 from chainercv.links import ResNet50
 from chainercv.links import VGG16
 
-from chainercv.utils import apply_prediction_to_iterator
-
-
-class ProgressHook(object):
-
-    def __init__(self, n_total):
-        self.n_total = n_total
-        self.start = time.time()
-        self.n_processed = 0
-
-    def __call__(self, imgs, pred_values, gt_values):
-        self.n_processed += len(imgs)
-        fps = self.n_processed / (time.time() - self.start)
-        sys.stdout.write(
-            '\r{:d} of {:d} images, {:.2f} FPS'.format(
-                self.n_processed, self.n_total, fps))
-        sys.stdout.flush()
+from chainercv.utils import apply_to_iterator
+from chainercv.utils import ProgressHook
 
 
 def main():
@@ -45,6 +28,7 @@ def main():
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--crop', choices=('center', '10'), default='center')
+    parser.add_argument('--resnet_mode', default='he')
     args = parser.parse_args()
 
     dataset = DirectoryParsingLabelDataset(args.val)
@@ -55,13 +39,16 @@ def main():
         n_processes=6, shared_mem=300000000)
 
     if args.model == 'vgg16':
-        extractor = VGG16(len(label_names), args.pretrained_model)
+        extractor = VGG16(n_class, args.pretrained_model)
     elif args.model == 'resnet50':
-        extractor = ResNet50(args.pretrained_model, n_class)
+        extractor = ResNet50(
+            n_class, args.pretrained_model, mode=args.resnet_mode)
     elif args.model == 'resnet101':
-        extractor = ResNet101(args.pretrained_model, n_class)
+        extractor = ResNet101(
+            n_class, args.pretrained_model, mode=args.resnet_mode)
     elif args.model == 'resnet152':
-        extractor = ResNet152(args.pretrained_model, n_class)
+        extractor = ResNet152(
+            n_class, args.pretrained_model, mode=args.resnet_mode)
     model = FeaturePredictor(
         extractor, crop_size=224, scale_size=256, crop=args.crop)
 
@@ -70,15 +57,15 @@ def main():
         model.to_gpu()
 
     print('Model has been prepared. Evaluation starts.')
-    imgs, pred_values, gt_values = apply_prediction_to_iterator(
+    in_values, out_values, rest_values = apply_to_iterator(
         model.predict, iterator, hook=ProgressHook(len(dataset)))
-    del imgs
+    del in_values
 
-    pred_probs, = pred_values
-    gt_probs, = gt_values
+    pred_probs, = out_values
+    gt_labels, = rest_values
 
     accuracy = F.accuracy(
-        np.array(list(pred_probs)), np.array(list(gt_probs))).data
+        np.array(list(pred_probs)), np.array(list(gt_labels))).data
     print()
     print('Top 1 Error {}'.format(1. - accuracy))
 

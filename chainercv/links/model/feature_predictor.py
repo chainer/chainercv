@@ -154,15 +154,15 @@ class FeaturePredictor(chainer.Chain):
             features = self.extractor(imgs)
 
         if isinstance(features, tuple):
-            output = list()
+            output = []
             for feature in features:
-                feature = feature.data
+                feature = feature.array
                 if n_crop > 1:
                     feature = self._average_crops(feature, n_crop)
                 output.append(cuda.to_cpu(feature))
             output = tuple(output)
         else:
-            output = cuda.to_cpu(features.data)
+            output = cuda.to_cpu(features.array)
             if n_crop > 1:
                 output = self._average_crops(output, n_crop)
 

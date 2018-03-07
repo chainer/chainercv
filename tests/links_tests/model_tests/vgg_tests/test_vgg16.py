@@ -16,7 +16,6 @@ from chainercv.links import VGG16
     {'pick': ['conv5_3', 'conv4_2'],
      'shapes': ((1, 512, 14, 14), (1, 512, 28, 28)), 'n_class': None},
 )
-@attr.slow
 class TestVGG16Call(unittest.TestCase):
 
     def setUp(self):
@@ -38,10 +37,12 @@ class TestVGG16Call(unittest.TestCase):
             self.assertEqual(features.shape, self.shapes)
             self.assertEqual(features.dtype, np.float32)
 
+    @attr.slow
     def test_call_cpu(self):
         self.check_call()
 
     @attr.gpu
+    @attr.slow
     def test_call_gpu(self):
         self.link.to_gpu()
         self.check_call()

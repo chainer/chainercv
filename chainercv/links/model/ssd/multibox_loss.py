@@ -16,12 +16,9 @@ def _elementwise_softmax_cross_entropy(x, t):
 
 
 def _hard_negative(x, positive, k):
-    xp = chainer.cuda.get_array_module(x, positive)
-    x = chainer.cuda.to_cpu(x)
-    positive = chainer.cuda.to_cpu(positive)
     rank = (x * (positive - 1)).argsort(axis=1).argsort(axis=1)
     hard_negative = rank < (positive.sum(axis=1) * k)[:, np.newaxis]
-    return xp.array(hard_negative)
+    return hard_negative
 
 
 def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
@@ -64,18 +61,14 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
         This function returns two :obj:`chainer.Variable`: :obj:`loc_loss` and
         :obj:`conf_loss`.
     """
-    if not isinstance(mb_locs, chainer.Variable):
-        mb_locs = chainer.Variable(mb_locs)
-    if not isinstance(mb_confs, chainer.Variable):
-        mb_confs = chainer.Variable(mb_confs)
-    if not isinstance(gt_mb_locs, chainer.Variable):
-        gt_mb_locs = chainer.Variable(gt_mb_locs)
-    if not isinstance(gt_mb_labels, chainer.Variable):
-        gt_mb_labels = chainer.Variable(gt_mb_labels)
+    mb_locs = chainer.as_variable(mb_locs)
+    mb_confs = chainer.as_variable(mb_confs)
+    gt_mb_locs = chainer.as_variable(gt_mb_locs)
+    gt_mb_labels = chainer.as_variable(gt_mb_labels)
 
-    xp = chainer.cuda.get_array_module(gt_mb_labels.data)
+    xp = chainer.cuda.get_array_module(gt_mb_labels.array)
 
-    positive = gt_mb_labels.data > 0
+    positive = gt_mb_labels.array > 0
     n_positive = positive.sum()
     if n_positive == 0:
         z = chainer.Variable(xp.zeros((), dtype=np.float32))
@@ -87,7 +80,7 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
     loc_loss = F.sum(loc_loss) / n_positive
 
     conf_loss = _elementwise_softmax_cross_entropy(mb_confs, gt_mb_labels)
-    hard_negative = _hard_negative(conf_loss.data, positive, k)
+    hard_negative = _hard_negative(conf_loss.array, positive, k)
     conf_loss *= xp.logical_or(positive, hard_negative).astype(conf_loss.dtype)
     conf_loss = F.sum(conf_loss) / n_positive
 

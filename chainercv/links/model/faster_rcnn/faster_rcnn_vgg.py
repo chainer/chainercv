@@ -30,10 +30,10 @@ class FasterRCNNVGG16(FasterRCNN):
         will be randomly initialized.
 
     For descriptions on the interface of this model, please refer to
-    :class:`chainercv.links.model.faster_rcnn.FasterRCNN`.
+    :class:`~chainercv.links.model.faster_rcnn.FasterRCNN`.
 
-    :obj:`FasterRCNNVGG16` supports finer control on random initializations of
-    weights by arguments
+    :class:`~chainercv.links.model.faster_rcnn.FasterRCNNVGG16`
+    supports finer control on random initializations of weights by arguments
     :obj:`vgg_initialW`, :obj:`rpn_initialW`, :obj:`loc_initialW` and
     :obj:`score_initialW`.
     It accepts a callable that takes an array and edits its values.
@@ -65,7 +65,7 @@ class FasterRCNNVGG16(FasterRCNN):
         loc_initialW (callable): Initializer for the localization head.
         score_initialW (callable): Initializer for the score head.
         proposal_creator_params (dict): Key valued paramters for
-            :obj:`chainercv.links.model.faster_rcnn.ProposalCreator`.
+            :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
 
     """
 
@@ -91,7 +91,7 @@ class FasterRCNNVGG16(FasterRCNN):
                  ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
                  vgg_initialW=None, rpn_initialW=None,
                  loc_initialW=None, score_initialW=None,
-                 proposal_creator_params=dict()
+                 proposal_creator_params={}
                  ):
         if n_fg_class is None:
             if pretrained_model not in self._models:

@@ -19,8 +19,8 @@ Feature extraction links extract feature(s) from given images.
 
 .. toctree::
 
-   links/vgg
    links/resnet
+   links/vgg
 
 
 Detection

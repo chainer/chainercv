@@ -26,25 +26,24 @@ from chainercv.links import ResNet50
             {'model_class': ResNet152},
         ],
         [
-            {'fb_resnet': True},
-            {'fb_resnet': False}
+            {'arch': 'fb'},
+            {'arch': 'he'}
         ]
     )
 ))
-@attr.slow
 class TestResNetCall(unittest.TestCase):
 
     def setUp(self):
         self.link = self.model_class(
-            n_class=self.n_class, pretrained_model=None)
+            n_class=self.n_class, pretrained_model=None, arch=self.arch)
         self.link.pick = self.pick
 
     def check_call(self):
         xp = self.link.xp
 
-        x1 = Variable(xp.asarray(np.random.uniform(
+        x = Variable(xp.asarray(np.random.uniform(
             -1, 1, (1, 3, 224, 224)).astype(np.float32)))
-        features = self.link(x1)
+        features = self.link(x)
         if isinstance(features, tuple):
             for activation, shape in zip(features, self.shapes):
                 self.assertEqual(activation.shape, shape)
@@ -52,10 +51,12 @@ class TestResNetCall(unittest.TestCase):
             self.assertEqual(features.shape, self.shapes)
             self.assertEqual(features.dtype, np.float32)
 
+    @attr.slow
     def test_call_cpu(self):
         self.check_call()
 
     @attr.gpu
+    @attr.slow
     def test_call_gpu(self):
         self.link.to_gpu()
         self.check_call()

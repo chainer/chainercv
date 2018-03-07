@@ -66,15 +66,15 @@ class TestPickableSequentialChain(unittest.TestCase):
 
         for out, layer_name in zip(outs, pick):
             self.assertIsInstance(out, chainer.Variable)
-            self.assertIsInstance(out.data, self.link.xp.ndarray)
+            self.assertIsInstance(out.array, self.link.xp.ndarray)
 
-            out = to_cpu(out.data)
-            np.testing.assert_equal(out, to_cpu(expects[layer_name].data))
+            out = to_cpu(out.array)
+            np.testing.assert_equal(out, to_cpu(expects[layer_name].array))
 
     def check_basic(self):
         x = self.link.xp.asarray(self.x)
 
-        expects = dict()
+        expects = {}
         expects['l1'] = self.l1(x)
         expects['f1'] = self.f1(expects['l1'])
         expects['f2'] = self.f2(expects['f1'])
@@ -102,7 +102,7 @@ class TestPickableSequentialChain(unittest.TestCase):
         else:
             del self.link.l1
 
-        expects = dict()
+        expects = {}
         expects['f1'] = self.f1(x)
         expects['f2'] = self.f2(expects['f1'])
         expects['l2'] = self.l2(expects['f2'])
