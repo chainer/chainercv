@@ -26,7 +26,7 @@ def _transfer_bottleneckA(src, dst, name):
     _transfer_components(src, dst.conv2.conv, dst.conv2.bn, name, '2b')
     _transfer_components(src, dst.conv3.conv, dst.conv3.bn, name, '2c')
     _transfer_components(
-        src, dst.conv_shortcut.conv, dst.conv_shortcut.bn, name, '1')
+        src, dst.residual_conv.conv, dst.residual_conv.bn, name, '1')
 
 
 def _transfer_bottleneckB(src, dst, name):
@@ -108,15 +108,15 @@ def main():
 
     caffemodel = CaffeFunction(args.caffemodel)
     if args.model_name == 'resnet50':
-        model = ResNet50(pretrained_model=None, n_class=1000, mode='he')
+        model = ResNet50(pretrained_model=None, n_class=1000, arch='he')
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet50(caffemodel, model)
     elif args.model_name == 'resnet101':
-        model = ResNet101(pretrained_model=None, n_class=1000, mode='he')
+        model = ResNet101(pretrained_model=None, n_class=1000, arch='he')
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet101(caffemodel, model)
     elif args.model_name == 'resnet152':
-        model = ResNet152(pretrained_model=None, n_class=1000, mode='he')
+        model = ResNet152(pretrained_model=None, n_class=1000, arch='he')
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet152(caffemodel, model)
 
