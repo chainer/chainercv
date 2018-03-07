@@ -13,3 +13,4 @@ dependencies:
   - numpy
   - Pillow
   - openmpi
+  - chainermn=1.2.0
