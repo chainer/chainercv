@@ -23,7 +23,6 @@ from chainercv.datasets import directory_parsing_label_names
 
 from chainercv.links import ResNet101
 from chainercv.links import ResNet152
-from chainercv.links import ResNet18
 from chainercv.links import ResNet50
 
 import chainermn
@@ -62,8 +61,6 @@ class ValTransform(object):
 
 def main():
     archs = {
-        'resnet18': {'class': ResNet18, 'score_layer_name': 'fc6',
-                     'kwargs': {'fb_resnet': True}},
         'resnet50': {'class': ResNet50, 'score_layer_name': 'fc6',
                      'kwargs': {'fb_resnet': True}},
         'resnet101': {'class': ResNet101, 'score_layer_name': 'fc6',

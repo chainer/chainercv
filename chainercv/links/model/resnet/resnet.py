@@ -204,24 +204,6 @@ def _global_average_pooling_2d(x):
     return h
 
 
-class ResNet18(ResNet):
-
-    """ResNet-18 Network.
-
-    Please consult the documentation for :class:`ResNet`.
-
-    .. seealso::
-        :class:`chainercv.links.model.resnet.ResNet`
-
-    """
-
-    def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, fb_resnet=False):
-        super(ResNet18, self).__init__(
-            'resnet18', n_class, pretrained_model,
-            mean, initialW, fb_resnet)
-
-
 class ResNet50(ResNet):
 
     """ResNet-50 Network.
