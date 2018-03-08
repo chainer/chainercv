@@ -44,7 +44,7 @@ def random_crop(img, size, return_param=False, copy=False):
     if img.shape[1] == H:
         y_offset = 0
     elif img.shape[1] > H:
-        y_offset = random.choice(six.moves.range(img.shape[1] - H))
+        y_offset = random.choice(six.moves.range(img.shape[1] - H + 1))
     else:
         raise ValueError('shape of image needs to be larger than output shape')
     y_slice = slice(y_offset, y_offset + H)
@@ -52,7 +52,7 @@ def random_crop(img, size, return_param=False, copy=False):
     if img.shape[2] == W:
         x_offset = 0
     elif img.shape[2] > W:
-        x_offset = random.choice(six.moves.range(img.shape[2] - W))
+        x_offset = random.choice(six.moves.range(img.shape[2] - W + 1))
     else:
         raise ValueError('shape of image needs to be larger than output shape')
     x_slice = slice(x_offset, x_offset + W)
