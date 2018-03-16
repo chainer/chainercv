@@ -17,15 +17,6 @@ from chainercv.links import VGG16
 from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
 
-try:
-    import cv2  # NOQA
-except ImportError:
-    import warnings
-    warnings.warn('cv2 is not installed on your environment. '
-                  'The scores reported in the ChainerCV\'s Github page '
-                  'are calculated using OpenCV as the backend.'
-                  'With Pillow as the backend, the scores would change.')
-
 
 def main():
     parser = argparse.ArgumentParser(

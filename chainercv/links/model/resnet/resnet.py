@@ -1,6 +1,7 @@
 from __future__ import division
 
 import numpy as np
+import warnings
 
 import chainer
 import chainer.functions as F
@@ -11,6 +12,12 @@ from chainercv.links import Conv2DBNActiv
 from chainercv.links.model.resnet.resblock import ResBlock
 from chainercv.links import PickableSequentialChain
 from chainercv.utils import download_model
+
+try:
+    import cv2  # NOQA
+    _available = True
+except ImportError:
+    _available = False
 
 
 # RGB order
@@ -191,6 +198,13 @@ class ResNet(PickableSequentialChain):
             self.prob = F.softmax
 
         if pretrained_model in _models:
+            if not _available:
+                warnings.warn('cv2 is not installed on your environment. '
+                              'The scores of ResNets reported in the '
+                              'ChainerCV\'s Github page are calculated using '
+                              'OpenCV as the backend. With Pillow as the '
+                              'backend, the scores would change.',
+                              RuntimeWarning)
             path = download_model(_models[pretrained_model]['url'])
             chainer.serializers.load_npz(path, self)
         elif pretrained_model:
