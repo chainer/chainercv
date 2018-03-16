@@ -96,7 +96,7 @@ class TestConv2DBNActiv(unittest.TestCase):
             )
         elif self.activ is None:
             np.testing.assert_almost_equal(
-                cuda.to_cpu(y.array), cuda.to_cpu(x_data),
+                cuda.to_cpu(y.array), cuda.to_cpu(_x_data),
                 decimal=4
             )
 
