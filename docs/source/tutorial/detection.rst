@@ -58,6 +58,7 @@ Here is an example with a simple toy data.
 
     from chainercv.visualizations import vis_bbox
     import numpy as np
+    import matplotlib.pyplot as plt
 
     img = np.zeros((3, 224, 224), dtype=np.float32)
     # We call a variable/array of bounding boxes as `bbox` throughout the library
