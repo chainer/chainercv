@@ -40,6 +40,7 @@ For additional features
 
 + Matplotlib
 + OpenCV
++ SciPy
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
 

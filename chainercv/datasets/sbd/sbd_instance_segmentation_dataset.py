@@ -1,13 +1,27 @@
 import numpy as np
 import os
-
-import scipy
+import warnings
 
 import chainer
 
 from chainercv.datasets.sbd import sbd_utils
 from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
+
+try:
+    import scipy
+    _available = True
+except ImportError:
+    _available = False
+
+
+def _check_available():
+    if not _available:
+        warnings.warn(
+            'SciPy is not installed in your environment,',
+            'so the dataset cannot be loaded.'
+            'Please install SciPy to load dataset.\n\n'
+            '$ pip install scipy')
 
 
 class SBDInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
@@ -28,6 +42,8 @@ class SBDInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
     """
 
     def __init__(self, data_dir='auto', split='train'):
+        _check_available()
+
         if split not in ['train', 'trainval', 'val']:
             raise ValueError(
                 'please pick split from \'train\', \'trainval\', \'val\'')
