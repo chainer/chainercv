@@ -74,6 +74,10 @@ VOCBboxDataset
 ~~~~~~~~~~~~~~
 .. autoclass:: VOCBboxDataset
 
+VOCInstanceSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: VOCInstanceSegmentationDataset
+
 VOCSemanticSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: VOCSemanticSegmentationDataset
