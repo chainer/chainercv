@@ -81,3 +81,11 @@ VOCInstanceSegmentationDataset
 VOCSemanticSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: VOCSemanticSegmentationDataset
+
+
+Semantic Boundaries Dataset
+---------------------------
+
+SBDInstanceSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: SBDInstanceSegmentationDataset
