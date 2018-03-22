@@ -13,5 +13,6 @@ dependencies:
   - numpy
   - Pillow
   - openmpi
+  - mpi4py
   - pip:
     - chainermn==1.2.0
