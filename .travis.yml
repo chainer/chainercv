@@ -29,6 +29,7 @@ install:
 
   - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
       export LIBRARY_PATH="$HOME/miniconda/lib:$LIBRARY_PATH";
+      export LD_LIBRARY_PATH="$HOME/miniconda/envs/chainercv/lib:$LD_LIBRARY_PATH";
       conda env create -f environment.yml;
       source activate chainercv;
     else
