@@ -28,7 +28,7 @@ def main():
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--crop', choices=('center', '10'), default='center')
-    parser.add_argument('--resnet_mode', default='he')
+    parser.add_argument('--resnet_arch', default='he')
     args = parser.parse_args()
 
     dataset = DirectoryParsingLabelDataset(args.val)
@@ -42,13 +42,13 @@ def main():
         extractor = VGG16(n_class, args.pretrained_model)
     elif args.model == 'resnet50':
         extractor = ResNet50(
-            n_class, args.pretrained_model, arch=args.resnet_mode)
+            n_class, args.pretrained_model, arch=args.resnet_arch)
     elif args.model == 'resnet101':
         extractor = ResNet101(
-            n_class, args.pretrained_model, arch=args.resnet_mode)
+            n_class, args.pretrained_model, arch=args.resnet_arch)
     elif args.model == 'resnet152':
         extractor = ResNet152(
-            n_class, args.pretrained_model, arch=args.resnet_mode)
+            n_class, args.pretrained_model, arch=args.resnet_arch)
     model = FeaturePredictor(
         extractor, crop_size=224, scale_size=256, crop=args.crop)
 
