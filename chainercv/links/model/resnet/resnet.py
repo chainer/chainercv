@@ -201,9 +201,9 @@ class ResNet(PickableSequentialChain):
             if not _available:
                 warnings.warn('cv2 is not installed on your environment. '
                               'The scores of ResNets reported in the '
-                              'READMEs in ChainerCV\'s examples are '
-                              'calculated using OpenCV as the backend. '
-                              'With Pillow as the '
+                              'README of the ChainerCV\'s classification '
+                              'example are calculated using OpenCV as the '
+                              'backend. With Pillow as the '
                               'backend, the scores would change.',
                               RuntimeWarning)
             path = download_model(_models[pretrained_model]['url'])
