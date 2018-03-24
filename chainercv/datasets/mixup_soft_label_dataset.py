@@ -11,8 +11,8 @@ class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
     from the base dataset.
 
     Unlike `LabeledImageDatasets`, label is a one-dimensional float array with
-    at most two nonzero weights (i.e. soft label). The sum of the two weights
-    is one.
+    at most two nonnegative weights (i.e. soft label). The sum of the two
+    weights is one.
 
     Example:
 
@@ -34,8 +34,8 @@ class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
         label_0, img_1, label_1`, which is a tuple containing two pairs of an
         image and a label. Typically, dataset is `SiameseDataset`.
 
-            Moreover, each element of each dataset should have same shape.
-        max_label: Max label index of base datasets.
+        Moreover, each element of each dataset should have same shape.
+        n_class (int): The number of classes in the base dataset.
 
     .. [#] Hongyi Zhang, Moustapha Cisse, Yann N. Dauphin, David Lopez-Paz.
         `mixup: Beyond Empirical Risk Minimization\
@@ -55,7 +55,7 @@ class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
         mix_ratio = np.random.random()
 
         image = mix_ratio * image1 + (1-mix_ratio) * image2
-        label = np.zeros(self._n_class + 1, dtype=np.float32)
+        label = np.zeros(self._n_class, dtype=np.float32)
         label[label1] += mix_ratio
         label[label2] += 1 - mix_ratio
         return image, label

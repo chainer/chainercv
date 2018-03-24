@@ -49,8 +49,9 @@ class TestMixupSoftLabelDataset(unittest.TestCase):
         self.assertEqual(example[0].shape, self.img_shape)
         self.assertEqual(example[1].dtype, np.float32)
         self.assertEqual(example[1].ndim, 1)
-        self.assertEqual(example[1].shape[0], self.n_class + 1)
+        self.assertEqual(example[1].shape[0], self.n_class)
         self.assertAlmostEqual(example[1].sum(), 1.0)
+        self.assertGreaterEqual(np.min(example[1]), 0.0)
 
     def test_mixup(self):
         dataset = MixUpSoftLabelDataset(self.siamese_dataset, self.n_class)
