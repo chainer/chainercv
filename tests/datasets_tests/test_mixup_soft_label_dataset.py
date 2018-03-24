@@ -29,7 +29,7 @@ N = 15
      'labels_1': np.ones(N, dtype=np.int32),
      'pos_exist': True, 'neg_exist': False},
 )
-class TestMixupDataset(unittest.TestCase):
+class TestMixupSoftLabelDataset(unittest.TestCase):
 
     img_shape = (3, 32, 48)
 
