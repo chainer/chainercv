@@ -27,14 +27,17 @@ class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
             >>> base_dataset = SiameseDataset(mnist, mnist)
             >>> dataset = MixUpSoftLabelDataset(base_dataset, 10)
             >>> mixed_image, mixed_label = dataset[0]
-            >>> print(mixed_label.shape, mixed_label.dtype)
+            >>> mixed_label.shape
+            (10,)
+            >>> mixed_label.dtype
+            dtype('float32')
 
     Args:
         dataset: The underlying dataset. The dataset returns :obj:`img_0,
-        label_0, img_1, label_1`, which is a tuple containing two pairs of an
-        image and a label. Typically, dataset is `SiameseDataset`.
+            label_0, img_1, label_1`, which is a tuple containing two pairs
+            of an image and a label. Typically, dataset is `SiameseDataset`.
 
-        Moreover, each element of each dataset should have same shape.
+            Moreover, each element of each dataset should have same shape.
         n_class (int): The number of classes in the base dataset.
 
     .. [#] Hongyi Zhang, Moustapha Cisse, Yann N. Dauphin, David Lopez-Paz.
