@@ -5,7 +5,7 @@ from chainer.dataset import dataset_mixin
 
 class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
 
-    """Dataset which returns mixed images and labels for mixup learning[1].
+    """Dataset which returns mixed images and labels for mixup learning [#]_.
 
     :class:`MixUpSoftLabelDataset` mixes two pairs of labeled images fetched
     from the base dataset.
