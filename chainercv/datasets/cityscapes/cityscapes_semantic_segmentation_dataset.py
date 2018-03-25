@@ -31,7 +31,7 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
             Cityscapes dataset.
         ignore_labels (bool): If :obj:`True`, the labels marked
             :obj:`ignoreInEval` defined in the original
-            `cityscapesScripts<https://github.com/mcordts/cityscapesScripts>_`
+            cityscapesScripts<https://github.com/mcordts/cityscapesScripts>
             will be replaced with :obj:`-1` in the :meth:`get_example` method.
             The default value is :obj:`True`.
 
