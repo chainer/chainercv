@@ -37,7 +37,7 @@ class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
             label_0, img_1, label_1`, which is a tuple containing two pairs
             of an image and a label. Typically, dataset is `SiameseDataset`.
 
-            Moreover, each element of each dataset should have same shape.
+            The shapes of images and labels should be constant.
         n_class (int): The number of classes in the base dataset.
 
     .. [#] Hongyi Zhang, Moustapha Cisse, Yann N. Dauphin, David Lopez-Paz.
