@@ -12,6 +12,10 @@ vis_image
 ~~~~~~~~~
 .. autofunction:: vis_image
 
+vis_instance_segmentation
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: vis_instance_segmentation
+
 vis_point
 ~~~~~~~~~
 .. autofunction:: vis_point
