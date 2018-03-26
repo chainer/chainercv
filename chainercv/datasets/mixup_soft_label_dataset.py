@@ -54,11 +54,11 @@ class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
         return len(self._dataset)
 
     def get_example(self, i):
-        image1, label1, image2, label2 = self._dataset[i]
+        img_0, label_0, img_1, label_1 = self._dataset[i]
         mix_ratio = np.random.random()
 
-        image = mix_ratio * image1 + (1-mix_ratio) * image2
+        image = mix_ratio * img_0 + (1-mix_ratio) * img_1
         label = np.zeros(self._n_class, dtype=np.float32)
-        label[label1] += mix_ratio
-        label[label2] += 1 - mix_ratio
+        label[label_0] += mix_ratio
+        label[label_1] += 1 - mix_ratio
         return image, label
