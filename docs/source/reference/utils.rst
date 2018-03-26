@@ -83,6 +83,10 @@ assert_is_image
 ~~~~~~~~~~~~~~~
 .. autofunction:: assert_is_image
 
+assert_is_instance_segmentation_dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: assert_is_instance_segmentation_dataset
+
 assert_is_label_dataset
 ~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: assert_is_label_dataset
