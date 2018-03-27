@@ -2,7 +2,6 @@ from __future__ import division
 
 import numpy as np
 
-from chainercv.visualizations.vis_image import vis_image
 from chainercv.visualizations.vis_semantic_segmentation import _default_cmap
 
 
@@ -18,7 +17,7 @@ def vis_instance_segmentation(
         ...     import sbd_instance_segmentation_label_names
         >>> from chainercv.visualizations import vis_instance_segmentation
         >>> import matplotlib.pyplot as plot
-        >>> dataset = SBDSegmentationDataset()
+        >>> dataset = SBDInstanceSegmentationDataset()
         >>> img, bbox, mask, label = dataset[0]
         >>> vis_instance_segmentation(
         ...     img, bbox, mask, label,
@@ -55,6 +54,11 @@ def vis_instance_segmentation(
         :obj:`ax` is an :class:`matploblib.axes.Axes` with the plot.
 
     """
+    from matplotlib import pyplot as plot
+    if ax is None:
+        fig = plot.figure()
+        ax = fig.add_subplot(1, 1, 1)
+
     if len(bbox) != len(mask):
         raise ValueError('The length of mask must be same as that of bbox')
     if label is not None and len(bbox) != len(label):
@@ -65,16 +69,12 @@ def vis_instance_segmentation(
     n_inst = len(bbox)
     colors = np.array([_default_cmap(l) for l in range(1, n_inst + 1)])
 
-    # Returns newly instantiated matplotlib.axes.Axes object if ax is None
-    ax = vis_image(img, ax=ax)
-
-    canvas_img = np.zeros((mask.shape[1], mask.shape[2], 4), dtype=np.uint8)
+    canvas_img = img.transpose((1, 2, 0)).copy()
     for i, (color, bb, msk) in enumerate(zip(colors, bbox, mask)):
-        rgba = np.append(color, alpha * 255)
         bb = np.round(bb).astype(np.int32)
         y_min, x_min, y_max, x_max = bb
         if y_max > y_min and x_max > x_min:
-            canvas_img[msk] = rgba
+            canvas_img[msk] = alpha * color + canvas_img[msk] * (1 - alpha)
 
         caption = []
         if label is not None and label_names is not None:
@@ -93,5 +93,5 @@ def vis_instance_segmentation(
                     bbox={'facecolor': color / 255, 'alpha': alpha},
                     fontsize=8, color='white')
 
-    ax.imshow(canvas_img)
+    ax.imshow(canvas_img.astype(np.uint8))
     return ax
