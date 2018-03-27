@@ -2,12 +2,12 @@ from __future__ import division
 
 import numpy as np
 
-from chainercv.visualizations.vis_semantic_segmentation import _default_cmap
+from chainercv.visualizations.colormap import voc_colormap
 
 
 def vis_instance_segmentation(
         img, bbox, mask, label=None, score=None, label_names=None,
-        alpha=0.7, ax=None):
+        colors=None, alpha=0.7, show_bbox=False, ax=None):
     """Visualize instance segmentation.
 
     Example:
@@ -41,11 +41,18 @@ def vis_instance_segmentation(
             :obj:`label_names`.
         label_names (iterable of strings): Name of labels ordered according
             to label ids.
+        colors: (iterable of tuple): List of colors.
+            Each color is RGB format and the range of its values is
+            :math:`[0, 255]`. The :obj:`i`-th element is the color used
+            to visualize the :obj:`i`-th instance.
+            If :obj:`colors` is :obj:`None`, the default color map is used.
         alpha (float): The value which determines transparency of the figure.
             The range of this value is :math:`[0, 1]`. If this
             value is :obj:`0`, the figure will be completely transparent.
             The default value is :obj:`0.7`. This option is useful for
             overlaying the label on the source image.
+        show_bbox (bool): Decide whether to show bounding boxes.
+            The default value is :obj:`False`.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
 
@@ -67,14 +74,26 @@ def vis_instance_segmentation(
         raise ValueError('The length of score must be same as that of bbox')
 
     n_inst = len(bbox)
-    colors = np.array([_default_cmap(l) for l in range(1, n_inst + 1)])
+    if colors is None:
+        colors = [voc_colormap(l) for l in range(1, n_inst + 1)]
+    colors = np.array(colors)
 
     canvas_img = img.transpose((1, 2, 0)).copy()
-    for i, (color, bb, msk) in enumerate(zip(colors, bbox, mask)):
+    for i, (bb, msk) in enumerate(zip(bbox, mask)):
+        # The length of `colors` can be smaller than the number of instances
+        # if a non-default `colors` is used.
+        color = colors[i % len(colors)]
         bb = np.round(bb).astype(np.int32)
         y_min, x_min, y_max, x_max = bb
         if y_max > y_min and x_max > x_min:
             canvas_img[msk] = alpha * color + canvas_img[msk] * (1 - alpha)
+
+            if show_bbox:
+                ax.add_patch(
+                    plot.Rectangle(
+                        (x_min, y_min), x_max - x_min, y_max - y_min,
+                        fill=False, edgecolor=color / 255, linewidth=0.5,
+                        alpha=alpha))
 
         caption = []
         if label is not None and label_names is not None:

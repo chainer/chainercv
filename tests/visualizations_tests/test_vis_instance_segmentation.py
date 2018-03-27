@@ -38,6 +38,13 @@ except ImportError:
     {
         'n_bbox': 0, 'label': (), 'score': (),
         'label_names': ('c0', 'c1', 'c2')},
+    {
+        'n_bbox': 3, 'label': (0, 1, 2), 'score': (0, 0.5, 1),
+        'label_names': ('c0', 'c1', 'c2'),
+        'colors': [(255, 0, 0), (0, 255, 0), (0, 0, 255), (100, 100, 100)]},
+    {
+        'n_bbox': 3, 'label': (0, 1, 2), 'score': (0, 0.5, 1),
+        'label_names': ('c0', 'c1', 'c2'), 'show_bbox': True},
 )
 class TestVisInstanceSegmentation(unittest.TestCase):
 
@@ -51,6 +58,10 @@ class TestVisInstanceSegmentation(unittest.TestCase):
             self.label = np.array(self.label, dtype=np.int32)
         if self.score is not None:
             self.score = np.array(self.score)
+        if not hasattr(self, 'colors'):
+            self.colors = None
+        if not hasattr(self, 'show_bbox'):
+            self.show_bbox = False
 
     def test_vis_instance_segmentation(self):
         if not optional_modules:
@@ -58,7 +69,8 @@ class TestVisInstanceSegmentation(unittest.TestCase):
 
         ax = vis_instance_segmentation(
             self.img, self.bbox, self.mask, self.label, self.score,
-            label_names=self.label_names)
+            label_names=self.label_names, colors=self.colors,
+            show_bbox=self.show_bbox)
 
         self.assertIsInstance(ax, matplotlib.axes.Axes)
 
