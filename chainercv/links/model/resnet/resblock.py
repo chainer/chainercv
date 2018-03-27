@@ -35,6 +35,7 @@ class ResBlock(PickableSequentialChain):
                  out_channels, stride, dilate=1, initialW=None,
                  bn_kwargs={}, stride_first=False):
         super(ResBlock, self).__init__()
+        # Dilate option is applied to all bottlenecks.
         with self.init_scope():
             self.a = Bottleneck(
                 in_channels, mid_channels, out_channels, stride, dilate,
@@ -44,7 +45,8 @@ class ResBlock(PickableSequentialChain):
                 name = 'b{}'.format(i + 1)
                 bottleneck = Bottleneck(
                     out_channels, mid_channels, out_channels, stride=1,
-                    bn_kwargs=bn_kwargs, initialW=initialW, residual_conv=False)
+                    dilate=dilate, initialW=initialW, bn_kwargs=bn_kwargs,
+                    residual_conv=False)
                 self.add_link(name, bottleneck)
 
 
