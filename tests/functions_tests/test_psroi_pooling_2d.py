@@ -81,5 +81,28 @@ class TestPSROIPolling2D(unittest.TestCase):
             cuda.to_gpu(self.x), cuda.to_gpu(self.rois),
             cuda.to_gpu(self.roi_indices), cuda.to_gpu(self.gy))
 
+    def apply_backward(self, x_data, roi_data, roi_index_data, y_grad_data):
+        x = chainer.Variable(x_data)
+        rois = chainer.Variable(roi_data)
+        roi_indices = chainer.Variable(roi_index_data)
+        y = functions.psroi_pooling_2d(
+            x, rois, roi_indices, self.out_c, self.out_h, self.out_w,
+            self.spatial_scale, self.group_size)
+        x.cleargrad()
+        y.grad = y_grad_data
+        y.backward()
+        return x, y
+
+    @attr.gpu
+    @condition.retry(3)
+    def test_consistency_with_gpu(self):
+        x_cpu, y_cpu = self.apply_backward(
+            self.x, self.rois, self.roi_indices, self.gy)
+        x_gpu, y_gpu = self.apply_backward(
+            cuda.to_gpu(self.x), cuda.to_gpu(self.rois),
+            cuda.to_gpu(self.roi_indices), cuda.to_gpu(self.gy))
+        testing.assert_allclose(y_cpu.data, y_gpu.data)
+        testing.assert_allclose(x_cpu.grad, x_gpu.grad)
+
 
 testing.run_module(__name__, __file__)
