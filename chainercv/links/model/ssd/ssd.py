@@ -191,8 +191,8 @@ class SSD(chainer.Chain):
 
         """
 
-        x = list()
-        sizes = list()
+        x = []
+        sizes = []
         for img in imgs:
             _, H, W = img.shape
             img = self._prepare(img)
@@ -205,9 +205,9 @@ class SSD(chainer.Chain):
             mb_locs, mb_confs = self(x)
         mb_locs, mb_confs = mb_locs.array, mb_confs.array
 
-        bboxes = list()
-        labels = list()
-        scores = list()
+        bboxes = []
+        labels = []
+        scores = []
         for mb_loc, mb_conf, size in zip(mb_locs, mb_confs, sizes):
             bbox, label, score = self.coder.decode(
                 mb_loc, mb_conf, self.nms_thresh, self.score_thresh)

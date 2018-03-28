@@ -2,6 +2,13 @@ import chainer
 from chainer.functions import relu
 from chainer.links import BatchNormalization
 from chainer.links import Convolution2D
+from chainer.links import DilatedConvolution2D
+
+try:
+    from chainermn.links import MultiNodeBatchNormalization
+    _chainermn_available = True
+except ImportError:
+    _chainermn_available = False
 
 
 class Conv2DBNActiv(chainer.Chain):
@@ -13,6 +20,11 @@ class Conv2DBNActiv(chainer.Chain):
     The arguments are the same as that of
     :class:`chainer.links.Convolution2D`
     except for :obj:`activ` and :obj:`bn_kwargs`.
+    :obj:`bn_kwargs` can include :obj:`comm` key and a communicator of
+    ChainerMN as the value to use
+    :class:`chainermn.links.MultiNodeBatchNormalization`. If
+    :obj:`comm` is not included in :obj:`bn_kwargs`,
+    :class:`chainer.links.BatchNormalization` link from Chainer is used.
     Note that the default value for the :obj:`nobias`
     is changed to :obj:`True`.
 
@@ -43,6 +55,8 @@ class Conv2DBNActiv(chainer.Chain):
             :obj:`stride=s` and :obj:`stride=(s, s)` are equivalent.
         pad (int or pair of ints): Spatial padding width for input arrays.
             :obj:`pad=p` and :obj:`pad=(p, p)` are equivalent.
+        dilate (int or pair of ints): Dilation factor of filter applications.
+            :obj:`dilate=d` and :obj:`dilate=(d, d)` are equivalent.
         nobias (bool): If :obj:`True`,
             then this link does not use the bias term.
         initialW (4-D array): Initial weight value. If :obj:`None`, the default
@@ -54,27 +68,46 @@ class Conv2DBNActiv(chainer.Chain):
             May also be a callable that takes :obj:`numpy.ndarray` or
             :obj:`cupy.ndarray` and edits its value.
         activ (callable): An activation function. The default value is
-            :func:`chainer.functions.relu`.
+            :func:`chainer.functions.relu`. If this is :obj:`None`,
+            no activation is applied (i.e. the activation is the identity
+            function).
         bn_kwargs (dict): Keyword arguments passed to initialize
-            :class:`chainer.links.BatchNormalization`.
+            :class:`chainer.links.BatchNormalization`. If a ChainerMN
+            communicator (:class:`~chainermn.communicators.CommunicatorBase)
+            is given with the key :obj:`comm`,
+            :obj:`~chainermn.links.MultiNodeBatchNormalization` will be used
+            for the batch normalization. Otherwise,
+            :obj:`~chainer.links.BatchNormalization` will be used.
 
     """
 
     def __init__(self, in_channels, out_channels, ksize=None,
-                 stride=1, pad=0, nobias=True, initialW=None,
-                 initial_bias=None, activ=relu, bn_kwargs=dict()):
+                 stride=1, pad=0, dilate=1, nobias=True, initialW=None,
+                 initial_bias=None, activ=relu, bn_kwargs={}):
         if ksize is None:
             out_channels, ksize, in_channels = in_channels, out_channels, None
 
         self.activ = activ
         super(Conv2DBNActiv, self).__init__()
         with self.init_scope():
-            self.conv = Convolution2D(
-                in_channels, out_channels, ksize, stride, pad,
-                nobias, initialW, initial_bias)
-            self.bn = BatchNormalization(out_channels, **bn_kwargs)
+            if dilate > 1:
+                self.conv = DilatedConvolution2D(
+                    in_channels, out_channels, ksize, stride, pad, dilate,
+                    nobias, initialW, initial_bias)
+            else:
+                self.conv = Convolution2D(
+                    in_channels, out_channels, ksize, stride, pad,
+                    nobias, initialW, initial_bias)
+            if 'comm' in bn_kwargs and _chainermn_available:
+                self.bn = MultiNodeBatchNormalization(
+                    out_channels, **bn_kwargs)
+            else:
+                self.bn = BatchNormalization(out_channels, **bn_kwargs)
 
     def __call__(self, x):
         h = self.conv(x)
         h = self.bn(h)
-        return self.activ(h)
+        if self.activ is None:
+            return h
+        else:
+            return self.activ(h)
