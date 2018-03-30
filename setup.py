@@ -54,7 +54,7 @@ for name, data in ext_data.items():
     extensions.append(
         Extension('chainercv.{}'.format(name),
                   sources=sources)
-        )
+    )
 
 
 class CheckingBuildExt(_build_ext):
