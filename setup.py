@@ -10,8 +10,8 @@ which have released under BSD 3-clause "New" or "Revised" License.
 from distutils.core import setup
 import os
 import pkg_resources
-from setuptools import find_packages
 from setuptools.command import sdist
+from setuptools import find_packages
 
 from distutils.extension import Extension
 
