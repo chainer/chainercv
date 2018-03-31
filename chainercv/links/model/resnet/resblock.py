@@ -17,9 +17,9 @@ class ResBlock(PickableSequentialChain):
         mid_channels (int): The number of channels of intermediate arrays.
         out_channels (int): The number of channels of the output array.
         stride (int or tuple of ints): Stride of filter application.
-        dilate (int or pair of ints): Dilation factor of filter applications.
+        dilate (int or tuple of ints): Dilation factor of filter applications.
             :obj:`dilate=d` and :obj:`dilate=(d, d)` are equivalent.
-        initialW (4-D array): Initial weight value used in
+        initialW (callable): Initial weight value used in
             the convolutional layers.
         bn_kwargs (dict): Keyword arguments passed to initialize
             :class:`chainer.links.BatchNormalization`.
@@ -59,9 +59,9 @@ class Bottleneck(chainer.Chain):
         mid_channels (int): The number of channels of intermediate arrays.
         out_channels (int): The number of channels of the output array.
         stride (int or tuple of ints): Stride of filter application.
-        dilate (int or pair of ints): Dilation factor of filter applications.
+        dilate (int or tuple of ints): Dilation factor of filter applications.
             :obj:`dilate=d` and :obj:`dilate=(d, d)` are equivalent.
-        initialW (4-D array): Initial weight value used in
+        initialW (callable): Initial weight value used in
             the convolutional layers.
         bn_kwargs (dict): Keyword arguments passed to initialize
             :class:`chainer.links.BatchNormalization`.
