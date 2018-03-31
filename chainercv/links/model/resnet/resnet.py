@@ -89,10 +89,10 @@ class ResNet(PickableSequentialChain):
             the mean value used to train the pretrained model is used.
             Otherwise, the mean value calculated from ILSVRC 2012 dataset
             is used.
-        conv_initialW (callable): Initializer for the weights of
+        initialW (callable): Initializer for the weights of
             convolution kernels.
-        fc_initialW (callable): Initializer for the weights of
-            the fully connected layer.
+        fc_kwargs (dict): Keyword arguments passed to initialize
+            the :class:`chainer.links.Linear`.
         arch (str): If :obj:`fb`, use Facebook ResNet
             architecture. When :obj:`he`, use the architecture presented
             by `the original ResNet paper \
@@ -148,7 +148,7 @@ class ResNet(PickableSequentialChain):
     def __init__(self, n_layer,
                  n_class=None,
                  pretrained_model=None,
-                 mean=None, conv_initialW=None, fc_initialW=None, arch='fb'):
+                 mean=None, initialW=None, fc_kwargs={}, arch='fb'):
         if arch == 'fb':
             if pretrained_model == 'imagenet':
                 raise ValueError(
@@ -177,28 +177,28 @@ class ResNet(PickableSequentialChain):
                 mean = _imagenet_mean
         self.mean = mean
 
-        if conv_initialW is None:
-            conv_initialW = HeNormal(scale=1., fan_option='fan_out')
-        if fc_initialW is None:
-            fc_initialW = initializers.Normal(scale=0.01)
+        if initialW is None:
+            initialW = HeNormal(scale=1., fan_option='fan_out')
+        if 'initialW' not in fc_kwargs:
+            fc_kwargs['initialW'] = initializers.Normal(scale=0.01)
         if pretrained_model:
             # As a sampling process is time-consuming,
             # we employ a zero initializer for faster computation.
-            conv_initialW = initializers.constant.Zero()
-            fc_initialW = initializers.constant.Zero()
-        kwargs = {'initialW': conv_initialW, 'stride_first': stride_first}
+            initialW = initializers.constant.Zero()
+            fc_kwargs['initialW'] = initializers.constant.Zero()
+        kwargs = {'initialW': initialW, 'stride_first': stride_first}
 
         super(ResNet, self).__init__()
         with self.init_scope():
             self.conv1 = Conv2DBNActiv(None, 64, 7, 2, 3, nobias=conv1_no_bias,
-                                       initialW=conv_initialW)
+                                       initialW=initialW)
             self.pool1 = lambda x: F.max_pooling_2d(x, ksize=3, stride=2)
             self.res2 = ResBlock(blocks[0], None, 64, 256, 1, **kwargs)
             self.res3 = ResBlock(blocks[1], None, 128, 512, 2, **kwargs)
             self.res4 = ResBlock(blocks[2], None, 256, 1024, 2, **kwargs)
             self.res5 = ResBlock(blocks[3], None, 512, 2048, 2, **kwargs)
             self.pool5 = _global_average_pooling_2d
-            self.fc6 = L.Linear(None, n_class, initialW=fc_initialW)
+            self.fc6 = L.Linear(None, n_class, **fc_kwargs)
             self.prob = F.softmax
 
         if pretrained_model in _models:
@@ -235,10 +235,10 @@ class ResNet50(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, conv_initialW=None, fc_initialW=None, arch='fb'):
+                 mean=None, initialW=None, fc_kwargs={}, arch='fb'):
         super(ResNet50, self).__init__(
             50, n_class, pretrained_model,
-            mean, conv_initialW, fc_initialW, arch)
+            mean, initialW, fc_kwargs, arch)
 
 
 class ResNet101(ResNet):
@@ -253,10 +253,10 @@ class ResNet101(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, conv_initialW=None, fc_initialW=None, arch='fb'):
+                 mean=None, initialW=None, fc_kwargs={}, arch='fb'):
         super(ResNet101, self).__init__(
             101, n_class, pretrained_model,
-            mean, conv_initialW, fc_initialW, arch)
+            mean, initialW, fc_kwargs, arch)
 
 
 class ResNet152(ResNet):
@@ -271,10 +271,10 @@ class ResNet152(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, conv_initialW=None, fc_initialW=None, arch='fb'):
+                 mean=None, initialW=None, fc_kwargs={}, arch='fb'):
         super(ResNet152, self).__init__(
             152, n_class, pretrained_model,
-            mean, conv_initialW, fc_initialW, arch)
+            mean, initialW, fc_kwargs, arch)
 
 
 class HeNormal(chainer.initializer.Initializer):
