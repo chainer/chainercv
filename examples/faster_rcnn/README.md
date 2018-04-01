@@ -2,11 +2,20 @@
 
 ### Performance
 
+
+###### VGG16
+
 | Training Setting | Evaluation | Reference | ChainerCV |
 |:-:|:-:|:-:|:-:|
 | VOC2007 trainval | VOC2007 test | 69.9 mAP [1] | 70.6 mAP |
 | VOC2007\&2012 trainval | VOC2007 test | 73.2 mAP [1] | 74.7 mAP |
 
+###### ResNet101
+
+| Training Setting | Evaluation | Reference | ChainerCV |
+|:-:|:-:|:-:|:-:|
+| VOC2007 trainval | VOC2007 test | | XXX mAP |
+| VOC2007\&2012 trainval | VOC2007 test | 76.4 mAP [1] | XXX mAP |
 
 ### Speed
 
@@ -60,6 +69,8 @@ PlotReport extension uses matplotlib. If you got `RuntimeError: Invalid DISPLAY 
 ```
 $ MPLBACKEND=Agg python train.py OPTIONS
 ```
+
+The weight decay rate is set to 5e-4 and 1e-4 for networks with VGG16 and ResNet101 feature extractors.
 
 ### Evaluation
 

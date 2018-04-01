@@ -14,6 +14,7 @@ from chainercv.datasets import voc_bbox_label_names
 from chainercv.datasets import VOCBboxDataset
 from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links import FasterRCNNVGG16
+from chainercv.links import FasterRCNNResNet101
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 from chainercv import transforms
 
@@ -46,8 +47,12 @@ def main():
     parser.add_argument('--dataset', choices=('voc07', 'voc0712'),
                         help='The dataset to use: VOC07, VOC07+12',
                         default='voc07')
+    parser.add_argument(
+        '--model', choices=('vgg16', 'resnet101'),
+        help='The feature extractor to use', default='vgg16')
     parser.add_argument('--gpu', '-g', type=int, default=-1)
     parser.add_argument('--lr', '-l', type=float, default=1e-3)
+    parser.add_argument('--weight_decay', '-w', type=float, default=0.0005)
     parser.add_argument('--out', '-o', default='result',
                         help='Output directory')
     parser.add_argument('--seed', '-s', type=int, default=0)
@@ -65,8 +70,14 @@ def main():
             VOCBboxDataset(year='2012', split='trainval'))
     test_data = VOCBboxDataset(split='test', year='2007',
                                use_difficult=True, return_difficult=True)
-    faster_rcnn = FasterRCNNVGG16(n_fg_class=len(voc_bbox_label_names),
-                                  pretrained_model='imagenet')
+
+    if args.model == 'vgg16':
+        faster_rcnn = FasterRCNNVGG16(n_fg_class=len(voc_bbox_label_names),
+                                    pretrained_model='imagenet')
+    elif args.model == 'resnet101':
+        faster_rcnn = FasterRCNNResNet101(n_fg_class=len(voc_bbox_label_names),
+                                          pretrained_model='imagenet')
+
     faster_rcnn.use_preset('evaluate')
     model = FasterRCNNTrainChain(faster_rcnn)
     if args.gpu >= 0:
@@ -74,7 +85,18 @@ def main():
         model.to_gpu()
     optimizer = chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9)
     optimizer.setup(model)
-    optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
+    optimizer.add_hook(chainer.optimizer.WeightDecay(rate=args.weight_decay))
+
+    if args.model == 'resnet101':
+        for p in model.params():
+            # Do not update batch normalization layers.
+            if p.name == 'gamma':
+                p.update_rule.enabled = False
+            elif p.name == 'beta':
+                p.update_rule.enabled = False
+        # Do not update for the first two blocks.
+        model.faster_rcnn.extractor.resnet.conv1.disable_update()
+        model.faster_rcnn.extractor.resnet.res2.disable_update()
 
     train_data = TransformDataset(train_data, Transform(faster_rcnn))
 

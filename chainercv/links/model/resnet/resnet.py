@@ -23,7 +23,7 @@ except ImportError:
 # RGB order
 # This is channel wise mean of mean image distributed at
 # https://github.com/KaimingHe/deep-residual-networks
-_imagenet_mean = np.array(
+imagenet_he_mean = np.array(
     [123.15163084, 115.90288257, 103.0626238],
     dtype=np.float32)[:, np.newaxis, np.newaxis]
 
@@ -121,7 +121,7 @@ class ResNet(PickableSequentialChain):
                     'url': 'https://github.com/yuyu2172/share-weights/'
                     'releases/download/0.0.6/'
                     'resnet50_imagenet_convert_2018_03_07.npz',
-                    'mean': _imagenet_mean
+                    'mean': imagenet_he_mean
                 },
             },
             101: {
@@ -130,7 +130,7 @@ class ResNet(PickableSequentialChain):
                     'url': 'https://github.com/yuyu2172/share-weights/'
                     'releases/download/0.0.6/'
                     'resnet101_imagenet_convert_2018_03_07.npz',
-                    'mean': _imagenet_mean
+                    'mean': imagenet_he_mean
                 },
             },
             152: {
@@ -139,7 +139,7 @@ class ResNet(PickableSequentialChain):
                     'url': 'https://github.com/yuyu2172/share-weights/'
                     'releases/download/0.0.6/'
                     'resnet152_imagenet_convert_2018_03_07.npz',
-                    'mean': _imagenet_mean
+                    'mean': imagenet_he_mean
                 },
             }
         }
@@ -174,7 +174,7 @@ class ResNet(PickableSequentialChain):
             if pretrained_model in _models:
                 mean = _models[pretrained_model]['mean']
             else:
-                mean = _imagenet_mean
+                mean = imagenet_he_mean
         self.mean = mean
 
         if initialW is None:
