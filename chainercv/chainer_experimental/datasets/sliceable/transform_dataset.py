@@ -8,11 +8,12 @@ class TransformDataset(GetterDataset):
     values.
 
     Hew is an example.
+
     >>> def transfrom(in_data):
     >>>     img, bbox, label = in_data
     >>>     ...
     >>>     return new_img, new_label
-
+    >>>
     >>> dataset = TramsformDataset(dataset, ('img', 'label'), transform)
     >>> dataset.keys  # ('img', 'label')
 

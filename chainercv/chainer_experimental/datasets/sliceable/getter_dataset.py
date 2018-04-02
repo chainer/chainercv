@@ -13,29 +13,31 @@ class GetterDataset(SliceableDataset):
 
     This ia a dataset class with getters.
 
+    Here is an example.
+
     >>> class SliceableLabeledImageDataset(GetterDataset):
     >>>     def __init__(self, pairs, root='.'):
     >>>         super().__init__()
     >>>         with open(pairs) as f:
     >>>             self._pairs = [l.split() for l in f]
     >>>         self._root = root
-
+    >>>
     >>>         self.add_getter('image', self.get_image)
     >>>         self.add_getter('label', self.get_label)
-
+    >>>
     >>>     def __len__(self):
     >>>         return len(self._pairs)
-
+    >>>
     >>>     def get_image(self, i):
     >>>         path, _ = self._pairs[i]
     >>>         return read_image(os.path.join(self._root, path))
-
+    >>>
     >>>     def get_label(self, i):
     >>>         _, label = self._pairs[i]
     >>>         return np.int32(label)
-
+    >>
     >>> dataset = SliceableLabeledImageDataset('list.txt')
-
+    >>>
     >>> # get a subset with label = 0, 1, 2
     >>> # no images are loaded
     >>> indices = [i for i, label in

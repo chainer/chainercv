@@ -15,15 +15,16 @@ class TupleDataset(SliceableDataset):
     """A sliceable version of :class:`chainer.datasets.TupleDataset`.
 
     Hew is an example.
+
     >>> # omit keys
     >>> dataset = TupleDataset([0, 1, 2], [0, 1, 4])
     >>> dataset.keys)  # (None, None)
     >>> dataset.slice[:, 0][:]  # [0, 1, 2]
-
+    >>>
     >>> dataset_more = TupleDataset(dataset, [0, 1, 8])
     >>> dataset_more.keys  # (None, None, None)
     >>> dataset_more.slice[:, [1, 2]][:])  # [(0, 0), (1, 1), (4, 8)]
-
+    >>>
     >>> # specify the name of a key
     >>> named_dataset = TupleDataset(('feat0', [0, 1, 2]), [0, 1, 4])
     >>> named_dataset.keys)  # ('feat0', None)

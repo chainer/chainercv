@@ -1,9 +1,9 @@
 Sliceable
 =========
 This module support sliceable feature.
-.. seealso:: https://github.com/chainer/chainercv/pull/454
 
-.. module:: chainercv.chainer_experimental.links.model.vgg
+.. seealso:: https://github.com/chainer/chainercv/pull/454
+.. module:: chainercv.chainer_experimental.datasets.sliceable
 
 
 ConcatenatedDataset
