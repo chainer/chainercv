@@ -1,6 +1,8 @@
 Sliceable
 =========
 This module support sliceable feature.
+Please note that this module will be removed after Chainer implements sliceable feature.
+
 
 .. seealso:: https://github.com/chainer/chainercv/pull/454
 .. module:: chainercv.chainer_experimental.datasets.sliceable
