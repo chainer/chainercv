@@ -4,6 +4,18 @@ from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 class TransformDataset(GetterDataset):
     """A sliceable version of :class:`chainer.datasets.TransformDataset`.
 
+    Note that it reuqires :obj:`keys` to determine the names of returned
+    values.
+
+    Hew is an example.
+    >>> def transfrom(in_data):
+    >>>     img, bbox, label = in_data
+    >>>     ...
+    >>>     return new_img, new_label
+
+    >>> dataset = TramsformDataset(dataset, ('img', 'label'), transform)
+    >>> dataset.keys  # ('img', 'label')
+
     Args:
         dataset: The underlying dataset.
             This dataset should have :meth:`__len__` and :meth:`__getitem__`.
