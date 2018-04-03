@@ -3,11 +3,12 @@ from __future__ import division
 import numpy as np
 
 from chainercv.visualizations.colormap import voc_colormap
+from chainercv.utils.mask.mask_to_bbox import mask_to_bbox
 
 
 def vis_instance_segmentation(
-        img, bbox, mask, label=None, score=None, label_names=None,
-        colors=None, alpha=0.7, show_bbox=False, ax=None):
+        img, mask, label=None, score=None, bbox=None, label_names=None,
+        colors=None, alpha=0.7, ax=None):
     """Visualize instance segmentation.
 
     Example:
@@ -20,7 +21,7 @@ def vis_instance_segmentation(
         >>> dataset = SBDInstanceSegmentationDataset()
         >>> img, bbox, mask, label = dataset[0]
         >>> vis_instance_segmentation(
-        ...     img, bbox, mask, label,
+        ...     img, mask, label, bbox=bbox,
         ...     label_names=sbd_instance_segmentation_label_names)
         >>> plot.show()
 
@@ -28,10 +29,6 @@ def vis_instance_segmentation(
         img (~numpy.ndarray): An array of shape :math:`(3, H, W)`.
             This is in RGB format and the range of its value is
             :math:`[0, 255]`.
-        bbox (~numpy.ndarray): A float array of shape :math:`(R, 4)`.
-            :math:`R` is the number of objects in the image, and each
-            vector represents a bounding box of an object.
-            The bounding box is :math:`(y_min, x_min, y_max, x_max)`.
         mask (~numpy.ndarray): A bool array of shape
             :math`(R, H, W)`.
             If there is an object, the value of the pixel is :obj:`True`,
@@ -39,6 +36,15 @@ def vis_instance_segmentation(
         label (~numpy.ndarray): An integer array of shape :math:`(R, )`.
             The values correspond to id for label names stored in
             :obj:`label_names`.
+        score (~numpy.ndarray): A float array of shape :math:`(R,)`.
+             Each value indicates how confident the prediction is.
+             This is optional.
+        bbox (~numpy.ndarray): A float array of shape :math:`(R, 4)`.
+            :math:`R` is the number of objects in the image, and each
+            vector represents a bounding box of an object.
+            The bounding box is :math:`(y_min, x_min, y_max, x_max)`.
+            This value is optional, and no bounding boxes are displayed
+            if this is not given.
         label_names (iterable of strings): Name of labels ordered according
             to label ids.
         colors: (iterable of tuple): List of colors.
@@ -51,8 +57,6 @@ def vis_instance_segmentation(
             value is :obj:`0`, the figure will be completely transparent.
             The default value is :obj:`0.7`. This option is useful for
             overlaying the label on the source image.
-        show_bbox (bool): Decide whether to show bounding boxes.
-            The default value is :obj:`False`.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
 
@@ -65,6 +69,12 @@ def vis_instance_segmentation(
     if ax is None:
         fig = plot.figure()
         ax = fig.add_subplot(1, 1, 1)
+
+    if bbox is None:
+        show_bbox = False
+        bbox = mask_to_bbox(mask)
+    else:
+        show_bbox = True
 
     if len(bbox) != len(mask):
         raise ValueError('The length of mask must be same as that of bbox')
