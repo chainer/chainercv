@@ -25,7 +25,7 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
 
     Example:
 
-        We construct a siaemse dataset from MNIST.
+        We construct a siamese dataset from MNIST.
 
         .. code::
 

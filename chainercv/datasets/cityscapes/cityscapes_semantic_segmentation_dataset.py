@@ -30,10 +30,11 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
         split ({'train', 'val'}): Select from dataset splits used in
             Cityscapes dataset.
         ignore_labels (bool): If :obj:`True`, the labels marked
-            :obj:`ignoreInEval` defined in the original
-            `cityscapesScripts<https://github.com/mcordts/cityscapesScripts>_`
+            :obj:`ignoreInEval` defined in the original `cityscapesScripts`_
             will be replaced with :obj:`-1` in the :meth:`get_example` method.
             The default value is :obj:`True`.
+
+    .. _`cityscapesScripts`: https://github.com/mcordts/cityscapesScripts
 
     """
 

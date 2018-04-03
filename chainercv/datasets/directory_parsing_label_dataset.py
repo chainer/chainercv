@@ -104,7 +104,7 @@ class DirectoryParsingLabelDataset(chainer.dataset.DatasetMixin):
         check_img_file (callable): A function to determine
             if a file should be included in the dataset.
         color (bool): If :obj:`True`, this dataset read images
-            as color images.
+            as color images. The default value is :obj:`True`.
         numerical_sort (bool): Label names are sorted numerically.
             This means that label :obj:`2` is before label :obj:`10`,
             which is not the case when string sort is used.

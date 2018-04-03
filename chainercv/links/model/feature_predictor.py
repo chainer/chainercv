@@ -47,7 +47,7 @@ class FeaturePredictor(chainer.Chain):
         crop_size (int or tuple): The height and the width of an image after
             cropping in preprocessing.
             If this is an integer, the image is cropped to
-            :math:`(crop_size, crop_size)`.
+            :math:`(crop\_size, crop\_size)`.
         scale_size (int or tuple): If :obj:`scale_size` is :obj:`None`,
             neither scaling nor resizing is conducted during preprocessing.
             This is the default behavior.

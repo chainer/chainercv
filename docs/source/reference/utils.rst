@@ -64,6 +64,13 @@ unzip
 .. autofunction:: unzip
 
 
+Mask Utilities
+--------------
+
+mask_iou
+~~~~~~~~
+.. autofunction:: mask_iou
+
 Testing Utilities
 -----------------
 
