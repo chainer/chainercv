@@ -18,14 +18,14 @@ from chainercv.utils import mask_to_bbox
           [False, True, True, True]
           ]]),
      'expected': np.array([[1, 1, 3, 4]], dtype=np.float32)
-    },
+     },
     {'mask': np.array(
         [[[False, False],
           [False, True]],
          [[True, False],
           [False, True]]]),
      'expected': np.array([[1, 1, 2, 2], [0, 0, 2, 2]], dtype=np.float32)
-    },
+     },
 )
 class TestMaskToBbox(unittest.TestCase):
 
@@ -37,11 +37,11 @@ class TestMaskToBbox(unittest.TestCase):
             cuda.to_cpu(bbox),
             cuda.to_cpu(expected))
 
-    def test_mask_to_bbox(self):
+    def test_mask_to_bbox_cpu(self):
         self.check(self.mask, self.expected)
 
     @attr.gpu
-    def test_mask_to_bbox(self):
+    def test_mask_to_bbox_gpu(self):
         self.check(
             cuda.to_gpu(self.mask),
             cuda.to_gpu(self.expected))
