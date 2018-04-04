@@ -37,16 +37,15 @@ def assert_is_instance_segmentation_dataset(
 
 
 def _check_example(example, n_fg_class):
-    assert len(example) >= 4, \
+    assert len(example) >= 3, \
         'Each example must have at least four elements:' \
-        'img, bbox, mask and label.'
+        'img, mask and label.'
 
-    img, bbox, mask, label = example[:4]
+    img, mask, label = example[:3]
 
     assert_is_image(img, color=True)
     _, H, W = img.shape
-    assert_is_bbox(bbox, size=(H, W))
-    R = bbox.shape[0]
+    R = mask.shape[0]
 
     assert isinstance(mask, np.ndarray), \
         'mask must be a numpy.ndarray.'
