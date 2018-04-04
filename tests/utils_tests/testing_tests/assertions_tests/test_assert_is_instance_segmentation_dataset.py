@@ -5,7 +5,6 @@ from chainer.dataset import DatasetMixin
 from chainer import testing
 
 from chainercv.utils import assert_is_instance_segmentation_dataset
-from chainercv.utils import generate_random_bbox
 
 
 class InstanceSegmentationDataset(DatasetMixin):
