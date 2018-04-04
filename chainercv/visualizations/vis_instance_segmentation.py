@@ -2,8 +2,8 @@ from __future__ import division
 
 import numpy as np
 
-from chainercv.visualizations.colormap import voc_colormap
 from chainercv.utils.mask.mask_to_bbox import mask_to_bbox
+from chainercv.visualizations.colormap import voc_colormap
 
 
 def vis_instance_segmentation(

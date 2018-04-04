@@ -1,5 +1,5 @@
-import numpy as np
 from chainer import cuda
+import numpy as np
 
 
 def mask_to_bbox(mask):
