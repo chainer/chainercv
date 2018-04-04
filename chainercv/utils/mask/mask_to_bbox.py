@@ -1,8 +1,12 @@
+import numpy as np
 from chainer import cuda
 
 
 def mask_to_bbox(mask):
     """Compute the bounding boxes around the masked region.
+
+    This function accepts both :obj:`numpy.ndarray` and :obj:`cupy.ndarray` as
+    inputs.
 
     Args:
         mask (array): An array whose shape is :math:`(N, H, W)`.
@@ -19,25 +23,13 @@ def mask_to_bbox(mask):
     _, H, W = mask.shape
     xp = cuda.get_array_module(mask)
 
-    valid_y = xp.any(mask, axis=1)
-    y_mins = xp.argmax(mask, axis=1).astype(xp.float32)
-    y_mins[xp.logical_not(valid_y)] = xp.inf
-    y_min = xp.min(y_mins, axis=1)
+    # CuPy does not support argwhere yet
+    mask = cuda.to_cpu(mask)
 
-    valid_x = xp.any(mask, axis=2)
-    x_mins = xp.argmax(mask, axis=2).astype(xp.float32)
-    x_mins[xp.logical_not(valid_x)] = xp.inf
-    x_min = xp.min(x_mins, axis=1)
-
-    flipped_mask = mask[:, ::-1, ::-1]
-
-    valid_y = xp.any(flipped_mask, axis=1)
-    y_maxs = H - xp.argmax(flipped_mask, axis=1).astype(xp.float32)
-    y_maxs[xp.logical_not(valid_y)] = -xp.inf
-    y_max = xp.max(y_maxs, axis=1)
-
-    valid_x = xp.any(flipped_mask, axis=2)
-    x_maxs = W - xp.argmax(flipped_mask, axis=2).astype(xp.float32)
-    x_maxs[xp.logical_not(valid_x)] = -xp.inf
-    x_max = xp.max(x_maxs, axis=1)
-    return xp.stack((y_min, x_min, y_max, x_max), axis=1)
+    bbox = []
+    for msk in mask:
+        where = np.argwhere(msk)
+        y_min, x_min = where.min(0)
+        y_max, x_max = where.max(0) + 1
+        bbox.append((y_min, x_min, y_max, x_max))
+    return xp.array(bbox)
