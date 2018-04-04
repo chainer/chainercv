@@ -7,7 +7,7 @@ from chainercv.utils.mask.mask_to_bbox import mask_to_bbox
 
 
 def vis_instance_segmentation(
-        img, mask, label=None, score=None, bbox=None, label_names=None,
+        img, mask, label=None, score=None, label_names=None,
         colors=None, alpha=0.7, ax=None):
     """Visualize instance segmentation.
 
@@ -19,9 +19,9 @@ def vis_instance_segmentation(
         >>> from chainercv.visualizations import vis_instance_segmentation
         >>> import matplotlib.pyplot as plot
         >>> dataset = SBDInstanceSegmentationDataset()
-        >>> img, bbox, mask, label = dataset[0]
+        >>> img, mask, label = dataset[0]
         >>> vis_instance_segmentation(
-        ...     img, mask, label, bbox=bbox,
+        ...     img, mask, label,
         ...     label_names=sbd_instance_segmentation_label_names)
         >>> plot.show()
 
@@ -39,12 +39,6 @@ def vis_instance_segmentation(
         score (~numpy.ndarray): A float array of shape :math:`(R,)`.
              Each value indicates how confident the prediction is.
              This is optional.
-        bbox (~numpy.ndarray): A float array of shape :math:`(R, 4)`.
-            :math:`R` is the number of objects in the image, and each
-            vector represents a bounding box of an object.
-            The bounding box is :math:`(y_min, x_min, y_max, x_max)`.
-            This value is optional, and no bounding boxes are displayed
-            if this is not given.
         label_names (iterable of strings): Name of labels ordered according
             to label ids.
         colors: (iterable of tuple): List of colors.
@@ -70,11 +64,7 @@ def vis_instance_segmentation(
         fig = plot.figure()
         ax = fig.add_subplot(1, 1, 1)
 
-    if bbox is None:
-        show_bbox = False
-        bbox = mask_to_bbox(mask)
-    else:
-        show_bbox = True
+    bbox = mask_to_bbox(mask)
 
     if len(bbox) != len(mask):
         raise ValueError('The length of mask must be same as that of bbox')
@@ -97,13 +87,6 @@ def vis_instance_segmentation(
         y_min, x_min, y_max, x_max = bb
         if y_max > y_min and x_max > x_min:
             canvas_img[msk] = alpha * color + canvas_img[msk] * (1 - alpha)
-
-            if show_bbox:
-                ax.add_patch(
-                    plot.Rectangle(
-                        (x_min, y_min), x_max - x_min, y_max - y_min,
-                        fill=False, edgecolor=color / 255, linewidth=0.5,
-                        alpha=alpha))
 
         caption = []
         if label is not None and label_names is not None:

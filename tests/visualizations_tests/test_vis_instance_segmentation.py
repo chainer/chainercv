@@ -3,7 +3,6 @@ import unittest
 
 from chainer import testing
 
-from chainercv.utils import generate_random_bbox
 from chainercv.visualizations import vis_instance_segmentation
 
 try:
@@ -47,7 +46,7 @@ except ImportError:
         'label_names': ('c0', 'c1', 'c2')},
     {
         'n_bbox': 3, 'label': (0, 1, 2), 'score': (0, 0.5, 1),
-        'label_names': ('c0', 'c1', 'c2'), 'show_bbox': True},
+        'label_names': ('c0', 'c1', 'c2')},
 )
 class TestVisInstanceSegmentation(unittest.TestCase):
 
@@ -61,18 +60,13 @@ class TestVisInstanceSegmentation(unittest.TestCase):
             self.score = np.array(self.score)
         if not hasattr(self, 'colors'):
             self.colors = None
-        if hasattr(self, 'show_bbox'):
-            self.bbox = generate_random_bbox(self.n_bbox, (48, 32), 8, 16)
-        else:
-            self.bbox = None
-
 
     def test_vis_instance_segmentation(self):
         if not optional_modules:
             return
 
         ax = vis_instance_segmentation(
-            self.img, self.mask, self.label, self.score, self.bbox,
+            self.img, self.mask, self.label, self.score,
             label_names=self.label_names, colors=self.colors)
 
         self.assertIsInstance(ax, matplotlib.axes.Axes)
@@ -104,7 +98,6 @@ class TestVisInstanceSegmentationInvalidInputs(unittest.TestCase):
 
     def setUp(self):
         self.img = np.random.randint(0, 255, size=(3, 32, 48))
-        self.bbox = np.random.uniform(size=(self.n_bbox, 4))
         self.mask = np.random.randint(
             0, 2, size=(self.n_bbox, 32, 48), dtype=bool)
         if self.label is not None:
@@ -118,7 +111,7 @@ class TestVisInstanceSegmentationInvalidInputs(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             vis_instance_segmentation(
-                self.img, self.mask, self.label, self.score, self.bbox,
+                self.img, self.mask, self.label, self.score,
                 label_names=self.label_names)
 
 
