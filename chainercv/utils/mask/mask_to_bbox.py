@@ -3,20 +3,21 @@ import numpy as np
 
 
 def mask_to_bbox(mask):
-    """Compute the bounding boxes around the masked region.
+    """Compute the bounding boxes around the masked regions.
 
     This function accepts both :obj:`numpy.ndarray` and :obj:`cupy.ndarray` as
     inputs.
 
     Args:
-        mask (array): An array whose shape is :math:`(N, H, W)`.
-            :math:`N` is the number of masks.
+        mask (array): An array whose shape is :math:`(R, H, W)`.
+            :math:`R` is the number of masks.
             The dtype should be :obj:`numpy.bool`.
 
     Returns:
         array:
-        An array whose shape is :math:`(N, 4)`.
-        :math:`N` is the number of bounding boxes.
+        The bounding boxes around the masked regions.
+        This is an array whose shape is :math:`(R, 4)`.
+        :math:`R` is the number of bounding boxes.
         The dtype should be :obj:`numpy.float32`.
 
     """
