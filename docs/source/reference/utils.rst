@@ -51,9 +51,9 @@ write_image
 Iterator Utilities
 ------------------
 
-apply_prediction_to_iterator
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: apply_prediction_to_iterator
+apply_to_iterator
+~~~~~~~~~~~~~~~~~
+.. autofunction:: apply_to_iterator
 
 ProgressHook
 ~~~~~~~~~~~~
@@ -63,6 +63,13 @@ unzip
 ~~~~~
 .. autofunction:: unzip
 
+
+Mask Utilities
+--------------
+
+mask_iou
+~~~~~~~~
+.. autofunction:: mask_iou
 
 Testing Utilities
 -----------------
@@ -82,6 +89,10 @@ assert_is_detection_link
 assert_is_image
 ~~~~~~~~~~~~~~~
 .. autofunction:: assert_is_image
+
+assert_is_instance_segmentation_dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: assert_is_instance_segmentation_dataset
 
 assert_is_label_dataset
 ~~~~~~~~~~~~~~~~~~~~~~~

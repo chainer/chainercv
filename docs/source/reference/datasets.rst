@@ -14,6 +14,14 @@ directory_parsing_label_names
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: directory_parsing_label_names
 
+MixUpSoftLabelDataset
+~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: MixUpSoftLabelDataset
+
+SiameseDataset
+~~~~~~~~~~~~~~
+.. autoclass:: SiameseDataset
+
 ADE20K
 ------
 
@@ -70,6 +78,18 @@ VOCBboxDataset
 ~~~~~~~~~~~~~~
 .. autoclass:: VOCBboxDataset
 
+VOCInstanceSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: VOCInstanceSegmentationDataset
+
 VOCSemanticSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: VOCSemanticSegmentationDataset
+
+
+Semantic Boundaries Dataset
+---------------------------
+
+SBDInstanceSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: SBDInstanceSegmentationDataset
