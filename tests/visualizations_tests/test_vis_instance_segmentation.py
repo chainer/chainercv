@@ -47,11 +47,17 @@ except ImportError:
     {
         'n_bbox': 3, 'label': (0, 1, 2), 'score': (0, 0.5, 1),
         'label_names': ('c0', 'c1', 'c2')},
+    {
+        'n_bbox': 3, 'label': (0, 1, 2), 'score': (0, 0.5, 1),
+        'label_names': ('c0', 'c1', 'c2'), 'no_img': False},
 )
 class TestVisInstanceSegmentation(unittest.TestCase):
 
     def setUp(self):
-        self.img = np.random.randint(0, 255, size=(3, 32, 48))
+        if hasattr(self, 'no_img'):
+            self.img = None
+        else:
+            self.img = np.random.randint(0, 255, size=(3, 32, 48))
         self.mask = np.random.randint(
             0, 2, size=(self.n_bbox, 32, 48), dtype=bool)
         if self.label is not None:

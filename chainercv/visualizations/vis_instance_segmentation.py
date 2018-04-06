@@ -4,6 +4,7 @@ import numpy as np
 
 from chainercv.utils.mask.mask_to_bbox import mask_to_bbox
 from chainercv.visualizations.colormap import voc_colormap
+from chainercv.visualizations import vis_image
 
 
 def vis_instance_segmentation(
@@ -28,7 +29,7 @@ def vis_instance_segmentation(
     Args:
         img (~numpy.ndarray): An array of shape :math:`(3, H, W)`.
             This is in RGB format and the range of its value is
-            :math:`[0, 255]`.
+            :math:`[0, 255]`. If this is :obj:`None`, no image is displayed.
         mask (~numpy.ndarray): A bool array of shape
             :math`(R, H, W)`.
             If there is an object, the value of the pixel is :obj:`True`,
@@ -59,10 +60,8 @@ def vis_instance_segmentation(
         :obj:`ax` is an :class:`matploblib.axes.Axes` with the plot.
 
     """
-    from matplotlib import pyplot as plot
-    if ax is None:
-        fig = plot.figure()
-        ax = fig.add_subplot(1, 1, 1)
+    # Returns newly instantiated matplotlib.axes.Axes object if ax is None
+    ax = vis_image(img, ax=ax)
 
     bbox = mask_to_bbox(mask)
 
@@ -78,7 +77,8 @@ def vis_instance_segmentation(
         colors = [voc_colormap(l) for l in range(1, n_inst + 1)]
     colors = np.array(colors)
 
-    canvas_img = img.transpose((1, 2, 0)).copy()
+    _, H, W = mask.shape
+    canvas_img = np.zeros((H, W, 3), dtype=np.uint8)
     for i, (bb, msk) in enumerate(zip(bbox, mask)):
         # The length of `colors` can be smaller than the number of instances
         # if a non-default `colors` is used.
@@ -86,7 +86,7 @@ def vis_instance_segmentation(
         bb = np.round(bb).astype(np.int32)
         y_min, x_min, y_max, x_max = bb
         if y_max > y_min and x_max > x_min:
-            canvas_img[msk] = alpha * color + canvas_img[msk] * (1 - alpha)
+            canvas_img[msk] = color
 
         caption = []
         if label is not None and label_names is not None:
@@ -104,6 +104,8 @@ def vis_instance_segmentation(
                     style='italic',
                     bbox={'facecolor': color / 255, 'alpha': alpha},
                     fontsize=8, color='white')
-
-    ax.imshow(canvas_img.astype(np.uint8))
+ 
+    alpha_img = alpha * 255 * np.ones((H, W, 1), dtype=np.uint8)
+    canvas_img = np.concatenate((canvas_img, alpha_img), axis=2)
+    ax.imshow(canvas_img)
     return ax
