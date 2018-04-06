@@ -78,15 +78,16 @@ def vis_instance_segmentation(
     colors = np.array(colors)
 
     _, H, W = mask.shape
-    canvas_img = np.zeros((H, W, 3), dtype=np.uint8)
+    canvas_img = np.zeros((H, W, 4), dtype=np.uint8)
     for i, (bb, msk) in enumerate(zip(bbox, mask)):
         # The length of `colors` can be smaller than the number of instances
         # if a non-default `colors` is used.
         color = colors[i % len(colors)]
+        rgba = np.append(color, alpha * 255)
         bb = np.round(bb).astype(np.int32)
         y_min, x_min, y_max, x_max = bb
         if y_max > y_min and x_max > x_min:
-            canvas_img[msk] = color
+            canvas_img[msk] = rgba
 
         caption = []
         if label is not None and label_names is not None:
@@ -104,8 +105,6 @@ def vis_instance_segmentation(
                     style='italic',
                     bbox={'facecolor': color / 255, 'alpha': alpha},
                     fontsize=8, color='white')
- 
-    alpha_img = (alpha * 255 * np.ones((H, W, 1))).astype(np.uint8)
-    canvas_img = np.concatenate((canvas_img, alpha_img), axis=2)
+
     ax.imshow(canvas_img)
     return ax
