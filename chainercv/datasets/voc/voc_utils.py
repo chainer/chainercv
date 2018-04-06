@@ -39,7 +39,6 @@ def get_voc(year, split):
 
 
 def image_wise_to_instance_wise(label_img, inst_img):
-    bbox = []
     mask = []
     label = []
     inst_ids = np.unique(inst_img)
@@ -50,16 +49,11 @@ def image_wise_to_instance_wise(label_img, inst_img):
         assert inst_id != -1
         assert lbl != -1
 
-        where = np.argwhere(msk)
-        (y_min, x_min), (y_max, x_max) = where.min(0), where.max(0) + 1
-
-        bbox.append((y_min, x_min, y_max, x_max))
         mask.append(msk)
         label.append(lbl)
-    bbox = np.array(bbox).astype(np.float32)
     mask = np.array(mask).astype(np.bool)
     label = np.array(label).astype(np.int32)
-    return bbox, mask, label
+    return mask, label
 
 
 voc_bbox_label_names = (

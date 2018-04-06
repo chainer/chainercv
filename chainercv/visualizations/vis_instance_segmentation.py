@@ -105,7 +105,7 @@ def vis_instance_segmentation(
                     bbox={'facecolor': color / 255, 'alpha': alpha},
                     fontsize=8, color='white')
  
-    alpha_img = alpha * 255 * np.ones((H, W, 1), dtype=np.uint8)
+    alpha_img = (alpha * 255 * np.ones((H, W, 1))).astype(np.uint8)
     canvas_img = np.concatenate((canvas_img, alpha_img), axis=2)
     ax.imshow(canvas_img)
     return ax

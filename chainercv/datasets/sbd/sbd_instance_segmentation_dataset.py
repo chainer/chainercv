@@ -70,12 +70,12 @@ class SBDInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
             i (int): The index of the example.
 
         Returns:
-            A tuple of color image, bounding boxes, masks and labels whose
-            shapes are :math:`(3, H, W), (R, 4), (R, H, W), (R, )`
+            A tuple of color image, masks and labels whose
+            shapes are :math:`(3, H, W), (R, H, W), (R, )`
             respectively.
             :math:`H` and :math:`W` are height and width of the images,
             and :math:`R` is the number of objects in the image.
-            The dtype of the color image and the bounding boxes are
+            The dtype of the color image is
             :obj:`numpy.float32`, that of the masks is :obj: `numpy.bool`,
             and that of the labels is :obj:`numpy.int32`.
 
@@ -85,9 +85,9 @@ class SBDInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
             self.data_dir, 'img', data_id + '.jpg')
         img = read_image(img_file, color=True)
         label_img, inst_img = self._load_label_inst(data_id)
-        bbox, mask, label = voc_utils.image_wise_to_instance_wise(
+        mask, label = voc_utils.image_wise_to_instance_wise(
             label_img, inst_img)
-        return img, bbox, mask, label
+        return img, mask, label
 
     def _load_label_inst(self, data_id):
         label_file = os.path.join(
