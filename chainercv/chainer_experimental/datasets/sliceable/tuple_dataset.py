@@ -14,7 +14,7 @@ def _as_tuple(t):
 class TupleDataset(SliceableDataset):
     """A sliceable version of :class:`chainer.datasets.TupleDataset`.
 
-    Hew is an example.
+    Here is an example.
 
     >>> # omit keys
     >>> dataset = TupleDataset([0, 1, 2], [0, 1, 4])
@@ -28,12 +28,12 @@ class TupleDataset(SliceableDataset):
     >>> # specify the name of a key
     >>> named_dataset = TupleDataset(('feat0', [0, 1, 2]), [0, 1, 4])
     >>> named_dataset.keys)  # ('feat0', None)
-    >> # slice takes both key and index (or their mixture)
+    >>> # slice takes both key and index (or their mixture)
     >>> named_dataset.slice[:, ['feat0', 1]][:])  # [(0, 0), (1, 1), (2, 4)]
 
     Args:
         datasets: The underlying datasets.
-            Following datasets are acceptable.
+            The following datasets are acceptable.
 
             * An inheritance of \
                 :class:~chainer.datasets.sliceable.SliceableDataset`.

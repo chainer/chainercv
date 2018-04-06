@@ -7,7 +7,7 @@ class TransformDataset(GetterDataset):
     Note that it reuqires :obj:`keys` to determine the names of returned
     values.
 
-    Hew is an example.
+    Here is an example.
 
     >>> def transfrom(in_data):
     >>>     img, bbox, label = in_data

@@ -17,6 +17,11 @@ class SliceableDataset(chainer.dataset.DatasetMixin):
     A dataset class inheriting this class should implement
     three methods: :meth:`__len__`, :meth:`keys`, and
     :meth:`get_example_by_keys`.
+
+    Users can easily create sliceable datasets using
+    :class:`~chainercv.chainer_experimental.datasets.sliceable.GetterDataset`
+    or
+    :class:`~chainercv.chainer_experimental.datasets.sliceable.TupleDataset`.
     """
 
     def __len__(self):

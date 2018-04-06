@@ -9,7 +9,7 @@ def _as_tuple(t):
 
 
 class GetterDataset(SliceableDataset):
-    """A sliceable dataset class that defined by getters.
+    """A sliceable dataset class that is defined with getters.
 
     This ia a dataset class with getters.
 
@@ -35,13 +35,13 @@ class GetterDataset(SliceableDataset):
     >>>     def get_label(self, i):
     >>>         _, label = self._pairs[i]
     >>>         return np.int32(label)
-    >>
+    >>>
     >>> dataset = SliceableLabeledImageDataset('list.txt')
     >>>
     >>> # get a subset with label = 0, 1, 2
     >>> # no images are loaded
     >>> indices = [i for i, label in
-    >>> enumerate(dataset.slice[:, 'label']) if label in {0, 1, 2}]
+    >>>            enumerate(dataset.slice[:, 'label']) if label in {0, 1, 2}]
     >>> dataset_012 = dataset.slice[indices]
     """
 
