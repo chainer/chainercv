@@ -17,7 +17,7 @@ class GetterDataset(SliceableDataset):
 
     >>> class SliceableLabeledImageDataset(GetterDataset):
     >>>     def __init__(self, pairs, root='.'):
-    >>>         super().__init__()
+    >>>         super(SliceableLabeledImageDataset, self).__init__()
     >>>         with open(pairs) as f:
     >>>             self._pairs = [l.split() for l in f]
     >>>         self._root = root
