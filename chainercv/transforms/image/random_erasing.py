@@ -4,6 +4,8 @@ import math
 import numpy as np
 import random
 
+from random_sized_crop import _sample_parameters
+
 
 def random_erasing(img, prob=0.5,
                    scale_ratio_range=(0.02, 0.4),
@@ -73,7 +75,7 @@ def random_erasing(img, prob=0.5,
         _, H, W = img.shape
         scale_ratio, aspect_ratio =\
             _sample_parameters(
-                (H, W), scale_ratio_range, aspect_ratio_range)
+                (H, W), scale_ratio_range, aspect_ratio_range, trial=100)
 
         H_crop = int(math.floor(np.sqrt(scale_ratio * H * W * aspect_ratio)))
         W_crop = int(math.floor(np.sqrt(scale_ratio * H * W / aspect_ratio)))
@@ -97,28 +99,3 @@ def random_erasing(img, prob=0.5,
         return img, params
     else:
         return img
-
-
-def _sample_parameters(size, scale_ratio_interval, aspect_ratio_interval):
-    H, W = size
-    for _ in range(100):
-        aspect_ratio = random.uniform(
-            aspect_ratio_interval[0], aspect_ratio_interval[1])
-        if random.uniform(0, 1) < 0.5:
-            aspect_ratio = 1 / aspect_ratio
-        # This is determined so that relationships "H - H_crop >= 0" and
-        # "W - W_crop >= 0" are always satisfied.
-        scale_ratio_max = min((scale_ratio_interval[1],
-                               H / (W * aspect_ratio),
-                               (aspect_ratio * W) / H))
-
-        scale_ratio = random.uniform(
-            scale_ratio_interval[0], scale_ratio_interval[1])
-        if scale_ratio_interval[0] <= scale_ratio <= scale_ratio_max:
-            return scale_ratio, aspect_ratio
-
-    # This scale_ratio is outside the given interval when
-    # scale_ratio_max < scale_ratio_interval[0].
-    scale_ratio = random.uniform(
-        min((scale_ratio_interval[0], scale_ratio_max)), scale_ratio_max)
-    return scale_ratio, aspect_ratio
