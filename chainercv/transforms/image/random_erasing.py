@@ -86,7 +86,7 @@ def random_erasing(img, prob=0.5,
         y_slice = slice(y_start, y_start + H_crop)
         x_slice = slice(x_start, x_start + W_crop)
 
-        img[:, y_slice, x_slice] = mean
+        img[:, y_slice, x_slice] = mean[:, None, None]
     else:
         y_slice = None
         x_slice = None
