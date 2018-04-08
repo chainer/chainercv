@@ -29,16 +29,17 @@ class TestRandomErasing(unittest.TestCase):
         scale_ratio = params['scale_ratio']
         aspect_ratio = params['aspect_ratio']
 
-        self.assertTrue(
-            (aspect_ratio_interval[0] <= aspect_ratio) and
-            (aspect_ratio <= aspect_ratio_interval[1]))
-        self.assertTrue(
-            scale_ratio <= scale_ratio_interval[1])
-        scale_ratio_max = min((scale_ratio_interval[1],
-                               self.H / (self.W * aspect_ratio),
-                               (aspect_ratio * self.W) / self.H))
-        self.assertTrue(
-            min((scale_ratio_max, scale_ratio_interval[0])) <= scale_ratio)
+        if scale_ratio is not None:
+            self.assertTrue(
+                (aspect_ratio_interval[0] <= aspect_ratio) and
+                (aspect_ratio <= aspect_ratio_interval[1]))
+            self.assertTrue(
+                scale_ratio <= scale_ratio_interval[1])
+            scale_ratio_max = min((scale_ratio_interval[1],
+                                   self.H / (self.W * aspect_ratio),
+                                   (aspect_ratio * self.W) / self.H))
+            self.assertTrue(
+                min((scale_ratio_max, scale_ratio_interval[0])) <= scale_ratio)
 
 
 testing.run_module(__name__, __file__)
