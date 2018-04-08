@@ -21,7 +21,7 @@ class TestRandomErasing(unittest.TestCase):
         prob = 0.5
         scale_ratio_interval = (0.02, 4)
         aspect_ratio_interval = (0.3, 1 / 0.3)
-        mean = [0.4914, 0.4822, 0.4465]
+        mean = np.array((0.4914, 0.4822, 0.4465))
         out, params = random_erasing(img, prob, scale_ratio_interval,
                                      aspect_ratio_interval, mean,
                                      return_param=True)
