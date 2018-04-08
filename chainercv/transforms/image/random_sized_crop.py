@@ -101,9 +101,10 @@ def random_sized_crop(img,
         return img
 
 
-def _sample_parameters(size, scale_ratio_interval, aspect_ratio_interval):
+def _sample_parameters(size, scale_ratio_interval, aspect_ratio_interval,
+                       trial=10):
     H, W = size
-    for _ in range(10):
+    for _ in range(trial):
         aspect_ratio = random.uniform(
             aspect_ratio_interval[0], aspect_ratio_interval[1])
         if random.uniform(0, 1) < 0.5:
