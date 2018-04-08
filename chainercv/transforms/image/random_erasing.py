@@ -10,8 +10,7 @@ def random_erasing(img, prob=0.5,
                    aspect_ratio_range=(0.3, 1 / 0.3),
                    mean=[0.4914, 0.4822, 0.4465],
                    return_param=False, copy=False):
-    """Select a rectangle region in an image and erase its pixels with
-    ImageNet mean values.
+    """Select a rectangle region in an image and erase its pixels with mean values.
 
     The size :math:`(H_{erase}, W_{erase})` and the left top coordinate
     :math:`(y_{start}, x_{start})` of the region are calculated as follows:
@@ -70,7 +69,6 @@ def random_erasing(img, prob=0.5,
         * **aspect_ratio** (float): :math:`a` in the description.
 
     """
-
     if random.randint(0, 1) > prob:
         _, H, W = img.shape
         scale_ratio, aspect_ratio =\
