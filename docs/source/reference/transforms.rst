@@ -39,6 +39,10 @@ random_rotate
 ~~~~~~~~~~~~~
 .. autofunction:: random_rotate
 
+random_sized_crop
+~~~~~~~~~~~~~~~~~
+.. autofunction:: random_sized_crop
+
 resize
 ~~~~~~
 .. autofunction:: resize
