@@ -19,7 +19,7 @@ class TestRandomErasing(unittest.TestCase):
     def test_random_sized_crop(self):
         img = np.random.uniform(size=(3, self.H, self.W))
         prob = 0.5
-        scale_ratio_interval = (0.02, 4)
+        scale_ratio_interval = (0.02, 0.4)
         aspect_ratio_interval = (0.3, 1 / 0.3)
         mean = np.array((0.4914, 0.4822, 0.4465))
         out, params = random_erasing(img, prob, scale_ratio_interval,
