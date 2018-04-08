@@ -28,8 +28,8 @@ def random_erasing(img, prob=0.5,
         :math:`a = b` or :math:`a = \\frac{1}{b}` in 50/50 probability.
 
     Here, :math:`s_1, s_2` are the two floats in
-    :obj:`scale_ratio_interval` and :math:`a_1, a_2` are the two floats
-    in :obj:`aspect_ratio_interval`.
+    :obj:`scale_ratio_range` and :math:`a_1, a_2` are the two floats
+    in :obj:`aspect_ratio_range`.
     Also, :math:`H` and :math:`W` are the height and the width of the image.
     Note that :math:`s \\approx \\frac{H_{erase} \\times
     W_{erase}}{H \\times W}` and
@@ -41,15 +41,17 @@ def random_erasing(img, prob=0.5,
         When it fails to sample a valid scale and aspect ratio for a hundred
         times, it picks values in a non-uniform way.
         If this happens, the selected scale ratio can be smaller
-        than :obj:`scale_ratio_interval[0]`.
+        than :obj:`scale_ratio_range[0]`.
 
     Args:
         img (~numpy.ndarray): An image array. This is in CHW format.
         prob (float): Erasing probability.
-        scale_ratio_interval (tuple of two floats): Determines
+        scale_ratio_range (tuple of two floats): Determines
             the distribution from which a scale ratio is sampled.
-        aspect_ratio_interval (tuple of two floats): Determines
+        aspect_ratio_range (tuple of two floats): Determines
             the distribution from which an aspect ratio is sampled.
+        mean (list of three floats): Determines pixel values
+            to fill the rectangle region.
         return_param (bool): Returns parameters if :obj:`True`.
 
     Returns:
