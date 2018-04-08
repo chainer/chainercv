@@ -10,7 +10,7 @@ from random_sized_crop import _sample_parameters
 def random_erasing(img, prob=0.5,
                    scale_ratio_range=(0.02, 0.4),
                    aspect_ratio_range=(0.3, 1 / 0.3),
-                   mean=[0.4914, 0.4822, 0.4465],
+                   mean=np.ndarray(0.4914, 0.4822, 0.4465),
                    return_param=False, copy=False):
     """Select a rectangle region in an image and erase its pixels with mean values.
 
@@ -50,7 +50,7 @@ def random_erasing(img, prob=0.5,
             the distribution from which a scale ratio is sampled.
         aspect_ratio_range (tuple of two floats): Determines
             the distribution from which an aspect ratio is sampled.
-        mean (list of three floats): Determines pixel values
+        mean (~numpy.ndarray): Determines pixel values
             to fill the rectangle region.
         return_param (bool): Returns parameters if :obj:`True`.
 
