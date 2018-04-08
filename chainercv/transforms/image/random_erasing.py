@@ -4,7 +4,7 @@ import math
 import numpy as np
 import random
 
-from random_sized_crop import _sample_parameters
+from .random_sized_crop import _sample_parameters
 
 
 def random_erasing(img, prob=0.5,
