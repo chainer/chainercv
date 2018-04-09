@@ -76,7 +76,8 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
         height = bb[2] - bb[0]
         width = bb[3] - bb[1]
         ax.add_patch(plot.Rectangle(
-            xy, width, height, fill=False, edgecolor=colors[i % len(colors)] / 255,
+            xy, width, height,
+            fill=False, edgecolor=colors[i % len(colors)] / 255,
             linewidth=linewidth, alpha=alpha))
 
         caption = []
