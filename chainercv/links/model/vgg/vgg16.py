@@ -28,7 +28,7 @@ class VGG16(PickableSequentialChain):
 
     """VGG-16 Network.
 
-    This is a feature extraction link.
+    This is a pickable sequential link.
     The network can choose output layers from set of all
     intermediate layers.
     The attribute :obj:`pick` is the names of the layers that are going

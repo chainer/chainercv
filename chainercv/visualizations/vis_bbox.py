@@ -23,7 +23,7 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
         bbox (~numpy.ndarray): An array of shape :math:`(R, 4)`, where
             :math:`R` is the number of bounding boxes in the image.
             Each element is organized
-            by :obj:`(y_min, x_min, y_max, x_max)` in the second axis.
+            by :math:`(y_{min}, x_{min}, y_{max}, x_{max})` in the second axis.
         label (~numpy.ndarray): An integer array of shape :math:`(R,)`.
             The values correspond to id for label names stored in
             :obj:`label_names`. This is optional.
@@ -61,7 +61,7 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None, ax=None):
         ax.add_patch(plot.Rectangle(
             xy, width, height, fill=False, edgecolor='red', linewidth=3))
 
-        caption = list()
+        caption = []
 
         if label is not None and label_names is not None:
             lb = label[i]

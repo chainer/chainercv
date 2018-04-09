@@ -3,20 +3,24 @@ Datasets
 
 .. module:: chainercv.datasets
 
+General datasets
+----------------
+
 DirectoryParsingLabelDataset
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: DirectoryParsingLabelDataset
 
 directory_parsing_label_names
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: directory_parsing_label_names
 
-TransformDataset
-----------------
+MixUpSoftLabelDataset
+~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: MixUpSoftLabelDataset
 
-TransformDataset
-~~~~~~~~~~~~~~~~
-.. autoclass:: TransformDataset
+SiameseDataset
+~~~~~~~~~~~~~~
+.. autoclass:: SiameseDataset
 
 ADE20K
 ------
@@ -36,20 +40,23 @@ CamVidDataset
 ~~~~~~~~~~~~~
 .. autoclass:: CamVidDataset
 
+Cityscapes
+----------
+
+CityscapesSemanticSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: CityscapesSemanticSegmentationDataset
+
+CityscapesTestImageDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: CityscapesTestImageDataset
+
 COCO
 ----
 
 COCOBboxDataset
-~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: COCOBboxDataset
-
-CityscapesSemanticSegmentationDataset
--------------------------------------
-.. autoclass:: CityscapesSemanticSegmentationDataset
-
-CityscapesTestImageDataset
---------------------------
-.. autoclass:: CityscapesTestImageDataset
+~~~~~~~~~~~~~~~
+.. autoclass:: COCOBboxDataset
 
 CUB
 ---
@@ -78,6 +85,18 @@ VOCBboxDataset
 ~~~~~~~~~~~~~~
 .. autoclass:: VOCBboxDataset
 
+VOCInstanceSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: VOCInstanceSegmentationDataset
+
 VOCSemanticSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: VOCSemanticSegmentationDataset
+
+
+Semantic Boundaries Dataset
+---------------------------
+
+SBDInstanceSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: SBDInstanceSegmentationDataset

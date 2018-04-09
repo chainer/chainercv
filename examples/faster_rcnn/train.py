@@ -4,6 +4,7 @@ import argparse
 import numpy as np
 
 import chainer
+from chainer.datasets import ConcatenatedDataset
 from chainer.datasets import TransformDataset
 from chainer import training
 from chainer.training import extensions
@@ -15,24 +16,6 @@ from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 from chainercv import transforms
-
-
-class ConcatenatedDataset(chainer.dataset.DatasetMixin):
-
-    def __init__(self, *datasets):
-        self._datasets = datasets
-
-    def __len__(self):
-        return sum(len(dataset) for dataset in self._datasets)
-
-    def get_example(self, i):
-        if i < 0:
-            raise IndexError
-        for dataset in self._datasets:
-            if i < len(dataset):
-                return dataset[i]
-            i -= len(dataset)
-        raise IndexError
 
 
 class Transform(object):

@@ -1,8 +1,4 @@
-from __future__ import division
-
 import argparse
-import sys
-import time
 
 import chainer
 from chainer import iterators
@@ -13,23 +9,8 @@ from chainercv.evaluations import eval_detection_voc
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
-from chainercv.utils import apply_prediction_to_iterator
-
-
-class ProgressHook(object):
-
-    def __init__(self, n_total):
-        self.n_total = n_total
-        self.start = time.time()
-        self.n_processed = 0
-
-    def __call__(self, imgs, pred_values, gt_values):
-        self.n_processed += len(imgs)
-        fps = self.n_processed / (time.time() - self.start)
-        sys.stdout.write(
-            '\r{:d} of {:d} images, {:.2f} FPS'.format(
-                self.n_processed, self.n_total, fps))
-        sys.stdout.flush()
+from chainercv.utils import apply_to_iterator
+from chainercv.utils import ProgressHook
 
 
 def main():
@@ -75,13 +56,13 @@ def main():
     iterator = iterators.SerialIterator(
         dataset, args.batchsize, repeat=False, shuffle=False)
 
-    imgs, pred_values, gt_values = apply_prediction_to_iterator(
+    in_values, out_values, rest_values = apply_to_iterator(
         model.predict, iterator, hook=ProgressHook(len(dataset)))
-    # delete unused iterator explicitly
-    del imgs
+    # delete unused iterators explicitly
+    del in_values
 
-    pred_bboxes, pred_labels, pred_scores = pred_values
-    gt_bboxes, gt_labels, gt_difficults = gt_values
+    pred_bboxes, pred_labels, pred_scores = out_values
+    gt_bboxes, gt_labels, gt_difficults = rest_values
 
     result = eval_detection_voc(
         pred_bboxes, pred_labels, pred_scores,

@@ -5,10 +5,10 @@ python:
   - "2.7"
   - "3.6"
 env:
-  - CHAINER_VERSION=">=2.0" OPTIONAL_MODULES=0
-  - CHAINER_VERSION=">=2.0" OPTIONAL_MODULES=1
-  - CHAINER_VERSION="==3.0.0rc1" OPTIONAL_MODULES=0
-  - CHAINER_VERSION="==3.0.0rc1" OPTIONAL_MODULES=1
+  - CHAINER_VERSION=">=3.2" OPTIONAL_MODULES=0
+  - CHAINER_VERSION=">=3.2" OPTIONAL_MODULES=1
+  - CHAINER_VERSION="==4.0.0b2" OPTIONAL_MODULES=0
+  - CHAINER_VERSION="==4.0.0b2" OPTIONAL_MODULES=1
 notifications:
   email: false
 
@@ -28,6 +28,8 @@ install:
   - conda info -a
 
   - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
+      export LIBRARY_PATH="$HOME/miniconda/lib:$LIBRARY_PATH";
+      export LD_LIBRARY_PATH="$HOME/miniconda/envs/chainercv/lib:$LD_LIBRARY_PATH";
       conda env create -f environment.yml;
       source activate chainercv;
     else
@@ -44,8 +46,13 @@ script:
   - pip install autopep8
   - pip install mock
   - pip install nose
+  - pip install pytest
   - flake8 .
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
   - python style_checker.py .
-  - MPLBACKEND="agg" nosetests -a '!gpu,!slow' tests
+  - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
+      MPLBACKEND="agg" mpiexec -n 2 nosetests -a '!gpu,!slow,!disk' tests;
+    else
+      MPLBACKEND="agg" nosetests -a '!gpu,!slow,!disk' tests;
+    fi

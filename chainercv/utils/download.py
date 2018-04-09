@@ -43,8 +43,9 @@ def _reporthook(count, block_size, total_size):
 def cached_download(url):
     """Downloads a file and caches it.
 
-    This is different from the original ``cached_download`` in that the
-    download progress is reported.
+    This is different from the original
+    :func:`~chainer.dataset.cached_download` in that the download
+    progress is reported.
 
     It downloads a file from the URL if there is no corresponding cache. After
     the download, this function stores a cache to the directory under the

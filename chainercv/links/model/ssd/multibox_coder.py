@@ -73,7 +73,7 @@ class MultiboxCoder(object):
         if not len(sizes) == len(grids) + 1:
             raise ValueError('The length of sizes is wrong.')
 
-        default_bbox = list()
+        default_bbox = []
 
         for k, grid in enumerate(grids):
             for v, u in itertools.product(range(grid), repeat=2):
@@ -118,7 +118,7 @@ class MultiboxCoder(object):
             bbox (array): A float array of shape :math:`(R, 4)`,
                 where :math:`R` is the number of bounding boxes in an image.
                 Each bouding box is organized by
-                :obj:`(y_min, x_min, y_max, x_max)`
+                :math:`(y_{min}, x_{min}, y_{max}, x_{max})`
                 in the second axis.
             label (array) : An integer array of shape :math:`(R,)`.
                 Each value indicates the class of the bounding box.
@@ -163,8 +163,7 @@ class MultiboxCoder(object):
             masked_iou[:, j] = 0
 
         mask = xp.logical_and(index < 0, iou.max(axis=1) >= iou_thresh)
-        if xp.count_nonzero(mask) > 0:
-            index[mask] = iou[mask].argmax(axis=1)
+        index[mask] = iou[mask].argmax(axis=1)
 
         mb_bbox = bbox[index].copy()
         # (y_min, x_min, y_max, x_max) -> (y_min, x_min, height, width)
@@ -198,7 +197,7 @@ class MultiboxCoder(object):
             mb_conf (array): A float array whose shape is
                 :math:`(K, n\_fg\_class + 1)`.
             nms_thresh (float): The threshold value
-                for :meth:`chainercv.transfroms.non_maximum_suppression`.
+                for :func:`~chainercv.utils.non_maximum_suppression`.
                 The default value is :obj:`0.45`.
             score_thresh (float): The threshold value for confidence score.
                 If a bounding box whose confidence score is lower than
@@ -213,7 +212,7 @@ class MultiboxCoder(object):
             * **bbox**: A float array of shape :math:`(R, 4)`, \
                 where :math:`R` is the number of bounding boxes in a image. \
                 Each bouding box is organized by \
-                :obj:`(y_min, x_min, y_max, x_max)` \
+                :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
                 in the second axis.
             * **label** : An integer array of shape :math:`(R,)`. \
                 Each value indicates the class of the bounding box.
@@ -238,9 +237,9 @@ class MultiboxCoder(object):
         mb_score = xp.exp(mb_conf)
         mb_score /= mb_score.sum(axis=1, keepdims=True)
 
-        bbox = list()
-        label = list()
-        score = list()
+        bbox = []
+        label = []
+        score = []
         for l in range(mb_conf.shape[1] - 1):
             bbox_l = mb_bbox
             # the l-th class corresponds for the (l + 1)-th column.
@@ -271,7 +270,7 @@ def _unravel_index(index, shape):
     if isinstance(index, np.int64):
         return np.unravel_index(index, shape)
 
-    indices = list()
+    indices = []
     for s in shape[::-1]:
         indices.append(index % s)
         index //= s

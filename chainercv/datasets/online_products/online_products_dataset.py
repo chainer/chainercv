@@ -75,9 +75,9 @@ class OnlineProductsDataset(chainer.dataset.DatasetMixin):
             data_dir = _get_online_products()
         self.data_dir = data_dir
 
-        self.class_ids = list()
-        self.super_class_ids = list()
-        self.paths = list()
+        self.class_ids = []
+        self.super_class_ids = []
+        self.paths = []
         # for split in ['train', 'test']:
         id_list_file = os.path.join(data_dir, 'Ebay_{}.txt'.format(split))
         ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
