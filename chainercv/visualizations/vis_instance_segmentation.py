@@ -37,7 +37,7 @@ def vis_instance_segmentation(
         >>> from chainercv.visualizations import vis_bbox
         >>> from chainercv.visualizations import vis_instance_segmentation
         >>> from chainercv.visualizations.colormap import voc_colormap
-        >>> from chainercv.utils.mask.mask_to_bbox import mask_to_bbox
+        >>> from chainercv.utils import mask_to_bbox
         >>> import matplotlib.pyplot as plot
         >>> dataset = SBDInstanceSegmentationDataset()
         >>> img, mask, label = dataset[0]
