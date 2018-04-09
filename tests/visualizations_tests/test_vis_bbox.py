@@ -39,17 +39,29 @@ except ImportError:
     {
         'n_bbox': 0, 'label': (), 'score': (),
         'label_names': ('c0', 'c1', 'c2')},
+    {
+        'n_bbox': 3, 'label': (0, 1, 2), 'score': (0, 0.5, 1),
+        'label_names': ('c0', 'c1', 'c2'), 'no_img': True},
+    {
+        'n_bbox': 3, 'label': (0, 1, 2), 'score': (0, 0.5, 1),
+        'label_names': ('c0', 'c1', 'c2'),
+        'colors': [(255, 0, 0), (0, 255, 0), (0, 0, 255), (100, 100, 100)]},
 )
 class TestVisBbox(unittest.TestCase):
 
     def setUp(self):
-        self.img = np.random.randint(0, 255, size=(3, 32, 48))
+        if hasattr(self, 'no_img'):
+            self.img = None
+        else:
+            self.img = np.random.randint(0, 255, size=(3, 32, 48))
         self.bbox = generate_random_bbox(
             self.n_bbox, (48, 32), 8, 16)
         if self.label is not None:
             self.label = np.array(self.label, dtype=int)
         if self.score is not None:
             self.score = np.array(self.score)
+        if not hasattr(self, 'colors'):
+            self.colors = None
 
     def test_vis_bbox(self):
         if not optional_modules:
@@ -94,6 +106,8 @@ class TestVisBboxInvalidInputs(unittest.TestCase):
             self.label = np.array(self.label, dtype=int)
         if self.score is not None:
             self.score = np.array(self.score)
+        if not hasattr(self, 'colors'):
+            self.colors = None
 
     def test_vis_bbox_invalid_inputs(self):
         if not optional_modules:
@@ -102,7 +116,7 @@ class TestVisBboxInvalidInputs(unittest.TestCase):
         with self.assertRaises(ValueError):
             vis_bbox(
                 self.img, self.bbox, self.label, self.score,
-                label_names=self.label_names)
+                label_names=self.label_names, colors=self.colors)
 
 
 testing.run_module(__name__, __file__)

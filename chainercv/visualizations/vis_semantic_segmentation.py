@@ -91,7 +91,7 @@ def vis_semantic_segmentation(
         label_names = [str(l) for l in range(label.max() + 1)]
 
     if label_colors is None:
-        label_colors = [voc_colormap(l) for l in range(n_class)]
+        label_colors = voc_colormap(list(range(n_class)))
     # [0, 255] -> [0, 1]
     label_colors = np.array(label_colors) / 255
     cmap = matplotlib.colors.ListedColormap(label_colors)

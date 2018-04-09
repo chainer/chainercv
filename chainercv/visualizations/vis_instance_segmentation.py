@@ -14,6 +14,8 @@ def vis_instance_segmentation(
 
     Example:
 
+        This example visualizes an image and an instance segmentation.
+
         >>> from chainercv.datasets import SBDInstanceSegmentationDataset
         >>> from chainercv.datasets \
         ...     import sbd_instance_segmentation_label_names
@@ -24,6 +26,28 @@ def vis_instance_segmentation(
         >>> vis_instance_segmentation(
         ...     img, mask, label,
         ...     label_names=sbd_instance_segmentation_label_names)
+        >>> plot.show()
+
+        This example visualizes an image, an instance segmentation and
+        bounding boxes.
+
+        >>> from chainercv.datasets import SBDInstanceSegmentationDataset
+        >>> from chainercv.datasets \
+        ...     import sbd_instance_segmentation_label_names
+        >>> from chainercv.visualizations import vis_bbox
+        >>> from chainercv.visualizations import vis_instance_segmentation
+        >>> from chainercv.visualizations.colormap import voc_colormap
+        >>> from chainercv.utils.mask.mask_to_bbox import mask_to_bbox
+        >>> import matplotlib.pyplot as plot
+        >>> dataset = SBDInstanceSegmentationDataset()
+        >>> img, mask, label = dataset[0]
+        >>> bbox = mask_to_bbox(mask)
+        >>> colors = voc_colormap(list(range(1, len(mask) + 1)))
+        >>> ax = vis_bbox(img, bbox, label,
+        ...     label_names=sbd_instance_segmentation_label_names,
+        ...     colors=colors, alpha=0.7, linewidth=0.5)
+        >>> vis_instance_segmentation(
+        ...     None, mask, colors=colors, ax=ax)
         >>> plot.show()
 
     Args:
@@ -42,7 +66,7 @@ def vis_instance_segmentation(
              This is optional.
         label_names (iterable of strings): Name of labels ordered according
             to label ids.
-        colors: (iterable of tuple): List of colors.
+        colors (iterable of tuple): List of colors.
             Each color is RGB format and the range of its values is
             :math:`[0, 255]`. The :obj:`i`-th element is the color used
             to visualize the :obj:`i`-th instance.
@@ -74,7 +98,7 @@ def vis_instance_segmentation(
 
     n_inst = len(bbox)
     if colors is None:
-        colors = [voc_colormap(l) for l in range(1, n_inst + 1)]
+        colors = voc_colormap(list(range(1, n_inst + 1)))
     colors = np.array(colors)
 
     _, H, W = mask.shape
