@@ -9,8 +9,10 @@ from chainercv import utils
 
 from chainercv.datasets.coco.coco_utils import get_coco
 
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 
-class COCOBboxDataset(chainer.dataset.DatasetMixin):
+
+class COCOBboxDataset(GetterDataset):
 
     """Bounding box dataset for `MS COCO2014`_.
 
@@ -116,13 +118,19 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
             self.imgToAnns[ann['image_id']].append(ann)
             self.anns[ann['id']] = ann
 
-    @property
-    def labels(self):
-        labels = list()
-        for i in range(len(self)):
-            _, label, _ = self._get_annotations(i)
-            labels.append(label)
-        return labels
+        self.add_getter('image', self._get_image)
+        self.add_getter(['bbox', 'label', 'crowded', 'area'],
+                        self._get_annotations)
+
+    def __len__(self):
+        return len(self.ids)
+
+    def _get_image(self, i):
+        img_id = self.ids[i]
+        img_fn = os.path.join(
+            self.img_root, self.img_props[img_id]['file_name'])
+        img = utils.read_image(img_fn, dtype=np.float32, color=True)
+        return img
 
     def _get_annotations(self, i):
         img_id = self.ids[i]
@@ -159,8 +167,6 @@ class COCOBboxDataset(chainer.dataset.DatasetMixin):
         area = area[keep_mask]
         return bbox, label, crowded, area
 
-    def __len__(self):
-        return len(self.ids)
 
     def get_example(self, i):
         img_id = self.ids[i]
