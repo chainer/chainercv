@@ -47,7 +47,7 @@ def vis_instance_segmentation(
         ...     label_names=sbd_instance_segmentation_label_names,
         ...     colors=colors, alpha=0.7, linewidth=0.5)
         >>> vis_instance_segmentation(
-        ...     None, mask, colors=colors, ax=ax)
+        ...     None, mask, colors=colors, alpha=0.7, ax=ax)
         >>> plot.show()
 
     Args:
