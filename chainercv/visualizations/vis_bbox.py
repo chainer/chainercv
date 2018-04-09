@@ -9,14 +9,14 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
 
     Example:
 
-        >>> from chainercv.datasets import VOCDetectionDataset
+        >>> from chainercv.datasets import VOCBboxDataset
         >>> from chainercv.datasets import voc_bbox_label_names
         >>> from chainercv.visualizations import vis_bbox
         >>> import matplotlib.pyplot as plot
-        >>> dataset = VOCDetectionDataset()
+        >>> dataset = VOCBboxDataset()
         >>> img, bbox, label = dataset[60]
         >>> vis_bbox(img, bbox, label,
-        ...         label_names=voc_bbox_label_names)
+        ...          label_names=voc_bbox_label_names)
         >>> plot.show()
 
     Args:
