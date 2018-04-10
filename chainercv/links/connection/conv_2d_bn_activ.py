@@ -102,6 +102,9 @@ class Conv2DBNActiv(chainer.Chain):
                 self.bn = MultiNodeBatchNormalization(
                     out_channels, **bn_kwargs)
             else:
+                # Remove 'comm' argument if it is included in bn_kwargs
+                bn_kwargs = {key: bn_kwargs[key]
+                             for key in bn_kwargs.keys() if key != 'comm'}
                 self.bn = BatchNormalization(out_channels, **bn_kwargs)
 
     def __call__(self, x):
