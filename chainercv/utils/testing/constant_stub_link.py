@@ -26,7 +26,7 @@ class ConstantStubLink(chainer.Link):
             self._tuple = False
             outputs = outputs,
 
-        self._outputs = list()
+        self._outputs = []
         for output in outputs:
             if not isinstance(output, np.ndarray):
                 raise ValueError(

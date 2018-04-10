@@ -165,7 +165,7 @@ class SegNetBasic(chainer.Chain):
             list.
 
         """
-        labels = list()
+        labels = []
         for img in imgs:
             C, H, W = img.shape
             with chainer.using_config('train', False), \

@@ -76,7 +76,7 @@ class TestMultiboxLoss(unittest.TestCase):
         expect_conf_loss = 0
         for i in six.moves.xrange(gt_mb_labels.shape[0]):
             n_positive = 0
-            negatives = list()
+            negatives = []
             for j in six.moves.xrange(gt_mb_labels.shape[1]):
                 loc = F.huber_loss(
                     mb_locs[np.newaxis, i, j],

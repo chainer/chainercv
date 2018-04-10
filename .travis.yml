@@ -28,6 +28,8 @@ install:
   - conda info -a
 
   - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
+      export LIBRARY_PATH="$HOME/miniconda/lib:$LIBRARY_PATH";
+      export LD_LIBRARY_PATH="$HOME/miniconda/envs/chainercv/lib:$LD_LIBRARY_PATH";
       conda env create -f environment.yml;
       source activate chainercv;
     else
@@ -49,4 +51,8 @@ script:
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
   - python style_checker.py .
-  - MPLBACKEND="agg" nosetests -a '!gpu,!slow,!disk' tests
+  - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
+      MPLBACKEND="agg" mpiexec -n 2 nosetests -a '!gpu,!slow,!disk' tests;
+    else
+      MPLBACKEND="agg" nosetests -a '!gpu,!slow,!disk' tests;
+    fi
