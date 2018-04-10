@@ -51,7 +51,7 @@ class TestConv2DBNActiv(unittest.TestCase):
         # Convolution is the identity function.
         initialW = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]],
                             dtype=np.float32).reshape((1, 1, 3, 3))
-        if self.comm_kwarg:
+        if self.comm_kwarg and not _chainermn_available:
             bn_kwargs = {'decay': 0.8, 'comm': None}
         else:
             bn_kwargs = {'decay': 0.8}
