@@ -88,7 +88,8 @@ def main():
         train = None
 
     train = chainermn.scatter_dataset(train, comm, shuffle=True)
-    train_iter = chainer.iterators.MultiprocessIterator(train, args.batchsize)
+    train_iter = chainer.iterators.MultiprocessIterator(
+        train, args.batchsize / comm.mpi_comm.size)
 
     # initial lr is set to 1e-3 by ExponentialShift
     optimizer = chainermn.create_multi_node_optimizer(
