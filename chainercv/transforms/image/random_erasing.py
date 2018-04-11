@@ -84,6 +84,10 @@ def random_erasing(img, prob=0.5,
             crop[:] = np.random.random(crop.shape) * scale
         else:
             crop[:] = fixed_value[:, None, None]
+        y_slice = params['y_slice']
+        x_slice = params['x_slice']
+        scale_ratio = params['scale_ratio']
+        aspect_ratio = params['aspect_ratio']
 
     else:
         y_slice = None
