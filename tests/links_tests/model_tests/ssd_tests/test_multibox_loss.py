@@ -195,7 +195,7 @@ class TestMultiNodeMultiboxLoss(unittest.TestCase):
             self.k)
 
     @attr.gpu
-    def test_multi_node__forward_gpu(self):
+    def test_multi_node_forward_gpu(self):
         self._check_forward(
             cuda.to_gpu(self.mb_locs), cuda.to_gpu(self.mb_confs),
             cuda.to_gpu(self.gt_mb_locs), cuda.to_gpu(self.gt_mb_labels),
