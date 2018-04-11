@@ -48,7 +48,7 @@ class TestMultiboxLoss(unittest.TestCase):
             size=self.gt_mb_labels.shape) > 0.1] = 0
 
     def _check_forward(
-            self, mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k, comm=None):
+            self, mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
         if self.variable:
             mb_locs = chainer.Variable(mb_locs)
             mb_confs = chainer.Variable(mb_confs)
@@ -56,7 +56,7 @@ class TestMultiboxLoss(unittest.TestCase):
             gt_mb_labels = chainer.Variable(gt_mb_labels)
 
         loc_loss, conf_loss = multibox_loss(
-            mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k, comm)
+            mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k)
 
         self.assertIsInstance(loc_loss, chainer.Variable)
         self.assertEqual(loc_loss.shape, ())
@@ -129,20 +129,81 @@ class TestMultiboxLoss(unittest.TestCase):
             cuda.to_gpu(self.gt_mb_locs), cuda.to_gpu(self.gt_mb_labels),
             self.k)
 
-    @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
+
+@unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
+class TestMultiNodeMultiboxLoss(unittest.TestCase):
+
+    k = 3
+    batchsize = 5
+    n_bbox = 10
+    n_class = 3
+
+    def setUp(self):
+        self.comm = create_communicator('naive')
+        batchsize = self.comm.size * self.batchsize
+
+        np.random.seed(0)
+        self.mb_locs = np.random.uniform(
+            -10, 10, size=(batchsize, self.n_bbox, 4)) \
+            .astype(np.float32)
+        self.mb_confs = np.random.uniform(
+            -50, 50, size=(batchsize, self.n_bbox, self.n_class)) \
+            .astype(np.float32)
+        self.gt_mb_locs = np.random.uniform(
+            -10, 10, size=(batchsize, self.n_bbox, 4)) \
+            .astype(np.float32)
+        self.gt_mb_labels = np.random.randint(
+            self.n_class, size=(batchsize, self.n_bbox)) \
+            .astype(np.int32)
+
+        self.mb_locs_local = self.comm.mpi_comm.scatter(
+            self.mb_locs.reshape(
+                (self.comm.size, self.batchsize, self.n_bbox, 4)))
+        self.mb_confs_local = self.comm.mpi_comm.scatter(
+            self.mb_confs.reshape(
+                (self.comm.size, self.batchsize, self.n_bbox, self.n_class)))
+        self.gt_mb_locs_local = self.comm.mpi_comm.scatter(
+            self.gt_mb_locs.reshape(
+                (self.comm.size, self.batchsize, self.n_bbox, 4)))
+        self.gt_mb_labels_local = self.comm.mpi_comm.scatter(
+            self.gt_mb_labels.reshape(
+                (self.comm.size, self.batchsize, self.n_bbox, self.n_class)))
+
+    def _check_forward(
+            self, mb_locs_local, mb_confs_local,
+            gt_mb_locs_local, gt_mb_labels_local, k):
+
+        loc_loss, conf_loss = multibox_loss(
+            self.mb_locs, self.mb_confs, self.gt_mb_locs, self.gt_mb_labels, k)
+
+        loc_loss_local, conf_loss_local = multibox_loss(
+            mb_locs_local, mb_confs_local,
+            gt_mb_locs_local, gt_mb_labels_local, k, self.comm)
+
+        loc_loss_local = cuda.to_cpu(loc_loss_local.array)
+        conf_loss_local = cuda.to_cpu(conf_loss_local.array)
+
+        from mpi4py import MPI
+        self.comm.mpi_comm.Allreduce(MPI.IN_PLACE, loc_loss_local)
+        self.comm.mpi_comm.Allreduce(MPI.IN_PLACE, conf_loss_local)
+
+        np.testing.assert_almost_equal(
+            loc_loss_local, loc_loss, decimal=2)
+        np.testing.assert_almost_equal(
+            conf_loss_local, conf_loss, decimal=2)
+
     def test_multi_node_forward_cpu(self):
         self._check_forward(
             self.mb_locs, self.mb_confs,
             self.gt_mb_locs, self.gt_mb_labels,
-            self.k, create_communicator('naive'))
+            self.k)
 
-    @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
     @attr.gpu
-    def test_multi_node_forward_gpu(self):
+    def test_multi_node__forward_gpu(self):
         self._check_forward(
             cuda.to_gpu(self.mb_locs), cuda.to_gpu(self.mb_confs),
             cuda.to_gpu(self.gt_mb_locs), cuda.to_gpu(self.gt_mb_labels),
-            self.k, create_communicator('naive'))
+            self.k)
 
 
 testing.run_module(__name__, __file__)
