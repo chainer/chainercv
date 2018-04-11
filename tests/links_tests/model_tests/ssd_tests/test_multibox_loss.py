@@ -13,6 +13,13 @@ from chainer.testing import attr
 from chainercv.links.model.ssd import multibox_loss
 
 
+try:
+    from chainermn import create_communicator
+    _chainermn_available = True
+except ImportError:
+    _chainermn_available = False
+
+
 @testing.parameterize(*testing.product({
     'k': [3, 10000],
     'batchsize': [1, 5],
@@ -40,7 +47,8 @@ class TestMultiboxLoss(unittest.TestCase):
         self.gt_mb_labels[np.random.uniform(
             size=self.gt_mb_labels.shape) > 0.1] = 0
 
-    def _check_forward(self, mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
+    def _check_forward(
+            self, mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k, comm=None):
         if self.variable:
             mb_locs = chainer.Variable(mb_locs)
             mb_confs = chainer.Variable(mb_confs)
@@ -48,7 +56,7 @@ class TestMultiboxLoss(unittest.TestCase):
             gt_mb_labels = chainer.Variable(gt_mb_labels)
 
         loc_loss, conf_loss = multibox_loss(
-            mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k)
+            mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k, comm)
 
         self.assertIsInstance(loc_loss, chainer.Variable)
         self.assertEqual(loc_loss.shape, ())
@@ -120,6 +128,21 @@ class TestMultiboxLoss(unittest.TestCase):
             cuda.to_gpu(self.mb_locs), cuda.to_gpu(self.mb_confs),
             cuda.to_gpu(self.gt_mb_locs), cuda.to_gpu(self.gt_mb_labels),
             self.k)
+
+    @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
+    def test_multi_node_forward_cpu(self):
+        self._check_forward(
+            self.mb_locs, self.mb_confs,
+            self.gt_mb_locs, self.gt_mb_labels,
+            self.k, create_communicator('naive'))
+
+    @unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
+    @attr.gpu
+    def test_multi_node_forward_gpu(self):
+        self._check_forward(
+            cuda.to_gpu(self.mb_locs), cuda.to_gpu(self.mb_confs),
+            cuda.to_gpu(self.gt_mb_locs), cuda.to_gpu(self.gt_mb_labels),
+            self.k, create_communicator('naive'))
 
 
 testing.run_module(__name__, __file__)
