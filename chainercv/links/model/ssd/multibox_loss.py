@@ -77,7 +77,7 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k, comm=None):
     xp = chainer.cuda.get_array_module(gt_mb_labels.array)
     with chainer.cuda.get_device_from_array(gt_mb_labels.array):
         positive = gt_mb_labels.array > 0
-        n_positive = positive.sum()
+        n_positive = xp.array(positive.sum())
 
         if comm:
             global MPI, memory_utility
