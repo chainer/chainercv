@@ -47,8 +47,7 @@ class TestMultiboxLoss(unittest.TestCase):
         self.gt_mb_labels[np.random.uniform(
             size=self.gt_mb_labels.shape) > 0.1] = 0
 
-    def _check_forward(
-            self, mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
+    def _check_forward(self, mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
         if self.variable:
             mb_locs = chainer.Variable(mb_locs)
             mb_confs = chainer.Variable(mb_confs)
