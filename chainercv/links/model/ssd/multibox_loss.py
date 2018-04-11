@@ -59,6 +59,10 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k, comm=None):
             This value determines the ratio between the number of positives
             and that of mined negatives. The value used in the original paper
             is :obj:`3`.
+        comm (~chainermn.communicators.CommunicatorBase):
+            A ChainerMN communicator.
+            If it is specified, the number of positive examples is computed
+            among all GPUs.
 
     Returns:
         tuple of chainer.Variable:
