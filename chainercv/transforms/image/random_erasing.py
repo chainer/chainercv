@@ -1,16 +1,16 @@
 from __future__ import division
 
-import math
 import numpy as np
 import random
 
-from chainercv.transforms.image.random_sized_crop import _sample_parameters
+from chainercv.transforms.image.random_sized_crop import random_sized_crop
 
 
 def random_erasing(img, prob=0.5,
                    scale_ratio_range=(0.02, 0.4),
                    aspect_ratio_range=(0.3, 1 / 0.3),
-                   mean=np.array((0.4914, 0.4822, 0.4465)),
+                   fixed_value=np.array((0.4914, 0.4822, 0.4465)),
+                   random_value=True,
                    return_param=False, copy=False):
     """Select a rectangle region in an image and erase its pixels with mean values.
 
@@ -50,8 +50,10 @@ def random_erasing(img, prob=0.5,
             the distribution from which a scale ratio is sampled.
         aspect_ratio_range (tuple of two floats): Determines
             the distribution from which an aspect ratio is sampled.
-        mean (~numpy.ndarray): Determines pixel values
+        fixed_value (~numpy.ndarray): Determines pixel values
             to fill the rectangle region.
+            The default value is the ImageNet mean value.
+        random_value (bool): Fill the rectangle region with random values.
         return_param (bool): Returns parameters if :obj:`True`.
 
     Returns:
@@ -73,20 +75,14 @@ def random_erasing(img, prob=0.5,
         * **aspect_ratio** (float): :math:`a` in the description.
 
     """
-    if random.randint(0, 1) > prob:
-        _, H, W = img.shape
-        scale_ratio, aspect_ratio =\
-            _sample_parameters(
-                (H, W), scale_ratio_range, aspect_ratio_range, trial=100)
+    if random.uniform(0.0, 1.0) > prob:
+        crop, params = random_sized_crop(img, scale_ratio_range,
+                                         aspect_ratio_range, return_param=True)
+        if random_value:
+            crop[:] = np.random.random(crop.shape)
+        else:
+            crop[:] = fixed_value[:, None, None]
 
-        H_crop = int(math.floor(np.sqrt(scale_ratio * H * W * aspect_ratio)))
-        W_crop = int(math.floor(np.sqrt(scale_ratio * H * W / aspect_ratio)))
-        y_start = random.randint(0, H - H_crop)
-        x_start = random.randint(0, W - W_crop)
-        y_slice = slice(y_start, y_start + H_crop)
-        x_slice = slice(x_start, x_start + W_crop)
-
-        img[:, y_slice, x_slice] = mean[:, None, None]
     else:
         y_slice = None
         x_slice = None
