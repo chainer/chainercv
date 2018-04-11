@@ -188,9 +188,9 @@ class TestMultiNodeMultiboxLoss(unittest.TestCase):
         self.comm.mpi_comm.Allreduce(MPI.IN_PLACE, conf_loss_local)
 
         np.testing.assert_almost_equal(
-            loc_loss_local, loc_loss, decimal=2)
+            loc_loss_local, loc_loss.array, decimal=2)
         np.testing.assert_almost_equal(
-            conf_loss_local, conf_loss, decimal=2)
+            conf_loss_local, conf_loss.array, decimal=2)
 
     def test_multi_node_forward_cpu(self):
         self._check_forward(
