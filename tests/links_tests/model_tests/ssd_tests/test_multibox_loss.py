@@ -167,7 +167,7 @@ class TestMultiNodeMultiboxLoss(unittest.TestCase):
                 (self.comm.size, self.batchsize, self.n_bbox, 4)))
         self.gt_mb_labels_local = self.comm.mpi_comm.scatter(
             self.gt_mb_labels.reshape(
-                (self.comm.size, self.batchsize, self.n_bbox, self.n_class)))
+                (self.comm.size, self.batchsize, self.n_bbox)))
 
     def _check_forward(
             self, mb_locs_local, mb_confs_local,
