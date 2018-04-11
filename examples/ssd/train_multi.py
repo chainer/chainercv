@@ -91,7 +91,7 @@ def main():
     train = chainermn.scatter_dataset(train, comm, shuffle=True)
     multiprocessing.set_start_method('forkserver')
     train_iter = chainer.iterators.MultiprocessIterator(
-        train, args.batchsize // comm.mpi_comm.size, n_processes=1)
+        train, args.batchsize // comm.mpi_comm.size, n_processes=2)
 
     # initial lr is set to 1e-3 by ExponentialShift
     optimizer = chainermn.create_multi_node_optimizer(
