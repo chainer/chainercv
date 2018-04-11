@@ -172,21 +172,18 @@ class TestMultiNodeMultiboxLoss(unittest.TestCase):
     def _check_forward(
             self, mb_locs_local, mb_confs_local,
             gt_mb_locs_local, gt_mb_labels_local, k):
-
-        loc_loss, conf_loss = multibox_loss(
-            self.mb_locs, self.mb_confs, self.gt_mb_locs, self.gt_mb_labels, k)
-
         loc_loss_local, conf_loss_local = multibox_loss(
             mb_locs_local, mb_confs_local,
             gt_mb_locs_local, gt_mb_labels_local, k, self.comm)
 
         loc_loss_local = cuda.to_cpu(loc_loss_local.array)
         conf_loss_local = cuda.to_cpu(conf_loss_local.array)
-
         from mpi4py import MPI
         self.comm.mpi_comm.Allreduce(MPI.IN_PLACE, loc_loss_local)
         self.comm.mpi_comm.Allreduce(MPI.IN_PLACE, conf_loss_local)
 
+        loc_loss, conf_loss = multibox_loss(
+            self.mb_locs, self.mb_confs, self.gt_mb_locs, self.gt_mb_labels, k)
         np.testing.assert_almost_equal(
             loc_loss_local, loc_loss.array, decimal=2)
         np.testing.assert_almost_equal(
