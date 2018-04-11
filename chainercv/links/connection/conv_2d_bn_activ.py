@@ -6,9 +6,8 @@ from chainer.links import DilatedConvolution2D
 
 try:
     from chainermn.links import MultiNodeBatchNormalization
-    _chainermn_available = True
 except ImportError:
-    _chainermn_available = False
+    pass
 
 
 class Conv2DBNActiv(chainer.Chain):
@@ -98,7 +97,7 @@ class Conv2DBNActiv(chainer.Chain):
                 self.conv = Convolution2D(
                     in_channels, out_channels, ksize, stride, pad,
                     nobias, initialW, initial_bias)
-            if 'comm' in bn_kwargs and _chainermn_available:
+            if 'comm' in bn_kwargs:
                 self.bn = MultiNodeBatchNormalization(
                     out_channels, **bn_kwargs)
             else:
