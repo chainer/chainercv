@@ -5,7 +5,7 @@ def voc_colormap(labels):
     """Color map used in PASCAL VOC
 
     Args:
-        labels (list of ints): Class ids.
+        labels (iterable of ints): Class ids.
 
     Returns:
         numpy.ndarray: Colors in RGB order. The shape is :math:`(N, 3)`,
