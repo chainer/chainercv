@@ -28,7 +28,7 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
         >>> from chainercv.visualizations.colormap import voc_colormap
         >>> import matplotlib.pyplot as plot
         >>> dataset = VOCBboxDataset()
-        >>> img, bbox, label = dataset[62]
+        >>> img, bbox, label = dataset[61]
         >>> colors = voc_colormap(label + 1)
         >>> vis_bbox(img, bbox, label,
         ...          label_names=voc_bbox_label_names,
