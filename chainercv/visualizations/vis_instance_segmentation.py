@@ -9,7 +9,7 @@ from chainercv.visualizations import vis_image
 
 def vis_instance_segmentation(
         img, mask, label=None, score=None, label_names=None,
-        colors=None, alpha=0.7, ax=None):
+        instance_colors=None, alpha=0.7, ax=None):
     """Visualize instance segmentation.
 
     Example:
@@ -45,9 +45,9 @@ def vis_instance_segmentation(
         >>> colors = voc_colormap(list(range(1, len(mask) + 1)))
         >>> ax = vis_bbox(img, bbox, label,
         ...     label_names=sbd_instance_segmentation_label_names,
-        ...     colors=colors, alpha=0.7, linewidth=0.5)
+        ...     instance_colors=colors, alpha=0.7, linewidth=0.5)
         >>> vis_instance_segmentation(
-        ...     None, mask, colors=colors, alpha=0.7, ax=ax)
+        ...     None, mask, instance_colors=colors, alpha=0.7, ax=ax)
         >>> plot.show()
 
     Args:
@@ -66,11 +66,12 @@ def vis_instance_segmentation(
              This is optional.
         label_names (iterable of strings): Name of labels ordered according
             to label ids.
-        colors (iterable of tuple): List of colors.
+        instance_colors (iterable of tuple): List of colors.
             Each color is RGB format and the range of its values is
             :math:`[0, 255]`. The :obj:`i`-th element is the color used
             to visualize the :obj:`i`-th instance.
-            If :obj:`colors` is :obj:`None`, the default color map is used.
+            If :obj:`instance_colors` is :obj:`None`, the default color map
+            is used.
         alpha (float): The value which determines transparency of the figure.
             The range of this value is :math:`[0, 1]`. If this
             value is :obj:`0`, the figure will be completely transparent.
@@ -97,16 +98,16 @@ def vis_instance_segmentation(
         raise ValueError('The length of score must be same as that of bbox')
 
     n_inst = len(bbox)
-    if colors is None:
-        colors = voc_colormap(list(range(1, n_inst + 1)))
-    colors = np.array(colors)
+    if instance_colors is None:
+        instance_colors = voc_colormap(list(range(1, n_inst + 1)))
+    instance_colors = np.array(instance_colors)
 
     _, H, W = mask.shape
     canvas_img = np.zeros((H, W, 4), dtype=np.uint8)
     for i, (bb, msk) in enumerate(zip(bbox, mask)):
         # The length of `colors` can be smaller than the number of instances
         # if a non-default `colors` is used.
-        color = colors[i % len(colors)]
+        color = instance_colors[i % len(instance_colors)]
         rgba = np.append(color, alpha * 255)
         bb = np.round(bb).astype(np.int32)
         y_min, x_min, y_max, x_max = bb

@@ -4,7 +4,7 @@ from chainercv.visualizations.vis_image import vis_image
 
 
 def vis_bbox(img, bbox, label=None, score=None, label_names=None,
-             colors=None, alpha=1., linewidth=3., ax=None):
+             instance_colors=None, alpha=1., linewidth=3., ax=None):
     """Visualize bounding boxes inside image.
 
     Example:
@@ -35,11 +35,12 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
              This is optional.
         label_names (iterable of strings): Name of labels ordered according
             to label ids. If this is :obj:`None`, labels will be skipped.
-        colors (iterable of tuple): List of colors.
+        instance_colors (iterable of tuple): List of colors.
             Each color is RGB format and the range of its values is
             :math:`[0, 255]`. The :obj:`i`-th element is the color used
             to visualize the :obj:`i`-th instance.
-            If :obj:`colors` is :obj:`None`, the red is used for all boxes.
+            If :obj:`instance_colors` is :obj:`None`, the red is used for
+            all boxes.
         alpha (float): The value which determines transparency of the
             bounding boxes. The range of this value is :math:`[0, 1]`.
         linewidth (float): The thickness of the edges of the bounding boxes.
@@ -65,19 +66,19 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
     if len(bbox) == 0:
         return ax
 
-    if colors is None:
+    if instance_colors is None:
         # Red
-        colors = np.ones((len(bbox), 3), dtype=np.float32)
-        colors[:, 0] = 255
-    colors = np.array(colors)
+        instance_colors = np.ones((len(bbox), 3), dtype=np.float32)
+        instance_colors[:, 0] = 255
+    instance_colors = np.array(instance_colors)
 
     for i, bb in enumerate(bbox):
         xy = (bb[1], bb[0])
         height = bb[2] - bb[0]
         width = bb[3] - bb[1]
         ax.add_patch(plot.Rectangle(
-            xy, width, height,
-            fill=False, edgecolor=colors[i % len(colors)] / 255,
+            xy, width, height, fill=False,
+            edgecolor=instance_colors[i % len(instance_colors)] / 255,
             linewidth=linewidth, alpha=alpha))
 
         caption = []
