@@ -125,7 +125,6 @@ class FCIS(chainer.Chain):
         masks = []
         labels = []
         scores = []
-        bboxes = []
 
         for img, size in zip(prepared_imgs, sizes):
             with chainer.using_config('train', False), \
@@ -182,6 +181,5 @@ class FCIS(chainer.Chain):
             masks.append(mask)
             labels.append(label)
             scores.append(score)
-            bboxes.append(bbox)
 
-        return masks, labels, scores, bboxes
+        return masks, labels, scores

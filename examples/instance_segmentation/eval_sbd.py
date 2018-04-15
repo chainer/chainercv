@@ -44,7 +44,7 @@ def main():
     # delete unused iterators explicitly
     del in_values
 
-    pred_masks, pred_labels, pred_scores, _ = out_values
+    pred_masks, pred_labels, pred_scores = out_values
     gt_masks, gt_labels = rest_values
 
     result = eval_instance_segmentation_voc(
