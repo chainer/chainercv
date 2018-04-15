@@ -10,6 +10,7 @@ ChainerCV Reference Manual
    chainer_experimental
    datasets
    evaluations
+   experimental
    extensions
    functions
    links
