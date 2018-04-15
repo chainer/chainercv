@@ -13,24 +13,22 @@ class TestMaskVoting(unittest.TestCase):
 
     def setUp(self):
         n_roi = 5
+        n_class = 6
         self.roi_size = 7
         self.size = (18, 24)
-        self.n_class = 6
         self.bg_label = 0
         self.roi_mask_prob = np.random.uniform(
             size=(n_roi, self.roi_size, self.roi_size))
-        self.roi_prob = np.random.uniform(
-            size=(n_roi, self.n_class))
+        self.roi_prob = np.random.uniform(size=(n_roi, n_class))
         self.bbox = generate_random_bbox(n_roi, self.size, 0, 18)
 
     def check_mask_voting(
-            self, roi_mask_prob, roi_prob, bbox,
-            roi_size, size, n_class, bg_label):
+            self, roi_mask_prob, bbox, roi_prob,
+            size, bg_label, roi_size):
         xp = chainer.cuda.get_array_module(roi_mask_prob)
-        roi_mask_prob, label, score, bbox = mask_voting(
-            roi_mask_prob, roi_prob, bbox,
-            size, n_class, 0.5, 0.3, 0.5, 0.4,
-            bg_label=bg_label)
+        roi_mask_prob, bbox, label, score = mask_voting(
+            roi_mask_prob, bbox, roi_prob, size,
+            0.5, 0.3, 0.5, 0.4, bg_label=bg_label)
 
         n_roi = roi_mask_prob.shape[0]
         self.assertIsInstance(roi_mask_prob, xp.ndarray)
@@ -48,5 +46,5 @@ class TestMaskVoting(unittest.TestCase):
 
     def test_mask_voting_cpu(self):
         self.check_mask_voting(
-            self.roi_mask_prob, self.roi_prob, self.bbox,
-            self.roi_size, self.size, self.n_class, self.bg_label)
+            self.roi_mask_prob, self.bbox, self.roi_prob,
+            self.size, self.bg_label, self.roi_size)

@@ -150,9 +150,8 @@ class FCIS(chainer.Chain):
             roi_prob = chainer.cuda.to_cpu(roi_prob)
             bbox = chainer.cuda.to_cpu(bbox)
 
-            roi_mask_prob, label, score, bbox = mask_voting(
-                roi_seg_prob[:, 1, :, :], roi_prob, bbox,
-                size, self.n_class,
+            roi_mask_score, bbox, label, score = mask_voting(
+                roi_seg_prob[:, 1, :, :], bbox, roi_prob, size,
                 self.score_thresh, self.nms_thresh,
                 self.mask_merge_thresh, self.binary_thresh,
                 limit=self.limit, bg_label=0)
@@ -163,19 +162,19 @@ class FCIS(chainer.Chain):
                 (height > self.min_drop_size) &
                 (width > self.min_drop_size))[0]
             bbox = bbox[keep_indices]
-            roi_mask_prob = roi_mask_prob[keep_indices]
+            roi_mask_score = roi_mask_score[keep_indices]
             score = score[keep_indices]
             label = label[keep_indices]
 
             mask = np.zeros(
-                (len(roi_mask_prob), size[0], size[1]), dtype=np.bool)
-            for i, (roi_msk_prb, bb) in enumerate(zip(roi_mask_prob, bbox)):
+                (len(roi_mask_score), size[0], size[1]), dtype=np.bool)
+            for i, (roi_msk_sc, bb) in enumerate(zip(roi_mask_score, bbox)):
                 bb = np.round(bb).astype(np.int32)
                 y_min, x_min, y_max, x_max = bb
-                roi_msk_prb = resize(
-                    roi_msk_prb.astype(np.float32)[None],
+                roi_msk_sc = resize(
+                    roi_msk_sc.astype(np.float32)[None],
                     (y_max - y_min, x_max - x_min))
-                roi_msk = (roi_msk_prb > self.binary_thresh)[0]
+                roi_msk = (roi_msk_sc > self.binary_thresh)[0]
                 mask[i, y_min:y_max, x_min:x_max] = roi_msk
 
             masks.append(mask)
