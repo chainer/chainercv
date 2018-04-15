@@ -16,10 +16,12 @@ def mask_aggregation(
     for bb, msk_prb, msk_w in zip(bbox, mask_prob, mask_weight):
         bb = np.round(bb).astype(np.int32)
         y_min, x_min, y_max, x_max = bb
-        msk_prb = resize(
-            msk_prb.astype(np.float32)[None], (y_max - y_min, x_max - x_min))
-        msk_m = (msk_prb >= binary_thresh).astype(np.float32)[0]
-        mask[y_min:y_max, x_min:x_max] += msk_m * msk_w
+        if y_max - y_min > 0 and x_max - x_min > 0:
+            msk_prb = resize(
+                msk_prb.astype(np.float32)[None],
+                (y_max - y_min, x_max - x_min))
+            msk_m = (msk_prb >= binary_thresh).astype(np.float32)[0]
+            mask[y_min:y_max, x_min:x_max] += msk_m * msk_w
 
     y_indices, x_indices = np.where(mask >= binary_thresh)
     if len(y_indices) == 0 or len(x_indices) == 0:
