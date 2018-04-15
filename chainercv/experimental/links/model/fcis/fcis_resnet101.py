@@ -17,6 +17,63 @@ from chainercv.utils import download_model
 
 class FCISResNet101(FCIS):
 
+    """FCIS based on ResNet101.
+
+    When you specify the path of a pre-trained chainer model serialized as
+    a :obj:`.npz` file in the constructor, this chain model automatically
+    initializes all the parameters with it.
+    When a string in prespecified set is provided, a pretrained model is
+    loaded from weights distributed on the Internet.
+    The list of pretrained models supported are as follows:
+
+    * :obj:`sbd`: Loads weights trained with the trainval split of Semantic \
+    Boundaries Dataset.
+
+    For descriptions on the interface of this model, please refer to
+    :class:`~chainercv.experimental.links.model.fcis.FCIS`.
+
+    :class:`~chainercv.experimental.links.model.fcis.FCISResNet101`
+    supports finer control on random initializations of weights by arguments
+    :obj:`resnet_initialW`, :obj:`rpn_initialW` and :obj:`head_initialW`.
+    It accepts a callable that takes an array and edits its values.
+    If :obj:`None` is passed as an initializer, the default initializer is
+    used.
+
+    Args:
+        n_fg_class (int): The number of classes excluding the background.
+        pretrained_model (str): The destination of the pre-trained
+            chainer model serialized as a :obj:`.npz` file.
+            If this is one of the strings described
+            above, it automatically loads weights stored under a directory
+            :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/models/`,
+            where :obj:`$CHAINER_DATASET_ROOT` is set as
+            :obj:`$HOME/.chainer/dataset` unless you specify another value
+            by modifying the environment variable.
+        min_size (int): A preprocessing paramter for :meth:`prepare`.
+        max_size (int): A preprocessing paramter for :meth:`prepare`.
+        ratios (list of floats): This is ratios of width to height of
+            the anchors.
+        anchor_scales (list of numbers): This is areas of anchors.
+            Those areas will be the product of the square of an element in
+            :obj:`anchor_scales` and the original area of the reference
+            window.
+        loc_normalize_mean (tuple of four floats): Mean values of
+            localization estimates.
+        loc_normalize_std (tupler of four floats): Standard deviation
+            of localization estimates.
+        iter2 (bool): if the value is set :obj:`True`, Position Sensitive
+            ROI pooling is executed twice. In the second time, Position
+            Sensitive ROI pooling uses improved ROIs by the localization
+            parameters calculated in the first time.
+        resnet_initialW (callable): Initializer for the layers corresponding to
+            the ResNet101 layers.
+        rpn_initialW (callable): Initializer for Region Proposal Network
+            layers.
+        head_initialW (callable): Initializer for the head layers.
+        proposal_creator_params (dict): Key valued paramters for
+            :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
+    """
+
     _models = {
         'sbd': {
             'n_fg_class': 20,
@@ -92,6 +149,16 @@ class FCISResNet101(FCIS):
 
 class ResNet101Extractor(chainer.Chain):
 
+    """ResNet101 Extractor for FCIS ResNet101 implementation.
+
+    This class is used as an extractor for FCISResNet101.
+    This outputs feature maps.
+    Dilated convolution is used in the C5 stage.
+
+    Args:
+        initialW: Initializer for ResNet101 extractor.
+    """
+
     def __init__(self, initialW=None):
         super(ResNet101Extractor, self).__init__()
 
@@ -114,6 +181,13 @@ class ResNet101Extractor(chainer.Chain):
             self.res5 = ResBlock(3, 1024, 512, 2048, 1, 2, **kwargs)
 
     def __call__(self, x):
+        """Forward the chain.
+
+        Args:
+            x (~chainer.Variable): 4D image variable.
+
+       """
+
         with chainer.using_config('train', False):
             h = self.pool1(self.conv1(x))
             h = self.res2(h)
@@ -124,6 +198,31 @@ class ResNet101Extractor(chainer.Chain):
 
 
 class FCISResNet101Head(chainer.Chain):
+
+    """FCIS Head for ResNet101 based implementation.
+
+    This class is used as a head for FCIS.
+    This outputs class-agnostice segmentation scores, class-agnostic
+    localizations and classification based on feature maps in the given RoIs.
+
+    Args:
+        n_class (int): The number of classes possibly including the background.
+        roi_size (int): Height and width of the feature maps after
+            Position Sensitive RoI pooling.
+        group_size (int): Group height and width for Position Sensitive
+            ROI pooling.
+        spatial_scale (float): Scale of the roi is resized.
+        loc_normalize_mean (tuple of four floats): Mean values of
+            localization estimates.
+        loc_normalize_std (tupler of four floats): Standard deviation
+            of localization estimates.
+        iter2 (bool): if the value is set :obj:`True`, Position Sensitive
+            ROI pooling is executed twice. In the second time, Position
+            Sensitive ROI pooling uses improved ROIs by the localization
+            parameters calculated in the first time.
+        initialW (callable): Initializer for the layers.
+
+    """
 
     def __init__(
             self,
@@ -156,6 +255,23 @@ class FCISResNet101Head(chainer.Chain):
                 1, 1, 0, initialW=initialW)
 
     def __call__(self, x, rois, roi_indices, img_size):
+        """Forward the chain.
+
+        We assume that there are :math:`N` batches.
+
+        Args:
+            x (~chainer.Variable): 4D image variable.
+            rois (array): A bounding box array containing coordinates of
+                proposal boxes.  This is a concatenation of bounding box
+                arrays from multiple images in the batch.
+                Its shape is :math:`(R', 4)`. Given :math:`R_i` proposed
+                RoIs from the :math:`i` th image,
+                :math:`R' = \\sum _{i=1} ^ N R_i`.
+            roi_indices (array): An array containing indices of images to
+                which bounding boxes correspond to. Its shape is :math:`(R',)`.
+            img_size (tuple of int): A tuple containing image size.
+
+        """
         h = F.relu(self.conv1(x))
         h_cls_seg = self.cls_seg(h)
         h_ag_loc = self.ag_loc(h)
