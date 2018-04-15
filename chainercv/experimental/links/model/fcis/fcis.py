@@ -11,6 +11,58 @@ from chainercv.transforms.image.resize import resize
 
 class FCIS(chainer.Chain):
 
+    """Base class for FCIS.
+
+    This is a base class for FCIS links supporting instance segmentation
+    API [#]_. The following three stages constitute FCIS.
+
+    1. **Feature extraction**: Images are taken and their \
+        feature maps are calculated.
+    2. **Region Proposal Networks**: Given the feature maps calculated in \
+        the previous stage, produce set of RoIs around objects.
+    3. **Localization, Segmentation and Classification Heads**: Using feature \
+        maps that belong to the proposed RoIs, segment region of the objects, \
+        classify the categories of the objects in the RoIs and improve \
+        localizations.
+
+    Each stage is carried out by one of the callable
+    :class:`chainer.Chain` objects :obj:`feature`, :obj:`rpn` and :obj:`head`.
+    There are two functions :meth:`predict` and :meth:`__call__` to conduct
+    instance segmentation.
+    :meth:`predict` takes images and returns masks, object label and its score.
+    :meth:`__call__` is provided for a scnerario when intermediate outputs
+    are needed, for instance, for training and debugging.
+
+    Links that support instance segmentation API have method :meth:`predict`
+    with the same interface. Please refer to :meth:`predict` for further
+    details.
+
+    .. [#] Yi Li, Haozhi Qi, Jifeng Dai, Xiangyang Ji, Yichen Wei. \
+    Fully Convolutional Instance-aware Semantic Segmentation. CVPR 2017.
+
+    Args:
+        extractor (callable Chain): A callable that takes a BCHW image
+            array and returns feature maps.
+        rpn (callable Chain): A callable that has the same interface as
+            :class:`~chainercv.links.model.faster_rcnn.RegionProposalNetwork`.
+            Please refer to the documentation found there.
+        head (callable Chain): A callable that takes a BCHW array,
+        RoIs and batch indices for RoIs.
+        This returns class dependent segmentation scores, class-agnostic
+        localization parameters, class scores, improved RoIs and batch
+        indices for RoIs.
+        mean (numpy.ndarray): A value to be subtracted from an image
+            in :meth:`prepare`.
+        min_size (int): A preprocessing paramter for :meth:`prepare`. Please
+            refer to a docstring found for :meth:`prepare`.
+        max_size (int): A preprocessing paramter for :meth:`prepare`.
+        loc_normalize_mean (tuple of four floats): Mean values of
+            localization estimates.
+        loc_normalize_std (tupler of four floats): Standard deviation
+            of localization estimates.
+
+    """
+
     def __init__(
             self, extractor, rpn, head,
             mean, min_size, max_size,
@@ -36,6 +88,48 @@ class FCIS(chainer.Chain):
         return self.head.n_class
 
     def __call__(self, x, scale=1.):
+        """Forward FCIS.
+
+        Scaling paramter :obj:`scale` is used by RPN to determine the
+        threshold to select small objects, which are going to be
+        rejected irrespective of their confidence scores.
+
+        Here are notations used.
+
+        * :math:`N` is the number of batch size
+        * :math:`R'` is the total number of RoIs produced across batches. \
+            Given :math:`R_i` proposed RoIs from the :math:`i` th image, \
+            :math:`R' = \\sum _{i=1} ^ N R_i`.
+        * :math:`L` is the number of classes excluding the background.
+        * :math:`RH` is the height of pooled image by Position Sensitive \
+        ROI pooling.
+        * :math:`RW` is the height of pooled image by Position Sensitive \
+        ROI pooling.
+
+        Classes are ordered by the background, the first class, ..., and
+        the :math:`L` th class.
+
+        Args:
+            x (~chainer.Variable): 4D image variable.
+            scale (float): Amount of scaling applied to the raw image
+                during preprocessing.
+
+        Returns:
+            Variable, Variable, Variable, array, array:
+            Returns tuple of five values listed below.
+
+            * **roi_seg_scores**: Class-agnostic segmentation scores for \
+            the proposed ROIs. Its shape is :math:`(R', 2, RH, RW)`
+            * **roi_ag_locs**: Class-agnostic offsets and scalings for \
+            the proposed RoIs.  Its shape is :math:`(R', 2, 4)`.
+            * **roi_scores**: Class predictions for the proposed RoIs. \
+                Its shape is :math:`(R', L + 1)`.
+            * **rois**: RoIs proposed by RPN. Its shape is \
+                :math:`(R', 4)`.
+            * **roi_indices**: Batch indices of RoIs. Its shape is \
+                :math:`(R',)`.
+
+        """
         img_size = x.shape[2:]
 
         # Feature Extractor
@@ -80,11 +174,16 @@ class FCIS(chainer.Chain):
     def use_preset(self, preset):
         """Use the given preset during prediction.
 
-        This method changes values of :obj:`self.nms_thresh` and
-        :obj:`self.score_thresh`. These values are a threshold value
-        used for non maximum suppression and a threshold value
+        This method changes values of :obj:`self.nms_thresh`,
+        :obj:`self.score_thresh`, :obj:`self.mask_merge_thresh`,
+        :obj:`self.binary_thresh`, :obj:`self.binary_thresh` and
+        :obj:`self.min_drop_size`. These values are a threshold value
+        used for non maximum suppression, a threshold value
         to discard low confidence proposals in :meth:`predict`,
-        respectively.
+        a threshold value to merge mask in :meth:`predict`,
+        a threshold value to binalize segmentation scores in :meth:`predict`,
+        a limit number of predicted masks in one image and
+        a threshold value to discard small bounding boxes respectively.
 
         If the attributes need to be changed to something
         other than the values provided in the presets, please modify
@@ -113,6 +212,31 @@ class FCIS(chainer.Chain):
             raise ValueError('preset must be visualize or evaluate')
 
     def predict(self, imgs):
+        """Segment object instances from images.
+
+        This method predicts instance-aware object region for each image.
+
+        Args:
+            imgs (iterable of numpy.ndarray): Arrays holding images of shape
+                :math:`(B, C, H, W)`.  All images are in CHW and RGB format
+                and the range of their value is :math:`[0, 255]`.
+
+        Returns:
+           tuple of lists:
+           This method returns a tuple of three lists,
+           :obj:`(masks, labels, scores)`.
+
+           * **masks**: A list of float arrays of shape :math:`(R, H, W)`, \
+               where :math:`R` is the number of masks in a image. \
+               Each pixel holds value if it is inside the object inside or not.
+           * **labels** : A list of integer arrays of shape :math:`(R,)`. \
+               Each value indicates the class of the masks. \
+               Values are in range :math:`[0, L - 1]`, where :math:`L` is the \
+               number of the foreground classes.
+           * **scores** : A list of float arrays of shape :math:`(R,)`. \
+               Each value indicates how confident the prediction is.
+
+        """
 
         prepared_imgs = []
         sizes = []
