@@ -115,9 +115,8 @@ class ResNet101Extractor(chainer.Chain):
 
     def __call__(self, x):
         with chainer.using_config('train', False):
-            with chainer.function.no_backprop_mode():
-                h = self.pool1(self.conv1(x))
-                h = self.res2(h)
+            h = self.pool1(self.conv1(x))
+            h = self.res2(h)
             h = self.res3(h)
             res4 = self.res4(h)
             res5 = self.res5(res4)
