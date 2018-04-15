@@ -132,7 +132,7 @@ class FCIS(chainer.Chain):
                 # inference
                 img_var = chainer.Variable(self.xp.array(img[None]))
                 scale = img_var.shape[3] / size[1]
-                roi_seg_scores, roi_ag_locs, roi_scores, rois, _ = \
+                roi_seg_scores, _, roi_scores, rois, _ = \
                     self.__call__(img_var, scale)
 
             roi_seg_score = roi_seg_scores.array
