@@ -141,23 +141,23 @@ class FCISResNet101Head(chainer.Chain):
 
         initialW = chainer.initializers.Normal(0.01)
         with self.init_scope():
-            self.psroi_conv1 = L.Convolution2D(
+            self.conv1 = L.Convolution2D(
                 2048, 1024, 1, 1, 0, initialW=initialW)
-            self.psroi_conv2 = L.Convolution2D(
+            self.cls_seg = L.Convolution2D(
                 1024, group_size * group_size * n_class * 2,
                 1, 1, 0, initialW=initialW)
-            self.psroi_conv3 = L.Convolution2D(
+            self.ag_loc = L.Convolution2D(
                 1024, group_size * group_size * 2 * 4,
                 1, 1, 0, initialW=initialW)
 
     def __call__(self, x, rois, roi_indices, img_size):
-        h = F.relu(self.psroi_conv1(x))
-        h_cls_seg = self.psroi_conv2(h)
-        h_ag_locs = self.psroi_conv3(h)
+        h = F.relu(self.conv1(x))
+        h_cls_seg = self.cls_seg(h)
+        h_ag_loc = self.ag_loc(h)
 
         # PSROI pooling and regression
         roi_seg_scores, roi_ag_locs, roi_cls_scores = self._pool(
-            h_cls_seg, h_ag_locs, rois, roi_indices)
+            h_cls_seg, h_ag_loc, rois, roi_indices)
         if self.iter2:
             # 2nd Iteration
             # get rois2 for more precise prediction
@@ -173,7 +173,7 @@ class FCISResNet101Head(chainer.Chain):
 
             # PSROI pooling and regression
             roi_seg_scores2, roi_ag_locs2, roi_cls_scores2 = self._pool(
-                h_cls_seg, h_ag_locs, rois2, roi_indices)
+                h_cls_seg, h_ag_loc, rois2, roi_indices)
 
             # concat 1st and 2nd iteration results
             rois = self.xp.concatenate((rois, rois2))
@@ -187,51 +187,43 @@ class FCISResNet101Head(chainer.Chain):
         return roi_seg_scores, roi_ag_locs, roi_cls_scores, rois, roi_indices
 
     def _pool(
-            self, h_cls_seg, h_ag_locs, rois, roi_indices):
+            self, h_cls_seg, h_ag_loc, rois, roi_indices):
         # PSROI Pooling
-        # shape: (n_rois, n_class*2, roi_size, roi_size)
-        pool_cls_seg = psroi_pooling_2d(
+        # shape: (n_roi, n_class*2, roi_size, roi_size)
+        roi_cls_seg_scores = psroi_pooling_2d(
             h_cls_seg, rois, roi_indices,
             self.n_class * 2, self.roi_size, self.roi_size,
             self.spatial_scale, self.group_size)
-        # shape: (n_rois, n_class, 2, roi_size, roi_size)
-        pool_cls_seg = pool_cls_seg.reshape(
+        roi_cls_seg_scores = roi_cls_seg_scores.reshape(
             (-1, self.n_class, 2, self.roi_size, self.roi_size))
-        # shape: (n_rois, 2*4, roi_size, roi_size)
-        pool_ag_locs = psroi_pooling_2d(
-            h_ag_locs, rois, roi_indices,
+
+        # shape: (n_roi, 2*4, roi_size, roi_size)
+        roi_ag_loc_scores = psroi_pooling_2d(
+            h_ag_loc, rois, roi_indices,
             2 * 4, self.roi_size, self.roi_size,
             self.spatial_scale, self.group_size)
 
-        # Classfication
-        # Group Max
-        # shape: (n_rois, n_class, roi_size, roi_size)
-        h_cls = pool_cls_seg.transpose((0, 1, 3, 4, 2))
-        h_cls = F.max(h_cls, axis=4)
-
-        # Global pooling (vote)
-        # shape: (n_rois, n_class)
-        roi_cls_scores = _global_average_pooling_2d(h_cls)
+        # shape: (n_roi, n_class)
+        roi_cls_scores = _global_average_pooling_2d(
+            F.max(roi_cls_seg_scores, axis=2))
 
         # Bbox Regression
-        # shape: (n_rois, 2*4)
-        roi_ag_locs = _global_average_pooling_2d(pool_ag_locs)
-        n_roi = roi_ag_locs.shape[0]
-        roi_ag_locs = roi_ag_locs.reshape((n_roi, 2, 4))
+        # shape: (n_roi, 2*4)
+        roi_ag_locs = _global_average_pooling_2d(roi_ag_loc_scores)
+        roi_ag_locs = roi_ag_locs.reshape((-1, 2, 4))
 
         # Mask Regression
-        # shape: (n_rois, n_class, 2, roi_size, roi_size)
-        # Group Pick by Score
+        # shape: (n_roi, n_class, 2, roi_size, roi_size)
         max_cls_indices = roi_cls_scores.array.argmax(axis=1)
-        # shape: (n_rois, 2, roi_size, roi_size)
-        roi_seg_scores = pool_cls_seg[
-            np.arange(len(max_cls_indices)), max_cls_indices]
+        # shape: (n_roi, 2, roi_size, roi_size)
+        roi_seg_scores = roi_cls_seg_scores[
+            self.xp.arange(len(max_cls_indices)), max_cls_indices]
 
         return roi_seg_scores, roi_ag_locs, roi_cls_scores
 
 
 def _global_average_pooling_2d(x):
-    n_rois, n_channel, H, W = x.array.shape
+    n_roi, n_channel, H, W = x.array.shape
     h = F.average_pooling_2d(x, (H, W), stride=1)
-    h = F.reshape(h, (n_rois, n_channel))
+    h = F.reshape(h, (n_roi, n_channel))
     return h
