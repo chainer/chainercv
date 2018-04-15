@@ -45,6 +45,46 @@ def mask_voting(
         mask_merge_thresh, binary_thresh,
         limit=100, bg_label=0
 ):
+    """Refine mask probabilities by merging multiple masks.
+
+    First, this function discard invalid masks with non maximum suppression.
+    Then, it merge masks with weight calculated from class probabilities and
+    iou.
+    This function improve qualities by merging overlapped masks predicted as
+    the same object class.
+
+    Here are notations used.
+    * :math:`R'` is the total number of RoIs produced across batches.
+    * :math:`L` is the number of classes excluding the background.
+    * :math:`RH` is the height of pooled image.
+    * :math:`RW` is the height of pooled image.
+
+    Args:
+        mask_scores (array): A mask score array whose shape is
+            :math:`(R, RH, RW)`.
+        scores (array): A class score array whose shape is
+            :math:`(R, L + 1)`.
+        size (tuple of int): Original image size.
+        score_thresh (float): A threshold value of the class score.
+        nms_thresh (float): A threshold value of non maximum suppression.
+        mask_merge_thresh (float): A threshold value of the bounding box iou
+            for mask merging.
+        binary_thresh (float): A threshold value of mask score
+            for mask merging.
+        limit (int): A limit number of outputs.
+        bg_label (int): A background label.
+
+    Returns:
+        array, array, array, array:
+        * **v_mask_score**: Merged masks. Its shapes is :math:`(N, RH, RW)`.
+        * **v_bbox**: Bounding boxes for the merged masks. Its shape is \
+            :math:`(N, 4)`.
+        * **v_label**: Class labels for the merged masks. Its shape is \
+            :math:`(N, )`.
+        * **v_score**: Class probabilities for the merged masks. Its shape \
+            is :math:`(N, )`.
+
+    """
 
     mask_size = mask_score.shape[-1]
     n_class = score.shape[1]
