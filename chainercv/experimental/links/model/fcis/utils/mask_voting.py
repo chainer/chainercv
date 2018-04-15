@@ -127,7 +127,7 @@ def mask_voting(
         v_prob = np.concatenate(v_prob)
         v_bbox = np.concatenate(v_bbox)
     else:
-        v_mask_prob = np.empty((0, size[0], size[1]))
+        v_mask_prob = np.empty((0, mask_size, mask_size))
         v_label = np.empty((0, ))
         v_prob = np.empty((0, ))
         v_bbox = np.empty((0, 4))
