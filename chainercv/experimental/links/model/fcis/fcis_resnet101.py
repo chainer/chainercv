@@ -32,10 +32,10 @@ class FCISResNet101(FCIS):
             pretrained_model=None,
             min_size=600, max_size=1000,
             ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
-            rpn_initialW=None,
             loc_normalize_mean=(0.0, 0.0, 0.0, 0.0),
             loc_normalize_std=(0.2, 0.2, 0.5, 0.5),
             iter2=True,
+            resnet_initialW=None, rpn_initialW=None, head_initialW=None,
             proposal_creator_params={
                 'nms_thresh': 0.7,
                 'n_train_pre_nms': 6000,
@@ -54,23 +54,25 @@ class FCISResNet101(FCIS):
 
         if rpn_initialW is None:
             rpn_initialW = chainer.initializers.Normal(0.01)
+        if resnet_initialW is None and pretrained_model:
+            resnet_initialW = chainer.initializers.constant.Zero()
 
-        extractor = ResNet101Extractor()
+        extractor = ResNet101Extractor(
+            initialW=resnet_initialW)
         rpn = RegionProposalNetwork(
             1024, 512,
             ratios=ratios,
             anchor_scales=anchor_scales,
             feat_stride=self.feat_stride,
             initialW=rpn_initialW,
-            proposal_creator_params=proposal_creator_params
-        )
+            proposal_creator_params=proposal_creator_params)
         head = FCISResNet101Head(
             n_fg_class + 1,
             roi_size=21, group_size=7,
             spatial_scale=1. / self.feat_stride,
             loc_normalize_mean=loc_normalize_mean,
             loc_normalize_std=loc_normalize_std,
-            iter2=iter2)
+            iter2=iter2, initialW=head_initialW)
 
         mean = np.array([123.15, 115.90, 103.06],
                         dtype=np.float32)[:, None, None]
@@ -90,9 +92,11 @@ class FCISResNet101(FCIS):
 
 class ResNet101Extractor(chainer.Chain):
 
-    def __init__(self):
+    def __init__(self, initialW=None):
         super(ResNet101Extractor, self).__init__()
-        initialW = chainer.initializers.HeNormal()
+
+        if initialW is None:
+            initialW = chainer.initializers.HeNormal()
         kwargs = {
             'initialW': initialW,
             'bn_kwargs': {'eps': 1e-5},
@@ -127,9 +131,12 @@ class FCISResNet101Head(chainer.Chain):
             n_class,
             roi_size, group_size, spatial_scale,
             loc_normalize_mean, loc_normalize_std,
-            iter2
+            iter2, initialW=None
     ):
         super(FCISResNet101Head, self).__init__()
+
+        if initialW is None:
+            initialW = chainer.initializers.Normal(0.01)
 
         self.n_class = n_class
         self.spatial_scale = spatial_scale
@@ -139,7 +146,6 @@ class FCISResNet101Head(chainer.Chain):
         self.loc_normalize_std = loc_normalize_std
         self.iter2 = iter2
 
-        initialW = chainer.initializers.Normal(0.01)
         with self.init_scope():
             self.conv1 = L.Convolution2D(
                 2048, 1024, 1, 1, 0, initialW=initialW)
