@@ -113,6 +113,7 @@ def mask_voting(
             v_bbox_l = v_bbox_l[keep_indices]
 
             v_label_l = np.repeat(label - 1, v_bbox_l.shape[0])
+            v_label_l = v_label_l.astype(np.int32)
             v_mask_prob.append(v_mask_prob_l)
             v_label.append(v_label_l)
             v_prob.append(v_prob_l)
