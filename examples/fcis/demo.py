@@ -13,11 +13,12 @@ from chainercv.visualizations import vis_instance_segmentation
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--pretrained_model', default='sbd')
+    parser.add_argument('--pretrained-model', default='sbd')
     parser.add_argument('image')
     args = parser.parse_args()
 
-    model = FCISResNet101(pretrained_model=args.pretrained_model)
+    model = FCISResNet101(
+        n_fg_class=20, pretrained_model=args.pretrained_model)
     model.to_gpu()
 
     if args.gpu >= 0:
