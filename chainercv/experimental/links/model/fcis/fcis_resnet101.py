@@ -80,8 +80,11 @@ class FCISResNet101(FCIS):
             mean, min_size, max_size,
             loc_normalize_mean, loc_normalize_std)
 
-        if pretrained_model in self._models:
-            path = download_model(self._models[pretrained_model]['url'])
+        if pretrained_model is not None:
+            if pretrained_model in self._models:
+                path = download_model(self._models[pretrained_model]['url'])
+            else:
+                path = pretrained_model
             chainer.serializers.load_npz(path, self)
 
 
