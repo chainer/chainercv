@@ -21,7 +21,7 @@ class FCISResNet101(FCIS):
         'sbd': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/fcis_resnet101_2018_04_14.npz'
+            'download/0.0.6/fcis_resnet101_sbd_trained_2018_04_14.npz'
         }
     }
     feat_stride = 16
