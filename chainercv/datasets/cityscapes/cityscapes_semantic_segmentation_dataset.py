@@ -3,13 +3,14 @@ import os
 
 import numpy as np
 
-from chainer import dataset
 from chainer.dataset import download
+
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_labels
 from chainercv.utils import read_image
 
 
-class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
+class CityscapesSemanticSegmentationDataset(GetterDataset):
 
     """Semantic segmentation dataset for `Cityscapes dataset`_.
 
@@ -36,10 +37,20 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
 
     .. _`cityscapesScripts`: https://github.com/mcordts/cityscapesScripts
 
+    This dataset returns the following data.
+
+    * :obj:`'img'`: A color image whose shape is :math:`(3, H, W)`, \
+        where :math:`H` and :math:`W` are height and width of the image, \
+        respectively. \
+        The dtype is :obj:`numpy.float32`.
+    * :obj:`'label'`: A label whose shapes is :math:`(H, W)`. \
+        The dtype is :obj:`numpy.int32`.
     """
 
     def __init__(self, data_dir='auto', label_resolution=None, split='train',
                  ignore_labels=True):
+        super(CityscapesSemanticSegmentationDataset, self).__init__()
+
         if data_dir == 'auto':
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/cityscapes')
@@ -76,26 +87,13 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
             img_path = os.path.join(img_dir, city_dname, img_path)
             self.img_paths.append(img_path)
 
+        self.add_getter('img', lambda i: read_image(self.img_paths[i]))
+        self.add_getter('label', self._get_label)
+
     def __len__(self):
         return len(self.img_paths)
 
-    def get_example(self, i):
-        """Returns the i-th example.
-
-        Returns a color image and a label image. The color image is in CHW
-        format and the label image is in HW format.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            tuple of a color image and a label whose shapes are (3, H, W) and
-            (H, W) respectively. H and W are height and width of the image.
-            The dtype of the color image is :obj:`numpy.float32` and
-            the dtype of the label image is :obj:`numpy.int32`.
-
-        """
-        img = read_image(self.img_paths[i])
+    def _get_label(self, i):
         label_orig = read_image(
             self.label_paths[i], dtype=np.int32, color=False)[0]
         if self.ignore_labels:
@@ -105,4 +103,4 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
                     label_out[label_orig == label.id] = label.trainId
         else:
             label_out = label_orig
-        return img, label_out
+        return label_out

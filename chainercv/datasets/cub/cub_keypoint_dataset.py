@@ -88,7 +88,7 @@ class CUBKeypointDataset(CUBDatasetBase):
             self.kp_dict[id_].append(keypoint)
             self.kp_mask_dict[id_].append(kp_mask)
 
-        self.add_getter(('keypoint', 'kp_mask'), self.get_kp)
+        self.add_getter(('keypoint', 'kp_mask'), self._get_kp)
 
         keys = ['img', 'keypoint', 'kp_mask']
         if return_bb:
@@ -97,17 +97,7 @@ class CUBKeypointDataset(CUBDatasetBase):
             keys.append('prob_map')
         self.keys = keys
 
-    def get_kp(self, i):
-        """Returns the keypoints and their mask of the i-th example.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            Keypoints and their mask.
-
-        """
-
+    def _get_kp(self, i):
         keypoint = np.array(self.kp_dict[i], dtype=np.float32)
         kp_mask = np.array(self.kp_mask_dict[i], dtype=np.bool)
         return keypoint, kp_mask

@@ -1,12 +1,13 @@
 import glob
 import os
 
-from chainer import dataset
 from chainer.dataset import download
+
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.utils import read_image
 
 
-class CityscapesTestImageDataset(dataset.DatasetMixin):
+class CityscapesTestImageDataset(GetterDataset):
 
     """Image dataset for test split of `Cityscapes dataset`_.
 
@@ -23,9 +24,17 @@ class CityscapesTestImageDataset(dataset.DatasetMixin):
             it uses :obj:`$CHAINER_DATSET_ROOT/pfnet/chainercv/cityscapes` by
             default.
 
+    This dataset returns the following data.
+
+    * :obj:`'img'`: A color image whose shape is :math:`(3, H, W)`, \
+        where :math:`H` and :math:`W` are height and width of the image, \
+        respectively. \
+        The dtype is :obj:`numpy.float32`.
     """
 
     def __init__(self, data_dir='auto'):
+        super(CityscapesTestImageDataset, self).__init__()
+
         if data_dir == 'auto':
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/cityscapes')
@@ -44,21 +53,8 @@ class CityscapesTestImageDataset(dataset.DatasetMixin):
                     os.path.join(city_dname, '*_leftImg8bit.png'))):
                 self.img_paths.append(img_path)
 
+        self.add_getter('img', lambda i: read_image(self.img_paths[i]))
+        self.keys = 'img'  # do not return tuple
+
     def __len__(self):
         return len(self.img_paths)
-
-    def get_example(self, i):
-        """Returns the i-th test image.
-
-        Returns a color image. The color image is in CHW format.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            A color image whose shape is (3, H, W). H and W are height and
-            width of the image.
-            The dtype of the color image is :obj:`numpy.float32`.
-
-        """
-        return read_image(self.img_paths[i])
