@@ -24,9 +24,9 @@ except ImportError:
 class _RandomDetectionStubLink(chainer.Link):
 
     def predict(self, imgs):
-        bboxes = list()
-        labels = list()
-        scores = list()
+        bboxes = []
+        labels = []
+        scores = []
 
         for _ in imgs:
             n_bbox = np.random.randint(0, 10)

@@ -11,9 +11,9 @@ from chainercv.utils import generate_random_bbox
 class DetectionLink(chainer.Link):
 
     def predict(self, imgs):
-        bboxes = list()
-        labels = list()
-        scores = list()
+        bboxes = []
+        labels = []
+        scores = []
 
         for img in imgs:
             n_bbox = np.random.randint(1, 10)

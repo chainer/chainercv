@@ -33,7 +33,7 @@ class TestApplyPredictionToIterator(unittest.TestCase):
 
             n_pred_values = 1
 
-        dataset_imgs = list()
+        dataset_imgs = []
         for _ in range(5):
             H, W = np.random.randint(8, 16, size=2)
             dataset_imgs.append(np.random.randint(0, 256, size=(3, H, W)))
@@ -88,7 +88,7 @@ class TestApplyPredictionToIteratorWithInfiniteIterator(unittest.TestCase):
             n_img = len(imgs)
             return [np.random.uniform(size=(48, 64)) for _ in range(n_img)]
 
-        dataset = list()
+        dataset = []
         for _ in range(5):
             H, W = np.random.randint(8, 16, size=2)
             dataset.append(np.random.randint(0, 256, size=(3, H, W)))

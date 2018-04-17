@@ -40,14 +40,14 @@ class TestPixelwiseSoftmaxClassifier(unittest.TestCase):
         loss = self.link(chainer.Variable(xp.asarray(self.x)),
                          chainer.Variable(xp.asarray(self.t)))
         self.assertIsInstance(loss, chainer.Variable)
-        self.assertIsInstance(loss.data, self.link.xp.ndarray)
+        self.assertIsInstance(loss.array, self.link.xp.ndarray)
         self.assertEqual(loss.shape, ())
 
         self.assertTrue(hasattr(self.link, 'y'))
         self.assertIsNotNone(self.link.y)
 
         self.assertTrue(hasattr(self.link, 'loss'))
-        xp.testing.assert_allclose(self.link.loss.data, loss.data)
+        xp.testing.assert_allclose(self.link.loss.array, loss.array)
 
     def test_call_cpu(self):
         self._check_call()

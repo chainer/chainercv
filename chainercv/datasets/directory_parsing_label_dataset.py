@@ -12,7 +12,7 @@ def directory_parsing_label_names(root, numerical_sort=False):
     layer below the root directory.
 
     The label names can be used together with
-    :class:`chainercv.datasets.DirectoryParsingLabelDataset`.
+    :class:`~chainercv.datasets.DirectoryParsingLabelDataset`.
     The index of a label name corresponds to the label id
     that is used by the dataset to refer the label.
 
@@ -23,7 +23,7 @@ def directory_parsing_label_names(root, numerical_sort=False):
             which is not the case when string sort is used.
             The default value is :obj:`False`.
 
-    Retruns:
+    Returns:
         list of strings:
         Sorted names of classes.
 
@@ -46,8 +46,8 @@ def _check_img_ext(path):
 
 def _parse_label_dataset(root, label_names,
                          check_img_file=_check_img_ext):
-    img_paths = list()
-    labels = list()
+    img_paths = []
+    labels = []
     for label, label_name in enumerate(label_names):
         label_dir = os.path.join(root, label_name)
         if not os.path.isdir(label_dir):

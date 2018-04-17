@@ -27,7 +27,7 @@ class VOCBboxDataset(PickableDataset):
     The bounding boxes are packed into a two dimensional tensor of shape
     :math:`(R, 4)`, where :math:`R` is the number of bounding boxes in
     the image. The second axis represents attributes of the bounding box.
-    They are :obj:`(y_min, x_min, y_max, x_max)`, where the
+    They are :math:`(y_{min}, x_{min}, y_{max}, x_{max})`, where the
     four attributes are coordinates of the top left and the bottom right
     vertices.
 
@@ -57,9 +57,10 @@ class VOCBboxDataset(PickableDataset):
             2007 dataset.
         year ({'2007', '2012'}): Use a dataset prepared for a challenge
             held in :obj:`year`.
-        use_difficult (bool): If true, use images that are labeled as
+        use_difficult (bool): If :obj:`True`, use images that are labeled as
             difficult in the original annotation.
-        return_difficult (bool): If true, this dataset returns a boolean array
+        return_difficult (bool): If :obj:`True`, this dataset returns
+            a boolean array
             that indicates whether bounding boxes are labeled as difficult
             or not. The default value is :obj:`False`.
 
@@ -127,9 +128,9 @@ class VOCBboxDataset(PickableDataset):
         id_ = self.ids[i]
         anno = ET.parse(
             os.path.join(self.data_dir, 'Annotations', id_ + '.xml'))
-        bbox = list()
-        label = list()
-        difficult = list()
+        bbox = []
+        label = []
+        difficult = []
         for obj in anno.findall('object'):
             # when in not using difficult split, and the object is
             # difficult, skipt it.

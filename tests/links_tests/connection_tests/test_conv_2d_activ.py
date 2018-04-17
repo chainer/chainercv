@@ -17,7 +17,7 @@ def _add_one(x):
 
 @testing.parameterize(*testing.product({
     'args_style': ['explicit', 'None', 'omit'],
-    'activ': ['relu', 'add_one']
+    'activ': ['relu', 'add_one', None]
 }))
 class TestConv2DActiv(unittest.TestCase):
 
@@ -32,6 +32,8 @@ class TestConv2DActiv(unittest.TestCase):
             activ = relu
         elif self.activ == 'add_one':
             activ = _add_one
+        elif self.activ is None:
+            activ = None
         self.x = np.random.uniform(
             -1, 1, (5, self.in_channels, 5, 5)).astype(np.float32)
         self.gy = np.random.uniform(
@@ -63,14 +65,22 @@ class TestConv2DActiv(unittest.TestCase):
         y = self.l(x)
 
         self.assertIsInstance(y, chainer.Variable)
-        self.assertIsInstance(y.data, self.l.xp.ndarray)
+        self.assertIsInstance(y.array, self.l.xp.ndarray)
 
         if self.activ == 'relu':
             np.testing.assert_almost_equal(
-                cuda.to_cpu(y.data), np.maximum(cuda.to_cpu(x_data), 0))
+                cuda.to_cpu(y.array), np.maximum(cuda.to_cpu(x_data), 0),
+                decimal=6
+            )
         elif self.activ == 'add_one':
             np.testing.assert_almost_equal(
-                cuda.to_cpu(y.data), cuda.to_cpu(x_data) + 1)
+                cuda.to_cpu(y.array), cuda.to_cpu(x_data) + 1,
+                decimal=6
+            )
+        elif self.activ is None:
+            np.testing.assert_almost_equal(
+                cuda.to_cpu(y.array), cuda.to_cpu(x_data),
+                decimal=6)
 
     def test_forward_cpu(self):
         self.check_forward(self.x)
