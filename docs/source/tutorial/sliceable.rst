@@ -166,24 +166,27 @@ is that they take sliceable dataset(s) and return a sliceable dataset.
     from chainercv.datasets import voc_bbox_label_names
 
     dataset_07 = VOCBboxDataset(year='2007')
+    print('07:', dataset_07.keys, len(dataset_07))  # 07: ('img', 'bbox', 'label') 2501
+
     dataset_12 = VOCBboxDataset(year='2012')
+    print('12:', dataset_12.keys, len(dataset_12))  # 12: ('img', 'bbox', 'label') 5717
 
     # concatenate
     dataset_0712 = ConcatenatedDataset(dataset_07, dataset_12)
-    print(dataset_0712.keys)  # ('img', 'bbox', 'label')
+    print('0712:', dataset_0712.keys, len(dataset_0712))  # 0712: ('img', 'bbox', 'label') 8218
 
     # transform
     def transform(in_data):
         img, bbox, label = in_data
 
         dog_lb = voc_bbox_label_names.index('dog')
-        dog_bbox = bbox[label == dog_lb]
+        bbox_dog = bbox[label == dog_lb]
 
-        return img, dog_bbox
+        return img, bbox_dog
 
     # we need to specify the names of data
-    dog_dataset_0712 = TransformDataset(dataset_0712, ('img', 'dog_bbox'), transform)
-    print(dog_dataset_0712.keys)  # ('img', 'dog_bbox')
+    dataset_0712_dog = TransformDataset(dataset_0712, ('img', 'bbox_dog'), transform)
+    print('0712_dog:', dataset_0712_dog.keys, len(dataset_0712_dog))  # 0712_dog: ('img', 'bbox_dog') 8218
 
 
 Make your own dataset
