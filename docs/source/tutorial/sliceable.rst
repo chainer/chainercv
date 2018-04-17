@@ -5,17 +5,18 @@ This tutorial will walk you through the features related to sliceable dataset.
 We assume that readers have a basic understanding of Chainer dataset (e.g. understand :class:`chainer.dataset.DatasetMixin`).
 
 In ChainerCV, we introduce `sliceable` feature to datasets.
-Sliceable datasets support :method:`slice` that returns a view of the dataset.
+Sliceable datasets support :meth:`slice` that returns a view of the dataset.
 
 This example that shows the basic usage.
 
 .. code-block:: python
+
     # VOCBboxDataset supports sliceable feature
     from chainercv.datasets import VOCBboxDataset
     dataset = VOCBboxDataset()
 
-    # keys() returns the names of data
-    print(dataset.keys())  # ('img', 'bbox', 'label')
+    # keys returns the names of data
+    print(dataset.keys)  # ('img', 'bbox', 'label')
     # we can get an example by []
     img, bbox, label = dataset[0]
 
@@ -25,16 +26,16 @@ This example that shows the basic usage.
 
     # get a view of image and label
     view = dataset.slice[:, ('img', 'label')]
-    # the view also supports sliceable, so that we can call keys()
-    print(view.keys())  # ('img', 'label')
+    # the view also supports sliceable, so that we can call keys
+    print(view.keys)  # ('img', 'label')
     # we can get an example by []
     img, label = view[0]
 
 
 Motivation
 ----------
-:method:`slice` returns a view of the dataset without conducting data loading,
-where :method:`DatasetMixin.__getitem__` conducts :method:`get_example` for all required examples.
+:meth:`slice` returns a view of the dataset without conducting data loading,
+where :meth:`DatasetMixin.__getitem__` conducts :meth:`get_example` for all required examples.
 Users can write efficient code by this view.
 
 This example counts the number of images that contain dogs.
@@ -42,6 +43,7 @@ With the sliceable feature, we can access the label information without loading 
 Therefore, the first case becomes faster.
 
 .. code-block:: python
+
     import time
 
     from chainercv.datasets import VOCBboxDataset
@@ -79,9 +81,10 @@ Therefore, the first case becomes faster.
 
 Usage: slice along with the axis of examples
 --------------------------------------------
-:method:`slice` takes indices of examples as its first argument.
+:meth:`slice` takes indices of examples as its first argument.
 
 .. code-block:: python
+
     from chainercv.datasets import VOCBboxDataset
     dataset = VOCBboxDataset()
 
@@ -100,37 +103,38 @@ Usage: slice along with the axis of examples
 
 Usage: slice along with the axis of data
 ----------------------------------------
-:method:`slice` takes names or indices of data as its second argument.
-:method:`keys` returns all available names.
+:meth:`slice` takes names or indices of data as its second argument.
+:attr:`keys` returns all available names.
 
 .. code-block:: python
+
     from chainercv.datasets import VOCBboxDataset
     dataset = VOCBboxDataset()
 
     # the view of image
     # note that : of the first argument means all examples
     view = dataset.slice[:, 'img']
-    print(view.keys())  # 'img'
+    print(view.keys)  # 'img'
     img = view[0]
 
     # the view of image and label
     view = dataset.slice[:, ('img', 'label')]
-    print(view.keys())  # ('img', 'label')
+    print(view.keys)  # ('img', 'label')
     img, label = view[0]
 
     # the view of image (returns a tuple)
     view = dataset.slice[:, ('img',)]
-    print(view.keys())  # ('img',)
+    print(view.keys)  # ('img',)
     img, = view[0]
 
     # use an index instead of a name
     view = dataset.slice[:, 1]
-    print(view.keys())  # 'bbox'
+    print(view.keys)  # 'bbox'
     bbox = view[0]
 
     # mixture of names and indices
     view = dataset.slice[:, (1, 'label')]
-    print(view.keys())  # ('bbox', 'label')
+    print(view.keys)  # ('bbox', 'label')
     bbox, label = view[0]
 
 
@@ -138,6 +142,7 @@ Usage: slice along with both axes
 ---------------------------------
 
 .. code-block:: python
+
     from chainercv.datasets import VOCBboxDataset
     dataset = VOCBboxDataset()
 
@@ -153,6 +158,7 @@ to construct a new sliceable dataset.
 This example implements a sliceable bounding box dataset.
 
 .. code-block:: python
+
     import numpy as np
 
     from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
@@ -193,6 +199,7 @@ This example implements a sliceable bounding box dataset.
 If you have arrays of data, you can use :class:`~chainercv.chainer_experimental.datasets.sliceable.TupleDataset`.
 
 .. code-block:: python
+
     import numpy as np
 
     from chainercv.chainer_experimental.datasets.sliceable import TupleDataset
