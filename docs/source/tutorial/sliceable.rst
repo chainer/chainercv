@@ -156,7 +156,6 @@ This example implements a sliceable bounding box dataset.
     from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
     from chainercv.utils import generate_random_bbox
 
-
     class SampleBboxDataset(GetterDataset):
         def __init__(self):
             super(SampleBboxDataset, self).__init__()
@@ -182,8 +181,7 @@ This example implements a sliceable bounding box dataset.
             label = np.random.randint(0, 9, size=10).astype(np.int32)
             return bbox, label
 
-
-    dataset = SampleBboxdataset()
+    dataset = SampleBboxDataset()
     img, bbox, label = dataset[0]  # get_image(0) and get_annotation(0)
 
     view = dataset.slice[:, 'label']
@@ -201,7 +199,7 @@ If you have arrays of data, you can use :class:`~chainercv.chainer_experimental.
     n = 20
     imgs = np.random.uniform(0, 255, size=(n, 3, 224, 224)).astype(np.float32)
     bboxes = [generate_random_bbox(10, (224, 224), 10, 224) for _ in range(n)]
-    label = np.random.randint(0, 9, size=(n, 10)).astype(np.int32)
+    labels = np.random.randint(0, 9, size=(n, 10)).astype(np.int32)
 
     dataset = TupleDataset(('img', imgs), ('bbox', bboxes), ('label', labels))
 
