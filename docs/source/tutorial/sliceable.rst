@@ -150,6 +150,42 @@ Usage: slice along with both axes
     view = dataset.slice[:100, 'label']
 
 
+Concatenate and transform
+-------------------------
+ChainerCV provides :class:`~chainercv.chainer_experimental.datasets.sliceable.ConcatenatedDataset`
+and :class:`~chainercv.chainer_experimental.datasets.sliceable.TransformDataset`.
+The difference from :class:`chainer.datasets.ConcatenatedDataset` and
+:class:`chainer.datasets.TransformDataset`
+is that they take sliceable dataset(s) and return a sliceable dataset.
+
+.. code-block:: python
+
+    from chainercv.chainer_experimental.datasets.sliceable import ConcatenatedDataset
+    from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
+    from chainercv.datasets import VOCBboxDataset
+    from chainercv.datasets import voc_bbox_label_names
+
+    dataset_07 = VOCBboxDataset(year='2007')
+    dataset_12 = VOCBboxDataset(year='2012')
+
+    # concatenate
+    dataset_0712 = ConcatenatedDataset(dataset_07, dataset_12)
+    print(dataset_0712.keys)  # ('img', 'bbox', 'label')
+
+    # transform
+    def transform(in_data):
+        img, bbox, label = in_data
+
+        dog_lb = voc_bbox_label_names.index('dog')
+        dog_bbox = bbox[label == dog_lb]
+
+        return img, dog_bbox
+
+    # we need to specify the names of data
+    dog_dataset_0712 = Transform(dataset_0712, ('img', 'dog_bbox'), transform)
+    print(dog_dataset_0712.keys)  # ('img', 'dog_bbox')
+
+
 Make your own dataset
 ---------------------
 ChainerCV provides :class:`~chainercv.chainer_experimental.datasets.sliceable.GetterDataset`
@@ -212,5 +248,6 @@ If you have arrays of data, you can use :class:`~chainercv.chainer_experimental.
 
     dataset = TupleDataset(('img', imgs), ('bbox', bboxes), ('label', labels))
 
+    print(dataset.keys)  # ('img', 'bbox', 'label')
     view = dataset.slice[:, 'label']
     label = view[1]
