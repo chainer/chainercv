@@ -5,3 +5,4 @@ ChainerCV Tutorial
     :maxdepth: 2
 
     detection
+    sliceable
