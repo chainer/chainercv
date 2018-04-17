@@ -45,5 +45,48 @@ class TestGetterDataset(unittest.TestCase):
         self.assertEqual(example, ('item1(1)', 'item2(1)', 'item3(1)'))
         self.assertEqual(self.dataset.count, 2)
 
+    def test_set_keys_single_name(self):
+        self.dataset.keys = 'item0'
+        self.assertEqual(self.dataset.keys, 'item0')
+        self.assertEqual(self.dataset[0], 'item0(1)')
+
+    def test_set_keys_single_index(self):
+        self.dataset.keys = 0
+        self.assertEqual(self.dataset.keys, 'item0')
+        self.assertEqual(self.dataset[1], 'item0(1)')
+
+    def test_set_keys_single_tuple_name(self):
+        self.dataset.keys = ('item1',)
+        self.assertEqual(self.dataset.keys, ('item1',))
+        self.assertEqual(self.dataset[2], ('item1(2)',))
+
+    def test_set_keys_single_tuple_index(self):
+        self.dataset.keys = (1,)
+        self.assertEqual(self.dataset.keys, ('item1',))
+        self.assertEqual(self.dataset[2], ('item1(2)',))
+
+    def test_set_keys_multiple_name(self):
+        self.dataset.keys = ('item0', 'item2')
+        self.assertEqual(self.dataset.keys, ('item0', 'item2'))
+        self.assertEqual(self.dataset[3], ('item0(3)', 'item2(3)'))
+
+    def test_set_keys_multiple_index(self):
+        self.dataset.keys = (0, 2)
+        self.assertEqual(self.dataset.keys, ('item0', 'item2'))
+        self.assertEqual(self.dataset[3], ('item0(3)', 'item2(3)'))
+
+    def test_set_keys_multiple_mixed(self):
+        self.dataset.keys = ('item0', 2)
+        self.assertEqual(self.dataset.keys, ('item0', 'item2'))
+        self.assertEqual(self.dataset[3], ('item0(3)', 'item2(3)'))
+
+    def test_set_keys_invalid_name(self):
+        with self.assertRaises(KeyError):
+            self.dataset.keys = 'invalid'
+
+    def test_set_keys_invalid_index(self):
+        with self.assertRaises(IndexError):
+            self.dataset.keys = 3
+
 
 testing.run_module(__name__, __file__)
