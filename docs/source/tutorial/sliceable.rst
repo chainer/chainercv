@@ -12,7 +12,7 @@ This example that shows the basic usage.
 .. code-block:: python
     # VOCBboxDataset supports sliceable feature
     from chainercv.datasets import VOCBboxDataset
-    dataset = VOCBboxdDataset()
+    dataset = VOCBboxDataset()
 
     # keys() returns the names of data
     print(dataset.keys())  # ('img', 'bbox', 'label')
@@ -31,8 +31,8 @@ This example that shows the basic usage.
     img, label = view[0]
 
 
-The difference from DatasetMixin
---------------------------------
+Motivation
+----------
 :method:`slice` returns a view of the dataset without conducting data loading,
 where :method:`DatasetMixin.__getitem__` conducts :method:`get_example` for all required examples.
 Users can write efficient code by this view.
@@ -45,7 +45,7 @@ This example counts the number of images that contain dogs.
     from chainercv.datasets import VOCBboxDataset
     from chainercv.datasets import voc_bbox_label_names
 
-    dataset = VOCBboxdDataset()
+    dataset = VOCBboxDataset()
     dog_lb = voc_bbox_label_names.index('dog')
 
     # with slice
@@ -81,7 +81,7 @@ Usage: slice along with the axis of examples
 
 .. code-block:: python
     from chainercv.datasets import VOCBboxDataset
-    dataset = VOCBboxdDataset()
+    dataset = VOCBboxDataset()
 
     # the view of first 100 examples
     view = dataset.slice[:100]
@@ -103,7 +103,7 @@ Usage: slice along with the axis of data
 
 .. code-block:: python
     from chainercv.datasets import VOCBboxDataset
-    dataset = VOCBboxdDataset()
+    dataset = VOCBboxDataset()
 
     # the view of image
     # note that : of the first argument means all examples
@@ -137,7 +137,73 @@ Usage: slice along with both axes
 
 .. code-block:: python
     from chainercv.datasets import VOCBboxDataset
-    dataset = VOCBboxdDataset()
+    dataset = VOCBboxDataset()
 
     # the view of label of the first 100 examples
     view = dataset.slice[:100, 'label']
+
+
+Make your own dataset
+---------------------
+ChainerCV provides :class:`~chainercv.chainer_experimental.datasets.sliceable.GetterDataset`
+to construct a new sliceable dataset.
+
+This example implements a sliceable bounding box dataset.
+
+.. code-block:: python
+    import numpy as np
+
+    from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
+    from chainercv.utils import generate_random_bbox
+
+
+    class SampleBboxDataset(GetterDataset):
+        def __init__(self):
+            super(SampleBboxDataset, self).__init__()
+
+            # register getter method for image
+            self.add_getter('img', self.get_image)
+            # register getter method for bbox and label
+            self.add_getter(('bbox', 'label'), self.get_annotation)
+
+        def __len__(self):
+            return 20
+
+        def get_image(self, i):
+            print('get_image({})'.format(i))
+            # generate dummy image
+            img = np.random.uniform(0, 255, size=(3, 224, 224)).astype(np.float32)
+            return img
+
+        def get_annotation(self, i):
+            print('get_annotation({})'.format(i))
+            # generate dummy annotations
+            bbox = generate_random_bbox(10, (224, 224), 10, 224)
+            label = np.random.randint(0, 9, size=10).astype(np.int32)
+            return bbox, label
+
+
+    dataset = SampleBboxdataset()
+    img, bbox, label = dataset[0]  # get_image(0) and get_annotation(0)
+
+    view = dataset.slice[:, 'label']
+    label = view[1]  # get_annotation(0)
+
+
+If you have arrays of data, you can use :class:`~chainercv.chainer_experimental.datasets.sliceable.TupleDataset`.
+
+.. code-block:: python
+    import numpy as np
+
+    from chainercv.chainer_experimental.datasets.sliceable import TupleDataset
+    from chainercv.utils import generate_random_bbox
+
+    n = 20
+    imgs = np.random.uniform(0, 255, size=(n, 3, 224, 224)).astype(np.float32)
+    bboxes = [generate_random_bbox(10, (224, 224), 10, 224) for _ in range(n)]
+    label = np.random.randint(0, 9, size=(n, 10)).astype(np.int32)
+
+    dataset = TupleDataset(('img', imgs), ('bbox', bboxes), ('label', labels))
+
+    view = dataset.slice[:, 'label']
+    label = view[1]

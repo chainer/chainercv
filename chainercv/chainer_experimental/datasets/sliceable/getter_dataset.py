@@ -22,7 +22,7 @@ class GetterDataset(SliceableDataset):
     >>>             self._pairs = [l.split() for l in f]
     >>>         self._root = root
     >>>
-    >>>         self.add_getter('image', self.get_image)
+    >>>         self.add_getter('img', self.get_image)
     >>>         self.add_getter('label', self.get_label)
     >>>
     >>>     def __len__(self):
