@@ -11,7 +11,8 @@ def _as_tuple(t):
 class GetterDataset(SliceableDataset):
     """A sliceable dataset class that is defined with getters.
 
-    This ia a dataset class with getters.
+    This is a dataset class with getters.
+    Please refer to the tutorial for more detailed explanation.
 
     Here is an example.
 
