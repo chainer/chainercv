@@ -14,40 +14,6 @@ class VOCBboxDataset(GetterDataset):
 
     .. _`VOC`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
-    The index corresponds to each image.
-
-    When queried by an index, if :obj:`return_difficult == False`,
-    this dataset returns a corresponding
-    :obj:`img, bbox, label`, a tuple of an image, bounding boxes and labels.
-    This is the default behaviour.
-    If :obj:`return_difficult == True`, this dataset returns corresponding
-    :obj:`img, bbox, label, difficult`. :obj:`difficult` is a boolean array
-    that indicates whether bounding boxes are labeled as difficult or not.
-
-    The bounding boxes are packed into a two dimensional tensor of shape
-    :math:`(R, 4)`, where :math:`R` is the number of bounding boxes in
-    the image. The second axis represents attributes of the bounding box.
-    They are :math:`(y_{min}, x_{min}, y_{max}, x_{max})`, where the
-    four attributes are coordinates of the top left and the bottom right
-    vertices.
-
-    The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
-    :math:`R` is the number of bounding boxes in the image.
-    The class name of the label :math:`l` is :math:`l` th element of
-    :obj:`chainercv.datasets.voc_bbox_label_names`.
-
-    The array :obj:`difficult` is a one dimensional boolean array of shape
-    :math:`(R,)`. :math:`R` is the number of bounding boxes in the image.
-    If :obj:`use_difficult` is :obj:`False`, this array is
-    a boolean array with all :obj:`False`.
-
-    The type of the image, the bounding boxes and the labels are as follows.
-
-    * :obj:`img.dtype == numpy.float32`
-    * :obj:`bbox.dtype == numpy.float32`
-    * :obj:`label.dtype == numpy.int32`
-    * :obj:`difficult.dtype == numpy.bool`
-
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
@@ -64,6 +30,24 @@ class VOCBboxDataset(GetterDataset):
             that indicates whether bounding boxes are labeled as difficult
             or not. The default value is :obj:`False`.
 
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`bbox` [#voc_bbox_1]_, ":math:`(R, 4)`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+        :obj:`label` [#voc_bbox_1]_, ":math:`(R,)`", :obj:`int32`, \
+        ":math:`[0, 19]`"
+        :obj:`difficult` (optional [#voc_bbox_2]_), ":math:`(R,)`", \
+        :obj:`bool`, --
+
+    .. [#voc_bbox_1] If :obj:`use_difficult = True`, \
+        :obj:`bbox` and :obj:`label` contain difficult instances.
+    .. [#voc_bbox_2] :obj:`difficult` is available \
+        if :obj:`return_difficult = True`.
     """
 
     def __init__(self, data_dir='auto', split='train', year='2012',
@@ -88,8 +72,8 @@ class VOCBboxDataset(GetterDataset):
         self.data_dir = data_dir
         self.use_difficult = use_difficult
 
-        self.add_getter('img', self.get_image)
-        self.add_getter(('bbox', 'label', 'difficult'), self.get_annotations)
+        self.add_getter('img', self._get_image)
+        self.add_getter(('bbox', 'label', 'difficult'), self._get_annotations)
 
         if not return_difficult:
             self.keys = ('img', 'bbox', 'label')
@@ -97,34 +81,13 @@ class VOCBboxDataset(GetterDataset):
     def __len__(self):
         return len(self.ids)
 
-    def get_image(self, i):
-        """Returns the i-th image.
-
-        Returns a color image. The image is in CHW and RGB format.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            An image.
-        """
+    def _get_image(self, i):
         id_ = self.ids[i]
         img_path = os.path.join(self.data_dir, 'JPEGImages', id_ + '.jpg')
         img = read_image(img_path, color=True)
         return img
 
-    def get_annotations(self, i):
-        """Returns the annotations of the i-th example.
-
-        Returns bounding boxes, labels and difficulties.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            A tuple of three arrays.
-        """
-
+    def _get_annotations(self, i):
         id_ = self.ids[i]
         anno = ET.parse(
             os.path.join(self.data_dir, 'Annotations', id_ + '.xml'))

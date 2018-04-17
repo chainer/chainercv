@@ -28,9 +28,6 @@ class SBDInstanceSegmentationDataset(GetterDataset):
 
     """Instance segmentation dataset for Semantic Boundaries Dataset `SBD`_.
 
-    The class name of the label :math:`l` is :math:`l` th element of
-    :obj:`chainercv.datasets.sbd_instance_segmentation_label_names`.
-
     .. _`SBD`: http://home.bharathh.info/pubs/codes/SBD/download.html
 
     Args:
@@ -42,15 +39,14 @@ class SBDInstanceSegmentationDataset(GetterDataset):
 
     This dataset returns the following data.
 
-    * :obj:`'img'`: A color image whose shape is :math:`(3, H, W)`, \
-        where :math:`H` and :math:`W` are height and width of the image, \
-        respectively. \
-        The dtype is :obj:`numpy.float32`.
-    * :obj:`'mask'`: Masks of instances whose shapes is :math:`(R, H, W)`, \
-        where :math:`R` is the number of instances. \
-        The dtype is :obj:`numpy.bool`.
-    * :obj:`'label'`: Labels of instances whose shapes is :math:`(R,)`, \
-        The dtype is :obj:`numpy.int32`.
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`mask`, ":math:`(R, H, W)`", :obj:`bool`, --
+        :obj:`label`, ":math:`(R,)`", :obj:`int32`, \
+        ":math:`[0, 19]`"
     """
 
     def __init__(self, data_dir='auto', split='train'):

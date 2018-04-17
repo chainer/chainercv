@@ -10,9 +10,6 @@ class VOCSemanticSegmentationDataset(GetterDataset):
 
     """Semantic segmentation dataset for PASCAL `VOC2012`_.
 
-    The class name of the label :math:`l` is :math:`l` th element of
-    :obj:`chainercv.datasets.voc_semantic_segmentation_label_names`.
-
     .. _`VOC2012`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
     Args:
@@ -21,6 +18,15 @@ class VOCSemanticSegmentationDataset(GetterDataset):
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/voc`.
         split ({'train', 'val', 'trainval'}): Select a split of the dataset.
 
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`label`, ":math:`(H, W)`", :obj:`int32`, \
+        ":math:`[0, 20]`"
     """
 
     def __init__(self, data_dir='auto', split='train'):
@@ -45,40 +51,13 @@ class VOCSemanticSegmentationDataset(GetterDataset):
     def __len__(self):
         return len(self.ids)
 
-    def get_image(self, i):
-        """Returns the i-th image.
-
-        Returns a color image. The color image is in CHW format.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            A color image whose shape is (3, H, W). H and W are height
-            and width of the images. The dtype of the color image is
-            :obj:`numpy.float32`.
-
-        """
-        if i >= len(self):
-            raise IndexError('index is too large')
+    def _get_image(self, i):
         img_path = os.path.join(
             self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
         img = read_image(img_path, color=True)
         return img
 
-    def get_label(self, i):
-        """Returns the label of the i-th example.
-
-        Returns a label image. The label image is in HW format.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            A label whose shape is  (H, W). H and W are height and width of the
-            image. The dtype of the label image is :obj:`numpy.int32`.
-
-        """
+    def _get_label(self, i):
         label_path = os.path.join(
             self.data_dir, 'SegmentationClass', self.ids[i] + '.png')
         label = read_image(label_path, dtype=np.int32, color=False)
