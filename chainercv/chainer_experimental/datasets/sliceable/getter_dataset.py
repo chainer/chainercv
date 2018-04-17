@@ -42,7 +42,7 @@ class GetterDataset(SliceableDataset):
     >>> # get a subset with label = 0, 1, 2
     >>> # no images are loaded
     >>> indices = [i for i, label in
-    >>>            enumerate(dataset.slice[:, 'label']) if label in {0, 1, 2}]
+    ...            enumerate(dataset.slice[:, 'label']) if label in {0, 1, 2}]
     >>> dataset_012 = dataset.slice[indices]
     """
 
