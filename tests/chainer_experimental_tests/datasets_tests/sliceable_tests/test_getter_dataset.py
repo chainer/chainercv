@@ -48,7 +48,7 @@ class TestGetterDataset(unittest.TestCase):
     def test_set_keys_single_name(self):
         self.dataset.keys = 'item0'
         self.assertEqual(self.dataset.keys, 'item0')
-        self.assertEqual(self.dataset[0], 'item0(1)')
+        self.assertEqual(self.dataset[1], 'item0(1)')
 
     def test_set_keys_single_index(self):
         self.dataset.keys = 0
@@ -86,7 +86,7 @@ class TestGetterDataset(unittest.TestCase):
 
     def test_set_keys_invalid_index(self):
         with self.assertRaises(IndexError):
-            self.dataset.keys = 3
+            self.dataset.keys = 4
 
 
 testing.run_module(__name__, __file__)
