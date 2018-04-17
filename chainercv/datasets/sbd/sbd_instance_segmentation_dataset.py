@@ -2,8 +2,8 @@ import numpy as np
 import os
 import warnings
 
-import chainer
 
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.sbd import sbd_utils
 from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
@@ -24,7 +24,7 @@ def _check_available():
             '$ pip install scipy')
 
 
-class SBDInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
+class SBDInstanceSegmentationDataset(GetterDataset):
 
     """Instance segmentation dataset for Semantic Boundaries Dataset `SBD`_.
 
@@ -39,9 +39,23 @@ class SBDInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/sbd`.
         split ({'train', 'val', 'trainval'}): Select a split of the dataset.
 
+
+    This dataset returns the following data.
+
+    * :obj:`'img'`: A color image whose shape is :math:`(3, H, W)`, \
+        where :math:`H` and :math:`W` are height and width of the image, \
+        respectively. \
+        The dtype is :obj:`numpy.float32`.
+    * :obj:`'mask'`: Masks of instances whose shapes is :math:`(R, H, W)`, \
+        where :math:`R` is the number of instances. \
+        The dtype is :obj:`numpy.bool`.
+    * :obj:`'label'`: Labels of instances whose shapes is :math:`(R,)`, \
+        The dtype is :obj:`numpy.int32`.
     """
 
     def __init__(self, data_dir='auto', split='train'):
+        super(SBDInstanceSegmentationDataset, self).__init__()
+
         _check_available()
 
         if split not in ['train', 'trainval', 'val']:
@@ -57,37 +71,24 @@ class SBDInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
 
         self.data_dir = data_dir
 
+        self.add_getter('img', self._get_image)
+        self.add_getter(('mask', 'label'), self._get_annotations)
+
     def __len__(self):
         return len(self.ids)
 
-    def get_example(self, i):
-        """Returns the i-th example.
-
-        Returns a color image, bounding boxes, masks and labels. The color
-        image is in CHW format.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            A tuple of color image, masks and labels whose
-            shapes are :math:`(3, H, W), (R, H, W), (R, )`
-            respectively.
-            :math:`H` and :math:`W` are height and width of the images,
-            and :math:`R` is the number of objects in the image.
-            The dtype of the color image is
-            :obj:`numpy.float32`, that of the masks is :obj: `numpy.bool`,
-            and that of the labels is :obj:`numpy.int32`.
-
-        """
+    def _get_image(self, i):
         data_id = self.ids[i]
         img_file = os.path.join(
             self.data_dir, 'img', data_id + '.jpg')
-        img = read_image(img_file, color=True)
+        return read_image(img_file, color=True)
+
+    def _get_annotations(self, i):
+        data_id = self.ids[i]
         label_img, inst_img = self._load_label_inst(data_id)
         mask, label = voc_utils.image_wise_to_instance_wise(
             label_img, inst_img)
-        return img, mask, label
+        return mask, label
 
     def _load_label_inst(self, data_id):
         label_file = os.path.join(

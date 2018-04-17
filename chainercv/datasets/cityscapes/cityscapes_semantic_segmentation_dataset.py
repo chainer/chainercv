@@ -43,7 +43,7 @@ class CityscapesSemanticSegmentationDataset(GetterDataset):
         where :math:`H` and :math:`W` are height and width of the image, \
         respectively. \
         The dtype is :obj:`numpy.float32`.
-    * :obj:`'label'`: A label whose shapes is :math:`(H, W)`. \
+    * :obj:`'label'`: A label image whose shapes is :math:`(H, W)`. \
         The dtype is :obj:`numpy.int32`.
     """
 

@@ -66,9 +66,9 @@ class OnlineProductsDataset(GetterDataset):
         where :math:`H` and :math:`W` are height and width of the image, \
         respectively. \
         The dtype is :obj:`numpy.float32`.
-    * :obj:`'class_id'`: A class id. \
+    * :obj:`'label'`: A label. \
         The dtype is :obj:`numpy.int32`.
-    * :obj:`'super_class_id'`: A coarse level class id. \
+    * :obj:`'super_label'`: A coarse level label. \
         The name of the :math:`l` th coarse level class is \
         :obj:`~chainercv.datasets.online_products_super_label_names[l]` \
         The dtype is :obj:`numpy.int32`.
@@ -94,9 +94,9 @@ class OnlineProductsDataset(GetterDataset):
 
         self.add_getter('img', lambda i:
                         utils.read_image(self.paths[i], color=True))
-        self.add_getter('class_id', lambda i:
+        self.add_getter('label', lambda i:
                         np.array(self.class_ids[i], np.int32))
-        self.add_getter('super_class_id', lambda i:
+        self.add_getter('super_label', lambda i:
                         np.array(self.super_class_ids[i], np.int32))
 
     def __len__(self):
