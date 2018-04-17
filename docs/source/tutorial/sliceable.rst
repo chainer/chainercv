@@ -5,7 +5,7 @@ This tutorial will walk you through the features related to sliceable dataset.
 We assume that readers have a basic understanding of Chainer dataset (e.g. understand :class:`chainer.dataset.DatasetMixin`).
 
 In ChainerCV, we introduce `sliceable` feature to datasets.
-SliceableT datasets support :method:`slice` that returns a sub view of the dataset.
+Sliceable datasets support :method:`slice` that returns a view of the dataset.
 
 This example that shows the basic usage.
 
@@ -38,6 +38,8 @@ where :method:`DatasetMixin.__getitem__` conducts :method:`get_example` for all 
 Users can write efficient code by this view.
 
 This example counts the number of images that contain dogs.
+With the sliceable feature, we can access the label information without loading images from disk..
+Therefore, the first case becomes faster.
 
 .. code-block:: python
     import time
@@ -83,16 +85,16 @@ Usage: slice along with the axis of examples
     from chainercv.datasets import VOCBboxDataset
     dataset = VOCBboxDataset()
 
-    # the view of first 100 examples
+    # the view of the first 100 examples
     view = dataset.slice[:100]
 
-    # the view of last 100 examples
+    # the view of the last 100 examples
     view = dataset.slice[-100:]
 
-    # the view of 3rd, 5th, and 7th examples
+    # the view of the 3rd, 5th, and 7th examples
     view = dataset.slice[3:8:2]
 
-    # the view of 3rd, 1st, and 4th examples
+    # the view of the 3rd, 1st, and 4th examples
     view = dataset.slice[[3, 1, 4]]
 
 
@@ -139,7 +141,7 @@ Usage: slice along with both axes
     from chainercv.datasets import VOCBboxDataset
     dataset = VOCBboxDataset()
 
-    # the view of label of the first 100 examples
+    # the view of the labels of the first 100 examples
     view = dataset.slice[:100, 'label']
 
 
@@ -185,7 +187,7 @@ This example implements a sliceable bounding box dataset.
     img, bbox, label = dataset[0]  # get_image(0) and get_annotation(0)
 
     view = dataset.slice[:, 'label']
-    label = view[1]  # get_annotation(0)
+    label = view[1]  # get_annotation(1)
 
 
 If you have arrays of data, you can use :class:`~chainercv.chainer_experimental.datasets.sliceable.TupleDataset`.
