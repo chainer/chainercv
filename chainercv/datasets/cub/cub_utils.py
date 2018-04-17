@@ -3,7 +3,7 @@ import os
 
 from chainer.dataset import download
 
-from chainercv.dataset import PickableDataset
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv import utils
 
 
@@ -41,7 +41,7 @@ def get_cub_prob_map():
     return base_path
 
 
-class CUBDatasetBase(PickableDataset):
+class CUBDatasetBase(GetterDataset):
 
     """Base class for CUB dataset.
 
@@ -49,9 +49,6 @@ class CUBDatasetBase(PickableDataset):
 
     def __init__(self, data_dir='auto', prob_map_dir='auto'):
         super(CUBDatasetBase, self).__init__()
-        self.add_getter('img', self.get_image)
-        self.add_getter('bb', self.get_bb)
-        self.add_getter('prob_map', self.get_prob_map)
 
         if data_dir == 'auto':
             data_dir = get_cub()
@@ -79,6 +76,10 @@ class CUBDatasetBase(PickableDataset):
         self.prob_map_paths = [
             os.path.join(self.prob_map_dir, os.path.splitext(path)[0] + '.png')
             for path in self.paths]
+
+        self.add_getter('img', self.get_image)
+        self.add_getter('bb', self.get_bb)
+        self.add_getter('prob_map', self.get_prob_map)
 
     def __len__(self):
         return len(self.paths)

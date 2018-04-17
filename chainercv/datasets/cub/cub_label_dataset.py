@@ -53,18 +53,21 @@ class CUBLabelDataset(CUBDatasetBase):
     def __init__(self, data_dir='auto', return_bb=False,
                  prob_map_dir='auto', return_prob_map=False):
         super(CUBLabelDataset, self).__init__(data_dir, prob_map_dir)
-        self.data_names = ('img', 'label')
-        if return_bb:
-            self.data_names += ('bb',)
-        if return_prob_map:
-            self.data_names += ('prob_map',)
-        self.add_getter('label', self.get_label)
 
         image_class_labels_file = os.path.join(
             self.data_dir, 'image_class_labels.txt')
         labels = [int(d_label.split()[1]) - 1 for
                   d_label in open(image_class_labels_file)]
         self._labels = np.array(labels, dtype=np.int32)
+
+        self.add_getter('label', self.get_label)
+
+        keys = ['img', 'label']
+        if return_bb:
+            keys.append('bb')
+        if return_prob_map:
+            keys.append('prob_map')
+        self.keys = keys
 
     def get_label(self, i):
         """Returns the label of the i-th example.

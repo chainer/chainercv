@@ -1,12 +1,12 @@
 import numpy as np
 import os
 
-from chainercv.dataset import PickableDataset
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
 
 
-class VOCSemanticSegmentationDataset(PickableDataset):
+class VOCSemanticSegmentationDataset(GetterDataset):
 
     """Semantic segmentation dataset for PASCAL `VOC2012`_.
 
@@ -25,9 +25,6 @@ class VOCSemanticSegmentationDataset(PickableDataset):
 
     def __init__(self, data_dir='auto', split='train'):
         super(VOCSemanticSegmentationDataset, self).__init__()
-        self.data_names = ('img', 'label')
-        self.add_getter('img', self.get_image)
-        self.add_getter('label', self.get_label)
 
         if split not in ['train', 'trainval', 'val']:
             raise ValueError(
@@ -41,6 +38,9 @@ class VOCSemanticSegmentationDataset(PickableDataset):
         self.ids = [id_.strip() for id_ in open(id_list_file)]
 
         self.data_dir = data_dir
+
+        self.add_getter('img', self.get_image)
+        self.add_getter('label', self.get_label)
 
     def __len__(self):
         return len(self.ids)

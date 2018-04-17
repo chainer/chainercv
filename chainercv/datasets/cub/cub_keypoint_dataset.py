@@ -67,12 +67,6 @@ class CUBKeypointDataset(CUBDatasetBase):
     def __init__(self, data_dir='auto', return_bb=False,
                  prob_map_dir='auto', return_prob_map=False):
         super(CUBKeypointDataset, self).__init__(data_dir, prob_map_dir)
-        self.data_names = ('img', 'keypoint', 'kp_mask')
-        if return_bb:
-            self.data_names += ('bb',)
-        if return_prob_map:
-            self.data_names += ('prob_map',)
-        self.add_getter(('keypoint', 'kp_mask'), self.get_kp)
 
         # load keypoint
         parts_loc_file = os.path.join(self.data_dir, 'parts', 'part_locs.txt')
@@ -93,6 +87,15 @@ class CUBKeypointDataset(CUBDatasetBase):
 
             self.kp_dict[id_].append(keypoint)
             self.kp_mask_dict[id_].append(kp_mask)
+
+        self.add_getter(('keypoint', 'kp_mask'), self.get_kp)
+
+        keys = ['img', 'keypoint', 'kp_mask']
+        if return_bb:
+            keys.append('bb')
+        if return_prob_map:
+            keys.append('prob_map')
+        self.keys = keys
 
     def get_kp(self, i):
         """Returns the keypoints and their mask of the i-th example.
