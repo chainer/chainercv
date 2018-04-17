@@ -182,7 +182,7 @@ is that they take sliceable dataset(s) and return a sliceable dataset.
         return img, dog_bbox
 
     # we need to specify the names of data
-    dog_dataset_0712 = Transform(dataset_0712, ('img', 'dog_bbox'), transform)
+    dog_dataset_0712 = TransformDataset(dataset_0712, ('img', 'dog_bbox'), transform)
     print(dog_dataset_0712.keys)  # ('img', 'dog_bbox')
 
 
