@@ -78,7 +78,7 @@ class GetterDataset(SliceableDataset):
                     key_index += len(self._keys)
             else:
                 try:
-                    key_index = [key for key, _, _ in self._keys].index(key)
+                    key_index = _as_tuple(self.keys).index(key)
                 except ValueError:
                     raise KeyError('{} does not exists'.format(key))
             new_keys.append(self._keys[key_index])
