@@ -71,6 +71,11 @@ mask_iou
 ~~~~~~~~
 .. autofunction:: mask_iou
 
+mask_to_bbox
+~~~~~~~~~~~~
+.. autofunction:: mask_to_bbox
+
+
 Testing Utilities
 -----------------
 

@@ -17,7 +17,7 @@ def assert_is_point_dataset(dataset, n_point=None, n_example=None,
     Args:
         dataset: A dataset to be checked.
         n_point (int): The number of expected points per image.
-            If thsi is :obj:`None`, the number of points per image can be
+            If this is :obj:`None`, the number of points per image can be
             arbitrary.
         n_example (int): The number of examples to be checked.
             If this argument is specified, this function picks
