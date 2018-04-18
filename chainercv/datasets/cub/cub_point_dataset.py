@@ -68,11 +68,11 @@ class CUBPointDataset(CUBDatasetBase):
 
         self.add_getter(('point', 'mask'), self._get_annotations)
 
-        keys = ['img', 'point', 'mask']
+        keys = ('img', 'point', 'mask')
         if return_bb:
-            keys.append('bb')
+            keys += ('bb',)
         if return_prob_map:
-            keys.append('prob_map')
+            keys += ('prob_map',)
         self.keys = keys
 
     def _get_annotations(self, i):

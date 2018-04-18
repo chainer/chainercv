@@ -56,9 +56,9 @@ class CUBLabelDataset(CUBDatasetBase):
 
         self.add_getter('label', lambda i: self.get_label[i])
 
-        keys = ['img', 'label']
+        keys = ('img', 'label')
         if return_bb:
-            keys.append('bb')
+            keys += ('bb',)
         if return_prob_map:
-            keys.append('prob_map')
+            keys += ('prob_map',)
         self.keys = keys
