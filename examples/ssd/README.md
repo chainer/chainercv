@@ -33,7 +33,7 @@ Note that this code requires `cv2` module.
 ```
 $ python train.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--gpu <gpu>]
 ```
-Note that this training sometimes stops due to `cv2` issue.
+Note that this training process sometimes stucks due to `cv2` issue.
 For the details and workaround, please see [Chainer's Tips and FAQs](https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator)
 
 If you want to use multiple GPUs, use `train_multi.py`.
