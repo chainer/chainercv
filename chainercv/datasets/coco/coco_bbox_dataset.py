@@ -48,12 +48,13 @@ class COCOBboxDataset(GetterDataset):
             :obj:`bbox` [#coco_bbox_1]_, ":math:`(R, 4)`", :obj:`float32`, \
             ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
             :obj:`label` [#coco_bbox_1]_, ":math:`(R,)`", :obj:`int32`, \
-            ":math:`[0, n\_fg\_class - 1]`"
-            :obj:`area` [#coco_bbox_1]_ [#coco_bbox_2]_, ":math:`(R,)`", :obj:`float32`, --
+            ":math:`[0, #fg\_class - 1]`"
+            :obj:`area` [#coco_bbox_1]_ [#coco_bbox_2]_, ":math:`(R,)`", \
+            :obj:`float32`, --
             :obj:`crowded` [#coco_bbox_3]_, ":math:`(R,)`", :obj:`bool`, --
 
-        .. [#coco_bbox_1] If :obj:`use_crowded = True`, \
-            :obj:`bbox`, :obj:`label` and :obj:`area` contain difficult instances.
+        .. [#coco_bbox_1] If :obj:`use_crowded = True`, :obj:`bbox`, \
+            :obj:`label` and :obj:`area` contain difficult instances.
         .. [#coco_bbox_2] :obj:`area` is available \
             if :obj:`return_area = True`.
         .. [#coco_bbox_3] :obj:`crowded` is available \
