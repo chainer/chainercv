@@ -58,9 +58,9 @@ CUBLabelDataset
 ~~~~~~~~~~~~~~~
 .. autoclass:: CUBLabelDataset
 
-CUBKeypointDataset
-~~~~~~~~~~~~~~~~~~~
-.. autoclass:: CUBKeypointDataset
+CUBPointDataset
+~~~~~~~~~~~~~~~
+.. autoclass:: CUBPointDataset
 
 
 OnlineProducts
