@@ -21,6 +21,7 @@ class SampleDataset(SliceableDataset):
             for key_index in key_indices)
 
 
+@testing.parameterize(*testing.product({'iterable': [tuple, list]}))
 class TestSliceableDataset(unittest.TestCase):
 
     def setUp(self):
@@ -45,35 +46,35 @@ class TestSliceableDataset(unittest.TestCase):
         self.assertEqual(dataset[1], 'item0(1)')
 
     def test_slice_keys_single_tuple_name(self):
-        dataset = self.dataset.slice[:, ('item1',)]
+        dataset = self.dataset.slice[:, self.iterable(('item1',))]
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), len(self.dataset))
         self.assertEqual(dataset.keys, ('item1',))
         self.assertEqual(dataset[2], ('item1(2)',))
 
     def test_slice_keys_single_tuple_index(self):
-        dataset = self.dataset.slice[:, (1,)]
+        dataset = self.dataset.slice[:, self.iterable((1,))]
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), len(self.dataset))
         self.assertEqual(dataset.keys, ('item1',))
         self.assertEqual(dataset[2], ('item1(2)',))
 
     def test_slice_keys_multiple_name(self):
-        dataset = self.dataset.slice[:, ('item0', 'item2')]
+        dataset = self.dataset.slice[:, self.iterable(('item0', 'item2'))]
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), len(self.dataset))
         self.assertEqual(dataset.keys, ('item0', 'item2'))
         self.assertEqual(dataset[3], ('item0(3)', 'item2(3)'))
 
     def test_slice_keys_multiple_index(self):
-        dataset = self.dataset.slice[:, (0, 2)]
+        dataset = self.dataset.slice[:, self.iterable((0, 2))]
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), len(self.dataset))
         self.assertEqual(dataset.keys, ('item0', 'item2'))
         self.assertEqual(dataset[3], ('item0(3)', 'item2(3)'))
 
     def test_slice_keys_multiple_mixed(self):
-        dataset = self.dataset.slice[:, ('item0', 2)]
+        dataset = self.dataset.slice[:, self.iterable(('item0', 2))]
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), len(self.dataset))
         self.assertEqual(dataset.keys, ('item0', 'item2'))
