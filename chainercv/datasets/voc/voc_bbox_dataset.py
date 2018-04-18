@@ -40,7 +40,7 @@ class VOCBboxDataset(GetterDataset):
         :obj:`bbox` [#voc_bbox_1]_, ":math:`(R, 4)`", :obj:`float32`, \
         ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
         :obj:`label` [#voc_bbox_1]_, ":math:`(R,)`", :obj:`int32`, \
-        ":math:`[0, \#fg_class]`"
+        ":math:`[0, \#fg\_class - 1]`"
         :obj:`difficult` (optional [#voc_bbox_2]_), ":math:`(R,)`", \
         :obj:`bool`, --
 

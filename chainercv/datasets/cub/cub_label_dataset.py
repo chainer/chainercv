@@ -11,30 +11,6 @@ class CUBLabelDataset(CUBDatasetBase):
     .. _`Caltech-UCSD Birds-200-2011`:
         http://www.vision.caltech.edu/visipedia/CUB-200-2011.html
 
-    When queried by an index, this dataset returns a corresponding
-    :obj:`img, label`, a tuple of an image and class id.
-    The image is in RGB and CHW format.
-    The class id is between 0 and 199.
-    If :obj:`return_bb = True`, a bounding box :obj:`bb` is appended to the
-    tuple.
-    If :obj:`return_prob_map = True`, a probability map :obj:`prob_map` is
-    appended.
-
-    A bounding box is a one-dimensional array of shape :math:`(4,)`.
-    The elements of the bounding box corresponds to
-    :math:`(y_{min}, x_{min}, y_{max}, x_{max})`, where the four attributes are
-    coordinates of the top left and the bottom right vertices.
-    This information can optionally be retrieved from the dataset
-    by setting :obj:`return_bb = True`.
-
-    The probability map of a bird shows how likely the bird is located at each
-    pixel. If the value is close to 1, it is likely that the bird
-    locates at that pixel. The shape of this array is :math:`(H, W)`,
-    where :math:`H` and :math:`W` are height and width of the image
-    respectively.
-    This information can optionally be retrieved from the dataset
-    by setting :obj:`return_prob_map = True`.
-
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
@@ -48,6 +24,24 @@ class CUBLabelDataset(CUBDatasetBase):
             the bird in a tuple served for a query. The default value is
             :obj:`False`.
 
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`label`, scalar, :obj:`int32`, ":math:`[0, \#class - 1]`"
+        :obj:`bb` [#cub_label_1]_, ":math:`(4,)`", :obj:`float32`, \
+            ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+        :obj:`prob_map` [#cub_label_2]_, ":math:`(H, W)`", :obj:`float32`, \
+            ":math:`[0, 1]`"
+
+    .. [#cub_label_1] :obj:`bb` indicates the location of a bird. \
+        It is available if :obj:`return_bb = True`.
+    .. [#cub_label_2] :obj:`prob_map` indicates how likey a bird is located \
+        at each the pixel. \
+        It is available if :obj:`return_prob_map = True`.
     """
 
     def __init__(self, data_dir='auto', return_bb=False,

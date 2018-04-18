@@ -67,10 +67,9 @@ class OnlineProductsDataset(GetterDataset):
 
         :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
         "RGB, :math:`[0, 255]`"
-        :obj:`label`, scalar, :obj:`int32`, \
-        ":math:`[0, C - 1]~(C\sim 23k)`"
+        :obj:`label`, scalar, :obj:`int32`, ":math:`[0, \#class - 1]`"
         :obj:`super_label`, scalar, :obj:`int32`, \
-        ":math:`[0, 11]`"
+        ":math:`[0, \#super\_class - 1]`"
     """
 
     def __init__(self, data_dir='auto', split='train'):

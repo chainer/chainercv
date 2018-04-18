@@ -26,10 +26,11 @@ class CityscapesTestImageDataset(GetterDataset):
 
     This dataset returns the following data.
 
-    * :obj:`'img'`: A color image whose shape is :math:`(3, H, W)`, \
-        where :math:`H` and :math:`W` are height and width of the image, \
-        respectively. \
-        The dtype is :obj:`numpy.float32`.
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
     """
 
     def __init__(self, data_dir='auto'):

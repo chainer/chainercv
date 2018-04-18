@@ -26,7 +26,7 @@ class VOCSemanticSegmentationDataset(GetterDataset):
         :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
         "RGB, :math:`[0, 255]`"
         :obj:`label`, ":math:`(H, W)`", :obj:`int32`, \
-        ":math:`[0, 20]`"
+        ":math:`[-1, \#class - 1]`"
     """
 
     def __init__(self, data_dir='auto', split='train'):
