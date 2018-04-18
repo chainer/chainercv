@@ -75,6 +75,7 @@ class COCOBboxDataset(GetterDataset):
 
     def __init__(self, data_dir='auto', split='train',
                  use_crowded=False, return_crowded=False, return_area=False):
+        super(COCOBboxDataset, self).__init__()
         self.use_crowded = use_crowded
         self.return_crowded = return_crowded
         self.return_area = return_area
@@ -116,6 +117,7 @@ class COCOBboxDataset(GetterDataset):
             keys.append('area')
         if self.return_crowded:
             keys.append('crowded')
+        self.keys = keys
 
     def __len__(self):
         return len(self.ids)
