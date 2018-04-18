@@ -2,13 +2,8 @@ from collections import defaultdict
 import six
 
 from chainercv.chainer_experimental.datasets.sliceable import SliceableDataset
-
-
-def _as_tuple(t):
-    if isinstance(t, tuple):
-        return t
-    else:
-        return t,
+from chainercv.chainer_experimental.datasets.sliceable.sliceable_dataset \
+    import _as_tuple
 
 
 class TupleDataset(SliceableDataset):
