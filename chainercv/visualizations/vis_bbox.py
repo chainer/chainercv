@@ -51,7 +51,7 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
              This is optional.
         label_names (iterable of strings): Name of labels ordered according
             to label ids. If this is :obj:`None`, labels will be skipped.
-        instance_colors (iterable of tuple): List of colors.
+        instance_colors (iterable of tuples): List of colors.
             Each color is RGB format and the range of its values is
             :math:`[0, 255]`. The :obj:`i`-th element is the color used
             to visualize the :obj:`i`-th instance.
@@ -84,7 +84,7 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
 
     if instance_colors is None:
         # Red
-        instance_colors = np.ones((len(bbox), 3), dtype=np.float32)
+        instance_colors = np.zeros((len(bbox), 3), dtype=np.float32)
         instance_colors[:, 0] = 255
     instance_colors = np.array(instance_colors)
 
