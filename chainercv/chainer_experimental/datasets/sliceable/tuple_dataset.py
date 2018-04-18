@@ -1,9 +1,9 @@
 from collections import defaultdict
 import six
 
-from chainercv.chainer_experimental.datasets.sliceable import SliceableDataset
 from chainercv.chainer_experimental.datasets.sliceable.sliceable_dataset \
     import _as_tuple
+from chainercv.chainer_experimental.datasets.sliceable import SliceableDataset
 
 
 class TupleDataset(SliceableDataset):

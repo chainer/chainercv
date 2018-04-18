@@ -1,6 +1,6 @@
-from chainercv.chainer_experimental.datasets.sliceable import SliceableDataset
 from chainercv.chainer_experimental.datasets.sliceable.sliceable_dataset \
     import _as_indices
+from chainercv.chainer_experimental.datasets.sliceable import SliceableDataset
 
 
 class GetterDataset(SliceableDataset):
