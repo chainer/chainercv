@@ -51,6 +51,13 @@ CityscapesTestImageDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: CityscapesTestImageDataset
 
+COCO
+----
+
+COCOInstanceSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: COCOInstanceSegmentationDataset
+
 CUB
 ---
 
