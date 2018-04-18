@@ -6,9 +6,9 @@ from chainercv.datasets.cub.cub_utils import CUBDatasetBase
 from chainercv import utils
 
 
-class CUBKeypointDataset(CUBDatasetBase):
+class CUBPointDataset(CUBDatasetBase):
 
-    """`Caltech-UCSD Birds-200-2011`_ dataset  with annotated keypoints.
+    """`Caltech-UCSD Birds-200-2011`_ dataset  with annotated points.
 
     .. _`Caltech-UCSD Birds-200-2011`:
         http://www.vision.caltech.edu/visipedia/CUB-200-2011.html
@@ -16,24 +16,24 @@ class CUBKeypointDataset(CUBDatasetBase):
     An index corresponds to each image.
 
     When queried by an index, this dataset returns the corresponding
-    :obj:`img, keypoint, kp_mask`, a tuple of an image, keypoints
-    and a keypoint mask that indicates visible keypoints in the image.
+    :obj:`img, point, mask`, a tuple of an image, points
+    and a point mask that indicates visible points in the image.
     The data type of the three elements are :obj:`float32, float32, bool`.
     If :obj:`return_bb = True`, a bounding box :obj:`bb` is appended to the
     tuple.
     If :obj:`return_prob_map = True`, a probability map :obj:`prob_map` is
     appended.
 
-    keypoints are packed into a two dimensional array of shape
-    :math:`(K, 2)`, where :math:`K` is the number of keypoints.
-    Note that :math:`K=15` in CUB dataset. Also note that not all fifteen
-    keypoints are visible in an image. When a keypoint is not visible,
-    the values stored for that keypoint are undefined. The second axis
+    Points are packed into a two dimensional array of shape
+    :math:`(P, 2)`, where :math:`P` is the number of points.
+    Note that :math:`P=15` in CUB dataset. Also note that not all fifteen
+    points are visible in an image. When a point is not visible,
+    the coordinates of the point are undefined. The second axis
     corresponds to the :math:`y` and :math:`x` coordinates of the
-    keypoints in the image.
+    points in the image.
 
-    A keypoint mask array indicates whether a keypoint is visible in the
-    image or not. This is a boolean array of shape :math:`(K,)`.
+    A point mask array indicates whether a point is visible in the
+    image or not. This is a boolean array of shape :math:`(P,)`.
 
     A bounding box is a one-dimensional array of shape :math:`(4,)`.
     The elements of the bounding box corresponds to
@@ -67,29 +67,24 @@ class CUBKeypointDataset(CUBDatasetBase):
 
     def __init__(self, data_dir='auto', return_bb=False,
                  prob_map_dir='auto', return_prob_map=False):
-        super(CUBKeypointDataset, self).__init__(
+        super(CUBPointDataset, self).__init__(
             data_dir=data_dir, return_bb=return_bb,
             prob_map_dir=prob_map_dir, return_prob_map=return_prob_map)
 
-        # load keypoint
+        # load point
         parts_loc_file = os.path.join(self.data_dir, 'parts', 'part_locs.txt')
-        self.kp_dict = collections.OrderedDict()
-        self.kp_mask_dict = collections.OrderedDict()
+        self._point_dict = collections.defaultdict(list)
+        self._point_mask_dict = collections.defaultdict(list)
         for loc in open(parts_loc_file):
             values = loc.split()
             id_ = int(values[0]) - 1
 
-            if id_ not in self.kp_dict:
-                self.kp_dict[id_] = []
-            if id_ not in self.kp_mask_dict:
-                self.kp_mask_dict[id_] = []
-
             # (y, x) order
-            keypoint = [float(v) for v in values[3:1:-1]]
-            kp_mask = bool(int(values[4]))
+            point = [float(v) for v in values[3:1:-1]]
+            point_mask = bool(int(values[4]))
 
-            self.kp_dict[id_].append(keypoint)
-            self.kp_mask_dict[id_].append(kp_mask)
+            self._point_dict[id_].append(point)
+            self._point_mask_dict[id_].append(point_mask)
 
     def get_example(self, i):
         """Returns the i-th example.
@@ -98,32 +93,32 @@ class CUBKeypointDataset(CUBDatasetBase):
             i (int): The index of the example.
 
         Returns:
-            tuple of an image, keypoints and a keypoint mask.
+            tuple of an image, points and a point mask.
             The image is in CHW format and its color channel is ordered in
             RGB.
             If :obj:`return_bb = True`,
             a bounding box is appended to the returned value.
-            If :obj:`return_mask = True`,
+            If :obj:`return_prob_map = True`,
             a probability map is appended to the returned value.
 
         """
         img = utils.read_image(
             os.path.join(self.data_dir, 'images', self.paths[i]),
             color=True)
-        keypoint = np.array(self.kp_dict[i], dtype=np.float32)
-        kp_mask = np.array(self.kp_mask_dict[i], dtype=np.bool)
+        point = np.array(self._point_dict[i], dtype=np.float32)
+        point_mask = np.array(self._point_mask_dict[i], dtype=np.bool)
 
         if not self.return_prob_map:
             if self.return_bb:
-                return img, keypoint, kp_mask, self.bbs[i]
+                return img, point, point_mask, self.bbs[i]
             else:
-                return img, keypoint, kp_mask
+                return img, point, point_mask
 
         prob_map = utils.read_image(self.prob_map_paths[i],
                                     dtype=np.uint8, color=False)
         prob_map = prob_map.astype(np.float32) / 255  # [0, 255] -> [0, 1]
         prob_map = prob_map[0]  # (1, H, W) --> (H, W)
         if self.return_bb:
-            return img, keypoint, kp_mask, self.bbs[i], prob_map
+            return img, point, point_mask, self.bbs[i], prob_map
         else:
-            return img, keypoint, kp_mask, prob_map
+            return img, point, point_mask, prob_map

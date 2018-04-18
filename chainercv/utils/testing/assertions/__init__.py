@@ -5,5 +5,6 @@ from chainercv.utils.testing.assertions.assert_is_image import assert_is_image  
 from chainercv.utils.testing.assertions.assert_is_instance_segmentation_dataset import assert_is_instance_segmentation_dataset  # NOQA
 from chainercv.utils.testing.assertions.assert_is_label_dataset import assert_is_label_dataset  # NOQA
 from chainercv.utils.testing.assertions.assert_is_point import assert_is_point  # NOQA
+from chainercv.utils.testing.assertions.assert_is_point_dataset import assert_is_point_dataset  # NOQA
 from chainercv.utils.testing.assertions.assert_is_semantic_segmentation_dataset import assert_is_semantic_segmentation_dataset  # NOQA
 from chainercv.utils.testing.assertions.assert_is_semantic_segmentation_link import assert_is_semantic_segmentation_link  # NOQA

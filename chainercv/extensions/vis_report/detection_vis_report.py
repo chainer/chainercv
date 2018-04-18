@@ -92,7 +92,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         if _available:
             # Dynamically import pyplot so that the backend of matplotlib
             # can be configured after importing chainercv.
-            import matplotlib.pyplot as plot
+            import matplotlib.pyplot as plt
         else:
             return
 
@@ -123,7 +123,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
                     index=idx, iteration=trainer.updater.iteration)
                 out_file = os.path.join(trainer.out, out_file)
 
-                fig = plot.figure()
+                fig = plt.figure()
 
                 ax_gt = fig.add_subplot(2, 1, 1)
                 ax_gt.set_title('ground truth')
@@ -137,7 +137,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
                     img, pred_bbox, pred_label, pred_score,
                     label_names=self.label_names, ax=ax_pred)
 
-                plot.savefig(out_file)
-                plot.close()
+                plt.savefig(out_file)
+                plt.close()
 
                 idx += 1

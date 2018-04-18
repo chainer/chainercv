@@ -1,5 +1,5 @@
 from matplotlib.font_manager import FontProperties
-import matplotlib.pyplot as plot
+import matplotlib.pyplot as plt
 
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
@@ -19,7 +19,7 @@ def main():
     ]
     indices = [29, 301, 189, 229]
 
-    fig = plot.figure(figsize=(30, 30))
+    fig = plt.figure(figsize=(30, 30))
     for i, idx in enumerate(indices):
         for j, (name, model) in enumerate(models):
             img, _, _ = dataset[idx]
@@ -39,10 +39,10 @@ def main():
                 font = FontProperties()
                 font.set_family('serif')
                 ax.set_title(name, fontsize=35, y=1.03, fontproperties=font)
-            plot.axis('off')
-            plot.tight_layout()
+            plt.axis('off')
+            plt.tight_layout()
 
-    plot.show()
+    plt.show()
 
 
 if __name__ == '__main__':
