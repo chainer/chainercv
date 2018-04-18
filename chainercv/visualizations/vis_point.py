@@ -13,7 +13,7 @@ def vis_point(img, point, mask=None, ax=None):
 
         >>> import chainercv
         >>> import matplotlib.pyplot as plt
-        >>> dataset = chainercv.datasets.CUBKeypointDataset()
+        >>> dataset = chainercv.datasets.CUBPointDataset()
         >>> img, point, mask = dataset[0]
         >>> chainercv.visualizations.vis_point(img, point, mask)
         >>> plt.show()
