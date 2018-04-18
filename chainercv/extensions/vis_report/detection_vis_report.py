@@ -115,9 +115,9 @@ class DetectionVisReport(chainer.training.extension.Extension):
             for (img, gt_bbox, gt_label), pred_bbox, pred_label, pred_score \
                     in zip(batch, pred_bboxes, pred_labels, pred_scores):
 
-                pred_bbox = chainer.cuda.to_cpu(pred_bbox)
-                pred_label = chainer.cuda.to_cpu(pred_label)
-                pred_score = chainer.cuda.to_cpu(pred_score)
+                pred_bbox = chainer.backends.cuda.to_cpu(pred_bbox)
+                pred_label = chainer.backends.cuda.to_cpu(pred_label)
+                pred_score = chainer.backends.cuda.to_cpu(pred_score)
 
                 out_file = self.filename.format(
                     index=idx, iteration=trainer.updater.iteration)

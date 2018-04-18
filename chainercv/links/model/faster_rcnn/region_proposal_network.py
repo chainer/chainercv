@@ -1,7 +1,7 @@
 import numpy as np
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 import chainer.functions as F
 import chainer.links as L
 
