@@ -46,7 +46,7 @@ class SBDInstanceSegmentationDataset(GetterDataset):
         "RGB, :math:`[0, 255]`"
         :obj:`mask`, ":math:`(R, H, W)`", :obj:`bool`, --
         :obj:`label`, ":math:`(R,)`", :obj:`int32`, \
-        ":math:`[0, 19]`"
+        ":math:`[0, \#fg\_class - 1]`"
     """
 
     def __init__(self, data_dir='auto', split='train'):
