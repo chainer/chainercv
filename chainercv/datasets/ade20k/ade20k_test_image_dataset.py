@@ -26,8 +26,6 @@ class ADE20KTestImageDataset(GetterDataset):
 
     This dataset returns the following data.
 
-    This dataset returns the following data.
-
     .. csv-table::
         :header: name, shape, dtype, format
 
