@@ -20,7 +20,7 @@ def vis_semantic_segmentation(
         ...     import voc_semantic_segmentation_label_names
         >>> from chainercv.visualizations import vis_image
         >>> from chainercv.visualizations import vis_semantic_segmentation
-        >>> import matplotlib.pyplot as plot
+        >>> import matplotlib.pyplot as plt
         >>> dataset = VOCSemanticSegmentationDataset()
         >>> img, label = dataset[60]
         >>> ax = vis_image(img)
@@ -30,7 +30,7 @@ def vis_semantic_segmentation(
         ...     label_colors=voc_semantic_segmentation_label_colors,
         ...     alpha=0.9, ax=ax)
         >>> ax.legend(handles=legend_handles, bbox_to_anchor=(1, 1), loc=2)
-        >>> plot.show()
+        >>> plt.show()
 
     Args:
         label (~numpy.ndarray): An integer array of shape
@@ -72,7 +72,7 @@ def vis_semantic_segmentation(
     """
     import matplotlib
     from matplotlib.patches import Patch
-    from matplotlib import pyplot as plot
+    from matplotlib import pyplot as plt
 
     if label_names is not None:
         n_class = len(label_names)
@@ -103,7 +103,7 @@ def vis_semantic_segmentation(
     img[label < 0, :3] = ignore_label_color
 
     if ax is None:
-        fig = plot.figure()
+        fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
 
     ax.imshow(img)
