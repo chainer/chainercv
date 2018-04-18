@@ -2,6 +2,8 @@ import numpy as np
 import os
 
 import chainer
+
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.utils import read_image
 
 
@@ -65,7 +67,7 @@ def _parse_label_dataset(root, label_names,
     return img_paths, np.array(labels, np.int32)
 
 
-class DirectoryParsingLabelDataset(chainer.dataset.DatasetMixin):
+class DirectoryParsingLabelDataset(GetterDataset):
     """A label dataset whose label names are the names of the subdirectories.
 
     The label names are the names of the directories that locate a layer below
@@ -112,10 +114,22 @@ class DirectoryParsingLabelDataset(chainer.dataset.DatasetMixin):
             order of files with the same label.
             The default value is :obj:`False`.
 
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)` [#directory_parsing_1]_", \
+        :obj:`float32`, "RGB, :math:`[0, 255]`"
+        :obj:`label`, scalar, :obj:`int32`, ":math:`[0, \#class - 1]`"
+
+    .. [#directory_parsing_1] :math:`(1, H, W)` if :obj:`color = False`.
     """
 
     def __init__(self, root, check_img_file=None, color=True,
                  numerical_sort=False):
+        super(DirectoryParsingLabelDataset, self).__init__()
+
         self.color = color
 
         label_names = directory_parsing_label_names(
@@ -126,10 +140,9 @@ class DirectoryParsingLabelDataset(chainer.dataset.DatasetMixin):
         self.img_paths, self.labels = _parse_label_dataset(
             root, label_names, check_img_file)
 
+        self.add_getter('img', lambda i:
+                        read_image(self.img_paths[i], color=self.color))
+        self.add_getter('label', lambda i: self.labels[i])
+
     def __len__(self):
         return len(self.img_paths)
-
-    def get_example(self, i):
-        img = read_image(self.img_paths[i], color=self.color)
-        label = self.labels[i]
-        return img, label
