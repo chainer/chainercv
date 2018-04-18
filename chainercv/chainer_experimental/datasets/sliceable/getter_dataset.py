@@ -1,11 +1,6 @@
+from chainercv.chainer_experimental.datasets.sliceable.sliceable_dataset \
+    import _as_indices
 from chainercv.chainer_experimental.datasets.sliceable import SliceableDataset
-
-
-def _as_tuple(t):
-    if isinstance(t, tuple):
-        return t
-    else:
-        return t,
 
 
 class GetterDataset(SliceableDataset):
@@ -63,26 +58,9 @@ class GetterDataset(SliceableDataset):
 
     @keys.setter
     def keys(self, keys):
-        if isinstance(keys, (list, tuple)):
-            self._return_tuple = True
-        else:
-            keys, self._return_tuple = (keys,), False
-
-        new_keys = []
-        for key in keys:
-            if isinstance(key, int):
-                key_index = key
-                if key_index >= len(self._keys):
-                    raise IndexError('Invalid index of key')
-                if key_index < 0:
-                    key_index += len(self._keys)
-            else:
-                try:
-                    key_index = [key for key, _, _ in self._keys].index(key)
-                except ValueError:
-                    raise KeyError('{} does not exists'.format(key))
-            new_keys.append(self._keys[key_index])
-        self._keys = new_keys
+        self._keys = [self._keys[key_index]
+                      for key_index in _as_indices(keys, self.keys)]
+        self._return_tuple = isinstance(keys, (list, tuple))
 
     def add_getter(self, keys, getter):
         """Register a getter function

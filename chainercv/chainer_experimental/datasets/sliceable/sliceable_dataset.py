@@ -10,6 +10,27 @@ def _as_tuple(t):
         return t,
 
 
+def _as_indices(keys, key_names):
+    keys = _as_tuple(keys)
+    key_names = _as_tuple(key_names)
+
+    for key in keys:
+        if isinstance(key, int):
+            key_index = key
+            if key_index < 0:
+                key_index += len(key_names)
+            if key_index not in range(0, len(key_names)):
+                raise IndexError(
+                    'index {} is out of bounds for keys with size {}'.format(
+                        key, len(key_names)))
+        else:
+            try:
+                key_index = key_names.index(key)
+            except ValueError:
+                raise KeyError('{} does not exists'.format(key))
+        yield key_index
+
+
 class SliceableDataset(chainer.dataset.DatasetMixin):
     """An abstract dataset class that supports slicing.
 
@@ -76,26 +97,8 @@ class SliceHelper(object):
             index = args
             keys = self._dataset.keys
 
-        if isinstance(keys, (list, tuple)):
-            return_tuple = True
-        else:
-            keys, return_tuple = (keys,), False
-
-        # convert name to index
-        key_indices = []
-        for key in keys:
-            if isinstance(key, int):
-                key_index = key
-                if key_index >= len(self._dataset.keys):
-                    raise IndexError('Invalid index of key')
-                if key_index < 0:
-                    key_index += len(self._dataset.keys)
-            else:
-                try:
-                    key_index = _as_tuple(self._dataset.keys).index(key)
-                except ValueError:
-                    raise KeyError('{} does not exists'.format(key))
-            key_indices.append(key_index)
+        key_indices = tuple(_as_indices(keys, self._dataset.keys))
+        return_tuple = isinstance(keys, (list, tuple))
 
         return SlicedDataset(
             self._dataset, index,

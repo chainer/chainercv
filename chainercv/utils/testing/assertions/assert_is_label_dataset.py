@@ -5,11 +5,11 @@ from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
 
 
 def assert_is_label_dataset(dataset, n_class, n_example=None, color=True):
-    """Checks if a dataset satisfies label dataset APIs.
+    """Checks if a dataset satisfies the label dataset API.
 
-    This function checks if a given dataset satisfies label dataset
-    APIs or not.
-    If the dataset does not satifiy the APIs, this function raises an
+    This function checks if a given dataset satisfies the label dataset
+    API or not.
+    If the dataset does not satifiy the API, this function raises an
     :class:`AssertionError`.
 
     Args:

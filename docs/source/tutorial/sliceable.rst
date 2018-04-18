@@ -150,6 +150,45 @@ Usage: slice along with both axes
     view = dataset.slice[:100, 'label']
 
 
+Concatenate and transform
+-------------------------
+ChainerCV provides :class:`~chainercv.chainer_experimental.datasets.sliceable.ConcatenatedDataset`
+and :class:`~chainercv.chainer_experimental.datasets.sliceable.TransformDataset`.
+The difference from :class:`chainer.datasets.ConcatenatedDataset` and
+:class:`chainer.datasets.TransformDataset`
+is that they take sliceable dataset(s) and return a sliceable dataset.
+
+.. code-block:: python
+
+    from chainercv.chainer_experimental.datasets.sliceable import ConcatenatedDataset
+    from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
+    from chainercv.datasets import VOCBboxDataset
+    from chainercv.datasets import voc_bbox_label_names
+
+    dataset_07 = VOCBboxDataset(year='2007')
+    print('07:', dataset_07.keys, len(dataset_07))  # 07: ('img', 'bbox', 'label') 2501
+
+    dataset_12 = VOCBboxDataset(year='2012')
+    print('12:', dataset_12.keys, len(dataset_12))  # 12: ('img', 'bbox', 'label') 5717
+
+    # concatenate
+    dataset_0712 = ConcatenatedDataset(dataset_07, dataset_12)
+    print('0712:', dataset_0712.keys, len(dataset_0712))  # 0712: ('img', 'bbox', 'label') 8218
+
+    # transform
+    def transform(in_data):
+        img, bbox, label = in_data
+
+        dog_lb = voc_bbox_label_names.index('dog')
+        bbox_dog = bbox[label == dog_lb]
+
+        return img, bbox_dog
+
+    # we need to specify the names of data that the transform function returns
+    dataset_0712_dog = TransformDataset(dataset_0712, ('img', 'bbox_dog'), transform)
+    print('0712_dog:', dataset_0712_dog.keys, len(dataset_0712_dog))  # 0712_dog: ('img', 'bbox_dog') 8218
+
+
 Make your own dataset
 ---------------------
 ChainerCV provides :class:`~chainercv.chainer_experimental.datasets.sliceable.GetterDataset`
@@ -212,5 +251,6 @@ If you have arrays of data, you can use :class:`~chainercv.chainer_experimental.
 
     dataset = TupleDataset(('img', imgs), ('bbox', bboxes), ('label', labels))
 
+    print(dataset.keys)  # ('img', 'bbox', 'label')
     view = dataset.slice[:, 'label']
     label = view[1]
