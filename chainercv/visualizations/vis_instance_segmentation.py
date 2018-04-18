@@ -20,13 +20,13 @@ def vis_instance_segmentation(
         >>> from chainercv.datasets \
         ...     import sbd_instance_segmentation_label_names
         >>> from chainercv.visualizations import vis_instance_segmentation
-        >>> import matplotlib.pyplot as plot
+        >>> import matplotlib.pyplot as plt
         >>> dataset = SBDInstanceSegmentationDataset()
         >>> img, mask, label = dataset[0]
         >>> vis_instance_segmentation(
         ...     img, mask, label,
         ...     label_names=sbd_instance_segmentation_label_names)
-        >>> plot.show()
+        >>> plt.show()
 
         This example visualizes an image, an instance segmentation and
         bounding boxes.
@@ -38,7 +38,7 @@ def vis_instance_segmentation(
         >>> from chainercv.visualizations import vis_instance_segmentation
         >>> from chainercv.visualizations.colormap import voc_colormap
         >>> from chainercv.utils import mask_to_bbox
-        >>> import matplotlib.pyplot as plot
+        >>> import matplotlib.pyplot as plt
         >>> dataset = SBDInstanceSegmentationDataset()
         >>> img, mask, label = dataset[0]
         >>> bbox = mask_to_bbox(mask)
@@ -48,7 +48,7 @@ def vis_instance_segmentation(
         ...     instance_colors=colors, alpha=0.7, linewidth=0.5)
         >>> vis_instance_segmentation(
         ...     None, mask, instance_colors=colors, alpha=0.7, ax=ax)
-        >>> plot.show()
+        >>> plt.show()
 
     Args:
         img (~numpy.ndarray): An array of shape :math:`(3, H, W)`.

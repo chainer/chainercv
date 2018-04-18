@@ -12,12 +12,12 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
         >>> from chainercv.datasets import VOCBboxDataset
         >>> from chainercv.datasets import voc_bbox_label_names
         >>> from chainercv.visualizations import vis_bbox
-        >>> import matplotlib.pyplot as plot
+        >>> import matplotlib.pyplot as plt
         >>> dataset = VOCBboxDataset()
         >>> img, bbox, label = dataset[60]
         >>> vis_bbox(img, bbox, label,
         ...          label_names=voc_bbox_label_names)
-        >>> plot.show()
+        >>> plt.show()
 
         This example visualizes by displaying the same colors for bounding
         boxes assigned to the same labels.
@@ -26,14 +26,14 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
         >>> from chainercv.datasets import voc_bbox_label_names
         >>> from chainercv.visualizations import vis_bbox
         >>> from chainercv.visualizations.colormap import voc_colormap
-        >>> import matplotlib.pyplot as plot
+        >>> import matplotlib.pyplot as plt
         >>> dataset = VOCBboxDataset()
         >>> img, bbox, label = dataset[61]
         >>> colors = voc_colormap(label + 1)
         >>> vis_bbox(img, bbox, label,
         ...          label_names=voc_bbox_label_names,
         ...          instance_colors=colors)
-        >>> plot.show()
+        >>> plt.show()
 
     Args:
         img (~numpy.ndarray): An array of shape :math:`(3, height, width)`.
@@ -68,7 +68,7 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
         Returns the Axes object with the plot for further tweaking.
 
     """
-    from matplotlib import pyplot as plot
+    from matplotlib import pyplot as plt
 
     if label is not None and not len(bbox) == len(label):
         raise ValueError('The length of label must be same as that of bbox')
@@ -93,7 +93,7 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
         height = bb[2] - bb[0]
         width = bb[3] - bb[1]
         color = instance_colors[i % len(instance_colors)] / 255
-        ax.add_patch(plot.Rectangle(
+        ax.add_patch(plt.Rectangle(
             xy, width, height, fill=False,
             edgecolor=color, linewidth=linewidth, alpha=alpha))
 
