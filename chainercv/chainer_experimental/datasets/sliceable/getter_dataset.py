@@ -11,7 +11,8 @@ def _as_tuple(t):
 class GetterDataset(SliceableDataset):
     """A sliceable dataset class that is defined with getters.
 
-    This ia a dataset class with getters.
+    This is a dataset class with getters.
+    Please refer to the tutorial for more detailed explanation.
 
     Here is an example.
 
@@ -22,7 +23,7 @@ class GetterDataset(SliceableDataset):
     >>>             self._pairs = [l.split() for l in f]
     >>>         self._root = root
     >>>
-    >>>         self.add_getter('image', self.get_image)
+    >>>         self.add_getter('img', self.get_image)
     >>>         self.add_getter('label', self.get_label)
     >>>
     >>>     def __len__(self):
@@ -41,7 +42,7 @@ class GetterDataset(SliceableDataset):
     >>> # get a subset with label = 0, 1, 2
     >>> # no images are loaded
     >>> indices = [i for i, label in
-    >>>            enumerate(dataset.slice[:, 'label']) if label in {0, 1, 2}]
+    ...            enumerate(dataset.slice[:, 'label']) if label in {0, 1, 2}]
     >>> dataset_012 = dataset.slice[indices]
     """
 

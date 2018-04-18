@@ -6,6 +6,13 @@ from chainer import testing
 from chainercv.utils import assert_is_point
 
 
+def _random_mask_including_true(n):
+    while True:
+        mask = np.random.randint(0, 2, size=n).astype(np.bool)
+        if mask.any():
+            return mask
+
+
 @testing.parameterize(
     # no mask and size
     {'point': np.random.uniform(-1, 1, size=(10, 2)).astype(np.float32),
@@ -45,7 +52,7 @@ from chainercv.utils import assert_is_point
      'size': (32, 32),
      'valid': True},
     {'point': np.random.uniform(32, 64, size=(10, 2)).astype(np.float32),
-     'mask': np.random.randint(0, 2, size=(10,)).astype(np.bool),
+     'mask': _random_mask_including_true(10),
      'size': (32, 32),
      'valid': False},
 )

@@ -15,7 +15,7 @@ class ConcatenatedDataset(SliceableDataset):
     Args:
         datasets: The underlying datasets.
             Each dataset should inherit
-            :class:~chainercv.chainer_experimental.datasets.sliceable.Sliceabledataset`
+            :class:`~chainercv.chainer_experimental.datasets.sliceable.Sliceabledataset`
             and should have the same keys.
     """
 
