@@ -107,7 +107,7 @@ setup(
     version='0.8.0',
     packages=find_packages(),
     author='Yusuke Niitani',
-    author_email='yuyuniitani@gmail.com',
+    author_email='niitani@preferred.jp',
     license='MIT',
     description=description,
     setup_requires=setup_requires,

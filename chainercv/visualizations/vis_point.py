@@ -12,11 +12,11 @@ def vis_point(img, point, mask=None, ax=None):
     Example:
 
         >>> import chainercv
-        >>> import matplotlib.pyplot as plot
+        >>> import matplotlib.pyplot as plt
         >>> dataset = chainercv.datasets.CUBPointDataset()
         >>> img, point, mask = dataset[0]
         >>> chainercv.visualizations.vis_point(img, point, mask)
-        >>> plot.show()
+        >>> plt.show()
 
     Args:
         img (~numpy.ndarray): An image of shape :math:`(3, height, width)`.
@@ -39,7 +39,7 @@ def vis_point(img, point, mask=None, ax=None):
         Returns the Axes object with the plot for further tweaking.
 
     """
-    import matplotlib.pyplot as plot
+    import matplotlib.pyplot as plt
     # Returns newly instantiated matplotlib.axes.Axes object if ax is None
     ax = vis_image(img, ax=ax)
 
@@ -49,7 +49,7 @@ def vis_point(img, point, mask=None, ax=None):
     if mask is None:
         mask = np.ones((n_point,), dtype=np.bool)
 
-    cm = plot.get_cmap('gist_rainbow')
+    cm = plt.get_cmap('gist_rainbow')
 
     colors = [cm(i / n_point) for i in six.moves.range(n_point)]
 
