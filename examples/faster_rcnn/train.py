@@ -82,7 +82,7 @@ def main():
         train_data, batch_size=1, n_processes=None, shared_mem=100000000)
     test_iter = chainer.iterators.SerialIterator(
         test_data, batch_size=1, repeat=False, shuffle=False)
-    updater = chainer.training.updaters.updater.StandardUpdater(
+    updater = chainer.training.updaters.StandardUpdater(
         train_iter, optimizer, device=args.gpu)
 
     trainer = training.Trainer(
