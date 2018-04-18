@@ -5,7 +5,7 @@ import numpy as np
 import chainer
 from chainer.datasets import ConcatenatedDataset
 from chainer.datasets import TransformDataset
-from chainer.optimizer import WeightDecay
+from chainer.optimizer_hooks import WeightDecay
 from chainer import serializers
 from chainer import training
 from chainer.training import extensions
