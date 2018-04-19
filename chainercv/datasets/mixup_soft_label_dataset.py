@@ -44,6 +44,15 @@ class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
         `mixup: Beyond Empirical Risk Minimization\
         <https://arxiv.org/abs/1710.09412>`_. arXiv 2017.
 
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, [#mixup_1]_, [#mixup_1]_, [#mixup_1]_
+        :obj:`label`, ":math:`(\#class,)`", :obj:`float32`, ":math:`[0, 1]`"
+
+    .. [#mixup_1] Same as :obj:`dataset`.
     """
 
     def __init__(self, dataset, n_class):

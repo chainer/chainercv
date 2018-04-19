@@ -11,9 +11,6 @@ class VOCInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
 
     """Instance segmentation dataset for PASCAL `VOC2012`_.
 
-    The class name of the label :math:`l` is :math:`l` th element of
-    :obj:`chainercv.datasets.voc_instance_segmentation_label_names`.
-
     .. _`VOC2012`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
     Args:
@@ -22,9 +19,21 @@ class VOCInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/voc`.
         split ({'train', 'val', 'trainval'}): Select a split of the dataset.
 
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`mask`, ":math:`(R, H, W)`", :obj:`bool`, --
+        :obj:`label`, ":math:`(R,)`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
     """
 
     def __init__(self, data_dir='auto', split='train'):
+        super(VOCInstanceSegmentationDataset, self).__init__()
+
         if split not in ['train', 'trainval', 'val']:
             raise ValueError(
                 'please pick split from \'train\', \'trainval\', \'val\'')
@@ -38,37 +47,24 @@ class VOCInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
 
         self.data_dir = data_dir
 
+        self.add_getter('img', self._get_image)
+        self.add_getter(('mask', 'label'), self._get_annotations)
+
     def __len__(self):
         return len(self.ids)
 
-    def get_example(self, i):
-        """Returns the i-th example.
-
-        Returns a color image, bounding boxes, masks and labels. The color
-        image is in CHW format.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            A tuple of color image, masks and labels whose
-            shapes are :math:`(3, H, W), (R, H, W), (R, )`
-            respectively.
-            :math:`H` and :math:`W` are height and width of the images,
-            and :math:`R` is the number of objects in the image.
-            The dtype of the color image is
-            :obj:`numpy.float32`, that of the masks is :obj: `numpy.bool`,
-            and that of the labels is :obj:`numpy.int32`.
-
-        """
+    def _get_image(self, i):
         data_id = self.ids[i]
         img_file = os.path.join(
             self.data_dir, 'JPEGImages', data_id + '.jpg')
-        img = read_image(img_file, color=True)
+        return read_image(img_file, color=True)
+
+    def _get_annotations(self, i):
+        data_id = self.ids[i]
         label_img, inst_img = self._load_label_inst(data_id)
         mask, label = voc_utils.image_wise_to_instance_wise(
             label_img, inst_img)
-        return img, mask, label
+        return mask, label
 
     def _load_label_inst(self, data_id):
         label_file = os.path.join(
