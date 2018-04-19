@@ -1,7 +1,7 @@
 import numpy as np
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 
 from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
 from chainercv.utils.bbox.non_maximum_suppression import \

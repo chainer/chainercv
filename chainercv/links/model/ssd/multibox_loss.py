@@ -74,8 +74,8 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k, comm=None):
     gt_mb_locs = chainer.as_variable(gt_mb_locs)
     gt_mb_labels = chainer.as_variable(gt_mb_labels)
 
-    xp = chainer.cuda.get_array_module(gt_mb_labels.array)
-    with chainer.cuda.get_device_from_array(gt_mb_labels.array):
+    xp = chainer.backends.cuda.get_array_module(gt_mb_labels.array)
+    with chainer.backends.cuda.get_device_from_array(gt_mb_labels.array):
         positive = gt_mb_labels.array > 0
         n_positive = xp.array(positive.sum())
 
@@ -89,7 +89,7 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k, comm=None):
                 memory_utility = chainermn.communicators._memory_utility
 
             if xp is not np:
-                chainer.cuda.Stream.null.synchronize()
+                chainer.backends.cuda.Stream.null.synchronize()
             comm.mpi_comm.Allreduce(
                 MPI.IN_PLACE,
                 memory_utility.array_to_buffer_object(n_positive))

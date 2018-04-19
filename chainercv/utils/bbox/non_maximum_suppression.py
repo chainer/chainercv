@@ -1,7 +1,7 @@
 from __future__ import division
 import numpy as np
 
-from chainer import cuda
+from chainer.backends import cuda
 
 from chainercv.utils.bbox._nms_gpu_post import _nms_gpu_post
 

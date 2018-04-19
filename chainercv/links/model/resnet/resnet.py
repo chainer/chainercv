@@ -178,7 +178,7 @@ class ResNet(PickableSequentialChain):
         self.mean = mean
 
         if initialW is None:
-            initialW = HeNormal(scale=1., fan_option='fan_out')
+            initialW = initializers.HeNormal(scale=1., fan_option='fan_out')
         if 'initialW' not in fc_kwargs:
             fc_kwargs['initialW'] = initializers.Normal(scale=0.01)
         if pretrained_model:
@@ -275,27 +275,3 @@ class ResNet152(ResNet):
         super(ResNet152, self).__init__(
             152, n_class, pretrained_model,
             mean, initialW, fc_kwargs, arch)
-
-
-class HeNormal(chainer.initializer.Initializer):
-
-    # fan_option is not supported in Chainer v3.
-    # Related: https://github.com/chainer/chainer/pull/3482
-
-    def __init__(self, scale=1.0, dtype=None, fan_option='fan_in'):
-        self.scale = scale
-        self.fan_option = fan_option
-        super(HeNormal, self).__init__(dtype)
-
-    def __call__(self, array):
-        if self.dtype is not None:
-            assert array.dtype == self.dtype
-        fan_in, fan_out = chainer.initializer.get_fans(array.shape)
-        if self.fan_option == 'fan_in':
-            s = self.scale * np.sqrt(2. / fan_in)
-        elif self.fan_option == 'fan_out':
-            s = self.scale * np.sqrt(2. / fan_out)
-        else:
-            raise ValueError(
-                'fan_option should be either \'fan_in\' or \'fan_out\'.')
-        initializers.Normal(s)(array)

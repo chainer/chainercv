@@ -1,4 +1,4 @@
-from chainer import cuda
+from chainer.backends import cuda
 
 
 def loc2bbox(src_bbox, loc):

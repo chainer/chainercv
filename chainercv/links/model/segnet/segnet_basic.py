@@ -172,7 +172,7 @@ class SegNetBasic(chainer.Chain):
                     chainer.function.no_backprop_mode():
                 x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
                 score = self.__call__(x)[0].data
-            score = chainer.cuda.to_cpu(score)
+            score = chainer.backends.cuda.to_cpu(score)
             if score.shape != (C, H, W):
                 dtype = score.dtype
                 score = resize(score, (H, W)).astype(dtype)

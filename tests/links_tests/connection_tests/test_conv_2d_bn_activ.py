@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 from chainer.functions import relu
 from chainer import testing
 from chainer.testing import attr
