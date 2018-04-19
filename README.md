@@ -44,10 +44,11 @@ For additional features
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
 
-+ The master branch is designed to work on Chainer v3 (the stable version) and v4 (the development version).
++ The master branch is designed to work on Chainer v4 (the stable version) and v5 (the development version).
 + The following branches are kept for the previous version of Chainer. Note that these branches are unmaintained.
     + `0.4.11` (for Chainer v1). It can be installed by `pip install chainercv==0.4.11`.
     + `0.7` (for Chainer v2). It can be installed by `pip install chainercv==0.7`.
+    + `0.8` (for Chainer v3). It can be installed by `pip install chainercv==0.8`.
 
 # Data Conventions
 

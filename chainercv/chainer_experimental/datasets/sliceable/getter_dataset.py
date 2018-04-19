@@ -77,7 +77,7 @@ class GetterDataset(SliceableDataset):
                 keys = None
             else:
                 keys = (None,) * keys
-        if isinstance(keys, tuple):
+        if isinstance(keys, (tuple, list)):
             for key_index, key in enumerate(keys):
                 self._keys.append((key, len(self._getters) - 1, key_index))
         else:

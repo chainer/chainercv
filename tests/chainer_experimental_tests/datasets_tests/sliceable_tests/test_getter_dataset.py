@@ -6,11 +6,11 @@ from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 
 
 class SampleDataset(GetterDataset):
-    def __init__(self):
+    def __init__(self, iterable=tuple):
         super(SampleDataset, self).__init__()
 
         self.add_getter('item0', self.get_item0)
-        self.add_getter(('item1', 'item2'), self.get_item1_item2)
+        self.add_getter(iterable(('item1', 'item2')), self.get_item1_item2)
         self.add_getter(1, self.get_item3)
 
         self.count = 0
@@ -31,10 +31,11 @@ class SampleDataset(GetterDataset):
         return 'item3({:d})'.format(i)
 
 
+@testing.parameterize(*testing.product({'iterable': [tuple, list]}))
 class TestGetterDataset(unittest.TestCase):
 
     def setUp(self):
-        self.dataset = SampleDataset()
+        self.dataset = SampleDataset(self.iterable)
 
     def test_keys(self):
         self.assertEqual(
@@ -56,27 +57,27 @@ class TestGetterDataset(unittest.TestCase):
         self.assertEqual(self.dataset[1], 'item0(1)')
 
     def test_set_keys_single_tuple_name(self):
-        self.dataset.keys = ('item1',)
+        self.dataset.keys = self.iterable(('item1',))
         self.assertEqual(self.dataset.keys, ('item1',))
         self.assertEqual(self.dataset[2], ('item1(2)',))
 
     def test_set_keys_single_tuple_index(self):
-        self.dataset.keys = (1,)
+        self.dataset.keys = self.iterable((1,))
         self.assertEqual(self.dataset.keys, ('item1',))
         self.assertEqual(self.dataset[2], ('item1(2)',))
 
     def test_set_keys_multiple_name(self):
-        self.dataset.keys = ('item0', 'item2')
+        self.dataset.keys = self.iterable(('item0', 'item2'))
         self.assertEqual(self.dataset.keys, ('item0', 'item2'))
         self.assertEqual(self.dataset[3], ('item0(3)', 'item2(3)'))
 
     def test_set_keys_multiple_index(self):
-        self.dataset.keys = (0, 2)
+        self.dataset.keys = self.iterable((0, 2))
         self.assertEqual(self.dataset.keys, ('item0', 'item2'))
         self.assertEqual(self.dataset[3], ('item0(3)', 'item2(3)'))
 
     def test_set_keys_multiple_mixed(self):
-        self.dataset.keys = ('item0', 2)
+        self.dataset.keys = self.iterable(('item0', 2))
         self.assertEqual(self.dataset.keys, ('item0', 'item2'))
         self.assertEqual(self.dataset[3], ('item0(3)', 'item2(3)'))
 

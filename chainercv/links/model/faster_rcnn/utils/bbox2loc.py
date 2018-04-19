@@ -1,4 +1,4 @@
-from chainer import cuda
+from chainer.backends import cuda
 
 
 def bbox2loc(src_bbox, dst_bbox):

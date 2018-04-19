@@ -4,7 +4,7 @@ import multiprocessing
 import chainer
 from chainer.datasets import ConcatenatedDataset
 from chainer.datasets import TransformDataset
-from chainer.optimizer import WeightDecay
+from chainer.optimizer_hooks import WeightDecay
 from chainer import serializers
 from chainer import training
 from chainer.training import extensions
@@ -103,7 +103,8 @@ def main():
         else:
             param.update_rule.add_hook(WeightDecay(0.0005))
 
-    updater = training.StandardUpdater(train_iter, optimizer, device=device)
+    updater = training.updaters.StandardUpdater(
+        train_iter, optimizer, device=device)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1, init=1e-3),

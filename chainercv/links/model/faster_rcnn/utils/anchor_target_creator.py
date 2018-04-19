@@ -1,7 +1,7 @@
 import numpy as np
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 
 from chainercv.links.model.faster_rcnn.utils.bbox2loc import bbox2loc
 from chainercv.utils.bbox.bbox_iou import bbox_iou
@@ -90,8 +90,8 @@ class AnchorTargetCreator(object):
         loc = _unmap(loc, n_anchor, inside_index, fill=0)
 
         if xp != np:
-            loc = chainer.cuda.to_gpu(loc)
-            label = chainer.cuda.to_gpu(label)
+            loc = chainer.backends.cuda.to_gpu(loc)
+            label = chainer.backends.cuda.to_gpu(label)
         return loc, label
 
     def _create_label(self, inside_index, anchor, bbox):
