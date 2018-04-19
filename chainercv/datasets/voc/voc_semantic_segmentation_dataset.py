@@ -45,8 +45,8 @@ class VOCSemanticSegmentationDataset(GetterDataset):
 
         self.data_dir = data_dir
 
-        self.add_getter('img', self.get_image)
-        self.add_getter('label', self.get_label)
+        self.add_getter('img', self._get_image)
+        self.add_getter('label', self._get_label)
 
     def __len__(self):
         return len(self.ids)
