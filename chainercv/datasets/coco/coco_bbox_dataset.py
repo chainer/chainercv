@@ -88,11 +88,11 @@ class COCOBboxDataset(GetterDataset):
 
         self.img_root = os.path.join(
             data_dir, 'images', '{}2014'.format(img_split))
-        anno_fn = os.path.join(
+        anno_path = os.path.join(
             data_dir, 'annotations', 'instances_{}2014.json'.format(split))
 
         self.data_dir = data_dir
-        anno = json.load(open(anno_fn, 'r'))
+        anno = json.load(open(anno_path, 'r'))
 
         self.img_props = {}
         for img in anno['images']:
@@ -102,11 +102,9 @@ class COCOBboxDataset(GetterDataset):
         cats = anno['categories']
         self.cat_ids = [cat['id'] for cat in cats]
 
-        self.anns = {}
-        self.imgToAnns = defaultdict(list)
+        self.img_to_anno = defaultdict(list)
         for ann in anno['annotations']:
-            self.imgToAnns[ann['image_id']].append(ann)
-            self.anns[ann['id']] = ann
+            self.img_to_anno[ann['image_id']].append(ann)
 
         self.add_getter('img', self._get_image)
         self.add_getter(['bbox', 'label', 'crowded', 'area'],
@@ -131,7 +129,7 @@ class COCOBboxDataset(GetterDataset):
     def _get_annotations(self, i):
         # List[{'segmentation', 'area', 'iscrowd',
         #       'image_id', 'bbox', 'category_id', 'id'}]
-        annotation = self.imgToAnns[self.ids[i]]
+        annotation = self.img_to_anno[self.ids[i]]
         bbox = np.array([ann['bbox'] for ann in annotation],
                         dtype=np.float32)
         if len(bbox) == 0:
