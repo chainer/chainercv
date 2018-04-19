@@ -270,6 +270,9 @@ def resize_with_random_interpolation(img, size, return_param=False):
 
     import cv2
 
+    # cv2 sometimes hangs when used in sub-processes, so we set single-thread.
+    cv2.setNumThreads(0)
+
     cv_img = img.transpose((1, 2, 0))
 
     inters = (
