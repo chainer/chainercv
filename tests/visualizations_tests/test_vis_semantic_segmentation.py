@@ -21,7 +21,7 @@ except ImportError:
 class TestVisSemanticSegmentation(unittest.TestCase):
 
     def setUp(self):
-        if getattr(self, 'no_img'):
+        if self.no_img:
             self.img = None
         else:
             self.img = np.random.randint(0, 255, size=(3, 32, 48))
