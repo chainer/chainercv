@@ -54,7 +54,7 @@ class COCOBboxDataset(GetterDataset):
             :obj:`crowded` [#coco_bbox_3]_, ":math:`(R,)`", :obj:`bool`, --
 
         .. [#coco_bbox_1] If :obj:`use_crowded = True`, :obj:`bbox`, \
-            :obj:`label` and :obj:`area` contain difficult instances.
+            :obj:`label` and :obj:`area` contain crowded instances.
         .. [#coco_bbox_2] :obj:`area` is available \
             if :obj:`return_area = True`.
         .. [#coco_bbox_3] :obj:`crowded` is available \
