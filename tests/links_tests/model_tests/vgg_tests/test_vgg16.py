@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 
+import chainer
 from chainer.initializers import Zero
 from chainer import testing
 from chainer.testing import attr
@@ -29,7 +30,8 @@ class TestVGG16Call(unittest.TestCase):
 
         x1 = Variable(xp.asarray(np.random.uniform(
             -1, 1, (1, 3, 224, 224)).astype(np.float32)))
-        features = self.link(x1)
+        with chainer.no_backprop_mode():
+            features = self.link(x1)
         if isinstance(features, tuple):
             for activation, shape in zip(features, self.shapes):
                 self.assertEqual(activation.shape, shape)
