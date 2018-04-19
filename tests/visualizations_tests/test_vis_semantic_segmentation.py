@@ -16,17 +16,22 @@ except ImportError:
     'label_names': [None, ('class0', 'class1', 'class2')],
     'label_colors': [None, ((255, 0, 0), (0, 255, 0), (0, 0, 255))],
     'all_label_names_in_legend': [False, True],
+    'no_img': [False, True],
 }))
 class TestVisSemanticSegmentation(unittest.TestCase):
 
     def setUp(self):
+        if hasattr(self, 'no_img'):
+            self.img = None
+        else:
+            self.img = np.random.randint(0, 255, size=(3, 32, 48))
         self.label = np.random.randint(
             -1, 3, size=(48, 64)).astype(np.int32)
 
     def test_vis_semantic_segmentation(self):
         if optional_modules:
             ax, legend_handles = vis_semantic_segmentation(
-                self.label,
+                self.img, self.label,
                 label_names=self.label_names, label_colors=self.label_colors,
                 all_label_names_in_legend=self.all_label_names_in_legend)
 
@@ -43,7 +48,7 @@ class TestVisSemanticSegmentationInvalidArguments(unittest.TestCase):
         if optional_modules:
             with self.assertRaises(ValueError):
                 vis_semantic_segmentation(
-                    label,
+                    None, label,
                     label_names=('class0', 'class1', 'class2'),
                     label_colors=((255, 0, 0), (0, 255, 0)))
 
@@ -53,7 +58,7 @@ class TestVisSemanticSegmentationInvalidArguments(unittest.TestCase):
         if optional_modules:
             with self.assertRaises(ValueError):
                 vis_semantic_segmentation(
-                    label,
+                    None, label,
                     label_names=('class0', 'class1', 'class2'))
 
 
