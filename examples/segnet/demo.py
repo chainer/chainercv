@@ -36,8 +36,9 @@ def main():
     ax1 = fig.add_subplot(1, 2, 1)
     vis_image(img, ax=ax1)
     ax2 = fig.add_subplot(1, 2, 2)
+    # Do not overlay the label image on the color image
     vis_semantic_segmentation(
-        label, camvid_label_names, camvid_label_colors, ax=ax2)
+        None, label, camvid_label_names, camvid_label_colors, ax=ax2)
     plt.show()
 
 
