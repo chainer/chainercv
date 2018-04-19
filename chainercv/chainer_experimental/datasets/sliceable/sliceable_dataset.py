@@ -4,8 +4,8 @@ import chainer
 
 
 def _as_tuple(t):
-    if isinstance(t, tuple):
-        return t
+    if isinstance(t, (tuple, list)):
+        return tuple(t)
     else:
         return t,
 

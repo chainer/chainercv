@@ -21,6 +21,7 @@ class SampleDataset(SliceableDataset):
             for key_index in key_indices)
 
 
+@testing.parameterize(*testing.product({'iterable': [tuple, list]}))
 class TestTransformDataset(unittest.TestCase):
 
     def setUp(self):
@@ -31,7 +32,8 @@ class TestTransformDataset(unittest.TestCase):
             item0, item1, item2 = in_data
             return 'transformed_' + item0, 'transformed_' + item2
 
-        dataset = TransformDataset(self.dataset, ('item0', 'item2'), func)
+        dataset = TransformDataset(
+            self.dataset, self.iterable(('item0', 'item2')), func)
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), len(self.dataset))
         self.assertEqual(dataset.keys, ('item0', 'item2'))
