@@ -18,7 +18,7 @@ except ImportError:
 def _check_available():
     if not _available:
         warnings.warn(
-            'SciPy is not installed in your environment,',
+            'SciPy is not installed in your environment,'
             'so the dataset cannot be loaded.'
             'Please install SciPy to load dataset.\n\n'
             '$ pip install scipy')
