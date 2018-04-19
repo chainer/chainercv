@@ -40,25 +40,25 @@ class COCOBboxDataset(GetterDataset):
 
     This dataset returns the following data.
 
-        .. csv-table::
-            :header: name, shape, dtype, format
+    .. csv-table::
+        :header: name, shape, dtype, format
 
-            :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
-            "RGB, :math:`[0, 255]`"
-            :obj:`bbox` [#coco_bbox_1]_, ":math:`(R, 4)`", :obj:`float32`, \
-            ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
-            :obj:`label` [#coco_bbox_1]_, ":math:`(R,)`", :obj:`int32`, \
-            ":math:`[0, #fg\_class - 1]`"
-            :obj:`area` [#coco_bbox_1]_ [#coco_bbox_2]_, ":math:`(R,)`", \
-            :obj:`float32`, --
-            :obj:`crowded` [#coco_bbox_3]_, ":math:`(R,)`", :obj:`bool`, --
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`bbox` [#coco_bbox_1]_, ":math:`(R, 4)`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+        :obj:`label` [#coco_bbox_1]_, ":math:`(R,)`", :obj:`int32`, \
+        ":math:`[0, #fg\_class - 1]`"
+        :obj:`area` [#coco_bbox_1]_ [#coco_bbox_2]_, ":math:`(R,)`", \
+        :obj:`float32`, --
+        :obj:`crowded` [#coco_bbox_3]_, ":math:`(R,)`", :obj:`bool`, --
 
-        .. [#coco_bbox_1] If :obj:`use_crowded = True`, :obj:`bbox`, \
-            :obj:`label` and :obj:`area` contain crowded instances.
-        .. [#coco_bbox_2] :obj:`area` is available \
-            if :obj:`return_area = True`.
-        .. [#coco_bbox_3] :obj:`crowded` is available \
-            if :obj:`return_crowded = True`.
+    .. [#coco_bbox_1] If :obj:`use_crowded = True`, :obj:`bbox`, \
+        :obj:`label` and :obj:`area` contain crowded instances.
+    .. [#coco_bbox_2] :obj:`area` is available \
+        if :obj:`return_area = True`.
+    .. [#coco_bbox_3] :obj:`crowded` is available \
+        if :obj:`return_crowded = True`.
 
     When there are more than ten objects from the same category,
     bounding boxes correspond to crowd of instances instead of individual
