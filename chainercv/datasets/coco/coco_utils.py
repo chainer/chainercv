@@ -28,12 +28,12 @@ def get_coco(split, img_split):
     img_root = os.path.join(data_dir, 'images')
     created_img_root = os.path.join(img_root, '{}2014'.format(img_split))
     annos_root = os.path.join(data_dir, 'annotations')
-    anno_fn = os.path.join(annos_root, 'instances_{}2014.json'.format(split))
+    anno_path = os.path.join(annos_root, 'instances_{}2014.json'.format(split))
     if not os.path.exists(created_img_root):
         download_file_path = utils.cached_download(url)
         ext = os.path.splitext(url)[1]
         utils.extractall(download_file_path, img_root, ext)
-    if not os.path.exists(anno_fn):
+    if not os.path.exists(anno_path):
         anno_url = anno_urls[split]
         download_file_path = utils.cached_download(anno_url)
         ext = os.path.splitext(anno_url)[1]

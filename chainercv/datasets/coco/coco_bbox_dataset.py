@@ -77,8 +77,6 @@ class COCOBboxDataset(GetterDataset):
                  use_crowded=False, return_crowded=False, return_area=False):
         super(COCOBboxDataset, self).__init__()
         self.use_crowded = use_crowded
-        self.return_crowded = return_crowded
-        self.return_area = return_area
         if split in ['val', 'minival', 'valminusminival']:
             img_split = 'val'
         else:
@@ -99,8 +97,7 @@ class COCOBboxDataset(GetterDataset):
             self.img_props[img['id']] = img
         self.ids = sorted(list(self.img_props.keys()))
 
-        cats = anno['categories']
-        self.cat_ids = [cat['id'] for cat in cats]
+        self.cat_ids = [cat['id'] for cat in anno['categories']]
 
         self.img_to_anno = defaultdict(list)
         for ann in anno['annotations']:
@@ -111,9 +108,9 @@ class COCOBboxDataset(GetterDataset):
                         self._get_annotations)
 
         keys = ('img', 'bbox', 'label')
-        if self.return_area:
+        if return_area:
             keys += ('area',)
-        if self.return_crowded:
+        if return_crowded:
             keys += ('crowded',)
         self.keys = keys
 
