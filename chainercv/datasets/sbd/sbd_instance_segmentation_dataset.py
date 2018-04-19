@@ -21,7 +21,7 @@ def _check_available():
             'SciPy is not installed in your environment,',
             'so the dataset cannot be loaded.'
             'Please install SciPy to load dataset.\n\n'
-            '$ pip install scipy')
+            '$ pip install scipy', RuntimeWarning)
 
 
 class SBDInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
