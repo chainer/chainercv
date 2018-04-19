@@ -1,7 +1,7 @@
 import collections
 import numpy as np
 
-import chainer
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 
 
 def _construct_label_to_key(labels):
@@ -11,7 +11,7 @@ def _construct_label_to_key(labels):
     return d
 
 
-class SiameseDataset(chainer.dataset.DatasetMixin):
+class SiameseDataset(GetterDataset):
 
     """A dataset that returns samples fetched from two datasets.
 
@@ -72,10 +72,24 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
             :obj:`labels_1` can be skipped.
             Please consult the explanation for :obj:`labels_0`.
 
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img_0`, [#siamese_1]_, [#siamese_1]_, [#siamese_1]_
+        :obj:`label_0`, scalar, :obj:`int32`, ":math:`[0, \#class - 1]`"
+        :obj:`img_1`, [#siamese_2]_, [#siamese_2]_, [#siamese_2]_
+        :obj:`label_1`, scalar, :obj:`int32`, ":math:`[0, \#class - 1]`"
+
+    .. [#siamese_1] Same as :obj:`dataset_0`.
+    .. [#siamese_2] Same as :obj:`dataset_1`.
     """
 
     def __init__(self, dataset_0, dataset_1,
                  pos_ratio=None, length=None, labels_0=None, labels_1=None):
+        super(SiameseDataset, self).__init__()
+
         self._dataset_0 = dataset_0
         self._dataset_1 = dataset_1
         self._pos_ratio = pos_ratio
@@ -130,10 +144,13 @@ class SiameseDataset(chainer.dataset.DatasetMixin):
         self._labels_0 = labels_0
         self._labels_1 = labels_1
 
+        self.add_getter(
+            ('img_0', 'label_0', 'img_1', 'label_1'), self._get_example)
+
     def __len__(self):
         return self._length
 
-    def get_example(self, i):
+    def _get_example(self, i):
         if self._pos_ratio is None:
             idx0 = np.random.choice(np.arange(len(self._dataset_0)))
             idx1 = np.random.choice(np.arange(len(self._dataset_1)))
