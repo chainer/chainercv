@@ -112,11 +112,11 @@ class COCOBboxDataset(GetterDataset):
         self.add_getter(['bbox', 'label', 'crowded', 'area'],
                         self._get_annotations)
 
-        keys = ['img', 'bbox', 'label']
+        keys = ('img', 'bbox', 'label')
         if self.return_area:
-            keys.append('area')
+            keys += ('area',)
         if self.return_crowded:
-            keys.append('crowded')
+            keys += ('crowded',)
         self.keys = keys
 
     def __len__(self):
