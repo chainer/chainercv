@@ -14,12 +14,12 @@ except ImportError:
     _scipy_available = False
 
 
-@unittest.skipIf(not _scipy_available, 'SciPy is not installed')
 @testing.parameterize(
     {'split': 'train'},
     {'split': 'val'},
     {'split': 'trainval'}
 )
+@unittest.skipIf(not _scipy_available, 'SciPy is not installed')
 class TestSBDInstanceSegmentationDataset(unittest.TestCase):
 
     def setUp(self):
