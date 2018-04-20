@@ -104,7 +104,7 @@ cmdclass = {
 
 setup(
     name='chainercv',
-    version='0.8.0',
+    version='0.9.0',
     packages=find_packages(),
     author='Yusuke Niitani',
     author_email='niitani@preferred.jp',
