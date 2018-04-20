@@ -3,10 +3,11 @@ from __future__ import division
 import numpy as np
 
 from chainercv.visualizations.colormap import voc_colormap
+from chainercv.visualizations import vis_image
 
 
 def vis_semantic_segmentation(
-        label, label_names=None,
+        img, label, label_names=None,
         label_colors=None, ignore_label_color=(0, 0, 0), alpha=1,
         all_label_names_in_legend=False, ax=None):
     """Visualize a semantic segmentation.
@@ -18,21 +19,22 @@ def vis_semantic_segmentation(
         ...     import voc_semantic_segmentation_label_colors
         >>> from chainercv.datasets \
         ...     import voc_semantic_segmentation_label_names
-        >>> from chainercv.visualizations import vis_image
         >>> from chainercv.visualizations import vis_semantic_segmentation
         >>> import matplotlib.pyplot as plt
         >>> dataset = VOCSemanticSegmentationDataset()
         >>> img, label = dataset[60]
-        >>> ax = vis_image(img)
-        >>> _, legend_handles = vis_semantic_segmentation(
-        ...     label,
+        >>> ax, legend_handles = vis_semantic_segmentation(
+        ...     img, label,
         ...     label_names=voc_semantic_segmentation_label_names,
         ...     label_colors=voc_semantic_segmentation_label_colors,
-        ...     alpha=0.9, ax=ax)
+        ...     alpha=0.9)
         >>> ax.legend(handles=legend_handles, bbox_to_anchor=(1, 1), loc=2)
         >>> plt.show()
 
     Args:
+        img (~numpy.ndarray): An array of shape :math:`(3, height, width)`.
+            This is in RGB format and the range of its value is
+            :math:`[0, 255]`. If this is :obj:`None`, no image is displayed.
         label (~numpy.ndarray): An integer array of shape
             :math:`(height, width)`.
             The values correspond to id for label names stored in
@@ -72,7 +74,6 @@ def vis_semantic_segmentation(
     """
     import matplotlib
     from matplotlib.patches import Patch
-    from matplotlib import pyplot as plt
 
     if label_names is not None:
         n_class = len(label_names)
@@ -87,6 +88,9 @@ def vis_semantic_segmentation(
     if label.max() >= n_class:
         raise ValueError('The values of label exceed the number of classes')
 
+    # Returns newly instantiated matplotlib.axes.Axes object if ax is None
+    ax = vis_image(img, ax=ax)
+
     if label_names is None:
         label_names = [str(l) for l in range(label.max() + 1)]
 
@@ -96,17 +100,13 @@ def vis_semantic_segmentation(
     label_colors = np.array(label_colors) / 255
     cmap = matplotlib.colors.ListedColormap(label_colors)
 
-    img = cmap(label / (n_class - 1), alpha=alpha)
+    canvas_img = cmap(label / (n_class - 1), alpha=alpha)
 
     # [0, 255] -> [0, 1]
     ignore_label_color = np.array(ignore_label_color) / 255,
-    img[label < 0, :3] = ignore_label_color
+    canvas_img[label < 0, :3] = ignore_label_color
 
-    if ax is None:
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-
-    ax.imshow(img)
+    ax.imshow(canvas_img)
 
     legend_handles = []
     if all_label_names_in_legend:
