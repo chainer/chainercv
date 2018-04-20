@@ -7,12 +7,19 @@ from chainercv.datasets import SBDInstanceSegmentationDataset
 from chainercv.testing import attr
 from chainercv.utils import assert_is_instance_segmentation_dataset
 
+try:
+    import scipy  # NOQA
+    _scipy_available = True
+except ImportError:
+    _scipy_available = False
+
 
 @testing.parameterize(
     {'split': 'train'},
     {'split': 'val'},
     {'split': 'trainval'}
 )
+@unittest.skipIf(not _scipy_available, 'SciPy is not installed')
 class TestSBDInstanceSegmentationDataset(unittest.TestCase):
 
     def setUp(self):
