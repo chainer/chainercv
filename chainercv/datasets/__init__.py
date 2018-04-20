@@ -13,6 +13,8 @@ from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_semantic_s
 from chainercv.datasets.cub.cub_label_dataset import CUBLabelDataset  # NOQA
 from chainercv.datasets.cub.cub_point_dataset import CUBPointDataset  # NOQA
 from chainercv.datasets.cub.cub_utils import cub_label_names  # NOQA
+from chainercv.datasets.kitti.KITTI_dataset import KITTIDataset  # NOQA
+from chainercv.datasets.kitti.parseTrackletXML import parseXML  # NOQA
 from chainercv.datasets.directory_parsing_label_dataset import directory_parsing_label_names  # NOQA
 from chainercv.datasets.directory_parsing_label_dataset import DirectoryParsingLabelDataset  # NOQA
 from chainercv.datasets.mixup_soft_label_dataset import MixUpSoftLabelDataset  # NOQA
