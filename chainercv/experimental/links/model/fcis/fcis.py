@@ -21,15 +21,16 @@ class FCIS(chainer.Chain):
     2. **Region Proposal Networks**: Given the feature maps calculated in \
         the previous stage, produce set of RoIs around objects.
     3. **Localization, Segmentation and Classification Heads**: Using feature \
-        maps that belong to the proposed RoIs, segment region of the objects, \
-        classify the categories of the objects in the RoIs and improve \
-        localizations.
+        maps that belong to the proposed RoIs, segment regions of the \
+        objects, classify the categories of the objects in the RoIs and \
+        improve localizations.
 
     Each stage is carried out by one of the callable
     :class:`chainer.Chain` objects :obj:`feature`, :obj:`rpn` and :obj:`head`.
     There are two functions :meth:`predict` and :meth:`__call__` to conduct
     instance segmentation.
-    :meth:`predict` takes images and returns masks, object label and its score.
+    :meth:`predict` takes images and returns masks, object labels
+    and their scores.
     :meth:`__call__` is provided for a scnerario when intermediate outputs
     are needed, for instance, for training and debugging.
 
@@ -47,15 +48,15 @@ class FCIS(chainer.Chain):
             :class:`~chainercv.links.model.faster_rcnn.RegionProposalNetwork`.
             Please refer to the documentation found there.
         head (callable Chain): A callable that takes a BCHW array,
-        RoIs and batch indices for RoIs.
-        This returns class dependent segmentation scores, class-agnostic
-        localization parameters, class scores, improved RoIs and batch
-        indices for RoIs.
+            RoIs and batch indices for RoIs.
+            This returns class-agnostic segmentation scores, class-agnostic
+            localization parameters, class scores, improved RoIs and batch
+            indices for RoIs.
         mean (numpy.ndarray): A value to be subtracted from an image
             in :meth:`prepare`.
-        min_size (int): A preprocessing paramter for :meth:`prepare`. Please
+        min_size (int): A preprocessing parameter for :meth:`prepare`. Please
             refer to a docstring found for :meth:`prepare`.
-        max_size (int): A preprocessing paramter for :meth:`prepare`.
+        max_size (int): A preprocessing parameter for :meth:`prepare`.
         loc_normalize_mean (tuple of four floats): Mean values of
             localization estimates.
         loc_normalize_std (tupler of four floats): Standard deviation
@@ -102,9 +103,9 @@ class FCIS(chainer.Chain):
             :math:`R' = \\sum _{i=1} ^ N R_i`.
         * :math:`L` is the number of classes excluding the background.
         * :math:`RH` is the height of pooled image by Position Sensitive \
-        ROI pooling.
+            ROI pooling.
         * :math:`RW` is the height of pooled image by Position Sensitive \
-        ROI pooling.
+            ROI pooling.
 
         Classes are ordered by the background, the first class, ..., and
         the :math:`L` th class.
@@ -119,9 +120,9 @@ class FCIS(chainer.Chain):
             Returns tuple of five values listed below.
 
             * **roi_seg_scores**: Class-agnostic segmentation scores for \
-            the proposed ROIs. Its shape is :math:`(R', 2, RH, RW)`
+                the proposed ROIs. Its shape is :math:`(R', 2, RH, RW)`
             * **roi_ag_locs**: Class-agnostic offsets and scalings for \
-            the proposed RoIs.  Its shape is :math:`(R', 2, 4)`.
+                the proposed RoIs.  Its shape is :math:`(R', 2, 4)`.
             * **roi_scores**: Class predictions for the proposed RoIs. \
                 Its shape is :math:`(R', L + 1)`.
             * **rois**: RoIs proposed by RPN. Its shape is \
@@ -214,7 +215,7 @@ class FCIS(chainer.Chain):
     def predict(self, imgs):
         """Segment object instances from images.
 
-        This method predicts instance-aware object region for each image.
+        This method predicts instance-aware object regions for each image.
 
         Args:
             imgs (iterable of numpy.ndarray): Arrays holding images of shape
@@ -226,7 +227,7 @@ class FCIS(chainer.Chain):
            This method returns a tuple of three lists,
            :obj:`(masks, labels, scores)`.
 
-           * **masks**: A list of float arrays of shape :math:`(R, H, W)`, \
+           * **masks**: A list of boolean arrays of shape :math:`(R, H, W)`, \
                where :math:`R` is the number of masks in a image. \
                Each pixel holds value if it is inside the object inside or not.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \

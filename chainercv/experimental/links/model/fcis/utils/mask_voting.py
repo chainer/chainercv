@@ -48,10 +48,10 @@ def mask_voting(
     """Refine mask probabilities by merging multiple masks.
 
     First, this function discard invalid masks with non maximum suppression.
-    Then, it merge masks with weight calculated from class probabilities and
+    Then, it merges masks with weight calculated from class probabilities and
     iou.
-    This function improve qualities by merging overlapped masks predicted as
-    the same object class.
+    This function improves the mask qualities by merging overlapped masks
+    predicted as the same object class.
 
     Here are notations used.
     * :math:`R'` is the total number of RoIs produced across batches.
@@ -60,9 +60,11 @@ def mask_voting(
     * :math:`RW` is the height of pooled image.
 
     Args:
-        mask_scores (array): A mask score array whose shape is
+        mask_score (array): A mask score array whose shape is
             :math:`(R, RH, RW)`.
-        scores (array): A class score array whose shape is
+        bbox (array): A bounding box array whose shape is
+            :math:`(R, 4)`.
+        score (array): A class score array whose shape is
             :math:`(R, L + 1)`.
         size (tuple of int): Original image size.
         score_thresh (float): A threshold value of the class score.
@@ -71,8 +73,8 @@ def mask_voting(
             for mask merging.
         binary_thresh (float): A threshold value of mask score
             for mask merging.
-        limit (int): A limit number of outputs.
-        bg_label (int): A background label.
+        limit (int): The maximum number of outputs.
+        bg_label (int): The id of the background label.
 
     Returns:
         array, array, array, array:
