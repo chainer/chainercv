@@ -94,7 +94,7 @@ class Tracklet(object):
     r""" return human-readable string representation of tracklet object
 
     called implicitly in 
-    print(trackletObj)
+    # print(trackletObj)
     or in 
     text = str(trackletObj)
     """
@@ -133,7 +133,7 @@ def parseXML(trackletFile):
 
   # convert tracklet XML data to a tree structure
   eTree = ElementTree()
-  print('parsing tracklet file', trackletFile)
+  # print('parsing tracklet file', trackletFile)
   with open(trackletFile) as f:
     eTree.parse(f)
 
@@ -143,21 +143,21 @@ def parseXML(trackletFile):
   trackletIdx = 0
   nTracklets = None
   for trackletElem in trackletsElem:
-    #print('track:', trackletElem.tag)
+    # print('track:', trackletElem.tag)
     if trackletElem.tag == 'count':
       nTracklets = int(trackletElem.text)
-      print('file contains', nTracklets, 'tracklets')
+      # print('file contains', nTracklets, 'tracklets')
     elif trackletElem.tag == 'item_version':
       pass
     elif trackletElem.tag == 'item':
-      #print('tracklet {0} of {1}'.format(trackletIdx, nTracklets))
+      # print('tracklet {0} of {1}'.format(trackletIdx, nTracklets))
       # a tracklet
       newTrack = Tracklet()
       isFinished = False
       hasAmt = False
       frameIdx = None
       for info in trackletElem:
-        #print('trackInfo:', info.tag)
+        # print('trackInfo:', info.tag)
         if isFinished:
           raise ValueError('more info on element after finished!')
         if info.tag == 'objectType':
@@ -173,7 +173,7 @@ def parseXML(trackletFile):
         elif info.tag == 'poses':
           # this info is the possibly long list of poses
           for pose in info:
-            #print('trackInfoPose:', pose.tag)
+            # print('trackInfoPose:', pose.tag)
             if pose.tag == 'count':   # this should come before the others
               if newTrack.nFrames is not None:
                 raise ValueError('there are several pose lists for a single track!')
@@ -195,7 +195,7 @@ def parseXML(trackletFile):
               if frameIdx is None:
                 raise ValueError('pose item came before number of poses!')
               for poseInfo in pose:
-                #print('trackInfoPoseInfo:', poseInfo.tag)
+                # print('trackInfoPoseInfo:', poseInfo.tag)
                 if poseInfo.tag == 'tx':
                   newTrack.trans[frameIdx, 0] = float(poseInfo.text)
                 elif poseInfo.tag == 'ty':
@@ -266,7 +266,7 @@ def parseXML(trackletFile):
       raise ValueError('unexpected tracklet info')
   #end: for tracklet list items
 
-  print('loaded', trackletIdx, 'tracklets')
+  # print('loaded', trackletIdx, 'tracklets')
 
   # final consistency check
   if trackletIdx != nTracklets:

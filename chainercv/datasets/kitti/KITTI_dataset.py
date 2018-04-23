@@ -14,12 +14,12 @@ url_base = 'http://kitti.is.tue.mpg.de/kitti/raw_data/'
 
 # use pykitti
 import pykitti
+
 import itertools
 # tracklet parser
-# import parseTrackletXML as xmlParser
-from chainercv.datasets.KITTI import parseTrackletXML as xmlParser
-# from parseTrackletXML import parseXML
+from chainercv.datasets.kitti import parseTrackletXML as xmlParser
 
+# check 
 import matplotlib.pyplot as plt
 from chainercv.visualizations import vis_bbox
 
@@ -115,7 +115,6 @@ class KITTIDataset(chainer.dataset.DatasetMixin):
                 # img02
                 self.cur_R_rect = self.dataset.calib.R_rect_20
                 self.cur_P_rect = self.dataset.calib.P_rect_20
-                # set imformat='cv2'
                 self.imgs = np.array(list(self.dataset.cam2))
                 # img = np.array(list(self.dataset.rgb)[0])
                 # img = np.uint8(np.array(list(self.dataset.rgb)[0]) * 255).astype(np.float32)
@@ -125,7 +124,6 @@ class KITTIDataset(chainer.dataset.DatasetMixin):
                 self.cur_P_rect = self.dataset.calib.P_rect_30
                 self.imgs = np.array(list(self.dataset.cam3))
                 # img = np.array(list(self.dataset.rgb)[1])
-                # imformat='None'
                 # img = np.uint8(np.array(list(self.dataset.rgb)[1]) * 255).astype(np.float32)
         else:
             if self.isLeft == True:
@@ -135,7 +133,7 @@ class KITTIDataset(chainer.dataset.DatasetMixin):
                 self.imgs = np.array(list(self.dataset.cam0))
                 # img = np.array(list(self.dataset.gray)[0])
             else:
-                # img00
+                # img01
                 self.cur_R_rect = self.dataset.calib.R_rect_10
                 self.cur_P_rect = self.dataset.calib.P_rect_10
                 self.imgs = np.array(list(self.dataset.cam1))
@@ -247,7 +245,7 @@ class KITTIDataset(chainer.dataset.DatasetMixin):
         # return next(iter(itertools.islice(self.dataset.velo, 0, None)))
         label = self.labels[i]
         # return next(iter(itertools.islice(self.dataset.velo, i, None)))
-        return next(iter(itertools.islice(self.dataset.velo, i, None))), bbox_3d, label
+        return next(iter(itertools.islice(self.dataset.velo, i, None))), bbox, label
 
 
     def get_KITTI_Sync_Data(self, root, date, driveNo):
@@ -311,6 +309,9 @@ class KITTIDataset(chainer.dataset.DatasetMixin):
 
 
     def get_KITTI_Image(self, data_root, date, driveNo, ImgNo):
+        """
+        no use pykitti
+        """
         folder = date + '_drive_' + driveNo
         img_dir = os.path.join(data_root, os.path.join(date, folder + '_sync', 'image_' + ImgNo, 'data'))
 
@@ -323,8 +324,6 @@ class KITTIDataset(chainer.dataset.DatasetMixin):
 
         for img_path in sorted(glob.glob(os.path.join(img_dir, '*.png'))):
                 self.img_paths.append(img_path)
-
-
 
 
     def get_KITTI_Tracklets(self, data_root, date, driveNo):
@@ -410,18 +409,16 @@ class KITTIDataset(chainer.dataset.DatasetMixin):
                 # param3 = translation.reshape(3, 1) * self.dataset.calib.P_rect_20
                 # print(cornerPosInVelo[:, 0:1].shape)
                 pt3d = np.vstack((cornerPosInVelo[:,0:8], np.ones(8)))
-                # print(pt3d)
                 # print(pt3d.shape)
                 # print(self.dataset.calib.P_rect_20)
 
-                # pt2d = self.project_velo_points_in_img(pt3d, self.dataset.calib.T_cam2_velo, self.dataset.calib.R_rect_20, self.dataset.calib.P_rect_20)
                 pt2d = self.project_velo_points_in_img(pt3d, self.dataset.calib.T_cam2_velo, self.cur_R_rect, self.cur_P_rect)
 
                 # print(pt2d)
-                ymin = min(pt2d[1, :])
                 xmin = min(pt2d[0, :])
-                ymax = max(pt2d[1, :])
                 xmax = max(pt2d[0, :])
+                ymin = min(pt2d[1, :])
+                ymax = max(pt2d[1, :])
                 param = np.array((ymin, xmin, ymax, xmax))
                 # bbox.append(param)
                 # bbox = np.stack(bbox).astype(np.float32)
@@ -429,7 +426,7 @@ class KITTIDataset(chainer.dataset.DatasetMixin):
                 self.bboxes[absoluteFrameNumber].append(param)
                 # print(self.bboxes[absoluteFrameNumber])
                 # param_3d = cornerPosInVelo
-                self.bboxes_3d[absoluteFrameNumber].append(cornerPosInVelo)
+                # self.bboxes_3d[absoluteFrameNumber].append(cornerPosInVelo)
                 # label.append(param2)
                 # label = np.stack(label).astype(np.int32)
                 # self.labels[absoluteFrameNumber] = label
@@ -440,21 +437,10 @@ class KITTIDataset(chainer.dataset.DatasetMixin):
                 self.labels[absoluteFrameNumber].append(param2)
                 # print(self.bboxes[absoluteFrameNumber])
 
-            #end: for all frames in track
-        #end: for all tracks
+            # end : for all frames in track
+        # end : for all tracks
 
     # def get_KITTI_Calibration(self, data_root, date, driveNo):
-
-    # def prepare_velo_points(pts3d_raw):
-    #     '''Replaces the reflectance value by 1, and tranposes the array, so
-    #        points can be directly multiplied by the camera projection matrix'''
-    # 
-    #     pts3d = pts3d_raw
-    #     # Reflectance > 0
-    #     pts3d = pts3d[pts3d[:, 3] > 0 ,:]
-    #     pts3d[:,3] = 1
-    #     return pts3d.transpose()
-
 
     def project_velo_points_in_img(self, pts3d, T_cam_velo, Rrect, Prect):
         """Project 3D points into 2D image. Expects pts3d as a 4xN
@@ -464,13 +450,13 @@ class KITTIDataset(chainer.dataset.DatasetMixin):
         # 3D points in camera reference frame.
         pts3d_cam = Rrect.dot(T_cam_velo.dot(pts3d))
 
-        # Before projecting, keep only points with z>0 
+        # Before projecting, keep only points with z > 0 
         # (points that are in fronto of the camera).
-        idx = (pts3d_cam[2,:]>=0)
+        idx = (pts3d_cam[2,:] >= 0)
         pts2d_cam = Prect.dot(pts3d_cam[:,idx])
 
-        # return pts3d[:, idx], pts2d_cam/pts2d_cam[2,:]
-        return pts2d_cam/pts2d_cam[2,:]
+        # return pts3d[:, idx], pts2d_cam / pts2d_cam[2,:]
+        return pts2d_cam / pts2d_cam[2,:]
 
 
 if __name__ == '__main__':
@@ -497,8 +483,6 @@ if __name__ == '__main__':
     # d = KITTIDataset(date='2011_09_26', driveNo='0001', color=True, sync = True)
     print(len(d))
     img, bbox, label = d[20]
-    # img, label = d[0]
-    # (3, 375, 1242)
     # print(img)
     # print(img.shape)
     # Data no Sync
