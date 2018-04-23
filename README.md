@@ -1,6 +1,9 @@
 [![](docs/images/logo.png)](http://chainercv.readthedocs.io/en/stable/)
 
+[![PyPI](https://img.shields.io/pypi/v/chainercv.svg)](https://pypi.python.org/pypi/chainercv)
+[![License](https://img.shields.io/github/license/chainer/chainercv.svg)](https://github.com/chainer/chainercv/blob/master/LICENSE)
 [![travis](https://travis-ci.org/chainer/chainercv.svg?branch=master)](https://travis-ci.org/chainer/chainercv)
+[![Read the Docs](https://media.readthedocs.org/static/projects/badges/passing.svg)](http://chainercv.readthedocs.io/en/latest/?badge=latest)
 
 # ChainerCV: a Library for Deep Learning in Computer Vision
 
