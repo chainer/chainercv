@@ -285,9 +285,9 @@ class FCISResNet101Head(chainer.Chain):
             roi_ag_locs = roi_ag_locs.array
             mean = self.xp.array(self.loc_normalize_mean)
             std = self.xp.array(self.loc_normalize_std)
-            roi_loc = roi_ag_locs[:, 1, :]
-            roi_loc = (roi_loc * std + mean).astype(np.float32)
-            rois2 = loc2bbox(rois, roi_loc)
+            roi_locs = roi_ag_locs[:, 1, :]
+            roi_locs = (roi_locs * std + mean).astype(np.float32)
+            rois2 = loc2bbox(rois, roi_locs)
 
             rois2[:, 0::2] = self.xp.clip(rois2[:, 0::2], 0, img_size[0])
             rois2[:, 1::2] = self.xp.clip(rois2[:, 1::2], 0, img_size[1])
