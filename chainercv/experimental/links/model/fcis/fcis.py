@@ -260,6 +260,7 @@ class FCIS(chainer.Chain):
                 roi_seg_scores, _, roi_scores, rois, _ = \
                     self.__call__(img_var, scale)
 
+            # We are assuming that batch size is 1.
             roi_seg_score = roi_seg_scores.array
             roi_score = roi_scores.array
             bbox = rois / scale
