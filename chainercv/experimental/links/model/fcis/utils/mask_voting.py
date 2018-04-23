@@ -113,8 +113,8 @@ def mask_voting(
         cls_score.append(score_l)
 
     sorted_score = np.sort(np.concatenate(cls_score))[::-1]
-    keep_n = min(len(sorted_score), limit)
-    score_thresh = max(sorted_score[keep_n - 1], score_thresh)
+    n_keep = min(len(sorted_score), limit)
+    score_thresh = max(sorted_score[n_keep - 1], score_thresh)
 
     for label in range(0, n_class):
         # background
