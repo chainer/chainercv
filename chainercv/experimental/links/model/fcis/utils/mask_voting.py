@@ -5,7 +5,7 @@ from chainercv.utils.bbox.bbox_iou import bbox_iou
 from chainercv.utils import non_maximum_suppression
 
 
-def mask_aggregation(
+def _mask_aggregation(
         bbox, mask_score, mask_weight,
         size, binary_thresh
 ):
@@ -137,7 +137,7 @@ def mask_voting(
             mask_weight = mask_weight / mask_weight.sum()
             mask_score_i = mask_score[keep_indices]
             bbox_i = bbox[keep_indices]
-            c_mask, c_bbox = mask_aggregation(
+            c_mask, c_bbox = _mask_aggregation(
                 bbox_i, mask_score_i, mask_weight, size, binary_thresh)
             if c_mask is not None and c_bbox is not None:
                 c_mask = resize(
