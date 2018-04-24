@@ -87,8 +87,8 @@ class YOLOv3(chainer.Chain):
 
     def __call__(self, x):
         ys = []
-        for h, link in zip(self.extractor(x), self.subnet):
-            h = link(h)
+        for i, h in enumerate(self.extractor(x)):
+            h = self.subnet[i](h)
             h = F.reshape(h, (h.shape[0], 3, 1 + 4 + self.n_fg_class, -1))
             h = F.transpose(h, (0, 3, 1, 2))
             ys.append(h)
