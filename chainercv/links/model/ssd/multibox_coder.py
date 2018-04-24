@@ -216,7 +216,7 @@ class MultiboxCoder(object):
                 in the second axis.
             * **label** : An integer array of shape :math:`(R,)`. \
                 Each value indicates the class of the bounding box.
-            * **score** : A float array of shape :math:`(R,)`. \
+            * **prob** : A float array of shape :math:`(R,)`. \
                 Each value indicates how confident the prediction is.
 
         """
@@ -235,32 +235,32 @@ class MultiboxCoder(object):
 
         # softmax
         mb_score = xp.exp(mb_conf)
-        mb_score /= mb_score.sum(axis=1, keepdims=True)
+        mb_prob = mb_score / mb_score.sum(axis=1, keepdims=True)
 
         bbox = []
         label = []
-        score = []
+        prob = []
         for l in range(mb_conf.shape[1] - 1):
             bbox_l = mb_bbox
             # the l-th class corresponds for the (l + 1)-th column.
-            score_l = mb_score[:, l + 1]
+            prob_l = mb_prob[:, l + 1]
 
-            mask = score_l >= score_thresh
+            mask = prob_l >= score_thresh
             bbox_l = bbox_l[mask]
-            score_l = score_l[mask]
+            prob_l = prob_l[mask]
 
             if nms_thresh is not None:
                 indices = utils.non_maximum_suppression(
-                    bbox_l, nms_thresh, score_l)
+                    bbox_l, nms_thresh, prob_l)
                 bbox_l = bbox_l[indices]
-                score_l = score_l[indices]
+                prob_l = prob_l[indices]
 
             bbox.append(bbox_l)
             label.append(xp.array((l,) * len(bbox_l)))
-            score.append(score_l)
+            prob.append(prob_l)
 
         bbox = xp.vstack(bbox).astype(np.float32)
         label = xp.hstack(label).astype(np.int32)
-        score = xp.hstack(score).astype(np.float32)
+        prob = xp.hstack(prob).astype(np.float32)
 
-        return bbox, label, score
+        return bbox, label, prob

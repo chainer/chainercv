@@ -83,7 +83,7 @@ class TestMultiboxCoder(unittest.TestCase):
     def _check_decode(self, mb_loc, mb_conf):
         xp = self.coder.xp
 
-        bbox, label, score = self.coder.decode(
+        bbox, label, prob = self.coder.decode(
             mb_loc, mb_conf, self.nms_thresh, self.score_thresh)
 
         self.assertIsInstance(bbox, xp.ndarray)
@@ -95,9 +95,9 @@ class TestMultiboxCoder(unittest.TestCase):
         self.assertEqual(label.ndim, 1)
         self.assertEqual(label.shape[0], bbox.shape[0])
 
-        self.assertIsInstance(score, xp.ndarray)
-        self.assertEqual(score.ndim, 1)
-        self.assertEqual(score.shape[0], bbox.shape[0])
+        self.assertIsInstance(prob, xp.ndarray)
+        self.assertEqual(prob.ndim, 1)
+        self.assertEqual(prob.shape[0], bbox.shape[0])
 
     def test_decode_cpu(self):
         self._check_decode(self.mb_loc, self.mb_conf)
