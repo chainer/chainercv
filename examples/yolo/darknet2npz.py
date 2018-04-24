@@ -2,25 +2,33 @@ import argparse
 import numpy as np
 
 import chainer
+from chainer.links import Convolution2D
 from chainer import serializers
 
 from chainercv.links import Conv2DBNActiv
 from chainercv.links import YOLOv3
 
 
-def load(file, link):
-    if isinstance(link, Conv2DBNActiv):
-        for param in (
-                link.bn.beta.array,
-                link.bn.gamma.array,
-                link.bn.avg_mean,
-                link.bn.avg_var,
-                link.conv.W.array):
-            param[:] = np.fromfile(file, dtype=np.float32, count=param.size) \
-                         .reshape(param.shape)
+def load_param(file, param):
+    if isinstance(param, chainer.Variable):
+        param = param.array
+    param[:] = np.fromfile(file, dtype=np.float32, count=param.size) \
+                 .reshape(param.shape)
+
+
+def load_link(file, link):
+    if isinstance(link, Convolution2D):
+        load_param(file, link.b)
+        load_param(file, link.W)
+    elif isinstance(link, Conv2DBNActiv):
+        load_param(file, link.bn.beta)
+        load_param(file, link.bn.gamma)
+        load_param(file, link.bn.avg_mean)
+        load_param(file, link.bn.avg_var)
+        load_param(file, link.conv.W)
     elif isinstance(link, chainer.ChainList):
         for l in link:
-            load(file, l)
+            load_link(file, l)
 
 
 def main():
@@ -41,7 +49,7 @@ def main():
         assert(major * 10 + minor >= 2 and major < 1000 and minor < 1000)
         np.fromfile(f, dtype=np.int64, count=1)  # seen
 
-        load(f, model.extractor)
+        load_link(f, model)
 
     serializers.save_npz(args.output, model)
 
