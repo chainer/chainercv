@@ -62,13 +62,10 @@ class YOLOv3(chainer.ChainList):
             if i in {35, 43, 51}:
                 ys.append(h)
 
-            # shortcut and route
             if i in {14, 23, 33, 41}:
                 hs.append(h)
-            # shortcut
             elif i in {35, 43}:
                 h = hs.pop()
-            # route
             elif i in {36, 44}:
                 h = F.concat((_upsample(h), hs.pop()))
 
