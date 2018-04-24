@@ -57,8 +57,8 @@ class YOLOv3(chainer.ChainList):
 
         h = x
         hs = []
-        for i, l in enumerate(self):
-            h = self[i](h)
+        for i, link in enumerate(self):
+            h = link(h)
             if i in {35, 43, 51}:
                 ys.append(h)
 
