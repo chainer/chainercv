@@ -31,6 +31,13 @@ def load_link(file, link):
             load_link(file, l)
 
 
+def load_yolo_v3(file, model):
+    for i, link in enumerate(model.extractor):
+        load_link(file, link)
+        if i in {33, 39, 45}:
+            load_link(file, model.subnet[(i - 33) // 6])
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--n_fg_class', type=int, default=80)
@@ -49,7 +56,7 @@ def main():
         assert(major * 10 + minor >= 2 and major < 1000 and minor < 1000)
         np.fromfile(f, dtype=np.int64, count=1)  # seen
 
-        load_link(f, model)
+        load_yolo_v3(f, model)
 
     serializers.save_npz(args.output, model)
 
