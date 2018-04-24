@@ -42,7 +42,7 @@ class FasterRCNNVGG16(FasterRCNN):
 
     Args:
         n_fg_class (int): The number of classes excluding the background.
-        pretrained_model (str): The destination of the pre-trained
+        pretrained_model (string): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
             above, it automatically loads weights stored under a directory
