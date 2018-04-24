@@ -6,7 +6,7 @@ SegNet
 Please create `class_weight.npy` using calc_weight.py first. Just run:
 
 ```
-python calc_weight.py
+$ python calc_weight.py
 ```
 
 # Start training
@@ -14,7 +14,7 @@ python calc_weight.py
 First, move to this directory (i.e., `examples/segnet`) and run:
 
 ```
-python train.py [--gpu <gpu>]
+$ python train.py [--gpu <gpu>]
 ```
 
 PlotReport extension uses matplotlib. If you got `RuntimeError: Invalid DISPLAY variable` error on Linux environment, adding an environment variable specification is recommended:
@@ -42,8 +42,8 @@ We used the completely same parameters for all settings.
 Here is a quick demo using our pretrained weights. The pretrained model is automatically downloaded from the internet.
 
 ```
-wget https://raw.githubusercontent.com/alexgkendall/SegNet-Tutorial/master/CamVid/test/0001TP_008550.png
-python demo.py [--gpu <gpu>] [--pretrained_model <model_path>] 0001TP_008550.png
+$ wget https://raw.githubusercontent.com/alexgkendall/SegNet-Tutorial/master/CamVid/test/0001TP_008550.png
+$ python demo.py [--gpu <gpu>] [--pretrained_model <model_path>] 0001TP_008550.png
 ```
 
 
@@ -52,7 +52,7 @@ python demo.py [--gpu <gpu>] [--pretrained_model <model_path>] 0001TP_008550.png
 The trained weights to replicate the same results as below is here: [model_iteration-16000](https://www.dropbox.com/s/exas66necaqbxyw/model_iteration-16000).
 
 ```
-python eval_camvid.py [--gpu <gpu>] [--pretrained_model <model_path>] [--batchsize <batchsize>]
+$ python eval_camvid.py [--gpu <gpu>] [--pretrained_model <model_path>] [--batchsize <batchsize>]
 ```
 
 
@@ -85,7 +85,7 @@ Global average accuracy : 0.8266
 | ChainerCV      | 82.7 %          | **67.1 %**     | **49.4 %** |
 | Official       | **82.8 %**      | 62.3%          | 46.3 %     |
 
-The above values of the official implementation is found here: [Getting Started with SegNet](http://mi.eng.cam.ac.uk/projects/segnet/tutorial.html)
+The above values of the official implementation are found here: [Getting Started with SegNet](http://mi.eng.cam.ac.uk/projects/segnet/tutorial.html)
 
 # Reference
 

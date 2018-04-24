@@ -38,7 +38,7 @@ class DummySSD(SSD):
                 aspect_ratios=((2,), (2, 3), (2,))),
             steps=(0.1, 0.25, 1),
             sizes=(0.1, 0.25, 1, 1.2),
-            mean=np.array((0, 1, 2)).reshape(-1, 1, 1))
+            mean=np.array((0, 1, 2)).reshape((-1, 1, 1)))
 
 
 @testing.parameterize(
@@ -58,10 +58,10 @@ class TestSSD(unittest.TestCase):
         mb_locs, mb_confs = self.link(x)
 
         self.assertIsInstance(mb_locs, chainer.Variable)
-        self.assertIsInstance(mb_locs.data, self.link.xp.ndarray)
+        self.assertIsInstance(mb_locs.array, self.link.xp.ndarray)
         self.assertEqual(mb_locs.shape, (1, self.n_bbox, 4))
         self.assertIsInstance(mb_confs, chainer.Variable)
-        self.assertIsInstance(mb_confs.data, self.link.xp.ndarray)
+        self.assertIsInstance(mb_confs.array, self.link.xp.ndarray)
         self.assertEqual(mb_confs.shape, (1, self.n_bbox, self.n_fg_class + 1))
 
     def test_call_cpu(self):

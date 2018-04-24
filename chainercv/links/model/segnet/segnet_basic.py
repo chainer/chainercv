@@ -10,9 +10,9 @@ from chainercv.transforms import resize
 from chainercv.utils import download_model
 
 
-def _without_cudnn(f, x):
+def _pool_without_cudnn(p, x):
     with chainer.using_config('use_cudnn', 'never'):
-        return f(x)
+        return p.apply((x,))[0]
 
 
 class SegNetBasic(chainer.Chain):
@@ -135,10 +135,10 @@ class SegNetBasic(chainer.Chain):
         p3 = F.MaxPooling2D(2, 2)
         p4 = F.MaxPooling2D(2, 2)
         h = F.local_response_normalization(x, 5, 1, 1e-4 / 5., 0.75)
-        h = _without_cudnn(p1, F.relu(self.conv1_bn(self.conv1(h))))
-        h = _without_cudnn(p2, F.relu(self.conv2_bn(self.conv2(h))))
-        h = _without_cudnn(p3, F.relu(self.conv3_bn(self.conv3(h))))
-        h = _without_cudnn(p4, F.relu(self.conv4_bn(self.conv4(h))))
+        h = _pool_without_cudnn(p1, F.relu(self.conv1_bn(self.conv1(h))))
+        h = _pool_without_cudnn(p2, F.relu(self.conv2_bn(self.conv2(h))))
+        h = _pool_without_cudnn(p3, F.relu(self.conv3_bn(self.conv3(h))))
+        h = _pool_without_cudnn(p4, F.relu(self.conv4_bn(self.conv4(h))))
         h = self._upsampling_2d(h, p4)
         h = self.conv_decode4_bn(self.conv_decode4(h))
         h = self._upsampling_2d(h, p3)
@@ -168,10 +168,11 @@ class SegNetBasic(chainer.Chain):
         labels = []
         for img in imgs:
             C, H, W = img.shape
-            with chainer.function.no_backprop_mode():
+            with chainer.using_config('train', False), \
+                    chainer.function.no_backprop_mode():
                 x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
                 score = self.__call__(x)[0].data
-            score = chainer.cuda.to_cpu(score)
+            score = chainer.backends.cuda.to_cpu(score)
             if score.shape != (C, H, W):
                 dtype = score.dtype
                 score = resize(score, (H, W)).astype(dtype)

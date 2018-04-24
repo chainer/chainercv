@@ -5,28 +5,31 @@ python:
   - "2.7"
   - "3.6"
 env:
-  - CHAINER_VERSION=">=2.0" OPTIONAL_MODULES=0
-  - CHAINER_VERSION=">=2.0" OPTIONAL_MODULES=1
-  - CHAINER_VERSION="==3.0.0b1" OPTIONAL_MODULES=0
-  - CHAINER_VERSION="==3.0.0b1" OPTIONAL_MODULES=1
+  - CHAINER_VERSION=">=4.0" OPTIONAL_MODULES=0
+  - CHAINER_VERSION=">=4.0" OPTIONAL_MODULES=1
+  - CHAINER_VERSION="==5.0.0a1" OPTIONAL_MODULES=0
+  - CHAINER_VERSION="==5.0.0a1" OPTIONAL_MODULES=1
 notifications:
   email: false
 
 install:
+  # We use the older version of conda because there is a bug in version 4.3.27.
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+      wget https://repo.continuum.io/miniconda/Miniconda2-4.3.21-Linux-x86_64.sh -O miniconda.sh;
     else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+      wget https://repo.continuum.io/miniconda/Miniconda3-4.3.21-Linux-x86_64.sh -O miniconda.sh;
     fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
+  # - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
 
   - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
+      export LIBRARY_PATH="$HOME/miniconda/lib:$LIBRARY_PATH";
+      export LD_LIBRARY_PATH="$HOME/miniconda/envs/chainercv/lib:$LD_LIBRARY_PATH";
       conda env create -f environment.yml;
       source activate chainercv;
     else
@@ -43,7 +46,13 @@ script:
   - pip install autopep8
   - pip install mock
   - pip install nose
+  - pip install pytest
   - flake8 .
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
-  - MPLBACKEND="agg" nosetests -a '!gpu,!slow' tests
+  - python style_checker.py .
+  - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
+      MPLBACKEND="agg" mpiexec -n 2 nosetests -a '!gpu,!slow,!disk' tests;
+    else
+      MPLBACKEND="agg" nosetests -a '!gpu,!slow,!disk' tests;
+    fi

@@ -21,7 +21,7 @@ except ImportError:
 
 
 # RGB, (C, 1, 1) format
-_imagenet_mean = np.array((123, 117, 104)).reshape(-1, 1, 1)
+_imagenet_mean = np.array((123, 117, 104)).reshape((-1, 1, 1))
 
 
 class VGG16(chainer.Chain):
@@ -72,7 +72,7 @@ class VGG16(chainer.Chain):
             self.conv7 = L.Convolution2D(1024, 1)
 
     def __call__(self, x):
-        ys = list()
+        ys = []
 
         h = F.relu(self.conv1_1(x))
         h = F.relu(self.conv1_2(h))

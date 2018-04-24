@@ -1,7 +1,7 @@
 import numpy as np
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 import chainer.functions as F
 
 from chainercv.links.model.faster_rcnn.utils.anchor_target_creator import\
@@ -39,9 +39,9 @@ class FasterRCNNTrainChain(chainer.Chain):
             the head. The default value is 1, which is the value used
             in [#FRCNN]_.
         anchor_target_creator: An instantiation of
-            :obj:`chainercv.links.model.faster_rcnn.AnchorTargetCreator`.
+            :class:`~chainercv.links.model.faster_rcnn.AnchorTargetCreator`.
         proposal_target_creator_params: An instantiation of
-            :obj:`chainercv.links.model.faster_rcnn.ProposalTargetCreator`.
+            :class:`~chainercv.links.model.faster_rcnn.ProposalTargetCreator`.
 
     """
 
@@ -90,11 +90,11 @@ class FasterRCNNTrainChain(chainer.Chain):
 
         """
         if isinstance(bboxes, chainer.Variable):
-            bboxes = bboxes.data
+            bboxes = bboxes.array
         if isinstance(labels, chainer.Variable):
-            labels = labels.data
+            labels = labels.array
         if isinstance(scale, chainer.Variable):
-            scale = scale.data
+            scale = scale.array
         scale = np.asscalar(cuda.to_cpu(scale))
         n = bboxes.shape[0]
         if n != 1:
@@ -131,7 +131,7 @@ class FasterRCNNTrainChain(chainer.Chain):
 
         # Losses for outputs of the head.
         n_sample = roi_cls_loc.shape[0]
-        roi_cls_loc = roi_cls_loc.reshape(n_sample, -1, 4)
+        roi_cls_loc = roi_cls_loc.reshape((n_sample, -1, 4))
         roi_loc = roi_cls_loc[self.xp.arange(n_sample), gt_roi_label]
         roi_loc_loss = _fast_rcnn_loc_loss(
             roi_loc, gt_roi_loc, gt_roi_label, self.roi_sigma)
@@ -151,7 +151,7 @@ def _smooth_l1_loss(x, t, in_weight, sigma):
     sigma2 = sigma ** 2
     diff = in_weight * (x - t)
     abs_diff = F.absolute(diff)
-    flag = (abs_diff.data < (1. / sigma2)).astype(np.float32)
+    flag = (abs_diff.array < (1. / sigma2)).astype(np.float32)
 
     y = (flag * (sigma2 / 2.) * F.square(diff) +
          (1 - flag) * (abs_diff - 0.5 / sigma2))
@@ -160,7 +160,7 @@ def _smooth_l1_loss(x, t, in_weight, sigma):
 
 
 def _fast_rcnn_loc_loss(pred_loc, gt_loc, gt_label, sigma):
-    xp = chainer.cuda.get_array_module(pred_loc)
+    xp = chainer.backends.cuda.get_array_module(pred_loc)
 
     in_weight = xp.zeros_like(gt_loc)
     # Localization loss is calculated only for positive rois.

@@ -1,9 +1,9 @@
 import argparse
-import matplotlib.pyplot as plot
+import matplotlib.pyplot as plt
 
 import chainer
 
-from chainercv.datasets import voc_detection_label_names
+from chainercv.datasets import voc_bbox_label_names
 from chainercv.links import SSD300
 from chainercv.links import SSD512
 from chainercv import utils
@@ -11,8 +11,6 @@ from chainercv.visualizations import vis_bbox
 
 
 def main():
-    chainer.config.train = False
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--model', choices=('ssd300', 'ssd512'), default='ssd300')
@@ -23,15 +21,15 @@ def main():
 
     if args.model == 'ssd300':
         model = SSD300(
-            n_fg_class=len(voc_detection_label_names),
+            n_fg_class=len(voc_bbox_label_names),
             pretrained_model=args.pretrained_model)
     elif args.model == 'ssd512':
         model = SSD512(
-            n_fg_class=len(voc_detection_label_names),
+            n_fg_class=len(voc_bbox_label_names),
             pretrained_model=args.pretrained_model)
 
     if args.gpu >= 0:
-        chainer.cuda.get_device(args.gpu).use()
+        chainer.cuda.get_device_from_id(args.gpu).use()
         model.to_gpu()
 
     img = utils.read_image(args.image, color=True)
@@ -39,8 +37,8 @@ def main():
     bbox, label, score = bboxes[0], labels[0], scores[0]
 
     vis_bbox(
-        img, bbox, label, score, label_names=voc_detection_label_names)
-    plot.show()
+        img, bbox, label, score, label_names=voc_bbox_label_names)
+    plt.show()
 
 
 if __name__ == '__main__':

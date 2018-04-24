@@ -1,3 +1,4 @@
+from __future__ import division
 import numpy as np
 
 from chainercv.transforms import resize
@@ -47,15 +48,15 @@ def resize_contain(img, size, fill=0, return_param=False):
     """
     C, H, W = img.shape
     out_H, out_W = size
-    scale_h = out_H / float(H)
-    scale_w = out_W / float(W)
-    scale = min(min(scale_h, scale_w), 1.)
+    scale_h = out_H / H
+    scale_w = out_W / W
+    scale = min(min(scale_h, scale_w), 1)
     scaled_size = (int(H * scale), int(W * scale))
-    if scale < 1.:
+    if scale < 1:
         img = resize(img, scaled_size)
     y_slice, x_slice = _get_pad_slice(img, size=size)
     out_img = np.empty((C, out_H, out_W), dtype=img.dtype)
-    out_img[:] = np.array(fill).reshape(-1, 1, 1)
+    out_img[:] = np.array(fill).reshape((-1, 1, 1))
     out_img[:, y_slice, x_slice] = img
 
     if return_param:
@@ -76,23 +77,15 @@ def _get_pad_slice(img, size):
     _, H, W = img.shape
 
     if H < size[0]:
-        diff_y = size[0] - H
-        margin_y = diff_y / 2
-        if diff_y % 2 == 0:
-            y_slice = slice(int(margin_y), int(size[0] - margin_y))
-        else:
-            y_slice = slice(int(margin_y), int(size[0] - margin_y - 1))
+        margin_y = (size[0] - H) // 2
     else:
-        y_slice = slice(0, int(size[0]))
+        margin_y = 0
+    y_slice = slice(margin_y, margin_y + H)
 
     if W < size[1]:
-        diff_x = size[1] - W
-        margin_x = diff_x / 2
-        if diff_x % 2 == 0:
-            x_slice = slice(int(margin_x), int(size[1] - margin_x))
-        else:
-            x_slice = slice(int(margin_x), int(size[1] - margin_x - 1))
+        margin_x = (size[1] - W) // 2
     else:
-        x_slice = slice(0, int(size[1]))
+        margin_x = 0
+    x_slice = slice(margin_x, margin_x + W)
 
     return y_slice, x_slice

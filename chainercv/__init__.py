@@ -1,5 +1,6 @@
 import pkg_resources
 
+from chainercv import chainer_experimental  # NOQA
 from chainercv import datasets  # NOQA
 from chainercv import evaluations  # NOQA
 from chainercv import extensions  # NOQA

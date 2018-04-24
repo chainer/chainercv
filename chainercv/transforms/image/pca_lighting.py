@@ -45,6 +45,6 @@ def pca_lighting(img, sigma, eigen_value=None, eigen_vector=None):
     alpha = np.random.normal(0, sigma, size=3)
 
     img = img.copy()
-    img += eigen_vector.dot(eigen_value * alpha).reshape(-1, 1, 1)
+    img += eigen_vector.dot(eigen_value * alpha).reshape((-1, 1, 1))
 
     return img

@@ -1,4 +1,4 @@
-from chainer import cuda
+from chainer.backends import cuda
 
 
 def loc2bbox(src_bbox, loc):
@@ -29,8 +29,8 @@ def loc2bbox(src_bbox, loc):
 
     Args:
         src_bbox (array): A coordinates of bounding boxes.
-            Its shape is :math:`(R, 4)`. These coordinates are used to
-            compute :math:`p_y, p_x, p_h, p_w`.
+            Its shape is :math:`(R, 4)`. These coordinates are
+            :math:`p_{ymin}, p_{xmin}, p_{ymax}, p_{xmax}`.
         loc (array): An array with offsets and scales.
             The shapes of :obj:`src_bbox` and :obj:`loc` should be same.
             This contains values :math:`t_y, t_x, t_h, t_w`.
@@ -39,7 +39,8 @@ def loc2bbox(src_bbox, loc):
         array:
         Decoded bounding box coordinates. Its shape is :math:`(R, 4)`. \
         The second axis contains four values \
-        :math:`\\hat{g}_y, \\hat{g}_x, \\hat{g}_h, \\hat{g}_w`.
+        :math:`\\hat{g}_{ymin}, \\hat{g}_{xmin},
+        \\hat{g}_{ymax}, \\hat{g}_{xmax}`.
 
     """
     xp = cuda.get_array_module(src_bbox)
