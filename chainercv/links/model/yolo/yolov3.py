@@ -20,8 +20,8 @@ class ResidualBlock(chainer.ChainList):
 
     def __call__(self, x):
         h = x
-        for l in self:
-            h = l(h)
+        for link in self:
+            h = link(h)
         h += x
         return h
 
