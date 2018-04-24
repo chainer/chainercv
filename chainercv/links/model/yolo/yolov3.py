@@ -8,25 +8,27 @@ def _leaky_relu(x):
     return F.leaky_relu(x, slope=0.1)
 
 
-class Block(chainer.ChainList):
-    def __init__(self, in_channels, n_block):
-        super().__init__(Conv2DBNActiv(
-            in_channels * 2, 3, stride=2, pad=1, activ=_leaky_relu))
-        for _ in range(n_block):
-            self.add_link(Conv2DBNActiv(in_channels, 1, activ=_leaky_relu))
-            self.add_link(
-                Conv2DBNActiv(in_channels * 2, 3, pad=1, activ=_leaky_relu))
+class ResidualBlock(chainer.ChainList):
+
+    def __init__(self, *links):
+        super().__init__(*links)
 
     def __call__(self, x):
-        it = iter(self)
-        h = next(it)(x)
-        for a, b in zip(it, it):
-            h += b(a(h))
+        h = x
+        for l in self:
+            h = l(h)
+        h += x
         return h
 
 
 class Darknet53(chainer.Sequential):
+
     def __init__(self):
         super().__init__(Conv2DBNActiv(32, 3, pad=1, activ=_leaky_relu))
         for k, n_block in enumerate((1, 2, 8, 8, 4)):
-            self.append(Block(32 << k, n_block))
+            self.append(Conv2DBNActiv(
+                32 << (k + 1), 3, stride=2, pad=1, activ=_leaky_relu))
+            for _ in range(n_block):
+                self.append(ResidualBlock(
+                    Conv2DBNActiv(32 << k, 1, activ=_leaky_relu),
+                    Conv2DBNActiv(32 << (k + 1), 3, pad=1, activ=_leaky_relu)))
