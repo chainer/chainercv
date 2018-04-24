@@ -32,3 +32,17 @@ class Darknet53(chainer.Sequential):
                 self.append(ResidualBlock(
                     Conv2DBNActiv(32 << k, 1, activ=_leaky_relu),
                     Conv2DBNActiv(32 << (k + 1), 3, pad=1, activ=_leaky_relu)))
+
+
+class YOLOv3(chainer.Chain):
+
+    def __init__(self, n_fg_class):
+        super().__init__()
+
+        with self.init_scope():
+            self.extractor = Darknet53()
+
+        self.insize = 416
+
+    def __call__(self, x):
+        return self.extractor(x)
