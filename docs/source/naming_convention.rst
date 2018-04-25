@@ -2,6 +2,15 @@ Naming Conventions
 ==================
 
 
+Here are notations used.
++ :math:`B` is the size of an batch.
++ :math:`H` is the height of an image.
++ :math:`W` is the width of an image.
++ :math:`C` is the number of channels.
++ :math:`R` is the total number of instances in an image.
++ :math:`L` is the number of classes.
+
+
 Data objets
 ~~~~~~~~~~~
 
