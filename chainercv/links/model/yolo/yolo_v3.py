@@ -82,7 +82,7 @@ class YOLOv3(chainer.Chain):
         ((61, 30), (45, 62), (119, 59)),
         ((13, 10), (30, 16), (23, 33)))
 
-    def __init__(self, n_fg_class):
+    def __init__(self, n_fg_class=None, pretrained_model=None):
         super().__init__()
         self.n_fg_class = n_fg_class
         self.use_preset('visualize')
@@ -105,6 +105,9 @@ class YOLOv3(chainer.Chain):
                     step.append(self.insize / grid)
         self._default_bbox = np.array(default_bbox, dtype=np.float32)
         self._step = np.array(step, dtype=np.float32)
+
+        if pretrained_model:
+            chainer.serializers.load_npz(pretrained_model, self, strict=False)
 
     @property
     def insize(self):
