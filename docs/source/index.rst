@@ -11,6 +11,7 @@ ChainerCV is a **deep learning based computer vision library** built on top of `
    install
    tutorial/index
    reference/index
+   naming_convention
 
 
 Indices and tables

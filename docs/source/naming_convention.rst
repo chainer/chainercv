@@ -1,0 +1,116 @@
+Naming Conventions
+==================
+
+
+Data objets
+~~~~~~~~~~~
+
+Images
+""""""
+
++ :obj:`imgs`:  :math:`(B, C, H, W)` or :math:`[(C, H, W)]`
++ :obj:`img`:  :math:`(C, H, W)`
+
+.. note::
+
+    :obj:`image` is used for a name of a function or a class (e.g., :func:`chainercv.utils.write_image`).
+
+
+
+Bounding boxes
+~~~~~~~~~~~~~~
+
++ :obj:`bboxes`:  :math:`(B, R, 4)` or :math:`[(R, 4)]`
++ :obj:`bbox`:  :math:`(R, 4)`
++ :obj:`bb`:  :math:`(4,)`
+
+
+Labels
+~~~~~~
+
+.. csv-table::
+    :header: name, classification, detection and instance segmentation, semantic segmentation
+
+    :obj:`labels`, ":math:`(B,)`", ":math:`(B, R)` or :math:`[(R,)]`", ":math:`(B, H, W)`"
+    :obj:`label`, ":math:`()`", ":math:`(R,)`", ":math:`(H, W)`"
+    :obj:`lb`, --, ":math:`()`", --
+
+
+Scores and probabilities
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+A score represent unbounded confidence value.
+On the other hand, probability is bounded in :obj:`[0, 1]`.
+
+.. csv-table::
+    :header: name, classification, detection and instance segmentation, semantic segmentation
+
+    :obj:`probs` or :obj:`scores`, ":math:`(B, L)`", ":math:`(B, R, L)` or :math:`[(R, L)]`", ":math:`(B, L, H, W)`"
+    :obj:`prob` or :obj:`score`, ":math:`(L,)`", ":math:`(R, L)`", ":math:`(L, H, W)`"
+    :obj:`pb` or :obj:`sc`, --, ":math:`(L,)`", --
+
+
+
+Instance segmentations
+~~~~~~~~~~~~~~~~~~~~~~
+
++ :obj:`masks`:  :math:`(B, R, H, W)`
++ :obj:`mask`:  :math:`(R, H, W)`
++ :obj:`msk`:  :math:`(H, W)`
+
+
+Attributing an additonal meaning to a basic data object
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+RoIs
+""""
+
+:obj:`rois`: :math:`(R', 4)`, which consists of bounding boxes for multiple images.
+Assuming that there are :math:`B` images each containing :math:`R_i` bounding boxes,
+:math:`R' = \sum R_i`.
+:obj:`rois` comes together with a :math:`(R',)` array called :obj:`roi_indices`, which contains batch indices of images to which bounding boxes correspond to.
+
+:obj:`roi`: :math:`(R, 4)`. This is RoIs for single image.
+
+Attributes associated to RoIs
+"""""""""""""""""""""""""""""
+
+RoIs may have additional attributes, such as class scores and masks.
+These attributes are named by appending :obj:`roi_` (e.g., :obj:`scores`-like object is named as :obj:`roi_scores`).
+
++ :obj:`roi_nouns`: :math:`(R',) + shape_{noun}`
++ :obj:`roi_noun`: :math:`(R,) + shape_{noun}`
+
+
+.. note::
+   
+   :obj:`roi_nouns = roi_noun = noun` when :obj:`batchsize=1`.
+   Changing names interchangeably is fine.
+
+
+Class-wise vs class-agnostic
+""""""""""""""""""""""""""""
+
+:obj:`cls_nouns` is a multi-class version of :obj:`nouns`.
+For instance, :obj:`cls_locs` is :math:`(B, R, L, 4)` and :obj:`locs` is :math:`(B, R, 4)`.
+
+
+.. note::
+
+    :obj:`cls_probs` and :obj:`probs` can be used interchangeably in the case
+    when there is no confusion.
+
+
+Prediction and ground-truth
+"""""""""""""""""""""""""""
+
+In functions which require both prediction and ground truth, we mark them by adding prefixes, :obj:`pred_` and :obj:`gt_`.
+For example, :obj:`pred_bboxes` and :obj:`gt_bboxes`.
+
+
+Arbitrary input
+"""""""""""""""
+
+:obj:`x` is a variable whose shape can be inferred from context.
+It can be used only when there is no confusion on its shape.
+This is usually the case when naming an input to a neural network.
