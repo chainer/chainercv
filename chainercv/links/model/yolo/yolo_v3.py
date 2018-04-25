@@ -150,7 +150,7 @@ class YOLOv3(chainer.Chain):
             img, param = transforms.resize_contain(
                 img / 255, (self.insize, self.insize), fill=0.5,
                 return_param=True)
-            x.append(img)
+            x.append(self.xp.array(img))
             param['size'] = (H, W)
             params.append(param)
 
