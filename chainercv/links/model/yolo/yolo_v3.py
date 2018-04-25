@@ -3,6 +3,7 @@ import chainer.functions as F
 from chainer.links import Convolution2D
 
 from chainercv.links import Conv2DBNActiv
+from chainercv import transforms
 
 
 def _leaky_relu(x):
@@ -92,7 +93,23 @@ class YOLOv3(chainer.Chain):
         ys = []
         for i, h in enumerate(self.extractor(x)):
             h = self.subnet[i](h)
-            h = F.reshape(h, (h.shape[0], 3, 1 + 4 + self.n_fg_class, -1))
-            h = F.transpose(h, (0, 3, 1, 2))
+            h = F.transpose(h, (0, 2, 3, 1))
+            h = F.reshape(h, (h.shape[0], -1, 1 + 4 + self.n_fg_class))
             ys.append(h)
         return F.concat(ys)
+
+    def predict(self, imgs):
+        xs = []
+        scales = []
+        for img in imgs:
+            _, H, W = img.shape
+            x, param = transforms.resize_contain(
+                img / 255, (self.insize, self.insize), fill=0.5,
+                return_param=True)
+            xs.append(x)
+            scales.append(
+                (H / param['scaled_size'][0], W / param['scaled_size'][1]))
+
+        with chainer.using_config('train', False), \
+                chainer.function.no_backprop_mode():
+            ys = self(self.xp.stack(xs)).array
