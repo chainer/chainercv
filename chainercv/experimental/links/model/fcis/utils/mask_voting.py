@@ -148,14 +148,11 @@ def mask_voting(
                 v_score_l.append(score_l[i])
 
         if len(v_mask_prob_l) > 0:
-            v_mask_prob_l = np.concatenate(v_mask_prob_l)
-            v_bbox_l = np.concatenate(v_bbox_l)
-            v_score_l = np.array(v_score_l)
+            v_label_l = np.repeat(
+                label - 1, len(v_score_l)).astype(np.int32)
 
-            v_label_l = np.repeat(label - 1, v_bbox_l.shape[0])
-            v_label_l = v_label_l.astype(np.int32)
-            v_mask_prob.append(v_mask_prob_l)
-            v_bbox.append(v_bbox_l)
+            v_mask_prob += v_mask_prob_l
+            v_bbox += v_bbox_l
             v_label.append(v_label_l)
             v_cls_prob.append(v_score_l)
 
