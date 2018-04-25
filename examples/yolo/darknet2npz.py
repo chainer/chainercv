@@ -37,11 +37,14 @@ def load_yolo_v3(file, model):
         if i in {33, 39, 45}:
             subnet = model.subnet[(i - 33) // 6]
             load_link(file, subnet)
-            # xy -> yx
-            for data in (subnet[-1].W.array, subnet[-1].b.array):
-                data = data.reshape(
-                    (-1, 4 + 1 + model.n_fg_class) + data.shape[1:])
-                data[:, [1, 0, 3, 2]] = data[:, :4].copy()
+
+    # xy -> yx
+    for subnet in model.subnet:
+        final = subnet[-1]
+        for data in (final.W.array, final.b.array):
+            data = data.reshape(
+                (-1, 4 + 1 + model.n_fg_class) + data.shape[1:])
+            data[:, [1, 0, 3, 2]] = data[:, :4].copy()
 
 
 def main():
