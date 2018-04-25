@@ -142,6 +142,33 @@ class YOLOv3(chainer.Chain):
         else:
             raise ValueError('preset must be visualize or evaluate')
 
+    def _decode(self, loc, obj, conf):
+        bbox = self._default_bbox.copy()
+        bbox[:, :2] += 1 / (1 + self.xp.exp(-loc[:, :2]))
+        bbox[:, :2] *= self._step[:, None]
+        bbox[:, 2:] *= self.xp.exp(loc[:, 2:])
+        bbox[:, :2] -= bbox[:, 2:] / 2
+        bbox[:, 2:] += bbox[:, :2]
+
+        score = 1 / (1 + self.xp.exp(-obj))
+
+        conf = self.xp.exp(conf)
+        conf /= conf.sum(axis=1, keepdims=True)
+        label = conf.argmax(axis=1)
+
+        mask = score >= self.score_thresh
+        bbox = bbox[mask]
+        label = label[mask]
+        score = score[mask]
+
+        indices = utils.non_maximum_suppression(
+            bbox, self.nms_thresh, score)
+        bbox = bbox[indices]
+        label = label[indices]
+        score = score[indices]
+
+        return cuda.to_cpu(bbox), cuda.to_cpu(label), cuda.to_cpu(score)
+
     def predict(self, imgs):
         x = []
         params = []
@@ -165,12 +192,7 @@ class YOLOv3(chainer.Chain):
         labels = []
         scores = []
         for loc, obj, conf, param in zip(locs, objs, confs, params):
-            bbox = self._default_bbox.copy()
-            bbox[:, :2] += 1 / (1 + self.xp.exp(-loc[:, :2]))
-            bbox[:, :2] *= self._step[:, None]
-            bbox[:, 2:] *= self.xp.exp(loc[:, 2:])
-            bbox[:, :2] -= bbox[:, 2:] / 2
-            bbox[:, 2:] += bbox[:, :2]
+            bbox, label, score = self._decode(loc, obj, conf)
 
             bbox = transforms.translate_bbox(
                 bbox, -self.insize / 2, -self.insize / 2)
@@ -179,25 +201,8 @@ class YOLOv3(chainer.Chain):
             bbox = transforms.translate_bbox(
                 bbox, param['size'][0] / 2, param['size'][1] / 2)
 
-            score = 1 / (1 + self.xp.exp(-obj))
-
-            conf = self.xp.exp(conf)
-            conf /= conf.sum(axis=1, keepdims=True)
-            label = conf.argmax(axis=1)
-
-            mask = score >= self.score_thresh
-            bbox = bbox[mask]
-            label = label[mask]
-            score = score[mask]
-
-            indices = utils.non_maximum_suppression(
-                bbox, self.nms_thresh, score)
-            bbox = bbox[indices]
-            label = label[indices]
-            score = score[indices]
-
-            bboxes.append(cuda.to_cpu(bbox))
-            labels.append(cuda.to_cpu(label))
-            scores.append(cuda.to_cpu(score))
+            bboxes.append(bbox)
+            labels.append(label)
+            scores.append(score)
 
         return bboxes, labels, scores
