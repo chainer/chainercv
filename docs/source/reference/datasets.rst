@@ -63,6 +63,14 @@ CUBPointDataset
 .. autoclass:: CUBPointDataset
 
 
+KITTI
+-----
+
+KITTIDataset
+~~~~~~~~~~~~
+.. autoclass:: KITTIDataset
+
+
 OnlineProducts
 --------------
 

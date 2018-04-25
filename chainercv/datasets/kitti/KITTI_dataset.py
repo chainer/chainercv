@@ -71,7 +71,26 @@ class KITTIDataset(chainer.dataset.DatasetMixin):
             contain the :obj:`---` directory. If :obj:`auto` is given,
             it uses :obj:`$CHAINER_DATSET_ROOT/pfnet/chainercv/KITTI` by
             default.
+        date ({'2011_09_26', '2011_09_28', '2011_09_29', '2011_09_30', '2011_10_03'}): 
+            reference Calibration datas.
+        driveNo ({'0xxx'}): get datas drive No.
+        color (bool): use glay/color image.
+        sync (bool): get timer sync/nosync data.
+        isLeft (bool): glay/color image use 2type.
 
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`label`, scalar, :obj:`int32`, ":math:`[0, \#class - 1]`"
+        :obj:`bbox` [#kitti_bbox_1]_, ":math:`(R, 4)`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+
+    .. [#kitti_bbox_1] If :obj:`use_pykitty = False`, \
+        :obj:`bbox` and :obj:`label` not contain instances.
     """
 
     def __init__(self, data_dir='auto', date='', driveNo='', color=True, sync=True, isLeft=True):
