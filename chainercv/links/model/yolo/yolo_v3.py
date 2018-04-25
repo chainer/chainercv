@@ -1,9 +1,14 @@
+import itertools
+import numpy as np
+
 import chainer
+from chainer.backends import cuda
 import chainer.functions as F
 from chainer.links import Convolution2D
 
 from chainercv.links import Conv2DBNActiv
 from chainercv import transforms
+from chainercv import utils
 
 
 def _leaky_relu(x):
@@ -72,9 +77,15 @@ class Darknet53Extractor(chainer.ChainList):
 
 class YOLOv3(chainer.Chain):
 
+    anchors = (
+        ((90, 116), (198, 156), (326, 373)),
+        ((61, 30), (45, 62), (119, 59)),
+        ((13, 10), (30, 16), (23, 33)))
+
     def __init__(self, n_fg_class):
         super().__init__()
         self.n_fg_class = n_fg_class
+        self.use_preset('visualize')
 
         with self.init_scope():
             self.extractor = Darknet53Extractor()
@@ -83,33 +94,107 @@ class YOLOv3(chainer.Chain):
         for n in (512, 256, 128):
             self.subnet.append(chainer.Sequential(
                 Conv2DBNActiv(n * 2, 3, pad=1, activ=_leaky_relu),
-                Convolution2D(3 * (1 + 4 + self.n_fg_class), 1)))
+                Convolution2D(3 * (4 + 1 + self.n_fg_class), 1)))
+
+        default_bbox = []
+        step = []
+        for k, grid in enumerate(self.extractor.grids):
+            for v, u in itertools.product(range(grid), repeat=2):
+                for h, w in self.anchors[k]:
+                    default_bbox.append((v, u, h, w))
+                    step.append(self.insize / grid)
+        self._default_bbox = np.array(default_bbox, dtype=np.float32)
+        self._step = np.array(step, dtype=np.float32)
 
     @property
     def insize(self):
         return self.extractor.insize
+
+    def to_cpu(self):
+        super().to_cpu()
+        self._default_bbox = cuda.to_cpu(self._default_bbox)
+        self._step = cuda.to_cpu(self._step)
+
+    def to_gpu(self, device=None):
+        super().to_gpu(device)
+        self._default_bbox = cuda.to_gpu(self._default_bbox, device)
+        self._step = cuda.to_gpu(self._step, device)
 
     def __call__(self, x):
         ys = []
         for i, h in enumerate(self.extractor(x)):
             h = self.subnet[i](h)
             h = F.transpose(h, (0, 2, 3, 1))
-            h = F.reshape(h, (h.shape[0], -1, 1 + 4 + self.n_fg_class))
+            h = F.reshape(h, (h.shape[0], -1, 4 + 1 + self.n_fg_class))
             ys.append(h)
         return F.concat(ys)
 
+    def use_preset(self, preset):
+        if preset == 'visualize':
+            self.nms_thresh = 0.45
+            self.score_thresh = 0.6
+        elif preset == 'evaluate':
+            self.nms_thresh = 0.45
+            self.score_thresh = 0.01
+        else:
+            raise ValueError('preset must be visualize or evaluate')
+
     def predict(self, imgs):
-        xs = []
-        scales = []
+        x = []
+        params = []
         for img in imgs:
             _, H, W = img.shape
-            x, param = transforms.resize_contain(
+            img, param = transforms.resize_contain(
                 img / 255, (self.insize, self.insize), fill=0.5,
                 return_param=True)
-            xs.append(x)
-            scales.append(
-                (H / param['scaled_size'][0], W / param['scaled_size'][1]))
+            x.append(img)
+            param['size'] = (H, W)
+            params.append(param)
 
         with chainer.using_config('train', False), \
                 chainer.function.no_backprop_mode():
-            ys = self(self.xp.stack(xs)).array
+            y = self(self.xp.stack(x)).array
+        locs = y[:, :, :4]
+        objs = y[:, :, 4]
+        confs = y[:, :, 5:]
+
+        bboxes = []
+        labels = []
+        scores = []
+        for loc, obj, conf, param in zip(locs, objs, confs, params):
+            bbox = self._default_bbox.copy()
+            bbox[:, :2] += 1 / (1 + self.xp.exp(-loc[:, :2]))
+            bbox[:, :2] *= self._step[:, None]
+            bbox[:, 2:] *= self.xp.exp(loc[:, 2:])
+            bbox[:, :2] -= bbox[:, 2:] / 2
+            bbox[:, 2:] += bbox[:, :2]
+
+            bbox = transforms.translate_bbox(
+                bbox, -self.insize / 2, -self.insize / 2)
+            bbox = transforms.resize_bbox(
+                bbox, param['scaled_size'], param['size'])
+            bbox = transforms.translate_bbox(
+                bbox, param['size'][0] / 2, param['size'][1] / 2)
+
+            score = 1 / (1 + self.xp.exp(-obj))
+
+            conf = self.xp.exp(conf)
+            conf /= conf.sum(axis=1, keepdims=True)
+            label = conf.argmax(axis=1)
+
+            mask = score >= self.score_thresh
+            bbox = bbox[mask]
+            label = label[mask]
+            score = score[mask]
+
+            indices = utils.non_maximum_suppression(
+                bbox, self.nms_thresh, score)
+            bbox = bbox[indices]
+            label = label[indices]
+            score = score[indices]
+
+            bboxes.append(cuda.to_cpu(bbox))
+            labels.append(cuda.to_cpu(label))
+            scores.append(cuda.to_cpu(score))
+
+        return bboxes, labels, scores
