@@ -54,16 +54,18 @@ class Darknet53Extractor(chainer.ChainList):
             self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu))
 
     def __call__(self, x):
+        ys = []
         h = x
         hs = []
         for i, link in enumerate(self):
             h = link(h)
             if i in {33, 39, 45}:
-                yield h
+                ys.append(h)
             elif i in {14, 23}:
                 hs.append(h)
             elif i in {34, 40}:
                 h = F.concat((_upsample(h), hs.pop()))
+        return ys
 
 
 class YOLOv3(chainer.Chain):
