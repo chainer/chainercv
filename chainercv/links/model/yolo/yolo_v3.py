@@ -29,6 +29,7 @@ class ResidualBlock(chainer.ChainList):
 class Darknet53Extractor(chainer.ChainList):
 
     insize = 416
+    grids = (13, 26, 52)
 
     def __init__(self):
         super().__init__()
