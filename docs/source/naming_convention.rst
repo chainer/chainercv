@@ -49,14 +49,18 @@ Scores and probabilities
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 A score represent unbounded confidence value.
-On the other hand, probability is bounded in :obj:`[0, 1]`.
+On the other hand, probability is bounded in :obj:`[0, 1]` and sums to 1.
 
 .. csv-table::
     :header: name, classification, detection and instance segmentation, semantic segmentation
 
-    :obj:`probs` or :obj:`scores`, ":math:`(B, L)`", ":math:`(B, R, L)` or :math:`[(R, L)]`", ":math:`(B, L, H, W)`"
-    :obj:`prob` or :obj:`score`, ":math:`(L,)`", ":math:`(R, L)`", ":math:`(L, H, W)`"
-    :obj:`pb` or :obj:`sc`, --, ":math:`(L,)`", --
+    :obj:`scores` or :obj:`probs`, ":math:`(B, L)`", ":math:`(B, R, L)` or :math:`[(R, L)]`", ":math:`(B, L, H, W)`"
+    :obj:`score` or :obj:`prob`, ":math:`(L,)`", ":math:`(R, L)`", ":math:`(L, H, W)`"
+    :obj:`sc` or :obj:`pb`, --, ":math:`(L,)`", --
+
+.. note::
+
+    Even for objects that satisfy the definition of probability, they can be named as :obj:`score`.
 
 
 
