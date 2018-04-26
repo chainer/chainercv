@@ -209,12 +209,12 @@ class SSD(chainer.Chain):
         labels = []
         scores = []
         for mb_loc, mb_conf, size in zip(mb_locs, mb_confs, sizes):
-            bbox, label, prob = self.coder.decode(
+            bbox, label, score = self.coder.decode(
                 mb_loc, mb_conf, self.nms_thresh, self.score_thresh)
             bbox = transforms.resize_bbox(
                 bbox, (self.insize, self.insize), size)
             bboxes.append(chainer.backends.cuda.to_cpu(bbox))
             labels.append(chainer.backends.cuda.to_cpu(label))
-            scores.append(chainer.backends.cuda.to_cpu(prob))
+            scores.append(chainer.backends.cuda.to_cpu(score))
 
         return bboxes, labels, scores
