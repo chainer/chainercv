@@ -135,39 +135,50 @@ class YOLOv3(chainer.Chain):
     def use_preset(self, preset):
         if preset == 'visualize':
             self.nms_thresh = 0.45
-            self.score_thresh = 0.6
+            self.score_thresh = 0.5
         elif preset == 'evaluate':
             self.nms_thresh = 0.45
-            self.score_thresh = 0.01
+            self.score_thresh = 0.005
         else:
             raise ValueError('preset must be visualize or evaluate')
 
     def _decode(self, loc, obj, conf):
-        bbox = self._default_bbox.copy()
-        bbox[:, :2] += 1 / (1 + self.xp.exp(-loc[:, :2]))
-        bbox[:, :2] *= self._step[:, None]
-        bbox[:, 2:] *= self.xp.exp(loc[:, 2:])
-        bbox[:, :2] -= bbox[:, 2:] / 2
-        bbox[:, 2:] += bbox[:, :2]
+        raw_bbox = self._default_bbox.copy()
+        raw_bbox[:, :2] += 1 / (1 + self.xp.exp(-loc[:, :2]))
+        raw_bbox[:, :2] *= self._step[:, None]
+        raw_bbox[:, 2:] *= self.xp.exp(loc[:, 2:])
+        raw_bbox[:, :2] -= raw_bbox[:, 2:] / 2
+        raw_bbox[:, 2:] += raw_bbox[:, :2]
 
-        score = 1 / (1 + self.xp.exp(-obj))
+        raw_score = self.xp.exp(conf)
+        raw_score /= raw_score.sum(axis=1, keepdims=True)
+        raw_score /= (1 + self.xp.exp(-obj))[:, None]
 
-        conf = self.xp.exp(conf)
-        conf /= conf.sum(axis=1, keepdims=True)
-        label = conf.argmax(axis=1)
+        bbox = []
+        label = []
+        score = []
+        for l in range(self.n_fg_class):
+            bbox_l = raw_bbox
+            score_l = raw_score[:, l]
 
-        mask = score >= self.score_thresh
-        bbox = bbox[mask]
-        label = label[mask]
-        score = score[mask]
+            mask = score_l >= self.score_thresh
+            bbox_l = bbox_l[mask]
+            score_l = score_l[mask]
 
-        indices = utils.non_maximum_suppression(
-            bbox, self.nms_thresh, score)
-        bbox = bbox[indices]
-        label = label[indices]
-        score = score[indices]
+            indices = utils.non_maximum_suppression(
+                bbox_l, self.nms_thresh, score_l)
+            bbox_l = bbox_l[indices]
+            score_l = score_l[indices]
 
-        return cuda.to_cpu(bbox), cuda.to_cpu(label), cuda.to_cpu(score)
+            bbox.append(cuda.to_cpu(bbox_l))
+            label.append(np.array((l,) * len(bbox_l)))
+            score.append(cuda.to_cpu(score_l))
+
+        bbox = np.vstack(bbox).astype(np.float32)
+        label = np.hstack(label).astype(np.int32)
+        score = np.hstack(score).astype(np.float32)
+
+        return bbox, label, score
 
     def predict(self, imgs):
         x = []
