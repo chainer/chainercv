@@ -17,7 +17,7 @@ from chainercv.utils import ProgressHook
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('faster_rcnn', 'ssd300', 'ssd512'),
+        '--model', choices=('faster_rcnn', 'ssd300', 'ssd512', 'yolov3'),
         default='ssd300')
     parser.add_argument('--pretrained_model')
     parser.add_argument('--gpu', type=int, default=-1)
