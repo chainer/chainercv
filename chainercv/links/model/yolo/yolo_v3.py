@@ -25,7 +25,7 @@ class ResidualBlock(chainer.ChainList):
     """ChainList with a residual connection."""
 
     def __init__(self, *links):
-        super().__init__(*links)
+        super(ResidualBlock, self).__init__(*links)
 
     def __call__(self, x):
         h = x
@@ -45,7 +45,7 @@ class Darknet53Extractor(chainer.ChainList):
     grids = (13, 26, 52)
 
     def __init__(self):
-        super().__init__()
+        super(Darknet53Extractor, self).__init__()
 
         # Darknet53
         self.append(Conv2DBNActiv(32, 3, pad=1, activ=_leaky_relu))
@@ -138,7 +138,7 @@ class YOLOv3(chainer.Chain):
         ((13, 10), (30, 16), (23, 33)))
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        super().__init__()
+        super(YOLOv3, self).__init__()
 
         n_fg_class, path = _check_pretrained_model(
             n_fg_class, pretrained_model, self._models)
