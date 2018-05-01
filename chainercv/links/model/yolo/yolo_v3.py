@@ -10,6 +10,8 @@ from chainercv.links import Conv2DBNActiv
 from chainercv import transforms
 from chainercv import utils
 
+from chainercv.links.model.ssd.ssd_vgg16 import _check_pretrained_model
+
 
 def _leaky_relu(x):
     return F.leaky_relu(x, slope=0.1)
@@ -121,6 +123,14 @@ class YOLOv3(chainer.Chain):
 
     """
 
+    _models = {
+        'voc0712': {
+            'n_fg_class': 20,
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.6/yolov3_voc0712_2018_05_01.npz'
+        },
+    }
+
     anchors = (
         ((90, 116), (198, 156), (326, 373)),
         ((61, 30), (45, 62), (119, 59)),
@@ -128,6 +138,10 @@ class YOLOv3(chainer.Chain):
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
         super().__init__()
+
+        n_fg_class, path = _check_pretrained_model(
+            n_fg_class, pretrained_model, self._models)
+
         self.n_fg_class = n_fg_class
         self.use_preset('visualize')
 
@@ -150,8 +164,8 @@ class YOLOv3(chainer.Chain):
         self._default_bbox = np.array(default_bbox, dtype=np.float32)
         self._step = np.array(step, dtype=np.float32)
 
-        if pretrained_model:
-            chainer.serializers.load_npz(pretrained_model, self, strict=False)
+        if path:
+            chainer.serializers.load_npz(path, self, strict=False)
 
     @property
     def insize(self):
