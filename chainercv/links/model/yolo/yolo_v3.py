@@ -142,7 +142,7 @@ class YOLOv3(chainer.Chain):
         else:
             raise ValueError('preset must be visualize or evaluate')
 
-    def _decode(self, loc, obj, conf):
+    def _decode(self, loc, conf):
         raw_bbox = self._default_bbox.copy()
         raw_bbox[:, :2] += 1 / (1 + self.xp.exp(-loc[:, :2]))
         raw_bbox[:, :2] *= self._step[:, None]
@@ -150,9 +150,8 @@ class YOLOv3(chainer.Chain):
         raw_bbox[:, :2] -= raw_bbox[:, 2:] / 2
         raw_bbox[:, 2:] += raw_bbox[:, :2]
 
-        raw_score = self.xp.exp(conf)
-        raw_score /= raw_score.sum(axis=1, keepdims=True)
-        raw_score /= (1 + self.xp.exp(-obj))[:, None]
+        conf = 1 / (1 + self.xp.exp(-conf))
+        raw_score = conf[:, 0, None] * conf[:, 1:]
 
         bbox = []
         label = []
@@ -196,14 +195,13 @@ class YOLOv3(chainer.Chain):
                 chainer.function.no_backprop_mode():
             y = self(self.xp.stack(x)).array
         locs = y[:, :, :4]
-        objs = y[:, :, 4]
-        confs = y[:, :, 5:]
+        confs = y[:, :, 4:]
 
         bboxes = []
         labels = []
         scores = []
-        for loc, obj, conf, param in zip(locs, objs, confs, params):
-            bbox, label, score = self._decode(loc, obj, conf)
+        for loc, conf, param in zip(locs, confs, params):
+            bbox, label, score = self._decode(loc, conf)
 
             bbox = transforms.translate_bbox(
                 bbox, -self.insize / 2, -self.insize / 2)
