@@ -22,6 +22,7 @@ def _upsample(x):
 
 
 class ResidualBlock(chainer.ChainList):
+    """ChainList with a residual connection."""
 
     def __init__(self, *links):
         super().__init__(*links)
