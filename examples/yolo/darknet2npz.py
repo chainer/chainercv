@@ -31,6 +31,17 @@ def load_link(file, link):
             load_link(file, l)
 
 
+def load_yolo_v2(file, model):
+    load_link(file, model.extractor)
+    load_link(file, model.subnet)
+
+    # xy -> yx
+    for data in (model.subnet.W.array, model.subnet.b.array):
+        data = data.reshape(
+            (-1, 4 + 1 + model.n_fg_class) + data.shape[1:])
+        data[:, [1, 0, 3, 2]] = data[:, :4].copy()
+
+
 def load_yolo_v3(file, model):
     for i, link in enumerate(model.extractor):
         load_link(file, link)
