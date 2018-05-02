@@ -15,7 +15,7 @@ def prepare_link_initialization(models, param, pretrained_model):
         model = models[pretrained_model]
         for key, value in six.iteritems(model['param']):
             if value is None:
-                if key not in param:
+                if key not in param or param[key] is None:
                     raise ValueError('{} must be specified'.format(key))
             else:
                 if key in param:
@@ -26,7 +26,7 @@ def prepare_link_initialization(models, param, pretrained_model):
 
         path = download_model(model['url'])
 
-        if not _available and model['cv2']:
+        if not _available and model.get('cv2', False):
             warnings.warn(
                 'cv2 is not installed on your environment. '
                 'Pretrained models are trained with cv2. '
