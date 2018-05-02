@@ -115,7 +115,7 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
         self.check_call()
 
 
-class TestSSDVGG16Pretrained(unittest.TestCase):
+class TestFasterRCNNVGG16Pretrained(unittest.TestCase):
 
     @attr.slow
     @attr.disk
