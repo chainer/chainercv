@@ -10,6 +10,29 @@ except ImportError:
 
 
 def prepare_pretrained_model(param, pretrained_model, models, default={}):
+    """Select parameters based on the existence of pretrained model.
+
+    Args:
+        param (dict): Map from the name of the parameter to values.
+        pretrained_model (string): Name of the pretrained weight,
+            path to the pretrained weight or :obj:`None`.
+        models (dict): Map from the name of the pretrained weight
+            to :obj:`model`, which is a dictionary containing the
+            configuration used by the selected weight.
+
+            :obj:`model` has four keys: :obj:`param`, :obj:`overwritable`,
+            :obj:`url` and :obj:`cv2`.
+
+            * **param** (*dict*): Parameters assigned to the pretrained \
+                weight.
+            * **overwritable** (*set*): Names of parameters that are \
+                overwritable (i.e., :obj:`param[key] != model['param'][key]` \
+                is accepted).
+            * **url** (*string*): Location of the pretrained weight.
+            * **cv2** (*bool*): If :obj:`True`, an error is raised \
+                if :obj:`cv2` is not installed.
+
+    """
     if pretrained_model in models:
         model = models[pretrained_model]
         model_param = model.get('param', {})
