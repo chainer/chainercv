@@ -174,12 +174,12 @@ class YOLOv3(chainer.Chain):
         return self.extractor.insize
 
     def to_cpu(self):
-        super().to_cpu()
+        super(YOLOv3, self).to_cpu()
         self._default_bbox = cuda.to_cpu(self._default_bbox)
         self._step = cuda.to_cpu(self._step)
 
     def to_gpu(self, device=None):
-        super().to_gpu(device)
+        super(YOLOv3, self).to_gpu(device)
         self._default_bbox = cuda.to_gpu(self._default_bbox, device)
         self._step = cuda.to_gpu(self._step, device)
 
