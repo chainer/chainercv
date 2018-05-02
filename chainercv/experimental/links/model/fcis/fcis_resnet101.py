@@ -12,7 +12,7 @@ from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
 from chainercv.links.model.resnet.resblock import ResBlock
-from chainercv.utils import prepare_link_initialization
+from chainercv.utils import prepare_pretrained_model
 
 
 class FCISResNet101(FCIS):
@@ -76,9 +76,10 @@ class FCISResNet101(FCIS):
 
     _models = {
         'sbd': {
-            'n_fg_class': 20,
+            'param': {'n_fg_class': 20},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/fcis_resnet101_sbd_trained_2018_04_14.npz'
+            'download/0.0.6/fcis_resnet101_sbd_trained_2018_04_14.npz',
+            'cv2': True
         }
     }
     feat_stride = 16
@@ -103,8 +104,8 @@ class FCISResNet101(FCIS):
                 'min_size': 16
             }
     ):
-        n_fg_class, path = prepare_link_initialization(
-            n_fg_class, pretrained_model, self._models, True)
+        param, path = prepare_pretrained_model(
+            self._models, {'n_fg_class': n_fg_class}, pretrained_model)
 
         if rpn_initialW is None:
             rpn_initialW = chainer.initializers.Normal(0.01)
@@ -121,7 +122,7 @@ class FCISResNet101(FCIS):
             initialW=rpn_initialW,
             proposal_creator_params=proposal_creator_params)
         head = FCISResNet101Head(
-            n_fg_class + 1,
+            param['n_fg_class'] + 1,
             roi_size=21, group_size=7,
             spatial_scale=1. / self.feat_stride,
             loc_normalize_mean=loc_normalize_mean,

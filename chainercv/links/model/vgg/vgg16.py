@@ -12,11 +12,10 @@ from chainer.initializers import normal
 
 from chainer.links import Linear
 
-from chainercv.utils import prepare_link_initialization
-
 from chainercv.links.connection.conv_2d_activ import Conv2DActiv
 from chainercv.links.model.pickable_sequential_chain import \
     PickableSequentialChain
+from chainercv.utils import prepare_pretrained_model
 
 
 # RGB order
@@ -100,7 +99,7 @@ class VGG16(PickableSequentialChain):
     def __init__(self,
                  n_class=None, pretrained_model=None, mean=None,
                  initialW=None, initial_bias=None):
-        param, path = prepare_link_initialization(
+        param, path = prepare_pretrained_model(
             self._models, {'n_class': n_class, 'mean': mean}, pretrained_model)
 
         if param['mean'] is None:

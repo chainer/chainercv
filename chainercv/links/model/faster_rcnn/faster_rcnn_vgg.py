@@ -8,7 +8,7 @@ from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNN
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 from chainercv.links.model.vgg.vgg16 import VGG16
-from chainercv.utils import prepare_link_initialization
+from chainercv.utils import prepare_pretrained_model
 
 
 class FasterRCNNVGG16(FasterRCNN):
@@ -95,7 +95,7 @@ class FasterRCNNVGG16(FasterRCNN):
                  loc_initialW=None, score_initialW=None,
                  proposal_creator_params={}
                  ):
-        param, path = prepare_link_initialization(
+        param, path = prepare_pretrained_model(
             self._models, {'n_fg_class': n_fg_class}, pretrained_model)
 
         if loc_initialW is None:

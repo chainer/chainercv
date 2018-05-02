@@ -7,7 +7,7 @@ import chainer.functions as F
 import chainer.links as L
 
 from chainercv.transforms import resize
-from chainercv.utils import prepare_link_initialization
+from chainercv.utils import prepare_pretrained_model
 
 
 def _pool_without_cudnn(p, x):
@@ -62,7 +62,7 @@ class SegNetBasic(chainer.Chain):
     }
 
     def __init__(self, n_class=None, pretrained_model=None, initialW=None):
-        param, path = prepare_link_initialization(
+        param, path = prepare_pretrained_model(
             self._models, {'n_class': n_class}, pretrained_model)
 
         if initialW is None:

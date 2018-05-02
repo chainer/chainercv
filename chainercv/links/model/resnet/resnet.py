@@ -10,7 +10,7 @@ import chainer.links as L
 from chainercv.links import Conv2DBNActiv
 from chainercv.links.model.resnet.resblock import ResBlock
 from chainercv.links import PickableSequentialChain
-from chainercv.utils import prepare_link_initialization
+from chainercv.utils import prepare_pretrained_model
 
 
 # RGB order
@@ -156,7 +156,7 @@ class ResNet(PickableSequentialChain):
             raise ValueError('arch is expected to be one of [\'he\', \'fb\']')
         blocks = self._blocks[n_layer]
 
-        param, path = prepare_link_initialization(
+        param, path = prepare_pretrained_model(
             self._models[arch][n_layer],
             {'n_class': n_class, 'mean': mean}, pretrained_model)
 

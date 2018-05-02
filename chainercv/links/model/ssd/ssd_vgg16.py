@@ -10,7 +10,7 @@ import chainer.links as L
 from chainercv.links.model.ssd import Multibox
 from chainercv.links.model.ssd import Normalize
 from chainercv.links.model.ssd import SSD
-from chainercv.utils import prepare_link_initialization
+from chainercv.utils import prepare_pretrained_model
 
 
 # RGB, (C, 1, 1) format
@@ -329,7 +329,7 @@ class SSD512(SSD):
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        param, path = prepare_link_initialization(
+        param, path = prepare_pretrained_model(
             self._models, {'n_fg_class': n_fg_class}, pretrained_model)
 
         super(SSD512, self).__init__(

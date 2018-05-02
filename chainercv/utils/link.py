@@ -10,7 +10,7 @@ except ImportError:
     _available = False
 
 
-def prepare_link_initialization(models, param, pretrained_model):
+def prepare_pretrained_model(models, param, pretrained_model):
     if pretrained_model in models:
         model = models[pretrained_model]
 
@@ -39,5 +39,7 @@ def prepare_link_initialization(models, param, pretrained_model):
                 RuntimeWarning)
     elif pretrained_model:
         path = pretrained_model
+    else:
+        path = None
 
     return param, path
