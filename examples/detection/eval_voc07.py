@@ -53,7 +53,7 @@ def main():
                 n_fg_class=len(voc_bbox_label_names),
                 pretrained_model=args.pretrained_model)
         else:
-            model = YOLOv3(pretrained_model='voc0712')
+            model = YOLOv2(pretrained_model='voc0712')
     elif args.model == 'yolov3':
         if args.pretrained_model:
             model = YOLOv3(
