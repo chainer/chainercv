@@ -35,4 +35,4 @@ def prepare_link_initialization(models, param, pretrained_model):
     elif pretrained_model:
         path = pretrained_model
 
-    return path, param
+    return param, path
