@@ -4,6 +4,7 @@
 - Faster R-CNN
 - SSD300
 - SSD512
+- YOLOv2
 - YOLOv3
 
 For the details, please check the documents and examples of each model.
