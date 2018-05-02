@@ -15,12 +15,12 @@ def prepare_link_initialization(models, param, pretrained_model):
         model = models[pretrained_model]
 
         for key, value in six.iteritems(model.get('default', {})):
-            if key not in param or param[key] is None:
-                param[key] = param
+            if param.get(key, None) is None:
+                param[key] = value
 
         for key, value in six.iteritems(model['param']):
             if value is None:
-                if key not in param or param[key] is None:
+                if param.get(key, None) is None:
                     raise ValueError('{} must be specified'.format(key))
             else:
                 if key in param:
