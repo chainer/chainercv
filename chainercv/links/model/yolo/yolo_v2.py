@@ -12,6 +12,8 @@ from chainercv.links import Conv2DBNActiv
 from chainercv import transforms
 from chainercv import utils
 
+from chainercv.links.model.ssd.ssd_vgg16 import _check_pretrained_model
+
 
 def _leaky_relu(x):
     return F.leaky_relu(x, slope=0.1)
@@ -82,6 +84,43 @@ class Darknet19Extractor(chainer.ChainList):
 
 
 class YOLOv2(chainer.Chain):
+    """YOLOv2.
+
+    This is a model of YOLOv2 [#]_.
+    This model uses :class:`~chainercv.links.model.yolo.Darknet19Extractor` as
+    its feature extractor.
+
+    .. [#] Joseph Redmon, Ali Farhadi.
+       YOLO9000: Better, Faster, Stronger. CVPR 2017.
+
+    Args:
+       n_fg_class (int): The number of classes excluding the background.
+       pretrained_model (str): The weight file to be loaded.
+           This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
+           The default value is :obj:`None`.
+
+            * :obj:`'voc0712'`: Load weights trained on trainval split of \
+                PASCAL VOC 2007 and 2012. \
+                The weight file is downloaded and cached automatically. \
+                :obj:`n_fg_class` must be :obj:`20` or :obj:`None`. \
+                These weights were converted from the darknet model \
+                provided by `the original implementation \
+                <https://pjreddie.com/darknet/yolov2/>`_. \
+                The conversion code is \
+                `chainercv/examples/yolo/darknet2npz.py`.
+            * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
+                must be specified properly.
+            * :obj:`None`: Do not load weights.
+
+    """
+
+    _models = {
+        'voc0712': {
+            'n_fg_class': 20,
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.6/yolo_v3_voc0712_2018_05_01.npz'
+        },
+    }
 
     _anchors = (
         (1.73145, 1.3221),
@@ -92,6 +131,9 @@ class YOLOv2(chainer.Chain):
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
         super(YOLOv2, self).__init__()
+
+        n_fg_class, path = _check_pretrained_model(
+            n_fg_class, pretrained_model, self._models)
 
         self.n_fg_class = n_fg_class
         self.use_preset('visualize')
@@ -106,6 +148,9 @@ class YOLOv2(chainer.Chain):
             for h, w in self._anchors:
                 default_bbox.append((v, u, h, w))
         self._default_bbox = np.array(default_bbox, dtype=np.float32)
+
+        if path:
+            chainer.serializers.load_npz(path, self, strict=False)
 
     @property
     def insize(self):
