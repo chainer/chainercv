@@ -114,12 +114,10 @@ class YOLOv2(chainer.Chain):
     def to_cpu(self):
         super(YOLOv2, self).to_cpu()
         self._default_bbox = cuda.to_cpu(self._default_bbox)
-        self._step = cuda.to_cpu(self._step)
 
     def to_gpu(self, device=None):
         super(YOLOv2, self).to_gpu(device)
         self._default_bbox = cuda.to_gpu(self._default_bbox, device)
-        self._step = cuda.to_gpu(self._step, device)
 
     def __call__(self, x):
         """Compute localization and classification from a batch of images.
