@@ -12,7 +12,7 @@ except ImportError:
 def prepare_pretrained_model(param, pretrained_model, models, default={}):
     if pretrained_model in models:
         model = models[pretrained_model]
-        model_param = model['param']
+        model_param = model.get(['param'], {})
         overwritable = model.get('overwritable', {})
 
         for key in param.keys():

@@ -253,7 +253,6 @@ class SSD300(SSD):
             'cv2': True
         },
         'imagenet': {
-            'param': {'n_fg_class': None},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.3/ssd_vgg16_imagenet_2017_06_09.npz',
             'cv2': True
@@ -321,7 +320,6 @@ class SSD512(SSD):
             'cv2': True
         },
         'imagenet': {
-            'param': {'n_fg_class': None},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.3/ssd_vgg16_imagenet_2017_06_09.npz',
             'cv2': True
