@@ -37,3 +37,9 @@ Darknet53Extractor
 .. autoclass:: Darknet53Extractor
    :members:
    :special-members:  __call__
+
+YOLOBase
+~~~~~~~~
+.. autoclass:: YOLOBase
+   :members:
+   :special-members:  __call__

@@ -9,10 +9,10 @@ import chainer.functions as F
 from chainer.links import Convolution2D
 
 from chainercv.links import Conv2DBNActiv
-from chainercv import transforms
 from chainercv import utils
 
 from chainercv.links.model.ssd.ssd_vgg16 import _check_pretrained_model
+from chainercv.links.model.yolo.yolo_base import YOLOBase
 
 
 def _leaky_relu(x):
@@ -83,7 +83,7 @@ class Darknet19Extractor(chainer.ChainList):
         return h
 
 
-class YOLOv2(chainer.Chain):
+class YOLOv2(YOLOBase):
     """YOLOv2.
 
     This is a model of YOLOv2 [#]_.
@@ -152,10 +152,6 @@ class YOLOv2(chainer.Chain):
         if path:
             chainer.serializers.load_npz(path, self, strict=False)
 
-    @property
-    def insize(self):
-        return self.extractor.insize
-
     def to_cpu(self):
         super(YOLOv2, self).to_cpu()
         self._default_bbox = cuda.to_cpu(self._default_bbox)
@@ -188,33 +184,6 @@ class YOLOv2(chainer.Chain):
         h = F.transpose(h, (0, 2, 3, 1))
         h = F.reshape(h, (h.shape[0], -1, 4 + 1 + self.n_fg_class))
         return h
-
-    def use_preset(self, preset):
-        """Use the given preset during prediction.
-
-        This method changes values of :obj:`nms_thresh` and
-        :obj:`score_thresh`. These values are a threshold value
-        used for non maximum suppression and a threshold value
-        to discard low confidence proposals in :meth:`predict`,
-        respectively.
-
-        If the attributes need to be changed to something
-        other than the values provided in the presets, please modify
-        them by directly accessing the public attributes.
-
-        Args:
-            preset ({'visualize', 'evaluate'}): A string to determine the
-                preset to use.
-        """
-
-        if preset == 'visualize':
-            self.nms_thresh = 0.45
-            self.score_thresh = 0.5
-        elif preset == 'evaluate':
-            self.nms_thresh = 0.45
-            self.score_thresh = 0.005
-        else:
-            raise ValueError('preset must be visualize or evaluate')
 
     def _decode(self, loc, conf):
         raw_bbox = self._default_bbox.copy()
@@ -253,68 +222,3 @@ class YOLOv2(chainer.Chain):
         score = np.hstack(score).astype(np.float32)
 
         return bbox, label, score
-
-    def predict(self, imgs):
-        """Detect objects from images.
-
-        This method predicts objects for each image.
-
-        Args:
-            imgs (iterable of numpy.ndarray): Arrays holding images.
-                All images are in CHW and RGB format
-                and the range of their value is :math:`[0, 255]`.
-
-        Returns:
-           tuple of lists:
-           This method returns a tuple of three lists,
-           :obj:`(bboxes, labels, scores)`.
-
-           * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
-               where :math:`R` is the number of bounding boxes in a image. \
-               Each bouding box is organized by \
-               :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
-               in the second axis.
-           * **labels** : A list of integer arrays of shape :math:`(R,)`. \
-               Each value indicates the class of the bounding box. \
-               Values are in range :math:`[0, L - 1]`, where :math:`L` is the \
-               number of the foreground classes.
-           * **scores** : A list of float arrays of shape :math:`(R,)`. \
-               Each value indicates how confident the prediction is.
-
-        """
-
-        x = []
-        params = []
-        for img in imgs:
-            _, H, W = img.shape
-            img, param = transforms.resize_contain(
-                img / 255, (self.insize, self.insize), fill=0.5,
-                return_param=True)
-            x.append(self.xp.array(img.astype(np.float32)))
-            param['size'] = (H, W)
-            params.append(param)
-
-        with chainer.using_config('train', False), \
-                chainer.function.no_backprop_mode():
-            y = self(self.xp.stack(x)).array
-        locs = y[:, :, :4]
-        confs = y[:, :, 4:]
-
-        bboxes = []
-        labels = []
-        scores = []
-        for loc, conf, param in zip(locs, confs, params):
-            bbox, label, score = self._decode(loc, conf)
-
-            bbox = transforms.translate_bbox(
-                bbox, -self.insize / 2, -self.insize / 2)
-            bbox = transforms.resize_bbox(
-                bbox, param['scaled_size'], param['size'])
-            bbox = transforms.translate_bbox(
-                bbox, param['size'][0] / 2, param['size'][1] / 2)
-
-            bboxes.append(bbox)
-            labels.append(label)
-            scores.append(score)
-
-        return bboxes, labels, scores
