@@ -219,11 +219,10 @@ class YOLOv2(chainer.Chain):
     def _decode(self, loc, conf):
         raw_bbox = self._default_bbox.copy()
         raw_bbox[:, :2] += 1 / (1 + self.xp.exp(-loc[:, :2]))
-        raw_bbox[:, :2] *= self.insize / self.extractor.grid
         raw_bbox[:, 2:] *= self.xp.exp(loc[:, 2:])
-        raw_bbox[:, 2:] *= self.insize / self.extractor.grid
         raw_bbox[:, :2] -= raw_bbox[:, 2:] / 2
         raw_bbox[:, 2:] += raw_bbox[:, :2]
+        raw_bbox *= self.insize / self.extractor.grid
 
         raw_score = self.xp.exp(conf[:, 1:])
         raw_score /= raw_score.sum(axis=1, keepdims=True)
