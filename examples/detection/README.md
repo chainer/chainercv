@@ -24,7 +24,7 @@ For the details, please check the documents and examples of each model.
 
 You can reproduce these scores by the following command.
 ```
-$ python eval_voc07.py [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolov3] [--pretrained_model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
+$ python eval_voc07.py [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolo_v3] [--pretrained_model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
 ```
 
 ## Visualization of models
