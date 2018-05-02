@@ -12,11 +12,10 @@ from chainer.initializers import normal
 
 from chainer.links import Linear
 
-from chainercv.utils import prepare_link_initialization
-
 from chainercv.links.connection.conv_2d_activ import Conv2DActiv
 from chainercv.links.model.pickable_sequential_chain import \
     PickableSequentialChain
+from chainercv.utils import prepare_pretrained_model
 
 
 # RGB order
@@ -90,26 +89,21 @@ class VGG16(PickableSequentialChain):
 
     _models = {
         'imagenet': {
-            'n_class': 1000,
+            'param': {'n_class': 1000, 'mean': _imagenet_mean},
+            'overwritable': {'mean'},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.4/vgg16_imagenet_convert_2017_07_18.npz',
-            'mean': _imagenet_mean
+            'download/0.0.4/vgg16_imagenet_convert_2017_07_18.npz'
         }
     }
 
     def __init__(self,
                  n_class=None, pretrained_model=None, mean=None,
                  initialW=None, initial_bias=None):
-        n_class, path = prepare_link_initialization(
-            n_class, pretrained_model, self._models, False,
-            default_out_channels=1000)
-
-        if mean is None:
-            if pretrained_model in self._models:
-                mean = self._models[pretrained_model]['mean']
-            else:
-                mean = _imagenet_mean
-        self.mean = mean
+        param, path = prepare_pretrained_model(
+            {'n_class': n_class, 'mean': mean},
+            pretrained_model, self._models,
+            {'n_class': 1000, 'mean': _imagenet_mean})
+        self.mean = param['mean']
 
         if initialW is None:
             # Employ default initializers used in the original paper.
@@ -146,7 +140,7 @@ class VGG16(PickableSequentialChain):
             self.fc7 = Linear(None, 4096, **kwargs)
             self.fc7_relu = relu
             self.fc7_dropout = dropout
-            self.fc8 = Linear(None, n_class, **kwargs)
+            self.fc8 = Linear(None, param['n_class'], **kwargs)
             self.prob = softmax
 
         if path:

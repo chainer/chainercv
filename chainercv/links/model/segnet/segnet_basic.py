@@ -7,7 +7,7 @@ import chainer.functions as F
 import chainer.links as L
 
 from chainercv.transforms import resize
-from chainercv.utils import prepare_link_initialization
+from chainercv.utils import prepare_pretrained_model
 
 
 def _pool_without_cudnn(p, x):
@@ -55,15 +55,15 @@ class SegNetBasic(chainer.Chain):
 
     _models = {
         'camvid': {
-            'n_class': 11,
+            'param': {'n_class': 11},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.2/segnet_camvid_2017_05_28.npz'
         }
     }
 
     def __init__(self, n_class=None, pretrained_model=None, initialW=None):
-        n_class, path = prepare_link_initialization(
-            n_class, self._models, False)
+        param, path = prepare_pretrained_model(
+            {'n_class': n_class}, pretrained_model, self._models)
 
         if initialW is None:
             initialW = chainer.initializers.HeNormal()
@@ -97,7 +97,7 @@ class SegNetBasic(chainer.Chain):
             self.conv_classifier = L.Convolution2D(
                 64, n_class, 1, 1, 0, initialW=initialW)
 
-        self.n_class = n_class
+        self.n_class = param['n_class']
 
         if path:
             chainer.serializers.load_npz(path, self)

@@ -124,9 +124,10 @@ class YOLOv3(chainer.Chain):
 
     _models = {
         'voc0712': {
-            'n_fg_class': 20,
+            'param': {'n_fg_class': 20},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/yolov3_voc0712_2018_05_01.npz'
+            'download/0.0.6/yolov3_voc0712_2018_05_01.npz',
+            'cv2': True
         },
     }
 
@@ -138,10 +139,10 @@ class YOLOv3(chainer.Chain):
     def __init__(self, n_fg_class=None, pretrained_model=None):
         super(YOLOv3, self).__init__()
 
-        n_fg_class, path = utils.prepare_link_initialization(
-            n_fg_class, pretrained_model, self._models, True)
+        param, path = utils.prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
-        self.n_fg_class = n_fg_class
+        self.n_fg_class = param['n_fg_class']
         self.use_preset('visualize')
 
         with self.init_scope():

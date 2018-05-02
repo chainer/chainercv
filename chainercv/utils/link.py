@@ -9,30 +9,27 @@ except ImportError:
     _available = False
 
 
-def prepare_link_initialization(out_channels,
-                                pretrained_model, models, fg_only,
-                                default_out_channels=None,
-                                check_for_cv2=True):
-    if fg_only:
-        key = 'n_fg_class'
-    else:
-        key = 'n_class'
-
+def prepare_pretrained_model(param, pretrained_model, models, default={}):
     if pretrained_model in models:
         model = models[pretrained_model]
-        pretrained_out_chs = model[key]
-        if out_channels:
-            if pretrained_out_chs and not out_channels != pretrained_out_chs:
-                raise ValueError(
-                    '{} should be {:d}'.format(key, model[key]))
-        else:
-            if not pretrained_out_chs:
-                raise ValueError('{} must be specified'.format(key))
-            out_channels = pretrained_out_chs
+        model_param = model.get('param', {})
+        overwritable = model.get('overwritable', set())
+
+        for key in param.keys():
+            if key not in model_param:
+                continue
+
+            if param[key] is None:
+                param[key] = model_param[key]
+            else:
+                if key not in overwritable \
+                   and not param[key] == model_param[key]:
+                    raise ValueError(
+                        '{} must be {:d}'.format(key, model_param[key]))
 
         path = download_model(model['url'])
 
-        if not _available and check_for_cv2:
+        if not _available and model.get('cv2', False):
             warnings.warn(
                 'cv2 is not installed on your environment. '
                 'Pretrained models are trained with cv2. '
@@ -41,11 +38,13 @@ def prepare_link_initialization(out_channels,
     elif pretrained_model:
         path = pretrained_model
     else:
-        if not out_channels:
-            if default_out_channels:
-                out_channels = default_out_channels
-            else:
-                raise ValueError('{} must be specified'.format(key))
         path = None
 
-    return out_channels, path
+    for key in param.keys():
+        if param[key] is None:
+            if key in default:
+                param[key] = default[key]
+            else:
+                raise ValueError('{} must be specified'.format(key))
+
+    return param, path
