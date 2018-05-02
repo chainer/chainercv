@@ -7,7 +7,7 @@ class YOLOBase(chainer.Chain):
     """Base class for YOLOv2 and YOLOv3.
 
     An inheriting this class should have :obj:`extractor`,
-    :meth:`__call__`, and :meth:`__call__`.
+    :meth:`__call__`, and :meth:`_decode`.
     """
 
     @property
