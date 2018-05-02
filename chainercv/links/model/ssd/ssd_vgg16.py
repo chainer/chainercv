@@ -261,8 +261,8 @@ class SSD300(SSD):
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        param, path = prepare_link_initialization(
-            self._models, {'n_fg_class': n_fg_class}, pretrained_model)
+        param, path = prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         super(SSD300, self).__init__(
             extractor=VGG16Extractor300(),
@@ -330,7 +330,7 @@ class SSD512(SSD):
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
         param, path = prepare_pretrained_model(
-            self._models, {'n_fg_class': n_fg_class}, pretrained_model)
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         super(SSD512, self).__init__(
             extractor=VGG16Extractor512(),

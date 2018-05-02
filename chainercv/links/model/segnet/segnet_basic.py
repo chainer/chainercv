@@ -63,7 +63,7 @@ class SegNetBasic(chainer.Chain):
 
     def __init__(self, n_class=None, pretrained_model=None, initialW=None):
         param, path = prepare_pretrained_model(
-            self._models, {'n_class': n_class}, pretrained_model)
+            {'n_class': n_class}, pretrained_model, self._models)
 
         if initialW is None:
             initialW = chainer.initializers.HeNormal()

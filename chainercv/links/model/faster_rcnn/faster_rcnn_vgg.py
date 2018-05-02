@@ -96,7 +96,7 @@ class FasterRCNNVGG16(FasterRCNN):
                  proposal_creator_params={}
                  ):
         param, path = prepare_pretrained_model(
-            self._models, {'n_fg_class': n_fg_class}, pretrained_model)
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         if loc_initialW is None:
             loc_initialW = chainer.initializers.Normal(0.001)

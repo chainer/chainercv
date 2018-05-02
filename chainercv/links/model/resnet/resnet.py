@@ -110,8 +110,8 @@ class ResNet(PickableSequentialChain):
         'he': {
             50: {
                 'imagenet': {
-                    'param': {'n_class': 1000, 'mean': None},
-                    'default': {'mean': _imagenet_mean},
+                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'overwritable': {'mean'},
                     'url': 'https://github.com/yuyu2172/share-weights/'
                     'releases/download/0.0.6/'
                     'resnet50_imagenet_convert_2018_03_07.npz'
@@ -119,8 +119,8 @@ class ResNet(PickableSequentialChain):
             },
             101: {
                 'imagenet': {
-                    'param': {'n_class': 1000, 'mean': None},
-                    'default': {'mean': _imagenet_mean},
+                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'overwritable': {'mean'},
                     'url': 'https://github.com/yuyu2172/share-weights/'
                     'releases/download/0.0.6/'
                     'resnet101_imagenet_convert_2018_03_07.npz'
@@ -157,11 +157,9 @@ class ResNet(PickableSequentialChain):
         blocks = self._blocks[n_layer]
 
         param, path = prepare_pretrained_model(
-            self._models[arch][n_layer],
-            {'n_class': n_class, 'mean': mean}, pretrained_model)
-
-        if param['mean'] is None:
-            param['mean'] = _imagenet_mean
+            {'n_class': n_class, 'mean': mean},
+            pretrained_model, self._models[arch][n_layer],
+            {'n_class': 1000, 'mean': _imagenet_mean})
         self.mean = param['mean']
 
         if initialW is None:

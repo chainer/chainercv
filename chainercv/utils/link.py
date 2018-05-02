@@ -10,24 +10,23 @@ except ImportError:
     _available = False
 
 
-def prepare_pretrained_model(models, param, pretrained_model):
+def prepare_pretrained_model(param, pretrained_model, models, default={}):
     if pretrained_model in models:
         model = models[pretrained_model]
+        model_param = model['param']
+        overwritable = model.get('overwritable', {})
 
-        for key, value in six.iteritems(model.get('default', {})):
-            if param.get(key, None) is None:
-                param[key] = value
+        for key in six.iteritems(param):
+            if key not in model_param:
+                continue
 
-        for key, value in six.iteritems(model['param']):
-            if value is None:
-                if param.get(key, None) is None:
-                    raise ValueError('{} must be specified'.format(key))
+            if param[key] is None:
+                param[key] = model_param[key]
             else:
-                if key in param:
-                    if not param[key] == value:
-                        raise ValueError('{} must be {:d}'.format(key, value))
-                else:
-                    param[key] = value
+                if key not in overwritable \
+                   and not param[key] == model_param[key]:
+                    raise ValueError(
+                        '{} must be {:d}'.format(key, model_param[key]))
 
         path = download_model(model['url'])
 
@@ -41,5 +40,12 @@ def prepare_pretrained_model(models, param, pretrained_model):
         path = pretrained_model
     else:
         path = None
+
+    for key in param.keys():
+        if param[key] is None:
+            if key in default:
+                param[key] = default[key]
+            else:
+                raise ValueError('{} must be specified'.format(key))
 
     return param, path

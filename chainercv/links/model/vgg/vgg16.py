@@ -89,8 +89,8 @@ class VGG16(PickableSequentialChain):
 
     _models = {
         'imagenet': {
-            'param': {'n_class': 1000, 'mean': None},
-            'default': {'mean': _imagenet_mean},
+            'param': {'n_class': 1000, 'mean': _imagenet_mean},
+            'overwritable': {'mean'},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.4/vgg16_imagenet_convert_2017_07_18.npz'
         }
@@ -100,10 +100,9 @@ class VGG16(PickableSequentialChain):
                  n_class=None, pretrained_model=None, mean=None,
                  initialW=None, initial_bias=None):
         param, path = prepare_pretrained_model(
-            self._models, {'n_class': n_class, 'mean': mean}, pretrained_model)
-
-        if param['mean'] is None:
-            param['mean'] = _imagenet_mean
+            {'n_class': n_class, 'mean': mean},
+            pretrained_model, self._models,
+            {'n_class': 1000, 'mean': _imagenet_mean})
         self.mean = param['mean']
 
         if initialW is None:

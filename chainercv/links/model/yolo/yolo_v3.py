@@ -140,7 +140,7 @@ class YOLOv3(chainer.Chain):
         super(YOLOv3, self).__init__()
 
         param, path = utils.prepare_pretrained_model(
-            self._models, {'n_fg_class': n_fg_class}, pretrained_model)
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         self.n_fg_class = param['n_fg_class']
         self.use_preset('visualize')
