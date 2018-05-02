@@ -132,7 +132,7 @@ class YOLOv3(chainer.Chain):
         },
     }
 
-    anchors = (
+    _anchors = (
         ((90, 116), (198, 156), (326, 373)),
         ((61, 30), (45, 62), (119, 59)),
         ((13, 10), (30, 16), (23, 33)))
@@ -150,16 +150,17 @@ class YOLOv3(chainer.Chain):
             self.extractor = Darknet53Extractor()
             self.subnet = chainer.ChainList()
 
-        for n in (512, 256, 128):
+        for i, n in enumerate((512, 256, 128)):
             self.subnet.append(chainer.Sequential(
                 Conv2DBNActiv(n * 2, 3, pad=1, activ=_leaky_relu),
-                Convolution2D(3 * (4 + 1 + self.n_fg_class), 1)))
+                Convolution2D(
+                    len(self._anchors[i]) * (4 + 1 + self.n_fg_class), 1)))
 
         default_bbox = []
         step = []
         for k, grid in enumerate(self.extractor.grids):
             for v, u in itertools.product(range(grid), repeat=2):
-                for h, w in self.anchors[k]:
+                for h, w in self._anchors[k]:
                     default_bbox.append((v, u, h, w))
                     step.append(self.insize / grid)
         self._default_bbox = np.array(default_bbox, dtype=np.float32)
