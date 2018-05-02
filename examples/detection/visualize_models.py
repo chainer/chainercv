@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
+from chainercv.links import YOLOv3
 
 from chainercv.datasets import voc_bbox_label_names
 from chainercv.datasets import VOCBboxDataset
@@ -16,6 +17,7 @@ def main():
         ('Faster R-CNN', FasterRCNNVGG16(pretrained_model='voc07')),
         ('SSD300', SSD300(pretrained_model='voc0712')),
         ('SSD512', SSD512(pretrained_model='voc0712')),
+        ('YOLOv3', YOLOv3(pretrained_model='voc0712')),
     ]
     indices = [29, 301, 189, 229]
 
