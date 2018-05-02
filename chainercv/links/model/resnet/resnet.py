@@ -110,29 +110,29 @@ class ResNet(PickableSequentialChain):
         'he': {
             50: {
                 'imagenet': {
-                    'n_class': 1000,
+                    'param': {'n_class': 1000, 'mean': None},
+                    'default': {'mean': _imagenet_mean},
                     'url': 'https://github.com/yuyu2172/share-weights/'
                     'releases/download/0.0.6/'
-                    'resnet50_imagenet_convert_2018_03_07.npz',
-                    'mean': _imagenet_mean
+                    'resnet50_imagenet_convert_2018_03_07.npz'
                 },
             },
             101: {
                 'imagenet': {
-                    'n_class': 1000,
+                    'param': {'n_class': 1000, 'mean': None},
+                    'default': {'mean': _imagenet_mean},
                     'url': 'https://github.com/yuyu2172/share-weights/'
                     'releases/download/0.0.6/'
-                    'resnet101_imagenet_convert_2018_03_07.npz',
-                    'mean': _imagenet_mean
+                    'resnet101_imagenet_convert_2018_03_07.npz'
                 },
             },
             152: {
                 'imagenet': {
-                    'n_class': 1000,
+                    'param': {'n_class': 1000, 'mean': None},
+                    'default': {'mean': _imagenet_mean},
                     'url': 'https://github.com/yuyu2172/share-weights/'
                     'releases/download/0.0.6/'
-                    'resnet152_imagenet_convert_2018_03_07.npz',
-                    'mean': _imagenet_mean
+                    'resnet152_imagenet_convert_2018_03_07.npz'
                 },
             }
         }
@@ -154,18 +154,15 @@ class ResNet(PickableSequentialChain):
             conv1_no_bias = False
         else:
             raise ValueError('arch is expected to be one of [\'he\', \'fb\']')
-        _models = self._models[arch][n_layer]
         blocks = self._blocks[n_layer]
 
-        n_class, path = prepare_link_initialization(
-            n_class, pretrained_model, _models, False, 1000)
+        param, path = prepare_link_initialization(
+            self._models[arch][n_layer],
+            {'n_class': n_class, 'mean': mean}, pretrained_model)
 
-        if mean is None:
-            if pretrained_model in _models:
-                mean = _models[pretrained_model]['mean']
-            else:
-                mean = _imagenet_mean
-        self.mean = mean
+        if param['mean'] is None:
+            param['mean'] = _imagenet_mean
+        self.mean = param['mean']
 
         if initialW is None:
             initialW = initializers.HeNormal(scale=1., fan_option='fan_out')
@@ -188,7 +185,7 @@ class ResNet(PickableSequentialChain):
             self.res4 = ResBlock(blocks[2], None, 256, 1024, 2, **kwargs)
             self.res5 = ResBlock(blocks[3], None, 512, 2048, 2, **kwargs)
             self.pool5 = _global_average_pooling_2d
-            self.fc6 = L.Linear(None, n_class, **fc_kwargs)
+            self.fc6 = L.Linear(None, param['n_class'], **fc_kwargs)
             self.prob = F.softmax
 
         if path:

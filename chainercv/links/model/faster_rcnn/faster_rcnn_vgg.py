@@ -71,15 +71,17 @@ class FasterRCNNVGG16(FasterRCNN):
 
     _models = {
         'voc07': {
-            'n_fg_class': 20,
+            'param': {'n_fg_class': 20},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.4/'
-            'faster_rcnn_vgg16_voc07_trained_2017_08_06.npz'
+            'faster_rcnn_vgg16_voc07_trained_2017_08_06.npz',
+            'cv2': True
         },
         'voc0712': {
-            'n_fg_class': 20,
+            'param': {'n_fg_class': 20},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.4/faster_rcnn_vgg16_voc0712_trained_2017_07_21.npz'
+            'download/0.0.4/faster_rcnn_vgg16_voc0712_trained_2017_07_21.npz',
+            'cv2': True
         },
     }
     feat_stride = 16
@@ -93,8 +95,8 @@ class FasterRCNNVGG16(FasterRCNN):
                  loc_initialW=None, score_initialW=None,
                  proposal_creator_params={}
                  ):
-        n_fg_class, path = prepare_link_initialization(
-            n_fg_class, pretrained_model, self._models, True)
+        param, path = prepare_link_initialization(
+            self._models, {'n_fg_class': n_fg_class}, pretrained_model)
 
         if loc_initialW is None:
             loc_initialW = chainer.initializers.Normal(0.001)
@@ -118,7 +120,7 @@ class FasterRCNNVGG16(FasterRCNN):
             proposal_creator_params=proposal_creator_params,
         )
         head = VGG16RoIHead(
-            n_fg_class + 1,
+            param['n_fg_class'] + 1,
             roi_size=7, spatial_scale=1. / self.feat_stride,
             vgg_initialW=vgg_initialW,
             loc_initialW=loc_initialW,

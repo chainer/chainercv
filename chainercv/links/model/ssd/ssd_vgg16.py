@@ -209,13 +209,6 @@ class VGG16Extractor512(VGG16):
         return ys
 
 
-# to skip unsaved parameters, use strict option.
-def _load_npz(filename, obj):
-    with np.load(filename) as f:
-        d = chainer.serializers.NpzDeserializer(f, strict=False)
-        d.load(obj)
-
-
 class SSD300(SSD):
     """Single Shot Multibox Detector with 300x300 inputs.
 
@@ -254,32 +247,34 @@ class SSD300(SSD):
 
     _models = {
         'voc0712': {
-            'n_fg_class': 20,
+            'param': {'n_fg_class': 20},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/ssd300_voc0712_2017_06_06.npz'
+            'download/0.0.3/ssd300_voc0712_2017_06_06.npz',
+            'cv2': True
         },
         'imagenet': {
-            'n_fg_class': None,
+            'param': {'n_fg_class': None},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/ssd_vgg16_imagenet_2017_06_09.npz'
+            'download/0.0.3/ssd_vgg16_imagenet_2017_06_09.npz',
+            'cv2': True
         },
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        n_fg_class, path = prepare_link_initialization(
-            n_fg_class, pretrained_model, self._models, True)
+        param, path = prepare_link_initialization(
+            self._models, {'n_fg_class': n_fg_class}, pretrained_model)
 
         super(SSD300, self).__init__(
             extractor=VGG16Extractor300(),
             multibox=Multibox(
-                n_class=n_fg_class + 1,
+                n_class=param['n_fg_class'] + 1,
                 aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))),
             steps=(8, 16, 32, 64, 100, 300),
             sizes=(30, 60, 111, 162, 213, 264, 315),
             mean=_imagenet_mean)
 
         if path:
-            _load_npz(path, self)
+            chainer.serializers.load_npz(path, self, strict=False)
 
 
 class SSD512(SSD):
@@ -320,25 +315,27 @@ class SSD512(SSD):
 
     _models = {
         'voc0712': {
-            'n_fg_class': 20,
+            'param': {'n_fg_class': 20},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/ssd512_voc0712_2017_06_06.npz'
+            'download/0.0.3/ssd512_voc0712_2017_06_06.npz',
+            'cv2': True
         },
         'imagenet': {
-            'n_fg_class': None,
+            'param': {'n_fg_class': None},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/ssd_vgg16_imagenet_2017_06_09.npz'
+            'download/0.0.3/ssd_vgg16_imagenet_2017_06_09.npz',
+            'cv2': True
         },
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        n_fg_class, path = prepare_link_initialization(
-            n_fg_class, pretrained_model, self._models, True)
+        param, path = prepare_link_initialization(
+            self._models, {'n_fg_class': n_fg_class}, pretrained_model)
 
         super(SSD512, self).__init__(
             extractor=VGG16Extractor512(),
             multibox=Multibox(
-                n_class=n_fg_class + 1,
+                n_class=param['n_fg_class'] + 1,
                 aspect_ratios=(
                     (2,), (2, 3), (2, 3), (2, 3), (2, 3), (2,), (2,))),
             steps=(8, 16, 32, 64, 128, 256, 512),
@@ -346,4 +343,4 @@ class SSD512(SSD):
             mean=_imagenet_mean)
 
         if path:
-            _load_npz(path, self)
+            chainer.serializers.load_npz(path, self, strict=False)
