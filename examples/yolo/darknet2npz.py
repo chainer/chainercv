@@ -32,15 +32,19 @@ def load_link(file, link):
             load_link(file, l)
 
 
+def reorder_loc(conv, n_fg_class):
+    # xy -> yx
+    for data in (conv.W.array, conv.b.array):
+        data = data.reshape(
+            (-1, 4 + 1 + n_fg_class) + data.shape[1:])
+        data[:, [1, 0, 3, 2]] = data[:, :4].copy()
+
+
 def load_yolo_v2(file, model):
     load_link(file, model.extractor)
     load_link(file, model.subnet)
 
-    # xy -> yx
-    for data in (model.subnet.W.array, model.subnet.b.array):
-        data = data.reshape(
-            (-1, 4 + 1 + model.n_fg_class) + data.shape[1:])
-        data[:, [1, 0, 3, 2]] = data[:, :4].copy()
+    reorder_loc(model.subnet, model.n_fg_class)
 
 
 def load_yolo_v3(file, model):
@@ -50,13 +54,8 @@ def load_yolo_v3(file, model):
             subnet = model.subnet[(i - 33) // 6]
             load_link(file, subnet)
 
-    # xy -> yx
     for subnet in model.subnet:
-        final = subnet[-1]
-        for data in (final.W.array, final.b.array):
-            data = data.reshape(
-                (-1, 4 + 1 + model.n_fg_class) + data.shape[1:])
-            data[:, [1, 0, 3, 2]] = data[:, :4].copy()
+        reorder_loc(subnet[-1], model.n_fg_class)
 
 
 def main():
