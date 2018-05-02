@@ -1,3 +1,4 @@
+import six
 import warnings
 
 from chainercv.utils import download_model
@@ -9,30 +10,23 @@ except ImportError:
     _available = False
 
 
-def prepare_link_initialization(out_channels,
-                                pretrained_model, models, fg_only,
-                                default_out_channels=None,
-                                check_for_cv2=True):
-    if fg_only:
-        key = 'n_fg_class'
-    else:
-        key = 'n_class'
-
+def prepare_link_initialization(models, param, pretrained_model):
     if pretrained_model in models:
         model = models[pretrained_model]
-        pretrained_out_chs = model[key]
-        if out_channels:
-            if pretrained_out_chs and not out_channels != pretrained_out_chs:
-                raise ValueError(
-                    '{} should be {:d}'.format(key, model[key]))
-        else:
-            if not pretrained_out_chs:
-                raise ValueError('{} must be specified'.format(key))
-            out_channels = pretrained_out_chs
+        for key, value in six.iteritems(model['param']):
+            if value is None:
+                if key not in param:
+                    raise ValueError('{} must be specified'.format(key))
+            else:
+                if key in param:
+                    if not param[key] == value:
+                        raise ValueError('{} must be {:d}'.format(key, value))
+                else:
+                    param[key] = value
 
         path = download_model(model['url'])
 
-        if not _available and check_for_cv2:
+        if not _available and model['cv2']:
             warnings.warn(
                 'cv2 is not installed on your environment. '
                 'Pretrained models are trained with cv2. '
@@ -40,12 +34,5 @@ def prepare_link_initialization(out_channels,
                 RuntimeWarning)
     elif pretrained_model:
         path = pretrained_model
-    else:
-        if not out_channels:
-            if default_out_channels:
-                out_channels = default_out_channels
-            else:
-                raise ValueError('{} must be specified'.format(key))
-        path = None
 
-    return out_channels, path
+    return path, param
