@@ -16,7 +16,7 @@ class DummyYOLO(YOLOBase):
 
     _insize = 64
     _n_anchor = 16
-    _n_fg_class = 20
+    n_fg_class = 20
 
     def __init__(self):
         self.extractor = mock.Mock()
@@ -25,7 +25,7 @@ class DummyYOLO(YOLOBase):
     def __call__(self, x):
         assert(x.shape[1:] == (3, self._insize, self._insize))
         self._value = self.xp.random.uniform(
-            (x.shape[0], self._n_anchor, 4 + 1 + self._n_fg_class),
+            (x.shape[0], self._n_anchor, 4 + 1 + self.n_fg_class),
             dtype=np.float32)
         return chainer.Variable(self._value)
 
@@ -43,7 +43,7 @@ class DummyYOLO(YOLOBase):
         for _ in range(self._value.shape[0]):
             n_bbox = np.random.randint(self._n_anchor - 1)
             bboxes.append(generate_random_bbox(n_bbox, self._insize, 8, 48))
-            labels.append(np.random.randint(self._n_fg_class - 1, size=n_bbox)
+            labels.append(np.random.randint(self.n_fg_class - 1, size=n_bbox)
                           .astype(np.int32))
             scores.append(np.random.uniform(size=n_bbox).astype(np.float32))
         return bboxes, labels, scores
