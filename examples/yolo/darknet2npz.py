@@ -6,6 +6,7 @@ from chainer.links import Convolution2D
 from chainer import serializers
 
 from chainercv.links import Conv2DBNActiv
+from chainercv.links import YOLOv2
 from chainercv.links import YOLOv3
 
 
@@ -60,12 +61,19 @@ def load_yolo_v3(file, model):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--model', choices=('yolo_v2', 'yolo_v3'),
+        default='yolo_v2')
     parser.add_argument('--n_fg_class', type=int, default=80)
     parser.add_argument('darknetmodel')
     parser.add_argument('output')
     args = parser.parse_args()
 
-    model = YOLOv3(args.n_fg_class)
+    if args.model == 'yolo_v2':
+        model = YOLOv2(n_fg_class=args.n_fg_class)
+    elif args.model == 'yolo_v3':
+        model = YOLOv3(n_fg_class=args.n_fg_class)
+
     with chainer.using_config('train', False):
         model(np.empty((1, 3, model.insize, model.insize), dtype=np.float32))
 
@@ -76,7 +84,10 @@ def main():
         assert(major * 10 + minor >= 2 and major < 1000 and minor < 1000)
         np.fromfile(f, dtype=np.int64, count=1)  # seen
 
-        load_yolo_v3(f, model)
+        if args.model == 'yolo_v2':
+            load_yolo_v2(f, model)
+        elif args.model == 'yolo_v3':
+            load_yolo_v3(f, model)
 
     serializers.save_npz(args.output, model)
 
