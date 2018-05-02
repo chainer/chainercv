@@ -13,6 +13,11 @@ except ImportError:
 def prepare_link_initialization(models, param, pretrained_model):
     if pretrained_model in models:
         model = models[pretrained_model]
+
+        for key, value in six.iteritems(model.get('default', {})):
+            if key not in param or param[key] is None:
+                param[key] = param
+
         for key, value in six.iteritems(model['param']):
             if value is None:
                 if key not in param or param[key] is None:
