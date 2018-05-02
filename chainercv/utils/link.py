@@ -1,4 +1,3 @@
-import six
 import warnings
 
 from chainercv.utils import download_model
@@ -16,7 +15,7 @@ def prepare_pretrained_model(param, pretrained_model, models, default={}):
         model_param = model['param']
         overwritable = model.get('overwritable', {})
 
-        for key in six.iteritems(param):
+        for key in param.keys():
             if key not in model_param:
                 continue
 
