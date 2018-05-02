@@ -7,7 +7,7 @@ import chainer.functions as F
 import chainer.links as L
 
 from chainercv.transforms import resize
-from chainercv.utils import download_model
+from chainercv.utils import prepare_link_initialization
 
 
 def _pool_without_cudnn(p, x):
@@ -62,11 +62,8 @@ class SegNetBasic(chainer.Chain):
     }
 
     def __init__(self, n_class=None, pretrained_model=None, initialW=None):
-        if n_class is None:
-            if pretrained_model not in self._models:
-                raise ValueError(
-                    'The n_class needs to be supplied as an argument.')
-            n_class = self._models[pretrained_model]['n_class']
+        n_class, path = prepare_link_initialization(
+            n_class, self._models, False)
 
         if initialW is None:
             initialW = chainer.initializers.HeNormal()
@@ -102,11 +99,8 @@ class SegNetBasic(chainer.Chain):
 
         self.n_class = n_class
 
-        if pretrained_model in self._models:
-            path = download_model(self._models[pretrained_model]['url'])
+        if path:
             chainer.serializers.load_npz(path, self)
-        elif pretrained_model:
-            chainer.serializers.load_npz(pretrained_model, self)
 
     def _upsampling_2d(self, x, pool):
         if x.shape != pool.indexes.shape:

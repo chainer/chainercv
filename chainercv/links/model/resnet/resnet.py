@@ -1,7 +1,6 @@
 from __future__ import division
 
 import numpy as np
-import warnings
 
 import chainer
 import chainer.functions as F
@@ -11,13 +10,7 @@ import chainer.links as L
 from chainercv.links import Conv2DBNActiv
 from chainercv.links.model.resnet.resblock import ResBlock
 from chainercv.links import PickableSequentialChain
-from chainercv.utils import download_model
-
-try:
-    import cv2  # NOQA
-    _available = True
-except ImportError:
-    _available = False
+from chainercv.utils import prepare_link_initialization
 
 
 # RGB order
@@ -164,11 +157,8 @@ class ResNet(PickableSequentialChain):
         _models = self._models[arch][n_layer]
         blocks = self._blocks[n_layer]
 
-        if n_class is None:
-            if pretrained_model in _models:
-                n_class = _models[pretrained_model]['n_class']
-            else:
-                n_class = 1000
+        n_class, path = prepare_link_initialization(
+            n_class, pretrained_model, _models, False, 1000)
 
         if mean is None:
             if pretrained_model in _models:
@@ -201,19 +191,8 @@ class ResNet(PickableSequentialChain):
             self.fc6 = L.Linear(None, n_class, **fc_kwargs)
             self.prob = F.softmax
 
-        if pretrained_model in _models:
-            if not _available:
-                warnings.warn('cv2 is not installed on your environment. '
-                              'The scores of ResNets reported in the '
-                              'README of the ChainerCV\'s classification '
-                              'example are calculated using OpenCV as the '
-                              'backend. With Pillow as the '
-                              'backend, the scores would change.',
-                              RuntimeWarning)
-            path = download_model(_models[pretrained_model]['url'])
+        if path:
             chainer.serializers.load_npz(path, self)
-        elif pretrained_model:
-            chainer.serializers.load_npz(pretrained_model, self)
 
 
 def _global_average_pooling_2d(x):

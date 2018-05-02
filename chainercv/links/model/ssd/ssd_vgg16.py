@@ -1,7 +1,6 @@
 from __future__ import division
 
 import numpy as np
-import warnings
 
 import chainer
 import chainer.functions as F
@@ -11,13 +10,7 @@ import chainer.links as L
 from chainercv.links.model.ssd import Multibox
 from chainercv.links.model.ssd import Normalize
 from chainercv.links.model.ssd import SSD
-from chainercv.utils import download_model
-
-try:
-    import cv2  # NOQA
-    _available = True
-except ImportError:
-    _available = False
+from chainercv.utils import prepare_link_initialization
 
 
 # RGB, (C, 1, 1) format
@@ -223,34 +216,6 @@ def _load_npz(filename, obj):
         d.load(obj)
 
 
-def _check_pretrained_model(n_fg_class, pretrained_model, models):
-    if pretrained_model in models:
-        model = models[pretrained_model]
-        if n_fg_class:
-            if model['n_fg_class'] and not n_fg_class == model['n_fg_class']:
-                raise ValueError(
-                    'n_fg_class should be {:d}'.format(model['n_fg_class']))
-        else:
-            if not model['n_fg_class']:
-                raise ValueError('n_fg_class must be specified')
-            n_fg_class = model['n_fg_class']
-
-        path = download_model(model['url'])
-
-        if not _available:
-            warnings.warn(
-                'cv2 is not installed on your environment. '
-                'Pretrained models are trained with cv2. '
-                'The performace may change with Pillow backend.',
-                RuntimeWarning)
-    elif pretrained_model:
-        path = pretrained_model
-    else:
-        path = None
-
-    return n_fg_class, path
-
-
 class SSD300(SSD):
     """Single Shot Multibox Detector with 300x300 inputs.
 
@@ -301,8 +266,8 @@ class SSD300(SSD):
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        n_fg_class, path = _check_pretrained_model(
-            n_fg_class, pretrained_model, self._models)
+        n_fg_class, path = prepare_link_initialization(
+            n_fg_class, pretrained_model, self._models, True)
 
         super(SSD300, self).__init__(
             extractor=VGG16Extractor300(),
@@ -367,8 +332,8 @@ class SSD512(SSD):
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        n_fg_class, path = _check_pretrained_model(
-            n_fg_class, pretrained_model, self._models)
+        n_fg_class, path = prepare_link_initialization(
+            n_fg_class, pretrained_model, self._models, True)
 
         super(SSD512, self).__init__(
             extractor=VGG16Extractor512(),

@@ -12,7 +12,7 @@ from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
 from chainercv.links.model.resnet.resblock import ResBlock
-from chainercv.utils import download_model
+from chainercv.utils import prepare_link_initialization
 
 
 class FCISResNet101(FCIS):
@@ -103,11 +103,8 @@ class FCISResNet101(FCIS):
                 'min_size': 16
             }
     ):
-        if n_fg_class is None:
-            if pretrained_model not in self._models:
-                raise ValueError(
-                    'The n_fg_class needs to be supplied as an argument')
-            n_fg_class = self._models[pretrained_model]['n_fg_class']
+        n_fg_class, path = prepare_link_initialization(
+            n_fg_class, pretrained_model, self._models, True)
 
         if rpn_initialW is None:
             rpn_initialW = chainer.initializers.Normal(0.01)
@@ -139,11 +136,7 @@ class FCISResNet101(FCIS):
             mean, min_size, max_size,
             loc_normalize_mean, loc_normalize_std)
 
-        if pretrained_model is not None:
-            if pretrained_model in self._models:
-                path = download_model(self._models[pretrained_model]['url'])
-            else:
-                path = pretrained_model
+        if path:
             chainer.serializers.load_npz(path, self)
 
 

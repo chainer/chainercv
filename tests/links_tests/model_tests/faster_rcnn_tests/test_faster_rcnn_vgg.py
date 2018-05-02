@@ -3,8 +3,9 @@ import unittest
 
 import chainer
 from chainer import testing
-from chainer.testing import attr
+from chainercv.testing import attr
 
+from chainercv.links.model.faster_rcnn import FasterRCNN
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 from chainercv.utils import generate_random_bbox
@@ -112,6 +113,33 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
         self.imgs.to_gpu()
         self.scale.to_gpu()
         self.check_call()
+
+
+class TestSSDVGG16Pretrained(unittest.TestCase):
+
+    @attr.slow
+    @attr.disk
+    def test_pretrained_voc(self):
+        link = FasterRCNNVGG16(pretrained_model='voc0712')
+        self.assertIsInstance(link, FasterRCNN)
+
+    @attr.slow
+    @attr.disk
+    def test_pretrained_n_fg_class(self):
+        link = FasterRCNNVGG16(n_fg_class=20, pretrained_model='voc0712')
+        self.assertIsInstance(link, FasterRCNNVGG16)
+
+    @attr.slow
+    @attr.disk
+    def test_pretrained_imagenet(self):
+        link = FasterRCNNVGG16(n_fg_class=20, pretrained_model='imagenet')
+        self.assertIsInstance(link, FasterRCNN)
+
+    @attr.slow
+    @attr.disk
+    def test_pretrained_wrong_n_fg_class(self):
+        with self.assertRaises(ValueError):
+            FasterRCNNVGG16(n_fg_class=10, pretrained_model='voc0712')
 
 
 testing.run_module(__name__, __file__)

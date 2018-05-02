@@ -8,7 +8,7 @@ from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNN
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 from chainercv.links.model.vgg.vgg16 import VGG16
-from chainercv.utils import download_model
+from chainercv.utils import prepare_link_initialization
 
 
 class FasterRCNNVGG16(FasterRCNN):
@@ -93,11 +93,8 @@ class FasterRCNNVGG16(FasterRCNN):
                  loc_initialW=None, score_initialW=None,
                  proposal_creator_params={}
                  ):
-        if n_fg_class is None:
-            if pretrained_model not in self._models:
-                raise ValueError(
-                    'The n_fg_class needs to be supplied as an argument')
-            n_fg_class = self._models[pretrained_model]['n_fg_class']
+        n_fg_class, path = prepare_link_initialization(
+            n_fg_class, pretrained_model, self._models, True)
 
         if loc_initialW is None:
             loc_initialW = chainer.initializers.Normal(0.001)
@@ -138,13 +135,10 @@ class FasterRCNNVGG16(FasterRCNN):
             max_size=max_size
         )
 
-        if pretrained_model in self._models:
-            path = download_model(self._models[pretrained_model]['url'])
-            chainer.serializers.load_npz(path, self)
-        elif pretrained_model == 'imagenet':
+        if path == 'imagenet':
             self._copy_imagenet_pretrained_vgg16()
-        elif pretrained_model:
-            chainer.serializers.load_npz(pretrained_model, self)
+        elif path:
+            chainer.serializers.load_npz(path, self)
 
     def _copy_imagenet_pretrained_vgg16(self):
         pretrained_model = VGG16(pretrained_model='imagenet')
