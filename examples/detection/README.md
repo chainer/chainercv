@@ -18,11 +18,12 @@ For the details, please check the documents and examples of each model.
 | Faster R-CNN | VOC2007\&2012 trainval | | 74.7 % |
 | SSD300 | VOC2007\&2012 trainval | | 77.8 % |
 | SSD512 | VOC2007\&2012 trainval | | 79.7 % |
+| YOLOv2 | VOC2007\&2012 trainval | | 75.8 % |
 | YOLOv3 | VOC2007\&2012 trainval | | 80.2 % |
 
 You can reproduce these scores by the following command.
 ```
-$ python eval_voc07.py [--model faster_rcnn|ssd300|ssd512|yolov3] [--pretrained_model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
+$ python eval_voc07.py [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolov3] [--pretrained_model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
 ```
 
 ## Visualization of models
