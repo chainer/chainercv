@@ -13,7 +13,7 @@ def prepare_pretrained_model(param, pretrained_model, models, default={}):
     if pretrained_model in models:
         model = models[pretrained_model]
         model_param = model.get(['param'], {})
-        overwritable = model.get('overwritable', {})
+        overwritable = model.get('overwritable', set())
 
         for key in param.keys():
             if key not in model_param:
