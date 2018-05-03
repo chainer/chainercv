@@ -1,3 +1,5 @@
+from __future__ import division
+
 import itertools
 import numpy as np
 
@@ -126,12 +128,12 @@ class YOLOv3(chainer.Chain):
         'voc0712': {
             'param': {'n_fg_class': 20},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/yolov3_voc0712_2018_05_01.npz',
+            'download/0.0.6/yolo_v3_voc0712_2018_05_01.npz',
             'cv2': True
         },
     }
 
-    anchors = (
+    _anchors = (
         ((90, 116), (198, 156), (326, 373)),
         ((61, 30), (45, 62), (119, 59)),
         ((13, 10), (30, 16), (23, 33)))
@@ -149,16 +151,17 @@ class YOLOv3(chainer.Chain):
             self.extractor = Darknet53Extractor()
             self.subnet = chainer.ChainList()
 
-        for n in (512, 256, 128):
+        for i, n in enumerate((512, 256, 128)):
             self.subnet.append(chainer.Sequential(
                 Conv2DBNActiv(n * 2, 3, pad=1, activ=_leaky_relu),
-                Convolution2D(3 * (4 + 1 + self.n_fg_class), 1)))
+                Convolution2D(
+                    len(self._anchors[i]) * (4 + 1 + self.n_fg_class), 1)))
 
         default_bbox = []
         step = []
         for k, grid in enumerate(self.extractor.grids):
             for v, u in itertools.product(range(grid), repeat=2):
-                for h, w in self.anchors[k]:
+                for h, w in self._anchors[k]:
                     default_bbox.append((v, u, h, w))
                     step.append(self.insize / grid)
         self._default_bbox = np.array(default_bbox, dtype=np.float32)
@@ -172,12 +175,12 @@ class YOLOv3(chainer.Chain):
         return self.extractor.insize
 
     def to_cpu(self):
-        super().to_cpu()
+        super(YOLOv3, self).to_cpu()
         self._default_bbox = cuda.to_cpu(self._default_bbox)
         self._step = cuda.to_cpu(self._step)
 
     def to_gpu(self, device=None):
-        super().to_gpu(device)
+        super(YOLOv3, self).to_gpu(device)
         self._default_bbox = cuda.to_gpu(self._default_bbox, device)
         self._step = cuda.to_gpu(self._step, device)
 
@@ -309,7 +312,7 @@ class YOLOv3(chainer.Chain):
             img, param = transforms.resize_contain(
                 img / 255, (self.insize, self.insize), fill=0.5,
                 return_param=True)
-            x.append(self.xp.array(img))
+            x.append(self.xp.array(img.astype(np.float32)))
             param['size'] = (H, W)
             params.append(param)
 

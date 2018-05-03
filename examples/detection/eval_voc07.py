@@ -17,7 +17,7 @@ from chainercv.utils import ProgressHook
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('faster_rcnn', 'ssd300', 'ssd512', 'yolov3'),
+        '--model', choices=('faster_rcnn', 'ssd300', 'ssd512', 'yolo_v3'),
         default='ssd300')
     parser.add_argument('--pretrained_model')
     parser.add_argument('--gpu', type=int, default=-1)
@@ -45,7 +45,7 @@ def main():
                 pretrained_model=args.pretrained_model)
         else:
             model = SSD512(pretrained_model='voc0712')
-    elif args.model == 'yolov3':
+    elif args.model == 'yolo_v3':
         if args.pretrained_model:
             model = YOLOv3(
                 n_fg_class=len(voc_bbox_label_names),
