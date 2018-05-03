@@ -27,8 +27,8 @@ class DummyYOLO(YOLOBase):
     def __call__(self, x):
         assert(x.shape[1:] == (3, self._insize, self._insize))
         self._value = self.xp.random.uniform(
-            (x.shape[0], self._n_anchor, 4 + 1 + self._n_fg_class),
-            dtype=np.float32)
+            size=(x.shape[0], self._n_anchor, 4 + 1 + self._n_fg_class)) \
+            .astype(np.float32)
         return chainer.Variable(self._value)
 
     def _decode(self, loc, conf):
@@ -36,19 +36,19 @@ class DummyYOLO(YOLOBase):
         loc = to_cpu(loc)
         conf = to_cpu(conf)
 
-        np.testing.assert_equal(loc, value[:, :, :4])
-        np.testing.assert_equal(conf, value[:, :, 4:])
+        if not hasattr(self, '_count'):
+            self._count = 0
+        np.testing.assert_equal(loc, value[self._count, :, :4])
+        np.testing.assert_equal(conf, value[self._count, :, 4:])
+        self._count += 1
 
-        bboxes = []
-        labels = []
-        scores = []
-        for _ in range(self._value.shape[0]):
-            n_bbox = np.random.randint(self._n_anchor - 1)
-            bboxes.append(generate_random_bbox(n_bbox, self._insize, 8, 48))
-            labels.append(np.random.randint(self._n_fg_class - 1, size=n_bbox)
-                          .astype(np.int32))
-            scores.append(np.random.uniform(size=n_bbox).astype(np.float32))
-        return bboxes, labels, scores
+        n_bbox = np.random.randint(self._n_anchor - 1)
+        bbox = generate_random_bbox(
+            n_bbox, (self._insize, self._insize), 8, 48)
+        label = np.random.randint(self._n_fg_class - 1, size=n_bbox) \
+            .astype(np.int32)
+        score = np.random.uniform(size=n_bbox).astype(np.float32)
+        return bbox, label, score
 
 
 class TestYOLOBase(unittest.TestCase):
