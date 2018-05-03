@@ -10,7 +10,8 @@ PASCAL VOC2007 Test
 
 Scores are mean Average Precision (mAP) with PASCAL VOC2007 metric.
 
-\*: Although the original paper [1] reports 76.8 %,, the darknet implementation and the provided weights achieved the lower score.
+\*: Although the original paper [1] reports 76.8 %, the darknet implementation and the provided weights achieved the lower score.
+Similar issue is reported [here](https://github.com/AlexeyAB/darknet#how-to-calculate-map-on-pascalvoc-2007).
 
 ## Demo
 Detect objects in an given image. This demo downloads Pascal VOC pretrained model automatically if a pretrained model path is not given.
