@@ -19,6 +19,8 @@ class DummyYOLO(YOLOBase):
     _n_fg_class = 20
 
     def __init__(self):
+        super(DummyYOLO, self).__init__()
+
         self.extractor = mock.Mock()
         self.extractor.insize = self._insize
 
