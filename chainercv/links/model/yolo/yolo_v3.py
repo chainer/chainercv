@@ -138,11 +138,16 @@ class YOLOv3(chainer.Chain):
         ((61, 30), (45, 62), (119, 59)),
         ((13, 10), (30, 16), (23, 33)))
 
-    def __init__(self, n_fg_class=None, pretrained_model=None):
+    def __init__(self, n_fg_class=None, pretrained_model=None,
+                 use_pretrained_class_weights=True):
         super(YOLOv3, self).__init__()
 
+        models = self._models.copy()
+        if not use_pretrained_class_weights:
+            for key in models.keys():
+                models[key]['overwritable'] = ('n_fg_class',)
         param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
+            {'n_fg_class': n_fg_class}, pretrained_model, models)
 
         self.n_fg_class = param['n_fg_class']
         self.use_preset('visualize')
@@ -168,7 +173,16 @@ class YOLOv3(chainer.Chain):
         self._step = np.array(step, dtype=np.float32)
 
         if path:
-            chainer.serializers.load_npz(path, self, strict=False)
+            if use_pretrained_class_weights:
+                chainer.serializers.load_npz(path, self, strict=False)
+            else:
+                class_dependent_weight_names = [
+                    'subnet/0/1/b', 'subnet/0/1/W',
+                    'subnet/1/1/b', 'subnet/1/1/W',
+                    'subnet/2/1/b', 'subnet/2/1/W']
+                utils.link.load_npz_with_ignore_names(
+                    path, self, strict=False,
+                    ignore_names=class_dependent_weight_names)
 
     @property
     def insize(self):

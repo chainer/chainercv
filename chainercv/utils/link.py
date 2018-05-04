@@ -1,5 +1,7 @@
+import numpy as np
 import warnings
 
+from chainer.serializers import NpzDeserializer
 from chainercv.utils import download_model
 
 try:
@@ -71,3 +73,11 @@ def prepare_pretrained_model(param, pretrained_model, models, default={}):
                 raise ValueError('{} must be specified'.format(key))
 
     return param, path
+
+
+def load_npz_with_ignore_names(file, obj, path='', strict=True, ignore_names=None):
+    # https://github.com/chainer/chainer/pull/4682
+    with np.load(file) as f:
+        d = NpzDeserializer(
+            f, path=path, strict=strict, ignore_names=ignore_names)
+        d.load(obj)
