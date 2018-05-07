@@ -120,6 +120,12 @@ class YOLOv3(YOLOBase):
                 These weights were converted from the darknet model. \
                 The conversion code is \
                 `chainercv/examples/yolo/darknet2npz.py`.
+            * :obj:`'imagenet'`: Load weights of Darknet53 \
+                trained on ImageNet. \
+                The weight file is downloaded and cached automatically. \
+                This option initializes weights partially and the rests are \
+                initialized randomly. In this case, :obj:`n_fg_class` \
+                can be set to any number.
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
@@ -131,6 +137,11 @@ class YOLOv3(YOLOBase):
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.6/yolo_v3_voc0712_2018_05_01.npz'
+        },
+        'imagenet': {
+            'n_fg_class': None,
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.6/yolo_darknet53_imagenet_2018_05_07.npz'
         },
     }
 
