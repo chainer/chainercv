@@ -19,93 +19,79 @@ def _leaky_relu(x):
     return F.leaky_relu(x, slope=0.1)
 
 
-def _upsample(x):
-    return F.unpooling_2d(x, 2, cover_all=False)
+def _maxpool(x):
+    return F.max_pooling_2d(x, 2)
 
 
-class ResidualBlock(chainer.ChainList):
-    """ChainList with a residual connection."""
-
-    def __init__(self, *links):
-        super(ResidualBlock, self).__init__(*links)
-
-    def __call__(self, x):
-        h = x
-        for link in self:
-            h = link(h)
-        h += x
-        return h
+def _reorg(x):
+    n, c, h, w = x.shape
+    x = F.reshape(x, (n, c // 4, h, 2, w, 2))
+    x = F.transpose(x, (0, 3, 5, 1, 2, 4))
+    return F.reshape(x, (n, c * 4, h // 2, w // 2))
 
 
-class Darknet53Extractor(chainer.ChainList):
-    """A Darknet53 based feature extractor for YOLOv3.
+class Darknet19Extractor(chainer.ChainList):
+    """A Darknet19 based feature extractor for YOLOv2.
 
-    This is a feature extractor for :class:`~chainercv.links.model.yolo.YOLOv3`
+    This is a feature extractor for :class:`~chainercv.links.model.yolo.YOLOv2`
     """
 
     insize = 416
-    grids = (13, 26, 52)
+    grid = 13
 
     def __init__(self):
-        super(Darknet53Extractor, self).__init__()
+        super().__init__()
 
-        # Darknet53
-        self.append(Conv2DBNActiv(32, 3, pad=1, activ=_leaky_relu))
-        for k, n_block in enumerate((1, 2, 8, 8, 4)):
-            self.append(Conv2DBNActiv(
-                32 << (k + 1), 3, stride=2, pad=1, activ=_leaky_relu))
-            for _ in range(n_block):
-                self.append(ResidualBlock(
-                    Conv2DBNActiv(32 << k, 1, activ=_leaky_relu),
-                    Conv2DBNActiv(32 << (k + 1), 3, pad=1, activ=_leaky_relu)))
+        # Darknet19
+        for k, n_conv in enumerate((1, 1, 3, 3, 5, 5)):
+            for i in range(n_conv):
+                if i % 2 == 0:
+                    self.append(
+                        Conv2DBNActiv(32 << k, 3, pad=1, activ=_leaky_relu))
+                else:
+                    self.append(
+                        Conv2DBNActiv(32 << (k - 1), 1, activ=_leaky_relu))
 
         # additional links
-        for i, n in enumerate((512, 256, 128)):
-            if i > 0:
-                self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu))
-            self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu))
-            self.append(Conv2DBNActiv(n * 2, 3, pad=1, activ=_leaky_relu))
-            self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu))
-            self.append(Conv2DBNActiv(n * 2, 3, pad=1, activ=_leaky_relu))
-            self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu))
+        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
+        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
+        self.append(Conv2DBNActiv(64, 1, activ=_leaky_relu))
+        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
 
     def __call__(self, x):
-        """Compute feature maps from a batch of images.
-
-        This method extracts feature maps from 3 layers.
+        """Compute a feature map from a batch of images.
 
         Args:
             x (ndarray): An array holding a batch of images.
                 The images should be resized to :math:`416\\times 416`.
 
         Returns:
-            list of Variable:
-            Each variable contains a feature map.
+            Variable:
         """
 
-        ys = []
         h = x
-        hs = []
         for i, link in enumerate(self):
             h = link(h)
-            if i in {33, 39, 45}:
-                ys.append(h)
-            elif i in {14, 23}:
-                hs.append(h)
-            elif i in {34, 40}:
-                h = F.concat((_upsample(h), hs.pop()))
-        return ys
+            if i == 12:
+                tmp = h
+            elif i == 19:
+                h, tmp = tmp, h
+            elif i == 20:
+                h = F.concat((_reorg(h), tmp))
+            if i in {0, 1, 4, 7, 12}:
+                h = _maxpool(h)
+        return h
 
 
-class YOLOv3(YOLOBase):
-    """YOLOv3.
+class YOLOv2(YOLOBase):
+    """YOLOv2.
 
-    This is a model of YOLOv3 [#]_.
-    This model uses :class:`~chainercv.links.model.yolo.Darknet53Extractor` as
+    This is a model of YOLOv2 [#]_.
+    This model uses :class:`~chainercv.links.model.yolo.Darknet19Extractor` as
     its feature extractor.
 
     .. [#] Joseph Redmon, Ali Farhadi.
-       YOLOv3: An Incremental Improvement. arXiv 2018.
+       YOLO9000: Better, Faster, Stronger. CVPR 2017.
 
     Args:
        n_fg_class (int): The number of classes excluding the background.
@@ -117,7 +103,9 @@ class YOLOv3(YOLOBase):
                 PASCAL VOC 2007 and 2012. \
                 The weight file is downloaded and cached automatically. \
                 :obj:`n_fg_class` must be :obj:`20` or :obj:`None`. \
-                These weights were converted from the darknet model. \
+                These weights were converted from the darknet model \
+                provided by `the original implementation \
+                <https://pjreddie.com/darknet/yolov2/>`_. \
                 The conversion code is \
                 `chainercv/examples/yolo/darknet2npz.py`.
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
@@ -130,17 +118,19 @@ class YOLOv3(YOLOBase):
         'voc0712': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/yolo_v3_voc0712_2018_05_01.npz'
+            'download/0.0.6/yolo_v2_voc0712_2018_05_03.npz'
         },
     }
 
     _anchors = (
-        ((90, 116), (198, 156), (326, 373)),
-        ((61, 30), (45, 62), (119, 59)),
-        ((13, 10), (30, 16), (23, 33)))
+        (1.73145, 1.3221),
+        (4.00944, 3.19275),
+        (8.09892, 5.05587),
+        (4.84053, 9.47112),
+        (10.0071, 11.2364))
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        super(YOLOv3, self).__init__()
+        super(YOLOv2, self).__init__()
 
         n_fg_class, path = _check_pretrained_model(
             n_fg_class, pretrained_model, self._models)
@@ -149,37 +139,26 @@ class YOLOv3(YOLOBase):
         self.use_preset('visualize')
 
         with self.init_scope():
-            self.extractor = Darknet53Extractor()
-            self.subnet = chainer.ChainList()
-
-        for i, n in enumerate((512, 256, 128)):
-            self.subnet.append(chainer.Sequential(
-                Conv2DBNActiv(n * 2, 3, pad=1, activ=_leaky_relu),
-                Convolution2D(
-                    len(self._anchors[i]) * (4 + 1 + self.n_fg_class), 1)))
+            self.extractor = Darknet19Extractor()
+            self.subnet = Convolution2D(
+                len(self._anchors) * (4 + 1 + self.n_fg_class), 1)
 
         default_bbox = []
-        step = []
-        for k, grid in enumerate(self.extractor.grids):
-            for v, u in itertools.product(range(grid), repeat=2):
-                for h, w in self._anchors[k]:
-                    default_bbox.append((v, u, h, w))
-                    step.append(self.insize / grid)
+        for v, u in itertools.product(range(self.extractor.grid), repeat=2):
+            for h, w in self._anchors:
+                default_bbox.append((v, u, h, w))
         self._default_bbox = np.array(default_bbox, dtype=np.float32)
-        self._step = np.array(step, dtype=np.float32)
 
         if path:
             chainer.serializers.load_npz(path, self, strict=False)
 
     def to_cpu(self):
-        super(YOLOv3, self).to_cpu()
+        super(YOLOv2, self).to_cpu()
         self._default_bbox = cuda.to_cpu(self._default_bbox)
-        self._step = cuda.to_cpu(self._step)
 
     def to_gpu(self, device=None):
-        super(YOLOv3, self).to_gpu(device)
+        super(YOLOv2, self).to_gpu(device)
         self._default_bbox = cuda.to_gpu(self._default_bbox, device)
-        self._step = cuda.to_gpu(self._step, device)
 
     def __call__(self, x):
         """Compute localization and classification from a batch of images.
@@ -201,24 +180,22 @@ class YOLOv3(YOLOBase):
             :math:`K` is the number of default bounding boxes.
         """
 
-        ys = []
-        for i, h in enumerate(self.extractor(x)):
-            h = self.subnet[i](h)
-            h = F.transpose(h, (0, 2, 3, 1))
-            h = F.reshape(h, (h.shape[0], -1, 4 + 1 + self.n_fg_class))
-            ys.append(h)
-        return F.concat(ys)
+        h = self.subnet(self.extractor(x))
+        h = F.transpose(h, (0, 2, 3, 1))
+        h = F.reshape(h, (h.shape[0], -1, 4 + 1 + self.n_fg_class))
+        return h
 
     def _decode(self, loc, conf):
         raw_bbox = self._default_bbox.copy()
         raw_bbox[:, :2] += 1 / (1 + self.xp.exp(-loc[:, :2]))
-        raw_bbox[:, :2] *= self._step[:, None]
         raw_bbox[:, 2:] *= self.xp.exp(loc[:, 2:])
         raw_bbox[:, :2] -= raw_bbox[:, 2:] / 2
         raw_bbox[:, 2:] += raw_bbox[:, :2]
+        raw_bbox *= self.insize / self.extractor.grid
 
-        conf = 1 / (1 + self.xp.exp(-conf))
-        raw_score = conf[:, 0, None] * conf[:, 1:]
+        raw_score = self.xp.exp(conf[:, 1:])
+        raw_score /= raw_score.sum(axis=1, keepdims=True)
+        raw_score /= 1 + self.xp.exp(-conf[:, 0, None])
 
         bbox = []
         label = []

@@ -7,6 +7,11 @@ YOLO
 Detection Links
 ---------------
 
+YOLOv2
+~~~~~~
+.. autoclass:: YOLOv2
+   :members:
+
 YOLOv3
 ~~~~~~
 .. autoclass:: YOLOv3
@@ -21,8 +26,20 @@ ResidualBlock
    :members:
    :special-members:  __call__
 
+Darknet19Extractor
+~~~~~~~~~~~~~~~~~~
+.. autoclass:: Darknet19Extractor
+   :members:
+   :special-members:  __call__
+
 Darknet53Extractor
 ~~~~~~~~~~~~~~~~~~
 .. autoclass:: Darknet53Extractor
+   :members:
+   :special-members:  __call__
+
+YOLOBase
+~~~~~~~~
+.. autoclass:: YOLOBase
    :members:
    :special-members:  __call__
