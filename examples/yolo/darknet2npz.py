@@ -43,22 +43,31 @@ def reorder_loc(conv, n_fg_class):
         data[:, [1, 0, 3, 2]] = data[:, :4].copy()
 
 
-def load_yolo_v2(file, model):
-    load_link(file, model.extractor)
-    load_link(file, model.subnet)
+def load_and_save_yolo_v2(file, serializer, model):
+    try:
+        for i, link in enumerate(model.extractor):
+            load_link(file, link)
+            link.serialize(serializer['extractor']['{}'.format(i)])
+        load_link(file, model.subnet)
+        reorder_loc(model.subnet, model.n_fg_class)
+        link.serialize(serializer['subnet'])
+    except IOError:
+        pass
 
-    reorder_loc(model.subnet, model.n_fg_class)
 
-
-def load_yolo_v3(file, model):
-    for i, link in enumerate(model.extractor):
-        load_link(file, link)
-        if i in {33, 39, 45}:
-            subnet = model.subnet[(i - 33) // 6]
-            load_link(file, subnet)
-
-    for subnet in model.subnet:
-        reorder_loc(subnet[-1], model.n_fg_class)
+def load_and_save_yolo_v3(file, serializer, model):
+    try:
+        for i, link in enumerate(model.extractor):
+            load_link(file, link)
+            link.serialize(serializer['extractor']['{}'.format(i)])
+            if i in {33, 39, 45}:
+                j = (i - 33) // 6
+                subnet = model.subnet[j]
+                load_link(file, subnet)
+                reorder_loc(subnet[-1], model.n_fg_class)
+                link.serialize(serializer['subnet']['{}'.format(j)])
+    except IOError:
+        pass
 
 
 def main():
@@ -86,12 +95,14 @@ def main():
         assert(major * 10 + minor >= 2 and major < 1000 and minor < 1000)
         np.fromfile(f, dtype=np.int64, count=1)  # seen
 
+        serializer = serializers.DictionarySerializer()
         if args.model == 'yolo_v2':
-            load_yolo_v2(f, model)
+            load_and_save_yolo_v2(f, serializer, model)
         elif args.model == 'yolo_v3':
-            load_yolo_v3(f, model)
+            load_and_save_yolo_v3(f, serializer, model)
 
-    serializers.save_npz(args.output, model)
+    with open(args.output, mode='wb') as f:
+        np.savez_compressed(f, **serializer.target)
 
 
 if __name__ == '__main__':
