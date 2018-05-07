@@ -13,8 +13,11 @@ from chainercv.links import YOLOv3
 def load_param(file, param):
     if isinstance(param, chainer.Variable):
         param = param.array
-    param[:] = np.fromfile(file, dtype=np.float32, count=param.size) \
-                 .reshape(param.shape)
+    data = np.fromfile(file, dtype=np.float32, count=param.size)
+    if data.size == param.size:
+        param[:] = data.reshape(param.shape)
+    else:
+        raise IOError
 
 
 def load_link(file, link):
