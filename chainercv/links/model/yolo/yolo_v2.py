@@ -6,6 +6,7 @@ import numpy as np
 import chainer
 from chainer.backends import cuda
 import chainer.functions as F
+from chainer import initializers
 from chainer.links import Convolution2D
 
 from chainercv.links import Conv2DBNActiv
@@ -39,24 +40,24 @@ class Darknet19Extractor(chainer.ChainList):
     insize = 416
     grid = 13
 
-    def __init__(self):
+    def __init__(self, init={}):
         super(Darknet19Extractor, self).__init__()
 
         # Darknet19
         for k, n_conv in enumerate((1, 1, 3, 3, 5, 5)):
             for i in range(n_conv):
                 if i % 2 == 0:
-                    self.append(
-                        Conv2DBNActiv(32 << k, 3, pad=1, activ=_leaky_relu))
+                    self.append(Conv2DBNActiv(
+                        32 << k, 3, pad=1, activ=_leaky_relu, **init))
                 else:
-                    self.append(
-                        Conv2DBNActiv(32 << (k - 1), 1, activ=_leaky_relu))
+                    self.append(Conv2DBNActiv(
+                        32 << (k - 1), 1, activ=_leaky_relu, **init))
 
         # additional links
-        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
-        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
-        self.append(Conv2DBNActiv(64, 1, activ=_leaky_relu))
-        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
+        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu, **init))
+        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu, **init))
+        self.append(Conv2DBNActiv(64, 1, activ=_leaky_relu, **init))
+        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu, **init))
 
     def __call__(self, x):
         """Compute a feature map from a batch of images.
@@ -149,10 +150,12 @@ class YOLOv2(YOLOBase):
         self.n_fg_class = n_fg_class
         self.use_preset('visualize')
 
+        init = {'initialW': initializers.HeNormal(fan_option='fan_out')}
+
         with self.init_scope():
-            self.extractor = Darknet19Extractor()
+            self.extractor = Darknet19Extractor(init)
             self.subnet = Convolution2D(
-                len(self._anchors) * (4 + 1 + self.n_fg_class), 1)
+                len(self._anchors) * (4 + 1 + self.n_fg_class), 1, **init)
 
         default_bbox = []
         for v, u in itertools.product(range(self.extractor.grid), repeat=2):

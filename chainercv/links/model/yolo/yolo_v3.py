@@ -6,6 +6,7 @@ import numpy as np
 import chainer
 from chainer.backends import cuda
 import chainer.functions as F
+from chainer import initializers
 from chainer.links import Convolution2D
 
 from chainercv.links import Conv2DBNActiv
@@ -46,28 +47,31 @@ class Darknet53Extractor(chainer.ChainList):
     insize = 416
     grids = (13, 26, 52)
 
-    def __init__(self):
+    def __init__(self, init={}):
         super(Darknet53Extractor, self).__init__()
 
         # Darknet53
-        self.append(Conv2DBNActiv(32, 3, pad=1, activ=_leaky_relu))
+        self.append(Conv2DBNActiv(32, 3, pad=1, activ=_leaky_relu, **init))
         for k, n_block in enumerate((1, 2, 8, 8, 4)):
             self.append(Conv2DBNActiv(
-                32 << (k + 1), 3, stride=2, pad=1, activ=_leaky_relu))
+                32 << (k + 1), 3, stride=2, pad=1, activ=_leaky_relu, **init))
             for _ in range(n_block):
                 self.append(ResidualBlock(
-                    Conv2DBNActiv(32 << k, 1, activ=_leaky_relu),
-                    Conv2DBNActiv(32 << (k + 1), 3, pad=1, activ=_leaky_relu)))
+                    Conv2DBNActiv(32 << k, 1, activ=_leaky_relu, **init),
+                    Conv2DBNActiv(
+                        32 << (k + 1), 3, pad=1, activ=_leaky_relu, **init)))
 
         # additional links
         for i, n in enumerate((512, 256, 128)):
             if i > 0:
-                self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu))
-            self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu))
-            self.append(Conv2DBNActiv(n * 2, 3, pad=1, activ=_leaky_relu))
-            self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu))
-            self.append(Conv2DBNActiv(n * 2, 3, pad=1, activ=_leaky_relu))
-            self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu))
+                self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu, **init))
+            self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu, **init))
+            self.append(Conv2DBNActiv(
+                n * 2, 3, pad=1, activ=_leaky_relu, **init))
+            self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu, **init))
+            self.append(Conv2DBNActiv(
+                n * 2, 3, pad=1, activ=_leaky_relu, **init))
+            self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu, **init))
 
     def __call__(self, x):
         """Compute feature maps from a batch of images.
@@ -159,15 +163,18 @@ class YOLOv3(YOLOBase):
         self.n_fg_class = n_fg_class
         self.use_preset('visualize')
 
+        init = {'initialW': initializers.HeNormal(fan_option='fan_out')}
+
         with self.init_scope():
-            self.extractor = Darknet53Extractor()
+            self.extractor = Darknet53Extractor(init)
             self.subnet = chainer.ChainList()
 
         for i, n in enumerate((512, 256, 128)):
             self.subnet.append(chainer.Sequential(
-                Conv2DBNActiv(n * 2, 3, pad=1, activ=_leaky_relu),
+                Conv2DBNActiv(n * 2, 3, pad=1, activ=_leaky_relu, **init),
                 Convolution2D(
-                    len(self._anchors[i]) * (4 + 1 + self.n_fg_class), 1)))
+                    len(self._anchors[i]) * (4 + 1 + self.n_fg_class),
+                    1, **init)))
 
         default_bbox = []
         step = []
