@@ -40,7 +40,7 @@ class Darknet19Extractor(chainer.ChainList):
     grid = 13
 
     def __init__(self):
-        super().__init__()
+        super(Darknet19Extractor, self).__init__()
 
         # Darknet19
         for k, n_conv in enumerate((1, 1, 3, 3, 5, 5)):
@@ -108,6 +108,12 @@ class YOLOv2(YOLOBase):
                 <https://pjreddie.com/darknet/yolov2/>`_. \
                 The conversion code is \
                 `chainercv/examples/yolo/darknet2npz.py`.
+            * :obj:`'imagenet'`: Load weights of Darknet19 \
+                trained on ImageNet. \
+                The weight file is downloaded and cached automatically. \
+                This option initializes weights partially and the rests are \
+                initialized randomly. In this case, :obj:`n_fg_class` \
+                can be set to any number.
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
@@ -119,6 +125,11 @@ class YOLOv2(YOLOBase):
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.6/yolo_v2_voc0712_2018_05_03.npz'
+        },
+        'imagenet': {
+            'n_fg_class': None,
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.6/yolo_darknet19_imagenet_2018_05_07.npz'
         },
     }
 
