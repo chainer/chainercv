@@ -31,7 +31,7 @@ def prepare_pretrained_model(param, pretrained_model, models, default={}):
                 overwritable (i.e., :obj:`param[key] != model['param'][key]` \
                 is accepted).
             * **url** (*string*): Location of the pretrained weight.
-            * **cv2** (*bool*): If :obj:`True`, an error is raised \
+            * **cv2** (*bool*): If :obj:`True`, a warning is raised \
                 if :obj:`cv2` is not installed.
 
     """
