@@ -10,7 +10,7 @@ import chainer.links as L
 from chainercv.links import Conv2DBNActiv
 from chainercv.links.model.resnet.resblock import ResBlock
 from chainercv.links import PickableSequentialChain
-from chainercv.utils import prepare_pretrained_model
+from chainercv import utils
 
 
 # RGB order
@@ -141,12 +141,13 @@ class ResNet(PickableSequentialChain):
     def __init__(self, n_layer,
                  n_class=None,
                  pretrained_model=None,
-                 mean=None, initialW=None, fc_kwargs={}, arch='fb'):
+                 mean=None, initialW=None, fc_kwargs={}, arch='fb',
+                 use_pretrained_class_weights=True):
         if arch == 'fb':
             if pretrained_model == 'imagenet':
                 raise ValueError(
                     'Pretrained weights for Facebook ResNet models '
-                    'are not supported. Please set mode to \'he\'.')
+                    'are not supported. Please set arch to \'he\'.')
             stride_first = False
             conv1_no_bias = True
         elif arch == 'he':
@@ -156,9 +157,13 @@ class ResNet(PickableSequentialChain):
             raise ValueError('arch is expected to be one of [\'he\', \'fb\']')
         blocks = self._blocks[n_layer]
 
-        param, path = prepare_pretrained_model(
+        models = self._models[arch][n_layer].copy()
+        if not use_pretrained_class_weights:
+            for key in models.keys():
+                models[key]['overwritable'] = ('n_class',)
+        param, path = utils.prepare_pretrained_model(
             {'n_class': n_class, 'mean': mean},
-            pretrained_model, self._models[arch][n_layer],
+            pretrained_model, models,
             {'n_class': 1000, 'mean': _imagenet_mean})
         self.mean = param['mean']
 
@@ -187,7 +192,12 @@ class ResNet(PickableSequentialChain):
             self.prob = F.softmax
 
         if path:
-            chainer.serializers.load_npz(path, self)
+            if use_pretrained_class_weights:
+                chainer.serializers.load_npz(path, self)
+            else:
+                utils.link.load_npz_with_ignore_names(
+                    path, self,
+                    ignore_names=['fc6/W', 'fc6/b'])
 
 
 def _global_average_pooling_2d(x):
@@ -209,10 +219,11 @@ class ResNet50(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, fc_kwargs={}, arch='fb'):
+                 mean=None, initialW=None, fc_kwargs={}, arch='fb',
+                 use_pretrained_class_weights=True):
         super(ResNet50, self).__init__(
             50, n_class, pretrained_model,
-            mean, initialW, fc_kwargs, arch)
+            mean, initialW, fc_kwargs, arch, use_pretrained_class_weights)
 
 
 class ResNet101(ResNet):
@@ -227,10 +238,11 @@ class ResNet101(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, fc_kwargs={}, arch='fb'):
+                 mean=None, initialW=None, fc_kwargs={}, arch='fb',
+                 use_pretrained_class_weights=True):
         super(ResNet101, self).__init__(
             101, n_class, pretrained_model,
-            mean, initialW, fc_kwargs, arch)
+            mean, initialW, fc_kwargs, arch, use_pretrained_class_weights)
 
 
 class ResNet152(ResNet):
@@ -245,7 +257,8 @@ class ResNet152(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, fc_kwargs={}, arch='fb'):
+                 mean=None, initialW=None, fc_kwargs={}, arch='fb',
+                 use_pretrained_class_weights=True):
         super(ResNet152, self).__init__(
             152, n_class, pretrained_model,
-            mean, initialW, fc_kwargs, arch)
+            mean, initialW, fc_kwargs, arch, use_pretrained_class_weights)

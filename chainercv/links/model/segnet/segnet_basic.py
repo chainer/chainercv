@@ -7,7 +7,7 @@ import chainer.functions as F
 import chainer.links as L
 
 from chainercv.transforms import resize
-from chainercv.utils import prepare_pretrained_model
+from chainercv import utils
 
 
 def _pool_without_cudnn(p, x):
@@ -50,6 +50,10 @@ class SegNetBasic(chainer.Chain):
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
         initialW (callable): Initializer for convolution layers.
+        use_pretrained_class_weights (bool): If :obj:`False`,
+            layers whose shapes depend on the number of classes
+            do not load values from the pretrained weights.
+            The default value is :obj:`True`.
 
     """
 
@@ -61,9 +65,15 @@ class SegNetBasic(chainer.Chain):
         }
     }
 
-    def __init__(self, n_class=None, pretrained_model=None, initialW=None):
-        param, path = prepare_pretrained_model(
-            {'n_class': n_class}, pretrained_model, self._models)
+    def __init__(self, n_class=None, pretrained_model=None, initialW=None,
+                 use_pretrained_class_weights=True):
+        models = self._models.copy()
+        if not use_pretrained_class_weights:
+            for key in models.keys():
+                models[key]['overwritable'] = ('n_class',)
+        param, path = utils.prepare_pretrained_model(
+            {'n_class': n_class}, pretrained_model, models)
+        self.n_class = param['n_class']
 
         if initialW is None:
             initialW = chainer.initializers.HeNormal()
@@ -95,12 +105,15 @@ class SegNetBasic(chainer.Chain):
                 64, 64, 7, 1, 3, nobias=True, initialW=initialW)
             self.conv_decode1_bn = L.BatchNormalization(64, initial_beta=0.001)
             self.conv_classifier = L.Convolution2D(
-                64, n_class, 1, 1, 0, initialW=initialW)
-
-        self.n_class = param['n_class']
+                64, self.n_class, 1, 1, 0, initialW=initialW)
 
         if path:
-            chainer.serializers.load_npz(path, self)
+            if use_pretrained_class_weights:
+                chainer.serializers.load_npz(path, self)
+            else:
+                utils.link.load_npz_with_ignore_names(
+                    path, self,
+                    ignore_names=['conv_classifier/W', 'conv_classifier/b'])
 
     def _upsampling_2d(self, x, pool):
         if x.shape != pool.indexes.shape:

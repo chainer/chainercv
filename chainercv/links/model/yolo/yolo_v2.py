@@ -11,7 +11,6 @@ from chainer.links import Convolution2D
 from chainercv.links import Conv2DBNActiv
 from chainercv import utils
 
-from chainercv.links.model.ssd.ssd_vgg16 import _check_pretrained_model
 from chainercv.links.model.yolo.yolo_base import YOLOBase
 
 
@@ -116,9 +115,10 @@ class YOLOv2(YOLOBase):
 
     _models = {
         'voc0712': {
-            'n_fg_class': 20,
+            'param': {'n_fg_class': 20},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/yolo_v2_voc0712_2018_05_03.npz'
+            'download/0.0.6/yolo_v2_voc0712_2018_05_03.npz',
+            'cv2': True
         },
     }
 
@@ -129,13 +129,18 @@ class YOLOv2(YOLOBase):
         (4.84053, 9.47112),
         (10.0071, 11.2364))
 
-    def __init__(self, n_fg_class=None, pretrained_model=None):
+    def __init__(self, n_fg_class=None, pretrained_model=None,
+                 use_pretrained_class_weights=True):
         super(YOLOv2, self).__init__()
 
-        n_fg_class, path = _check_pretrained_model(
-            n_fg_class, pretrained_model, self._models)
+        models = self._models.copy()
+        if not use_pretrained_class_weights:
+            for key in models.keys():
+                models[key]['overwritable'] = ('n_fg_class',)
+        param, path = utils.prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, models)
 
-        self.n_fg_class = n_fg_class
+        self.n_fg_class = param['n_fg_class']
         self.use_preset('visualize')
 
         with self.init_scope():
@@ -150,7 +155,12 @@ class YOLOv2(YOLOBase):
         self._default_bbox = np.array(default_bbox, dtype=np.float32)
 
         if path:
-            chainer.serializers.load_npz(path, self, strict=False)
+            if use_pretrained_class_weights:
+                chainer.serializers.load_npz(path, self, strict=False)
+            else:
+                utils.link.load_npz_with_ignore_names(
+                    path, self, strict=False,
+                    ignore_names=['subnet/W', 'subnet/b'])
 
     def to_cpu(self):
         super(YOLOv2, self).to_cpu()

@@ -10,7 +10,7 @@ import chainer.links as L
 from chainercv.links.model.ssd import Multibox
 from chainercv.links.model.ssd import Normalize
 from chainercv.links.model.ssd import SSD
-from chainercv.utils import prepare_pretrained_model
+from chainercv import utils
 
 
 # RGB, (C, 1, 1) format
@@ -259,9 +259,14 @@ class SSD300(SSD):
         },
     }
 
-    def __init__(self, n_fg_class=None, pretrained_model=None):
-        param, path = prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
+    def __init__(self, n_fg_class=None, pretrained_model=None,
+                 use_pretrained_class_weights=True):
+        models = self._models.copy()
+        if not use_pretrained_class_weights:
+            for key in models.keys():
+                models[key]['overwritable'] = ('n_fg_class',)
+        param, path = utils.prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, models)
 
         super(SSD300, self).__init__(
             extractor=VGG16Extractor300(),
@@ -273,7 +278,20 @@ class SSD300(SSD):
             mean=_imagenet_mean)
 
         if path:
-            chainer.serializers.load_npz(path, self, strict=False)
+            if use_pretrained_class_weights:
+                chainer.serializers.load_npz(path, self, strict=False)
+            else:
+                class_dependent_weight_names = [
+                    'multibox/loc/{}/W'.format(i) for i in range(6)]
+                class_dependent_weight_names += [
+                    'multibox/loc/{}/b'.format(i) for i in range(6)]
+                class_dependent_weight_names += [
+                    'multibox/conf/{}/W'.format(i) for i in range(6)]
+                class_dependent_weight_names += [
+                    'multibox/conf/{}/b'.format(i) for i in range(6)]
+                utils.link.load_npz_with_ignore_names(
+                    path, self, strict=False,
+                    ignore_names=class_dependent_weight_names)
 
 
 class SSD512(SSD):
@@ -326,9 +344,14 @@ class SSD512(SSD):
         },
     }
 
-    def __init__(self, n_fg_class=None, pretrained_model=None):
-        param, path = prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
+    def __init__(self, n_fg_class=None, pretrained_model=None,
+                 use_pretrained_class_weights=True):
+        models = self._models.copy()
+        if not use_pretrained_class_weights:
+            for key in models.keys():
+                models[key]['overwritable'] = ('n_fg_class',)
+        param, path = utils.prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, models)
 
         super(SSD512, self).__init__(
             extractor=VGG16Extractor512(),
@@ -341,4 +364,17 @@ class SSD512(SSD):
             mean=_imagenet_mean)
 
         if path:
-            chainer.serializers.load_npz(path, self, strict=False)
+            if use_pretrained_class_weights:
+                chainer.serializers.load_npz(path, self, strict=False)
+            else:
+                class_dependent_weight_names = [
+                    'multibox/loc/{}/W'.format(i) for i in range(7)]
+                class_dependent_weight_names += [
+                    'multibox/loc/{}/b'.format(i) for i in range(7)]
+                class_dependent_weight_names += [
+                    'multibox/conf/{}/W'.format(i) for i in range(7)]
+                class_dependent_weight_names += [
+                    'multibox/conf/{}/b'.format(i) for i in range(7)]
+                utils.link.load_npz_with_ignore_names(
+                    path, self, strict=False,
+                    ignore_names=class_dependent_weight_names)

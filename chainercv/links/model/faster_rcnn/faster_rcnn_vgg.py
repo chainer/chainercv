@@ -8,7 +8,7 @@ from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNN
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 from chainercv.links.model.vgg.vgg16 import VGG16
-from chainercv.utils import prepare_pretrained_model
+from chainercv import utils
 
 
 class FasterRCNNVGG16(FasterRCNN):
@@ -93,10 +93,15 @@ class FasterRCNNVGG16(FasterRCNN):
                  ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
                  vgg_initialW=None, rpn_initialW=None,
                  loc_initialW=None, score_initialW=None,
-                 proposal_creator_params={}
+                 proposal_creator_params={},
+                 use_pretrained_class_weights=True
                  ):
-        param, path = prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
+        models = self._models.copy()
+        if not use_pretrained_class_weights:
+            for key in models.keys():
+                models[key]['overwritable'] = ('n_fg_class',)
+        param, path = utils.prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, models)
 
         if loc_initialW is None:
             loc_initialW = chainer.initializers.Normal(0.001)
@@ -140,7 +145,13 @@ class FasterRCNNVGG16(FasterRCNN):
         if path == 'imagenet':
             self._copy_imagenet_pretrained_vgg16()
         elif path:
-            chainer.serializers.load_npz(path, self)
+            if use_pretrained_class_weights:
+                chainer.serializers.load_npz(path, self)
+            else:
+                utils.link.load_npz_with_ignore_names(
+                    path, self, strict=False,
+                    ignore_names=['head/cls_loc/W', 'head/cls_loc/b',
+                                  'head/score/W', 'head/score/b'])
 
     def _copy_imagenet_pretrained_vgg16(self):
         pretrained_model = VGG16(pretrained_model='imagenet')
