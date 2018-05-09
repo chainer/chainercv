@@ -5,7 +5,6 @@ import chainer
 from chainer import testing
 from chainercv.testing import attr
 
-from chainercv.links.model.faster_rcnn import FasterRCNN
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 from chainercv.utils import generate_random_bbox
@@ -120,23 +119,24 @@ class TestFasterRCNNVGG16Pretrained(unittest.TestCase):
     @attr.slow
     @attr.disk
     def test_pretrained_voc(self):
-        link = FasterRCNNVGG16(pretrained_model='voc0712')
-        self.assertIsInstance(link, FasterRCNN)
+        FasterRCNNVGG16(pretrained_model='voc0712')
 
     @attr.slow
     @attr.disk
     def test_pretrained_n_fg_class(self):
-        link = FasterRCNNVGG16(n_fg_class=20, pretrained_model='voc0712')
-        self.assertIsInstance(link, FasterRCNNVGG16)
+        FasterRCNNVGG16(n_fg_class=20, pretrained_model='voc0712')
 
     @attr.slow
     @attr.disk
     def test_pretrained_imagenet(self):
-        link = FasterRCNNVGG16(n_fg_class=20, pretrained_model='imagenet')
-        self.assertIsInstance(link, FasterRCNN)
+        FasterRCNNVGG16(n_fg_class=20, pretrained_model='imagenet')
 
-    @attr.slow
     @attr.disk
+    @attr.slow
+    def test_random_class_weights(self):
+        FasterRCNNVGG16(n_fg_class=80, pretrained_model='voc0712',
+                        use_pretrained_class_weights=False)
+
     def test_pretrained_wrong_n_fg_class(self):
         with self.assertRaises(ValueError):
             FasterRCNNVGG16(n_fg_class=10, pretrained_model='voc0712')

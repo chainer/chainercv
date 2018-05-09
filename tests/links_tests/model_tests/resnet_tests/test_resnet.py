@@ -3,12 +3,12 @@ import unittest
 import numpy as np
 
 from chainer import testing
-from chainer.testing import attr
 from chainer import Variable
 
 from chainercv.links import ResNet101
 from chainercv.links import ResNet152
 from chainercv.links import ResNet50
+from chainercv.testing import attr
 
 
 @testing.parameterize(*(
@@ -60,6 +60,34 @@ class TestResNetCall(unittest.TestCase):
     def test_call_gpu(self):
         self.link.to_gpu()
         self.check_call()
+
+
+@testing.parameterize(
+    {'model_class': ResNet50},
+    {'model_class': ResNet101},
+    {'model_class': ResNet152},
+)
+class TestResNetPretrained(unittest.TestCase):
+
+    @attr.disk
+    @attr.slow
+    def test_pretrained(self):
+        self.model_class(pretrained_model='imagenet', arch='he')
+
+    @attr.disk
+    @attr.slow
+    def test_pretrained_n_class(self):
+        self.model_class(n_class=1000, pretrained_model='imagenet', arch='he')
+
+    @attr.disk
+    @attr.slow
+    def test_random_class_weights(self):
+        self.model_class(n_class=500, pretrained_model='imagenet', arch='he',
+                         use_pretrained_class_weights=False)
+
+    def test_pretrained_wrong_n_fg_class(self):
+        with self.assertRaises(ValueError):
+            self.model_class(n_class=500, pretrained_model='imagenet')
 
 
 testing.run_module(__name__, __file__)
