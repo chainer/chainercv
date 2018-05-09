@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import chainer
 
 from chainercv.datasets import voc_bbox_label_names
+from chainercv.links import YOLOv2
 from chainercv.links import YOLOv3
 from chainercv import utils
 from chainercv.visualizations import vis_bbox
@@ -11,14 +12,22 @@ from chainercv.visualizations import vis_bbox
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--model', choices=('yolo_v2', 'yolo_v3'),
+        default='yolo_v2')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--pretrained_model', default='voc0712')
     parser.add_argument('image')
     args = parser.parse_args()
 
-    model = YOLOv3(
-        n_fg_class=len(voc_bbox_label_names),
-        pretrained_model=args.pretrained_model)
+    if args.model == 'yolo_v2':
+        model = YOLOv2(
+            n_fg_class=len(voc_bbox_label_names),
+            pretrained_model=args.pretrained_model)
+    elif args.model == 'yolo_v3':
+        model = YOLOv3(
+            n_fg_class=len(voc_bbox_label_names),
+            pretrained_model=args.pretrained_model)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
