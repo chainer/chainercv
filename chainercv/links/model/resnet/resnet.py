@@ -92,6 +92,10 @@ class ResNet(PickableSequentialChain):
             <https://arxiv.org/pdf/1512.03385.pdf>`_.
             This option changes where to apply strided convolution.
             The default value is :obj:`fb`.
+        use_pretrained_class_weights (bool): If :obj:`False`,
+            layers whose shapes depend on the number of classes
+            do not load values from the pretrained weights.
+            The default value is :obj:`True`.
 
     """
 

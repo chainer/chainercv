@@ -242,6 +242,10 @@ class SSD300(SSD):
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
+        use_pretrained_class_weights (bool): If :obj:`False`,
+            layers whose shapes depend on the number of classes
+            do not load values from the pretrained weights.
+            The default value is :obj:`True`.
 
     """
 
@@ -327,6 +331,10 @@ class SSD512(SSD):
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
+        use_pretrained_class_weights (bool): If :obj:`False`,
+            layers whose shapes depend on the number of classes
+            do not load values from the pretrained weights.
+            The default value is :obj:`True`.
 
     """
 

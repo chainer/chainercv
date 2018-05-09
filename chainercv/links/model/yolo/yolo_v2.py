@@ -93,10 +93,10 @@ class YOLOv2(YOLOBase):
        YOLO9000: Better, Faster, Stronger. CVPR 2017.
 
     Args:
-       n_fg_class (int): The number of classes excluding the background.
-       pretrained_model (str): The weight file to be loaded.
-           This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
-           The default value is :obj:`None`.
+        n_fg_class (int): The number of classes excluding the background.
+        pretrained_model (str): The weight file to be loaded.
+            This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
+            The default value is :obj:`None`.
 
             * :obj:`'voc0712'`: Load weights trained on trainval split of \
                 PASCAL VOC 2007 and 2012. \
@@ -110,6 +110,10 @@ class YOLOv2(YOLOBase):
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
+        use_pretrained_class_weights (bool): If :obj:`False`,
+            layers whose shapes depend on the number of classes
+            do not load values from the pretrained weights.
+            The default value is :obj:`True`.
 
     """
 

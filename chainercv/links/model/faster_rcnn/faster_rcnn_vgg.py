@@ -66,6 +66,10 @@ class FasterRCNNVGG16(FasterRCNN):
         score_initialW (callable): Initializer for the score head.
         proposal_creator_params (dict): Key valued paramters for
             :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
+        use_pretrained_class_weights (bool): If :obj:`False`,
+            layers whose shapes depend on the number of classes
+            do not load values from the pretrained weights.
+            The default value is :obj:`True`.
 
     """
 
