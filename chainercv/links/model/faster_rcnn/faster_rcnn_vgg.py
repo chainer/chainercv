@@ -66,10 +66,6 @@ class FasterRCNNVGG16(FasterRCNN):
         score_initialW (callable): Initializer for the score head.
         proposal_creator_params (dict): Key valued paramters for
             :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
-        use_pretrained_class_weights (bool): If :obj:`False`,
-            layers whose shapes depend on the number of classes
-            do not load values from the pretrained weights.
-            The default value is :obj:`True`.
 
     """
 
@@ -97,15 +93,9 @@ class FasterRCNNVGG16(FasterRCNN):
                  ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
                  vgg_initialW=None, rpn_initialW=None,
                  loc_initialW=None, score_initialW=None,
-                 proposal_creator_params={},
-                 use_pretrained_class_weights=True
-                 ):
-        models = self._models.copy()
-        if not use_pretrained_class_weights:
-            for key in models.keys():
-                models[key]['overwritable'] = ('n_fg_class',)
+                 proposal_creator_params={}):
         param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, models)
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         if loc_initialW is None:
             loc_initialW = chainer.initializers.Normal(0.001)
@@ -149,13 +139,7 @@ class FasterRCNNVGG16(FasterRCNN):
         if path == 'imagenet':
             self._copy_imagenet_pretrained_vgg16()
         elif path:
-            if use_pretrained_class_weights:
-                chainer.serializers.load_npz(path, self)
-            else:
-                utils.link.load_npz_with_ignore_names(
-                    path, self, strict=False,
-                    ignore_names=['head/cls_loc/W', 'head/cls_loc/b',
-                                  'head/score/W', 'head/score/b'])
+            chainer.serializers.load_npz(path, self)
 
     def _copy_imagenet_pretrained_vgg16(self):
         pretrained_model = VGG16(pretrained_model='imagenet')

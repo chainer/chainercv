@@ -70,16 +70,6 @@ class TestSSDVGG16Pretrained(unittest.TestCase):
         elif self.insize == 512:
             SSD512(n_fg_class=20, pretrained_model='voc0712')
 
-    @attr.disk
-    @attr.slow
-    def test_random_class_weights(self):
-        if self.insize == 300:
-            SSD300(n_fg_class=80, pretrained_model='voc0712',
-                   use_pretrained_class_weights=False)
-        elif self.insize == 512:
-            SSD512(n_fg_class=80, pretrained_model='voc0712',
-                   use_pretrained_class_weights=False)
-
     def test_pretrained_wrong_n_fg_class(self):
         with self.assertRaises(ValueError):
             if self.insize == 300:

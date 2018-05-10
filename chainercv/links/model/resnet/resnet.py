@@ -92,10 +92,6 @@ class ResNet(PickableSequentialChain):
             <https://arxiv.org/pdf/1512.03385.pdf>`_.
             This option changes where to apply strided convolution.
             The default value is :obj:`fb`.
-        use_pretrained_class_weights (bool): If :obj:`False`,
-            layers whose shapes depend on the number of classes
-            do not load values from the pretrained weights.
-            The default value is :obj:`True`.
 
     """
 
@@ -145,8 +141,7 @@ class ResNet(PickableSequentialChain):
     def __init__(self, n_layer,
                  n_class=None,
                  pretrained_model=None,
-                 mean=None, initialW=None, fc_kwargs={}, arch='fb',
-                 use_pretrained_class_weights=True):
+                 mean=None, initialW=None, fc_kwargs={}, arch='fb'):
         if arch == 'fb':
             if pretrained_model == 'imagenet':
                 raise ValueError(
@@ -161,13 +156,9 @@ class ResNet(PickableSequentialChain):
             raise ValueError('arch is expected to be one of [\'he\', \'fb\']')
         blocks = self._blocks[n_layer]
 
-        models = self._models[arch][n_layer].copy()
-        if not use_pretrained_class_weights:
-            for key in models.keys():
-                models[key]['overwritable'] = ('n_class',)
         param, path = utils.prepare_pretrained_model(
             {'n_class': n_class, 'mean': mean},
-            pretrained_model, models,
+            pretrained_model, self._models[arch][n_layer],
             {'n_class': 1000, 'mean': _imagenet_mean})
         self.mean = param['mean']
 
@@ -196,12 +187,7 @@ class ResNet(PickableSequentialChain):
             self.prob = F.softmax
 
         if path:
-            if use_pretrained_class_weights:
-                chainer.serializers.load_npz(path, self)
-            else:
-                utils.link.load_npz_with_ignore_names(
-                    path, self,
-                    ignore_names=['fc6/W', 'fc6/b'])
+            chainer.serializers.load_npz(path, self)
 
 
 def _global_average_pooling_2d(x):

@@ -52,12 +52,6 @@ class TestYOLOv2Pretrained(unittest.TestCase):
     def test_pretrained_n_fg_class(self):
         YOLOv2(n_fg_class=20, pretrained_model='voc0712')
 
-    @attr.disk
-    @attr.slow
-    def test_random_class_weights(self):
-        YOLOv2(n_fg_class=80, pretrained_model='voc0712',
-               use_pretrained_class_weights=False)
-
     def test_pretrained_wrong_n_fg_class(self):
         with self.assertRaises(ValueError):
             YOLOv2(n_fg_class=10, pretrained_model='voc0712')

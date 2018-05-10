@@ -242,10 +242,6 @@ class SSD300(SSD):
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
-        use_pretrained_class_weights (bool): If :obj:`False`,
-            layers whose shapes depend on the number of classes
-            do not load values from the pretrained weights.
-            The default value is :obj:`True`.
 
     """
 
@@ -263,14 +259,9 @@ class SSD300(SSD):
         },
     }
 
-    def __init__(self, n_fg_class=None, pretrained_model=None,
-                 use_pretrained_class_weights=True):
-        models = self._models.copy()
-        if not use_pretrained_class_weights:
-            for key in models.keys():
-                models[key]['overwritable'] = ('n_fg_class',)
+    def __init__(self, n_fg_class=None, pretrained_model=None):
         param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, models)
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         super(SSD300, self).__init__(
             extractor=VGG16Extractor300(),
@@ -282,20 +273,7 @@ class SSD300(SSD):
             mean=_imagenet_mean)
 
         if path:
-            if use_pretrained_class_weights:
-                chainer.serializers.load_npz(path, self, strict=False)
-            else:
-                class_dependent_weight_names = [
-                    'multibox/loc/{}/W'.format(i) for i in range(6)]
-                class_dependent_weight_names += [
-                    'multibox/loc/{}/b'.format(i) for i in range(6)]
-                class_dependent_weight_names += [
-                    'multibox/conf/{}/W'.format(i) for i in range(6)]
-                class_dependent_weight_names += [
-                    'multibox/conf/{}/b'.format(i) for i in range(6)]
-                utils.link.load_npz_with_ignore_names(
-                    path, self, strict=False,
-                    ignore_names=class_dependent_weight_names)
+            chainer.serializers.load_npz(path, self, strict=False)
 
 
 class SSD512(SSD):
@@ -331,10 +309,6 @@ class SSD512(SSD):
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
-        use_pretrained_class_weights (bool): If :obj:`False`,
-            layers whose shapes depend on the number of classes
-            do not load values from the pretrained weights.
-            The default value is :obj:`True`.
 
     """
 
@@ -354,12 +328,8 @@ class SSD512(SSD):
 
     def __init__(self, n_fg_class=None, pretrained_model=None,
                  use_pretrained_class_weights=True):
-        models = self._models.copy()
-        if not use_pretrained_class_weights:
-            for key in models.keys():
-                models[key]['overwritable'] = ('n_fg_class',)
         param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, models)
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         super(SSD512, self).__init__(
             extractor=VGG16Extractor512(),
@@ -372,17 +342,4 @@ class SSD512(SSD):
             mean=_imagenet_mean)
 
         if path:
-            if use_pretrained_class_weights:
-                chainer.serializers.load_npz(path, self, strict=False)
-            else:
-                class_dependent_weight_names = [
-                    'multibox/loc/{}/W'.format(i) for i in range(7)]
-                class_dependent_weight_names += [
-                    'multibox/loc/{}/b'.format(i) for i in range(7)]
-                class_dependent_weight_names += [
-                    'multibox/conf/{}/W'.format(i) for i in range(7)]
-                class_dependent_weight_names += [
-                    'multibox/conf/{}/b'.format(i) for i in range(7)]
-                utils.link.load_npz_with_ignore_names(
-                    path, self, strict=False,
-                    ignore_names=class_dependent_weight_names)
+            chainer.serializers.load_npz(path, self, strict=False)

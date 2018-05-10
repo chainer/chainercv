@@ -93,12 +93,6 @@ class TestFCISResNet101Pretrained(unittest.TestCase):
     def test_pretrained_n_fg_class(self):
         FCISResNet101(n_fg_class=20, pretrained_model='sbd')
 
-    @attr.disk
-    @attr.slow
-    def test_random_class_weights(self):
-        FCISResNet101(n_fg_class=40, pretrained_model='sbd',
-                      use_pretrained_class_weights=False)
-
     @attr.slow
     @attr.disk
     def test_pretrained_wrong_n_fg_class(self):

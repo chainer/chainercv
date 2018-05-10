@@ -15,7 +15,7 @@ from chainercv.testing import attr
     {'pick': 'prob', 'shapes': (1, 200), 'n_class': 200},
     {'pick': 'pool5', 'shapes': (1, 512, 7, 7), 'n_class': None},
     {'pick': ['conv5_3', 'conv4_2'],
-     'shapes': ((1, 512, 14, 14), (1, 512, 28, 28)), 'n_class': None},
+     'shapes': ((1, 512, 14, 14), (1, 512, 28, 28)), 'n_class': None}
 )
 class TestVGG16Call(unittest.TestCase):
 
@@ -61,12 +61,6 @@ class TestVGG16Pretrained(unittest.TestCase):
     @attr.slow
     def test_pretrained_n_class(self):
         VGG16(n_class=1000, pretrained_model='imagenet')
-
-    @attr.disk
-    @attr.slow
-    def test_random_class_weights(self):
-        VGG16(n_class=100, pretrained_model='imagenet',
-              use_pretrained_class_weights=False)
 
     @attr.disk
     @attr.slow

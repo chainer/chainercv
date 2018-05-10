@@ -84,10 +84,6 @@ class VGG16(PickableSequentialChain):
             is used.
         initialW (callable): Initializer for the weights.
         initial_bias (callable): Initializer for the biases.
-        use_pretrained_class_weights (bool): If :obj:`False`,
-            layers whose shapes depend on the number of classes
-            do not load values from the pretrained weights.
-            The default value is :obj:`True`.
 
     """
 
@@ -102,12 +98,7 @@ class VGG16(PickableSequentialChain):
 
     def __init__(self,
                  n_class=None, pretrained_model=None, mean=None,
-                 initialW=None, initial_bias=None,
-                 use_pretrained_class_weights=True):
-        models = self._models.copy()
-        if not use_pretrained_class_weights:
-            for key in models.keys():
-                models[key]['overwritable'] += ('n_class',)
+                 initialW=None, initial_bias=None):
         param, path = utils.prepare_pretrained_model(
             {'n_class': n_class, 'mean': mean},
             pretrained_model, self._models,
@@ -153,12 +144,7 @@ class VGG16(PickableSequentialChain):
             self.prob = softmax
 
         if path:
-            if use_pretrained_class_weights:
-                chainer.serializers.load_npz(path, self)
-            else:
-                utils.link.load_npz_with_ignore_names(
-                    path, self, strict=False,
-                    ignore_names=['fc8/W', 'fc8/b'])
+            chainer.serializers.load_npz(path, self)
 
 
 def _max_pooling_2d(x):

@@ -79,12 +79,6 @@ class TestResNetPretrained(unittest.TestCase):
     def test_pretrained_n_class(self):
         self.model_class(n_class=1000, pretrained_model='imagenet', arch='he')
 
-    @attr.disk
-    @attr.slow
-    def test_random_class_weights(self):
-        self.model_class(n_class=500, pretrained_model='imagenet', arch='he',
-                         use_pretrained_class_weights=False)
-
     def test_pretrained_wrong_n_fg_class(self):
         with self.assertRaises(ValueError):
             self.model_class(n_class=500, pretrained_model='imagenet')

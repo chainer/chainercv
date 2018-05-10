@@ -110,10 +110,6 @@ class YOLOv2(YOLOBase):
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
-        use_pretrained_class_weights (bool): If :obj:`False`,
-            layers whose shapes depend on the number of classes
-            do not load values from the pretrained weights.
-            The default value is :obj:`True`.
 
     """
 
@@ -133,16 +129,11 @@ class YOLOv2(YOLOBase):
         (4.84053, 9.47112),
         (10.0071, 11.2364))
 
-    def __init__(self, n_fg_class=None, pretrained_model=None,
-                 use_pretrained_class_weights=True):
+    def __init__(self, n_fg_class=None, pretrained_model=None):
         super(YOLOv2, self).__init__()
 
-        models = self._models.copy()
-        if not use_pretrained_class_weights:
-            for key in models.keys():
-                models[key]['overwritable'] = ('n_fg_class',)
         param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, models)
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         self.n_fg_class = param['n_fg_class']
         self.use_preset('visualize')
@@ -159,12 +150,7 @@ class YOLOv2(YOLOBase):
         self._default_bbox = np.array(default_bbox, dtype=np.float32)
 
         if path:
-            if use_pretrained_class_weights:
-                chainer.serializers.load_npz(path, self, strict=False)
-            else:
-                utils.link.load_npz_with_ignore_names(
-                    path, self, strict=False,
-                    ignore_names=['subnet/W', 'subnet/b'])
+            chainer.serializers.load_npz(path, self, strict=False)
 
     def to_cpu(self):
         super(YOLOv2, self).to_cpu()

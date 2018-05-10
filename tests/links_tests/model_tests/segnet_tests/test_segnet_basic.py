@@ -62,12 +62,6 @@ class TestSegNetPretrained(unittest.TestCase):
     def test_pretrained_n_class(self):
         SegNetBasic(n_class=11, pretrained_model='camvid')
 
-    @attr.disk
-    @attr.slow
-    def test_random_class_weights(self):
-        SegNetBasic(n_class=20, pretrained_model='camvid',
-                    use_pretrained_class_weights=False)
-
     def test_pretrained_wrong_n_fg_class(self):
         with self.assertRaises(ValueError):
             SegNetBasic(n_class=20, pretrained_model='camvid')

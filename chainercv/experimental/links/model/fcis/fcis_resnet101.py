@@ -72,10 +72,6 @@ class FCISResNet101(FCIS):
         head_initialW (callable): Initializer for the head layers.
         proposal_creator_params (dict): Key valued paramters for
             :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
-        use_pretrained_class_weights (bool): If :obj:`False`,
-            layers whose shapes depend on the number of classes
-            do not load values from the pretrained weights.
-            The default value is :obj:`True`.
 
     """
 
@@ -107,14 +103,9 @@ class FCISResNet101(FCIS):
                 'n_test_post_nms': 300,
                 'force_cpu_nms': False,
                 'min_size': 16
-            },
-            use_pretrained_class_weights=True):
-        models = self._models.copy()
-        if not use_pretrained_class_weights:
-            for key in models.keys():
-                models[key]['overwritable'] = ('n_fg_class',)
+            }):
         param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, models)
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         if rpn_initialW is None:
             rpn_initialW = chainer.initializers.Normal(0.01)
@@ -147,12 +138,7 @@ class FCISResNet101(FCIS):
             loc_normalize_mean, loc_normalize_std)
 
         if path:
-            if use_pretrained_class_weights:
-                chainer.serializers.load_npz(path, self)
-            else:
-                utils.link.load_npz_with_ignore_names(
-                    path, self,
-                    ignore_names=['head/cls_seg/W', 'head/cls_seg/b'])
+            chainer.serializers.load_npz(path, self)
 
 
 class ResNet101Extractor(chainer.Chain):

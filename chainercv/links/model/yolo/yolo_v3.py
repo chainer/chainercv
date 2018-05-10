@@ -122,10 +122,6 @@ class YOLOv3(YOLOBase):
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
-        use_pretrained_class_weights (bool): If :obj:`False`,
-            layers whose shapes depend on the number of classes
-            do not load values from the pretrained weights.
-            The default value is :obj:`True`.
 
     """
 
@@ -143,16 +139,11 @@ class YOLOv3(YOLOBase):
         ((61, 30), (45, 62), (119, 59)),
         ((13, 10), (30, 16), (23, 33)))
 
-    def __init__(self, n_fg_class=None, pretrained_model=None,
-                 use_pretrained_class_weights=True):
+    def __init__(self, n_fg_class=None, pretrained_model=None):
         super(YOLOv3, self).__init__()
 
-        models = self._models.copy()
-        if not use_pretrained_class_weights:
-            for key in models.keys():
-                models[key]['overwritable'] = ('n_fg_class',)
         param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, models)
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         self.n_fg_class = param['n_fg_class']
         self.use_preset('visualize')
@@ -178,16 +169,7 @@ class YOLOv3(YOLOBase):
         self._step = np.array(step, dtype=np.float32)
 
         if path:
-            if use_pretrained_class_weights:
-                chainer.serializers.load_npz(path, self, strict=False)
-            else:
-                class_dependent_weight_names = [
-                    'subnet/0/1/b', 'subnet/0/1/W',
-                    'subnet/1/1/b', 'subnet/1/1/W',
-                    'subnet/2/1/b', 'subnet/2/1/W']
-                utils.link.load_npz_with_ignore_names(
-                    path, self, strict=False,
-                    ignore_names=class_dependent_weight_names)
+            chainer.serializers.load_npz(path, self, strict=False)
 
     def to_cpu(self):
         super(YOLOv3, self).to_cpu()

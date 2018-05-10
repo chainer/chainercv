@@ -131,12 +131,6 @@ class TestFasterRCNNVGG16Pretrained(unittest.TestCase):
     def test_pretrained_imagenet(self):
         FasterRCNNVGG16(n_fg_class=20, pretrained_model='imagenet')
 
-    @attr.disk
-    @attr.slow
-    def test_random_class_weights(self):
-        FasterRCNNVGG16(n_fg_class=80, pretrained_model='voc0712',
-                        use_pretrained_class_weights=False)
-
     def test_pretrained_wrong_n_fg_class(self):
         with self.assertRaises(ValueError):
             FasterRCNNVGG16(n_fg_class=10, pretrained_model='voc0712')
