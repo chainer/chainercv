@@ -57,7 +57,7 @@ Finally, this is a complete example using SSD300.
     # the number of classes in VOC is different from 50
     dst = SSD300(n_fg_class=50)
     # initialized weights
-    dst(np.zeros((1, 3, 300, 300)).astype(np.float32))
+    dst(np.zeros((1, 3, dst.insize, dst.insize), dtype=np.float32))
 
     # the method described above
     ignore_names = get_shape_mismatch_names(src, dst)
