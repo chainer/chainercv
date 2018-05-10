@@ -34,12 +34,12 @@ class TrainChain(chainer.Chain):
         locs, objs, confs = self.model(imgs)
         loc_loss = F.mean(
             F.squared_error(locs, gt_locs)
-            * F.broadcast_to(objs[:, :, None], gt_locs.shape))
+            * F.broadcast_to(gt_objs[:, :, None], gt_locs.shape))
         obj_loss = F.mean(
             F.sigmoid_cross_entropy(objs, gt_objs, reduce='no') * masks)
         conf_loss = F.mean(
             F.sigmoid_cross_entropy(confs, gt_labels, reduce='no')
-            * F.broadcast_to(objs[:, :, None], gt_labels.shape))
+            * F.broadcast_to(gt_objs[:, :, None], gt_labels.shape))
 
         loss = loc_loss + obj_loss + conf_loss
 
