@@ -5,11 +5,10 @@ import chainer
 
 class ManualShift(chainer.training.extension.Extension):
 
-    def __init__(self, attr, values, init=None, target=None, optimizer=None):
+    def __init__(self, attr, values, init=None, optimizer=None):
         self._attr = attr
         self._values = values
         self._init = init
-        self._target = target
         self._optimizer = optimizer
         self._t = 0
         self._last_value = None
