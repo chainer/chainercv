@@ -11,7 +11,6 @@ from chainer.links import Convolution2D
 from chainercv.links import Conv2DBNActiv
 from chainercv import utils
 
-from chainercv.links.model.ssd.ssd_vgg16 import _check_pretrained_model
 from chainercv.links.model.yolo.yolo_base import YOLOBase
 
 
@@ -128,9 +127,10 @@ class YOLOv3(YOLOBase):
 
     _models = {
         'voc0712': {
-            'n_fg_class': 20,
+            'param': {'n_fg_class': 20},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/yolo_v3_voc0712_2018_05_01.npz'
+            'download/0.0.6/yolo_v3_voc0712_2018_05_01.npz',
+            'cv2': True
         },
     }
 
@@ -142,10 +142,10 @@ class YOLOv3(YOLOBase):
     def __init__(self, n_fg_class=None, pretrained_model=None):
         super(YOLOv3, self).__init__()
 
-        n_fg_class, path = _check_pretrained_model(
-            n_fg_class, pretrained_model, self._models)
+        param, path = utils.prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
-        self.n_fg_class = n_fg_class
+        self.n_fg_class = param['n_fg_class']
         self.use_preset('visualize')
 
         with self.init_scope():

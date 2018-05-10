@@ -62,4 +62,26 @@ class TestResNetCall(unittest.TestCase):
         self.check_call()
 
 
+@testing.parameterize(
+    {'model_class': ResNet50},
+    {'model_class': ResNet101},
+    {'model_class': ResNet152},
+)
+class TestResNetPretrained(unittest.TestCase):
+
+    @attr.disk
+    @attr.slow
+    def test_pretrained(self):
+        self.model_class(pretrained_model='imagenet', arch='he')
+
+    @attr.disk
+    @attr.slow
+    def test_pretrained_n_class(self):
+        self.model_class(n_class=1000, pretrained_model='imagenet', arch='he')
+
+    def test_pretrained_wrong_n_fg_class(self):
+        with self.assertRaises(ValueError):
+            self.model_class(n_class=500, pretrained_model='imagenet')
+
+
 testing.run_module(__name__, __file__)

@@ -50,4 +50,23 @@ class TestVGG16Call(unittest.TestCase):
         self.check_call()
 
 
+class TestVGG16Pretrained(unittest.TestCase):
+
+    @attr.disk
+    @attr.slow
+    def test_pretrained(self):
+        VGG16(pretrained_model='imagenet')
+
+    @attr.disk
+    @attr.slow
+    def test_pretrained_n_class(self):
+        VGG16(n_class=1000, pretrained_model='imagenet')
+
+    @attr.disk
+    @attr.slow
+    def test_pretrained_wrong_n_class(self):
+        with self.assertRaises(ValueError):
+            VGG16(n_class=100, pretrained_model='imagenet')
+
+
 testing.run_module(__name__, __file__)
