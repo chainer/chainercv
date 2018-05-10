@@ -64,7 +64,7 @@ class TestVGG16Pretrained(unittest.TestCase):
         }
 
         if self.pretrained_model == 'imagenet':
-            valid = self.n_class is {None, 1000}
+            valid = self.n_class in {None, 1000}
 
         if valid:
             VGG16(**kwargs)
