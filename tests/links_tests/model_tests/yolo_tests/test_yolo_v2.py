@@ -42,7 +42,7 @@ class TestYOLOv2(unittest.TestCase):
 
 @testing.parameterize(*testing.product({
     'n_fg_class': [None, 10, 20],
-    'pretrained_model': ['voc0712'],
+    'pretrained_model': ['voc0712', 'imagenet'],
 }))
 class TestYOLOv2Pretrained(unittest.TestCase):
 
@@ -55,6 +55,8 @@ class TestYOLOv2Pretrained(unittest.TestCase):
 
         if self.pretrained_model == 'voc0712':
             valid = self.n_fg_class in {None, 20}
+        elif self.pretrained_model == 'imagenet':
+            valid = self.n_fg_class is not None
 
         if valid:
             YOLOv2(**kwargs)
