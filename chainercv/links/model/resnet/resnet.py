@@ -246,6 +246,6 @@ class ResNet152(ResNet):
 
     def __init__(self, n_class=None, pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}, arch='fb'):
-                         super(ResNet152, self).__init__(
+        super(ResNet152, self).__init__(
             152, n_class, pretrained_model,
             mean, initialW, fc_kwargs, arch)

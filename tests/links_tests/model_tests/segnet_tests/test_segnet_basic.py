@@ -5,8 +5,8 @@ import chainer
 from chainer import testing
 
 from chainercv.links import SegNetBasic
-from chainercv.utils import assert_is_semantic_segmentation_link
 from chainercv.testing import attr
+from chainercv.utils import assert_is_semantic_segmentation_link
 
 
 @testing.parameterize(
