@@ -83,8 +83,8 @@ class Transform(object):
             bbox)
 
         index = np.empty(len(self._default_bbox), dtype=int)
-        index[:] = -2
-        index[iou.max(axis=1) >= 0.5] = -1
+        index[:] = -1
+        index[iou.max(axis=1) >= 0.5] = -2
 
         while True:
             i, j = np.unravel_index(iou.argmax(), iou.shape)
@@ -94,9 +94,10 @@ class Transform(object):
             iou[i, :] = 0
             iou[:, j] = 0
 
-        mask = np.logical_not(index == -1).astype(np.int32)
+        mask = (index >= -1).astype(np.int32)
+        index[index < 0] = -1
 
-        loc = bbox[np.max(index, 0)].copy()
+        loc = bbox[index].copy()
         loc[:, 2:] -= loc[:, :2]
         loc[:, :2] += loc[:, 2:] / 2
         loc[:, :2] /= self._step[:, None]
