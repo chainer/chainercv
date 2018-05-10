@@ -176,8 +176,7 @@ def main():
         DetectionVOCEvaluator(
             test_iter, model, use_07_metric=True,
             label_names=voc_bbox_label_names),
-        trigger=triggers.ManualScheduleTrigger(
-            [10000, 20000, 30000, 40000, 50200], 'iteration'))
+        trigger=(10040, 'iteration'))
 
     log_interval = 10, 'iteration'
     trainer.extend(extensions.LogReport(trigger=log_interval))
@@ -189,7 +188,7 @@ def main():
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
-    trainer.extend(extensions.snapshot(), trigger=(10000, 'iteration'))
+    trainer.extend(extensions.snapshot(), trigger=(10040, 'iteration'))
     trainer.extend(
         extensions.snapshot_object(model, 'model_iter_{.updater.iteration}'),
         trigger=(50200, 'iteration'))
