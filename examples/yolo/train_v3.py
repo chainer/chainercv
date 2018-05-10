@@ -63,12 +63,11 @@ class Transform(object):
 
     def _encode(self, bbox, label):
         if len(bbox) == 0:
-            n_default_bbox = self._default_bbox.shape[0]
-            mask = np.zeros(n_default_bbox, dtype=np.int32)
-            loc = np.zeros((n_default_bbox, 4), dtype=np.float32)
-            obj = np.zeros(n_default_bbox, dtype=np.int32)
-            label = np.zeros(
-                (n_default_bbox, self._n_fg_class), dtype=np.int32)
+            n_bbox = self._default_bbox.shape[0]
+            mask = np.zeros(n_bbox, dtype=np.int32)
+            loc = np.zeros((n_bbox, 4), dtype=np.float32)
+            obj = np.zeros(n_bbox, dtype=np.int32)
+            label = np.zeros((n_bbox, self._n_fg_class), dtype=np.int32)
             return mask, loc, obj, label
 
         iou = utils.bbox_iou(
