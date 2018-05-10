@@ -42,12 +42,10 @@ class TestYOLOv3(unittest.TestCase):
 
 class TestYOLOv3Pretrained(unittest.TestCase):
 
-    @attr.disk
     @attr.slow
     def test_pretrained(self):
         YOLOv3(pretrained_model='voc0712')
 
-    @attr.disk
     @attr.slow
     def test_pretrained_n_fg_class(self):
         YOLOv3(n_fg_class=20, pretrained_model='voc0712')
