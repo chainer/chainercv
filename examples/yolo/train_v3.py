@@ -86,7 +86,7 @@ class Transform(object):
             iou[i, :] = 0
             iou[:, j] = 0
 
-        loc = bbox[index].copy()
+        loc = bbox[np.max(index, 0)].copy()
         loc[:, 2:] -= loc[:, :2]
         loc[:, :2] += loc[:, 2:] / 2
         loc[:, :2] /= self._step[:, None]
