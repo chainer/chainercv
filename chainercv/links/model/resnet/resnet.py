@@ -1,7 +1,6 @@
 from __future__ import division
 
 import numpy as np
-import warnings
 
 import chainer
 import chainer.functions as F
@@ -11,13 +10,7 @@ import chainer.links as L
 from chainercv.links import Conv2DBNActiv
 from chainercv.links.model.resnet.resblock import ResBlock
 from chainercv.links import PickableSequentialChain
-from chainercv.utils import download_model
-
-try:
-    import cv2  # NOQA
-    _available = True
-except ImportError:
-    _available = False
+from chainercv import utils
 
 
 # RGB order
@@ -117,29 +110,29 @@ class ResNet(PickableSequentialChain):
         'he': {
             50: {
                 'imagenet': {
-                    'n_class': 1000,
+                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'overwritable': {'mean'},
                     'url': 'https://github.com/yuyu2172/share-weights/'
                     'releases/download/0.0.6/'
-                    'resnet50_imagenet_convert_2018_03_07.npz',
-                    'mean': _imagenet_mean
+                    'resnet50_imagenet_convert_2018_03_07.npz'
                 },
             },
             101: {
                 'imagenet': {
-                    'n_class': 1000,
+                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'overwritable': {'mean'},
                     'url': 'https://github.com/yuyu2172/share-weights/'
                     'releases/download/0.0.6/'
-                    'resnet101_imagenet_convert_2018_03_07.npz',
-                    'mean': _imagenet_mean
+                    'resnet101_imagenet_convert_2018_03_07.npz'
                 },
             },
             152: {
                 'imagenet': {
-                    'n_class': 1000,
+                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'overwritable': {'mean'},
                     'url': 'https://github.com/yuyu2172/share-weights/'
                     'releases/download/0.0.6/'
-                    'resnet152_imagenet_convert_2018_03_07.npz',
-                    'mean': _imagenet_mean
+                    'resnet152_imagenet_convert_2018_03_07.npz'
                 },
             }
         }
@@ -153,7 +146,7 @@ class ResNet(PickableSequentialChain):
             if pretrained_model == 'imagenet':
                 raise ValueError(
                     'Pretrained weights for Facebook ResNet models '
-                    'are not supported. Please set mode to \'he\'.')
+                    'are not supported. Please set arch to \'he\'.')
             stride_first = False
             conv1_no_bias = True
         elif arch == 'he':
@@ -161,21 +154,13 @@ class ResNet(PickableSequentialChain):
             conv1_no_bias = False
         else:
             raise ValueError('arch is expected to be one of [\'he\', \'fb\']')
-        _models = self._models[arch][n_layer]
         blocks = self._blocks[n_layer]
 
-        if n_class is None:
-            if pretrained_model in _models:
-                n_class = _models[pretrained_model]['n_class']
-            else:
-                n_class = 1000
-
-        if mean is None:
-            if pretrained_model in _models:
-                mean = _models[pretrained_model]['mean']
-            else:
-                mean = _imagenet_mean
-        self.mean = mean
+        param, path = utils.prepare_pretrained_model(
+            {'n_class': n_class, 'mean': mean},
+            pretrained_model, self._models[arch][n_layer],
+            {'n_class': 1000, 'mean': _imagenet_mean})
+        self.mean = param['mean']
 
         if initialW is None:
             initialW = initializers.HeNormal(scale=1., fan_option='fan_out')
@@ -198,22 +183,11 @@ class ResNet(PickableSequentialChain):
             self.res4 = ResBlock(blocks[2], None, 256, 1024, 2, **kwargs)
             self.res5 = ResBlock(blocks[3], None, 512, 2048, 2, **kwargs)
             self.pool5 = _global_average_pooling_2d
-            self.fc6 = L.Linear(None, n_class, **fc_kwargs)
+            self.fc6 = L.Linear(None, param['n_class'], **fc_kwargs)
             self.prob = F.softmax
 
-        if pretrained_model in _models:
-            if not _available:
-                warnings.warn('cv2 is not installed on your environment. '
-                              'The scores of ResNets reported in the '
-                              'README of the ChainerCV\'s classification '
-                              'example are calculated using OpenCV as the '
-                              'backend. With Pillow as the '
-                              'backend, the scores would change.',
-                              RuntimeWarning)
-            path = download_model(_models[pretrained_model]['url'])
+        if path:
             chainer.serializers.load_npz(path, self)
-        elif pretrained_model:
-            chainer.serializers.load_npz(pretrained_model, self)
 
 
 def _global_average_pooling_2d(x):

@@ -3,7 +3,7 @@ import unittest
 
 import chainer
 from chainer import testing
-from chainer.testing import attr
+from chainercv.testing import attr
 
 from chainercv.links import YOLOv2
 
@@ -42,10 +42,12 @@ class TestYOLOv2(unittest.TestCase):
 
 class TestYOLOv2Pretrained(unittest.TestCase):
 
+    @attr.disk
     @attr.slow
     def test_pretrained(self):
         YOLOv2(pretrained_model='voc0712')
 
+    @attr.disk
     @attr.slow
     def test_pretrained_n_fg_class(self):
         YOLOv2(n_fg_class=20, pretrained_model='voc0712')

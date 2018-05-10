@@ -12,7 +12,7 @@ from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
 from chainercv.links.model.resnet.resblock import ResBlock
-from chainercv.utils import download_model
+from chainercv import utils
 
 
 class FCISResNet101(FCIS):
@@ -72,13 +72,15 @@ class FCISResNet101(FCIS):
         head_initialW (callable): Initializer for the head layers.
         proposal_creator_params (dict): Key valued paramters for
             :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
+
     """
 
     _models = {
         'sbd': {
-            'n_fg_class': 20,
+            'param': {'n_fg_class': 20},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/fcis_resnet101_sbd_trained_2018_04_14.npz'
+            'download/0.0.6/fcis_resnet101_sbd_trained_2018_04_14.npz',
+            'cv2': True
         }
     }
     feat_stride = 16
@@ -101,13 +103,9 @@ class FCISResNet101(FCIS):
                 'n_test_post_nms': 300,
                 'force_cpu_nms': False,
                 'min_size': 16
-            }
-    ):
-        if n_fg_class is None:
-            if pretrained_model not in self._models:
-                raise ValueError(
-                    'The n_fg_class needs to be supplied as an argument')
-            n_fg_class = self._models[pretrained_model]['n_fg_class']
+            }):
+        param, path = utils.prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         if rpn_initialW is None:
             rpn_initialW = chainer.initializers.Normal(0.01)
@@ -124,7 +122,7 @@ class FCISResNet101(FCIS):
             initialW=rpn_initialW,
             proposal_creator_params=proposal_creator_params)
         head = FCISResNet101Head(
-            n_fg_class + 1,
+            param['n_fg_class'] + 1,
             roi_size=21, group_size=7,
             spatial_scale=1. / self.feat_stride,
             loc_normalize_mean=loc_normalize_mean,
@@ -139,11 +137,7 @@ class FCISResNet101(FCIS):
             mean, min_size, max_size,
             loc_normalize_mean, loc_normalize_std)
 
-        if pretrained_model is not None:
-            if pretrained_model in self._models:
-                path = download_model(self._models[pretrained_model]['url'])
-            else:
-                path = pretrained_model
+        if path:
             chainer.serializers.load_npz(path, self)
 
 
