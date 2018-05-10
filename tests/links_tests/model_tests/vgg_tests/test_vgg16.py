@@ -50,20 +50,24 @@ class TestVGG16Call(unittest.TestCase):
         self.check_call()
 
 
+@testing.parameterize(*testing.product({
+    'n_class': [None, 500, 1000],
+    'pretrained_model': ['imagenet'],
+}))
 class TestVGG16Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        VGG16(pretrained_model='imagenet')
+        if self.pretrained_model == 'imagenet':
+            valid = self.n_class is {None, 1000}
 
-    @attr.slow
-    def test_pretrained_n_class(self):
-        VGG16(n_class=1000, pretrained_model='imagenet')
-
-    @attr.slow
-    def test_pretrained_wrong_n_class(self):
-        with self.assertRaises(ValueError):
-            VGG16(n_class=100, pretrained_model='imagenet')
+        if valid:
+            VGG16(n_class=self.n_class,
+                  pretrained_model=self.pretrained_model)
+        else:
+            with self.assertRaises(ValueError):
+                VGG16(n_class=self.n_class,
+                      pretrained_model=self.pretrained_model)
 
 
 testing.run_module(__name__, __file__)
