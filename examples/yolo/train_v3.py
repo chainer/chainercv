@@ -66,6 +66,13 @@ class Transform(object):
             return_param=True)
         bbox = transforms.resize_bbox(bbox, (H, W), param['scaled_size'])
 
+        if len(bbox) == 0:
+            loc = np.zeros_like(self._default_bbox)
+            label = np.empty(
+                (self._default_bbox.shape[0], 1 + self._n_fg_class),
+                dtype=np.int32)
+            return img, loc, label
+
         iou = utils.bbox_iou(
             np.hstack((
                 (self._default_bbox[:, :2] + 1 / 2) * self._step[:, None]
@@ -86,7 +93,7 @@ class Transform(object):
             iou[i, :] = 0
             iou[:, j] = 0
 
-        loc = bbox[np.max(index, 0)].copy()
+        loc = bbox[index].copy()
         loc[:, 2:] -= loc[:, :2]
         loc[:, :2] += loc[:, 2:] / 2
         loc[:, :2] /= self._step[:, None]
@@ -95,7 +102,8 @@ class Transform(object):
 
         label = np.hstack((
             (index >= 0)[:, None],
-            label[index][:, None] == np.arange(self._n_fg_class)))
+            label[index][:, None] == np.arange(self._n_fg_class))
+        ).astype(np.int32)
 
         return img, loc, label
 
