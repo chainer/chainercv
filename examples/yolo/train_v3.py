@@ -54,10 +54,10 @@ class TrainChain(chainer.Chain):
 class Transform(object):
 
     def __init__(self,  model):
-        self._n_fg_class = model.n_fg_class
         self._insize = model.insize
         self._default_bbox = cuda.to_cpu(model._default_bbox)
         self._step = cuda.to_cpu(model._step)
+        self._n_fg_class = model.n_fg_class
 
     def _encode(self, bbox, label):
         if len(bbox) == 0:
