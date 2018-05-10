@@ -199,23 +199,30 @@ class YOLOv3(YOLOBase):
         self._step = cuda.to_gpu(self._step, device)
 
     def __call__(self, x):
-        """Compute localization and classification from a batch of images.
+        """Compute localization, objectness, and classification from a batch of images.
 
-        This method computes a variable.
-        :func:`self._decode` converts this variable to bounding box
+        This method computes three variables, :obj:`locs`, :obj:`objs`,
+        and :obj:`confs`.
+        :meth:`self._decode` converts these variables to bounding box
         coordinates and confidence scores.
-        This variable is also used in training YOLOv3.
+        These variables are also used in training YOLOv3.
 
         Args:
             x (chainer.Variable): A variable holding a batch of images.
-                The images are preprocessed by :meth:`_prepare`.
 
         Returns:
-            chainer.Variable:
-            A variable of float arrays of shape
-            :math:`(B, K, 4 + 1 + n\_fg\_class)`,
-            where :math:`B` is the number of samples in the batch and
-            :math:`K` is the number of default bounding boxes.
+            tuple of chainer.Variable:
+            This method returns three variables, :obj:`locs`,
+            :obj:`objs`, and :obj:`confs`.
+
+            * **locs**: A variable of float arrays of shape \
+                :math:`(B, K, 4)`, \
+                where :math:`B` is the number of samples in the batch and \
+                :math:`K` is the number of default bounding boxes.
+            * **objs**: A variable of float arrays of shape \
+                :math:`(B, K)`.
+            * **confs**: A variable of float arrays of shape \
+                :math:`(B, K, n\_fg\_class)`.
         """
 
         ys = []
@@ -224,7 +231,11 @@ class YOLOv3(YOLOBase):
             h = F.transpose(h, (0, 2, 3, 1))
             h = F.reshape(h, (h.shape[0], -1, 4 + 1 + self.n_fg_class))
             ys.append(h)
-        return F.concat(ys)
+        y = F.concat(ys)
+        locs = y[:, :, :4]
+        objs = y[:, :, 4]
+        confs = y[:, :, 5:]
+        return locs, objs, confs
 
     def _decode(self, loc, obj, conf):
         raw_bbox = self._default_bbox.copy()
