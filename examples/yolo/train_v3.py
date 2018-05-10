@@ -30,14 +30,14 @@ class TrainChain(chainer.Chain):
         with self.init_scope():
             self.model = model
 
-    def __call__(self, imgs, locs, labels):
-        y = self.model(imgs)
-        loc_loss = F.mean(
-            F.squared_error(y[:, :, :4], locs) * (labels >= 0))
-        obj_loss = F.mean(F.sigmoid_cross_entropy(
-            y[:, :, 4], labels >= 0, reduce='no') * (labels >= -1))
-        conf_loss = F.mean(F.sigmoid_cross_entropy(
-            y[:, :, 5:], labels, reduce='no') * (labels >= 0))
+    def __call__(self, imgs, masks, gt_locs, gt_objs, gt_labels):
+        locs, objs, confs = self.model(imgs)
+        loc_loss = F.mean(F.squared_error(locs, gt_locs) * objs[:, None])
+        obj_loss = F.mean(
+            F.sigmoid_cross_entropy(objs, gt_objs, reduce='no') * masks)
+        conf_loss = F.mean(
+            F.sigmoid_cross_entropy(confs, gt_labels, reduce='no')
+            * objs[:, None])
 
         loss = loc_loss + obj_loss + conf_loss
 
@@ -67,11 +67,12 @@ class Transform(object):
         bbox = transforms.resize_bbox(bbox, (H, W), param['scaled_size'])
 
         if len(bbox) == 0:
-            loc = np.zeros_like(self._default_bbox)
-            label = np.empty(
-                (self._default_bbox.shape[0], 1 + self._n_fg_class),
-                dtype=np.int32)
-            return img, loc, label
+            n_bbox = self._default_bbox.shape[0]
+            mask = np.zeros(n_bbox, dtype=np.int32)
+            loc = np.zeros((n_bbox, 4), dtype=np.float32)
+            obj = np.zeros(n_bbox, dtype=np.int32)
+            label = np.zeros((n_bbox, self._n_fg_class), dtype=np.int32)
+            return img, mask, loc, obj, label
 
         iou = utils.bbox_iou(
             np.hstack((
@@ -82,8 +83,8 @@ class Transform(object):
             bbox)
 
         index = np.empty(len(self._default_bbox), dtype=int)
-        index[:] = -1
-        index[iou.max(axis=1) >= 0.5] = -2
+        index[:] = -2
+        index[iou.max(axis=1) >= 0.5] = -1
 
         while True:
             i, j = np.unravel_index(iou.argmax(), iou.shape)
@@ -92,6 +93,8 @@ class Transform(object):
             index[i] = j
             iou[i, :] = 0
             iou[:, j] = 0
+
+        mask = np.logical_not(index == -1).astype(np.int32)
 
         loc = bbox[index].copy()
         loc[:, 2:] -= loc[:, :2]
@@ -102,12 +105,12 @@ class Transform(object):
         loc[:, 2:] /= self._default_bbox[:, 2:]
         loc[:, 2:] = np.log(loc[:, 2:])
 
-        label = np.hstack((
-            (index >= 0)[:, None],
-            label[index][:, None] == np.arange(self._n_fg_class))
-        ).astype(np.int32)
+        obj = (index >= 0).astype(np.int32)
 
-        return img, loc, label
+        label = (label[index][:, None] == np.arange(self._n_fg_class)) \
+            .astype(np.int32)
+
+        return img, mask, loc, obj, label
 
 
 def main():
