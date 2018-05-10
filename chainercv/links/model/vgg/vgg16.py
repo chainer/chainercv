@@ -68,7 +68,7 @@ class VGG16(PickableSequentialChain):
             the number of classes used to train the pretrained model
             is used. Otherwise, the number of classes in ILSVRC 2012 dataset
             is used.
-        pretrained_model (str): The destination of the pre-trained
+        pretrained_model (string): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
             above, it automatically loads weights stored under a directory

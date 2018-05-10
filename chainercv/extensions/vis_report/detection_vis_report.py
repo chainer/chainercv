@@ -64,7 +64,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
     Args:
         iterator: Iterator object that produces images and ground truth.
         target: Link object used for detection.
-        label_names (iterable of str): Name of labels ordered according
+        label_names (iterable of strings): Name of labels ordered according
             to label ids. If this is :obj:`None`, labels will be skipped.
         filename (str): Basename for the saved image. It can contain two
             keywords, :obj:`'{iteration}'` and :obj:`'{index}'`. They are

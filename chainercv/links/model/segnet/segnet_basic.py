@@ -41,7 +41,7 @@ class SegNetBasic(chainer.Chain):
     Args:
         n_class (int): The number of classes. If :obj:`None`, it can
             be infered if :obj:`pretrained_model` is given.
-        pretrained_model (str): The destination of the pretrained
+        pretrained_model (string): The destination of the pretrained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
             above, it automatically loads weights stored under a directory
