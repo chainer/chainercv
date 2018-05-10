@@ -94,7 +94,7 @@ class YOLOv2(YOLOBase):
 
     Args:
         n_fg_class (int): The number of classes excluding the background.
-        pretrained_model (str): The weight file to be loaded.
+        pretrained_model (string): The weight file to be loaded.
             This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
             The default value is :obj:`None`.
 
