@@ -185,7 +185,7 @@ class YOLOv2(YOLOBase):
         h = F.reshape(h, (h.shape[0], -1, 4 + 1 + self.n_fg_class))
         return h
 
-    def _decode(self, loc, conf):
+    def _decode(self, loc, obj, conf):
         raw_bbox = self._default_bbox.copy()
         raw_bbox[:, :2] += 1 / (1 + self.xp.exp(-loc[:, :2]))
         raw_bbox[:, 2:] *= self.xp.exp(loc[:, 2:])
@@ -193,9 +193,10 @@ class YOLOv2(YOLOBase):
         raw_bbox[:, 2:] += raw_bbox[:, :2]
         raw_bbox *= self.insize / self.extractor.grid
 
-        raw_score = self.xp.exp(conf[:, 1:])
-        raw_score /= raw_score.sum(axis=1, keepdims=True)
-        raw_score /= 1 + self.xp.exp(-conf[:, 0, None])
+        obj = 1 / (1 + self.xp.exp(-obj))
+        conf = self.xp.exp(conf)
+        conf /= conf.sum(axis=1, keepdims=True)
+        raw_score = obj[:, None] * conf
 
         bbox = []
         label = []

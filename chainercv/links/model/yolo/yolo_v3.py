@@ -209,7 +209,7 @@ class YOLOv3(YOLOBase):
             ys.append(h)
         return F.concat(ys)
 
-    def _decode(self, loc, conf):
+    def _decode(self, loc, obj, conf):
         raw_bbox = self._default_bbox.copy()
         raw_bbox[:, :2] += 1 / (1 + self.xp.exp(-loc[:, :2]))
         raw_bbox[:, :2] *= self._step[:, None]
@@ -217,8 +217,9 @@ class YOLOv3(YOLOBase):
         raw_bbox[:, :2] -= raw_bbox[:, 2:] / 2
         raw_bbox[:, 2:] += raw_bbox[:, :2]
 
+        obj = 1 / (1 + self.xp.exp(-obj))
         conf = 1 / (1 + self.xp.exp(-conf))
-        raw_score = conf[:, 0, None] * conf[:, 1:]
+        raw_score = obj[:, None] * conf
 
         bbox = []
         label = []

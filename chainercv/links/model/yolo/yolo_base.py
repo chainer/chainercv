@@ -85,13 +85,14 @@ class YOLOBase(chainer.Chain):
                 chainer.function.no_backprop_mode():
             y = self(self.xp.stack(x)).array
         locs = y[:, :, :4]
-        confs = y[:, :, 4:]
+        objs = y[:, :, 4]
+        confs = y[:, :, 5:]
 
         bboxes = []
         labels = []
         scores = []
-        for loc, conf, param in zip(locs, confs, params):
-            bbox, label, score = self._decode(loc, conf)
+        for loc, obj, conf, param in zip(locs, objs, confs, params):
+            bbox, label, score = self._decode(loc, obj, conf)
 
             bbox = transforms.translate_bbox(
                 bbox, -self.insize / 2, -self.insize / 2)
