@@ -72,18 +72,20 @@ class TestResNetPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
+        kwargs = {
+            'n_class': self.n_class,
+            'pretrained_model': self.pretrained_model,
+            'arch': self.arch,
+        }
+
         if self.pretrained_model == 'imagenet':
             valid = self.n_class is {None, 1000} and self.arch == 'he'
 
         if valid:
-            self.model(n_class=self.n_class,
-                       pretrained_model=self.pretrained_model,
-                       arch=self.arch)
+            self.model(**kwargs)
         else:
             with self.assertRaises(ValueError):
-                self.model(n_class=self.n_class,
-                           pretrained_model=self.pretrained_model,
-                           arch=self.arch)
+                self.model(**kwargs)
 
 
 testing.run_module(__name__, __file__)

@@ -58,16 +58,19 @@ class TestSegNetPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
+        kwargs = {
+            'n_class': self.n_class,
+            'pretrained_model': self.pretrained_model,
+        }
+
         if self.pretrained_model == 'imagenet':
             valid = self.n_class is {None, 11}
 
         if valid:
-            SegNetBasic(n_class=self.n_class,
-                        pretrained_model=self.pretrained_model)
+            SegNetBasic(**kwargs)
         else:
             with self.assertRaises(ValueError):
-                SegNetBasic(n_class=self.n_class,
-                            pretrained_model=self.pretrained_model)
+                SegNetBasic(**kwargs)
 
 
 testing.run_module(__name__, __file__)

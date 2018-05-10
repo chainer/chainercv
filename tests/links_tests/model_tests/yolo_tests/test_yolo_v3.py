@@ -48,16 +48,19 @@ class TestYOLOv3Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
+        kwargs = {
+            'n_fg_class': self.n_fg_class,
+            'pretrained_model': self.pretrained_model,
+        }
+
         if self.pretrained_model == 'voc0712':
             valid = self.n_fg_class in {None, 20}
 
         if valid:
-            YOLOv3(n_fg_class=self.n_fg_class,
-                   pretrained_model=self.pretrained_model)
+            YOLOv3(**kwargs)
         else:
             with self.assertRaises(ValueError):
-                YOLOv3(n_fg_class=self.n_fg_class,
-                       pretrained_model=self.pretrained_model)
+                YOLOv3(**kwargs)
 
 
 testing.run_module(__name__, __file__)

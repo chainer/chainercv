@@ -58,16 +58,19 @@ class TestVGG16Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
+        kwargs = {
+            'n_class': self.n_class,
+            'pretrained_model': self.pretrained_model,
+        }
+
         if self.pretrained_model == 'imagenet':
             valid = self.n_class is {None, 1000}
 
         if valid:
-            VGG16(n_class=self.n_class,
-                  pretrained_model=self.pretrained_model)
+            VGG16(**kwargs)
         else:
             with self.assertRaises(ValueError):
-                VGG16(n_class=self.n_class,
-                      pretrained_model=self.pretrained_model)
+                VGG16(**kwargs)
 
 
 testing.run_module(__name__, __file__)
