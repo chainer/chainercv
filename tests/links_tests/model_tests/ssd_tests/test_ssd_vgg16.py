@@ -54,7 +54,6 @@ class TestSSDVGG16(unittest.TestCase):
 )
 class TestSSDVGG16Pretrained(unittest.TestCase):
 
-    @attr.disk
     @attr.slow
     def test_pretrained(self):
         if self.insize == 300:
@@ -62,7 +61,6 @@ class TestSSDVGG16Pretrained(unittest.TestCase):
         elif self.insize == 512:
             SSD512(pretrained_model='voc0712')
 
-    @attr.disk
     @attr.slow
     def test_pretrained_n_fg_class(self):
         if self.insize == 300:

@@ -69,12 +69,10 @@ class TestResNetCall(unittest.TestCase):
 )
 class TestResNetPretrained(unittest.TestCase):
 
-    @attr.disk
     @attr.slow
     def test_pretrained(self):
         self.model_class(pretrained_model='imagenet', arch='he')
 
-    @attr.disk
     @attr.slow
     def test_pretrained_n_class(self):
         self.model_class(n_class=1000, pretrained_model='imagenet', arch='he')

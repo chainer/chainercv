@@ -52,17 +52,14 @@ class TestVGG16Call(unittest.TestCase):
 
 class TestVGG16Pretrained(unittest.TestCase):
 
-    @attr.disk
     @attr.slow
     def test_pretrained(self):
         VGG16(pretrained_model='imagenet')
 
-    @attr.disk
     @attr.slow
     def test_pretrained_n_class(self):
         VGG16(n_class=1000, pretrained_model='imagenet')
 
-    @attr.disk
     @attr.slow
     def test_pretrained_wrong_n_class(self):
         with self.assertRaises(ValueError):
