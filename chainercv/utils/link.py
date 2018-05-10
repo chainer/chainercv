@@ -1,7 +1,5 @@
-import numpy as np
 import warnings
 
-from chainer.serializers import NpzDeserializer
 from chainercv.utils import download_model
 
 try:
