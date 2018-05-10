@@ -83,7 +83,10 @@ class YOLOBase(chainer.Chain):
 
         with chainer.using_config('train', False), \
                 chainer.function.no_backprop_mode():
-            locs, objs, confs = self(self.xp.stack(x)).array
+            locs, objs, confs = self(self.xp.stack(x))
+        locs = locs.array
+        objs = objs.array
+        confs = confs.array
 
         bboxes = []
         labels = []
