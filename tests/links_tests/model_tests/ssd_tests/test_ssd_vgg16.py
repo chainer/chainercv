@@ -49,7 +49,7 @@ class TestSSDVGG16(unittest.TestCase):
 
 
 @testing.parameterize(*testing.product({
-    'insize': [300, 512],
+    'model': [SSD300, SSD512],
     'n_fg_class': [None, 10, 20],
     'pretrained_model': ['voc0712', 'imagenet'],
 }))
@@ -57,23 +57,18 @@ class TestSSDVGG16Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        if self.insize == 300:
-            model = SSD300
-        elif self.insize == 512:
-            model = SSD512
-
         if self.pretrained_model == 'voc0712':
             valid = self.n_fg_class in {None, 20}
         elif self.pretrained_model == 'imagenet':
             valid = self.n_fg_class is not None
 
         if valid:
-            model(n_fg_class=self.n_fg_class,
-                  pretrained_model=self.pretrained_model)
+            self.model(n_fg_class=self.n_fg_class,
+                       pretrained_model=self.pretrained_model)
         else:
             with self.assertRaises(ValueError):
-                model(n_fg_class=self.n_fg_class,
-                      pretrained_model=self.pretrained_model)
+                self.model(n_fg_class=self.n_fg_class,
+                           pretrained_model=self.pretrained_model)
 
 
 testing.run_module(__name__, __file__)
