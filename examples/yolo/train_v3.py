@@ -57,22 +57,15 @@ class Transform(object):
         self._default_bbox = cuda.to_cpu(model._default_bbox)
         self._step = cuda.to_cpu(model._step)
 
-    def __call__(self, in_data):
-        img, bbox, label = in_data
-
-        _, H, W = img.shape
-        img, param = transforms.resize_contain(
-            img / 255, (self._insize, self._insize), fill=0.5,
-            return_param=True)
-        bbox = transforms.resize_bbox(bbox, (H, W), param['scaled_size'])
-
+    def _encode(self, bbox, label):
         if len(bbox) == 0:
-            n_bbox = self._default_bbox.shape[0]
-            mask = np.zeros(n_bbox, dtype=np.int32)
-            loc = np.zeros((n_bbox, 4), dtype=np.float32)
-            obj = np.zeros(n_bbox, dtype=np.int32)
-            label = np.zeros((n_bbox, self._n_fg_class), dtype=np.int32)
-            return img, mask, loc, obj, label
+            n_default_bbox = self._default_bbox.shape[0]
+            mask = np.zeros(n_default_bbox, dtype=np.int32)
+            loc = np.zeros((n_default_bbox, 4), dtype=np.float32)
+            obj = np.zeros(n_default_bbox, dtype=np.int32)
+            label = np.zeros(
+                (n_default_bbox, self._n_fg_class), dtype=np.int32)
+            return mask, loc, obj, label
 
         iou = utils.bbox_iou(
             np.hstack((
@@ -111,6 +104,18 @@ class Transform(object):
         label = (label[index][:, None] == np.arange(self._n_fg_class)) \
             .astype(np.int32)
 
+        return mask, loc, obj, label
+
+    def __call__(self, in_data):
+        img, bbox, label = in_data
+
+        _, H, W = img.shape
+        img, param = transforms.resize_contain(
+            img / 255, (self._insize, self._insize), fill=0.5,
+            return_param=True)
+        bbox = transforms.resize_bbox(bbox, (H, W), param['scaled_size'])
+
+        mask, loc, obj, label = self._encode(bbox, label)
         return img, mask, loc, obj, label
 
 
