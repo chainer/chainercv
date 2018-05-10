@@ -3,12 +3,12 @@ import unittest
 import numpy as np
 
 from chainer import testing
+from chainer.testing import attr
 from chainer import Variable
 
 from chainercv.links import ResNet101
 from chainercv.links import ResNet152
 from chainercv.links import ResNet50
-from chainercv.testing import attr
 
 
 @testing.parameterize(*(
@@ -62,26 +62,32 @@ class TestResNetCall(unittest.TestCase):
         self.check_call()
 
 
-@testing.parameterize(
-    {'model_class': ResNet50},
-    {'model_class': ResNet101},
-    {'model_class': ResNet152},
-)
+@testing.parameterize(*testing.product({
+    'model': [ResNet50, ResNet101, ResNet152],
+    'n_class': [None, 500, 1000],
+    'pretrained_model': ['imagenet'],
+    'mean': [None, np.random.uniform((3, 1, 1)).astype(np.float32)],
+    'arch': ['he', 'fb'],
+}))
 class TestResNetPretrained(unittest.TestCase):
 
-    @attr.disk
     @attr.slow
     def test_pretrained(self):
-        self.model_class(pretrained_model='imagenet', arch='he')
+        kwargs = {
+            'n_class': self.n_class,
+            'pretrained_model': self.pretrained_model,
+            'mean': self.mean,
+            'arch': self.arch,
+        }
 
-    @attr.disk
-    @attr.slow
-    def test_pretrained_n_class(self):
-        self.model_class(n_class=1000, pretrained_model='imagenet', arch='he')
+        if self.pretrained_model == 'imagenet':
+            valid = self.n_class in {None, 1000} and self.arch == 'he'
 
-    def test_pretrained_wrong_n_fg_class(self):
-        with self.assertRaises(ValueError):
-            self.model_class(n_class=500, pretrained_model='imagenet')
+        if valid:
+            self.model(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                self.model(**kwargs)
 
 
 testing.run_module(__name__, __file__)

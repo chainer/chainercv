@@ -10,7 +10,7 @@ def read_image(path, dtype=np.float32, color=True):
     order of the channels is RGB.
 
     Args:
-        path (str): A path of image file.
+        path (string): A path of image file.
         dtype: The type of array. The default value is :obj:`~numpy.float32`.
         color (bool): This option determines the number of channels.
             If :obj:`True`, the number of channels is three. In this case,

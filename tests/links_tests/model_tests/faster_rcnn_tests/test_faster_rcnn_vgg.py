@@ -3,7 +3,7 @@ import unittest
 
 import chainer
 from chainer import testing
-from chainercv.testing import attr
+from chainer.testing import attr
 
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
@@ -114,26 +114,29 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
         self.check_call()
 
 
+@testing.parameterize(*testing.product({
+    'n_fg_class': [None, 10, 20],
+    'pretrained_model': ['voc0712', 'imagenet'],
+}))
 class TestFasterRCNNVGG16Pretrained(unittest.TestCase):
 
     @attr.slow
-    @attr.disk
-    def test_pretrained_voc(self):
-        FasterRCNNVGG16(pretrained_model='voc0712')
+    def test_pretrained(self):
+        kwargs = {
+            'n_fg_class': self.n_fg_class,
+            'pretrained_model': self.pretrained_model,
+        }
 
-    @attr.slow
-    @attr.disk
-    def test_pretrained_n_fg_class(self):
-        FasterRCNNVGG16(n_fg_class=20, pretrained_model='voc0712')
+        if self.pretrained_model == 'voc0712':
+            valid = self.n_fg_class in {None, 20}
+        elif self.pretrained_model == 'imagenet':
+            valid = self.n_fg_class is not None
 
-    @attr.slow
-    @attr.disk
-    def test_pretrained_imagenet(self):
-        FasterRCNNVGG16(n_fg_class=20, pretrained_model='imagenet')
-
-    def test_pretrained_wrong_n_fg_class(self):
-        with self.assertRaises(ValueError):
-            FasterRCNNVGG16(n_fg_class=10, pretrained_model='voc0712')
+        if valid:
+            FasterRCNNVGG16(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                FasterRCNNVGG16(**kwargs)
 
 
 testing.run_module(__name__, __file__)

@@ -3,9 +3,9 @@ import unittest
 
 import chainer
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.experimental.links import FCISResNet101
-from chainercv.testing import attr
 
 
 @testing.parameterize(
@@ -81,20 +81,24 @@ class TestFCISResNet101(unittest.TestCase):
         self.check_call()
 
 
+@testing.parameterize(*testing.product({
+    'n_fg_class': [None, 10, 20],
+    'pretrained_model': ['sbd'],
+}))
 class TestFCISResNet101Pretrained(unittest.TestCase):
 
     @attr.slow
-    @attr.disk
     def test_pretrained(self):
-        FCISResNet101(pretrained_model='sbd')
+        kwargs = {
+            'n_fg_class': self.n_fg_class,
+            'pretrained_model': self.pretrained_model,
+        }
 
-    @attr.slow
-    @attr.disk
-    def test_pretrained_n_fg_class(self):
-        FCISResNet101(n_fg_class=20, pretrained_model='sbd')
+        if self.pretrained_model == 'sbd':
+            valid = self.n_fg_class in {None, 20}
 
-    @attr.slow
-    @attr.disk
-    def test_pretrained_wrong_n_fg_class(self):
-        with self.assertRaises(ValueError):
-            FCISResNet101(n_fg_class=10, pretrained_model='sbd')
+        if valid:
+            FCISResNet101(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                FCISResNet101(**kwargs)

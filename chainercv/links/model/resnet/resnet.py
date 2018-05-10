@@ -68,7 +68,7 @@ class ResNet(PickableSequentialChain):
             the number of classes used to train the pretrained model
             is used. Otherwise, the number of classes in ILSVRC 2012 dataset
             is used.
-        pretrained_model (str): The destination of the pre-trained
+        pretrained_model (string): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
             above, it automatically loads weights stored under a directory
@@ -86,7 +86,7 @@ class ResNet(PickableSequentialChain):
             convolution kernels.
         fc_kwargs (dict): Keyword arguments passed to initialize
             the :class:`chainer.links.Linear`.
-        arch (str): If :obj:`fb`, use Facebook ResNet
+        arch (string): If :obj:`fb`, use Facebook ResNet
             architecture. When :obj:`he`, use the architecture presented
             by `the original ResNet paper \
             <https://arxiv.org/pdf/1512.03385.pdf>`_.

@@ -5,10 +5,10 @@ import numpy as np
 import chainer
 from chainer.initializers import Zero
 from chainer import testing
+from chainer.testing import attr
 from chainer import Variable
 
 from chainercv.links import VGG16
-from chainercv.testing import attr
 
 
 @testing.parameterize(
@@ -50,23 +50,29 @@ class TestVGG16Call(unittest.TestCase):
         self.check_call()
 
 
+@testing.parameterize(*testing.product({
+    'n_class': [None, 500, 1000],
+    'pretrained_model': ['imagenet'],
+    'mean': [None, np.random.uniform((3, 1, 1)).astype(np.float32)],
+}))
 class TestVGG16Pretrained(unittest.TestCase):
 
-    @attr.disk
     @attr.slow
     def test_pretrained(self):
-        VGG16(pretrained_model='imagenet')
+        kwargs = {
+            'n_class': self.n_class,
+            'pretrained_model': self.pretrained_model,
+            'mean': self.mean,
+        }
 
-    @attr.disk
-    @attr.slow
-    def test_pretrained_n_class(self):
-        VGG16(n_class=1000, pretrained_model='imagenet')
+        if self.pretrained_model == 'imagenet':
+            valid = self.n_class in {None, 1000}
 
-    @attr.disk
-    @attr.slow
-    def test_pretrained_wrong_n_class(self):
-        with self.assertRaises(ValueError):
-            VGG16(n_class=100, pretrained_model='imagenet')
+        if valid:
+            VGG16(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                VGG16(**kwargs)
 
 
 testing.run_module(__name__, __file__)
