@@ -209,11 +209,10 @@ class ResNet50(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, fc_kwargs={}, arch='fb',
-                 use_pretrained_class_weights=True):
+                 mean=None, initialW=None, fc_kwargs={}, arch='fb'):
         super(ResNet50, self).__init__(
             50, n_class, pretrained_model,
-            mean, initialW, fc_kwargs, arch, use_pretrained_class_weights)
+            mean, initialW, fc_kwargs, arch)
 
 
 class ResNet101(ResNet):
@@ -228,11 +227,10 @@ class ResNet101(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, fc_kwargs={}, arch='fb',
-                 use_pretrained_class_weights=True):
+                 mean=None, initialW=None, fc_kwargs={}, arch='fb'):
         super(ResNet101, self).__init__(
             101, n_class, pretrained_model,
-            mean, initialW, fc_kwargs, arch, use_pretrained_class_weights)
+            mean, initialW, fc_kwargs, arch)
 
 
 class ResNet152(ResNet):
@@ -247,8 +245,7 @@ class ResNet152(ResNet):
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, fc_kwargs={}, arch='fb',
-                 use_pretrained_class_weights=True):
-        super(ResNet152, self).__init__(
+                 mean=None, initialW=None, fc_kwargs={}, arch='fb'):
+                         super(ResNet152, self).__init__(
             152, n_class, pretrained_model,
-            mean, initialW, fc_kwargs, arch, use_pretrained_class_weights)
+            mean, initialW, fc_kwargs, arch)
