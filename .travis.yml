@@ -42,7 +42,7 @@ install:
 script:
   - pwd
   - pip install flake8
-  - pip install hacking
+  - pip install hacking==1.0.0
   - pip install autopep8
   - pip install mock
   - pip install nose
@@ -52,7 +52,7 @@ script:
   - test ! -s check_autopep8
   - python style_checker.py .
   - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
-      MPLBACKEND="agg" mpiexec -n 2 nosetests -a '!gpu,!slow,!disk' tests;
+      MPLBACKEND="agg" mpiexec -n 2 nosetests -a '!gpu,!slow' tests;
     else
-      MPLBACKEND="agg" nosetests -a '!gpu,!slow,!disk' tests;
+      MPLBACKEND="agg" nosetests -a '!gpu,!slow' tests;
     fi
