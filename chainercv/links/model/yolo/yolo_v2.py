@@ -39,7 +39,7 @@ class Darknet19Extractor(chainer.ChainList):
     grid = 13
 
     def __init__(self):
-        super().__init__()
+        super(Darknet19Extractor, self).__init__()
 
         # Darknet19
         for k, n_conv in enumerate((1, 1, 3, 3, 5, 5)):

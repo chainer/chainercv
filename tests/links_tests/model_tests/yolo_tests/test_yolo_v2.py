@@ -16,7 +16,7 @@ class TestYOLOv2(unittest.TestCase):
     def setUp(self):
         self.link = YOLOv2(n_fg_class=self.n_fg_class)
         self.insize = 416
-        self.n_bbox = (13 * 13 + 26 * 26 + 52 * 52) * 3
+        self.n_bbox = 13 * 13 * 5
 
     def _check_call(self):
         x = self.link.xp.array(
@@ -40,19 +40,27 @@ class TestYOLOv2(unittest.TestCase):
         self._check_call()
 
 
+@testing.parameterize(*testing.product({
+    'n_fg_class': [None, 10, 20],
+    'pretrained_model': ['voc0712'],
+}))
 class TestYOLOv2Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        YOLOv2(pretrained_model='voc0712')
+        kwargs = {
+            'n_fg_class': self.n_fg_class,
+            'pretrained_model': self.pretrained_model,
+        }
 
-    @attr.slow
-    def test_pretrained_n_fg_class(self):
-        YOLOv2(n_fg_class=20, pretrained_model='voc0712')
+        if self.pretrained_model == 'voc0712':
+            valid = self.n_fg_class in {None, 20}
 
-    def test_pretrained_wrong_n_fg_class(self):
-        with self.assertRaises(ValueError):
-            YOLOv2(n_fg_class=10, pretrained_model='voc0712')
+        if valid:
+            YOLOv2(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                YOLOv2(**kwargs)
 
 
 testing.run_module(__name__, __file__)

@@ -48,32 +48,30 @@ class TestSSDVGG16(unittest.TestCase):
         self._check_call()
 
 
-@testing.parameterize(
-    {'insize': 300},
-    {'insize': 512},
-)
+@testing.parameterize(*testing.product({
+    'model': [SSD300, SSD512],
+    'n_fg_class': [None, 10, 20],
+    'pretrained_model': ['voc0712', 'imagenet'],
+}))
 class TestSSDVGG16Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        if self.insize == 300:
-            SSD300(pretrained_model='voc0712')
-        elif self.insize == 512:
-            SSD512(pretrained_model='voc0712')
+        kwargs = {
+            'n_fg_class': self.n_fg_class,
+            'pretrained_model': self.pretrained_model,
+        }
 
-    @attr.slow
-    def test_pretrained_n_fg_class(self):
-        if self.insize == 300:
-            SSD300(n_fg_class=20, pretrained_model='voc0712')
-        elif self.insize == 512:
-            SSD512(n_fg_class=20, pretrained_model='voc0712')
+        if self.pretrained_model == 'voc0712':
+            valid = self.n_fg_class in {None, 20}
+        elif self.pretrained_model == 'imagenet':
+            valid = self.n_fg_class is not None
 
-    def test_pretrained_wrong_n_fg_class(self):
-        with self.assertRaises(ValueError):
-            if self.insize == 300:
-                SSD300(n_fg_class=10, pretrained_model='voc0712')
-            elif self.insize == 512:
-                SSD512(n_fg_class=10, pretrained_model='voc0712')
+        if valid:
+            self.model(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                self.model(**kwargs)
 
 
 testing.run_module(__name__, __file__)
