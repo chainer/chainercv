@@ -248,12 +248,12 @@ class YOLOv3(YOLOBase):
             bbox_l = bbox_l[indices]
             score_l = score_l[indices]
 
-            bbox.append(cuda.to_cpu(bbox_l))
-            label.append(np.array((l,) * len(bbox_l)))
-            score.append(cuda.to_cpu(score_l))
+            bbox.append(bbox_l)
+            label.append(self.xp.array((l,) * len(bbox_l)))
+            score.append(score_l)
 
-        bbox = np.vstack(bbox).astype(np.float32)
-        label = np.hstack(label).astype(np.int32)
-        score = np.hstack(score).astype(np.float32)
+        bbox = self.xp.vstack(bbox).astype(np.float32)
+        label = self.xp.hstack(label).astype(np.int32)
+        score = self.xp.hstack(score).astype(np.float32)
 
         return bbox, label, score
