@@ -183,7 +183,7 @@ def main():
     trainer.extend(extensions.observe_lr(), trigger=log_interval)
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', 'lr',
-         'main/loss', 'main/loss/loc', 'main/loss/conf',
+         'main/loss', 'main/loss/loc', 'main/loss/obj', 'main/loss/conf',
          'validation/main/map']),
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
