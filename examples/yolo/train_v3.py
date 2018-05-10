@@ -96,7 +96,7 @@ class Transform(object):
 
         mask = np.logical_not(index == -1).astype(np.int32)
 
-        loc = bbox[index].copy()
+        loc = bbox[np.max(index, 0)].copy()
         loc[:, 2:] -= loc[:, :2]
         loc[:, :2] += loc[:, 2:] / 2
         loc[:, :2] /= self._step[:, None]
