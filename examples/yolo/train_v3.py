@@ -98,6 +98,7 @@ class Transform(object):
         loc[:, :2] += loc[:, 2:] / 2
         loc[:, :2] /= self._step[:, None]
         loc[:, :2] -= self._default_bbox[:, :2]
+        loc[:, 2:] /= self._default_bbox[:, 2:]
         loc[:, 2:] = np.log(loc[:, 2:])
 
         label = np.hstack((
