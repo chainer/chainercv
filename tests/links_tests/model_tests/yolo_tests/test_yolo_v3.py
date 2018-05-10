@@ -40,19 +40,24 @@ class TestYOLOv3(unittest.TestCase):
         self._check_call()
 
 
+@testing.parameterize(*testing.product({
+    'n_fg_class': [None, 10, 20],
+    'pretrained_model': ['voc0712'],
+}))
 class TestYOLOv3Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        YOLOv3(pretrained_model='voc0712')
+        if self.pretrained_model == 'voc0712':
+            valid = self.n_fg_class in {None, 20}
 
-    @attr.slow
-    def test_pretrained_n_fg_class(self):
-        YOLOv3(n_fg_class=20, pretrained_model='voc0712')
-
-    def test_pretrained_wrong_n_fg_class(self):
-        with self.assertRaises(ValueError):
-            YOLOv3(n_fg_class=10, pretrained_model='voc0712')
+        if valid:
+            YOLOv3(n_fg_class=self.n_fg_class,
+                   pretrained_model=self.pretrained_model)
+        else:
+            with self.assertRaises(ValueError):
+                YOLOv3(n_fg_class=self.n_fg_class,
+                       pretrained_model=self.pretrained_model)
 
 
 testing.run_module(__name__, __file__)
