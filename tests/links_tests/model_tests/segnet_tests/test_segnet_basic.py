@@ -52,12 +52,10 @@ class TestSegNetBasic(unittest.TestCase):
 
 class TestSegNetPretrained(unittest.TestCase):
 
-    @attr.disk
     @attr.slow
     def test_pretrained(self):
         SegNetBasic(pretrained_model='camvid')
 
-    @attr.disk
     @attr.slow
     def test_pretrained_n_class(self):
         SegNetBasic(n_class=11, pretrained_model='camvid')
