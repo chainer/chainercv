@@ -3,7 +3,7 @@ import unittest
 
 import chainer
 from chainer import testing
-from chainercv.testing import attr
+from chainer.testing import attr
 
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
@@ -117,17 +117,14 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
 class TestFasterRCNNVGG16Pretrained(unittest.TestCase):
 
     @attr.slow
-    @attr.disk
     def test_pretrained_voc(self):
         FasterRCNNVGG16(pretrained_model='voc0712')
 
     @attr.slow
-    @attr.disk
     def test_pretrained_n_fg_class(self):
         FasterRCNNVGG16(n_fg_class=20, pretrained_model='voc0712')
 
     @attr.slow
-    @attr.disk
     def test_pretrained_imagenet(self):
         FasterRCNNVGG16(n_fg_class=20, pretrained_model='imagenet')
 
