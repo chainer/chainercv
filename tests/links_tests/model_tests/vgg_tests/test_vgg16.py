@@ -53,6 +53,7 @@ class TestVGG16Call(unittest.TestCase):
 @testing.parameterize(*testing.product({
     'n_class': [None, 500, 1000],
     'pretrained_model': ['imagenet'],
+    'mean': [None, np.random.uniform((3, 1, 1)).astype(np.float32)],
 }))
 class TestVGG16Pretrained(unittest.TestCase):
 
@@ -61,6 +62,7 @@ class TestVGG16Pretrained(unittest.TestCase):
         kwargs = {
             'n_class': self.n_class,
             'pretrained_model': self.pretrained_model,
+            'mean': self.mean,
         }
 
         if self.pretrained_model == 'imagenet':

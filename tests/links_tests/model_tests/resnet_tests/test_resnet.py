@@ -66,6 +66,7 @@ class TestResNetCall(unittest.TestCase):
     'model': [ResNet50, ResNet101, ResNet152],
     'n_class': [None, 500, 1000],
     'pretrained_model': ['imagenet'],
+    'mean': [None, np.random.uniform((3, 1, 1)).astype(np.float32)],
     'arch': ['he', 'fb'],
 }))
 class TestResNetPretrained(unittest.TestCase):
@@ -75,6 +76,7 @@ class TestResNetPretrained(unittest.TestCase):
         kwargs = {
             'n_class': self.n_class,
             'pretrained_model': self.pretrained_model,
+            'mean': self.mean,
             'arch': self.arch,
         }
 
