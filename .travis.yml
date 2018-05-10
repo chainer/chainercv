@@ -42,7 +42,7 @@ install:
 script:
   - pwd
   - pip install flake8
-  - pip install hacking
+  - pip install hacking==1.0.0
   - pip install autopep8
   - pip install mock
   - pip install nose
