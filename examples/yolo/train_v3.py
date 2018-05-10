@@ -95,9 +95,14 @@ class Transform(object):
         loc = bbox[index].copy()
         loc[:, 2:] -= loc[:, :2]
         loc[:, :2] += loc[:, 2:] / 2
+
         loc[:, :2] /= self._step[:, None]
         loc[:, :2] -= self._default_bbox[:, :2]
+        eps = 1e-6
+        loc[:, :2] = np.maximum(loc[:, :2], eps)
+        loc[:, :2] = np.minimum(loc[:, :2], 1 - eps)
         loc[:, :2] = -np.log(1 / loc[:, :2] - 1)
+
         loc[:, 2:] /= self._default_bbox[:, 2:]
         loc[:, 2:] = np.log(loc[:, 2:])
 
