@@ -143,7 +143,7 @@ class YOLOv3(YOLOBase):
             'cv2': True
         },
         'imagenet': {
-            'n_fg_class': None,
+            'param': {'n_fg_class': None},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.6/yolo_darknet53_imagenet_2018_05_07.npz'
         },
