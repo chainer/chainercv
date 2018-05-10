@@ -32,14 +32,17 @@ class TrainChain(chainer.Chain):
 
     def __call__(self, imgs, masks, gt_locs, gt_objs, gt_labels):
         locs, objs, confs = self.model(imgs)
-        loc_loss = F.mean(
-            F.squared_error(locs, gt_locs)
-            * F.broadcast_to(gt_objs[:, :, None], gt_locs.shape))
+
+        xp = cuda.get_array_module(gt_objs)
+        with cuda.get_device_from_array(gt_objs):
+            loc_loss = F.mean(
+                F.squared_error(locs, gt_locs)
+                * xp.broadcast_to(gt_objs[:, :, None], gt_locs.shape))
         obj_loss = F.mean(
             F.sigmoid_cross_entropy(objs, gt_objs, reduce='no') * masks)
         conf_loss = F.mean(
             F.sigmoid_cross_entropy(confs, gt_labels, reduce='no')
-            * F.broadcast_to(gt_objs[:, :, None], gt_labels.shape))
+            * xp.broadcast_to(gt_objs[:, :, None], gt_locs.shape))
 
         loss = loc_loss + obj_loss + conf_loss
 
