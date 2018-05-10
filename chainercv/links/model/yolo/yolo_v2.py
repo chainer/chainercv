@@ -12,7 +12,6 @@ from chainer.links import Convolution2D
 from chainercv.links import Conv2DBNActiv
 from chainercv import utils
 
-from chainercv.links.model.ssd.ssd_vgg16 import _check_pretrained_model
 from chainercv.links.model.yolo.yolo_base import YOLOBase
 
 
@@ -95,10 +94,10 @@ class YOLOv2(YOLOBase):
        YOLO9000: Better, Faster, Stronger. CVPR 2017.
 
     Args:
-       n_fg_class (int): The number of classes excluding the background.
-       pretrained_model (str): The weight file to be loaded.
-           This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
-           The default value is :obj:`None`.
+        n_fg_class (int): The number of classes excluding the background.
+        pretrained_model (str): The weight file to be loaded.
+            This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
+            The default value is :obj:`None`.
 
             * :obj:`'voc0712'`: Load weights trained on trainval split of \
                 PASCAL VOC 2007 and 2012. \
@@ -123,9 +122,10 @@ class YOLOv2(YOLOBase):
 
     _models = {
         'voc0712': {
-            'n_fg_class': 20,
+            'param': {'n_fg_class': 20},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/yolo_v2_voc0712_2018_05_03.npz'
+            'download/0.0.6/yolo_v2_voc0712_2018_05_03.npz',
+            'cv2': True
         },
         'imagenet': {
             'n_fg_class': None,
@@ -144,10 +144,10 @@ class YOLOv2(YOLOBase):
     def __init__(self, n_fg_class=None, pretrained_model=None):
         super(YOLOv2, self).__init__()
 
-        n_fg_class, path = _check_pretrained_model(
-            n_fg_class, pretrained_model, self._models)
+        param, path = utils.prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
-        self.n_fg_class = n_fg_class
+        self.n_fg_class = param['n_fg_class']
         self.use_preset('visualize')
 
         init = {'initialW': initializers.HeNormal(fan_option='fan_out')}

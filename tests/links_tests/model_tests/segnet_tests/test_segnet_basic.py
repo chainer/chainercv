@@ -3,9 +3,9 @@ import unittest
 
 import chainer
 from chainer import testing
-from chainer.testing import attr
 
 from chainercv.links import SegNetBasic
+from chainercv.testing import attr
 from chainercv.utils import assert_is_semantic_segmentation_link
 
 
@@ -48,6 +48,23 @@ class TestSegNetBasic(unittest.TestCase):
     def test_predict_gpu(self):
         self.link.to_gpu()
         assert_is_semantic_segmentation_link(self.link, self.n_class)
+
+
+class TestSegNetPretrained(unittest.TestCase):
+
+    @attr.disk
+    @attr.slow
+    def test_pretrained(self):
+        SegNetBasic(pretrained_model='camvid')
+
+    @attr.disk
+    @attr.slow
+    def test_pretrained_n_class(self):
+        SegNetBasic(n_class=11, pretrained_model='camvid')
+
+    def test_pretrained_wrong_n_fg_class(self):
+        with self.assertRaises(ValueError):
+            SegNetBasic(n_class=20, pretrained_model='camvid')
 
 
 testing.run_module(__name__, __file__)
