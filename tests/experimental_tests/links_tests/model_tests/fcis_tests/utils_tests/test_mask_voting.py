@@ -18,8 +18,8 @@ class TestMaskVoting(unittest.TestCase):
         self.size = (18, 24)
         self.bg_label = 0
         self.roi_mask_prob = np.random.uniform(
-            size=(n_roi, self.roi_size, self.roi_size))
-        self.roi_prob = np.random.uniform(size=(n_roi, n_class))
+            size=(n_roi, self.roi_size, self.roi_size)).astype(np.float32)
+        self.roi_prob = np.random.uniform(size=(n_roi, n_class)).astype(np.float32)
         self.bbox = generate_random_bbox(n_roi, self.size, 0, 18)
 
     def check_mask_voting(

@@ -141,9 +141,7 @@ def mask_voting(
             m_cmask, m_bbox = _mask_aggregation(
                 bbox_i, cmask_prob_i, cmask_weight, size, binary_thresh)
             if m_cmask is not None and m_bbox is not None:
-                m_cmask = resize(
-                    m_cmask.astype(np.float32),
-                    roi_cmask_size)
+                m_cmask = resize(m_cmask, roi_cmask_size)
                 m_cmask = np.clip(m_cmask, 0.0, 1.0)
                 v_cmask_prob_l.append(m_cmask)
                 v_bbox_l.append(m_bbox)
