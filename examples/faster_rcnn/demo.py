@@ -1,5 +1,5 @@
 import argparse
-import matplotlib.pyplot as plot
+import matplotlib.pyplot as plt
 
 import chainer
 
@@ -30,7 +30,7 @@ def main():
 
     vis_bbox(
         img, bbox, label, score, label_names=voc_bbox_label_names)
-    plot.show()
+    plt.show()
 
 
 if __name__ == '__main__':

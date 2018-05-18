@@ -7,9 +7,12 @@ ChainerCV Reference Manual
 .. toctree::
    :maxdepth: 2
 
+   chainer_experimental
    datasets
    evaluations
+   experimental
    extensions
+   functions
    links
    transforms
 

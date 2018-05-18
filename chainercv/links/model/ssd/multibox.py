@@ -77,8 +77,8 @@ class Multibox(chainer.Chain):
 
         """
 
-        mb_locs = list()
-        mb_confs = list()
+        mb_locs = []
+        mb_confs = []
         for i, x in enumerate(xs):
             mb_loc = self.loc[i](x)
             mb_loc = F.transpose(mb_loc, (0, 2, 3, 1))

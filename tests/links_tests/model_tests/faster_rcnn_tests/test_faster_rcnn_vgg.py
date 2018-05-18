@@ -14,7 +14,6 @@ from chainercv.utils import generate_random_bbox
     {'train': False},
     {'train': True}
 )
-@attr.slow
 class TestFasterRCNNVGG16(unittest.TestCase):
 
     B = 2
@@ -52,11 +51,11 @@ class TestFasterRCNNVGG16(unittest.TestCase):
             n_roi = self.B * self.n_test_post_nms
 
         self.assertIsInstance(roi_cls_locs, chainer.Variable)
-        self.assertIsInstance(roi_cls_locs.data, xp.ndarray)
+        self.assertIsInstance(roi_cls_locs.array, xp.ndarray)
         self.assertEqual(roi_cls_locs.shape, (n_roi, self.n_class * 4))
 
         self.assertIsInstance(roi_scores, chainer.Variable)
-        self.assertIsInstance(roi_scores.data, xp.ndarray)
+        self.assertIsInstance(roi_scores.array, xp.ndarray)
         self.assertEqual(roi_scores.shape, (n_roi, self.n_class))
 
         self.assertIsInstance(rois, xp.ndarray)
@@ -65,16 +64,17 @@ class TestFasterRCNNVGG16(unittest.TestCase):
         self.assertIsInstance(roi_indices, xp.ndarray)
         self.assertEqual(roi_indices.shape, (n_roi,))
 
+    @attr.slow
     def test_call_cpu(self):
         self.check_call()
 
     @attr.gpu
+    @attr.slow
     def test_call_gpu(self):
         self.link.to_gpu()
         self.check_call()
 
 
-@attr.slow
 class TestFasterRCNNVGG16Loss(unittest.TestCase):
 
     n_fg_class = 20
@@ -99,10 +99,12 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
         loss = self.link(self.imgs, self.bboxes, self.labels, self.scale)
         self.assertEqual(loss.shape, ())
 
+    @attr.slow
     def test_call_cpu(self):
         self.check_call()
 
     @attr.gpu
+    @attr.slow
     def test_call_gpu(self):
         self.link.to_gpu()
         self.bboxes.to_gpu()
@@ -110,6 +112,31 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
         self.imgs.to_gpu()
         self.scale.to_gpu()
         self.check_call()
+
+
+@testing.parameterize(*testing.product({
+    'n_fg_class': [None, 10, 20],
+    'pretrained_model': ['voc0712', 'imagenet'],
+}))
+class TestFasterRCNNVGG16Pretrained(unittest.TestCase):
+
+    @attr.slow
+    def test_pretrained(self):
+        kwargs = {
+            'n_fg_class': self.n_fg_class,
+            'pretrained_model': self.pretrained_model,
+        }
+
+        if self.pretrained_model == 'voc0712':
+            valid = self.n_fg_class in {None, 20}
+        elif self.pretrained_model == 'imagenet':
+            valid = self.n_fg_class is not None
+
+        if valid:
+            FasterRCNNVGG16(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                FasterRCNNVGG16(**kwargs)
 
 
 testing.run_module(__name__, __file__)

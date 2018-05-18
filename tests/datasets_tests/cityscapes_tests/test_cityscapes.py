@@ -1,3 +1,4 @@
+import numpy as np
 import os
 import shutil
 import tempfile
@@ -5,7 +6,6 @@ import unittest
 
 from chainer import testing
 from chainer.testing import attr
-import numpy as np
 
 from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_labels
 from chainercv.datasets import CityscapesSemanticSegmentationDataset
