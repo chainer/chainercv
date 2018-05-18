@@ -3,6 +3,7 @@ Naming Conventions
 
 
 Here are notations used.
+
 + :math:`B` is the size of an batch.
 + :math:`H` is the height of an image.
 + :math:`W` is the width of an image.
@@ -73,7 +74,7 @@ Instance segmentations
 
 
 Attributing an additonal meaning to a basic data object
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 RoIs
 """"
