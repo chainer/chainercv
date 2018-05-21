@@ -93,9 +93,9 @@ class OnlineProductsDataset(GetterDataset):
         self.add_getter('img', lambda i:
                         utils.read_image(self.paths[i], color=True))
         self.add_getter('label', lambda i:
-                        np.array(self.class_ids[i], np.int32))
+                        np.int32(self.class_ids[i]))
         self.add_getter('super_label', lambda i:
-                        np.array(self.super_class_ids[i], np.int32))
+                        np.int32(self.super_class_ids[i]))
 
     def __len__(self):
         return len(self.paths)

@@ -4,7 +4,7 @@ from chainer import testing
 from chainer.testing import attr
 
 from chainercv.datasets import OnlineProductsDataset
-from chainercv.utils import assert_is_classification_dataset
+from chainercv.utils import assert_is_label_dataset
 
 
 @testing.parameterize(
@@ -18,7 +18,7 @@ class TestOnlineProductsDataset(unittest.TestCase):
 
     @attr.slow
     def test_online_products_dataset(self):
-        assert_is_classification_dataset(
+        assert_is_label_dataset(
             self.dataset, 22634, n_example=10)
 
 
