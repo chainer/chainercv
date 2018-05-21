@@ -64,6 +64,14 @@ unzip
 .. autofunction:: unzip
 
 
+Link Utilities 
+--------------
+
+prepare_pretrained_model
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: prepare_pretrained_model
+
+
 Mask Utilities
 --------------
 

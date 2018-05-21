@@ -114,4 +114,29 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
         self.check_call()
 
 
+@testing.parameterize(*testing.product({
+    'n_fg_class': [None, 10, 20],
+    'pretrained_model': ['voc0712', 'imagenet'],
+}))
+class TestFasterRCNNVGG16Pretrained(unittest.TestCase):
+
+    @attr.slow
+    def test_pretrained(self):
+        kwargs = {
+            'n_fg_class': self.n_fg_class,
+            'pretrained_model': self.pretrained_model,
+        }
+
+        if self.pretrained_model == 'voc0712':
+            valid = self.n_fg_class in {None, 20}
+        elif self.pretrained_model == 'imagenet':
+            valid = self.n_fg_class is not None
+
+        if valid:
+            FasterRCNNVGG16(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                FasterRCNNVGG16(**kwargs)
+
+
 testing.run_module(__name__, __file__)
