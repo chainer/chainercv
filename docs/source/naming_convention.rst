@@ -118,6 +118,6 @@ For instance, :obj:`cls_locs` is :math:`(B, R, L, 4)` and :obj:`locs` is :math:`
 Arbitrary input
 """""""""""""""
 
-:obj:`x` is a variable whose shape can be inferred from context.
+:obj:`x` is a variable whose shape can be inferred from the context.
 It can be used only when there is no confusion on its shape.
 This is usually the case when naming an input to a neural network.
