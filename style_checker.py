@@ -25,6 +25,17 @@ This script checks the following coding rules.
         a.transpose((2, 0, 1))  # OK
         a.reshape(2, 0, 1)  # NG
 
+- Initialization of empty `list`/`dict`/`tuple`.
+    An empty `list`/`dict`/`tuple` should be initialized by `[]`/`{}`/`()`.
+
+    Example:
+        a = []  # OK
+        b = {}  # OK
+        c = ()  # OK
+
+        a = list()  # NG
+        b = dict()  # NG
+        c = tuple()  # NG
  """
 
 import argparse
@@ -37,6 +48,8 @@ def check(source):
     checkers = (
         check_reshape,
         check_transpose,
+        check_empty_list,
+        check_empty_dict,
     )
 
     for node in ast.walk(ast.parse(source)):
@@ -83,6 +96,33 @@ def check_transpose(node):
        isinstance(node.args[0], ast.Tuple) and \
        len(node.args[0].elts) == 1:
         yield (node.lineno, 'transpose((A,))')
+
+
+def check_empty_list(node):
+    if not isinstance(node, ast.Call):
+        return
+    if not isinstance(node.func, ast.Name):
+        return
+    if node.func.id == 'list' and len(node.args) == 0:
+        yield (node.lineno, 'init by list()')
+
+
+def check_empty_dict(node):
+    if not isinstance(node, ast.Call):
+        return
+    if not isinstance(node.func, ast.Name):
+        return
+    if node.func.id == 'dict' and len(node.args) == 0:
+        yield (node.lineno, 'init by dict()')
+
+
+def check_empty_tuple(node):
+    if not isinstance(node, ast.Call):
+        return
+    if not isinstance(node.func, ast.Name):
+        return
+    if node.func.id == 'tuple' and len(node.args) == 0:
+        yield (node.lineno, 'init by tuple()')
 
 
 def main():

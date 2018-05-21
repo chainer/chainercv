@@ -11,7 +11,8 @@ from chainercv.datasets import camvid_label_names
 from chainercv.datasets import CamVidDataset
 from chainercv.evaluations import eval_semantic_segmentation
 from chainercv.links import SegNetBasic
-from chainercv.utils import apply_prediction_to_iterator
+from chainercv.utils import apply_to_iterator
+from chainercv.utils import ProgressHook
 
 
 def calc_bn_statistics(model, batchsize):
@@ -55,18 +56,16 @@ def main():
 
     model = calc_bn_statistics(model, args.batchsize)
 
-    chainer.config.train = False
-
     test = CamVidDataset(split='test')
     it = chainer.iterators.SerialIterator(test, batch_size=args.batchsize,
                                           repeat=False, shuffle=False)
 
-    imgs, pred_values, gt_values = apply_prediction_to_iterator(
-        model.predict, it)
+    in_values, out_values, rest_values = apply_to_iterator(
+        model.predict, it, hook=ProgressHook(len(test)))
     # Delete an iterator of images to save memory usage.
-    del imgs
-    pred_labels, = pred_values
-    gt_labels, = gt_values
+    del in_values
+    pred_labels, = out_values
+    gt_labels, = rest_values
 
     result = eval_semantic_segmentation(pred_labels, gt_labels)
 

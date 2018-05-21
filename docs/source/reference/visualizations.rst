@@ -12,10 +12,14 @@ vis_image
 ~~~~~~~~~
 .. autofunction:: vis_image
 
-vis_keypoint
-~~~~~~~~~~~~
-.. autofunction:: vis_keypoint
+vis_instance_segmentation
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: vis_instance_segmentation
 
-vis_label
+vis_point
 ~~~~~~~~~
-.. autofunction:: vis_label
+.. autofunction:: vis_point
+
+vis_semantic_segmentation
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: vis_semantic_segmentation

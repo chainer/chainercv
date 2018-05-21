@@ -2,7 +2,7 @@ import numpy as np
 import unittest
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 from chainer import testing
 from chainer.testing import attr
 
@@ -42,9 +42,9 @@ class TestRegionProposalNetwork(unittest.TestCase):
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.link(
             chainer.Variable(x), img_size)
         self.assertIsInstance(rpn_locs, chainer.Variable)
-        self.assertIsInstance(rpn_locs.data, type(x))
+        self.assertIsInstance(rpn_locs.array, type(x))
         self.assertIsInstance(rpn_scores, chainer.Variable)
-        self.assertIsInstance(rpn_scores.data, type(x))
+        self.assertIsInstance(rpn_scores.array, type(x))
 
         A = len(self.ratios) * len(self.anchor_scales)
         self.assertEqual(rpn_locs.shape, (self.B, H * W * A, 4))
@@ -80,7 +80,7 @@ class TestRegionProposalNetwork(unittest.TestCase):
     def test_call_gpu(self):
         self.link.to_gpu()
         self._check_call(
-            chainer.cuda.to_gpu(self.x), self.img_size)
+            chainer.backends.cuda.to_gpu(self.x), self.img_size)
 
 
 testing.run_module(__name__, __file__)

@@ -14,14 +14,14 @@ class TestFlipBbox(unittest.TestCase):
 
         out = flip_bbox(bbox, size=(34, 32), y_flip=True)
         bbox_expected = bbox.copy()
-        bbox_expected[:, 0] = 33 - bbox[:, 2]
-        bbox_expected[:, 2] = 33 - bbox[:, 0]
+        bbox_expected[:, 0] = 34 - bbox[:, 2]
+        bbox_expected[:, 2] = 34 - bbox[:, 0]
         np.testing.assert_equal(out, bbox_expected)
 
         out = flip_bbox(bbox, size=(34, 32), x_flip=True)
         bbox_expected = bbox.copy()
-        bbox_expected[:, 1] = 31 - bbox[:, 3]
-        bbox_expected[:, 3] = 31 - bbox[:, 1]
+        bbox_expected[:, 1] = 32 - bbox[:, 3]
+        bbox_expected[:, 3] = 32 - bbox[:, 1]
         np.testing.assert_equal(out, bbox_expected)
 
 

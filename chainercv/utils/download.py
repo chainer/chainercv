@@ -43,8 +43,9 @@ def _reporthook(count, block_size, total_size):
 def cached_download(url):
     """Downloads a file and caches it.
 
-    This is different from the original ``cached_download`` in that the
-    download progress is reported.
+    This is different from the original
+    :func:`~chainer.dataset.cached_download` in that the download
+    progress is reported.
 
     It downloads a file from the URL if there is no corresponding cache. After
     the download, this function stores a cache to the directory under the
@@ -53,10 +54,10 @@ def cached_download(url):
     downloading the same file.
 
     Args:
-        url (str): URL to download from.
+        url (string): URL to download from.
 
     Returns:
-        str: Path to the downloaded file.
+        string: Path to the downloaded file.
 
     """
     cache_root = os.path.join(get_dataset_root(), '_dl_cache')
@@ -100,10 +101,10 @@ def download_model(url):
     it just returns the path without downloading the same file.
 
     Args:
-        url (str): URL to download from.
+        url (string): URL to download from.
 
     Returns:
-        str: Path to the downloaded file.
+        string: Path to the downloaded file.
 
     """
     root = get_dataset_directory(
@@ -122,10 +123,10 @@ def extractall(file_path, destination, ext):
     This function extracts an archive file to a destination.
 
     Args:
-        file_path (str): The path of a file to be extracted.
-        destination (str): A directory path. The archive file
+        file_path (string): The path of a file to be extracted.
+        destination (string): A directory path. The archive file
             will be extracted under this directory.
-        ext (str): An extension suffix of the archive file.
+        ext (string): An extension suffix of the archive file.
             This function supports :obj:`'.zip'`, :obj:`'.tar'`,
             :obj:`'.gz'` and :obj:`'.tgz'`.
 
