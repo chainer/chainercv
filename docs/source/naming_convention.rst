@@ -2,7 +2,7 @@ Naming Conventions
 ==================
 
 
-Here are notations used.
+Here are the notations used.
 
 + :math:`B` is the size of a batch.
 + :math:`H` is the height of an image.
