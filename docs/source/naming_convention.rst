@@ -115,13 +115,6 @@ For instance, :obj:`cls_locs` is :math:`(B, R, L, 4)` and :obj:`locs` is :math:`
     when there is no confusion.
 
 
-Prediction and ground-truth
-"""""""""""""""""""""""""""
-
-In functions which require both prediction and ground truth, we mark them by adding prefixes, :obj:`pred_` and :obj:`gt_`.
-For example, :obj:`pred_bboxes` and :obj:`gt_bboxes`.
-
-
 Arbitrary input
 """""""""""""""
 
