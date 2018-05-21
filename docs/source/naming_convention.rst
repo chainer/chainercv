@@ -28,7 +28,7 @@ Images
 
 
 Bounding boxes
-~~~~~~~~~~~~~~
+""""""""""""""
 
 + :obj:`bboxes`:  :math:`(B, R, 4)` or :math:`[(R, 4)]`
 + :obj:`bbox`:  :math:`(R, 4)`
@@ -36,7 +36,7 @@ Bounding boxes
 
 
 Labels
-~~~~~~
+""""""
 
 .. csv-table::
     :header: name, classification, detection and instance segmentation, semantic segmentation
@@ -47,7 +47,7 @@ Labels
 
 
 Scores and probabilities
-~~~~~~~~~~~~~~~~~~~~~~~~
+""""""""""""""""""""""""
 
 score represents an unbounded confidence value.
 On the other hand, probability is bounded in :obj:`[0, 1]` and sums to 1.
@@ -66,7 +66,7 @@ On the other hand, probability is bounded in :obj:`[0, 1]` and sums to 1.
 
 
 Instance segmentations
-~~~~~~~~~~~~~~~~~~~~~~
+""""""""""""""""""""""
 
 + :obj:`masks`:  :math:`(B, R, H, W)` or :math:`[(R, H, W)]`
 + :obj:`mask`:  :math:`(R, H, W)`
