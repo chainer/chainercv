@@ -4,7 +4,7 @@ Naming Conventions
 
 Here are notations used.
 
-+ :math:`B` is the size of an batch.
++ :math:`B` is the size of a batch.
 + :math:`H` is the height of an image.
 + :math:`W` is the width of an image.
 + :math:`C` is the number of channels.
@@ -12,8 +12,8 @@ Here are notations used.
 + :math:`L` is the number of classes.
 
 
-Data objets
-~~~~~~~~~~~
+Data objects
+~~~~~~~~~~~~
 
 Images
 """"""
@@ -43,13 +43,13 @@ Labels
 
     :obj:`labels`, ":math:`(B,)`", ":math:`(B, R)` or :math:`[(R,)]`", ":math:`(B, H, W)`"
     :obj:`label`, ":math:`()`", ":math:`(R,)`", ":math:`(H, W)`"
-    :obj:`lb`, --, ":math:`()`", --
+    :obj:`l`, r :obj:`lb`, --, ":math:`()`", --
 
 
 Scores and probabilities
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-A score represent unbounded confidence value.
+score represents an unbounded confidence value.
 On the other hand, probability is bounded in :obj:`[0, 1]` and sums to 1.
 
 .. csv-table::
@@ -68,7 +68,7 @@ On the other hand, probability is bounded in :obj:`[0, 1]` and sums to 1.
 Instance segmentations
 ~~~~~~~~~~~~~~~~~~~~~~
 
-+ :obj:`masks`:  :math:`(B, R, H, W)`
++ :obj:`masks`:  :math:`(B, R, H, W)` or :math:`[(R, H, W)]`
 + :obj:`mask`:  :math:`(R, H, W)`
 + :obj:`msk`:  :math:`(H, W)`
 
@@ -79,12 +79,11 @@ Attributing an additonal meaning to a basic data object
 RoIs
 """"
 
-:obj:`rois`: :math:`(R', 4)`, which consists of bounding boxes for multiple images.
-Assuming that there are :math:`B` images each containing :math:`R_i` bounding boxes,
-:math:`R' = \sum R_i`.
-:obj:`rois` comes together with a :math:`(R',)` array called :obj:`roi_indices`, which contains batch indices of images to which bounding boxes correspond to.
-
-:obj:`roi`: :math:`(R, 4)`. This is RoIs for single image.
++ :obj:`rois`: :math:`(R', 4)`, which consists of bounding boxes for multiple images. \
+  Assuming that there are :math:`B` images each containing :math:`R_i` bounding boxes, \
+  the formula :math:`R' = \sum R_i` is true.
++ :obj:`roi_indices`: An array of shape :math:`(R',)` that contains batch indices of images to which bounding boxes correspond.
++ :obj:`roi`: :math:`(R, 4)`. This is RoIs for single image.
 
 Attributes associated to RoIs
 """""""""""""""""""""""""""""
@@ -92,9 +91,10 @@ Attributes associated to RoIs
 RoIs may have additional attributes, such as class scores and masks.
 These attributes are named by appending :obj:`roi_` (e.g., :obj:`scores`-like object is named as :obj:`roi_scores`).
 
-+ :obj:`roi_nouns`: :math:`(R',) + shape_{noun}`
-+ :obj:`roi_noun`: :math:`(R,) + shape_{noun}`
++ :obj:`roi_xs`: :math:`(R',) + x_{shape}`
++ :obj:`roi_x`: :math:`(R,) + x_{shape}`
 
+In the case of :obj:`scores` with shape :math:`(L,)`, :obj:`roi_xs` would have shape :math:`(R', L)`.
 
 .. note::
    
@@ -102,8 +102,8 @@ These attributes are named by appending :obj:`roi_` (e.g., :obj:`scores`-like ob
    Changing names interchangeably is fine.
 
 
-Class-wise vs class-agnostic
-""""""""""""""""""""""""""""
+Class-wise vs class-independent
+"""""""""""""""""""""""""""""""
 
 :obj:`cls_nouns` is a multi-class version of :obj:`nouns`.
 For instance, :obj:`cls_locs` is :math:`(B, R, L, 4)` and :obj:`locs` is :math:`(B, R, 4)`.
