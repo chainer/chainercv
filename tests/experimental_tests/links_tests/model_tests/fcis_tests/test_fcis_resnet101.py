@@ -102,3 +102,6 @@ class TestFCISResNet101Pretrained(unittest.TestCase):
         else:
             with self.assertRaises(ValueError):
                 FCISResNet101(**kwargs)
+
+
+testing.run_module(__name__, __file__)
