@@ -5,6 +5,8 @@ import numpy as np
 
 
 def convolution_crop(img, size, stride, return_param=False):
+    """Convolution crop
+    """
     _, H, W = img.shape
 
     hh = int(math.ceil((H - size[0]) / stride[0])) + 1

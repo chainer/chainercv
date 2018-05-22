@@ -47,6 +47,7 @@ For more details, please read :func:`SegNetBasic.predict`.
 .. toctree::
 
    links/segnet
+   experimental/pspnet
 
 
 Classifiers
