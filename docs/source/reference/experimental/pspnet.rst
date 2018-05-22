@@ -21,4 +21,3 @@ PSPNet
 ~~~~~~
 .. autoclass:: PSPNet
    :members:
-   :special-members:  __call__

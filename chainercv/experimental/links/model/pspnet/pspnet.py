@@ -92,39 +92,27 @@ class DilatedFCN(chainer.Chain):
 
 class PSPNet(chainer.Chain):
 
-    """Pyramid Scene Parsing Network
+    """Pyramid Scene Parsing Network.
 
-    This Chain supports any depth of ResNet and any pyramid levels for
-    the pyramid pooling module (PPM).
+    This is a PSPNet [#]_ model for semantic segmentation. This is based on
+    the implementation found here_.
 
-    When you specify the path of a pre-trained chainer model serialized as
-    a :obj:`.npz` file in the constructor, this chain model automatically
-    initializes all the parameters with it.
-    When a string in prespecified set is provided, a pretrained model is
-    loaded from weights distributed on the Internet.
-    The list of pretrained models supported are as follows:
 
-    * :obj:`cityscapes`: Loads weights trained with Cityscapes dataset.
+    .. [#] Hengshuang Zhao, Jianping Shi, Xiaojuan Qi, Xiaogang Wang \
+    Jiaya Jia "Pyramid Scene Parsing Network" \
+    CVPR, 2017
 
-    ..note::
-
-        Somehow
+    .. _here: https://github.com/hszhao/PSPNet
 
     Args:
         n_layer (int): The number of layers.
         n_class (int): The number of channels in the last convolution layer.
-        pretrained_model (str): The destination of the pre-trained
-            chainer model serialized as a :obj:`.npz` file.
-            If this is one of the strings described
-            above, it automatically loads weights stored under a directory
-            :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/models/`,
-            where :obj:`$CHAINER_DATASET_ROOT` is set as
-            :obj:`$HOME/.chainer/dataset` unless you specify another value
-            by modifying the environment variable.
         input_size (int or iterable of ints): The input image size. If a
             single integer is given, it's treated in the same way as if
             a tuple of (input_size, input_size) is given. If an iterable object
             is given, it should mean (height, width) of the input images.
+        initialW (callable): Initializer for the weights of
+            convolution kernels.
         comm (chainermn.communicator or None): If a ChainerMN communicator is
             given, it will be used for distributed batch normalization during
             training. If None, all batch normalization links will not share
@@ -267,6 +255,24 @@ class PSPNet(chainer.Chain):
 
 
 class PSPNetResNet101(PSPNet):
+
+    """PSPNet with a ResNet101-based feature extractor.
+
+    When you specify the path of a pre-trained chainer model serialized as
+    a :obj:`.npz` file in the constructor, this chain model automatically
+    initializes all the parameters with it.
+    When a string in prespecified set is provided, a pretrained model is
+    loaded from weights distributed on the Internet.
+    The list of pretrained models supported are as follows:
+
+    * :obj:`cityscapes`: Loads weights trained with Cityscapes dataset.
+
+    Please consult the documentation for :class:`PSPNet`.
+
+    .. seealso::
+        :class:`chainercv.experimental.links.model.pspnet.PSPNet`
+
+    """
 
     _models = {
         'cityscapes': {
