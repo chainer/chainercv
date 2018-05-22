@@ -51,38 +51,3 @@ def convolution_crop(img, size, stride, return_param=False):
         return np.array(crop_imgs), param
     else:
         return np.array(crop_imgs)
-
-
-if __name__ == '__main__':
-    from chainercv.datasets import VOCBboxDataset
-    from chainercv.utils import tile_images
-    from chainercv.transforms import resize
-    from chainercv.visualizations import vis_image
-    import matplotlib.pyplot as plt
-
-    dataset = VOCBboxDataset(year='2007')
-    img, bbox, label = dataset[0]
-    print('H={} W={}'.format(img.shape[1], img.shape[2]))
-
-    img = resize(img, (300, 300))
-
-    imgs, param = convolution_crop(img, (128, 128), (96, 96), return_param=True)
-    v_imgs = tile_images(imgs, 5, fill=122.5)
-    vis_image(v_imgs)
-    plt.show()
-
-    output = np.zeros((3, 300, 300))
-    count = np.zeros((300, 300))
-    for i in range(len(imgs)):
-        assert imgs[i].shape == (3, 128, 128)
-        crop_y_slice = param['crop_y_slices'][i]
-        crop_x_slice = param['crop_x_slices'][i]
-        y_slice = param['y_slices'][i]
-        x_slice = param['x_slices'][i]
-        output[:, y_slice, x_slice] += imgs[i][:, crop_y_slice, crop_x_slice]
-
-        count[y_slice, x_slice] += 1
-    output = output / count[None]
-    vis_image(output)
-    np.testing.assert_equal(output, img)
-    plt.show()
