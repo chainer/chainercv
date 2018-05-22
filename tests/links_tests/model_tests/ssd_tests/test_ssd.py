@@ -58,10 +58,10 @@ class TestSSD(unittest.TestCase):
         mb_locs, mb_confs = self.link(x)
 
         self.assertIsInstance(mb_locs, chainer.Variable)
-        self.assertIsInstance(mb_locs.data, self.link.xp.ndarray)
+        self.assertIsInstance(mb_locs.array, self.link.xp.ndarray)
         self.assertEqual(mb_locs.shape, (1, self.n_bbox, 4))
         self.assertIsInstance(mb_confs, chainer.Variable)
-        self.assertIsInstance(mb_confs.data, self.link.xp.ndarray)
+        self.assertIsInstance(mb_confs.array, self.link.xp.ndarray)
         self.assertEqual(mb_confs.shape, (1, self.n_bbox, self.n_fg_class + 1))
 
     def test_call_cpu(self):

@@ -3,8 +3,9 @@ import copy
 import numpy as np
 
 import chainer
+from chainer.datasets import ConcatenatedDataset
 from chainer.datasets import TransformDataset
-from chainer.optimizer import WeightDecay
+from chainer.optimizer_hooks import WeightDecay
 from chainer import serializers
 from chainer import training
 from chainer.training import extensions
@@ -22,24 +23,6 @@ from chainercv import transforms
 from chainercv.links.model.ssd import random_crop_with_bbox_constraints
 from chainercv.links.model.ssd import random_distort
 from chainercv.links.model.ssd import resize_with_random_interpolation
-
-
-class ConcatenatedDataset(chainer.dataset.DatasetMixin):
-
-    def __init__(self, *datasets):
-        self._datasets = datasets
-
-    def __len__(self):
-        return sum(len(dataset) for dataset in self._datasets)
-
-    def get_example(self, i):
-        if i < 0:
-            raise IndexError
-        for dataset in self._datasets:
-            if i < len(dataset):
-                return dataset[i]
-            i -= len(dataset)
-        raise IndexError
 
 
 class MultiboxTrainChain(chainer.Chain):
@@ -168,7 +151,8 @@ def main():
         else:
             param.update_rule.add_hook(WeightDecay(0.0005))
 
-    updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
+    updater = training.updaters.StandardUpdater(
+        train_iter, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1, init=1e-3),

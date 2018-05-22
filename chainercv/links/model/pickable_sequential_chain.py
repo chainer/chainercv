@@ -54,7 +54,7 @@ class PickableSequentialChain(chainer.Chain):
 
     def __init__(self):
         super(PickableSequentialChain, self).__init__()
-        self.layer_names = list()
+        self.layer_names = []
         # Two attributes are initialized by the setter of pick.
         # self._pick -> None
         # self._return_tuple -> False
@@ -137,7 +137,7 @@ class PickableSequentialChain(chainer.Chain):
         # in pick.
         last_index = max(self.layer_names.index(name) for name in pick)
 
-        layers = dict()
+        layers = {}
         h = x
         for name in self.layer_names[:last_index + 1]:
             h = self[name](h)

@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from chainer import cuda
+from chainer.backends import cuda
 
 from chainer import testing
 from chainer.testing import attr
@@ -77,12 +77,10 @@ class TestNonMaximumSuppressionOptions(unittest.TestCase):
 
         # Reorder inputs befor passing it to the function.
         # Reorder the outputs according to scores.
-        # CuPy does not support argsort
-        order = cuda.to_cpu(score).argsort()[::-1]
+        order = score.argsort()[::-1]
         reordered_selec = non_maximum_suppression(
             bbox[order], threshold, score=None, limit=None)
         reordered_selec = reordered_selec[:limit]
-        reordered_selec = cuda.to_cpu(reordered_selec)
         reordered_selec = order[reordered_selec]
 
         np.testing.assert_equal(

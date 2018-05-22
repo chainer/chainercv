@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 
-from chainer import cuda
+from chainer.backends import cuda
 from chainer import testing
 from chainer.testing import attr
 
