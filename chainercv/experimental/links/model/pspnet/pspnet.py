@@ -7,8 +7,8 @@ import chainer
 import chainer.functions as F
 import chainer.links as L
 
+from chainercv.experimental.links.model.pspnet.transforms import convolution_crop
 from chainercv.links import Conv2DBNActiv
-from chainercv.links.model.pspnet.transforms import convolution_crop
 from chainercv.links.model.resnet import ResBlock
 from chainercv import transforms
 from chainercv import utils

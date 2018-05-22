@@ -1,15 +1,15 @@
 from __future__ import print_function
 
 import argparse
+from google.protobuf import text_format
+import numpy as np
 import os
 import re
 
 import chainer
 import chainer.links as L
 from chainer import serializers
-from chainercv.links import PSPNetResNet101
-from google.protobuf import text_format
-import numpy as np
+from chainercv.experimental.links import PSPNetResNet101
 
 import caffe_pb2
 

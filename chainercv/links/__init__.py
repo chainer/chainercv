@@ -6,7 +6,6 @@ from chainercv.links.model.pickable_sequential_chain import PickableSequentialCh
 from chainercv.links.model.pixelwise_softmax_classifier import PixelwiseSoftmaxClassifier  # NOQA
 
 from chainercv.links.model.faster_rcnn.faster_rcnn_vgg import FasterRCNNVGG16  # NOQA
-from chainercv.links.model.pspnet.pspnet import PSPNetResNet101  # NOQA
 from chainercv.links.model.resnet import ResNet101  # NOQA
 from chainercv.links.model.resnet import ResNet152  # NOQA
 from chainercv.links.model.resnet import ResNet50  # NOQA

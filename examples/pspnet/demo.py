@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import chainer
 from chainercv.datasets import cityscapes_semantic_segmentation_label_colors
 from chainercv.datasets import cityscapes_semantic_segmentation_label_names
-from chainercv.links import PSPNetResNet101
+from chainercv.experimental.links import PSPNetResNet101
 from chainercv.utils import read_image
 from chainercv.visualizations import vis_image
 from chainercv.visualizations import vis_semantic_segmentation
