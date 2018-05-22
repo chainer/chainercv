@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import argparse
 import os
 import re
 
@@ -209,6 +210,11 @@ def transfer(model, param, net):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('caffemodel')
+    parser.add_argument('output')
+    args = parser.parse_args()
+
     proto_dir = 'weights'
 
     settings = {
@@ -239,9 +245,7 @@ if __name__ == '__main__':
 
     model = get_chainer_model(
         n_class, input_size, n_blocks, pyramids, mid_stride)
-    param, net = get_param_net(proto_dir, param_fn, proto_fn)
+    param, net = get_param_net(proto_dir, args.caffemodel, proto_fn)
     model = transfer(model, param, net)
 
-    serializers.save_npz(
-        'weights/{}_reference.npz'.format(name), model)
-    print('weights/{}_reference.npz'.format(name), 'saved')
+    serializers.save_npz(args.output, model)
