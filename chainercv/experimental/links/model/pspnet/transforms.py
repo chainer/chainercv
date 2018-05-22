@@ -6,6 +6,7 @@ import numpy as np
 
 def convolution_crop(img, size, stride, return_param=False):
     """Convolution crop
+
     """
     _, H, W = img.shape
 
