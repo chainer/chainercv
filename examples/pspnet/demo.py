@@ -1,7 +1,6 @@
 import argparse
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 import chainer
 from chainercv.datasets import cityscapes_semantic_segmentation_label_colors

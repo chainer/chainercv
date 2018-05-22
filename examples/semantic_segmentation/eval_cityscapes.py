@@ -3,8 +3,8 @@ import argparse
 import chainer
 from chainer import iterators
 
-from chainercv.datasets import CityscapesSemanticSegmentationDataset
 from chainercv.datasets import cityscapes_semantic_segmentation_label_names
+from chainercv.datasets import CityscapesSemanticSegmentationDataset
 from chainercv.evaluations import eval_semantic_segmentation
 from chainercv.links import PSPNetResNet101
 from chainercv.utils import apply_to_iterator
