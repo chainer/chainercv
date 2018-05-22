@@ -151,6 +151,8 @@ class KITTIDataset(GetterDataset):
     """
 
     def __init__(self, data_dir='auto', date='', driveNo='', color=True, sync=True, isLeft=True):
+        super(KITTIDataset, self).__init__()
+
         self.color = color
         self.sync = sync
         self.isLeft = isLeft
@@ -200,13 +202,13 @@ class KITTIDataset(GetterDataset):
         self.bboxes = [0] * length
         self.labels = [0] * length
         for idx in range(0, length):
-            self.bboxes[idx] = list()
-            self.labels[idx] = list()
+            self.bboxes[idx] = []
+            self.labels[idx] = []
 
         self.get_KITTI_Label(self.tracklets)
 
         self.add_getter('img', self._get_image)
-        self.add_getter('iabel', self._get_label)
+        self.add_getter('label', self._get_label)
         self.add_getter('bbox', self._get_bbox)
 
     def __len__(self):
@@ -229,7 +231,6 @@ class KITTIDataset(GetterDataset):
     def _get_bbox(self, i):
         bbox = self.bboxes[i]
         return bbox
-
 
     def get_KITTI_Tracklets(self, data_root, date, driveNo):
         # read calibration files
@@ -371,24 +372,23 @@ if __name__ == '__main__':
     dataset = KITTIDataset(date='2011_09_26', driveNo='0020', color=True, sync = True)
     # use pykitti
     # dataset = KITTIDataset(date='2011_09_26', driveNo='0001', color=True, sync = True)
-    print(len(dataset))
-    img, bbox, label = dataset[20]
+    img, label, bbox = dataset[30]
 
     # keys returns the names of data
-    print(dataset.keys)  # ('img', 'bbox', 'label')
+    print(dataset.keys)  # ('img', 'label', 'bbox')
     # we can get an example by []
-    img, bbox, label = dataset[0]
+    # img, label, bbox = dataset[0]
 
     # get a view of the first 50 examples
     view = dataset.slice[:50]
-    print(len(view))  # 50
+    # print(len(view))  # 50
 
     # get a view of image and label
-    view = dataset.slice[:, ('img', 'label')]
+    # view = dataset.slice[:, ('img', 'label', 'bbox')]
     # the view also supports sliceable, so that we can call keys
-    print(view.keys)  # ('img', 'label')
+    # print(view.keys)  # ('img', 'label')
     # we can get an example by []
-    img, label = view[0]
+    # img, label = view[0]
 
     # print(img)
     # print(img.shape)
