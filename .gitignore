@@ -5,17 +5,12 @@
 *.c
 *.cpp
 *.so
-*.cson
 build
 \#*\#
 .\#*
 .coverage
 dist/
 .cache/
-.DS_Store
 check_autopep8
 
 tests/bin/
-
-examples/pspnet/weights/*.caffemodel
-examples/pspnet/weights/*.npz
