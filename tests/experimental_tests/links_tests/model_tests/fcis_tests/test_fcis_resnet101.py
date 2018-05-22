@@ -42,27 +42,27 @@ class TestFCISResNet101(unittest.TestCase):
                 low=-1., high=1.,
                 size=(self.B, 3, feat_size[0] * 16, feat_size[1] * 16)
             ).astype(np.float32))
-        roi_seg_scores, roi_ag_locs, roi_scores, rois, roi_indices = \
+        roi_ag_seg_scores, roi_ag_locs, roi_cls_scores, rois, roi_indices = \
             self.link(x)
 
-        n_roi = roi_seg_scores.shape[0]
+        n_roi = roi_ag_seg_scores.shape[0]
         if self.train:
             self.assertGreaterEqual(self.B * self.n_train_post_nms, n_roi)
         else:
             self.assertGreaterEqual(self.B * self.n_test_post_nms * 2, n_roi)
 
-        self.assertIsInstance(roi_seg_scores, chainer.Variable)
-        self.assertIsInstance(roi_seg_scores.array, xp.ndarray)
+        self.assertIsInstance(roi_ag_seg_scores, chainer.Variable)
+        self.assertIsInstance(roi_ag_seg_scores.array, xp.ndarray)
         self.assertEqual(
-            roi_seg_scores.shape, (n_roi, 2, 21, 21))
+            roi_ag_seg_scores.shape, (n_roi, 2, 21, 21))
 
         self.assertIsInstance(roi_ag_locs, chainer.Variable)
         self.assertIsInstance(roi_ag_locs.array, xp.ndarray)
         self.assertEqual(roi_ag_locs.shape, (n_roi, 2, 4))
 
-        self.assertIsInstance(roi_scores, chainer.Variable)
-        self.assertIsInstance(roi_scores.array, xp.ndarray)
-        self.assertEqual(roi_scores.shape, (n_roi, self.n_class))
+        self.assertIsInstance(roi_cls_scores, chainer.Variable)
+        self.assertIsInstance(roi_cls_scores.array, xp.ndarray)
+        self.assertEqual(roi_cls_scores.shape, (n_roi, self.n_class))
 
         self.assertIsInstance(rois, xp.ndarray)
         self.assertEqual(rois.shape, (n_roi, 4))

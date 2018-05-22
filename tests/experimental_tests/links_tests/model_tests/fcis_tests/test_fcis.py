@@ -43,16 +43,16 @@ class DummyHead(chainer.Chain):
             _random_array(self.xp, (n_roi, 2, 4)))
         # For each bbox, the score for a selected class is
         # overwhelmingly higher than the scores for the other classes.
-        seg_scores = chainer.Variable(
+        ag_seg_scores = chainer.Variable(
             _random_array(
                 self.xp, (n_roi, 2, self.roi_size, self.roi_size)))
         score_idx = np.random.randint(
             low=0, high=self.n_class, size=(n_roi,))
-        scores = self.xp.zeros((n_roi, self.n_class), dtype=np.float32)
-        scores[np.arange(n_roi), score_idx] = 100
-        scores = chainer.Variable(scores)
+        cls_scores = self.xp.zeros((n_roi, self.n_class), dtype=np.float32)
+        cls_scores[np.arange(n_roi), score_idx] = 100
+        cls_scores = chainer.Variable(cls_scores)
 
-        return seg_scores, ag_locs, scores, rois, roi_indices
+        return ag_seg_scores, ag_locs, cls_scores, rois, roi_indices
 
 
 class DummyRegionProposalNetwork(chainer.Chain):
@@ -119,22 +119,22 @@ class TestFCIS(unittest.TestCase):
         xp = self.link.xp
 
         x1 = chainer.Variable(_random_array(xp, (1, 3, 600, 800)))
-        roi_seg_scores, roi_ag_locs, roi_scores, rois, roi_indices = \
+        roi_ag_seg_scores, roi_ag_locs, roi_cls_scores, rois, roi_indices = \
             self.link(x1)
 
-        self.assertIsInstance(roi_seg_scores, chainer.Variable)
-        self.assertIsInstance(roi_seg_scores.array, xp.ndarray)
+        self.assertIsInstance(roi_ag_seg_scores, chainer.Variable)
+        self.assertIsInstance(roi_ag_seg_scores.array, xp.ndarray)
         self.assertEqual(
-            roi_seg_scores.shape,
+            roi_ag_seg_scores.shape,
             (self.n_roi, 2, self.roi_size, self.roi_size))
 
         self.assertIsInstance(roi_ag_locs, chainer.Variable)
         self.assertIsInstance(roi_ag_locs.array, xp.ndarray)
         self.assertEqual(roi_ag_locs.shape, (self.n_roi, 2, 4))
 
-        self.assertIsInstance(roi_scores, chainer.Variable)
-        self.assertIsInstance(roi_scores.array, xp.ndarray)
-        self.assertEqual(roi_scores.shape, (self.n_roi, self.n_class))
+        self.assertIsInstance(roi_cls_scores, chainer.Variable)
+        self.assertIsInstance(roi_cls_scores.array, xp.ndarray)
+        self.assertEqual(roi_cls_scores.shape, (self.n_roi, self.n_class))
 
         self.assertIsInstance(rois, xp.ndarray)
         self.assertEqual(rois.shape, (self.n_roi, 4))
