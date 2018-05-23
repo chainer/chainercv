@@ -1,6 +1,6 @@
 import numpy as np
 
-from chainer import cuda
+from chainer.backends import cuda
 
 from chainercv.links.model.faster_rcnn.utils.bbox2loc import bbox2loc
 from chainercv.utils.bbox.bbox_iou import bbox_iou

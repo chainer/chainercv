@@ -5,7 +5,7 @@ from chainer import reporter
 import chainer.training.extensions
 
 from chainercv.evaluations import eval_detection_voc
-from chainercv.utils import apply_prediction_to_iterator
+from chainercv.utils import apply_to_iterator
 
 
 class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
@@ -24,7 +24,7 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
         :obj:`label_names[l]`, where :math:`l` is the index of the class. \
         For example, this evaluator reports :obj:`'ap/aeroplane'`, \
         :obj:`'ap/bicycle'`, etc. if :obj:`label_names` is \
-        :obj:`~chainercv.datasets.voc_detection_label_names`. \
+        :obj:`~chainercv.datasets.voc_bbox_label_names`. \
         If there is no bounding box assigned to class :obj:`label_names[l]` \
         in either ground truth or prediction, it reports :obj:`numpy.nan` as \
         its average precision. \
@@ -72,17 +72,17 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
         else:
             it = copy.copy(iterator)
 
-        imgs, pred_values, gt_values = apply_prediction_to_iterator(
+        in_values, out_values, rest_values = apply_to_iterator(
             target.predict, it)
-        # delete unused iterator explicitly
-        del imgs
+        # delete unused iterators explicitly
+        del in_values
 
-        pred_bboxes, pred_labels, pred_scores = pred_values
+        pred_bboxes, pred_labels, pred_scores = out_values
 
-        if len(gt_values) == 3:
-            gt_bboxes, gt_labels, gt_difficults = gt_values
-        elif len(gt_values) == 2:
-            gt_bboxes, gt_labels = gt_values
+        if len(rest_values) == 3:
+            gt_bboxes, gt_labels, gt_difficults = rest_values
+        elif len(rest_values) == 2:
+            gt_bboxes, gt_labels = rest_values
             gt_difficults = None
 
         result = eval_detection_voc(
@@ -99,7 +99,7 @@ class DetectionVOCEvaluator(chainer.training.extensions.Evaluator):
                 except IndexError:
                     report['ap/{:s}'.format(label_name)] = np.nan
 
-        observation = dict()
+        observation = {}
         with reporter.report_scope(observation):
             reporter.report(report, target)
         return observation

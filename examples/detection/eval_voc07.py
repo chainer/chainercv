@@ -1,41 +1,25 @@
-from __future__ import division
-
 import argparse
-import sys
-import time
 
 import chainer
 from chainer import iterators
 
-from chainercv.datasets import voc_detection_label_names
-from chainercv.datasets import VOCDetectionDataset
+from chainercv.datasets import voc_bbox_label_names
+from chainercv.datasets import VOCBboxDataset
 from chainercv.evaluations import eval_detection_voc
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
-from chainercv.utils import apply_prediction_to_iterator
-
-
-class ProgressHook(object):
-
-    def __init__(self, n_total):
-        self.n_total = n_total
-        self.start = time.time()
-        self.n_processed = 0
-
-    def __call__(self, imgs, pred_values, gt_values):
-        self.n_processed += len(imgs)
-        fps = self.n_processed / (time.time() - self.start)
-        sys.stdout.write(
-            '\r{:d} of {:d} images, {:.2f} FPS'.format(
-                self.n_processed, self.n_total, fps))
-        sys.stdout.flush()
+from chainercv.links import YOLOv2
+from chainercv.links import YOLOv3
+from chainercv.utils import apply_to_iterator
+from chainercv.utils import ProgressHook
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('faster_rcnn', 'ssd300', 'ssd512'),
+        '--model',
+        choices=('faster_rcnn', 'ssd300', 'ssd512', 'yolo_v2', 'yolo_v3'),
         default='ssd300')
     parser.add_argument('--pretrained_model')
     parser.add_argument('--gpu', type=int, default=-1)
@@ -45,24 +29,38 @@ def main():
     if args.model == 'faster_rcnn':
         if args.pretrained_model:
             model = FasterRCNNVGG16(
-                n_fg_class=20,
+                n_fg_class=len(voc_bbox_label_names),
                 pretrained_model=args.pretrained_model)
         else:
             model = FasterRCNNVGG16(pretrained_model='voc07')
     elif args.model == 'ssd300':
         if args.pretrained_model:
             model = SSD300(
-                n_fg_class=20,
+                n_fg_class=len(voc_bbox_label_names),
                 pretrained_model=args.pretrained_model)
         else:
             model = SSD300(pretrained_model='voc0712')
     elif args.model == 'ssd512':
         if args.pretrained_model:
             model = SSD512(
-                n_fg_class=20,
+                n_fg_class=len(voc_bbox_label_names),
                 pretrained_model=args.pretrained_model)
         else:
             model = SSD512(pretrained_model='voc0712')
+    elif args.model == 'yolo_v2':
+        if args.pretrained_model:
+            model = YOLOv2(
+                n_fg_class=len(voc_bbox_label_names),
+                pretrained_model=args.pretrained_model)
+        else:
+            model = YOLOv2(pretrained_model='voc0712')
+    elif args.model == 'yolo_v3':
+        if args.pretrained_model:
+            model = YOLOv3(
+                n_fg_class=len(voc_bbox_label_names),
+                pretrained_model=args.pretrained_model)
+        else:
+            model = YOLOv3(pretrained_model='voc0712')
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
@@ -70,18 +68,18 @@ def main():
 
     model.use_preset('evaluate')
 
-    dataset = VOCDetectionDataset(
+    dataset = VOCBboxDataset(
         year='2007', split='test', use_difficult=True, return_difficult=True)
     iterator = iterators.SerialIterator(
         dataset, args.batchsize, repeat=False, shuffle=False)
 
-    imgs, pred_values, gt_values = apply_prediction_to_iterator(
+    in_values, out_values, rest_values = apply_to_iterator(
         model.predict, iterator, hook=ProgressHook(len(dataset)))
-    # delete unused iterator explicitly
-    del imgs
+    # delete unused iterators explicitly
+    del in_values
 
-    pred_bboxes, pred_labels, pred_scores = pred_values
-    gt_bboxes, gt_labels, gt_difficults = gt_values
+    pred_bboxes, pred_labels, pred_scores = out_values
+    gt_bboxes, gt_labels, gt_difficults = rest_values
 
     result = eval_detection_voc(
         pred_bboxes, pred_labels, pred_scores,
@@ -90,7 +88,7 @@ def main():
 
     print()
     print('mAP: {:f}'.format(result['map']))
-    for l, name in enumerate(voc_detection_label_names):
+    for l, name in enumerate(voc_bbox_label_names):
         if result['ap'][l]:
             print('{:s}: {:f}'.format(name, result['ap'][l]))
         else:

@@ -26,7 +26,7 @@ class TestGradientScaling(unittest.TestCase):
             np.arange(3, -3, -1, dtype=np.float32).reshape((2, 3)))
 
     def check_gradient_scaling(self):
-        w = self.target.param.data
+        w = self.target.param.array
         g = self.target.param.grad
 
         rate = 0.2

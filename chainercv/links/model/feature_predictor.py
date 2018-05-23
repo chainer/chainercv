@@ -2,7 +2,7 @@ import numpy as np
 import warnings
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 
 from chainercv.transforms import center_crop
 from chainercv.transforms import resize
@@ -47,7 +47,7 @@ class FeaturePredictor(chainer.Chain):
         crop_size (int or tuple): The height and the width of an image after
             cropping in preprocessing.
             If this is an integer, the image is cropped to
-            :math:`(crop_size, crop_size)`.
+            :math:`(crop\_size, crop\_size)`.
         scale_size (int or tuple): If :obj:`scale_size` is :obj:`None`,
             neither scaling nor resizing is conducted during preprocessing.
             This is the default behavior.
@@ -120,7 +120,7 @@ class FeaturePredictor(chainer.Chain):
                 'If these are batch of 2D spatial features, '
                 'their spatial information would be lost.')
 
-        xp = chainer.cuda.get_array_module(y)
+        xp = chainer.backends.cuda.get_array_module(y)
         y = y.reshape((-1, n_crop) + y.shape[1:])
         y = xp.mean(y, axis=1)
         return y
@@ -154,15 +154,15 @@ class FeaturePredictor(chainer.Chain):
             features = self.extractor(imgs)
 
         if isinstance(features, tuple):
-            output = list()
+            output = []
             for feature in features:
-                feature = feature.data
+                feature = feature.array
                 if n_crop > 1:
                     feature = self._average_crops(feature, n_crop)
                 output.append(cuda.to_cpu(feature))
             output = tuple(output)
         else:
-            output = cuda.to_cpu(features.data)
+            output = cuda.to_cpu(features.array)
             if n_crop > 1:
                 output = self._average_crops(output, n_crop)
 

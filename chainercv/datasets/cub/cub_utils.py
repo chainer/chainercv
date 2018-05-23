@@ -1,16 +1,16 @@
 import numpy as np
 import os
 
-import chainer
 from chainer.dataset import download
 
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv import utils
 
 
 root = 'pfnet/chainercv/cub'
 url = 'http://www.vision.caltech.edu/visipedia-data/CUB-200-2011/'\
     'CUB_200_2011.tgz'
-mask_url = 'http://www.vision.caltech.edu/visipedia-data/'\
+prob_map_url = 'http://www.vision.caltech.edu/visipedia-data/'\
     'CUB-200-2011/segmentations.tgz'
 
 
@@ -27,54 +27,107 @@ def get_cub():
     return base_path
 
 
-def get_cub_mask():
+def get_cub_prob_map():
     data_root = download.get_dataset_directory(root)
     base_path = os.path.join(data_root, 'segmentations')
     if os.path.exists(base_path):
         # skip downloading
         return base_path
 
-    download_file_path_mask = utils.cached_download(mask_url)
-    ext_mask = os.path.splitext(mask_url)[1]
+    prob_map_download_file_path = utils.cached_download(prob_map_url)
+    prob_map_ext = os.path.splitext(prob_map_url)[1]
     utils.extractall(
-        download_file_path_mask, data_root, ext_mask)
+        prob_map_download_file_path, data_root, prob_map_ext)
     return base_path
 
 
-class CUBDatasetBase(chainer.dataset.DatasetMixin):
+class CUBDatasetBase(GetterDataset):
 
     """Base class for CUB dataset.
 
     """
 
-    def __init__(self, data_dir='auto', mask_dir='auto', crop_bbox=True):
+    def __init__(self, data_dir='auto', prob_map_dir='auto'):
+        super(CUBDatasetBase, self).__init__()
+
         if data_dir == 'auto':
             data_dir = get_cub()
-        if mask_dir == 'auto':
-            mask_dir = get_cub_mask()
+        if prob_map_dir == 'auto':
+            prob_map_dir = get_cub_prob_map()
         self.data_dir = data_dir
-        self.mask_dir = mask_dir
+        self.prob_map_dir = prob_map_dir
 
         imgs_file = os.path.join(data_dir, 'images.txt')
-        bboxes_file = os.path.join(data_dir, 'bounding_boxes.txt')
+        bbs_file = os.path.join(data_dir, 'bounding_boxes.txt')
 
         self.paths = [
             line.strip().split()[1] for line in open(imgs_file)]
 
         # (x_min, y_min, width, height)
-        bboxes = np.array([
+        bbs = np.array([
             tuple(map(float, line.split()[1:5]))
-            for line in open(bboxes_file)])
+            for line in open(bbs_file)])
         # (x_min, y_min, width, height) -> (x_min, y_min, x_max, y_max)
-        bboxes[:, 2:] += bboxes[:, :2]
+        bbs[:, 2:] += bbs[:, :2]
         # (x_min, y_min, width, height) -> (y_min, x_min, y_max, x_max)
-        bboxes[:] = bboxes[:, [1, 0, 3, 2]]
-        self.bboxes = bboxes.astype(np.float32)
+        bbs[:] = bbs[:, [1, 0, 3, 2]]
+        self.bbs = bbs.astype(np.float32)
 
-        self.crop_bbox = crop_bbox
+        self.prob_map_paths = [
+            os.path.join(self.prob_map_dir, os.path.splitext(path)[0] + '.png')
+            for path in self.paths]
+
+        self.add_getter('img', self.get_image)
+        self.add_getter('bb', self.get_bb)
+        self.add_getter('prob_map', self.get_prob_map)
 
     def __len__(self):
         return len(self.paths)
+
+    def get_image(self, i):
+        """Returns the i-th image.
+
+        Args:
+            i (int): The index of the example.
+
+        Returns:
+            An image.
+            The image is in CHW format and its color channel is ordered in
+            RGB.
+
+        """
+        img = utils.read_image(
+            os.path.join(self.data_dir, 'images', self.paths[i]),
+            color=True)
+        return img
+
+    def get_bb(self, i):
+        """Returns the bounding box of the i-th example.
+
+        Args:
+            i (int): The index of the example.
+
+        Returns:
+            A bounding box.
+
+        """
+        return self.bbs[i]
+
+    def get_prob_map(self, i):
+        """Returns the probability map of the i-th example.
+
+        Args:
+            i (int): The index of the example.
+
+        Returns:
+            A probability map.
+
+        """
+        prob_map = utils.read_image(self.prob_map_paths[i],
+                                    dtype=np.uint8, color=False)
+        prob_map = prob_map.astype(np.float32) / 255  # [0, 255] -> [0, 1]
+        prob_map = prob_map[0]  # (1, H, W) --> (H, W)
+        return prob_map
 
 
 cub_label_names = (

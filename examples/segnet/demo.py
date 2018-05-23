@@ -1,5 +1,5 @@
 import argparse
-import matplotlib.pyplot as plot
+import matplotlib.pyplot as plt
 
 import chainer
 
@@ -32,13 +32,14 @@ def main():
     labels = model.predict([img])
     label = labels[0]
 
-    fig = plot.figure()
+    fig = plt.figure()
     ax1 = fig.add_subplot(1, 2, 1)
     vis_image(img, ax=ax1)
     ax2 = fig.add_subplot(1, 2, 2)
+    # Do not overlay the label image on the color image
     vis_semantic_segmentation(
-        label, camvid_label_names, camvid_label_colors, ax=ax2)
-    plot.show()
+        None, label, camvid_label_names, camvid_label_colors, ax=ax2)
+    plt.show()
 
 
 if __name__ == '__main__':

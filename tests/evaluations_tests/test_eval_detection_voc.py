@@ -267,3 +267,6 @@ class TestEvalDetectionVOCAP(unittest.TestCase):
         np.testing.assert_almost_equal(result['ap'], expected, decimal=5)
         np.testing.assert_almost_equal(
             result['map'], np.nanmean(expected), decimal=5)
+
+
+testing.run_module(__name__, __file__)

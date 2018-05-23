@@ -35,8 +35,8 @@ def generate_anchor_base(base_size=16, ratios=[0.5, 1, 2],
         ~numpy.ndarray:
         An array of shape :math:`(R, 4)`.
         Each element is a set of coordinates of a bounding box.
-        The second axis corresponds to :obj:`y_min, x_min, y_max, x_max`
-        of a bounding box.
+        The second axis corresponds to
+        :math:`(y_{min}, x_{min}, y_{max}, x_{max})` of a bounding box.
 
     """
     py = base_size / 2.
