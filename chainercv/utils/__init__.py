@@ -10,6 +10,7 @@ from chainercv.utils.iterator import apply_to_iterator  # NOQA
 from chainercv.utils.iterator import ProgressHook  # NOQA
 from chainercv.utils.iterator import unzip  # NOQA
 from chainercv.utils.link.prepare_pretrained_model import prepare_pretrained_model  # NOQA
+from chainercv.utils.link.semantic_segmentation_link import semantic_segmentation_predict  # NOQA
 from chainercv.utils.mask.mask_iou import mask_iou  # NOQA
 from chainercv.utils.mask.mask_to_bbox import mask_to_bbox  # NOQA
 from chainercv.utils.testing import assert_is_bbox  # NOQA
