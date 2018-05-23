@@ -96,7 +96,7 @@ class PSPNet(chainer.Chain):
     .. _here: https://github.com/hszhao/PSPNet
 
     Args:
-        n_layer (int): The number of layers.
+        extractor (chainer.Chain): A feature extractor.
         n_class (int): The number of channels in the last convolution layer.
         input_size (tuple): The size of the input.
             This value is :math:`(height, width)`.
@@ -112,12 +112,9 @@ class PSPNet(chainer.Chain):
 
     """
 
-    def __init__(self, n_layer, n_class, input_size,
+    def __init__(self, extractor, n_class, input_size,
                  initialW=None, bn_kwargs=None):
         super(PSPNet, self).__init__()
-        if initialW is None:
-            initialW = chainer.initializers.HeNormal()
-
         pyramids = [6, 3, 2, 1]
 
         if not isinstance(input_size, (list, tuple)):
@@ -130,9 +127,7 @@ class PSPNet(chainer.Chain):
 
         feat_size = (input_size[0] // 8, input_size[1] // 8)
         with self.init_scope():
-            self.extractor = DilatedResNet(n_layer=n_layer, initialW=initialW,
-                                           bn_kwargs=bn_kwargs)
-            self.extractor.pick = ('res4', 'res5')
+            self.extractor = extractor
             self.ppm = PyramidPoolingModule(2048, feat_size, pyramids,
                                             initialW=initialW,
                                             bn_kwargs=bn_kwargs)
@@ -295,8 +290,12 @@ class PSPNetResNet101(PSPNet):
             bn_kwargs = {'comm': comm}
         else:
             bn_kwargs = {}
+        if initialW is None:
+            initialW = chainer.initializers.HeNormal()
+        extractor = DilatedResNet(101, initialW, bn_kwargs)
+        extractor.pick = ('res4', 'res5')
         super(PSPNetResNet101, self).__init__(
-            101, param['n_class'], param['input_size'],
+            extractor, param['n_class'], param['input_size'],
             initialW, bn_kwargs)
 
         if path:
