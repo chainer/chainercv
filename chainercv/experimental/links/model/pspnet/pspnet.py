@@ -68,6 +68,8 @@ class DilatedResNet(PickableSequentialChain):
                 64, 64, 3, 1, 1, 1, initialW=initialW, bn_kwargs=bn_kwargs)
             self.conv1_3 = Conv2DBNActiv(
                 64, 128, 3, 1, 1, 1, initialW=initialW, bn_kwargs=bn_kwargs)
+            self.pool1 = lambda x: F.max_pooling_2d(
+                x, ksize=3, stride=2, pad=1)
             self.res2 = ResBlock(
                 n_block[0], 128, 64, 256, 1, 1,
                 initialW, bn_kwargs, stride_first=False)
