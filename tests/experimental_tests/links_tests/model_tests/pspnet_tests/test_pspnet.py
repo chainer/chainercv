@@ -9,7 +9,6 @@ from chainercv.experimental.links import PSPNetResNet101
 from chainercv.utils import assert_is_semantic_segmentation_link
 
 
-@attr.slow
 class TestPSPNetResNet101(unittest.TestCase):
 
     def setUp(self):
@@ -28,18 +27,22 @@ class TestPSPNetResNet101(unittest.TestCase):
         self.assertIsInstance(y.data, xp.ndarray)
         self.assertEqual(y.shape, (2, self.n_class, 120, 160))
 
+    @attr.slow
     def test_call_cpu(self):
         self.check_call()
 
     @attr.gpu
+    @attr.slow
     def test_call_gpu(self):
         self.link.to_gpu()
         self.check_call()
 
+    @attr.slow
     def test_predict_cpu(self):
         assert_is_semantic_segmentation_link(self.link, self.n_class)
 
     @attr.gpu
+    @attr.slow
     def test_predict_gpu(self):
         self.link.to_gpu()
         assert_is_semantic_segmentation_link(self.link, self.n_class)
