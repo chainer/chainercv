@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 from chainer.functions import relu
 from chainer import testing
 from chainer.testing import attr
@@ -16,6 +16,7 @@ def _add_one(x):
 
 
 @testing.parameterize(*testing.product({
+    'dilate': [1, 2],
     'args_style': ['explicit', 'None', 'omit'],
     'activ': ['relu', 'add_one', None]
 }))
@@ -46,19 +47,19 @@ class TestConv2DActiv(unittest.TestCase):
         if self.args_style == 'explicit':
             self.l = Conv2DActiv(
                 self.in_channels, self.out_channels, self.ksize,
-                self.stride, self.pad,
+                self.stride, self.pad, self.dilate,
                 initialW=initialW, initial_bias=initial_bias,
                 activ=activ)
         elif self.args_style == 'None':
             self.l = Conv2DActiv(
                 None, self.out_channels, self.ksize, self.stride, self.pad,
-                initialW=initialW, initial_bias=initial_bias,
+                self.dilate, initialW=initialW, initial_bias=initial_bias,
                 activ=activ)
         elif self.args_style == 'omit':
             self.l = Conv2DActiv(
                 self.out_channels, self.ksize, stride=self.stride,
-                pad=self.pad, initialW=initialW, initial_bias=initial_bias,
-                activ=activ)
+                pad=self.pad, dilate=self.dilate, initialW=initialW,
+                initial_bias=initial_bias, activ=activ)
 
     def check_forward(self, x_data):
         x = chainer.Variable(x_data)
@@ -67,19 +68,23 @@ class TestConv2DActiv(unittest.TestCase):
         self.assertIsInstance(y, chainer.Variable)
         self.assertIsInstance(y.array, self.l.xp.ndarray)
 
+        if self.dilate == 1:
+            _x_data = x_data
+        elif self.dilate == 2:
+            _x_data = x_data[:, :, 1:-1, 1:-1]
         if self.activ == 'relu':
             np.testing.assert_almost_equal(
-                cuda.to_cpu(y.array), np.maximum(cuda.to_cpu(x_data), 0),
+                cuda.to_cpu(y.array), np.maximum(cuda.to_cpu(_x_data), 0),
                 decimal=6
             )
         elif self.activ == 'add_one':
             np.testing.assert_almost_equal(
-                cuda.to_cpu(y.array), cuda.to_cpu(x_data) + 1,
+                cuda.to_cpu(y.array), cuda.to_cpu(_x_data) + 1,
                 decimal=6
             )
         elif self.activ is None:
             np.testing.assert_almost_equal(
-                cuda.to_cpu(y.array), cuda.to_cpu(x_data),
+                cuda.to_cpu(y.array), cuda.to_cpu(_x_data),
                 decimal=6)
 
     def test_forward_cpu(self):
@@ -93,7 +98,10 @@ class TestConv2DActiv(unittest.TestCase):
     def check_backward(self, x_data, y_grad):
         x = chainer.Variable(x_data)
         y = self.l(x)
-        y.grad = y_grad
+        if self.dilate == 1:
+            y.grad = y_grad
+        elif self.dilate == 2:
+            y.grad = y_grad[:, :, 1:-1, 1:-1]
         y.backward()
 
     def test_backward_cpu(self):

@@ -1,9 +1,9 @@
 import numpy as np
 import os
 
-import chainer
 from chainer.dataset import download
 
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv import utils
 
 
@@ -41,14 +41,15 @@ def get_cub_prob_map():
     return base_path
 
 
-class CUBDatasetBase(chainer.dataset.DatasetMixin):
+class CUBDatasetBase(GetterDataset):
 
     """Base class for CUB dataset.
 
     """
 
-    def __init__(self, data_dir='auto', return_bb=False,
-                 prob_map_dir='auto', return_prob_map=False):
+    def __init__(self, data_dir='auto', prob_map_dir='auto'):
+        super(CUBDatasetBase, self).__init__()
+
         if data_dir == 'auto':
             data_dir = get_cub()
         if prob_map_dir == 'auto':
@@ -76,11 +77,57 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
             os.path.join(self.prob_map_dir, os.path.splitext(path)[0] + '.png')
             for path in self.paths]
 
-        self.return_bb = return_bb
-        self.return_prob_map = return_prob_map
+        self.add_getter('img', self.get_image)
+        self.add_getter('bb', self.get_bb)
+        self.add_getter('prob_map', self.get_prob_map)
 
     def __len__(self):
         return len(self.paths)
+
+    def get_image(self, i):
+        """Returns the i-th image.
+
+        Args:
+            i (int): The index of the example.
+
+        Returns:
+            An image.
+            The image is in CHW format and its color channel is ordered in
+            RGB.
+
+        """
+        img = utils.read_image(
+            os.path.join(self.data_dir, 'images', self.paths[i]),
+            color=True)
+        return img
+
+    def get_bb(self, i):
+        """Returns the bounding box of the i-th example.
+
+        Args:
+            i (int): The index of the example.
+
+        Returns:
+            A bounding box.
+
+        """
+        return self.bbs[i]
+
+    def get_prob_map(self, i):
+        """Returns the probability map of the i-th example.
+
+        Args:
+            i (int): The index of the example.
+
+        Returns:
+            A probability map.
+
+        """
+        prob_map = utils.read_image(self.prob_map_paths[i],
+                                    dtype=np.uint8, color=False)
+        prob_map = prob_map.astype(np.float32) / 255  # [0, 255] -> [0, 1]
+        prob_map = prob_map[0]  # (1, H, W) --> (H, W)
+        return prob_map
 
 
 cub_label_names = (

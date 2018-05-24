@@ -1,6 +1,9 @@
 [![](docs/images/logo.png)](http://chainercv.readthedocs.io/en/stable/)
 
+[![PyPI](https://img.shields.io/pypi/v/chainercv.svg)](https://pypi.python.org/pypi/chainercv)
+[![License](https://img.shields.io/github/license/chainer/chainercv.svg)](https://github.com/chainer/chainercv/blob/master/LICENSE)
 [![travis](https://travis-ci.org/chainer/chainercv.svg?branch=master)](https://travis-ci.org/chainer/chainercv)
+[![Read the Docs](https://media.readthedocs.org/static/projects/badges/passing.svg)](http://chainercv.readthedocs.io/en/latest/?badge=latest)
 
 # ChainerCV: a Library for Deep Learning in Computer Vision
 
@@ -40,13 +43,15 @@ For additional features
 
 + Matplotlib
 + OpenCV
++ SciPy
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
 
-+ The master branch is designed to work on Chainer v3 (the stable version) and v4 (the development version).
++ The master branch is designed to work on Chainer v4 (the stable version) and v5 (the development version).
 + The following branches are kept for the previous version of Chainer. Note that these branches are unmaintained.
     + `0.4.11` (for Chainer v1). It can be installed by `pip install chainercv==0.4.11`.
     + `0.7` (for Chainer v2). It can be installed by `pip install chainercv==0.7`.
+    + `0.8` (for Chainer v3). It can be installed by `pip install chainercv==0.8`.
 
 # Data Conventions
 

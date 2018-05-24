@@ -5,11 +5,11 @@ import tempfile
 import unittest
 
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_labels
 from chainercv.datasets import CityscapesSemanticSegmentationDataset
 from chainercv.datasets import CityscapesTestImageDataset
-from chainercv.testing import attr
 from chainercv.utils import assert_is_semantic_segmentation_dataset
 from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
 from chainercv.utils import write_image
@@ -59,7 +59,6 @@ class TestCityscapesSemanticSegmentationDataset(unittest.TestCase):
         shutil.rmtree(self.temp_dir)
 
     @attr.slow
-    @attr.disk
     def test_cityscapes_semantic_segmentation_dataset(self):
         assert_is_semantic_segmentation_dataset(
             self.dataset, self.n_class, n_example=10)
@@ -84,7 +83,6 @@ class TestCityscapesTestImageDataset(unittest.TestCase):
         shutil.rmtree(self.temp_dir)
 
     @attr.slow
-    @attr.disk
     def test_cityscapes_dataset(self):
         indices = np.random.permutation(np.arange(len(self.dataset)))
         for i in indices[:10]:

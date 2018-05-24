@@ -6,8 +6,8 @@ import random
 
 
 def random_sized_crop(img,
-                      scale_ratio_interval=(0.08, 1),
-                      aspect_ratio_interval=(3 / 4, 4 / 3),
+                      scale_ratio_range=(0.08, 1),
+                      aspect_ratio_range=(3 / 4, 4 / 3),
                       return_param=False, copy=False):
     """Crop an image to random size and aspect ratio.
 
@@ -25,29 +25,29 @@ def random_sized_crop(img,
         :math:`a = b` or :math:`a = \\frac{1}{b}` in 50/50 probability.
 
     Here, :math:`s_1, s_2` are the two floats in
-    :obj:`scale_ratio_interval` and :math:`a_1, a_2` are the two floats
-    in :obj:`aspect_ratio_interval`.
+    :obj:`scale_ratio_range` and :math:`a_1, a_2` are the two floats
+    in :obj:`aspect_ratio_range`.
     Also, :math:`H` and :math:`W` are the height and the width of the image.
     Note that :math:`s \\approx \\frac{H_{crop} \\times W_{crop}}{H \\times W}`
     and :math:`a \\approx \\frac{H_{crop}}{W_{crop}}`.
     The approximations come from flooring floats to integers.
 
     .. note::
-        
-        When it fails to sample valid scale and aspect ratios for ten
-        times, it picks values in non-uniform way.
-        If this happens, the selected scale_ratio can be smaller
-        than :obj:`scale_ratio_interval[0]`.
+
+        When it fails to sample a valid scale and aspect ratio for ten
+        times, it picks values in a non-uniform way.
+        If this happens, the selected scale ratio can be smaller
+        than :obj:`scale_ratio_range[0]`.
 
     Args:
         img (~numpy.ndarray): An image array. This is in CHW format.
-        scale_ratio_interval (tuple of two floats): Determines
+        scale_ratio_range (tuple of two floats): Determines
             the distribution from which a scale ratio is sampled.
             The default values are selected so that the area of the crop is
             8~100% of the original image. This is the default
             setting used to train ResNets in Torch style.
-        aspect_ratio_interval (tuple of two floats): Determines
-            the distribution from which an aspect ratios is sampled.
+        aspect_ratio_range (tuple of two floats): Determines
+            the distribution from which an aspect ratio is sampled.
             The default values are
             :math:`\\frac{3}{4}` and :math:`\\frac{4}{3}`, which
             are also the default setting to train ResNets in Torch style.
@@ -80,7 +80,7 @@ def random_sized_crop(img,
     _, H, W = img.shape
     scale_ratio, aspect_ratio =\
         _sample_parameters(
-            (H, W), scale_ratio_interval, aspect_ratio_interval)
+            (H, W), scale_ratio_range, aspect_ratio_range)
 
     H_crop = int(math.floor(np.sqrt(scale_ratio * H * W * aspect_ratio)))
     W_crop = int(math.floor(np.sqrt(scale_ratio * H * W / aspect_ratio)))
@@ -101,26 +101,26 @@ def random_sized_crop(img,
         return img
 
 
-def _sample_parameters(size, scale_ratio_interval, aspect_ratio_interval):
+def _sample_parameters(size, scale_ratio_range, aspect_ratio_range):
     H, W = size
     for _ in range(10):
         aspect_ratio = random.uniform(
-            aspect_ratio_interval[0], aspect_ratio_interval[1])
+            aspect_ratio_range[0], aspect_ratio_range[1])
         if random.uniform(0, 1) < 0.5:
             aspect_ratio = 1 / aspect_ratio
         # This is determined so that relationships "H - H_crop >= 0" and
         # "W - W_crop >= 0" are always satisfied.
-        scale_ratio_max = min((scale_ratio_interval[1],
+        scale_ratio_max = min((scale_ratio_range[1],
                                H / (W * aspect_ratio),
                                (aspect_ratio * W) / H))
 
         scale_ratio = random.uniform(
-            scale_ratio_interval[0], scale_ratio_interval[1])
-        if scale_ratio_interval[0] <= scale_ratio <= scale_ratio_max:
+            scale_ratio_range[0], scale_ratio_range[1])
+        if scale_ratio_range[0] <= scale_ratio <= scale_ratio_max:
             return scale_ratio, aspect_ratio
 
-    # This is a valid param when
-    # scale_ratio_max < scale_ratio_interval[0].
+    # This scale_ratio is outside the given range when
+    # scale_ratio_max < scale_ratio_range[0].
     scale_ratio = random.uniform(
-        min((scale_ratio_interval[0], scale_ratio_max)), scale_ratio_max)
+        min((scale_ratio_range[0], scale_ratio_max)), scale_ratio_max)
     return scale_ratio, aspect_ratio

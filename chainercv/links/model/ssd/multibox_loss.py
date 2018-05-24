@@ -5,6 +5,10 @@ import numpy as np
 import chainer
 import chainer.functions as F
 
+# these modulues are loaded lazily
+MPI = None
+memory_utility = None
+
 
 def _elementwise_softmax_cross_entropy(x, t):
     assert x.shape[:-1] == t.shape
@@ -21,7 +25,7 @@ def _hard_negative(x, positive, k):
     return hard_negative
 
 
-def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
+def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k, comm=None):
     """Computes multibox losses.
 
     This is a loss function used in [#]_.
@@ -55,6 +59,10 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
             This value determines the ratio between the number of positives
             and that of mined negatives. The value used in the original paper
             is :obj:`3`.
+        comm (~chainermn.communicators.CommunicatorBase):
+            A ChainerMN communicator.
+            If it is specified, the number of positive examples is computed
+            among all GPUs.
 
     Returns:
         tuple of chainer.Variable:
@@ -66,22 +74,39 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k):
     gt_mb_locs = chainer.as_variable(gt_mb_locs)
     gt_mb_labels = chainer.as_variable(gt_mb_labels)
 
-    xp = chainer.cuda.get_array_module(gt_mb_labels.array)
+    xp = chainer.backends.cuda.get_array_module(gt_mb_labels.array)
+    with chainer.backends.cuda.get_device_from_array(gt_mb_labels.array):
+        positive = gt_mb_labels.array > 0
+        n_positive = xp.array(positive.sum())
 
-    positive = gt_mb_labels.array > 0
-    n_positive = positive.sum()
-    if n_positive == 0:
-        z = chainer.Variable(xp.zeros((), dtype=np.float32))
-        return z, z
+        if comm:
+            global MPI, memory_utility
+            if MPI is None:
+                import mpi4py
+                MPI = mpi4py.MPI
+            if memory_utility is None:
+                import chainermn
+                memory_utility = chainermn.communicators._memory_utility
 
-    loc_loss = F.huber_loss(mb_locs, gt_mb_locs, 1, reduce='no')
-    loc_loss = F.sum(loc_loss, axis=-1)
-    loc_loss *= positive.astype(loc_loss.dtype)
-    loc_loss = F.sum(loc_loss) / n_positive
+            if xp is not np:
+                chainer.backends.cuda.Stream.null.synchronize()
+            comm.mpi_comm.Allreduce(
+                MPI.IN_PLACE,
+                memory_utility.array_to_buffer_object(n_positive))
 
-    conf_loss = _elementwise_softmax_cross_entropy(mb_confs, gt_mb_labels)
-    hard_negative = _hard_negative(conf_loss.array, positive, k)
-    conf_loss *= xp.logical_or(positive, hard_negative).astype(conf_loss.dtype)
-    conf_loss = F.sum(conf_loss) / n_positive
+        if n_positive == 0:
+            z = chainer.Variable(xp.zeros((), dtype=np.float32))
+            return z, z
+
+        loc_loss = F.huber_loss(mb_locs, gt_mb_locs, 1, reduce='no')
+        loc_loss = F.sum(loc_loss, axis=-1)
+        loc_loss *= positive.astype(loc_loss.dtype)
+        loc_loss = F.sum(loc_loss) / n_positive
+
+        conf_loss = _elementwise_softmax_cross_entropy(mb_confs, gt_mb_labels)
+        hard_negative = _hard_negative(conf_loss.array, positive, k)
+        conf_loss *= xp.logical_or(
+            positive, hard_negative).astype(conf_loss.dtype)
+        conf_loss = F.sum(conf_loss) / n_positive
 
     return loc_loss, conf_loss

@@ -2,7 +2,7 @@ import numpy as np
 import unittest
 
 import chainer
-from chainer.cuda import to_cpu
+from chainer.backends.cuda import to_cpu
 from chainer.function import Function
 from chainer import testing
 from chainer.testing import attr

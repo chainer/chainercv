@@ -3,51 +3,16 @@ import os
 import warnings
 import xml.etree.ElementTree as ET
 
-import chainer
-
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
 
 
-class VOCBboxDataset(chainer.dataset.DatasetMixin):
+class VOCBboxDataset(GetterDataset):
 
     """Bounding box dataset for PASCAL `VOC`_.
 
     .. _`VOC`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
-
-    The index corresponds to each image.
-
-    When queried by an index, if :obj:`return_difficult == False`,
-    this dataset returns a corresponding
-    :obj:`img, bbox, label`, a tuple of an image, bounding boxes and labels.
-    This is the default behaviour.
-    If :obj:`return_difficult == True`, this dataset returns corresponding
-    :obj:`img, bbox, label, difficult`. :obj:`difficult` is a boolean array
-    that indicates whether bounding boxes are labeled as difficult or not.
-
-    The bounding boxes are packed into a two dimensional tensor of shape
-    :math:`(R, 4)`, where :math:`R` is the number of bounding boxes in
-    the image. The second axis represents attributes of the bounding box.
-    They are :math:`(y_{min}, x_{min}, y_{max}, x_{max})`, where the
-    four attributes are coordinates of the top left and the bottom right
-    vertices.
-
-    The labels are packed into a one dimensional tensor of shape :math:`(R,)`.
-    :math:`R` is the number of bounding boxes in the image.
-    The class name of the label :math:`l` is :math:`l` th element of
-    :obj:`chainercv.datasets.voc_bbox_label_names`.
-
-    The array :obj:`difficult` is a one dimensional boolean array of shape
-    :math:`(R,)`. :math:`R` is the number of bounding boxes in the image.
-    If :obj:`use_difficult` is :obj:`False`, this array is
-    a boolean array with all :obj:`False`.
-
-    The type of the image, the bounding boxes and the labels are as follows.
-
-    * :obj:`img.dtype == numpy.float32`
-    * :obj:`bbox.dtype == numpy.float32`
-    * :obj:`label.dtype == numpy.int32`
-    * :obj:`difficult.dtype == numpy.bool`
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -65,10 +30,30 @@ class VOCBboxDataset(chainer.dataset.DatasetMixin):
             that indicates whether bounding boxes are labeled as difficult
             or not. The default value is :obj:`False`.
 
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`bbox` [#voc_bbox_1]_, ":math:`(R, 4)`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+        :obj:`label` [#voc_bbox_1]_, ":math:`(R,)`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
+        :obj:`difficult` (optional [#voc_bbox_2]_), ":math:`(R,)`", \
+        :obj:`bool`, --
+
+    .. [#voc_bbox_1] If :obj:`use_difficult = True`, \
+        :obj:`bbox` and :obj:`label` contain difficult instances.
+    .. [#voc_bbox_2] :obj:`difficult` is available \
+        if :obj:`return_difficult = True`.
     """
 
     def __init__(self, data_dir='auto', split='train', year='2012',
                  use_difficult=False, return_difficult=False):
+        super(VOCBboxDataset, self).__init__()
+
         if data_dir == 'auto' and year in ['2007', '2012']:
             data_dir = voc_utils.get_voc(year, split)
 
@@ -86,24 +71,23 @@ class VOCBboxDataset(chainer.dataset.DatasetMixin):
 
         self.data_dir = data_dir
         self.use_difficult = use_difficult
-        self.return_difficult = return_difficult
+
+        self.add_getter('img', self._get_image)
+        self.add_getter(('bbox', 'label', 'difficult'), self._get_annotations)
+
+        if not return_difficult:
+            self.keys = ('img', 'bbox', 'label')
 
     def __len__(self):
         return len(self.ids)
 
-    def get_example(self, i):
-        """Returns the i-th example.
+    def _get_image(self, i):
+        id_ = self.ids[i]
+        img_path = os.path.join(self.data_dir, 'JPEGImages', id_ + '.jpg')
+        img = read_image(img_path, color=True)
+        return img
 
-        Returns a color image and bounding boxes. The image is in CHW format.
-        The returned image is RGB.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            tuple of an image and bounding boxes
-
-        """
+    def _get_annotations(self, i):
         id_ = self.ids[i]
         anno = ET.parse(
             os.path.join(self.data_dir, 'Annotations', id_ + '.xml'))
@@ -128,10 +112,4 @@ class VOCBboxDataset(chainer.dataset.DatasetMixin):
         label = np.stack(label).astype(np.int32)
         # When `use_difficult==False`, all elements in `difficult` are False.
         difficult = np.array(difficult, dtype=np.bool)
-
-        # Load a image
-        img_file = os.path.join(self.data_dir, 'JPEGImages', id_ + '.jpg')
-        img = read_image(img_file, color=True)
-        if self.return_difficult:
-            return img, bbox, label, difficult
-        return img, bbox, label
+        return bbox, label, difficult

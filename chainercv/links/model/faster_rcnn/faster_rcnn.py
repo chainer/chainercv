@@ -22,7 +22,7 @@ from __future__ import division
 import numpy as np
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 import chainer.functions as F
 from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
 from chainercv.utils import non_maximum_suppression
@@ -222,7 +222,7 @@ class FasterRCNN(chainer.Chain):
     def _suppress(self, raw_cls_bbox, raw_prob):
         bbox = []
         label = []
-        score = []
+        prob = []
         # skip cls_id = 0 because it is the background class
         for l in range(1, self.n_class):
             cls_bbox_l = raw_cls_bbox.reshape((-1, self.n_class, 4))[:, l, :]
@@ -235,11 +235,11 @@ class FasterRCNN(chainer.Chain):
             bbox.append(cls_bbox_l[keep])
             # The labels are in [0, self.n_class - 2].
             label.append((l - 1) * np.ones((len(keep),)))
-            score.append(prob_l[keep])
+            prob.append(prob_l[keep])
         bbox = np.concatenate(bbox, axis=0).astype(np.float32)
         label = np.concatenate(label, axis=0).astype(np.int32)
-        score = np.concatenate(score, axis=0).astype(np.float32)
-        return bbox, label, score
+        prob = np.concatenate(prob, axis=0).astype(np.float32)
+        return bbox, label, prob
 
     def predict(self, imgs):
         """Detect objects from images.
@@ -313,9 +313,9 @@ class FasterRCNN(chainer.Chain):
             raw_cls_bbox = cuda.to_cpu(cls_bbox)
             raw_prob = cuda.to_cpu(prob)
 
-            bbox, label, score = self._suppress(raw_cls_bbox, raw_prob)
+            bbox, label, prob = self._suppress(raw_cls_bbox, raw_prob)
             bboxes.append(bbox)
             labels.append(label)
-            scores.append(score)
+            scores.append(prob)
 
         return bboxes, labels, scores
