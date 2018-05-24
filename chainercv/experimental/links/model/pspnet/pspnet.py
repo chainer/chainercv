@@ -108,9 +108,9 @@ class PSPNet(chainer.Chain):
             :class:`chainer.links.BatchNormalization`. If a ChainerMN
             communicator (:class:`~chainermn.communicators.CommunicatorBase`)
             is given with the key :obj:`comm`,
-            :obj:`~chainermn.links.MultiNodeBatchNormalization` will be used
+            :class:`~chainermn.links.MultiNodeBatchNormalization` will be used
             for the batch normalization. Otherwise,
-            :obj:`~chainer.links.BatchNormalization` will be used.
+            :class:`~chainer.links.BatchNormalization` will be used.
 
     """
 
