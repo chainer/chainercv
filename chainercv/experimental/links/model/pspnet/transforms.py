@@ -85,21 +85,21 @@ def convolution_crop(img, size, stride, return_param=False):
     """
     _, H, W = img.shape
 
-    hh = int(math.ceil((H - size[0]) / stride[0])) + 1
-    ww = int(math.ceil((W - size[1]) / stride[1])) + 1
+    h = int(math.ceil((H - size[0]) / stride[0])) + 1
+    w = int(math.ceil((W - size[1]) / stride[1])) + 1
 
-    start_y = -(size[0] + stride[0] * (hh - 1) - H) // 2
-    start_x = -(size[1] + stride[1] * (ww - 1) - W) // 2
+    start_y = -(size[0] + stride[0] * (h - 1) - H) // 2
+    start_x = -(size[1] + stride[1] * (w - 1) - W) // 2
 
     crop_imgs = []
     y_slices = []
     x_slices = []
     crop_y_slices = []
     crop_x_slices = []
-    for yy in range(hh):
-        for xx in range(ww):
-            y_min = yy * stride[0] + start_y
-            x_min = xx * stride[1] + start_x
+    for y in range(h):
+        for x in range(w):
+            y_min = y * stride[0] + start_y
+            x_min = x * stride[1] + start_x
             y_max = y_min + size[0]
             x_max = x_min + size[1]
 
