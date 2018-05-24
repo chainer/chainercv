@@ -81,7 +81,6 @@ def convolution_crop(img, size, stride, return_param=False):
         >>> vis_image(v_imgs)
         >>> plt.show()
 
-
     """
     _, H, W = img.shape
 
