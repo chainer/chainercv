@@ -11,10 +11,6 @@ center_crop
 ~~~~~~~~~~~
 .. autofunction:: center_crop
 
-color_jitter
-~~~~~~~~~~~~
-.. autofunction:: color_jitter
-
 flip
 ~~~~
 .. autofunction:: flip

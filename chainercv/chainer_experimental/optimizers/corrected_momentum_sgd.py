@@ -9,7 +9,22 @@ _default_hyperparam.momentum = 0.9
 
 class CorrectedMomentumSGDRule(optimizer.UpdateRule):
 
-    # use update rule used in frameworks like Torch.
+    """Update rule for the corrected momentum SGD.
+
+    See :class:`~chainer.optimizers.CorrectedMomentumSGD` for the default
+    values of the hyperparameters.
+
+    This implements momentum correction discussed in the third section of
+    `Accurate, Large Minibatch SGD: Training ImageNet in 1 Hour \
+    <https://arxiv.org/abs/1706.02677>`_.
+
+    Args:
+        parent_hyperparam (~chainer.optimizer.Hyperparameter): Hyperparameter
+            that provides the default values.
+        lr (float): Learning rate.
+        momentum (float): Exponential decay rate of the first order moment.
+
+    """
 
     def __init__(self, parent_hyperparam=None, lr=None, momentum=None):
         super(CorrectedMomentumSGDRule, self).__init__(
@@ -48,6 +63,14 @@ class CorrectedMomentumSGDRule(optimizer.UpdateRule):
 
 
 class CorrectedMomentumSGD(optimizer.GradientMethod):
+
+    """Momentum SGD optimizer.
+
+    Args:
+        lr (float): Learning rate.
+        momentum (float): Exponential decay rate of the first order moment.
+
+    """
 
     def __init__(self, lr=_default_hyperparam.lr,
                  momentum=_default_hyperparam.momentum):
