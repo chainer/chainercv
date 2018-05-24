@@ -21,13 +21,12 @@ from chainercv.transforms import scale
 
 from chainercv.datasets import directory_parsing_label_names
 
+from chainercv.chainer_experimental.optimizers import CorrectedMomentumSGD
 from chainercv.links import ResNet101
 from chainercv.links import ResNet152
 from chainercv.links import ResNet50
 
 import chainermn
-
-from corrected_momentum_sgd import CorrectedMomentumSGD
 
 
 class TrainTransform(object):
@@ -78,7 +77,6 @@ def main():
     parser.add_argument('--communicator', type=str,
                         default='hierarchical', help='Type of communicator')
     parser.add_argument('--pretrained_model')
-    # parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--loaderjob', type=int, default=4)
     parser.add_argument('--batchsize', type=int, default=32,
                         help='Batch size for each worker')
