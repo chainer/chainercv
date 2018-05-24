@@ -15,7 +15,7 @@ Scores are mean Average Precision (mAP) with PASCAL VOC2007 metric.
 ## Demo
 Detect objects in an given image. This demo downloads Pascal VOC pretrained model automatically if a pretrained model path is not given.
 ```
-$ python demo.py [--model ssd300|ssd512] [--gpu <gpu>] [--pretrained_model <model_path>] <image>.jpg
+$ python demo.py [--model ssd300|ssd512] [--gpu <gpu>] [--pretrained-model <model_path>] <image>.jpg
 ```
 
 ## Convert Caffe model
