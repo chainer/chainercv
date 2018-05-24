@@ -30,14 +30,14 @@ def get_chainer_model(n_class, input_size, n_blocks, pyramids, mid_stride):
     return model
 
 
-def get_param_net(prodo_dir, param_fn, proto_fn):
+def get_param_net(prodo_dir, param_path, proto_path):
     print('Loading caffe parameters...', end=' ')
     param = caffe_pb2.NetParameter()
-    param.MergeFromString(open(param_fn, 'rb').read())
+    param.MergeFromString(open(param_path, 'rb').read())
     print('done')
 
     print('Loading caffe prototxt...', end=' ')
-    proto_fp = open(proto_fn).read()
+    proto_fp = open(proto_path).read()
     net = caffe_pb2.NetParameter()
     net = text_format.Merge(proto_fp, net)
     print('done')
@@ -219,8 +219,8 @@ if __name__ == '__main__':
 
     settings = {
         'cityscapes': {
-            'proto_fn': 'pspnet101_cityscapes_713.prototxt',
-            'param_fn': 'pspnet101_cityscapes.caffemodel',
+            'proto_path': 'pspnet101_cityscapes_713.prototxt',
+            'param_path': 'pspnet101_cityscapes.caffemodel',
             'n_class': 19,
             'input_size': 713,
             'n_blocks': [3, 4, 23, 3],
@@ -231,21 +231,21 @@ if __name__ == '__main__':
     }
 
     dataset_name = 'cityscapes'
-    proto_fn = settings[dataset_name]['proto_fn']
-    param_fn = settings[dataset_name]['param_fn']
+    proto_path = settings[dataset_name]['proto_path']
+    param_path = settings[dataset_name]['param_path']
     n_class = settings[dataset_name]['n_class']
     input_size = settings[dataset_name]['input_size']
     n_blocks = settings[dataset_name]['n_blocks']
     pyramids = settings[dataset_name]['pyramids']
     mid_stride = settings[dataset_name]['mid_stride']
 
-    name = os.path.splitext(proto_fn)[0]
-    param_fn = os.path.join(proto_dir, param_fn)
-    proto_fn = os.path.join(proto_dir, proto_fn)
+    name = os.path.splitext(proto_path)[0]
+    param_path = os.path.join(proto_dir, param_path)
+    proto_path = os.path.join(proto_dir, proto_path)
 
     model = get_chainer_model(
         n_class, input_size, n_blocks, pyramids, mid_stride)
-    param, net = get_param_net(proto_dir, args.caffemodel, proto_fn)
+    param, net = get_param_net(proto_dir, args.caffemodel, proto_path)
     model = transfer(model, param, net)
 
     serializers.save_npz(args.output, model)
