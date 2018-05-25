@@ -51,7 +51,7 @@ def main():
     parser.add_argument(
         '--model', choices=('ssd300', 'ssd512'), default='ssd300')
     parser.add_argument('--batchsize', type=int, default=32)
-    parser.add_argument('--test_batchsize', type=int, default=16)
+    parser.add_argument('--test-batchsize', type=int, default=16)
     parser.add_argument('--out', default='result')
     parser.add_argument('--resume')
     args = parser.parse_args()

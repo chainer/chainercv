@@ -63,7 +63,7 @@ def main():
     parser.add_argument(
         '--model', choices=('yolo_v2', 'yolo_v3'),
         default='yolo_v2')
-    parser.add_argument('--n_fg_class', type=int, default=80)
+    parser.add_argument('--n-fg-class', type=int, default=80)
     parser.add_argument('darknetmodel')
     parser.add_argument('output')
     args = parser.parse_args()

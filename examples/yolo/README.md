@@ -23,7 +23,7 @@ $ python demo.py [--model yolo_v2|yolo_v3] [--gpu <gpu>] [--pretrained-model <mo
 Convert `*.weights` to `*.npz`. YOLOv2 and YOLOv3 are supported.
 Note that the number of classes should be specified if it is not 80 (the number of classes in COCO).
 ```
-$ python darknet2npz [--model yolo_v2|yolo_v3] [--n_fg_class <#fg_class>]  <source>.weights <target>.npz
+$ python darknet2npz [--model yolo_v2|yolo_v3] [--n-fg-class <#fg_class>]  <source>.weights <target>.npz
 ```
 
 ## Evaluation
