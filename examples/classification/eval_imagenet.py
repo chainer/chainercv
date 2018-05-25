@@ -24,7 +24,7 @@ def main():
     parser.add_argument('val', help='Path to root of the validation dataset')
     parser.add_argument(
         '--model', choices=('vgg16', 'resnet50', 'resnet101', 'resnet152'))
-    parser.add_argument('--pretrained_model', default='imagenet')
+    parser.add_argument('--pretrained-model', default='imagenet')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--crop', choices=('center', '10'), default='center')
