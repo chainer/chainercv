@@ -5,10 +5,6 @@ import numpy as np
 import chainer
 import chainer.functions as F
 
-# these modulues are loaded lazily
-MPI = None
-memory_utility = None
-
 
 def _elementwise_softmax_cross_entropy(x, t):
     assert x.shape[:-1] == t.shape
@@ -80,19 +76,9 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k, comm=None):
         n_positive = xp.array(positive.sum())
 
         if comm:
-            global MPI, memory_utility
-            if MPI is None:
-                import mpi4py
-                MPI = mpi4py.MPI
-            if memory_utility is None:
-                import chainermn
-                memory_utility = chainermn.communicators._memory_utility
-
             if xp is not np:
                 chainer.backends.cuda.Stream.null.synchronize()
-            comm.mpi_comm.Allreduce(
-                MPI.IN_PLACE,
-                memory_utility.array_to_buffer_object(n_positive))
+            comm.allreduce(n_positive)
 
         if n_positive == 0:
             z = chainer.Variable(xp.zeros((), dtype=np.float32))
