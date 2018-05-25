@@ -206,7 +206,7 @@ class PSPNet(chainer.Chain):
     def _predict(self, imgs):
         xs = chainer.Variable(self.xp.asarray(imgs))
         with chainer.using_config('train', False):
-            scores = F.softmax(self.__call__(xs)).array
+            scores = F.softmax(self(xs)).array
         return scores
 
     def predict(self, imgs):
