@@ -14,10 +14,10 @@ from chainercv.utils import ProgressHook
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('pspnet_resnet101'),
+        '--model', choices=('pspnet_resnet101',),
         default='pspnet_resnet101')
-    parser.add_argument('--pretrained_model')
     parser.add_argument('--gpu', type=int, default=-1)
+    parser.add_argument('--pretrained-model')
     args = parser.parse_args()
 
     if args.model == 'pspnet_resnet101':

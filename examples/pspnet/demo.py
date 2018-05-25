@@ -14,9 +14,9 @@ from chainercv.visualizations import vis_semantic_segmentation
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', '-g', type=int, default=-1)
-    parser.add_argument('--pretrained_model')
+    parser.add_argument('--pretrained-model')
+    parser.add_argument('--input-size', type=int, default=713)
     parser.add_argument('image')
-    parser.add_argument('--input_size', type=int, default=713)
     args = parser.parse_args()
 
     label_names = cityscapes_semantic_segmentation_label_names
