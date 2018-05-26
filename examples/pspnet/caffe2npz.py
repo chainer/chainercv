@@ -36,7 +36,7 @@ def copy_conv2d_bn_activ(layer, config, cba, inverse_ch=False):
     return cba
 
 
-def copy_head(layer, config, block):
+def copy_res1(layer, config, block):
     if layer.name.startswith('conv1_1'):
         block.conv1_1 = copy_conv2d_bn_activ(
             layer, config, block.conv1_1, inverse_ch=True)
@@ -99,7 +99,7 @@ def transfer(model, param, net):
             continue
         config = name_config[layer.name]
         if layer.name.startswith('conv1'):
-            model.extractor = copy_head(layer, config, model.extractor)
+            model.extractor = copy_res1(layer, config, model.extractor)
         elif layer.name.startswith('conv2'):
             model.extractor.res2 = copy_resblock(
                 layer, config, model.extractor.res2)
