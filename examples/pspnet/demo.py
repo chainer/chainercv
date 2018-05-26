@@ -11,7 +11,7 @@ from chainercv.visualizations import vis_image
 from chainercv.visualizations import vis_semantic_segmentation
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', '-g', type=int, default=-1)
     parser.add_argument('--pretrained-model')
@@ -43,3 +43,7 @@ if __name__ == '__main__':
     ax2.legend(handles=legend_handles, bbox_to_anchor=(1, 1), loc=2)
 
     plt.show()
+
+
+if __name__ == '__main__':
+    main()
