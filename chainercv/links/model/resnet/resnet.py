@@ -151,7 +151,8 @@ class ResNet(PickableSequentialChain):
             conv1_no_bias = True
         elif arch == 'he':
             stride_first = True
-            conv1_no_bias = False
+            # Kaiming He uses bias only for ResNet50
+            conv1_no_bias = False if n_layer == 50 else True
         else:
             raise ValueError('arch is expected to be one of [\'he\', \'fb\']')
         blocks = self._blocks[n_layer]
