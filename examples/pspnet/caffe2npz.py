@@ -79,9 +79,6 @@ def copy_resblock(layer, config, block):
 
 def copy_ppm_module(layer, config, block):
     ret = re.search('pool([0-9]+)', layer.name)
-    if ret is None:
-        raise ValueError('Error in copy_ppm_module:'
-                         '{}, {}, {}'.format(layer.name, config, block))
     pool_id = int(ret.groups()[0])
     linear_id = {1: 3,
                  2: 2,
