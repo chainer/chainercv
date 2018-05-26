@@ -16,8 +16,6 @@ def copy_conv(layer, config, conv, has_bias=False, inverse_ch=False):
         conv.W.data[:] = conv.W.data[:, ::-1, ...]
     if has_bias:
         conv.b.data[:] = np.array(layer.blobs[1].data)
-
-    assert layer.convolution_param.bias_term == has_bias
     return conv
 
 
