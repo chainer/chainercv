@@ -11,8 +11,9 @@ from chainer.training import triggers
 
 import chainermn
 
-from chainer.chainer_experimental.datasets.sliceable import ConcatenatedDataset
-from chainer.chainer_experimental.datasets.sliceable import TransformDataset
+from chainercv.chainer_experimental.datasets.sliceable \
+    import ConcatenatedDataset
+from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
 from chainercv.datasets import voc_bbox_label_names
 from chainercv.datasets import VOCBboxDataset
 from chainercv.extensions import DetectionVOCEvaluator
