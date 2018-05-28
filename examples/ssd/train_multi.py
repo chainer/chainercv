@@ -74,12 +74,10 @@ def main():
     model.to_gpu()
 
     if comm.rank == 0:
-        train = TransformDataset(
-            ConcatenatedDataset(
-                VOCBboxDataset(year='2007', split='trainval'),
-                VOCBboxDataset(year='2012', split='trainval')
-            ),
-            Transform(model.coder, model.insize, model.mean))
+        train = ConcatenatedDataset(
+            VOCBboxDataset(year='2007', split='trainval'),
+            VOCBboxDataset(year='2012', split='trainval')
+        )
         test = VOCBboxDataset(
             year='2007', split='test',
             use_difficult=True, return_difficult=True)
@@ -89,6 +87,8 @@ def main():
         train = None
 
     train = chainermn.scatter_dataset(train, comm, shuffle=True)
+    train = TransformDataset(
+        train, Transform(model.coder, model.insize, model.mean))
     multiprocessing.set_start_method('forkserver')
     train_iter = chainer.iterators.MultiprocessIterator(
         train, args.batchsize // comm.size, n_processes=2)
