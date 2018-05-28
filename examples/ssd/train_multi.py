@@ -1,9 +1,8 @@
 import argparse
 import multiprocessing
+import numpy as np
 
 import chainer
-from chainer.datasets import ConcatenatedDataset
-from chainer.datasets import TransformDataset
 from chainer.optimizer_hooks import WeightDecay
 from chainer import serializers
 from chainer import training
@@ -12,6 +11,8 @@ from chainer.training import triggers
 
 import chainermn
 
+from chainer.chainer_experimental.datasets.sliceable import ConcatenatedDataset
+from chainer.chainer_experimental.datasets.sliceable import TransformDataset
 from chainercv.datasets import voc_bbox_label_names
 from chainercv.datasets import VOCBboxDataset
 from chainercv.extensions import DetectionVOCEvaluator
@@ -73,25 +74,31 @@ def main():
     chainer.cuda.get_device_from_id(device).use()
     model.to_gpu()
 
-    if comm.rank == 0:
-        train = ConcatenatedDataset(
+    train = TransformDataset(
+        ConcatenatedDataset(
             VOCBboxDataset(year='2007', split='trainval'),
             VOCBboxDataset(year='2012', split='trainval')
-        )
+        ),
+        ('img', 'mb_loc', 'mb_label'),
+        Transform(model.coder, model.insize, model.mean))
+
+    if comm.rank == 0:
+        indices = np.arange(len(train))
+    else:
+        indices = None
+    indices = chainermn.scatter_dataset(indices, comm, shuffle=True)
+    train = TransformDataset(
+        train.slice[indices], Transform(model.coder, model.insize, model.mean))
+    multiprocessing.set_start_method('forkserver')
+    train_iter = chainer.iterators.MultiprocessIterator(
+        train, args.batchsize // comm.size, n_processes=2)
+
+    if comm.rank == 0:
         test = VOCBboxDataset(
             year='2007', split='test',
             use_difficult=True, return_difficult=True)
         test_iter = chainer.iterators.SerialIterator(
             test, args.test_batchsize, repeat=False, shuffle=False)
-    else:
-        train = None
-
-    train = chainermn.scatter_dataset(train, comm, shuffle=True)
-    train = TransformDataset(
-        train, Transform(model.coder, model.insize, model.mean))
-    multiprocessing.set_start_method('forkserver')
-    train_iter = chainer.iterators.MultiprocessIterator(
-        train, args.batchsize // comm.size, n_processes=2)
 
     # initial lr is set to 1e-3 by ExponentialShift
     optimizer = chainermn.create_multi_node_optimizer(
