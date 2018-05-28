@@ -8,6 +8,7 @@ import numpy as np
 from chainercv.experimental.links.model.fcis import FCIS
 from chainercv.functions import psroi_pooling_2d
 from chainercv.links import Conv2DBNActiv
+from chainercv.links import ResNet101
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
@@ -137,8 +138,39 @@ class FCISResNet101(FCIS):
             mean, min_size, max_size,
             loc_normalize_mean, loc_normalize_std)
 
-        if path:
+        if path == 'imagenet':
+            self._copy_imagenet_pretrained_resnet()
+        elif path:
             chainer.serializers.load_npz(path, self)
+
+    def _copy_imagenet_pretrained_resnet(self):
+        def _copy_conv2dbn(src, dst):
+            dst.conv.W.array = src.conv.W.array
+            if src.conv.b is not None and dst.conv.b is not None:
+                dst.conv.b.array = src.conv.b.array
+            dst.bn.gamma.array = src.bn.gamma.array
+            dst.bn.beta.array = src.bn.beta.array
+            dst.bn.avg_var = src.bn.avg_var
+            dst.bn.avg_mean = src.bn.avg_mean
+
+        def _copy_bottleneck(src, dst):
+            if hasattr(src, 'residual_conv'):
+                _copy_conv2dbn(src.residual_conv, dst.residual_conv)
+            _copy_conv2dbn(src.conv1, dst.conv1)
+            _copy_conv2dbn(src.conv2, dst.conv2)
+            _copy_conv2dbn(src.conv3, dst.conv3)
+
+        def _copy_resblock(src, dst):
+            for layer_name in src.layer_names:
+                _copy_bottleneck(
+                    getattr(src, layer_name), getattr(dst, layer_name))
+
+        pretrained_model = ResNet101(arch='he', pretrained_model='imagenet')
+        _copy_conv2dbn(pretrained_model.conv1, self.extractor.conv1)
+        _copy_resblock(pretrained_model.res2, self.extractor.res2)
+        _copy_resblock(pretrained_model.res3, self.extractor.res3)
+        _copy_resblock(pretrained_model.res4, self.extractor.res4)
+        _copy_resblock(pretrained_model.res5, self.extractor.res5)
 
 
 class ResNet101Extractor(chainer.Chain):
