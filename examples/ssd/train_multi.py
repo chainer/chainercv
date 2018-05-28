@@ -88,8 +88,7 @@ def main():
     else:
         indices = None
     indices = chainermn.scatter_dataset(indices, comm, shuffle=True)
-    train = TransformDataset(
-        train.slice[indices], Transform(model.coder, model.insize, model.mean))
+    train = train.slice[indices]
     multiprocessing.set_start_method('forkserver')
     train_iter = chainer.iterators.MultiprocessIterator(
         train, args.batchsize // comm.size, n_processes=2)
