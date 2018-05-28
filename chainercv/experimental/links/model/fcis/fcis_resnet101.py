@@ -280,7 +280,7 @@ class FCISResNet101Head(chainer.Chain):
                 1024, group_size * group_size * 2 * 4,
                 1, 1, 0, initialW=initialW)
 
-    def __call__(self, x, rois, roi_indices, img_size):
+    def __call__(self, x, rois, roi_indices, img_size, gt_roi_label=None):
         """Forward the chain.
 
         We assume that there are :math:`N` batches.
@@ -304,7 +304,7 @@ class FCISResNet101Head(chainer.Chain):
 
         # PSROI pooling and regression
         roi_ag_seg_scores, roi_ag_locs, roi_cls_scores = self._pool(
-            h_cls_seg, h_ag_loc, rois, roi_indices)
+            h_cls_seg, h_ag_loc, rois, roi_indices, gt_roi_label)
         if self.iter2:
             # 2nd Iteration
             # get rois2 for more precise prediction
@@ -320,7 +320,7 @@ class FCISResNet101Head(chainer.Chain):
 
             # PSROI pooling and regression
             roi_ag_seg_scores2, roi_ag_locs2, roi_cls_scores2 = self._pool(
-                h_cls_seg, h_ag_loc, rois2, roi_indices)
+                h_cls_seg, h_ag_loc, rois2, roi_indices, gt_roi_label)
 
             # concat 1st and 2nd iteration results
             rois = self.xp.concatenate((rois, rois2))
@@ -335,7 +335,7 @@ class FCISResNet101Head(chainer.Chain):
             rois, roi_indices
 
     def _pool(
-            self, h_cls_seg, h_ag_loc, rois, roi_indices):
+            self, h_cls_seg, h_ag_loc, rois, roi_indices, gt_roi_label):
         # PSROI Pooling
         # shape: (n_roi, n_class, 2, roi_size, roi_size)
         roi_cls_ag_seg_scores = psroi_pooling_2d(
@@ -362,7 +362,11 @@ class FCISResNet101Head(chainer.Chain):
 
         # Mask Regression
         # shape: (n_roi, n_class, 2, roi_size, roi_size)
-        max_cls_indices = roi_cls_scores.array.argmax(axis=1)
+        if gt_roi_label is None:
+            max_cls_indices = roi_cls_scores.array.argmax(axis=1)
+        else:
+            max_cls_indices = gt_roi_label
+
         # shape: (n_roi, 2, roi_size, roi_size)
         roi_ag_seg_scores = roi_cls_ag_seg_scores[
             self.xp.arange(len(max_cls_indices)), max_cls_indices]
