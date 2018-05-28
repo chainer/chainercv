@@ -29,12 +29,16 @@ class TransformDataset(GetterDataset):
     def __init__(self, dataset, keys, transform):
         super(TransformDataset, self).__init__()
         self._dataset = dataset
+        self._transfrom = transform
         if isinstance(keys, int):
             if keys == 1:
                 keys = None
             else:
                 keys = (None,) * keys
-        self.add_getter(keys, lambda index: transform(dataset[index]))
+        self.add_getter(keys, self._get)
 
     def __len__(self):
         return len(self._dataset)
+
+    def _get(self, index):
+        return self._transform(self._dataset[index])
