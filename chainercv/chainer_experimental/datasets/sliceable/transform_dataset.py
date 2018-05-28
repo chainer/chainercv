@@ -29,7 +29,7 @@ class TransformDataset(GetterDataset):
     def __init__(self, dataset, keys, transform):
         super(TransformDataset, self).__init__()
         self._dataset = dataset
-        self._transfrom = transform
+        self._transform = transform
         if isinstance(keys, int):
             if keys == 1:
                 keys = None
