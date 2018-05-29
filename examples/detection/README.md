@@ -29,7 +29,7 @@ $ python eval_voc07.py [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolo_v3] [--pr
 
 ## Visualization of models
 
-![Visualization of models](https://user-images.githubusercontent.com/3014172/39509062-d2f7f790-4e1f-11e8-900a-458faf6b0449.png)
+![Visualization of models](https://user-images.githubusercontent.com/3014172/40634581-bb01f52a-6330-11e8-8502-ba3dacd81dc8.png)
 These images are included in PASCAL VOC2007 test.
 
 You can generate these visualization results by the following command.
