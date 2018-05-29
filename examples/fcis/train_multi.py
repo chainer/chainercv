@@ -135,7 +135,8 @@ def main():
                 iou_thresh=0.5, use_07_metric=True,
                 label_names=sbd_instance_segmentation_label_names),
             trigger=ManualScheduleTrigger(
-                [args.cooldown_epoch, args.epoch], 'epoch'))
+                [len(train_dataset) * args.cooldown_epoch,
+                 len(train_dataset) * args.epoch], 'iteration'))
 
         trainer.extend(extensions.dump_graph('main/loss'))
 
