@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 
-import chainer
+from chainer.backends import cuda
 from chainer import testing
 from chainer.testing import attr
 
@@ -11,7 +11,7 @@ from test_fcis import DummyFCIS
 from test_fcis import _random_array
 
 
-class TestFasterRCNNTrainChain(unittest.TestCase):
+class TestFCISTrainChain(unittest.TestCase):
 
     def setUp(self):
         self.n_anchor_base = 6
@@ -19,7 +19,7 @@ class TestFasterRCNNTrainChain(unittest.TestCase):
         self.n_fg_class = 3
         self.n_roi = 24
         self.n_bbox = 3
-        self.link = FCISTrainChain(
+        self.model = FCISTrainChain(
             DummyFCIS(
                 n_anchor_base=self.n_anchor_base,
                 feat_stride=self.feat_stride,
@@ -29,27 +29,27 @@ class TestFasterRCNNTrainChain(unittest.TestCase):
                 min_size=600,
                 max_size=1000))
 
-        _masks = np.random.randint(
+        self.masks = np.random.randint(
             0, 2, size=(1, self.n_bbox, 600, 800)).astype(np.bool)
-        _labels = np.random.randint(
+        self.labels = np.random.randint(
             0, self.n_fg_class, size=(1, self.n_bbox)).astype(np.int32)
-        self.masks = chainer.Variable(_masks)
-        self.labels = chainer.Variable(_labels)
-        self.imgs = chainer.Variable(_random_array((1, 3, 600, 800)))
-        self.scale = chainer.Variable(np.array(1.))
+        self.imgs = _random_array(np, (1, 3, 600, 800))
+        self.scale = np.array(1.)
 
-    def check_call(self):
-        loss = self.link(self.imgs, self.masks, self.labels, self.scale)
+    def check_call(self, model, imgs, masks, labels, scale):
+        loss = model(imgs, masks, labels, scale)
         self.assertEqual(loss.shape, ())
 
     def test_call_cpu(self):
-        self.check_call()
+        self.check_call(
+            self.model, self.imgs, self.masks, self.labels, self.scale)
 
     @attr.gpu
     def test_call_gpu(self):
-        self.link.to_gpu()
-        self.imgs.to_gpu()
-        self.check_call()
+        self.model.to_gpu()
+        self.check_call(
+            self.model, cuda.to_gpu(self.imgs),
+            self.masks, self.labels, self.scale)
 
 
 testing.run_module(__name__, __file__)
