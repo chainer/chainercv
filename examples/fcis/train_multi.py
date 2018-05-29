@@ -4,9 +4,9 @@ import argparse
 import numpy as np
 
 import chainer
-import chainermn
 from chainer.training import extensions
 from chainer.training.triggers import ManualScheduleTrigger
+import chainermn
 
 from chainercv.chainer_experimental.datasets.sliceable \
     import TransformDataset

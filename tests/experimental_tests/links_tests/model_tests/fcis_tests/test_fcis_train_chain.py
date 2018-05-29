@@ -7,8 +7,8 @@ from chainer.testing import attr
 
 from chainercv.experimental.links.model.fcis import FCISTrainChain
 
-from test_fcis import DummyFCIS
 from test_fcis import _random_array
+from test_fcis import DummyFCIS
 
 
 class TestFCISTrainChain(unittest.TestCase):
