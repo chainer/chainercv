@@ -2,13 +2,9 @@ from __future__ import division
 
 import argparse
 import numpy as np
-import PIL
-import six
 
 import chainer
 import chainermn
-from chainer.dataset.convert import _concat_arrays
-from chainer.dataset.convert import to_device
 from chainer.training import extensions
 from chainer.training.triggers import ManualScheduleTrigger
 
