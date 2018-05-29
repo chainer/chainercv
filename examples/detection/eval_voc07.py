@@ -9,6 +9,7 @@ from chainercv.evaluations import eval_detection_voc
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
+from chainercv.links import YOLOv2
 from chainercv.links import YOLOv3
 from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
@@ -17,9 +18,10 @@ from chainercv.utils import ProgressHook
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('faster_rcnn', 'ssd300', 'ssd512', 'yolov3'),
+        '--model',
+        choices=('faster_rcnn', 'ssd300', 'ssd512', 'yolo_v2', 'yolo_v3'),
         default='ssd300')
-    parser.add_argument('--pretrained_model')
+    parser.add_argument('--pretrained-model')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
     args = parser.parse_args()
@@ -45,7 +47,14 @@ def main():
                 pretrained_model=args.pretrained_model)
         else:
             model = SSD512(pretrained_model='voc0712')
-    elif args.model == 'yolov3':
+    elif args.model == 'yolo_v2':
+        if args.pretrained_model:
+            model = YOLOv2(
+                n_fg_class=len(voc_bbox_label_names),
+                pretrained_model=args.pretrained_model)
+        else:
+            model = YOLOv2(pretrained_model='voc0712')
+    elif args.model == 'yolo_v3':
         if args.pretrained_model:
             model = YOLOv3(
                 n_fg_class=len(voc_bbox_label_names),

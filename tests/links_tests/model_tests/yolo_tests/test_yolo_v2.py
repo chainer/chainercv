@@ -5,18 +5,18 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links import YOLOv3
+from chainercv.links import YOLOv2
 
 
 @testing.parameterize(*testing.product({
     'n_fg_class': [1, 5, 20],
 }))
-class TestYOLOv3(unittest.TestCase):
+class TestYOLOv2(unittest.TestCase):
 
     def setUp(self):
-        self.link = YOLOv3(n_fg_class=self.n_fg_class)
+        self.link = YOLOv2(n_fg_class=self.n_fg_class)
         self.insize = 416
-        self.n_bbox = (13 * 13 + 26 * 26 + 52 * 52) * 3
+        self.n_bbox = 13 * 13 * 5
 
     def _check_call(self):
         x = self.link.xp.array(
@@ -52,7 +52,7 @@ class TestYOLOv3(unittest.TestCase):
     'n_fg_class': [None, 10, 20],
     'pretrained_model': ['voc0712'],
 }))
-class TestYOLOv3Pretrained(unittest.TestCase):
+class TestYOLOv2Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
@@ -65,10 +65,10 @@ class TestYOLOv3Pretrained(unittest.TestCase):
             valid = self.n_fg_class in {None, 20}
 
         if valid:
-            YOLOv3(**kwargs)
+            YOLOv2(**kwargs)
         else:
             with self.assertRaises(ValueError):
-                YOLOv3(**kwargs)
+                YOLOv2(**kwargs)
 
 
 testing.run_module(__name__, __file__)

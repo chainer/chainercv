@@ -3,10 +3,9 @@ import unittest
 
 import chainer
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.experimental.links import FCISResNet101
-from chainercv.experimental.links.model.fcis import FCIS
-from chainercv.testing import attr
 
 
 @testing.parameterize(
@@ -43,27 +42,27 @@ class TestFCISResNet101(unittest.TestCase):
                 low=-1., high=1.,
                 size=(self.B, 3, feat_size[0] * 16, feat_size[1] * 16)
             ).astype(np.float32))
-        roi_seg_scores, roi_ag_locs, roi_scores, rois, roi_indices = \
+        roi_ag_seg_scores, roi_ag_locs, roi_cls_scores, rois, roi_indices = \
             self.link(x)
 
-        n_roi = roi_seg_scores.shape[0]
+        n_roi = roi_ag_seg_scores.shape[0]
         if self.train:
             self.assertGreaterEqual(self.B * self.n_train_post_nms, n_roi)
         else:
             self.assertGreaterEqual(self.B * self.n_test_post_nms * 2, n_roi)
 
-        self.assertIsInstance(roi_seg_scores, chainer.Variable)
-        self.assertIsInstance(roi_seg_scores.array, xp.ndarray)
+        self.assertIsInstance(roi_ag_seg_scores, chainer.Variable)
+        self.assertIsInstance(roi_ag_seg_scores.array, xp.ndarray)
         self.assertEqual(
-            roi_seg_scores.shape, (n_roi, 2, 21, 21))
+            roi_ag_seg_scores.shape, (n_roi, 2, 21, 21))
 
         self.assertIsInstance(roi_ag_locs, chainer.Variable)
         self.assertIsInstance(roi_ag_locs.array, xp.ndarray)
         self.assertEqual(roi_ag_locs.shape, (n_roi, 2, 4))
 
-        self.assertIsInstance(roi_scores, chainer.Variable)
-        self.assertIsInstance(roi_scores.array, xp.ndarray)
-        self.assertEqual(roi_scores.shape, (n_roi, self.n_class))
+        self.assertIsInstance(roi_cls_scores, chainer.Variable)
+        self.assertIsInstance(roi_cls_scores.array, xp.ndarray)
+        self.assertEqual(roi_cls_scores.shape, (n_roi, self.n_class))
 
         self.assertIsInstance(rois, xp.ndarray)
         self.assertEqual(rois.shape, (n_roi, 4))
@@ -82,22 +81,27 @@ class TestFCISResNet101(unittest.TestCase):
         self.check_call()
 
 
+@testing.parameterize(*testing.product({
+    'n_fg_class': [None, 10, 20],
+    'pretrained_model': ['sbd'],
+}))
 class TestFCISResNet101Pretrained(unittest.TestCase):
 
     @attr.slow
-    @attr.disk
     def test_pretrained(self):
-        link = FCISResNet101(pretrained_model='sbd')
-        self.assertIsInstance(link, FCIS)
+        kwargs = {
+            'n_fg_class': self.n_fg_class,
+            'pretrained_model': self.pretrained_model,
+        }
 
-    @attr.slow
-    @attr.disk
-    def test_pretrained_n_fg_class(self):
-        link = FCISResNet101(n_fg_class=20, pretrained_model='sbd')
-        self.assertIsInstance(link, FCIS)
+        if self.pretrained_model == 'sbd':
+            valid = self.n_fg_class in {None, 20}
 
-    @attr.slow
-    @attr.disk
-    def test_pretrained_wrong_n_fg_class(self):
-        with self.assertRaises(ValueError):
-            FCISResNet101(n_fg_class=10, pretrained_model='sbd')
+        if valid:
+            FCISResNet101(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                FCISResNet101(**kwargs)
+
+
+testing.run_module(__name__, __file__)

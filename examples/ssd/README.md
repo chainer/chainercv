@@ -15,7 +15,7 @@ Scores are mean Average Precision (mAP) with PASCAL VOC2007 metric.
 ## Demo
 Detect objects in an given image. This demo downloads Pascal VOC pretrained model automatically if a pretrained model path is not given.
 ```
-$ python demo.py [--model ssd300|ssd512] [--gpu <gpu>] [--pretrained_model <model_path>] <image>.jpg
+$ python demo.py [--model ssd300|ssd512] [--gpu <gpu>] [--pretrained-model <model_path>] <image>.jpg
 ```
 
 ## Convert Caffe model
@@ -39,7 +39,7 @@ For the details and workaround, please see [Chainer's Tips and FAQs](https://doc
 If you want to use multiple GPUs, use `train_multi.py`.
 Note that this code requires `chainermn` module.
 ```
-$ mpi4exec -n <#gpu> python train_multi.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--test_batchsize <batchsize>]
+$ mpi4exec -n <#gpu> python train_multi.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--test-batchsize <batchsize>]
 ```
 
 You can download weights that were trained by ChainerCV.
