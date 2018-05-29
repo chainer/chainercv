@@ -41,7 +41,8 @@ def main():
             if i == 0:
                 font = FontProperties()
                 font.set_family('serif')
-                ax.set_title(name, fontsize=35, y=1.03, fontproperties=font)
+                font.set_size(35)
+                ax.set_title(name, y=1.03, fontproperties=font)
             plt.axis('off')
             plt.tight_layout()
 
