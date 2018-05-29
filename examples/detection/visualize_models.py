@@ -23,7 +23,7 @@ def main():
         ('YOLOv3', YOLOv3(pretrained_model='voc0712')),
     ]
 
-    fig = plt.figure(figsize=(30, 30))
+    fig = plt.figure(figsize=(30, 20))
     for i, img in enumerate(dataset):
         for j, (name, model) in enumerate(models):
             bboxes, labels, scores = model.predict([img])
