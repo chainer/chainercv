@@ -70,7 +70,7 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 
 # Sample Visualization
 
-![Example are outputs of detection models supported by ChainerCV](https://user-images.githubusercontent.com/3014172/39509062-d2f7f790-4e1f-11e8-900a-458faf6b0449.png)
+![Example are outputs of detection models supported by ChainerCV](https://user-images.githubusercontent.com/3014172/40634581-bb01f52a-6330-11e8-8502-ba3dacd81dc8.png)
 These are the outputs of the detection models supported by ChainerCV.
 
 
