@@ -69,7 +69,8 @@ def main():
 
     # optimizer
     optimizer = chainermn.create_multi_node_optimizer(
-        chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9), comm)
+        chainer.optimizers.MomentumSGD(lr=args.lr * comm.size, momentum=0.9),
+        comm)
     optimizer.setup(model)
     optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
@@ -90,7 +91,7 @@ def main():
     # lr scheduler
     trainer.extend(
         chainer.training.extensions.ExponentialShift(
-            'lr', args.lr_cooldown_factor, init=args.lr),
+            'lr', args.lr_cooldown_factor, init=args.lr * comm.size),
         trigger=(args.cooldown_epoch, 'epoch'))
 
     if comm.rank == 0:
