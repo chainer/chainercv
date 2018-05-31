@@ -9,6 +9,7 @@ import chainer
 from chainer.dataset.convert import _concat_arrays
 from chainer.dataset.convert import to_device
 from chainer.datasets import TransformDataset
+from chainer.optimizers.momentum_sgd import MomentumSGDRule
 from chainer.training import extensions
 from chainer.training.triggers import ManualScheduleTrigger
 
@@ -17,7 +18,6 @@ from chainercv.datasets import SBDInstanceSegmentationDataset
 from chainercv.experimental.links import FCISResNet101
 from chainercv.experimental.links import FCISTrainChain
 from chainercv.extensions import InstanceSegmentationVOCEvaluator
-from chainercv.links.model.ssd import GradientScaling
 from chainercv import transforms
 
 
@@ -95,8 +95,10 @@ def main():
     optimizer.setup(model)
     optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
-    model.fcis.head.conv1.W.update_rule.add_hook(GradientScaling(3.0))
-    model.fcis.head.conv1.b.update_rule.add_hook(GradientScaling(3.0))
+    model.fcis.head.conv1.W.update_rule = MomentumSGDRule(
+        lr=optimizer.lr * 3, momentum=0.9)
+    model.fcis.head.conv1.b.update_rule = MomentumSGDRule(
+        lr=optimizer.lr * 3, momentum=0.9)
 
     train_dataset = TransformDataset(
         train_dataset, Transform(model.fcis))
