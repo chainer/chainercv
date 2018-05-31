@@ -93,7 +93,7 @@ class FCISTrainChain(chainer.Chain):
         # Losses for outputs of the head
         n_rois = roi_ag_loc.shape[0]
         gt_roi_fg_label = (gt_roi_label > 0).astype(np.int)
-        roi_loc = roi_ag_loc[self.xp.arange(n_rois), gt_roi_fg_label, :]
+        roi_loc = roi_ag_loc[self.xp.arange(n_rois), gt_roi_fg_label]
 
         roi_loc_loss = _fast_rcnn_loc_loss(
             roi_loc, gt_roi_loc, gt_roi_label, self.roi_sigma)
