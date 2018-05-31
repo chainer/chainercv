@@ -52,6 +52,10 @@ class FCISResNet101(FCIS):
             by modifying the environment variable.
         min_size (int): A preprocessing paramter for :meth:`prepare`.
         max_size (int): A preprocessing paramter for :meth:`prepare`.
+        roi_size (int): Height and width of the feature maps after
+            Position Sensitive RoI pooling.
+        group_size (int): Group height and width for Position Sensitive
+            ROI pooling.
         ratios (list of floats): This is ratios of width to height of
             the anchors.
         anchor_scales (list of numbers): This is areas of anchors.
@@ -91,6 +95,7 @@ class FCISResNet101(FCIS):
             n_fg_class=None,
             pretrained_model=None,
             min_size=600, max_size=1000,
+            roi_size=21, group_size=7,
             ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
             loc_normalize_mean=(0.0, 0.0, 0.0, 0.0),
             loc_normalize_std=(0.2, 0.2, 0.5, 0.5),
@@ -124,7 +129,7 @@ class FCISResNet101(FCIS):
             proposal_creator_params=proposal_creator_params)
         head = FCISResNet101Head(
             param['n_fg_class'] + 1,
-            roi_size=21, group_size=7,
+            roi_size=roi_size, group_size=group_size,
             spatial_scale=1. / self.feat_stride,
             loc_normalize_mean=loc_normalize_mean,
             loc_normalize_std=loc_normalize_std,
