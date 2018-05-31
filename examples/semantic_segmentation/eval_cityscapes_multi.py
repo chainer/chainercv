@@ -40,12 +40,14 @@ def main():
 
     dataset = CityscapesSemanticSegmentationDataset(
         split='val', label_resolution='fine')
+
     if comm.rank == 0:
         indices = np.arange(len(dataset))
     else:
         indices = None
-    indices = chainermn.scatter_dataset(indices)
+    indices = chainermn.scatter_dataset(indices, comm)
     dataset = dataset.slice[indices]
+
     it = iterators.SerialIterator(
         dataset, 1, repeat=False, shuffle=False)
 
