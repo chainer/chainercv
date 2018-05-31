@@ -23,7 +23,7 @@ class FCISTrainChain(chainer.Chain):
             n_sample=128,
             pos_ratio=0.25, pos_iou_thresh=0.5,
             neg_iou_thresh_hi=0.5, neg_iou_thresh_lo=0.0,
-            mask_size=21, binary_thresh=0.4
+            binary_thresh=0.4
     ):
 
         super(FCISTrainChain, self).__init__()
@@ -32,6 +32,7 @@ class FCISTrainChain(chainer.Chain):
         self.rpn_sigma = rpn_sigma
         self.roi_sigma = roi_sigma
         self.n_sample = n_sample
+        self.mask_size = self.fcis.head.roi_size
 
         self.loc_normalize_mean = fcis.loc_normalize_mean
         self.loc_normalize_std = fcis.loc_normalize_std
@@ -44,7 +45,7 @@ class FCISTrainChain(chainer.Chain):
             pos_ratio=pos_ratio, pos_iou_thresh=pos_iou_thresh,
             neg_iou_thresh_hi=neg_iou_thresh_hi,
             neg_iou_thresh_lo=neg_iou_thresh_lo,
-            mask_size=mask_size, binary_thresh=binary_thresh)
+            mask_size=self.mask_size, binary_thresh=binary_thresh)
 
     def __call__(self, x, masks, labels, scale=1.0):
         n = masks.shape[0]
@@ -97,8 +98,7 @@ class FCISTrainChain(chainer.Chain):
 
         roi_loc_loss = _fast_rcnn_loc_loss(
             roi_loc, gt_roi_loc, gt_roi_label, self.roi_sigma)
-        roi_cls_loss = F.softmax_cross_entropy(
-            roi_cls_score, gt_roi_label)
+        roi_cls_loss = F.softmax_cross_entropy(roi_cls_score, gt_roi_label)
         roi_mask_loss = F.softmax_cross_entropy(
             roi_ag_seg_score, gt_roi_mask)
 
