@@ -99,8 +99,10 @@ class FCISTrainChain(chainer.Chain):
         roi_loc_loss = _fast_rcnn_loc_loss(
             roi_loc, gt_roi_loc, gt_roi_label, self.roi_sigma)
         roi_cls_loss = F.softmax_cross_entropy(roi_cls_score, gt_roi_label)
+        # normalize by every (valid and invalid) instances
         roi_mask_loss = F.softmax_cross_entropy(
-            roi_ag_seg_score, gt_roi_mask)
+            roi_ag_seg_score, gt_roi_mask, normalize=False) \
+            * 10.0 / self.mask_size / self.mask_size
 
         loss = rpn_loc_loss + rpn_cls_loss \
             + roi_loc_loss + roi_cls_loss + roi_mask_loss
