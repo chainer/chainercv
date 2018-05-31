@@ -28,7 +28,7 @@ $ python eval_cityscapes.py [--model pspnet_resnet101] [--gpu <gpu>] [--pretrain
 | SegNet | 46.3 % [2] | 49.4 % |
 
 ```
-$ python eval_camvid.py [--gpu <gpu>] [--pretrained_model <model_path>] [--batchsize <batchsize>]
+$ python eval_camvid.py [--gpu <gpu>] [--pretrained-model <model_path>] [--batchsize <batchsize>]
 ```
 
 

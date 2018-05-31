@@ -24,12 +24,12 @@ For the details, please check the documents and examples of each model.
 
 You can reproduce these scores by the following command.
 ```
-$ python eval_voc07.py [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolo_v3] [--pretrained_model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
+$ python eval_voc07.py [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolo_v3] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
 ```
 
 ## Visualization of models
 
-![Visualization of models](https://cloud.githubusercontent.com/assets/2062128/26337670/44a2a202-3fb5-11e7-8b88-6eb9886a9915.png)
+![Visualization of models](https://user-images.githubusercontent.com/3014172/40634581-bb01f52a-6330-11e8-8502-ba3dacd81dc8.png)
 These images are included in PASCAL VOC2007 test.
 
 You can generate these visualization results by the following command.

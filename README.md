@@ -13,7 +13,7 @@ You can find the documentation [here](http://chainercv.readthedocs.io/en/stable/
 
 Supported tasks:
 
-+ Object Detection ([tutorial](http://chainercv.readthedocs.io/en/latest/tutorial/detection.html), [Faster R-CNN](examples/faster_rcnn), [SSD](examples/ssd))
++ Object Detection ([tutorial](http://chainercv.readthedocs.io/en/latest/tutorial/detection.html), [Faster R-CNN](examples/faster_rcnn), [SSD](examples/ssd), [YOLO](examples/yolo))
 + Semantic Segmentation ([SegNet](examples/segnet),)
 + Image Classification ([ResNet](examples/resnet), [VGG](examples/vgg))
 
@@ -41,6 +41,7 @@ The instruction on installation using Anaconda is [here](http://chainercv.readth
 
 For additional features
 
++ [ChainerMN](https://github.com/chainer/chainermn)
 + Matplotlib
 + OpenCV
 + SciPy
@@ -69,7 +70,7 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 
 # Sample Visualization
 
-![Example are outputs of detection models supported by ChainerCV](https://cloud.githubusercontent.com/assets/2062128/26337670/44a2a202-3fb5-11e7-8b88-6eb9886a9915.png)
+![Example are outputs of detection models supported by ChainerCV](https://user-images.githubusercontent.com/3014172/40634581-bb01f52a-6330-11e8-8502-ba3dacd81dc8.png)
 These are the outputs of the detection models supported by ChainerCV.
 
 

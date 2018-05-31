@@ -16,14 +16,14 @@ Similar issue is reported [here](https://github.com/AlexeyAB/darknet#how-to-calc
 ## Demo
 Detect objects in an given image. This demo downloads Pascal VOC pretrained model automatically if a pretrained model path is not given.
 ```
-$ python demo.py [--model yolo_v2|yolo_v3] [--gpu <gpu>] [--pretrained_model <model_path>] <image>.jpg
+$ python demo.py [--model yolo_v2|yolo_v3] [--gpu <gpu>] [--pretrained-model <model_path>] <image>.jpg
 ```
 
 ## Convert Darknet model
 Convert `*.weights` to `*.npz`. YOLOv2 and YOLOv3 are supported.
 Note that the number of classes should be specified if it is not 80 (the number of classes in COCO).
 ```
-$ python darknet2npz [--model yolo_v2|yolo_v3] [--n_fg_class <#fg_class>]  <source>.weights <target>.npz
+$ python darknet2npz [--model yolo_v2|yolo_v3] [--n-fg-class <#fg_class>]  <source>.weights <target>.npz
 ```
 
 ## Evaluation
