@@ -95,10 +95,6 @@ def main():
     optimizer.setup(model)
     optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
-    # disable update
-    model.fcis.extractor.conv1.disable_update()
-    model.fcis.extractor.res2.disable_update()
-
     model.fcis.head.conv1.W.update_rule.add_hook(GradientScaling(3.0))
     model.fcis.head.conv1.b.update_rule.add_hook(GradientScaling(3.0))
 

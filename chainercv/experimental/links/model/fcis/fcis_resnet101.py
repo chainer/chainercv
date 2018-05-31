@@ -222,6 +222,7 @@ class ResNet101Extractor(chainer.Chain):
         with chainer.using_config('train', False):
             h = self.pool1(self.conv1(x))
             h = self.res2(h)
+            h.unchain_backward()
             h = self.res3(h)
             res4 = self.res4(h)
             res5 = self.res5(res4)
