@@ -74,7 +74,7 @@ def main():
         print('{:>23} : {:.4f}'.format(
             'Class average accuracy', np.nanmean(class_accuracy)))
         print('{:>23} : {:.4f}'.format(
-            'Global average accuracy', np.nanmean(pixel_accuracy)))
+            'Global average accuracy', pixel_accuracy))
 
 
 if __name__ == '__main__':
