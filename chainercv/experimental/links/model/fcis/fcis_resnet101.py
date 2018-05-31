@@ -358,12 +358,12 @@ class FCISResNet101Head(chainer.Chain):
             self.spatial_scale, self.group_size)
 
         # shape: (n_roi, n_class)
-        roi_cls_scores = _global_average_pooling_2d(
-            F.max(roi_cls_ag_seg_scores, axis=2))
+        roi_cls_scores = F.average(
+            F.max(roi_cls_ag_seg_scores, axis=2), axis=(2, 3))
 
         # Bbox Regression
         # shape: (n_roi, 2, 4)
-        roi_ag_locs = _global_average_pooling_2d(roi_ag_loc_scores)
+        roi_ag_locs = F.average(roi_ag_loc_scores, axis=(2, 3))
         roi_ag_locs = F.reshape(roi_ag_locs, (-1, 2, 4))
 
         # Mask Regression
@@ -378,10 +378,3 @@ class FCISResNet101Head(chainer.Chain):
             self.xp.arange(len(max_cls_indices)), max_cls_indices]
 
         return roi_ag_seg_scores, roi_ag_locs, roi_cls_scores
-
-
-def _global_average_pooling_2d(x):
-    n_roi, n_channel, H, W = x.array.shape
-    h = F.average_pooling_2d(x, (H, W), stride=1)
-    h = F.reshape(h, (n_roi, n_channel))
-    return h
