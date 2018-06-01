@@ -10,7 +10,7 @@ from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNN
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 from chainercv.links.model.resnet import ResNet101
-from chainercv.utils import download_model
+from chainercv import utils
 
 
 def copy_persistent_link(dst, src):
