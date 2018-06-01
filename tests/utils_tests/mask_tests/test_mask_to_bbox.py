@@ -33,6 +33,7 @@ class TestMaskToBbox(unittest.TestCase):
         bbox = mask_to_bbox(mask)
 
         self.assertIsInstance(bbox, type(expected))
+        self.assertEqual(bbox.dtype, expected.dtype)
         np.testing.assert_equal(
             cuda.to_cpu(bbox),
             cuda.to_cpu(expected))
