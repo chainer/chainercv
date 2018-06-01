@@ -100,6 +100,12 @@ def main():
     model.fcis.head.conv1.b.update_rule = MomentumSGDRule(
         lr=optimizer.lr * 3, momentum=0.9)
 
+    for param in model.params():
+        if param.name in ['beta', 'gamma']:
+            param.update_rule.enable = False
+    model.fcis.extractor.conv1.disable_update()
+    model.fcis.extractor.res2.disable_update()
+
     train_dataset = TransformDataset(
         train_dataset, Transform(model.fcis))
 
