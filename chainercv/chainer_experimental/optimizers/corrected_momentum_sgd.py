@@ -14,10 +14,6 @@ class CorrectedMomentumSGDRule(optimizer.UpdateRule):
     See :class:`~chainer.optimizers.CorrectedMomentumSGD` for the default
     values of the hyperparameters.
 
-    This implements momentum correction discussed in the third section of
-    `Accurate, Large Minibatch SGD: Training ImageNet in 1 Hour \
-    <https://arxiv.org/abs/1706.02677>`_.
-
     Args:
         parent_hyperparam (~chainer.optimizer.Hyperparameter): Hyperparameter
             that provides the default values.
@@ -65,6 +61,29 @@ class CorrectedMomentumSGDRule(optimizer.UpdateRule):
 class CorrectedMomentumSGD(optimizer.GradientMethod):
 
     """Momentum SGD optimizer.
+
+    This implements momentum correction discussed in the third section of
+    `Accurate, Large Minibatch SGD: Training ImageNet in 1 Hour \
+    <https://arxiv.org/abs/1706.02677>`_.
+
+    :class:`~chainer.optimizers.MomentumSGD` implements equation (10) of the
+    paper. This optimizer implements equation (9), which takes momentum
+    correction into account.
+
+    First, we set :math:`v_{t} = \\eta_{t} u_t`.
+    We substitute this relation to the equation (10) with momentum correction.
+
+    .. math::
+
+        v_{t+1} &= m\\frac{\\eta_{t+1}}{\\eta_{t}}v_t + \\eta_{t+1}g_t  \\\\
+                &= m\\frac{\\eta_{t+1}}{\\eta_{t}}\\eta_{t}u_t +
+                \\eta_{t+1}g_t \\\\
+                &= \\eta_{t+1}(m u_t + g_t) \\\\
+
+    From this result, we derive :math:`u_{t+1} = m u_t + g_t`, which is how
+    update tensors are calculated by
+    :class:`~chainer.optimizers.CorrectedMomentumSGD`. Thus, the equivalence
+    is shown.
 
     Args:
         lr (float): Learning rate.

@@ -13,3 +13,4 @@ Sliceable
 .. toctree::
 
    chainer_experimental/sliceable
+   chainer_experimental/optimizers
