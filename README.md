@@ -13,9 +13,9 @@ You can find the documentation [here](http://chainercv.readthedocs.io/en/stable/
 
 Supported tasks:
 
++ Image Classification ([ResNet](examples/resnet), [VGG](examples/vgg))
 + Object Detection ([tutorial](http://chainercv.readthedocs.io/en/latest/tutorial/detection.html), [Faster R-CNN](examples/faster_rcnn), [SSD](examples/ssd), [YOLO](examples/yolo))
 + Semantic Segmentation ([SegNet](examples/segnet), [PSPNet](examples/pspnet))
-+ Image Classification ([ResNet](examples/resnet), [VGG](examples/vgg))
 + Instance Segmentation ([FCIS](examples/fcis),)
 
 # Guiding Principles
