@@ -37,6 +37,8 @@ See the following resources for the terms of use of a model with weights pretrai
     * - YOLOv3 (:obj:`voc0712`)
       - * `Darknet53 (trained on ImageNet) <https://pjreddie.com/darknet/yolo/#train-voc>`_
         * `PASCAL VOC <http://host.robots.ox.ac.uk/pascal/VOC/>`_
+    * - PSPNetResNet101 (:obj:`cityscapes`)
+      - * `PSPNet101 (trained on Cityscapes) <https://github.com/hszhao/PSPNet#usage>`_
     * - SegNetBasic (:obj:`camvid`)
       - * `CamVid <https://github.com/alexgkendall/SegNet-Tutorial/>`_
     * - FCISResNet101 (:obj:`sbd`)
