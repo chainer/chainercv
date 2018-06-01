@@ -41,8 +41,8 @@ class CorrectedMomentumSGDRule(optimizer.UpdateRule):
             return
         v = self.state['v']
         v *= self.hyperparam.momentum
-        v -= self.hyperparam.lr * grad
-        param.data += v
+        v -= grad
+        param.data += self.hyperparam.lr * v
 
     def update_core_gpu(self, param):
         grad = param.grad
