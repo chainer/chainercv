@@ -275,8 +275,8 @@ class PSPNetResNet101(PSPNet):
     _models = {
         'cityscapes': {
             'param': {'n_class': 19, 'input_size': (713, 713)},
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/pspnet_resnet101_cityscapes_convert_2018_05_22.npz'
+            'url': 'https://chainercv-models.preferred.jp/'
+            'pspnet_resnet101_cityscapes_converted_2018_05_22.npz'
         }
     }
 
