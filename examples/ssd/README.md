@@ -43,8 +43,8 @@ $ mpi4exec -n <#gpu> python train_multi.py [--model ssd300|ssd512] [--batchsize 
 ```
 
 You can download weights that were trained by ChainerCV.
-- [SSD300](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/ssd300_voc0712_trained_2017_08_08.npz)
-- [SSD512](https://github.com/yuyu2172/share-weights/releases/download/0.0.4/ssd512_voc0712_trained_batchsize_24_2017_08_08.npz)
+- [SSD300](https://chainercv-models.preferred.jp/ssd300_voc0712_trained_2017_08_08.npz)
+- [SSD512](https://chainercv-models.preferred.jp/ssd512_voc0712_trained_2017_08_08.npz)
 
 ## References
 1. Wei Liu et al. "SSD: Single shot multibox detector" ECCV 2016.

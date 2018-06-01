@@ -91,8 +91,8 @@ class VGG16(PickableSequentialChain):
         'imagenet': {
             'param': {'n_class': 1000, 'mean': _imagenet_mean},
             'overwritable': ('mean',),
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.4/vgg16_imagenet_convert_2017_07_18.npz'
+            'url': 'https://chainercv-models.preferred.jp/'
+            'vgg16_imagenet_converted_2017_07_18.npz'
         }
     }
 

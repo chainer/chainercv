@@ -128,8 +128,8 @@ class YOLOv3(YOLOBase):
     _models = {
         'voc0712': {
             'param': {'n_fg_class': 20},
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/yolo_v3_voc0712_2018_05_01.npz',
+            'url': 'https://chainercv-models.preferred.jp/'
+            'yolo_v3_voc0712_converted_2018_05_01.npz',
             'cv2': True
         },
     }
