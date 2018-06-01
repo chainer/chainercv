@@ -21,6 +21,13 @@ The scores are mIoU.
 $ python eval_cityscapes.py [--model pspnet_resnet101] [--gpu <gpu>] [--pretrained-model <model_path>]
 ```
 
+You can conduct evaluation with multiple GPUs by `eval_cityscapes_multi.py`.
+Note that this script requires ChainerMN.
+
+```
+$ mpiexec -n <#gpu> python eval_cityscapes_multi.py [--model pspnet_resnet101] [--pretrained-model <model_path>]
+```
+
 ### CamVid
 
 | Model | Reference | ChainerCV |
