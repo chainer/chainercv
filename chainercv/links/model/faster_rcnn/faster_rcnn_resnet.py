@@ -49,6 +49,8 @@ class FasterRCNNResNet101(FasterRCNN):
 
     * :obj:`voc07`: Loads weights trained with the trainval split of \
         PASCAL VOC2007 Detection Dataset.
+    * :obj:`'voc0712'`: Load weights trained on trainval split of \
+        PASCAL VOC 2007 and 2012. \
     * :obj:`imagenet`: Loads weights trained with ImageNet Classfication \
         task for the feature extractor and the head modules. \
         Weights that do not have a corresponding layer in ResNet101 \
@@ -106,11 +108,8 @@ class FasterRCNNResNet101(FasterRCNN):
                  loc_initialW=None, score_initialW=None,
                  proposal_creator_params={}
                  ):
-        if n_fg_class is None:
-            if pretrained_model not in self._models:
-                raise ValueError(
-                    'The n_fg_class needs to be supplied as an argument')
-            n_fg_class = self._models[pretrained_model]['n_fg_class']
+        param, path = utils.prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         if loc_initialW is None:
             loc_initialW = chainer.initializers.Normal(0.001)
@@ -147,13 +146,10 @@ class FasterRCNNResNet101(FasterRCNN):
             max_size=max_size
         )
 
-        if pretrained_model in self._models:
-            path = download_model(self._models[pretrained_model]['url'])
-            chainer.serializers.load_npz(path, self)
-        elif pretrained_model == 'imagenet':
+        if path == 'imagenet':
             self._copy_imagenet_pretrained_resnet101()
-        elif pretrained_model:
-            chainer.serializers.load_npz(pretrained_model, self)
+        elif path:
+            chainer.serializers.load_npz(path, self)
 
     def _copy_imagenet_pretrained_resnet101(self):
         pretrained_model = ResNet101(pretrained_model='imagenet', arch='he')
