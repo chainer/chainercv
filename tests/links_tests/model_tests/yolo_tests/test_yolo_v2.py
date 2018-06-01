@@ -23,11 +23,19 @@ class TestYOLOv2(unittest.TestCase):
             np.random.uniform(-1, 1, size=(1, 3, self.insize, self.insize)),
             dtype=np.float32)
 
-        y = self.link(x)
+        locs, objs, confs = self.link(x)
 
-        self.assertIsInstance(y, chainer.Variable)
-        self.assertIsInstance(y.array, self.link.xp.ndarray)
-        self.assertEqual(y.shape, (1, self.n_bbox, 4 + 1 + self.n_fg_class))
+        self.assertIsInstance(locs, chainer.Variable)
+        self.assertIsInstance(locs.array, self.link.xp.ndarray)
+        self.assertEqual(locs.shape, (1, self.n_bbox, 4))
+
+        self.assertIsInstance(objs, chainer.Variable)
+        self.assertIsInstance(objs.array, self.link.xp.ndarray)
+        self.assertEqual(objs.shape, (1, self.n_bbox))
+
+        self.assertIsInstance(confs, chainer.Variable)
+        self.assertIsInstance(confs.array, self.link.xp.ndarray)
+        self.assertEqual(confs.shape, (1, self.n_bbox, self.n_fg_class))
 
     @attr.slow
     def test_call_cpu(self):
