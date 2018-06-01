@@ -248,13 +248,13 @@ class SSD300(SSD):
     _models = {
         'voc0712': {
             'param': {'n_fg_class': 20},
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/ssd300_voc0712_2017_06_06.npz',
+            'url': 'https://chainercv-models.preferred.jp/'
+            'ssd300_voc0712_converted_2017_06_06.npz',
             'cv2': True
         },
         'imagenet': {
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/ssd_vgg16_imagenet_2017_06_09.npz',
+            'url': 'https://chainercv-models.preferred.jp/'
+            'ssd_vgg16_imagenet_converted_2017_06_09.npz',
             'cv2': True
         },
     }
@@ -315,13 +315,13 @@ class SSD512(SSD):
     _models = {
         'voc0712': {
             'param': {'n_fg_class': 20},
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/ssd512_voc0712_2017_06_06.npz',
+            'url': 'https://chainercv-models.preferred.jp/'
+            'ssd512_voc0712_converted_2017_06_06.npz',
             'cv2': True
         },
         'imagenet': {
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/ssd_vgg16_imagenet_2017_06_09.npz',
+            'url': 'https://chainercv-models.preferred.jp/'
+            'ssd_vgg16_imagenet_converted_2017_06_09.npz',
             'cv2': True
         },
     }
