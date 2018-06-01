@@ -73,7 +73,7 @@ class FasterRCNNVGG16(FasterRCNN):
         'voc07': {
             'param': {'n_fg_class': 20},
             'url': 'https://chainercv-models.preferred.jp/'
-            'faster_rcnn_vgg16_voc07_trained_2017_08_06.npz',
+            'faster_rcnn_vgg16_voc07_trained_2018_06_01.npz',
             'cv2': True
         },
         'voc0712': {
