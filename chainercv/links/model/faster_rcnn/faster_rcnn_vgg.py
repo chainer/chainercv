@@ -24,6 +24,8 @@ class FasterRCNNVGG16(FasterRCNN):
 
     * :obj:`voc07`: Loads weights trained with the trainval split of \
         PASCAL VOC2007 Detection Dataset.
+    * :obj:`'voc0712'`: Load weights trained on trainval split of \
+        PASCAL VOC 2007 and 2012. \
     * :obj:`imagenet`: Loads weights trained with ImageNet Classfication \
         task for the feature extractor and the head modules. \
         Weights that do not have a corresponding layer in VGG-16 \
