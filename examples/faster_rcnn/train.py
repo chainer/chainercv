@@ -52,11 +52,11 @@ def main():
         help='The feature extractor to use', default='vgg16')
     parser.add_argument('--gpu', '-g', type=int, default=-1)
     parser.add_argument('--lr', '-l', type=float, default=1e-3)
-    parser.add_argument('--weight_decay', '-w', type=float, default=0.0005)
+    parser.add_argument('--weight-decay', '-w', type=float, default=0.0005)
     parser.add_argument('--out', '-o', default='result',
                         help='Output directory')
     parser.add_argument('--seed', '-s', type=int, default=0)
-    parser.add_argument('--step_size', '-ss', type=int, default=50000)
+    parser.add_argument('--step-size', '-ss', type=int, default=50000)
     parser.add_argument('--iteration', '-i', type=int, default=70000)
     args = parser.parse_args()
 
