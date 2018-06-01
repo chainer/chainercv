@@ -1,4 +1,5 @@
 import chainer
+from chainer.backends import cuda
 
 from chainercv import transforms
 
@@ -83,15 +84,19 @@ class YOLOBase(chainer.Chain):
 
         with chainer.using_config('train', False), \
                 chainer.function.no_backprop_mode():
-            y = self(self.xp.stack(x)).array
-        locs = y[:, :, :4]
-        confs = y[:, :, 4:]
+            locs, objs, confs = self(self.xp.stack(x))
+        locs = locs.array
+        objs = objs.array
+        confs = confs.array
 
         bboxes = []
         labels = []
         scores = []
-        for loc, conf, param in zip(locs, confs, params):
-            bbox, label, score = self._decode(loc, conf)
+        for loc, obj, conf, param in zip(locs, objs, confs, params):
+            bbox, label, score = self._decode(loc, obj, conf)
+            bbox = cuda.to_cpu(bbox)
+            label = cuda.to_cpu(label)
+            score = cuda.to_cpu(score)
 
             bbox = transforms.translate_bbox(
                 bbox, -self.insize / 2, -self.insize / 2)

@@ -161,31 +161,41 @@ class YOLOv2(YOLOBase):
         self._default_bbox = cuda.to_gpu(self._default_bbox, device)
 
     def __call__(self, x):
-        """Compute localization and classification from a batch of images.
+        """Compute localization, objectness, and classification from a batch of images.
 
-        This method computes a variable.
-        :func:`self._decode` converts this variable to bounding box
+        This method computes three variables, :obj:`locs`, :obj:`objs`,
+        and :obj:`confs`.
+        :meth:`self._decode` converts these variables to bounding box
         coordinates and confidence scores.
-        This variable is also used in training YOLOv3.
+        These variables are also used in training YOLOv2.
 
         Args:
             x (chainer.Variable): A variable holding a batch of images.
-                The images are preprocessed by :meth:`_prepare`.
 
         Returns:
-            chainer.Variable:
-            A variable of float arrays of shape
-            :math:`(B, K, 4 + 1 + n\_fg\_class)`,
-            where :math:`B` is the number of samples in the batch and
-            :math:`K` is the number of default bounding boxes.
+            tuple of chainer.Variable:
+            This method returns three variables, :obj:`locs`,
+            :obj:`objs`, and :obj:`confs`.
+
+            * **locs**: A variable of float arrays of shape \
+                :math:`(B, K, 4)`, \
+                where :math:`B` is the number of samples in the batch and \
+                :math:`K` is the number of default bounding boxes.
+            * **objs**: A variable of float arrays of shape \
+                :math:`(B, K)`.
+            * **confs**: A variable of float arrays of shape \
+                :math:`(B, K, n\_fg\_class)`.
         """
 
         h = self.subnet(self.extractor(x))
         h = F.transpose(h, (0, 2, 3, 1))
         h = F.reshape(h, (h.shape[0], -1, 4 + 1 + self.n_fg_class))
-        return h
+        locs = h[:, :, :4]
+        objs = h[:, :, 4]
+        confs = h[:, :, 5:]
+        return locs, objs, confs
 
-    def _decode(self, loc, conf):
+    def _decode(self, loc, obj, conf):
         raw_bbox = self._default_bbox.copy()
         raw_bbox[:, :2] += 1 / (1 + self.xp.exp(-loc[:, :2]))
         raw_bbox[:, 2:] *= self.xp.exp(loc[:, 2:])
@@ -193,9 +203,10 @@ class YOLOv2(YOLOBase):
         raw_bbox[:, 2:] += raw_bbox[:, :2]
         raw_bbox *= self.insize / self.extractor.grid
 
-        raw_score = self.xp.exp(conf[:, 1:])
-        raw_score /= raw_score.sum(axis=1, keepdims=True)
-        raw_score /= 1 + self.xp.exp(-conf[:, 0, None])
+        obj = 1 / (1 + self.xp.exp(-obj))
+        conf = self.xp.exp(conf)
+        conf /= conf.sum(axis=1, keepdims=True)
+        raw_score = obj[:, None] * conf
 
         bbox = []
         label = []
@@ -213,12 +224,12 @@ class YOLOv2(YOLOBase):
             bbox_l = bbox_l[indices]
             score_l = score_l[indices]
 
-            bbox.append(cuda.to_cpu(bbox_l))
-            label.append(np.array((l,) * len(bbox_l)))
-            score.append(cuda.to_cpu(score_l))
+            bbox.append(bbox_l)
+            label.append(self.xp.array((l,) * len(bbox_l)))
+            score.append(score_l)
 
-        bbox = np.vstack(bbox).astype(np.float32)
-        label = np.hstack(label).astype(np.int32)
-        score = np.hstack(score).astype(np.float32)
+        bbox = self.xp.vstack(bbox).astype(np.float32)
+        label = self.xp.hstack(label).astype(np.int32)
+        score = self.xp.hstack(score).astype(np.float32)
 
         return bbox, label, score

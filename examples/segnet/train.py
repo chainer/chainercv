@@ -28,7 +28,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=12)
-    parser.add_argument('--class_weight', type=str, default='class_weight.npy')
+    parser.add_argument('--class-weight', type=str, default='class_weight.npy')
     parser.add_argument('--out', type=str, default='result')
     args = parser.parse_args()
 
