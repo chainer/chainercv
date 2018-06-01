@@ -10,8 +10,8 @@ The source code of ChainerCV is licensed under `MIT-License <https://github.com/
 Pretrained Models
 ~~~~~~~~~~~~~~~~~
 
-Pretrained models provided by ChainerCV rely on the following resources.
-When using a pretrained model, please check the lincense of resources.
+Pretrained models provided by ChainerCV are benefited from the following resources.
+See the following resources for the terms of use of a model with weights pretrained by any of such resources.
 
 .. list-table::
     :header-rows: 1
