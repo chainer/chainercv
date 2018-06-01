@@ -14,6 +14,10 @@ directory_parsing_label_names
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: directory_parsing_label_names
 
+MixUpSoftLabelDataset
+~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: MixUpSoftLabelDataset
+
 SiameseDataset
 ~~~~~~~~~~~~~~
 .. autoclass:: SiameseDataset
@@ -54,9 +58,9 @@ CUBLabelDataset
 ~~~~~~~~~~~~~~~
 .. autoclass:: CUBLabelDataset
 
-CUBKeypointDataset
-~~~~~~~~~~~~~~~~~~~
-.. autoclass:: CUBKeypointDataset
+CUBPointDataset
+~~~~~~~~~~~~~~~
+.. autoclass:: CUBPointDataset
 
 
 OnlineProducts

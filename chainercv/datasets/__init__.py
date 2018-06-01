@@ -10,11 +10,12 @@ from chainercv.datasets.cityscapes.cityscapes_semantic_segmentation_dataset impo
 from chainercv.datasets.cityscapes.cityscapes_test_image_dataset import CityscapesTestImageDataset  # NOQA
 from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_semantic_segmentation_label_colors  # NOQA
 from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_semantic_segmentation_label_names  # NOQA
-from chainercv.datasets.cub.cub_keypoint_dataset import CUBKeypointDataset  # NOQA
 from chainercv.datasets.cub.cub_label_dataset import CUBLabelDataset  # NOQA
+from chainercv.datasets.cub.cub_point_dataset import CUBPointDataset  # NOQA
 from chainercv.datasets.cub.cub_utils import cub_label_names  # NOQA
 from chainercv.datasets.directory_parsing_label_dataset import directory_parsing_label_names  # NOQA
 from chainercv.datasets.directory_parsing_label_dataset import DirectoryParsingLabelDataset  # NOQA
+from chainercv.datasets.mixup_soft_label_dataset import MixUpSoftLabelDataset  # NOQA
 from chainercv.datasets.online_products.online_products_dataset import online_products_super_label_names  # NOQA
 from chainercv.datasets.online_products.online_products_dataset import OnlineProductsDataset  # NOQA
 from chainercv.datasets.sbd.sbd_instance_segmentation_dataset import SBDInstanceSegmentationDataset  # NOQA

@@ -85,8 +85,8 @@ def main():
         model.to_gpu()
     optimizer = chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9)
     optimizer.setup(model)
-    optimizer.add_hook(chainer.optimizer.WeightDecay(rate=args.weight_decay))
-
+    optimizer.add_hook(
+        chainer.optimizer_hooks.WeightDecay(rate=args.weight_decay))
     if args.model == 'resnet101':
         for p in model.params():
             # Do not update batch normalization layers.
@@ -104,7 +104,7 @@ def main():
         train_data, batch_size=1, n_processes=None, shared_mem=100000000)
     test_iter = chainer.iterators.SerialIterator(
         test_data, batch_size=1, repeat=False, shuffle=False)
-    updater = chainer.training.updater.StandardUpdater(
+    updater = chainer.training.updaters.StandardUpdater(
         train_iter, optimizer, device=args.gpu)
 
     trainer = training.Trainer(

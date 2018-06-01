@@ -36,7 +36,7 @@ Our experiment was conducted on Ubuntu 14.04.5 with Pascal Titan X.
 If a path to pretrained model path is not given, weights distributed on the internet will be used.
 
 ```
-$ python demo.py [--gpu <gpu>] [--pretrained_model <model_path>] <image>.jpg
+$ python demo.py [--gpu <gpu>] [--pretrained-model <model_path>] <image>.jpg
 ```
 
 This example will automatically download a pretrained weights from the internet when executed.

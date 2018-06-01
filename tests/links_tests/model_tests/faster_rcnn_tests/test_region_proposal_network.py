@@ -2,7 +2,7 @@ import numpy as np
 import unittest
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 from chainer import testing
 from chainer.testing import attr
 
@@ -80,7 +80,7 @@ class TestRegionProposalNetwork(unittest.TestCase):
     def test_call_gpu(self):
         self.link.to_gpu()
         self._check_call(
-            chainer.cuda.to_gpu(self.x), self.img_size)
+            chainer.backends.cuda.to_gpu(self.x), self.img_size)
 
 
 testing.run_module(__name__, __file__)

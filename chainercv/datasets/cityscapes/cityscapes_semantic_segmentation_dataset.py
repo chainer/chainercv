@@ -3,13 +3,14 @@ import os
 
 import numpy as np
 
-from chainer import dataset
 from chainer.dataset import download
+
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_labels
 from chainercv.utils import read_image
 
 
-class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
+class CityscapesSemanticSegmentationDataset(GetterDataset):
 
     """Semantic segmentation dataset for `Cityscapes dataset`_.
 
@@ -30,15 +31,27 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
         split ({'train', 'val'}): Select from dataset splits used in
             Cityscapes dataset.
         ignore_labels (bool): If :obj:`True`, the labels marked
-            :obj:`ignoreInEval` defined in the original
-            `cityscapesScripts<https://github.com/mcordts/cityscapesScripts>_`
+            :obj:`ignoreInEval` defined in the original `cityscapesScripts`_
             will be replaced with :obj:`-1` in the :meth:`get_example` method.
             The default value is :obj:`True`.
 
+    .. _`cityscapesScripts`: https://github.com/mcordts/cityscapesScripts
+
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`label`, ":math:`(H, W)`", :obj:`int32`, \
+        ":math:`[-1, \#class - 1]`"
     """
 
     def __init__(self, data_dir='auto', label_resolution=None, split='train',
                  ignore_labels=True):
+        super(CityscapesSemanticSegmentationDataset, self).__init__()
+
         if data_dir == 'auto':
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/cityscapes')
@@ -75,26 +88,13 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
             img_path = os.path.join(img_dir, city_dname, img_path)
             self.img_paths.append(img_path)
 
+        self.add_getter('img', lambda i: read_image(self.img_paths[i]))
+        self.add_getter('label', self._get_label)
+
     def __len__(self):
         return len(self.img_paths)
 
-    def get_example(self, i):
-        """Returns the i-th example.
-
-        Returns a color image and a label image. The color image is in CHW
-        format and the label image is in HW format.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            tuple of a color image and a label whose shapes are (3, H, W) and
-            (H, W) respectively. H and W are height and width of the image.
-            The dtype of the color image is :obj:`numpy.float32` and
-            the dtype of the label image is :obj:`numpy.int32`.
-
-        """
-        img = read_image(self.img_paths[i])
+    def _get_label(self, i):
         label_orig = read_image(
             self.label_paths[i], dtype=np.int32, color=False)[0]
         if self.ignore_labels:
@@ -104,4 +104,4 @@ class CityscapesSemanticSegmentationDataset(dataset.DatasetMixin):
                     label_out[label_orig == label.id] = label.trainId
         else:
             label_out = label_orig
-        return img, label_out
+        return label_out

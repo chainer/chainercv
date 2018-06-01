@@ -43,7 +43,7 @@ def calc_bn_statistics(model, batchsize):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--pretrained_model', type=str, default='camvid')
+    parser.add_argument('--pretrained-model', type=str, default='camvid')
     parser.add_argument('--batchsize', type=int, default=24)
     args = parser.parse_args()
 

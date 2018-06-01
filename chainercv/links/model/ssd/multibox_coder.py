@@ -99,13 +99,13 @@ class MultiboxCoder(object):
 
     @property
     def xp(self):
-        return chainer.cuda.get_array_module(self._default_bbox)
+        return chainer.backends.cuda.get_array_module(self._default_bbox)
 
     def to_cpu(self):
-        self._default_bbox = chainer.cuda.to_cpu(self._default_bbox)
+        self._default_bbox = chainer.backends.cuda.to_cpu(self._default_bbox)
 
     def to_gpu(self, device=None):
-        self._default_bbox = chainer.cuda.to_gpu(
+        self._default_bbox = chainer.backends.cuda.to_gpu(
             self._default_bbox, device=device)
 
     def encode(self, bbox, label, iou_thresh=0.5):
@@ -155,7 +155,7 @@ class MultiboxCoder(object):
 
         masked_iou = iou.copy()
         while True:
-            i, j = _unravel_index(masked_iou.argmax(), masked_iou.shape)
+            i, j = xp.unravel_index(masked_iou.argmax(), masked_iou.shape)
             if masked_iou[i, j] <= 1e-6:
                 break
             index[i] = j
@@ -264,15 +264,3 @@ class MultiboxCoder(object):
         score = xp.hstack(score).astype(np.float32)
 
         return bbox, label, score
-
-
-def _unravel_index(index, shape):
-    if isinstance(index, np.int64):
-        return np.unravel_index(index, shape)
-
-    indices = []
-    for s in shape[::-1]:
-        indices.append(index % s)
-        index //= s
-
-    return tuple(indices[::-1])

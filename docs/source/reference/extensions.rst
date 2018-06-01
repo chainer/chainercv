@@ -11,6 +11,10 @@ DetectionVOCEvaluator
 ~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: DetectionVOCEvaluator
 
+InstanceSegmentationVOCEvaluator
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: InstanceSegmentationVOCEvaluator
+
 SemanticSegmentationEvaluator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: SemanticSegmentationEvaluator
