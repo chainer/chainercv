@@ -78,8 +78,8 @@ class FCISResNet101(FCIS):
     _models = {
         'sbd': {
             'param': {'n_fg_class': 20},
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/fcis_resnet101_sbd_trained_2018_04_14.npz',
+            'url': 'https://chainercv-models.preferred.jp/'
+            'fcis_resnet101_sbd_trained_2018_04_14.npz',
             'cv2': True
         }
     }
