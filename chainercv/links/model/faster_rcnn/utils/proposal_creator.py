@@ -133,7 +133,6 @@ class ProposalCreator(object):
         if n_pre_nms > 0:
             order = order[:n_pre_nms]
         roi = roi[order, :]
-        score = score[order]
 
         # Apply nms (e.g. threshold = 0.7).
         # Take after_nms_topN (e.g. 300).

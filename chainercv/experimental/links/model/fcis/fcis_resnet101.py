@@ -12,7 +12,7 @@ from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
 from chainercv.links.model.resnet.resblock import ResBlock
-from chainercv.utils import download_model
+from chainercv import utils
 
 
 class FCISResNet101(FCIS):
@@ -72,13 +72,15 @@ class FCISResNet101(FCIS):
         head_initialW (callable): Initializer for the head layers.
         proposal_creator_params (dict): Key valued paramters for
             :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
+
     """
 
     _models = {
         'sbd': {
-            'n_fg_class': 20,
+            'param': {'n_fg_class': 20},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/fcis_resnet101_sbd_trained_2018_04_14.npz'
+            'download/0.0.6/fcis_resnet101_sbd_trained_2018_04_14.npz',
+            'cv2': True
         }
     }
     feat_stride = 16
@@ -101,13 +103,9 @@ class FCISResNet101(FCIS):
                 'n_test_post_nms': 300,
                 'force_cpu_nms': False,
                 'min_size': 16
-            }
-    ):
-        if n_fg_class is None:
-            if pretrained_model not in self._models:
-                raise ValueError(
-                    'The n_fg_class needs to be supplied as an argument')
-            n_fg_class = self._models[pretrained_model]['n_fg_class']
+            }):
+        param, path = utils.prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         if rpn_initialW is None:
             rpn_initialW = chainer.initializers.Normal(0.01)
@@ -124,7 +122,7 @@ class FCISResNet101(FCIS):
             initialW=rpn_initialW,
             proposal_creator_params=proposal_creator_params)
         head = FCISResNet101Head(
-            n_fg_class + 1,
+            param['n_fg_class'] + 1,
             roi_size=21, group_size=7,
             spatial_scale=1. / self.feat_stride,
             loc_normalize_mean=loc_normalize_mean,
@@ -139,11 +137,7 @@ class FCISResNet101(FCIS):
             mean, min_size, max_size,
             loc_normalize_mean, loc_normalize_std)
 
-        if pretrained_model is not None:
-            if pretrained_model in self._models:
-                path = download_model(self._models[pretrained_model]['url'])
-            else:
-                path = pretrained_model
+        if path:
             chainer.serializers.load_npz(path, self)
 
 
@@ -277,70 +271,71 @@ class FCISResNet101Head(chainer.Chain):
         h_ag_loc = self.ag_loc(h)
 
         # PSROI pooling and regression
-        roi_mask_scores, ag_locs, cls_scores = self._pool(
+        roi_ag_seg_scores, roi_ag_locs, roi_cls_scores = self._pool(
             h_cls_seg, h_ag_loc, rois, roi_indices)
         if self.iter2:
             # 2nd Iteration
             # get rois2 for more precise prediction
-            ag_locs = ag_locs.array
+            roi_ag_locs = roi_ag_locs.array
             mean = self.xp.array(self.loc_normalize_mean)
             std = self.xp.array(self.loc_normalize_std)
-            locs = ag_locs[:, 1, :]
-            locs = (locs * std + mean).astype(np.float32)
-            rois2 = loc2bbox(rois, locs)
+            roi_locs = roi_ag_locs[:, 1, :]
+            roi_locs = (roi_locs * std + mean).astype(np.float32)
+            rois2 = loc2bbox(rois, roi_locs)
 
             rois2[:, 0::2] = self.xp.clip(rois2[:, 0::2], 0, img_size[0])
             rois2[:, 1::2] = self.xp.clip(rois2[:, 1::2], 0, img_size[1])
 
             # PSROI pooling and regression
-            roi_mask_scores2, ag_locs2, cls_scores2 = self._pool(
+            roi_ag_seg_scores2, roi_ag_locs2, roi_cls_scores2 = self._pool(
                 h_cls_seg, h_ag_loc, rois2, roi_indices)
 
             # concat 1st and 2nd iteration results
             rois = self.xp.concatenate((rois, rois2))
             roi_indices = self.xp.concatenate((roi_indices, roi_indices))
-            roi_mask_scores = F.concat(
-                (roi_mask_scores, roi_mask_scores2), axis=0)
-            ag_locs = F.concat(
-                (ag_locs, ag_locs2), axis=0)
-            cls_scores = F.concat(
-                (cls_scores, cls_scores2), axis=0)
-        return roi_mask_scores, ag_locs, cls_scores, rois, roi_indices
+            roi_ag_seg_scores = F.concat(
+                (roi_ag_seg_scores, roi_ag_seg_scores2), axis=0)
+            roi_ag_locs = F.concat(
+                (roi_ag_locs, roi_ag_locs2), axis=0)
+            roi_cls_scores = F.concat(
+                (roi_cls_scores, roi_cls_scores2), axis=0)
+        return roi_ag_seg_scores, roi_ag_locs, roi_cls_scores, \
+            rois, roi_indices
 
     def _pool(
             self, h_cls_seg, h_ag_loc, rois, roi_indices):
         # PSROI Pooling
-        # shape: (n_roi, n_class*2, roi_size, roi_size)
-        roi_seg_scores = psroi_pooling_2d(
+        # shape: (n_roi, n_class, 2, roi_size, roi_size)
+        roi_cls_ag_seg_scores = psroi_pooling_2d(
             h_cls_seg, rois, roi_indices,
             self.n_class * 2, self.roi_size, self.roi_size,
             self.spatial_scale, self.group_size)
-        roi_seg_scores = roi_seg_scores.reshape(
+        roi_cls_ag_seg_scores = roi_cls_ag_seg_scores.reshape(
             (-1, self.n_class, 2, self.roi_size, self.roi_size))
 
         # shape: (n_roi, 2*4, roi_size, roi_size)
-        ag_loc_scores = psroi_pooling_2d(
+        roi_ag_loc_scores = psroi_pooling_2d(
             h_ag_loc, rois, roi_indices,
             2 * 4, self.roi_size, self.roi_size,
             self.spatial_scale, self.group_size)
 
         # shape: (n_roi, n_class)
-        cls_scores = _global_average_pooling_2d(
-            F.max(roi_seg_scores, axis=2))
+        roi_cls_scores = _global_average_pooling_2d(
+            F.max(roi_cls_ag_seg_scores, axis=2))
 
         # Bbox Regression
         # shape: (n_roi, 2*4)
-        ag_locs = _global_average_pooling_2d(ag_loc_scores)
-        ag_locs = ag_locs.reshape((-1, 2, 4))
+        roi_ag_locs = _global_average_pooling_2d(roi_ag_loc_scores)
+        roi_ag_locs = roi_ag_locs.reshape((-1, 2, 4))
 
         # Mask Regression
         # shape: (n_roi, n_class, 2, roi_size, roi_size)
-        max_cls_indices = cls_scores.array.argmax(axis=1)
+        max_cls_indices = roi_cls_scores.array.argmax(axis=1)
         # shape: (n_roi, 2, roi_size, roi_size)
-        roi_mask_scores = roi_seg_scores[
+        roi_ag_seg_scores = roi_cls_ag_seg_scores[
             self.xp.arange(len(max_cls_indices)), max_cls_indices]
 
-        return roi_mask_scores, ag_locs, cls_scores
+        return roi_ag_seg_scores, roi_ag_locs, roi_cls_scores
 
 
 def _global_average_pooling_2d(x):

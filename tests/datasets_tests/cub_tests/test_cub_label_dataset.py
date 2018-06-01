@@ -3,10 +3,10 @@ import unittest
 import numpy as np
 
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.datasets import cub_label_names
 from chainercv.datasets import CUBLabelDataset
-from chainercv.testing import attr
 from chainercv.utils import assert_is_bbox
 from chainercv.utils import assert_is_label_dataset
 
@@ -22,7 +22,6 @@ class TestCUBLabelDataset(unittest.TestCase):
             return_bb=self.return_bb, return_prob_map=self.return_prob_map)
 
     @attr.slow
-    @attr.disk
     def test_cub_label_dataset(self):
         assert_is_label_dataset(
             self.dataset, len(cub_label_names), n_example=10)

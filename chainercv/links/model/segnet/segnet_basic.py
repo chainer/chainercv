@@ -7,7 +7,7 @@ import chainer.functions as F
 import chainer.links as L
 
 from chainercv.transforms import resize
-from chainercv.utils import download_model
+from chainercv import utils
 
 
 def _pool_without_cudnn(p, x):
@@ -41,7 +41,7 @@ class SegNetBasic(chainer.Chain):
     Args:
         n_class (int): The number of classes. If :obj:`None`, it can
             be infered if :obj:`pretrained_model` is given.
-        pretrained_model (str): The destination of the pretrained
+        pretrained_model (string): The destination of the pretrained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
             above, it automatically loads weights stored under a directory
@@ -55,18 +55,16 @@ class SegNetBasic(chainer.Chain):
 
     _models = {
         'camvid': {
-            'n_class': 11,
+            'param': {'n_class': 11},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.2/segnet_camvid_2017_05_28.npz'
         }
     }
 
     def __init__(self, n_class=None, pretrained_model=None, initialW=None):
-        if n_class is None:
-            if pretrained_model not in self._models:
-                raise ValueError(
-                    'The n_class needs to be supplied as an argument.')
-            n_class = self._models[pretrained_model]['n_class']
+        param, path = utils.prepare_pretrained_model(
+            {'n_class': n_class}, pretrained_model, self._models)
+        self.n_class = param['n_class']
 
         if initialW is None:
             initialW = chainer.initializers.HeNormal()
@@ -98,15 +96,10 @@ class SegNetBasic(chainer.Chain):
                 64, 64, 7, 1, 3, nobias=True, initialW=initialW)
             self.conv_decode1_bn = L.BatchNormalization(64, initial_beta=0.001)
             self.conv_classifier = L.Convolution2D(
-                64, n_class, 1, 1, 0, initialW=initialW)
+                64, self.n_class, 1, 1, 0, initialW=initialW)
 
-        self.n_class = n_class
-
-        if pretrained_model in self._models:
-            path = download_model(self._models[pretrained_model]['url'])
+        if path:
             chainer.serializers.load_npz(path, self)
-        elif pretrained_model:
-            chainer.serializers.load_npz(pretrained_model, self)
 
     def _upsampling_2d(self, x, pool):
         if x.shape != pool.indexes.shape:

@@ -6,24 +6,24 @@ from chainercv.utils import non_maximum_suppression
 
 
 def _mask_aggregation(
-        bbox, mask_prob, mask_weight,
+        bbox, seg_prob, seg_weight,
         size, binary_thresh
 ):
-    assert bbox.shape[0] == len(mask_prob)
-    assert bbox.shape[0] == mask_weight.shape[0]
+    assert bbox.shape[0] == len(seg_prob)
+    assert bbox.shape[0] == seg_weight.shape[0]
 
-    mask = np.zeros(size, dtype=np.float32)
-    for bb, msk_pb, msk_w in zip(bbox, mask_prob, mask_weight):
+    aggregated_msk = np.zeros(size, dtype=np.float32)
+    for bb, seg_pb, seg_w in zip(bbox, seg_prob, seg_weight):
         bb = np.round(bb).astype(np.int32)
         y_min, x_min, y_max, x_max = bb
         if y_max - y_min > 0 and x_max - x_min > 0:
-            msk_pb = resize(
-                msk_pb.astype(np.float32)[None],
+            seg_pb = resize(
+                seg_pb.astype(np.float32)[None],
                 (y_max - y_min, x_max - x_min))
-            msk_m = (msk_pb >= binary_thresh).astype(np.float32)[0]
-            mask[y_min:y_max, x_min:x_max] += msk_m * msk_w
+            seg_m = (seg_pb >= binary_thresh).astype(np.float32)[0]
+            aggregated_msk[y_min:y_max, x_min:x_max] += seg_m * seg_w
 
-    y_indices, x_indices = np.where(mask >= binary_thresh)
+    y_indices, x_indices = np.where(aggregated_msk >= binary_thresh)
     if len(y_indices) == 0 or len(x_indices) == 0:
         return None, None
     else:
@@ -32,15 +32,15 @@ def _mask_aggregation(
         x_max = x_indices.max() + 1
         x_min = x_indices.min()
 
-        c_bbox = np.array(
+        aggregated_bb = np.array(
             [y_min, x_min, y_max, x_max],
             dtype=np.float32)
-        c_mask = mask[y_min:y_max, x_min:x_max]
-        return c_mask[None], c_bbox[None]
+        aggregated_cmsk = aggregated_msk[y_min:y_max, x_min:x_max]
+        return aggregated_cmsk[None], aggregated_bb[None]
 
 
 def mask_voting(
-        roi_mask_prob, bbox, cls_prob, size,
+        seg_prob, bbox, cls_prob, size,
         score_thresh, nms_thresh,
         mask_merge_thresh, binary_thresh,
         limit=100, bg_label=0
@@ -54,13 +54,13 @@ def mask_voting(
     predicted as the same object class.
 
     Here are notations used.
-    * :math:`R'` is the total number of RoIs produced across batches.
+    * :math:`R` is the total number of RoIs produced in one image.
     * :math:`L` is the number of classes excluding the background.
     * :math:`RH` is the height of pooled image.
     * :math:`RW` is the height of pooled image.
 
     Args:
-        roi_mask_prob (array): A mask probability array whose shape is
+        seg_prob (array): A mask probability array whose shape is
             :math:`(R, RH, RW)`.
         bbox (array): A bounding box array whose shape is
             :math:`(R, 4)`.
@@ -78,7 +78,8 @@ def mask_voting(
 
     Returns:
         array, array, array, array:
-        * **v_mask_score**: Merged masks. Its shapes is :math:`(N, RH, RW)`.
+        * **v_seg_prob**: Merged mask probability. Its shapes is \
+            :math:`(N, RH, RW)`.
         * **v_bbox**: Bounding boxes for the merged masks. Its shape is \
             :math:`(N, 4)`.
         * **v_label**: Class labels for the merged masks. Its shape is \
@@ -88,10 +89,10 @@ def mask_voting(
 
     """
 
-    roi_mask_size = roi_mask_prob.shape[1:]
+    seg_size = seg_prob.shape[1:]
     n_class = cls_prob.shape[1]
 
-    v_mask_prob = []
+    v_seg_prob = []
     v_bbox = []
     v_label = []
     v_cls_prob = []
@@ -126,47 +127,43 @@ def mask_voting(
         bbox_l = bbox_l[keep_indices]
         score_l = score_l[keep_indices]
 
-        v_mask_prob_l = []
+        v_seg_prob_l = []
         v_bbox_l = []
         v_score_l = []
 
         for i, bb in enumerate(bbox_l):
             iou = bbox_iou(bbox, bb[np.newaxis, :])
             keep_indices = np.where(iou >= mask_merge_thresh)[0]
-            mask_weight = cls_prob[keep_indices, label]
-            mask_weight = mask_weight / mask_weight.sum()
-            mask_prob_i = roi_mask_prob[keep_indices]
+            seg_weight = cls_prob[keep_indices, label]
+            seg_weight = seg_weight / seg_weight.sum()
+            seg_prob_i = seg_prob[keep_indices]
             bbox_i = bbox[keep_indices]
-            c_mask, c_bbox = _mask_aggregation(
-                bbox_i, mask_prob_i, mask_weight, size, binary_thresh)
-            if c_mask is not None and c_bbox is not None:
-                c_mask = resize(
-                    c_mask.astype(np.float32),
-                    roi_mask_size)
-                v_mask_prob_l.append(c_mask)
-                v_bbox_l.append(c_bbox)
+            m_seg, m_bbox = _mask_aggregation(
+                bbox_i, seg_prob_i, seg_weight, size, binary_thresh)
+            if m_seg is not None and m_bbox is not None:
+                m_seg = resize(m_seg, seg_size)
+                m_seg = np.clip(m_seg, 0.0, 1.0)
+                v_seg_prob_l.append(m_seg)
+                v_bbox_l.append(m_bbox)
                 v_score_l.append(score_l[i])
 
-        if len(v_mask_prob_l) > 0:
-            v_mask_prob_l = np.concatenate(v_mask_prob_l)
-            v_bbox_l = np.concatenate(v_bbox_l)
-            v_score_l = np.array(v_score_l)
+        if len(v_seg_prob_l) > 0:
+            v_label_l = np.repeat(
+                label - 1, len(v_score_l)).astype(np.int32)
 
-            v_label_l = np.repeat(label - 1, v_bbox_l.shape[0])
-            v_label_l = v_label_l.astype(np.int32)
-            v_mask_prob.append(v_mask_prob_l)
-            v_bbox.append(v_bbox_l)
+            v_seg_prob += v_seg_prob_l
+            v_bbox += v_bbox_l
             v_label.append(v_label_l)
             v_cls_prob.append(v_score_l)
 
-    if len(v_mask_prob) > 0:
-        v_mask_prob = np.concatenate(v_mask_prob)
+    if len(v_seg_prob) > 0:
+        v_seg_prob = np.concatenate(v_seg_prob)
         v_bbox = np.concatenate(v_bbox)
         v_label = np.concatenate(v_label)
         v_cls_prob = np.concatenate(v_cls_prob)
     else:
-        v_mask_prob = np.empty((0, roi_mask_size[0], roi_mask_size[1]))
+        v_seg_prob = np.empty((0, seg_size[0], seg_size[1]))
         v_bbox = np.empty((0, 4))
         v_label = np.empty((0, ))
         v_cls_prob = np.empty((0, ))
-    return v_mask_prob, v_bbox, v_label, v_cls_prob
+    return v_seg_prob, v_bbox, v_label, v_cls_prob

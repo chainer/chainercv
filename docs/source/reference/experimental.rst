@@ -4,6 +4,15 @@ Experimental
 Links
 -----
 
+Semantic Segmentation
+~~~~~~~~~~~~~~~~~~~~~
+
+Semantic segmentation links share a common method :meth:`predict` to conduct semantic segmentation of images.
+
+.. toctree::
+
+   experimental/pspnet
+
 Instance Segmentation
 ~~~~~~~~~~~~~~~~~~~~~
 Instance segmentation share a common method :meth:`predict` to detect objects in images.

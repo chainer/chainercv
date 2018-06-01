@@ -3,9 +3,9 @@ import unittest
 import numpy as np
 
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.datasets import CUBPointDataset
-from chainercv.testing import attr
 from chainercv.utils import assert_is_bbox
 from chainercv.utils import assert_is_point_dataset
 
@@ -21,7 +21,6 @@ class TestCUBPointDataset(unittest.TestCase):
                                        return_prob_map=self.return_prob_map)
 
     @attr.slow
-    @attr.disk
     def test_camvid_dataset(self):
         assert_is_point_dataset(
             self.dataset, n_point=15, n_example=10)
