@@ -254,7 +254,7 @@ class PSPNetResNet101(PSPNet):
             * :obj:`'cityscapes'`: Load weights trained on train split of \
                 Cityscapes dataset. \
                 The weight file is downloaded and cached automatically. \
-                :obj:`n_class` must be :obj:`19` or :obj:`None`. \
+                :obj:`n_class` must be :obj:`19` or :obj:`None`.
             * `filepath`: A path of npz file. In this case, :obj:`n_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
