@@ -35,8 +35,10 @@ class PadAndConcatExamples(object):
                 imgs = [example[i] for example in batch]
                 max_size = np.array(
                     [img.shape for img in imgs]).max(axis=0)[1:]
+                # Pad the images so that they can be divisible by a stride
                 if self.stride:
-                    pass
+                    max_size[0] = int(np.ceil(max_size[0] / stride) * stride)
+                    max_size[1] = int(np.ceil(max_size[1] / stride) * stride)
                 pad_imgs = np.zeros(
                     ((len(imgs), 3, max_size[0], max_size[1])),
                     dtype=imgs[0].dtype)
