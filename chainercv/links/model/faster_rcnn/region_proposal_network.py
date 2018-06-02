@@ -67,7 +67,7 @@ class RegionProposalNetwork(chainer.Chain):
             self.loc = L.Convolution2D(
                 mid_channels, n_anchor * 4, 1, 1, 0, initialW=initialW)
 
-    def __call__(self, x, img_size, scale=1.):
+    def __call__(self, x, img_size, scales=None):
         """Forward Region Proposal Network.
 
         Here are notations.
@@ -82,8 +82,8 @@ class RegionProposalNetwork(chainer.Chain):
                 Its shape is :math:`(N, C, H, W)`.
             img_size (tuple of ints): A tuple :obj:`height, width`,
                 which contains image size after scaling.
-            scale (float): The amount of scaling done to the input images after
-                reading them from files.
+            scales (iterable of floats): The amount of scaling done to the
+                input images after reading them from files.
 
         Returns:
             (~chainer.Variable, ~chainer.Variable, array, array, array):
@@ -107,6 +107,8 @@ class RegionProposalNetwork(chainer.Chain):
 
         """
         n, _, hh, ww = x.shape
+        if scales is None:
+            scales = n * [1.]
         anchor = _enumerate_shifted_anchor(
             self.xp.array(self.anchor_base), self.feat_stride, hh, ww)
         n_anchor = anchor.shape[0] // (hh * ww)
@@ -127,7 +129,7 @@ class RegionProposalNetwork(chainer.Chain):
         for i in range(n):
             roi = self.proposal_layer(
                 rpn_locs[i].array, rpn_fg_scores[i].array, anchor, img_size,
-                scale=scale)
+                scale=scales[i])
             batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
             rois.append(roi)
             roi_indices.append(batch_index)

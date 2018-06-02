@@ -4,6 +4,8 @@ import argparse
 import numpy as np
 
 import chainer
+from chainer.dataset.convert import _concat_arrays
+from chainer.dataset.convert import to_device
 from chainer.datasets import ConcatenatedDataset
 from chainer.datasets import TransformDataset
 from chainer import training
@@ -18,6 +20,35 @@ from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 from chainercv import transforms
 
 
+class PadAndConcatExamples(object):
+
+    # https://github.com/facebookresearch/Detectron/
+    # blob/master/detectron/utils/blob.py#L67
+
+    def __init__(self, stride=None):
+        self.stride = stride
+
+    def __call__(self, batch, device=None):
+        result = []
+        for i in range(4):
+            if i == 0:
+                imgs = [example[i] for example in batch]
+                max_size = np.array(
+                    [img.shape for img in imgs]).max(axis=0)[1:]
+                if self.stride:
+                    pass
+                pad_imgs = np.zeros(
+                    ((len(imgs), 3, max_size[0], max_size[1])),
+                    dtype=imgs[0].dtype)
+                for i, img in enumerate(imgs):
+                    pad_imgs[i, :, :img.shape[1], :img.shape[2]] = img
+                result.append(to_device(device, pad_imgs))
+            else:
+                result.append(
+                    [to_device(device, example[i]) for example in batch])
+        return tuple(result)
+
+
 class Transform(object):
 
     def __init__(self, faster_rcnn):
@@ -28,7 +59,7 @@ class Transform(object):
         _, H, W = img.shape
         img = self.faster_rcnn.prepare(img)
         _, o_H, o_W = img.shape
-        scale = o_H / H
+        scale = np.array(o_H / H)
         bbox = transforms.resize_bbox(bbox, (H, W), (o_H, o_W))
 
         # horizontally flip
@@ -46,6 +77,7 @@ def main():
     parser.add_argument('--dataset', choices=('voc07', 'voc0712'),
                         help='The dataset to use: VOC07, VOC07+12',
                         default='voc07')
+    parser.add_argument('--batchsize', type=int, default=1)
     parser.add_argument('--gpu', '-g', type=int, default=-1)
     parser.add_argument('--lr', '-l', type=float, default=1e-3)
     parser.add_argument('--out', '-o', default='result',
@@ -79,11 +111,11 @@ def main():
     train_data = TransformDataset(train_data, Transform(faster_rcnn))
 
     train_iter = chainer.iterators.MultiprocessIterator(
-        train_data, batch_size=1, n_processes=None, shared_mem=100000000)
+        train_data, batch_size=args.batchsize, n_processes=None, shared_mem=100000000)
     test_iter = chainer.iterators.SerialIterator(
         test_data, batch_size=1, repeat=False, shuffle=False)
     updater = chainer.training.updaters.StandardUpdater(
-        train_iter, optimizer, device=args.gpu)
+        train_iter, optimizer, device=args.gpu, converter=PadAndConcatExamples())
 
     trainer = training.Trainer(
         updater, (args.iteration, 'iteration'), out=args.out)
