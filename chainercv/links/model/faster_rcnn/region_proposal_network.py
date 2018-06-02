@@ -109,6 +109,9 @@ class RegionProposalNetwork(chainer.Chain):
         n, _, hh, ww = x.shape
         if scales is None:
             scales = n * [1.]
+        elif isinstance(scales, float):
+            # backward compatibility
+            scales = n * [scales]
         anchor = _enumerate_shifted_anchor(
             self.xp.array(self.anchor_base), self.feat_stride, hh, ww)
         n_anchor = anchor.shape[0] // (hh * ww)
