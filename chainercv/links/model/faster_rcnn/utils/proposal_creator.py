@@ -106,24 +106,21 @@ class ProposalCreator(object):
             n_post_nms = self.n_test_post_nms
 
         xp = cuda.get_array_module(loc)
-        loc = cuda.to_cpu(loc)
-        score = cuda.to_cpu(score)
-        anchor = cuda.to_cpu(anchor)
 
         # Convert anchors into proposal via bbox transformations.
         roi = loc2bbox(anchor, loc)
 
         # Clip predicted boxes to image.
-        roi[:, slice(0, 4, 2)] = np.clip(
+        roi[:, slice(0, 4, 2)] = xp.clip(
             roi[:, slice(0, 4, 2)], 0, img_size[0])
-        roi[:, slice(1, 4, 2)] = np.clip(
+        roi[:, slice(1, 4, 2)] = xp.clip(
             roi[:, slice(1, 4, 2)], 0, img_size[1])
 
         # Remove predicted boxes with either height or width < threshold.
         min_size = self.min_size * scale
         hs = roi[:, 2] - roi[:, 0]
         ws = roi[:, 3] - roi[:, 1]
-        keep = np.where((hs >= min_size) & (ws >= min_size))[0]
+        keep = xp.where((hs >= min_size) & (ws >= min_size))[0]
         roi = roi[keep, :]
         score = score[keep]
 
@@ -136,19 +133,10 @@ class ProposalCreator(object):
 
         # Apply nms (e.g. threshold = 0.7).
         # Take after_nms_topN (e.g. 300).
-        if xp != np and not self.force_cpu_nms:
-            keep = non_maximum_suppression(
-                cuda.to_gpu(roi),
-                thresh=self.nms_thresh)
-            keep = cuda.to_cpu(keep)
-        else:
-            keep = non_maximum_suppression(
-                roi,
-                thresh=self.nms_thresh)
+        keep = non_maximum_suppression(
+            roi, thresh=self.nms_thresh)
         if n_post_nms > 0:
             keep = keep[:n_post_nms]
         roi = roi[keep]
 
-        if xp != np:
-            roi = cuda.to_gpu(roi)
         return roi
