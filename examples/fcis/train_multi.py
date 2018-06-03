@@ -75,9 +75,9 @@ def main():
     optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
 
     model.fcis.head.conv1.W.update_rule = MomentumSGDRule(
-        lr=args.lr * 3, momentum=0.9)
+        lr=args.lr * comm.size * 3, momentum=0.9)
     model.fcis.head.conv1.b.update_rule = MomentumSGDRule(
-        lr=args.lr * 3, momentum=0.9)
+        lr=args.lr * comm.size * 3, momentum=0.9)
 
     for param in model.params():
         if param.name in ['beta', 'gamma']:
