@@ -19,6 +19,7 @@ from chainercv.experimental.links import FCISResNet101
 from chainercv.experimental.links import FCISTrainChain
 from chainercv.extensions import InstanceSegmentationVOCEvaluator
 from chainercv import transforms
+from chainercv.utils.mask.mask_to_bbox import mask_to_bbox
 
 
 def concat_examples(batch, device=None):
@@ -52,10 +53,25 @@ class Transform(object):
             mask.astype(np.int), (H, W),
             interpolation=PIL.Image.NEAREST)
         mask = mask.astype(np.bool)
+        indices = self._get_keep_indices(mask)
+        mask = mask[indices]
+        label = label[indices]
+
         img, params = transforms.random_flip(
             img, x_random=True, return_param=True)
         mask = transforms.flip(mask, x_flip=params['x_flip'])
         return img, mask, label, scale
+
+    def _get_keep_indices(self, mask):
+        indices = []
+        bbox = mask_to_bbox(mask)
+        for i, bb in enumerate(bbox):
+            bb = np.round(bb).astype(np.int32)
+            H = bb[2] - bb[0]
+            W = bb[3] - bb[1]
+            if H > 0 and W > 0:
+                indices.append(i)
+        return np.array(indices, dtype=np.int32)
 
 
 def main():
