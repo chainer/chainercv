@@ -29,9 +29,10 @@ class COCOBboxDataset(GetterDataset):
         split ({'train', 'val', 'minival', 'valminusminival'}): Select
             a split of the dataset.
         use_crowded (bool): If true, use bounding boxes that are labeled as
-            crowded in the original annotation.
+            crowded in the original annotation. The default value is
+            :obj:`False`.
         return_area (bool): If true, this dataset returns areas of masks
-            around objects.
+            around objects. The default value is :obj:`False`.
         return_crowded (bool): If true, this dataset returns a boolean array
             that indicates whether bounding boxes are labeled as crowded
             or not. The default value is :obj:`False`.
@@ -92,16 +93,16 @@ class COCOBboxDataset(GetterDataset):
         self.data_dir = data_dir
         anno = json.load(open(anno_path, 'r'))
 
-        self.img_props = {}
-        for img in anno['images']:
-            self.img_props[img['id']] = img
-        self.ids = sorted(list(self.img_props.keys()))
+        self.id_to_props = {}
+        for prop in anno['images']:
+            self.id_to_props[img['id']] = prop
+        self.ids = sorted(list(self.id_to_props.keys()))
 
         self.cat_ids = [cat['id'] for cat in anno['categories']]
 
-        self.img_to_anno = defaultdict(list)
+        self.id_to_anno = defaultdict(list)
         for ann in anno['annotations']:
-            self.img_to_anno[ann['image_id']].append(ann)
+            self.id_to_anno[ann['image_id']].append(ann)
 
         self.add_getter('img', self._get_image)
         self.add_getter(['bbox', 'label', 'area', 'crowded'],
@@ -119,14 +120,14 @@ class COCOBboxDataset(GetterDataset):
 
     def _get_image(self, i):
         img_path = os.path.join(
-            self.img_root, self.img_props[self.ids[i]]['file_name'])
+            self.img_root, self.id_to_props[self.ids[i]]['file_name'])
         img = utils.read_image(img_path, dtype=np.float32, color=True)
         return img
 
     def _get_annotations(self, i):
         # List[{'segmentation', 'area', 'iscrowd',
         #       'image_id', 'bbox', 'category_id', 'id'}]
-        annotation = self.img_to_anno[self.ids[i]]
+        annotation = self.id_to_anno[self.ids[i]]
         bbox = np.array([ann['bbox'] for ann in annotation],
                         dtype=np.float32)
         if len(bbox) == 0:
