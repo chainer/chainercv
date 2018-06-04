@@ -104,7 +104,7 @@ class COCOBboxDataset(GetterDataset):
             self.img_to_anno[ann['image_id']].append(ann)
 
         self.add_getter('img', self._get_image)
-        self.add_getter(['bbox', 'label', 'crowded', 'area'],
+        self.add_getter(['bbox', 'label', 'area', 'crowded'],
                         self._get_annotations)
 
         keys = ('img', 'bbox', 'label')
