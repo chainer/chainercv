@@ -3,17 +3,42 @@ import numpy as np
 import chainer
 import chainer.functions as F
 import chainer.links as L
+from chainercv.links.model.resnet.resblock import ResBlock
+from chainercv.links.model.resnet.resnet import imagenet_he_mean
 
 from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNN
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
-from chainercv.links.model.vgg.vgg16 import VGG16
+from chainercv.links.model.resnet import ResNet101
 from chainercv import utils
 
 
-class FasterRCNNVGG16(FasterRCNN):
+def copy_persistent_link(dst, src):
+    for name in dst._persistent:
+        d = dst.__dict__[name]
+        s = src.__dict__[name]
+        if isinstance(d, np.ndarray):
+            d[:] = s
+        elif isinstance(d, int):
+            d = s
+        else:
+            raise ValueError
 
-    """Faster R-CNN based on VGG-16.
+
+def copy_persistent_chain(dst, src):
+    copy_persistent_link(dst, src)
+    for name in dst._children:
+        if (isinstance(dst.__dict__[name], chainer.Chain) and
+                isinstance(src.__dict__[name], chainer.Chain)):
+            copy_persistent_chain(dst.__dict__[name], src.__dict__[name])
+        elif (isinstance(dst.__dict__[name], chainer.Link) and
+                isinstance(src.__dict__[name], chainer.Link)):
+            copy_persistent_link(dst.__dict__[name], src.__dict__[name])
+
+
+class FasterRCNNResNet101(FasterRCNN):
+
+    """Faster R-CNN based on ResNet101.
 
     When you specify the path of a pre-trained chainer model serialized as
     a :obj:`.npz` file in the constructor, this chain model automatically
@@ -28,15 +53,15 @@ class FasterRCNNVGG16(FasterRCNN):
         PASCAL VOC 2007 and 2012. \
     * :obj:`imagenet`: Loads weights trained with ImageNet Classfication \
         task for the feature extractor and the head modules. \
-        Weights that do not have a corresponding layer in VGG-16 \
+        Weights that do not have a corresponding layer in ResNet101 \
         will be randomly initialized.
 
     For descriptions on the interface of this model, please refer to
-    :class:`~chainercv.links.model.faster_rcnn.FasterRCNN`.
+    :class:`chainercv.links.model.faster_rcnn.FasterRCNN`.
 
-    :class:`~chainercv.links.model.faster_rcnn.FasterRCNNVGG16`
-    supports finer control on random initializations of weights by arguments
-    :obj:`vgg_initialW`, :obj:`rpn_initialW`, :obj:`loc_initialW` and
+    :obj:`FasterRCNNResNet101` supports finer control on
+    random initializations of weights by arguments
+    :obj:`res_initialW`, :obj:`rpn_initialW`, :obj:`loc_initialW` and
     :obj:`score_initialW`.
     It accepts a callable that takes an array and edits its values.
     If :obj:`None` is passed as an initializer, the default initializer is
@@ -44,7 +69,7 @@ class FasterRCNNVGG16(FasterRCNN):
 
     Args:
         n_fg_class (int): The number of classes excluding the background.
-        pretrained_model (string): The destination of the pre-trained
+        pretrained_model (str): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
             above, it automatically loads weights stored under a directory
@@ -60,31 +85,18 @@ class FasterRCNNVGG16(FasterRCNN):
             Those areas will be the product of the square of an element in
             :obj:`anchor_scales` and the original area of the reference
             window.
-        vgg_initialW (callable): Initializer for the layers corresponding to
-            the VGG-16 layers.
+        res_initialW (callable): Initializer for the layers corresponding to
+            the ResNet101 layers.
         rpn_initialW (callable): Initializer for Region Proposal Network
             layers.
         loc_initialW (callable): Initializer for the localization head.
         score_initialW (callable): Initializer for the score head.
         proposal_creator_params (dict): Key valued paramters for
-            :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
+            :obj:`chainercv.links.model.faster_rcnn.ProposalCreator`.
 
     """
 
-    _models = {
-        'voc07': {
-            'param': {'n_fg_class': 20},
-            'url': 'https://chainercv-models.preferred.jp/'
-            'faster_rcnn_vgg16_voc07_trained_2018_06_01.npz',
-            'cv2': True
-        },
-        'voc0712': {
-            'param': {'n_fg_class': 20},
-            'url': 'https://chainercv-models.preferred.jp/'
-            'faster_rcnn_vgg16_voc0712_trained_2017_07_21.npz',
-            'cv2': True
-        },
-    }
+    _models = {}
     feat_stride = 16
 
     def __init__(self,
@@ -92,9 +104,10 @@ class FasterRCNNVGG16(FasterRCNN):
                  pretrained_model=None,
                  min_size=600, max_size=1000,
                  ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
-                 vgg_initialW=None, rpn_initialW=None,
+                 res_initialW=None, rpn_initialW=None,
                  loc_initialW=None, score_initialW=None,
-                 proposal_creator_params={}):
+                 proposal_creator_params={}
+                 ):
         param, path = utils.prepare_pretrained_model(
             {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
@@ -104,66 +117,63 @@ class FasterRCNNVGG16(FasterRCNN):
             score_initialW = chainer.initializers.Normal(0.01)
         if rpn_initialW is None:
             rpn_initialW = chainer.initializers.Normal(0.01)
-        if vgg_initialW is None and pretrained_model:
-            vgg_initialW = chainer.initializers.constant.Zero()
+        if res_initialW is None and pretrained_model:
+            res_initialW = chainer.initializers.constant.Zero()
 
-        extractor = VGG16(initialW=vgg_initialW)
-        extractor.pick = 'conv5_3'
-        # Delete all layers after conv5_3.
-        extractor.remove_unused()
+        extractor = ResNet101FeatureExtractor(res_initialW)
         rpn = RegionProposalNetwork(
-            512, 512,
+            1024, 256,
             ratios=ratios,
             anchor_scales=anchor_scales,
             feat_stride=self.feat_stride,
             initialW=rpn_initialW,
             proposal_creator_params=proposal_creator_params,
         )
-        head = VGG16RoIHead(
-            param['n_fg_class'] + 1,
+        head = ResNetRoIHead(
+            n_fg_class + 1,
             roi_size=7, spatial_scale=1. / self.feat_stride,
-            vgg_initialW=vgg_initialW,
+            res_initialW=res_initialW,
             loc_initialW=loc_initialW,
             score_initialW=score_initialW
         )
 
-        super(FasterRCNNVGG16, self).__init__(
+        super(FasterRCNNResNet101, self).__init__(
             extractor,
             rpn,
             head,
-            mean=np.array([122.7717, 115.9465, 102.9801],
-                          dtype=np.float32)[:, None, None],
+            mean=imagenet_he_mean,
             min_size=min_size,
             max_size=max_size
         )
 
         if path == 'imagenet':
-            self._copy_imagenet_pretrained_vgg16()
+            self._copy_imagenet_pretrained_resnet101()
         elif path:
             chainer.serializers.load_npz(path, self)
 
-    def _copy_imagenet_pretrained_vgg16(self):
-        pretrained_model = VGG16(pretrained_model='imagenet')
-        self.extractor.conv1_1.copyparams(pretrained_model.conv1_1)
-        self.extractor.conv1_2.copyparams(pretrained_model.conv1_2)
-        self.extractor.conv2_1.copyparams(pretrained_model.conv2_1)
-        self.extractor.conv2_2.copyparams(pretrained_model.conv2_2)
-        self.extractor.conv3_1.copyparams(pretrained_model.conv3_1)
-        self.extractor.conv3_2.copyparams(pretrained_model.conv3_2)
-        self.extractor.conv3_3.copyparams(pretrained_model.conv3_3)
-        self.extractor.conv4_1.copyparams(pretrained_model.conv4_1)
-        self.extractor.conv4_2.copyparams(pretrained_model.conv4_2)
-        self.extractor.conv4_3.copyparams(pretrained_model.conv4_3)
-        self.extractor.conv5_1.copyparams(pretrained_model.conv5_1)
-        self.extractor.conv5_2.copyparams(pretrained_model.conv5_2)
-        self.extractor.conv5_3.copyparams(pretrained_model.conv5_3)
-        self.head.fc6.copyparams(pretrained_model.fc6)
-        self.head.fc7.copyparams(pretrained_model.fc7)
+    def _copy_imagenet_pretrained_resnet101(self):
+        pretrained_model = ResNet101(pretrained_model='imagenet', arch='he')
+        dst_extractor = self.extractor.resnet
+
+        dst_extractor.conv1.copyparams(pretrained_model.conv1)
+        copy_persistent_chain(dst_extractor.conv1, pretrained_model.conv1)
+
+        dst_extractor.res2.copyparams(pretrained_model.res2)
+        copy_persistent_chain(dst_extractor.res2, pretrained_model.res2)
+
+        dst_extractor.res3.copyparams(pretrained_model.res3)
+        copy_persistent_chain(dst_extractor.res3, pretrained_model.res3)
+
+        dst_extractor.res4.copyparams(pretrained_model.res4)
+        copy_persistent_chain(dst_extractor.res4, pretrained_model.res4)
+
+        self.head.res5.copyparams(pretrained_model.res5)
+        copy_persistent_chain(self.head.res5, pretrained_model.res5)
 
 
-class VGG16RoIHead(chainer.Chain):
+class ResNetRoIHead(chainer.Chain):
 
-    """Faster R-CNN Head for VGG-16 based implementation.
+    """Faster R-CNN Head for ResNet based implementation.
 
     This class is used as a head for Faster R-CNN.
     This outputs class-wise localizations and classification based on feature
@@ -173,22 +183,22 @@ class VGG16RoIHead(chainer.Chain):
         n_class (int): The number of classes possibly including the background.
         roi_size (int): Height and width of the feature maps after RoI-pooling.
         spatial_scale (float): Scale of the roi is resized.
-        vgg_initialW (callable): Initializer for the layers corresponding to
-            the VGG-16 layers.
+        res_initialW (callable): Initializer for the layers corresponding to
+            the ResNet layers.
         loc_initialW (callable): Initializer for the localization head.
         score_initialW (callable): Initializer for the score head.
 
     """
 
     def __init__(self, n_class, roi_size, spatial_scale,
-                 vgg_initialW=None, loc_initialW=None, score_initialW=None):
+                 res_initialW=None, loc_initialW=None, score_initialW=None):
         # n_class includes the background
-        super(VGG16RoIHead, self).__init__()
+        super(ResNetRoIHead, self).__init__()
         with self.init_scope():
-            self.fc6 = L.Linear(25088, 4096, initialW=vgg_initialW)
-            self.fc7 = L.Linear(4096, 4096, initialW=vgg_initialW)
-            self.cls_loc = L.Linear(4096, n_class * 4, initialW=loc_initialW)
-            self.score = L.Linear(4096, n_class, initialW=score_initialW)
+            self.res5 = ResBlock(3, None, 512, 2048, 2,
+                                 initialW=res_initialW)
+            self.cls_loc = L.Linear(2048, n_class * 4, initialW=loc_initialW)
+            self.score = L.Linear(2048, n_class, initialW=score_initialW)
 
         self.n_class = n_class
         self.roi_size = roi_size
@@ -209,20 +219,49 @@ class VGG16RoIHead(chainer.Chain):
                 :math:`R' = \\sum _{i=1} ^ N R_i`.
             roi_indices (array): An array containing indices of images to
                 which bounding boxes correspond to. Its shape is :math:`(R',)`.
+            test (bool): Whether in test mode or not. This has no effect in
+                the current implementation.
 
         """
         roi_indices = roi_indices.astype(np.float32)
         indices_and_rois = self.xp.concatenate(
-            (roi_indices[:, None], rois), axis=1)
+            (roi_indices[:, np.newaxis], rois), axis=1)
         pool = _roi_pooling_2d_yx(
             x, indices_and_rois, self.roi_size, self.roi_size,
             self.spatial_scale)
 
-        fc6 = F.relu(self.fc6(pool))
-        fc7 = F.relu(self.fc7(fc6))
-        roi_cls_locs = self.cls_loc(fc7)
-        roi_scores = self.score(fc7)
+        # Use train mode to stop updating batch statistics
+        with chainer.using_config('train', False):
+            h = self.res5(pool)
+        h = F.max_pooling_2d(h, ksize=7)
+        roi_cls_locs = self.cls_loc(h)
+        roi_scores = self.score(h)
         return roi_cls_locs, roi_scores
+
+
+class ResNet101FeatureExtractor(chainer.Chain):
+    """Truncated ResNet101 that extracts a res4 feature map.
+
+    Args:
+        initialW (callable): Initializer for the weights.
+
+    """
+
+    def __init__(self, initialW=None):
+        super(ResNet101FeatureExtractor, self).__init__()
+        with self.init_scope():
+            self.resnet = ResNet101(
+                initialW=initialW,
+                fc_kwargs={'initialW': chainer.initializers.constant.Zero()},
+                arch='he')
+        self.resnet.pick = 'res4'
+        self.resnet.remove_unused()
+
+    def __call__(self, x, test=True):
+        # Use train mode to stop updating batch statistics
+        with chainer.using_config('train', False):
+            h = self.resnet(x)
+        return h
 
 
 def _roi_pooling_2d_yx(x, indices_and_rois, outh, outw, spatial_scale):
