@@ -152,16 +152,15 @@ class TestEvalInstanceSegmentationVOCAP(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        base_url = 'https://github.com/yuyu2172/' \
-            'share-weights/releases/download/0.0.6'
+        base_url = 'https://chainercv-models.preferred.jp/tests'
 
         cls.dataset = np.load(request.urlretrieve(os.path.join(
             base_url,
-            'voc_instance_segmentation_dataset_test_2018_04_04.npz'))[0],
+            'eval_instance_segmentation_voc_dataset_2018_04_04.npz'))[0],
             encoding='latin1')
         cls.result = np.load(request.urlretrieve(os.path.join(
             base_url,
-            'voc_instance_segmentation_result_test_2018_04_04.npz'))[0],
+            'eval_instance_segmentation_voc_result_2018_04_04.npz'))[0],
             encoding='latin1')
 
     def test_eval_instance_segmentation_voc(self):

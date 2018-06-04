@@ -1,6 +1,9 @@
 [![](docs/images/logo.png)](http://chainercv.readthedocs.io/en/stable/)
 
+[![PyPI](https://img.shields.io/pypi/v/chainercv.svg)](https://pypi.python.org/pypi/chainercv)
+[![License](https://img.shields.io/github/license/chainer/chainercv.svg)](https://github.com/chainer/chainercv/blob/master/LICENSE)
 [![travis](https://travis-ci.org/chainer/chainercv.svg?branch=master)](https://travis-ci.org/chainer/chainercv)
+[![Read the Docs](https://media.readthedocs.org/static/projects/badges/passing.svg)](http://chainercv.readthedocs.io/en/latest/?badge=latest)
 
 # ChainerCV: a Library for Deep Learning in Computer Vision
 
@@ -10,9 +13,10 @@ You can find the documentation [here](http://chainercv.readthedocs.io/en/stable/
 
 Supported tasks:
 
-+ Object Detection ([tutorial](http://chainercv.readthedocs.io/en/latest/tutorial/detection.html), [Faster R-CNN](examples/faster_rcnn), [SSD](examples/ssd))
-+ Semantic Segmentation ([SegNet](examples/segnet),)
 + Image Classification ([ResNet](examples/resnet), [VGG](examples/vgg))
++ Object Detection ([tutorial](http://chainercv.readthedocs.io/en/latest/tutorial/detection.html), [Faster R-CNN](examples/faster_rcnn), [SSD](examples/ssd), [YOLO](examples/yolo))
++ Semantic Segmentation ([SegNet](examples/segnet), [PSPNet](examples/pspnet))
++ Instance Segmentation ([FCIS](examples/fcis),)
 
 # Guiding Principles
 ChainerCV is developed under the following three guiding principles.
@@ -38,6 +42,7 @@ The instruction on installation using Anaconda is [here](http://chainercv.readth
 
 For additional features
 
++ [ChainerMN](https://github.com/chainer/chainermn)
 + Matplotlib
 + OpenCV
 + SciPy
@@ -66,7 +71,7 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
 
 # Sample Visualization
 
-![Example are outputs of detection models supported by ChainerCV](https://cloud.githubusercontent.com/assets/2062128/26337670/44a2a202-3fb5-11e7-8b88-6eb9886a9915.png)
+![Example are outputs of detection models supported by ChainerCV](https://user-images.githubusercontent.com/3014172/40634581-bb01f52a-6330-11e8-8502-ba3dacd81dc8.png)
 These are the outputs of the detection models supported by ChainerCV.
 
 

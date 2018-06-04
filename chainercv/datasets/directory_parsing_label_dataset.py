@@ -17,7 +17,7 @@ def directory_parsing_label_names(root, numerical_sort=False):
     that is used by the dataset to refer the label.
 
     Args:
-        root (str): The root directory.
+        root (string): The root directory.
         numerical_sort (bool): Label names are sorted numerically.
             This means that label :obj:`2` is before label :obj:`10`,
             which is not the case when string sort is used.
@@ -100,7 +100,7 @@ class DirectoryParsingLabelDataset(GetterDataset):
         array([0, 0, 1])
 
     Args:
-        root (str): The root directory.
+        root (string): The root directory.
         check_img_file (callable): A function to determine
             if a file should be included in the dataset.
         color (bool): If :obj:`True`, this dataset read images
