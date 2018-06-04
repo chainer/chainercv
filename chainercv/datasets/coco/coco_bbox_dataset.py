@@ -95,7 +95,7 @@ class COCOBboxDataset(GetterDataset):
 
         self.id_to_props = {}
         for prop in anno['images']:
-            self.id_to_props[img['id']] = prop
+            self.id_to_props[prop['id']] = prop
         self.ids = sorted(list(self.id_to_props.keys()))
 
         self.cat_ids = [cat['id'] for cat in anno['categories']]
