@@ -4,25 +4,21 @@
 
 All evaluation is conducted using VOC2007 test.
 
-| Backbone | Author |Training Setting | start lr | iteration | imgs/GPU | score |
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| VGG16 | Reference [1] | VOC2007 trainval | 1e-3 | 70000 | 1 | 69.9 mAP |
-| VGG16 | ChainerCV | VOC2007 trainval | 1e-3 | 70000 | 1 | 70.6 mAP |
-| VGG16 | ChainerCV | VOC2007 trainval | 1e-3 | 35000 | 2 | XXX mAP |
-| VGG16 | Refernce [1] | VOC2007\&2012 trainval | 1e-3 | 110000 | 1 | 73.2 mAP |
-| VGG16 | ChainerCV | VOC2007\&2012 trainval | 1e-3 | 110000 | 1 | 74.7 mAP |
-| VGG16 | ChainerCV | VOC2007\&2012 trainval | 1e-3 | 55000 | 2 | XXXmAP |
-| ResNet101 | ChainerCV | VOC2007 trainval | 1e-3 | 70000 | 1 | XXXX mAP |
-| ResNet101 | Reference | VOC2007\&2012 trainval | 1e-3 | 70000 | 1 | 76.4 mAP |
-| ResNet101 | ChainerCV | VOC2007\&2012 trainval | 1e-3 | 70000 | 1 | XXXX mAP |
+| backbone | author | train Data | start lr | weight decay | iteration | imgs/GPU | score |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| VGG16 | Reference [1] | VOC07 | 1e-3 | 5e-4 | 70000 | 1 | 69.9 mAP |
+| VGG16 | ChainerCV | VOC07 | 1e-3 | 5e-4 | 70000 | 1 | 70.6 mAP |
+| VGG16 | ChainerCV | VOC07 | 1e-3 | 5e-4 | 35000 | 2 | XXX mAP |
+| VGG16 | Refernce [1] | VOC07\&12 | 1e-3 | 5e-4 | 110000 | 1 | 73.2 mAP |
+| VGG16 | ChainerCV | VOC07\&12 | 1e-3 | 5e-4 | 110000 | 1 | 74.7 mAP |
+| VGG16 | ChainerCV | VOC07\&12 | 1e-3 | 5e-4 | 55000 | 2 | XXXmAP |
+| ResNet101 | ChainerCV | VOC07\&12 | 1e-3 | 1e-4 | 70000 | 1 | XXXX mAP |
+| ResNet101 | Reference [1] | VOC07\&12 | 1e-3 | 1e-4 | 110000 | 1 | 76.4 mAP |
+| ResNet101 | ChainerCV | VOC07\&12 | 1e-3 | 1e-4 | 110000 | 1 | XXXX mAP |
 
+1. Models with `Train Data == VOC07` used trainval split of VOC2007 dataset.
+2. Models with `Train Data == VOC07\&12` used trainval splits of VOC2007 and VOC2012 datasets.
 
-###### ResNet101
-
-| Training Setting | Evaluation | Reference | ChainerCV |
-|:-:|:-:|:-:|:-:|
-| VOC2007 trainval | VOC2007 test | | XXX mAP |
-| VOC2007\&2012 trainval | VOC2007 test | 76.4 mAP [1] | XXX mAP |
 
 ### Speed
 
