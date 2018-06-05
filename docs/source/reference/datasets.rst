@@ -51,12 +51,6 @@ CityscapesTestImageDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: CityscapesTestImageDataset
 
-COCO
-----
-
-COCOBboxDataset
-~~~~~~~~~~~~~~~
-.. autoclass:: COCOBboxDataset
 
 CUB
 ---
@@ -68,6 +62,14 @@ CUBLabelDataset
 CUBPointDataset
 ~~~~~~~~~~~~~~~
 .. autoclass:: CUBPointDataset
+
+
+MS COCO
+-------
+
+COCOBboxDataset
+~~~~~~~~~~~~~~~
+.. autoclass:: COCOBboxDataset
 
 
 OnlineProducts

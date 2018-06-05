@@ -18,7 +18,7 @@ class COCOBboxDataset(GetterDataset):
 
     There are total of 82,783 training and 40,504 validation images.
     'minval' split is a subset of validation images that constitutes
-    5000 images in the validation images. The remaining validation
+    5,000 images in the validation images. The remaining validation
     images are called 'minvalminus'. Concrete list of image ids and
     annotations for these splits are found `here`_.
 
