@@ -93,10 +93,10 @@ class COCOBboxDataset(GetterDataset):
         self.data_dir = data_dir
         anno = json.load(open(anno_path, 'r'))
 
-        self.id_to_props = {}
+        self.id_to_prop = {}
         for prop in anno['images']:
-            self.id_to_props[prop['id']] = prop
-        self.ids = sorted(list(self.id_to_props.keys()))
+            self.id_to_prop[prop['id']] = prop
+        self.ids = sorted(list(self.id_to_prop.keys()))
 
         self.cat_ids = [cat['id'] for cat in anno['categories']]
 
@@ -120,7 +120,7 @@ class COCOBboxDataset(GetterDataset):
 
     def _get_image(self, i):
         img_path = os.path.join(
-            self.img_root, self.id_to_props[self.ids[i]]['file_name'])
+            self.img_root, self.id_to_prop[self.ids[i]]['file_name'])
         img = utils.read_image(img_path, dtype=np.float32, color=True)
         return img
 
