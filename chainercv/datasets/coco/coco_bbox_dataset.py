@@ -91,18 +91,18 @@ class COCOBboxDataset(GetterDataset):
             data_dir, 'annotations', 'instances_{}2014.json'.format(split))
 
         self.data_dir = data_dir
-        anno = json.load(open(anno_path, 'r'))
+        annos = json.load(open(anno_path, 'r'))
 
         self.id_to_prop = {}
-        for prop in anno['images']:
+        for prop in annos['images']:
             self.id_to_prop[prop['id']] = prop
         self.ids = sorted(list(self.id_to_prop.keys()))
 
-        self.cat_ids = [cat['id'] for cat in anno['categories']]
+        self.cat_ids = [cat['id'] for cat in annos['categories']]
 
         self.id_to_anno = defaultdict(list)
-        for ann in anno['annotations']:
-            self.id_to_anno[ann['image_id']].append(ann)
+        for anno in annos['annotations']:
+            self.id_to_anno[anno['image_id']].append(anno)
 
         self.add_getter('img', self._get_image)
         self.add_getter(['bbox', 'label', 'area', 'crowded'],
