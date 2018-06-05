@@ -118,7 +118,7 @@ def main():
 
     for param in model.params():
         if param.name in ['beta', 'gamma']:
-            param.update_rule.enable = False
+            param.update_rule.enabled = False
     model.fcis.extractor.conv1.disable_update()
     model.fcis.extractor.res2.disable_update()
 
