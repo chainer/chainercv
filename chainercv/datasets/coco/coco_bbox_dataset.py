@@ -75,7 +75,7 @@ class COCOBboxDataset(GetterDataset):
     """
 
     def __init__(self, data_dir='auto', split='train',
-                 use_crowded=False, return_crowded=False, return_area=False):
+                 use_crowded=False, return_area=False, return_crowded=False):
         super(COCOBboxDataset, self).__init__()
         self.use_crowded = use_crowded
         if split in ['val', 'minival', 'valminusminival']:
