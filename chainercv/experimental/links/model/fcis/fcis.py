@@ -119,11 +119,11 @@ class FCIS(chainer.Chain):
             Variable, Variable, Variable, array, array:
             Returns tuple of five values listed below.
 
-            * **roi_cmask_scores**: Class-agnostic clipped mask scores for \
+            * **roi_ag_seg_scores**: Class-agnostic clipped mask scores for \
                 the proposed ROIs. Its shape is :math:`(R', 2, RH, RW)`
             * **ag_locs**: Class-agnostic offsets and scalings for \
                 the proposed RoIs.  Its shape is :math:`(R', 2, 4)`.
-            * **scores**: Class predictions for the proposed RoIs. \
+            * **roi_cls_scores**: Class predictions for the proposed RoIs. \
                 Its shape is :math:`(R', L + 1)`.
             * **rois**: RoIs proposed by RPN. Its shape is \
                 :math:`(R', 4)`.
@@ -137,9 +137,10 @@ class FCIS(chainer.Chain):
         rpn_features, roi_features = self.extractor(x)
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.rpn(
             rpn_features, img_size, scale)
-        roi_cmask_scores, roi_ag_locs, roi_cls_scores, rois, roi_indices = \
+        roi_ag_seg_scores, roi_ag_locs, roi_cls_scores, rois, roi_indices = \
             self.head(roi_features, rois, roi_indices, img_size)
-        return roi_cmask_scores, roi_ag_locs, roi_cls_scores, rois, roi_indices
+        return roi_ag_seg_scores, roi_ag_locs, roi_cls_scores, \
+            rois, roi_indices
 
     def prepare(self, img):
         """Preprocess an image for feature extraction.
@@ -257,11 +258,11 @@ class FCIS(chainer.Chain):
                 # inference
                 img_var = chainer.Variable(self.xp.array(img[None]))
                 scale = img_var.shape[3] / size[1]
-                roi_cmask_scores, _, roi_cls_scores, bboxes, _ = \
+                roi_ag_seg_scores, _, roi_cls_scores, bboxes, _ = \
                     self.__call__(img_var, scale)
 
             # We are assuming that batch size is 1.
-            roi_cmask_score = roi_cmask_scores.array
+            roi_ag_seg_score = roi_ag_seg_scores.array
             roi_cls_score = roi_cls_scores.array
             bbox = bboxes / scale
 
@@ -269,15 +270,16 @@ class FCIS(chainer.Chain):
             bbox[:, 0::2] = self.xp.clip(bbox[:, 0::2], 0, size[0])
             bbox[:, 1::2] = self.xp.clip(bbox[:, 1::2], 0, size[1])
 
-            roi_cmask_prob = F.softmax(roi_cmask_score).array[:, 1, :, :]
+            # shape: (n_roi, roi_size, roi_size)
+            roi_seg_prob = F.softmax(roi_ag_seg_score).array[:, 1, :, :]
             roi_cls_prob = F.softmax(roi_cls_score).array
 
-            roi_cmask_prob = chainer.cuda.to_cpu(roi_cmask_prob)
+            roi_seg_prob = chainer.cuda.to_cpu(roi_seg_prob)
             roi_cls_prob = chainer.cuda.to_cpu(roi_cls_prob)
             bbox = chainer.cuda.to_cpu(bbox)
 
-            roi_cmask_prob, bbox, label, roi_cls_prob = mask_voting(
-                roi_cmask_prob, bbox, roi_cls_prob, size,
+            roi_seg_prob, bbox, label, roi_cls_prob = mask_voting(
+                roi_seg_prob, bbox, roi_cls_prob, size,
                 self.score_thresh, self.nms_thresh,
                 self.mask_merge_thresh, self.binary_thresh,
                 limit=self.limit, bg_label=0)
@@ -287,18 +289,18 @@ class FCIS(chainer.Chain):
             keep_indices = np.where(
                 (height > self.min_drop_size) &
                 (width > self.min_drop_size))[0]
-            roi_cmask_prob = roi_cmask_prob[keep_indices]
+            roi_seg_prob = roi_seg_prob[keep_indices]
             bbox = bbox[keep_indices]
             label = label[keep_indices]
             roi_cls_prob = roi_cls_prob[keep_indices]
 
             mask = np.zeros(
-                (len(roi_cmask_prob), size[0], size[1]), dtype=np.bool)
-            for i, (roi_cmsk_pb, bb) in enumerate(zip(roi_cmask_prob, bbox)):
+                (len(roi_seg_prob), size[0], size[1]), dtype=np.bool)
+            for i, (roi_seg_pb, bb) in enumerate(zip(roi_seg_prob, bbox)):
                 bb = np.round(bb).astype(np.int32)
                 y_min, x_min, y_max, x_max = bb
                 roi_msk_pb = resize(
-                    roi_cmsk_pb.astype(np.float32)[None],
+                    roi_seg_pb.astype(np.float32)[None],
                     (y_max - y_min, x_max - x_min))
                 roi_msk = (roi_msk_pb > self.binary_thresh)[0]
                 mask[i, y_min:y_max, x_min:x_max] = roi_msk

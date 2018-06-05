@@ -72,7 +72,7 @@ class Conv2DBNActiv(chainer.Chain):
             function).
         bn_kwargs (dict): Keyword arguments passed to initialize
             :class:`chainer.links.BatchNormalization`. If a ChainerMN
-            communicator (:class:`~chainermn.communicators.CommunicatorBase)
+            communicator (:class:`~chainermn.communicators.CommunicatorBase`)
             is given with the key :obj:`comm`,
             :obj:`~chainermn.links.MultiNodeBatchNormalization` will be used
             for the batch normalization. Otherwise,
