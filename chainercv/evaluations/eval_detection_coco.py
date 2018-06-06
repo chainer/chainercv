@@ -149,49 +149,49 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
     pred_scores = iter(pred_scores)
     gt_bboxes = iter(gt_bboxes)
     gt_labels = iter(gt_labels)
-    gt_crowdeds = (iter(gt_crowdeds) if gt_crowdeds is not None
-                   else itertools.repeat(None))
     gt_areas = (iter(gt_areas) if gt_areas is not None
                 else itertools.repeat(None))
+    gt_crowdeds = (iter(gt_crowdeds) if gt_crowdeds is not None
+                   else itertools.repeat(None))
 
-    images = list()
+    ids = list()
     pred_annos = list()
     gt_annos = list()
     unique_labels = dict()
     for i, (pred_bbox, pred_label, pred_score, gt_bbox, gt_label,
-            gt_crowded, gt_area) in enumerate(six.moves.zip(
+            gt_area, gt_crowded) in enumerate(six.moves.zip(
                 pred_bboxes, pred_labels, pred_scores,
-                gt_bboxes, gt_labels, gt_crowdeds, gt_areas)):
-        if gt_crowded is None:
-            gt_crowded = itertools.repeat(None)
+                gt_bboxes, gt_labels, gt_areas, gt_crowdeds)):
         if gt_area is None:
             gt_area = itertools.repeat(None)
+        if gt_crowded is None:
+            gt_crowded = itertools.repeat(None)
         # Starting ids from 1 is important when using COCO.
         img_id = i + 1
 
         for pred_bb, pred_lb, pred_sc in zip(pred_bbox, pred_label,
-                                              pred_score):
+                                             pred_score):
             pred_annos.append(
                 _create_ann(pred_bb, pred_lb, pred_sc,
                             img_id=img_id, ann_id=len(pred_annos) + 1,
                             crw=0, ar=None))
             unique_labels[pred_lb] = True
 
-        for gt_bb, gt_lb, gt_crw, gt_ar in zip(
-                gt_bbox, gt_label, gt_crowded, gt_area):
+        for gt_bb, gt_lb, gt_ar, gt_crw in zip(
+                gt_bbox, gt_label, gt_area, gt_crowded):
             gt_annos.append(
                 _create_ann(gt_bb, gt_lb, None,
                             img_id=img_id, ann_id=len(gt_annos) + 1,
-                            crw=gt_crw, ar=gt_ar))
+                            ar=gt_ar, crw=gt_crw))
             unique_labels[gt_lb] = True
-        images.append({'id': img_id})
+        ids.append({'id': img_id})
 
     pred_coco.dataset['categories'] = [{'id': i} for i in unique_labels.keys()]
     gt_coco.dataset['categories'] = [{'id': i} for i in unique_labels.keys()]
     pred_coco.dataset['annotations'] = pred_annos
     gt_coco.dataset['annotations'] = gt_annos
-    pred_coco.dataset['images'] = images
-    gt_coco.dataset['images'] = images
+    pred_coco.dataset['images'] = ids
+    gt_coco.dataset['images'] = ids
 
     with _redirect_stdout(open(os.devnull, 'w')):
         pred_coco.createIndex()
@@ -255,17 +255,17 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
     return results
 
 
-def _create_ann(bb, lb, sc, img_id, ann_id, crw=None, ar=None):
+def _create_ann(bb, lb, sc, img_id, ann_id, ar=None, crw=None):
     y_min = bb[0]
     x_min = bb[1]
     y_max = bb[2]
     x_max = bb[3]
     height = y_max - y_min
     width = x_max - x_min
-    if crw is None:
-        crw = False
     if ar is None:
         ar = height * width
+    if crw is None:
+        crw = False
     # Rounding is done to make the result consistent with COCO.
     ann = {
         'image_id': img_id, 'category_id': lb,
@@ -289,27 +289,28 @@ def _summarize(
     a_idx = area_ranges.index(area_range)
     m_idx = max_detection_list.index(max_detection)
     if ap:
-        s = prec.copy()  # (T, R, K, A, M)
+        val_value = prec.copy()  # (T, R, K, A, M)
         if iou_thresh is not None:
-            s = s[iou_thresh == iou_threshs]
-        s = s[:, :, :, a_idx, m_idx]
+            val_value = val_value[iou_thresh == iou_threshs]
+        val_value = val_value[:, :, :, a_idx, m_idx]
     else:
-        s = rec.copy()  # (T, K, A, M)
+        val_value = rec.copy()  # (T, K, A, M)
         if iou_thresh is not None:
-            s = s[iou_thresh == iou_threshs]
-        s = s[:, :, a_idx, m_idx]
+            val_value = val_value[iou_thresh == iou_threshs]
+        val_value = val_value[:, :, a_idx, m_idx]
 
-    s[s == -1] = np.nan
-    s = s.reshape((-1, s.shape[-1]))
-    valid_classes = np.any(np.logical_not(np.isnan(s)), axis=0)
-    class_s = np.nan * np.ones(len(valid_classes), dtype=np.float32)
-    class_s[valid_classes] = np.nanmean(s[:, valid_classes], axis=0)
+    val_value[val_value == -1] = np.nan
+    val_value = val_value.reshape((-1, val_value.shape[-1]))
+    valid_classes = np.any(np.logical_not(np.isnan(val_value)), axis=0)
+    cls_val_value = np.nan * np.ones(len(valid_classes), dtype=np.float32)
+    cls_val_value[valid_classes] = np.nanmean(
+        val_value[:, valid_classes], axis=0)
 
     if not np.any(valid_classes):
-        mean_s = np.nan
+        mean_val_value = np.nan
     else:
-        mean_s = np.nanmean(class_s)
-    return class_s, mean_s
+        mean_val_value = np.nanmean(cls_val_value)
+    return cls_val_value, mean_val_value
 
 
 @contextlib.contextmanager
