@@ -28,6 +28,17 @@ calc_detection_voc_prec_rec
 .. autofunction:: calc_detection_voc_prec_rec
 
 
+Instance Segmentation VOC
+-------------------------
+
+eval_instance_segmentation_voc
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: eval_instance_segmentation_voc
+
+calc_instance_segmentation_voc_prec_rec
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: calc_instance_segmentation_voc_prec_rec
+
 Semantic Segmentation IoU
 -------------------------
 

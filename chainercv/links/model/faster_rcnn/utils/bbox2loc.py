@@ -1,4 +1,4 @@
-from chainer import cuda
+from chainer.backends import cuda
 
 
 def bbox2loc(src_bbox, dst_bbox):
@@ -53,6 +53,10 @@ def bbox2loc(src_bbox, dst_bbox):
     base_width = dst_bbox[:, 3] - dst_bbox[:, 1]
     base_ctr_y = dst_bbox[:, 0] + 0.5 * base_height
     base_ctr_x = dst_bbox[:, 1] + 0.5 * base_width
+
+    eps = xp.finfo(height.dtype).eps
+    height = xp.maximum(height, eps)
+    width = xp.maximum(width, eps)
 
     dy = (base_ctr_y - ctr_y) / height
     dx = (base_ctr_x - ctr_x) / width

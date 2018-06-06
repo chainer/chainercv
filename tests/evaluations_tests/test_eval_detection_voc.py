@@ -216,15 +216,12 @@ class TestEvalDetectionVOCAP(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        base_url = 'https://github.com/yuyu2172/' \
-            'share-weights/releases/download/0.0.3'
+        base_url = 'https://chainercv-models.preferred.jp/tests'
 
         cls.dataset = np.load(request.urlretrieve(os.path.join(
-            base_url,
-            'voc_detection_dataset_2007_test_truncated_2017_06_06.npz'))[0])
+            base_url, 'eval_detection_voc_dataset_2017_06_06.npz'))[0])
         cls.result = np.load(request.urlretrieve(os.path.join(
-            base_url,
-            'voc_detection_result_2007_test_truncated_2017_06_06.npz'))[0])
+            base_url, 'eval_detection_voc_result_2017_06_06.npz'))[0])
 
     def test_eval_detection_voc(self):
         pred_bboxes = self.result['bboxes']
@@ -267,3 +264,6 @@ class TestEvalDetectionVOCAP(unittest.TestCase):
         np.testing.assert_almost_equal(result['ap'], expected, decimal=5)
         np.testing.assert_almost_equal(
             result['map'], np.nanmean(expected), decimal=5)
+
+
+testing.run_module(__name__, __file__)

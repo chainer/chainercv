@@ -28,7 +28,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=12)
-    parser.add_argument('--class_weight', type=str, default='class_weight.npy')
+    parser.add_argument('--class-weight', type=str, default='class_weight.npy')
     parser.add_argument('--out', type=str, default='result')
     args = parser.parse_args()
 
@@ -49,7 +49,7 @@ def main():
 
     # Model
     class_weight = np.load(args.class_weight)
-    model = SegNetBasic(n_class=11)
+    model = SegNetBasic(n_class=len(camvid_label_names))
     model = PixelwiseSoftmaxClassifier(
         model, class_weight=class_weight)
     if args.gpu >= 0:
@@ -60,10 +60,11 @@ def main():
     # Optimizer
     optimizer = optimizers.MomentumSGD(lr=0.1, momentum=0.9)
     optimizer.setup(model)
-    optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
+    optimizer.add_hook(chainer.optimizer_hooks.WeightDecay(rate=0.0005))
 
     # Updater
-    updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
+    updater = training.updaters.StandardUpdater(
+        train_iter, optimizer, device=args.gpu)
 
     # Trainer
     trainer = training.Trainer(updater, end_trigger, out=args.out)

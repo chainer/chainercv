@@ -4,6 +4,7 @@ import argparse
 import numpy as np
 
 import chainer
+from chainer.datasets import ConcatenatedDataset
 from chainer.datasets import TransformDataset
 from chainer import training
 from chainer.training import extensions
@@ -15,24 +16,6 @@ from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 from chainercv import transforms
-
-
-class ConcatenatedDataset(chainer.dataset.DatasetMixin):
-
-    def __init__(self, *datasets):
-        self._datasets = datasets
-
-    def __len__(self):
-        return sum(len(dataset) for dataset in self._datasets)
-
-    def get_example(self, i):
-        if i < 0:
-            raise IndexError
-        for dataset in self._datasets:
-            if i < len(dataset):
-                return dataset[i]
-            i -= len(dataset)
-        raise IndexError
 
 
 class Transform(object):
@@ -91,7 +74,7 @@ def main():
         model.to_gpu()
     optimizer = chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9)
     optimizer.setup(model)
-    optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0005))
+    optimizer.add_hook(chainer.optimizer_hooks.WeightDecay(rate=0.0005))
 
     train_data = TransformDataset(train_data, Transform(faster_rcnn))
 
@@ -99,7 +82,7 @@ def main():
         train_data, batch_size=1, n_processes=None, shared_mem=100000000)
     test_iter = chainer.iterators.SerialIterator(
         test_data, batch_size=1, repeat=False, shuffle=False)
-    updater = chainer.training.updater.StandardUpdater(
+    updater = chainer.training.updaters.StandardUpdater(
         train_iter, optimizer, device=args.gpu)
 
     trainer = training.Trainer(

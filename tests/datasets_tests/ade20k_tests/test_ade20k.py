@@ -1,8 +1,8 @@
+import numpy as np
 import unittest
 
 from chainer import testing
 from chainer.testing import attr
-import numpy as np
 
 from chainercv.datasets import ade20k_semantic_segmentation_label_names
 from chainercv.datasets import ADE20KSemanticSegmentationDataset
