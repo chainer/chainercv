@@ -89,15 +89,12 @@ class TestEvalDetectionCOCO(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        base_url = 'https://github.com/yuyu2172/' \
-            'share-weights/releases/download/0.0.5'
+        base_url = 'https://chainercv-models.preferred.jp/tests'
 
         cls.dataset = np.load(request.urlretrieve(os.path.join(
-            base_url,
-            'coco_detection_dataset_val2014_fakebbox100_2017_10_16.npz'))[0])
+            base_url, 'eval_detection_coco_dataset_2017_10_16.npz'))[0])
         cls.result = np.load(request.urlretrieve(os.path.join(
-            base_url,
-            'coco_detection_result_val2014_fakebbox100_2017_10_16.npz'))[0])
+            base_url, 'eval_detection_coco_result_2017_10_16.npz'))[0])
 
     def test_eval_detection_voc(self):
         if not optional_modules:
