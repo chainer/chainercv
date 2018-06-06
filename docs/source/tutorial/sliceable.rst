@@ -113,7 +113,7 @@ Note that the length of the list should be the same as :obj:`len(dataset)`.
     bboxes = dataset.slice[:, 'bbox']
     booleans = [len(bbox) >= 3 for bbox in bboxes]
 
-    # a collection of samples that contains at least three bounding boxes
+    # a collection of samples that contain at least three bounding boxes
     view = dataset.slice[booleans]
 
 
