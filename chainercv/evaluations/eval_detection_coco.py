@@ -133,8 +133,8 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
                 else itertools.repeat(None))
 
     images = list()
-    pred_anns = list()
-    gt_anns = list()
+    pred_annos = list()
+    gt_annos = list()
     unique_labels = dict()
     for i, (pred_bbox, pred_label, pred_score, gt_bbox, gt_label,
             gt_crowded, gt_area) in enumerate(six.moves.zip(
@@ -149,25 +149,25 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
 
         for pred_bb, pred_lb, pred_sc in zip(pred_bbox, pred_label,
                                               pred_score):
-            pred_anns.append(
+            pred_annos.append(
                 _create_ann(pred_bb, pred_lb, pred_sc,
-                            img_id=img_id, ann_id=len(pred_anns) + 1,
+                            img_id=img_id, ann_id=len(pred_annos) + 1,
                             crw=0, ar=None))
             unique_labels[pred_lb] = True
 
         for gt_bb, gt_lb, gt_crw, gt_ar in zip(
                 gt_bbox, gt_label, gt_crowded, gt_area):
-            gt_anns.append(
+            gt_annos.append(
                 _create_ann(gt_bb, gt_lb, None,
-                            img_id=img_id, ann_id=len(gt_anns) + 1,
+                            img_id=img_id, ann_id=len(gt_annos) + 1,
                             crw=gt_crw, ar=gt_ar))
             unique_labels[gt_lb] = True
         images.append({'id': img_id})
 
     pred_coco.dataset['categories'] = [{'id': i} for i in unique_labels.keys()]
     gt_coco.dataset['categories'] = [{'id': i} for i in unique_labels.keys()]
-    pred_coco.dataset['annotations'] = pred_anns
-    gt_coco.dataset['annotations'] = gt_anns
+    pred_coco.dataset['annotations'] = pred_annos
+    gt_coco.dataset['annotations'] = gt_annos
     pred_coco.dataset['images'] = images
     gt_coco.dataset['images'] = images
 
