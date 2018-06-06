@@ -1,10 +1,18 @@
+import numbers
+import numpy as np
 import six
 
 import chainer
 
 
+def _is_iterable(x):
+    if isinstance(x, str):
+        return False
+    return hasattr(x, '__iter__')
+
+
 def _as_tuple(t):
-    if isinstance(t, (tuple, list)):
+    if _is_iterable(t):
         return tuple(t)
     else:
         return t,
@@ -13,7 +21,7 @@ def _as_tuple(t):
 def _bool_to_indices(indices, len_):
     true_indices = []
     for i, index in enumerate(indices):
-        if isinstance(index, bool):
+        if isinstance(index, (bool, np.bool_)):
             if index:
                 true_indices.append(i)
         else:
@@ -30,7 +38,7 @@ def _as_key_indices(keys, key_names):
     keys = _bool_to_indices(_as_tuple(keys), len(key_names))
 
     for key in keys:
-        if isinstance(key, int):
+        if isinstance(key, numbers.Integral):
             key_index = key
             if key_index < 0:
                 key_index += len(key_names)
@@ -115,7 +123,7 @@ class SliceHelper(object):
         if not isinstance(indices, slice):
             indices = _bool_to_indices(indices, len(self._dataset))
         key_indices = tuple(_as_key_indices(keys, self._dataset.keys))
-        return_tuple = isinstance(keys, (list, tuple))
+        return_tuple = _is_iterable(keys)
 
         return SlicedDataset(
             self._dataset, indices,
