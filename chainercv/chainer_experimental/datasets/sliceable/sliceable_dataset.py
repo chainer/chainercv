@@ -10,9 +10,7 @@ def _as_tuple(t):
         return t,
 
 
-def _as_indices(indices, len_):
-    if isinstance(indices, slice):
-        return indices
+def _bool_to_indices(indices, len_):
     if len(indices) == len_:
         true_indices = []
         for i, index in enumerate(indices):
@@ -26,8 +24,8 @@ def _as_indices(indices, len_):
 
 
 def _as_key_indices(keys, key_names):
-    keys = _as_tuple(keys)
     key_names = _as_tuple(key_names)
+    keys = _bool_to_indices(_as_tuple(keys), len(key_names))
 
     for key in keys:
         if isinstance(key, int):
@@ -112,7 +110,8 @@ class SliceHelper(object):
             indices = args
             keys = self._dataset.keys
 
-        indices = _as_indices(indices, len(self._dataset))
+        if not isinstance(indices, slice):
+            indices = _bool_to_indices(indices, len(self._dataset))
         key_indices = tuple(_as_key_indices(keys, self._dataset.keys))
         return_tuple = isinstance(keys, (list, tuple))
 
