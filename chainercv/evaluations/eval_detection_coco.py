@@ -147,21 +147,21 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
         # Starting ids from 1 is important when using COCO.
         img_id = i + 1
 
-        for pred_bb, pred_lbl, pred_sc in zip(pred_bbox, pred_label,
+        for pred_bb, pred_lb, pred_sc in zip(pred_bbox, pred_label,
                                               pred_score):
             pred_anns.append(
-                _create_ann(pred_bb, pred_lbl, pred_sc,
+                _create_ann(pred_bb, pred_lb, pred_sc,
                             img_id=img_id, ann_id=len(pred_anns) + 1,
                             crw=0, ar=None))
-            unique_labels[pred_lbl] = True
+            unique_labels[pred_lb] = True
 
-        for gt_bb, gt_lbl, gt_crw, gt_ar in zip(
+        for gt_bb, gt_lb, gt_crw, gt_ar in zip(
                 gt_bbox, gt_label, gt_crowded, gt_area):
             gt_anns.append(
-                _create_ann(gt_bb, gt_lbl, None,
+                _create_ann(gt_bb, gt_lb, None,
                             img_id=img_id, ann_id=len(gt_anns) + 1,
                             crw=gt_crw, ar=gt_ar))
-            unique_labels[gt_lbl] = True
+            unique_labels[gt_lb] = True
         images.append({'id': img_id})
 
     pred_coco.dataset['categories'] = [{'id': i} for i in unique_labels.keys()]
@@ -233,7 +233,7 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
     return results
 
 
-def _create_ann(bb, lbl, sc, img_id, ann_id, crw=None, ar=None):
+def _create_ann(bb, lb, sc, img_id, ann_id, crw=None, ar=None):
     y_min = bb[0]
     x_min = bb[1]
     y_max = bb[2]
@@ -246,7 +246,7 @@ def _create_ann(bb, lbl, sc, img_id, ann_id, crw=None, ar=None):
         ar = height * width
     # Rounding is done to make the result consistent with COCO.
     ann = {
-        'image_id': img_id, 'category_id': lbl,
+        'image_id': img_id, 'category_id': lb,
         'bbox': [np.round(x_min, 2), np.round(y_min, 2),
                  np.round(width, 2), np.round(height, 2)],
         'segmentation': [x_min, y_min, x_min, y_max,
