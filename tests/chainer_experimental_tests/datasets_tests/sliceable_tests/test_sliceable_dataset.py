@@ -104,6 +104,15 @@ class TestSliceableDataset(unittest.TestCase):
         self.assertEqual(
             dataset[0], ('item0(2)', 'item1(2)', 'item2(2)'))
 
+    def test_slice_indices_bool(self):
+        dataset = self.dataset.slice[
+            [False, True, False, False, True, True, False, False, True, False]]
+        self.assertIsInstance(dataset, SliceableDataset)
+        self.assertEqual(len(dataset), 4)
+        self.assertEqual(dataset.keys, self.dataset.keys)
+        self.assertEqual(
+            dataset[1], ('item0(4)', 'item1(4)', 'item2(4)'))
+
     def test_iter(self):
         it = iter(self.dataset)
         for i in six.moves.range(len(self.dataset)):
