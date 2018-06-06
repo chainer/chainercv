@@ -17,6 +17,38 @@ from chainercv.utils import mask_to_bbox
 
 class FCISTrainChain(chainer.Chain):
 
+    """Calculate losses for FCIS and report them.
+
+    This is used to train FCIS in the joint training scheme [#FCIS]_.
+
+    The losses include:
+
+    * :obj:`rpn_loc_loss`: The localization loss for \
+        Region Proposal Network (RPN).
+    * :obj:`rpn_cls_loss`: The classification loss for RPN.
+    * :obj:`roi_loc_loss`: The localization loss for the head module.
+    * :obj:`roi_cls_loss`: The classification loss for the head module.
+    * :obj:`roi_mask_loss`: The mask loss for the head module.
+
+    .. [#FCIS] Yi Li, Haozhi Qi, Jifeng Dai, Xiangyang Ji, Yichen Wei. \
+    Fully Convolutional Instance-aware Semantic Segmentation. CVPR 2017.
+
+    Args:
+        fcis (~chainercv.experimental.links.model.fcis.FCIS):
+            A FCIS model for training.
+        rpn_sigma (float): Sigma parameter for the localization loss
+            of Region Proposal Network (RPN). The default value is 3,
+            which is the value used in [#FCIS]_.
+        roi_sigma (float): Sigma paramter for the localization loss of
+            the head. The default value is 1, which is the value used
+            in [#FCIS]_.
+        anchor_target_creator: An instantiation of
+            :class:`~chainercv.links.model.faster_rcnn.AnchorTargetCreator`.
+        proposal_target_creator: An instantiation of
+            :class:`~chainercv.experimental.links.model.fcis.ProposalTargetCreator`.
+
+    """
+
     def __init__(
             self, fcis,
             rpn_sigma=3.0, roi_sigma=1.0,
@@ -38,6 +70,36 @@ class FCISTrainChain(chainer.Chain):
         self.proposal_target_creator = proposal_target_creator
 
     def __call__(self, imgs, masks, labels, scale):
+        """Forward FCIS and calculate losses.
+
+        Here are notations used.
+
+        * :math:`N` is the batch size.
+        * :math:`R` is the number of bounding boxes per image.
+        * :math:`H` is the image height.
+        * :math:`W` is the image width.
+
+        Currently, only :math:`N=1` is supported.
+
+        Args:
+            imgs (~chainer.Variable): A variable with a batch of images.
+            masks (~chainer.Variable): A batch of masks.
+                Its shape is :math:`(N, R, H, W)`.
+            labels (~chainer.Variable): A batch of labels.
+                Its shape is :math:`(N, R)`. The background is excluded from
+                the definition, which means that the range of the value
+                is :math:`[0, L - 1]`. :math:`L` is the number of foreground
+                classes.
+            scale (float or ~chainer.Variable): Amount of scaling applied to
+                the raw image during preprocessing.
+
+        Returns:
+            chainer.Variable:
+            Scalar loss variable.
+            This is the sum of losses for Region Proposal Network and
+            the head module.
+
+        """
         if isinstance(masks, chainer.Variable):
             masks = masks.array
         if isinstance(labels, chainer.Variable):
