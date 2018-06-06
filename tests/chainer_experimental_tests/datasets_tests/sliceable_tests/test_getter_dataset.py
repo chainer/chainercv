@@ -1,3 +1,4 @@
+import numpy as np
 import unittest
 
 from chainer import testing
@@ -31,7 +32,11 @@ class SampleDataset(GetterDataset):
         return 'item3({:d})'.format(i)
 
 
-@testing.parameterize(*testing.product({'iterable': [tuple, list]}))
+@testing.parameterize(
+    {'iterable': tuple},
+    {'iterable': list},
+    {'iterable': np.array},
+)
 class TestGetterDataset(unittest.TestCase):
 
     def setUp(self):
@@ -57,6 +62,8 @@ class TestGetterDataset(unittest.TestCase):
         self.assertEqual(self.dataset[1], 'item0(1)')
 
     def test_set_keys_single_tuple_name(self):
+        if self.iterable is np.array:
+            self.skipTest('ndarray of strings is not supported')
         self.dataset.keys = self.iterable(('item1',))
         self.assertEqual(self.dataset.keys, ('item1',))
         self.assertEqual(self.dataset[2], ('item1(2)',))
@@ -67,6 +74,8 @@ class TestGetterDataset(unittest.TestCase):
         self.assertEqual(self.dataset[2], ('item1(2)',))
 
     def test_set_keys_multiple_name(self):
+        if self.iterable is np.array:
+            self.skipTest('ndarray of strings is not supported')
         self.dataset.keys = self.iterable(('item0', 'item2'))
         self.assertEqual(self.dataset.keys, ('item0', 'item2'))
         self.assertEqual(self.dataset[3], ('item0(3)', 'item2(3)'))
@@ -82,6 +91,8 @@ class TestGetterDataset(unittest.TestCase):
         self.assertEqual(self.dataset[3], ('item0(3)', 'item2(3)'))
 
     def test_set_keys_multiple_mixed(self):
+        if self.iterable is np.array:
+            self.skipTest('ndarray of strings is not supported')
         self.dataset.keys = self.iterable(('item0', 2))
         self.assertEqual(self.dataset.keys, ('item0', 'item2'))
         self.assertEqual(self.dataset[3], ('item0(3)', 'item2(3)'))
