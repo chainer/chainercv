@@ -1,7 +1,11 @@
 import numpy as np
 import os
-# use pykitti<=0.2.4
-import pykitti
+try:
+    import pykitti
+    _available = True
+except ImportError:
+    _available = False
+
 import itertools
 
 from chainercv import utils
@@ -18,6 +22,15 @@ from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 # import matplotlib.pyplot as plt
 # from chainercv.visualizations import vis_bbox
 # # end
+
+def _check_available():
+    if not _available:
+        warnings.warn(
+            'pykitti is not installed in your environment,'
+            'so the dataset cannot be loaded.'
+            'Please install pykitti to load dataset.\n\n'
+            '$ pip install pykitti==0.2.4')
+
 
 class KITTIBboxDataset(GetterDataset):
 
@@ -58,6 +71,8 @@ class KITTIBboxDataset(GetterDataset):
     def __init__(self, data_dir='auto', date='', driveNo='', \
                                         color=True, sync=True, isLeft=True):
         super(KITTIBboxDataset, self).__init__()
+
+        _check_available()
 
         self.color = color
         self.sync = sync
