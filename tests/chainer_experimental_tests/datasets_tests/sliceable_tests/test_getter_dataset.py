@@ -94,5 +94,9 @@ class TestGetterDataset(unittest.TestCase):
         with self.assertRaises(IndexError):
             self.dataset.keys = 4
 
+    def test_set_keys_invalid_bool(self):
+        with self.assertRaises(ValueError):
+            self.dataset.keys = (True, True)
+
 
 testing.run_module(__name__, __file__)

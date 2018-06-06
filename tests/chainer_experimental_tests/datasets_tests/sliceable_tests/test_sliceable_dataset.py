@@ -95,6 +95,10 @@ class TestSliceableDataset(unittest.TestCase):
         with self.assertRaises(IndexError):
             self.dataset.slice[:, 3]
 
+    def test_slice_keys_invalid_bool(self):
+        with self.assertRaises(ValueError):
+            self.dataset.slice[:, (True, False)]
+
     def test_slice_indices_slice(self):
         dataset = self.dataset.slice[3:8:2]
         self.assertIsInstance(dataset, SliceableDataset)
@@ -119,6 +123,10 @@ class TestSliceableDataset(unittest.TestCase):
         self.assertEqual(dataset.keys, self.dataset.keys)
         self.assertEqual(
             dataset[1], ('item0(4)', 'item1(4)', 'item2(4)'))
+
+    def test_slice_indices_invalid_bool(self):
+        with self.assertRaises(ValueError):
+            self.dataset.slice[[False, True]]
 
     def test_iter(self):
         it = iter(self.dataset)

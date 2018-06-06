@@ -11,16 +11,18 @@ def _as_tuple(t):
 
 
 def _bool_to_indices(indices, len_):
-    if len(indices) == len_:
-        true_indices = []
-        for i, index in enumerate(indices):
-            if isinstance(index, bool):
-                if index:
-                    true_indices.append(i)
-            else:
-                return indices
-        return true_indices
-    return indices
+    true_indices = []
+    for i, index in enumerate(indices):
+        if isinstance(index, bool):
+            if index:
+                true_indices.append(i)
+        else:
+            return indices
+
+    if not len(indices) == len_:
+        raise ValueError(
+            'The number of booleans is different from the length of dataset')
+    return true_indices
 
 
 def _as_key_indices(keys, key_names):
