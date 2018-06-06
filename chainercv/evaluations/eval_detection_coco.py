@@ -14,52 +14,47 @@ except ImportError:
 
 
 def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
-                        gt_labels, gt_crowdeds=None, gt_areas=None):
+                        gt_labels, gt_areas=None, gt_crowdeds=None):
     """Evaluate detections based on evaluation code of MS COCO.
 
     This function evaluates predicted bounding boxes obtained from a dataset
-    which has :math:`N` images by using average precision for each class.
+    by using average precision for each class.
     The code is based on the evaluation code used in MS COCO.
 
     .. _`evaluation page`: http://cocodataset.org/#detections-eval
 
     Args:
-        pred_bboxes (iterable of numpy.ndarray): An iterable of :math:`N`
-            sets of bounding boxes.
-            Its index corresponds to an index for the base dataset.
-            Each element of :obj:`pred_bboxes` is a set of coordinates
-            of bounding boxes. This is an array whose shape is :math:`(R, 4)`,
-            where :math:`R` corresponds
-            to the number of bounding boxes, which may vary among boxes.
-            The second axis corresponds to :obj:`y_min, x_min, y_max, x_max`
-            of a bounding box.
-        pred_labels (iterable of numpy.ndarray): An iterable of labels.
-            Similar to :obj:`pred_bboxes`, its index corresponds to an
-            index for the base dataset. Its length is :math:`N`.
-        pred_scores (iterable of numpy.ndarray): An iterable of confidence
-            scores for predicted bounding boxes. Similar to :obj:`pred_bboxes`,
-            its index corresponds to an index for the base dataset.
-            Its length is :math:`N`.
-        gt_bboxes (iterable of numpy.ndarray): An iterable of ground truth
-            bounding boxes
-            whose length is :math:`N`. An element of :obj:`gt_bboxes` is a
-            bounding box whose shape is :math:`(R, 4)`. Note that the number of
-            bounding boxes in each image does not need to be same as the number
-            of corresponding predicted boxes.
-        gt_labels (iterable of numpy.ndarray): An iterable of ground truth
-            labels which are organized similarly to :obj:`gt_bboxes`.
-        gt_crowdeds (iterable of numpy.ndarray): An iterable of boolean
-            arrays which is organized similarly to :obj:`gt_bboxes`.
-            This tells whether the "crowded" label is assigned to the
-            corresponding bounding boxes.
-            By default, this is :obj:`None`. In that case, this function
-            considers all bounding boxes to be not crowded.
-        gt_area (iterable of numpy.ndarray): An iterable of float
-            arrays which is organized similarly to :obj:`gt_bboxes`.
-            This contains the area of the instance mask of an object
-            for each bounding box. By default, this is :obj:`None`.
-            In that case, this function uses the area of the
-            bounding box (i.e. width multiplied by height).
+        pred_bboxes (iterable of numpy.ndarray): See below.
+        pred_labels (iterable of numpy.ndarray): See below.
+        pred_scores (iterable of numpy.ndarray): See below.
+        gt_bboxes (iterable of numpy.ndarray): See below.
+        gt_labels (iterable of numpy.ndarray): See below.
+        gt_areas (iterable of numpy.ndarray): See below.
+        gt_crowdeds (iterable of numpy.ndarray): See below.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`pred_bboxes`, ":math:`[(R, 4)]`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+        :obj:`pred_labels`, ":math:`[(R,)]`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
+        :obj:`pred_scores`, ":math:`[(R,)]`", :obj:`float32`, \
+        --
+        :obj:`gt_bboxes`, ":math:`[(R, 4)]`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+        :obj:`gt_labels`, ":math:`[(R,)]`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
+        :obj:`gt_areas`, ":math:`[(R,)]`", \
+        :obj:`float32`, --
+        :obj:`gt_crowdeds`, ":math:`[(R,)]`", :obj:`bool`, --
+
+    All inputs should have the same length. For more detailed explanation
+    of the inputs, please refer to
+    :class:`chainercv.datasets.COCOBboxDataset`.
+
+    .. seealso::
+        :class:`chainercv.datasets.COCOBboxDataset`.
 
     Returns:
         dict:
