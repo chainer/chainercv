@@ -105,8 +105,8 @@ class TestEvalDetectionCOCO(unittest.TestCase):
 
         gt_bboxes = self.dataset['bboxes']
         gt_labels = self.dataset['labels']
-        gt_crowdeds = self.dataset['crowdeds']
         gt_areas = self.dataset['areas']
+        gt_crowdeds = self.dataset['crowdeds']
 
         result = eval_detection_coco(
             pred_bboxes, pred_labels, pred_scores,
