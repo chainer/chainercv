@@ -15,9 +15,9 @@ from chainercv.links.model.ssd import multibox_loss
 
 try:
     from chainermn import create_communicator
-    _chainermn_available = True
+    _available = True
 except ImportError:
-    _chainermn_available = False
+    _available = False
 
 
 @testing.parameterize(*testing.product({
@@ -129,7 +129,7 @@ class TestMultiboxLoss(unittest.TestCase):
             self.k)
 
 
-@unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
+@unittest.skipUnless(_available, 'ChainerMN is not installed')
 class TestMultiNodeMultiboxLoss(unittest.TestCase):
 
     k = 3
