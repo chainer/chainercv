@@ -17,11 +17,6 @@ from chainercv.datasets.kitti.kitti_utils import get_kitti_label
 
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 
-# # checkcode(remove)
-# # start
-# import matplotlib.pyplot as plt
-# from chainercv.visualizations import vis_bbox
-# # end
 
 def _check_available():
     if not _available:
@@ -46,7 +41,7 @@ class KITTIBboxDataset(GetterDataset):
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/kitti`.
         date ({'2011_09_26', '2011_09_28', '2011_09_29',
-                                           '2011_09_30', '2011_10_03'}): 
+                                           '2011_09_30', '2011_10_03'}):
             reference Calibration datas.
         driveNo ({'0xxx'}): get datas drive No.
         color (bool): use glay/color image.
@@ -68,8 +63,8 @@ class KITTIBboxDataset(GetterDataset):
         :obj:`bbox` and :obj:`label` not contain instances.
     """
 
-    def __init__(self, data_dir='auto', date='', driveNo='', \
-                                        color=True, sync=True, isLeft=True):
+    def __init__(self, data_dir='auto', date='', driveNo='',
+                 color=True, sync=True, isLeft=True):
         super(KITTIBboxDataset, self).__init__()
 
         _check_available()
@@ -78,7 +73,7 @@ class KITTIBboxDataset(GetterDataset):
         self.sync = sync
         self.isLeft = isLeft
         if data_dir == 'auto':
-            if sync == True:
+            if sync is True:
                 # download sync data
                 data_dir = get_kitti_sync_data(os.path.join(
                     'pfnet', 'chainercv', 'KITTI'), date, driveNo)
@@ -95,8 +90,8 @@ class KITTIBboxDataset(GetterDataset):
             data_dir, date, driveNo, frames=None, imformat='cv2')
 
         # current camera calibration R/P settings.
-        if self.color == True:
-            if self.isLeft == True:
+        if self.color is True:
+            if self.isLeft is True:
                 # img02
                 self.cur_R_rect = self.dataset.calib.R_rect_20
                 self.cur_P_rect = self.dataset.calib.P_rect_20
@@ -107,7 +102,7 @@ class KITTIBboxDataset(GetterDataset):
                 self.cur_P_rect = self.dataset.calib.P_rect_30
                 self.imgs = np.array(list(self.dataset.cam3))
         else:
-            if self.isLeft == True:
+            if self.isLeft is True:
                 # img00
                 self.cur_R_rect = self.dataset.calib.R_rect_00
                 self.cur_P_rect = self.dataset.calib.P_rect_00
@@ -121,7 +116,10 @@ class KITTIBboxDataset(GetterDataset):
         # get object info(type/area/bbox/...)
         self.tracklets = get_kitti_tracklets(data_dir, date, driveNo)
 
-        self.bboxes, self.labels = get_kitti_label(self.tracklets, self.dataset.calib, self.cur_R_rect, self.cur_P_rect, self.__len__())
+        self.bboxes, self.labels = get_kitti_label(
+            self.tracklets, self.dataset.calib,
+            self.cur_R_rect, self.cur_P_rect,
+            self.__len__())
 
         self.add_getter('img', self._get_image)
         # self.add_getter('label', self._get_label)
@@ -165,66 +163,3 @@ class KITTIBboxDataset(GetterDataset):
         print(np_bbox)
         print(np_label)
         return np_bbox, np_label
-
-#     def _get_label(self, i):
-#         label = self.labels[i]
-#         return label
-# 
-#     def _get_bbox(self, i):
-#         bbox = self.bboxes[i]
-#         return bbox
-
-
-# # checkcode(remove)
-# # start
-# if __name__ == '__main__':
-#     # 00, 01 : gray
-#     # dataset = KITTIDataset(date='2011_09_26', driveNo='0001', color=False, sync = True)
-#     # print(len(d))
-#     # img = d[0]
-#     # print(img)
-#     # print(img.shape)
-#     # dataset = KITTIDataset(date='2011_09_26', driveNo='0001', color=False, sync = True, isLeft=False)
-# 
-#     # print(len(d))
-#     # img, bbox,  = dataset[0]
-#     # print(img)
-#     # print(img.shape)
-# 
-#     # 02, 03 : color
-#     # dataset = KITTIDataset(date='2011_09_26', driveNo='0001', color=True, sync = True)
-#     # dataset = KITTIDataset(date='2011_09_26', driveNo='0001', color=True, sync = True, isLeft=False)
-#     # local Folder
-#     # dataset = KITTIDataset(date='2011_09_26', driveNo='0005', color=True, sync = True, isLeft=False)
-#     dataset = KITTIDataset(
-#         date='2011_09_26', driveNo='0020', color=True, sync=True)
-#     # use pykitti
-#     # dataset = KITTIDataset(date='2011_09_26', driveNo='0001', color=True, sync = True)
-#     img, label, bbox = dataset[5]
-# 
-#     # keys returns the names of data
-#     # print(dataset.keys)  # ('img', 'label', 'bbox')
-#     # we can get an example by []
-#     # img, label, bbox = dataset[0]
-# 
-#     # get a view of the first 50 examples
-#     view = dataset.slice[:50]
-#     # print(len(view))  # 50
-# 
-#     # get a view of image and label
-#     # view = dataset.slice[:, ('img', 'label', 'bbox')]
-#     # the view also supports sliceable, so that we can call keys
-#     # print(view.keys)  # ('img', 'label')
-#     # we can get an example by []
-#     # img, label = view[0]
-# 
-#     # print(img)
-#     # print(img.shape)
-#     # Data no Sync
-#     # dataset = KITTIDataset(date='2011_09_26', driveNo='0001', color=False, sync = False)
-#     # print(img.debug_print())
-#     from chainercv.datasets.kitti.kitti_utils import kitti_bbox_label_names
-#     vis_bbox(img, bbox, label, score=None, label_names=kitti_bbox_label_names)
-#     plt.show()
-# 
-# # end

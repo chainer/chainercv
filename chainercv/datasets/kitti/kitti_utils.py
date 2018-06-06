@@ -1,3 +1,6 @@
+# tracklet parser
+from chainercv.datasets.kitti import parseTrackletXML as xmlParser
+
 import numpy as np
 import os
 from urllib.parse import urljoin
@@ -8,9 +11,6 @@ from chainer.dataset import download
 
 # root = 'pfnet/chainercv/kitti'
 url_base = 'http://kitti.is.tue.mpg.de/kitti/raw_data/'
-
-# tracklet parser
-from chainercv.datasets.kitti import parseTrackletXML as xmlParser
 
 
 def get_kitti_sync_data(root, date, driveNo):
@@ -74,12 +74,16 @@ def get_kitti_tracklets(data_root, date, driveNo):
     kitti_dir = os.path.join(data_root, date)
     # kitti_dir = kitti_dir.replace(os.path.sep, '/')
     # calibration_dir = os.path.join(data_root, date)
-    # imu2velo = read_calib_file(os.path.join(kitti_dir, "calib_imu_to_velo.txt"))
-    # velo2cam = read_calib_file(os.path.join(kitti_dir, "calib_velo_to_cam.txt"))
-    # cam2cam = read_calib_file(os.path.join(kitti_dir, "calib_cam_to_cam.txt"))
+    # imu2velo = read_calib_file(
+    #                os.path.join(kitti_dir, "calib_imu_to_velo.txt"))
+    # velo2cam = read_calib_file(
+    #                os.path.join(kitti_dir, "calib_velo_to_cam.txt"))
+    # cam2cam = read_calib_file(
+    #                os.path.join(kitti_dir, "calib_cam_to_cam.txt"))
     # read tracklet
     folder = date + '_drive_' + driveNo + '_sync'
-    # tracklet = read_tracklet_file(os.path.join(kitti_dir, folder, "calib_imu_to_velo.txt"))
+    # tracklet = read_tracklet_file(
+    #                os.path.join(kitti_dir, folder, "calib_imu_to_velo.txt"))
     # return tracklets
     # get dir names
     # read tracklets from file
@@ -108,10 +112,10 @@ def get_kitti_label(tracklets, calib, cur_R_rect, cur_P_rect, framelength):
         # this part is inspired by kitti object development kit
         # matlab code: computeBox3D
         h, w, l = tracklet.size
-        # in velodyne coordinates around zero point and without orientation yet\
-        trackletBox = np.array([ 
-            [-l/2, -l/2,  l/2, l/2, -l/2, -l/2,  l/2, l/2], \
-            [w/2, -w/2, -w/2, w/2,  w/2, -w/2, -w/2, w/2], \
+        # in velodyne coordinates around zero point and without orientation yet
+        trackletBox = np.array([
+            [-l/2, -l/2,  l/2, l/2, -l/2, -l/2,  l/2, l/2],
+            [w/2, -w/2, -w/2, w/2,  w/2, -w/2, -w/2, w/2],
             [0.0,  0.0,  0.0, 0.0,    h,     h,   h,   h]])
 
         # print('trackletBox : ' + trackletBox)
@@ -121,10 +125,10 @@ def get_kitti_label(tracklets, calib, cur_R_rect, cur_P_rect, framelength):
 
         # loop over all data in tracklet
         for translation, rotation, state, occlusion, truncation, \
-            amtOcclusion, amtBorders, absoluteFrameNumber in tracklet:
+                amtOcclusion, amtBorders, absoluteFrameNumber in tracklet:
 
             # determine if object is in the image; otherwise continue
-            if truncation not in (xmlParser.TRUNC_IN_IMAGE, \
+            if truncation not in (xmlParser.TRUNC_IN_IMAGE,
                                   xmlParser.TRUNC_TRUNCATED):
                 continue
 
@@ -142,7 +146,7 @@ def get_kitti_label(tracklets, calib, cur_R_rect, cur_P_rect, framelength):
 
             # calc yaw as seen from the camera
             # (i.e. 0 degree = facing away from cam),
-            # as opposed to car-centered yaw 
+            # as opposed to car-centered yaw
             # (i.e. 0 degree = same orientation as car).
             # makes quite a difference for objects in periphery!
             # Result is in [0, 2pi]
@@ -151,7 +155,8 @@ def get_kitti_label(tracklets, calib, cur_R_rect, cur_P_rect, framelength):
             # yawVisual = ( yaw - np.arctan2(y, x) ) % twoPi
             # print(yaw)
             # print(yawVisual)
-            # param = pykitti.utils.transform_from_rot_trans(rotMat, translation)
+            # param = pykitti.utils.transform_from_rot_trans(
+            #             rotMat, translation)
             # print(param)
 
             # projection to image?

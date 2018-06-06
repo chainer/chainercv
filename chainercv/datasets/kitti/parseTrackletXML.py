@@ -58,13 +58,15 @@ truncFromText = {'99': TRUNC_UNSET, '0': TRUNC_IN_IMAGE, '1': TRUNC_TRUNCATED,
 
 
 class Tracklet(object):
-    r""" representation an annotated object track 
+    r""" representation an annotated object track
 
-    Tracklets are created in function parseXML and can most conveniently used as follows:
+    Tracklets are created in function parseXML
+      and can most conveniently used as follows:
 
     for trackletObj in parseXML(trackletFile):
       for translation, rotation, state, occlusion, \
-          truncation, amtOcclusion, amtBorders, absoluteFrameNumber in trackletObj:
+          truncation, amtOcclusion, amtBorders, \
+          absoluteFrameNumber in trackletObj:
         ... your code here ...
       #end: for all frames
     #end: for all tracklets
@@ -72,9 +74,13 @@ class Tracklet(object):
     absoluteFrameNumber is in range [firstFrame, firstFrame+nFrames[
     amtOcclusion and amtBorders could be None
 
-    You can of course also directly access the fields objType (string), size (len-3 ndarray), firstFrame/nFrames (int), 
-      trans/rots (nFrames x 3 float ndarrays), states/truncs (len-nFrames uint8 ndarrays), occs (nFrames x 2 uint8 ndarray),
-      and for some tracklets amtOccs (nFrames x 2 float ndarray) and amtBorders (nFrames x 3 float ndarray). The last two
+    You can of course also directly access the fields
+      objType (string), size (len-3 ndarray), firstFrame/nFrames (int),
+      trans/rots (nFrames x 3 float ndarrays),
+      states/truncs (len-nFrames uint8 ndarrays),
+      occs (nFrames x 2 uint8 ndarray),
+      and for some tracklets amtOccs (nFrames x 2 float ndarray)
+      and amtBorders (nFrames x 3 float ndarray). The last two
       can be None if the xml file did not include these fields in poses
     """
 
@@ -98,34 +104,48 @@ class Tracklet(object):
     def __str__(self):
         r""" return human-readable string representation of tracklet object
 
-        called implicitly in 
+        called implicitly in
         # print(trackletObj)
-        or in 
+        or in
         text = str(trackletObj)
         """
-        return '[Tracklet over {0} frames for {1}]'.format(self.nFrames, self.objectType)
+        return '[Tracklet over {0} frames for {1}]'.format(
+            self.nFrames, self.objectType)
 
     def __iter__(self):
-        r""" returns an iterator that yields tuple of all the available data for each frame 
+        r""" returns an iterator
+             that yields tuple of all the available data for each frame
 
-        called whenever code iterates over a tracklet object, e.g. in 
-        for translation, rotation, state, occlusion, truncation, amtOcclusion, amtBorders, absoluteFrameNumber in trackletObj:
+        called whenever code iterates over a tracklet object, e.g. in
+        for translation, rotation, state, occlusion, truncation,
+            amtOcclusion, amtBorders, absoluteFrameNumber in trackletObj:
           ...do something ...
         or
         trackDataIter = iter(trackletObj)
         """
         if self.amtOccs is None:
-            # return itertools.izip(self.trans, self.rots, self.states, self.occs, self.truncs, \
-            #     itertools.repeat(None), itertools.repeat(None), xrange(self.firstFrame, self.firstFrame+self.nFrames))
+            # Python2
+            # return itertools.izip(
+            #        self.trans, self.rots, self.states,
+            #        self.occs, self.truncs,
+            #        itertools.repeat(None), itertools.repeat(None),
+            #        xrange(self.firstFrame, self.firstFrame+self.nFrames))
             # Python3
-            return zip(self.trans, self.rots, self.states, self.occs, self.truncs,
-                       repeat(None), repeat(None), range(self.firstFrame, self.firstFrame+self.nFrames))
+            return zip(self.trans, self.rots, self.states,
+                       self.occs, self.truncs,
+                       repeat(None), repeat(None),
+                       range(self.firstFrame, self.firstFrame+self.nFrames))
         else:
-            # return itertools.izip(self.trans, self.rots, self.states, self.occs, self.truncs, \
-            #     self.amtOccs, self.amtBorders, xrange(self.firstFrame, self.firstFrame+self.nFrames))
+            # Python2
+            # return itertools.izip(self.trans, self.rots, self.states,
+            #        self.occs, self.truncs,
+            #        self.amtOccs, self.amtBorders,
+            #        xrange(self.firstFrame, self.firstFrame+self.nFrames))
             # Python3
-            return zip(self.trans, self.rots, self.states, self.occs, self.truncs,
-                       self.amtOccs, self.amtBorders, range(self.firstFrame, self.firstFrame+self.nFrames))
+            return zip(self.trans, self.rots, self.states,
+                       self.occs, self.truncs,
+                       self.amtOccs, self.amtBorders,
+                       range(self.firstFrame, self.firstFrame+self.nFrames))
 # end: class Tracklet
 
 
@@ -135,6 +155,9 @@ def parseXML(trackletFile):
     :param trackletFile: name of a tracklet xml file
     :returns: list of Tracklet objects read from xml file
     """
+
+    newTrack_nFrames_isNone_ErrorStr = \
+        'there are several pose lists for a single track!'
 
     # convert tracklet XML data to a tree structure
     eTree = ElementTree()
@@ -179,10 +202,11 @@ def parseXML(trackletFile):
                     # this info is the possibly long list of poses
                     for pose in info:
                         # print('trackInfoPose:', pose.tag)
-                        if pose.tag == 'count':   # this should come before the others
+                        # this should come before the others
+                        if pose.tag == 'count':
                             if newTrack.nFrames is not None:
                                 raise ValueError(
-                                    'there are several pose lists for a single track!')
+                                    newTrack_nFrames_isNone_ErrorStr)
                             elif frameIdx is not None:
                                 raise ValueError('?!')
                             newTrack.nFrames = int(pose.text)
@@ -229,38 +253,41 @@ def parseXML(trackletFile):
                                     newTrack.rots[frameIdx, 2] = float(
                                         poseInfo.text)
                                 elif poseInfo.tag == 'state':
-                                    newTrack.states[frameIdx] = stateFromText[poseInfo.text]
+                                    newTrack.states[frameIdx] = \
+                                        stateFromText[poseInfo.text]
                                 elif poseInfo.tag == 'occlusion':
-                                    newTrack.occs[frameIdx,
-                                                  0] = occFromText[poseInfo.text]
+                                    newTrack.occs[frameIdx, 0] = \
+                                        occFromText[poseInfo.text]
                                 elif poseInfo.tag == 'occlusion_kf':
-                                    newTrack.occs[frameIdx,
-                                                  1] = occFromText[poseInfo.text]
+                                    newTrack.occs[frameIdx, 1] = \
+                                        occFromText[poseInfo.text]
                                 elif poseInfo.tag == 'truncation':
-                                    newTrack.truncs[frameIdx] = truncFromText[poseInfo.text]
+                                    newTrack.truncs[frameIdx] = \
+                                        truncFromText[poseInfo.text]
                                 elif poseInfo.tag == 'amt_occlusion':
-                                    newTrack.amtOccs[frameIdx, 0] = float(
-                                        poseInfo.text)
+                                    newTrack.amtOccs[frameIdx, 0] = \
+                                        float(poseInfo.text)
                                     hasAmt = True
                                 elif poseInfo.tag == 'amt_occlusion_kf':
-                                    newTrack.amtOccs[frameIdx, 1] = float(
-                                        poseInfo.text)
+                                    newTrack.amtOccs[frameIdx, 1] = \
+                                        float(poseInfo.text)
                                     hasAmt = True
                                 elif poseInfo.tag == 'amt_border_l':
-                                    newTrack.amtBorders[frameIdx, 0] = float(
-                                        poseInfo.text)
+                                    newTrack.amtBorders[frameIdx, 0] = \
+                                        float(poseInfo.text)
                                     hasAmt = True
                                 elif poseInfo.tag == 'amt_border_r':
-                                    newTrack.amtBorders[frameIdx, 1] = float(
-                                        poseInfo.text)
+                                    newTrack.amtBorders[frameIdx, 1] = \
+                                        float(poseInfo.text)
                                     hasAmt = True
                                 elif poseInfo.tag == 'amt_border_kf':
-                                    newTrack.amtBorders[frameIdx, 2] = float(
-                                        poseInfo.text)
+                                    newTrack.amtBorders[frameIdx, 2] = \
+                                        float(poseInfo.text)
                                     hasAmt = True
                                 else:
                                     raise ValueError(
-                                        'unexpected tag in poses item: {0}!'.format(poseInfo.tag))
+                                        'unexpected tag in poses item: {0}!'
+                                        .format(poseInfo.tag))
                             frameIdx += 1
                         else:
                             raise ValueError(
@@ -279,8 +306,10 @@ def parseXML(trackletFile):
                 warn('tracklet {0} contains no information!'.format(
                     trackletIdx))
             elif frameIdx != newTrack.nFrames:
-                warn('tracklet {0} is supposed to have {1} frames, but perser found {1}!'.format(
-                    trackletIdx, newTrack.nFrames, frameIdx))
+                warn(
+                    'tracklet {0} is supposed to have {1} frames, \
+                        but perser found {1}!'.format(
+                            trackletIdx, newTrack.nFrames, frameIdx))
             if np.abs(newTrack.rots[:, :2]).sum() > 1e-16:
                 warn('track contains rotation other than yaw!')
 
@@ -301,8 +330,8 @@ def parseXML(trackletFile):
 
     # final consistency check
     if trackletIdx != nTracklets:
-        warn('according to xml information the file has {0} tracklets, but parser found {1}!'.format(
-            nTracklets, trackletIdx))
+        warn('according to xml information the file has {0} tracklets, \
+            but parser found {1}!'.format(nTracklets, trackletIdx))
 
     return tracklets
 # end: function parseXML
