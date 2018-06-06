@@ -172,17 +172,17 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
         for pred_bb, pred_lb, pred_sc in zip(pred_bbox, pred_label,
                                              pred_score):
             pred_annos.append(
-                _create_ann(pred_bb, pred_lb, pred_sc,
-                            img_id=img_id, ann_id=len(pred_annos) + 1,
-                            crw=0, ar=None))
+                _create_anno(pred_bb, pred_lb, pred_sc,
+                             img_id=img_id, anno_id=len(pred_annos) + 1,
+                             crw=0, ar=None))
             unique_labels[pred_lb] = True
 
         for gt_bb, gt_lb, gt_ar, gt_crw in zip(
                 gt_bbox, gt_label, gt_area, gt_crowded):
             gt_annos.append(
-                _create_ann(gt_bb, gt_lb, None,
-                            img_id=img_id, ann_id=len(gt_annos) + 1,
-                            ar=gt_ar, crw=gt_crw))
+                _create_anno(gt_bb, gt_lb, None,
+                             img_id=img_id, anno_id=len(gt_annos) + 1,
+                             ar=gt_ar, crw=gt_crw))
             unique_labels[gt_lb] = True
         ids.append({'id': img_id})
 
@@ -255,7 +255,7 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
     return results
 
 
-def _create_ann(bb, lb, sc, img_id, ann_id, ar=None, crw=None):
+def _create_anno(bb, lb, sc, img_id, anno_id, ar=None, crw=None):
     y_min = bb[0]
     x_min = bb[1]
     y_max = bb[2]
@@ -267,18 +267,18 @@ def _create_ann(bb, lb, sc, img_id, ann_id, ar=None, crw=None):
     if crw is None:
         crw = False
     # Rounding is done to make the result consistent with COCO.
-    ann = {
+    anno = {
         'image_id': img_id, 'category_id': lb,
         'bbox': [np.round(x_min, 2), np.round(y_min, 2),
                  np.round(width, 2), np.round(height, 2)],
         'segmentation': [x_min, y_min, x_min, y_max,
                          x_max, y_max, x_max, y_min],
         'area': ar,
-        'id': ann_id,
+        'id': anno_id,
         'iscrowd': crw}
     if sc is not None:
-        ann.update({'score': sc})
-    return ann
+        anno.update({'score': sc})
+    return anno
 
 
 def _summarize(
