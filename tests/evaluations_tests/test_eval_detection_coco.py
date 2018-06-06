@@ -9,9 +9,9 @@ from chainercv.evaluations import eval_detection_coco
 
 try:
     import pycocotools  # NOQA
-    available = True
+    _available = True
 except ImportError:
-    available = False
+    _available = False
 
 
 data = {
@@ -27,6 +27,7 @@ data = {
         [0, 0]]}
 
 
+@unittest.skipUnless(_available, 'pycocotools is not installed')
 class TestEvalDetectionCOCOSimple(unittest.TestCase):
 
     def setUp(self):
@@ -37,8 +38,6 @@ class TestEvalDetectionCOCOSimple(unittest.TestCase):
         self.gt_labels = (np.array(label) for label in data['gt_labels'])
 
     def test_crowded(self):
-        if not available:
-            self.skipTest('pycocotools is not available')
         result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
                                      self.pred_scores,
                                      self.gt_bboxes, self.gt_labels,
@@ -53,8 +52,6 @@ class TestEvalDetectionCOCOSimple(unittest.TestCase):
             np.isnan(result['map/iou=0.50:0.95/area=large/maxDets=100']))
 
     def test_area_default(self):
-        if not available:
-            self.skipTest('pycocotools is not available')
         result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
                                      self.pred_scores,
                                      self.gt_bboxes, self.gt_labels)
@@ -70,8 +67,6 @@ class TestEvalDetectionCOCOSimple(unittest.TestCase):
             np.isnan(result['map/iou=0.50:0.95/area=large/maxDets=100']))
 
     def test_area_specified(self):
-        if not available:
-            self.skipTest('pycocotools is not available')
         result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
                                      self.pred_scores,
                                      self.gt_bboxes, self.gt_labels,
@@ -85,6 +80,7 @@ class TestEvalDetectionCOCOSimple(unittest.TestCase):
             np.isnan(result['map/iou=0.50:0.95/area=large/maxDets=100']))
 
 
+@unittest.skipUnless(_available, 'pycocotools is not installed')
 class TestEvalDetectionCOCO(unittest.TestCase):
 
     @classmethod
@@ -97,8 +93,6 @@ class TestEvalDetectionCOCO(unittest.TestCase):
             base_url, 'eval_detection_coco_result_2017_10_16.npz'))[0])
 
     def test_eval_detection_voc(self):
-        if not available:
-            self.skipTest('pycocotools is not available')
         pred_bboxes = self.result['bboxes']
         pred_labels = self.result['labels']
         pred_scores = self.result['scores']
