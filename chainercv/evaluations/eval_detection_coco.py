@@ -65,52 +65,74 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
         per image. For more details on the 12 patterns of evaluation metrics,
         please refer to COCO's official `evaluation page`_.
 
-        * **ap/iou=0.50:0.95/area=all/maxDets=100** (*numpy.ndarray*): An \
-            array of average precisions. \
-            The :math:`l`-th value corresponds to the average precision \
-            for class :math:`l`. If class :math:`l` does not exist in \
-            either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding \
-            value is set to :obj:`numpy.nan`.
-        * **ap/iou=0.50/area=all/maxDets=100** (*numpy.ndarray*): See above.
-        * **ap/iou=0.75/area=all/maxDets=100** (*numpy.ndarray*): See above.
-        * **ap/iou=0.50:0.95/area=small/maxDets=100** (*numpy.ndarray*): See \
-            above.
-        * **ap/iou=0.50:0.95/area=medium/maxDets=100** (*numpy.ndarray*): See \
-            above.
-        * **ap/iou=0.50:0.95/area=large/maxDets=100** (*numpy.ndarray*): See \
-            above.
-        * **ar/iou=0.50:0.95/area=all/maxDets=1** (*numpy.array*): An \
-            array of average recalls. \
-            The :math:`l`-th value corresponds to the average precision \
-            for class :math:`l`. If class :math:`l` does not exist in \
-            either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding \
-            value is set to :obj:`numpy.nan`.
-        * **ar/iou=0.50:0.95/area=all/maxDets=10** (*numpy.array*): See above.
-        * **ar/iou=0.50:0.95/area=all/maxDets=100** (*numpy.array*): See above.
-        * **ar/iou=0.50:0.95/area=small/maxDets=100** (*numpy.array*): See \
-            above.
-        * **ar/iou=0.50:0.95/area=medium/maxDets=100** (*numpy.array*): See \
-            above.
-        * **ar/iou=0.50:0.95/area=large/maxDets=100** (*numpy.array*): See \
-            above.
-        * **map/iou=0.50:0.95/area=all/maxDets=100** (*float*): The average \
-            of Average Precisions over classes.
-        * **map/iou=0.50/area=all/maxDets=100** (*float*): See above.
-        * **map/iou=0.75/area=all/maxDets=100** (*float*): See above.
-        * **map/iou=0.50:0.95/area=small/maxDets=100** (*float*): See \
-            above.
-        * **map/iou=0.50:0.95/area=medium/maxDets=100** (*float*): See above.
-        * **map/iou=0.50:0.95/area=large/maxDets=100** (*float*): See above.
-        * **mar/iou=0.50:0.95/area=all/maxDets=1** (*float*): The average \
-            of average recalls over classes.
-        * **mar/iou=0.50:0.95/area=all/maxDets=10** (*float*): See above.
-        * **mar/iou=0.50:0.95/area=all/maxDets=100** (*float*): See above.
-        * **mar/iou=0.50:0.95/area=small/maxDets=100** (*float*): See above.
-        * **mar/iou=0.50:0.95/area=medium/maxDets=100** (*float*): See above.
-        * **mar/iou=0.50:0.95/area=large/maxDets=100** (*float*): See above.
-        * **coco_eval** (*pycocotools.cocoeval.COCOeval*): The \
-            :class:`pycocotools.cocoeval.COCOeval` object used to conduct \
-            evaluation.
+        .. csv-table::
+            :header: key, type, description
+
+            ap/iou=0.50:0.95/area=all/maxDets=100, *numpy.ndarray*, \
+                [#coco_det_eval_1]_
+            ap/iou=0.50/area=all/maxDets=100, *numpy.ndarray*, \
+                [#coco_det_eval_1]_
+            ap/iou=0.75/area=all/maxDets=100, *numpy.ndarray*, \
+                [#coco_det_eval_1]_
+            ap/iou=0.50:0.95/area=small/maxDets=100, *numpy.ndarray*, \
+                [#coco_det_eval_1]_
+            ap/iou=0.50:0.95/area=medium/maxDets=100, *numpy.ndarray*, \
+                [#coco_det_eval_1]_
+            ap/iou=0.50:0.95/area=large/maxDets=100, *numpy.ndarray*, \
+                [#coco_det_eval_1]_
+            ar/iou=0.50:0.95/area=all/maxDets=1, *numpy.ndarray*, \
+                [#coco_det_eval_2]_
+            ar/iou=0.50/area=all/maxDets=10, *numpy.ndarray*, \
+                [#coco_det_eval_2]_
+            ar/iou=0.75/area=all/maxDets=100, *numpy.ndarray*, \
+                [#coco_det_eval_2]_
+            ar/iou=0.50:0.95/area=small/maxDets=100, *numpy.ndarray*, \
+                [#coco_det_eval_2]_
+            ar/iou=0.50:0.95/area=medium/maxDets=100, *numpy.ndarray*, \
+                [#coco_det_eval_2]_
+            ar/iou=0.50:0.95/area=large/maxDets=100, *numpy.ndarray*, \
+                [#coco_det_eval_2]_
+            map/iou=0.50:0.95/area=all/maxDets=100, *float*, \
+                [#coco_det_eval_3]_
+            map/iou=0.50/area=all/maxDets=100, *float*, \
+                [#coco_det_eval_3]_
+            map/iou=0.75/area=all/maxDets=100, *float*, \
+                [#coco_det_eval_3]_
+            map/iou=0.50:0.95/area=small/maxDets=100, *float*, \
+                [#coco_det_eval_3]_
+            map/iou=0.50:0.95/area=medium/maxDets=100, *float*, \
+                [#coco_det_eval_3]_
+            map/iou=0.50:0.95/area=large/maxDets=100, *float*, \
+                [#coco_det_eval_3]_
+            ar/iou=0.50:0.95/area=all/maxDets=1, *float*, \
+                [#coco_det_eval_4]_
+            ar/iou=0.50/area=all/maxDets=10, *float*, \
+                [#coco_det_eval_4]_
+            ar/iou=0.75/area=all/maxDets=100, *float*, \
+                [#coco_det_eval_4]_
+            ar/iou=0.50:0.95/area=small/maxDets=100, *float*, \
+                [#coco_det_eval_4]_
+            ar/iou=0.50:0.95/area=medium/maxDets=100, *float*, \
+                [#coco_det_eval_4]_
+            ar/iou=0.50:0.95/area=large/maxDets=100, *float*, \
+                [#coco_det_eval_4]_
+            coco_eval, *pycocotools.cocoeval.COCOeval*, [#coco_det_eval_5]_
+
+
+    .. [#coco_det_eval_1] An array of average precisions. \
+        The :math:`l`-th value corresponds to the average precision \
+        for class :math:`l`. If class :math:`l` does not exist in \
+        either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding \
+        value is set to :obj:`numpy.nan`.
+    .. [#coco_det_eval_2] An array of average recalls. \
+        The :math:`l`-th value corresponds to the average precision \
+        for class :math:`l`. If class :math:`l` does not exist in \
+        either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding \
+        value is set to :obj:`numpy.nan`.
+    .. [#coco_det_eval_3] The average of Average Precisions over classes.
+    .. [#coco_det_eval_4] The average of average recalls over classes.
+    .. [#coco_det_eval_5] The :class:`pycocotools.cocoeval.COCOeval` object \
+        used to conduct evaluation.
 
     """
     if not _available:
