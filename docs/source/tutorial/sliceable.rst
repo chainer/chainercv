@@ -117,7 +117,6 @@ Note that the length of the list should be the same as :obj:`len(dataset)`.
     view = dataset.slice[booleans]
 
 
-
 Usage: slice along with the axis of data
 ----------------------------------------
 :meth:`slice` takes names or indices of data as its second argument.
