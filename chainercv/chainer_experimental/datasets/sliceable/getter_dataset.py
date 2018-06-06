@@ -1,5 +1,5 @@
 from chainercv.chainer_experimental.datasets.sliceable.sliceable_dataset \
-    import _as_indices
+    import _as_key_indices
 from chainercv.chainer_experimental.datasets.sliceable import SliceableDataset
 
 
@@ -59,7 +59,7 @@ class GetterDataset(SliceableDataset):
     @keys.setter
     def keys(self, keys):
         self._keys = [self._keys[key_index]
-                      for key_index in _as_indices(keys, self.keys)]
+                      for key_index in _as_key_indices(keys, self.keys)]
         self._return_tuple = isinstance(keys, (list, tuple))
 
     def add_getter(self, keys, getter):

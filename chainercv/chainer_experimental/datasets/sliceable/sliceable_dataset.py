@@ -10,7 +10,7 @@ def _as_tuple(t):
         return t,
 
 
-def _as_indices(keys, key_names):
+def _as_key_indices(keys, key_names):
     keys = _as_tuple(keys)
     key_names = _as_tuple(key_names)
 
@@ -97,7 +97,7 @@ class SliceHelper(object):
             indices = args
             keys = self._dataset.keys
 
-        key_indices = tuple(_as_indices(keys, self._dataset.keys))
+        key_indices = tuple(_as_key_indices(keys, self._dataset.keys))
         return_tuple = isinstance(keys, (list, tuple))
 
         return SlicedDataset(
