@@ -1,11 +1,13 @@
 import unittest
 
+import numpy as np
+
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.datasets import KITTI_label_names
-from chainercv.datasets import KITTIDataset
-from chainercv.utils import assert_is_semantic_segmentation_dataset
+from chainercv.datasets import kitti_bbox_label_names
+from chainercv.datasets import KITTIBboxDataset
+from chainercv.utils import assert_is_bbox_dataset
 
 
 @testing.parameterize(
@@ -52,23 +54,20 @@ from chainercv.utils import assert_is_semantic_segmentation_dataset
         'isLeft': True
     },
 )
-
-class TestKITTIDataset(unittest.TestCase):
+class TestKITTIBboxDataset(unittest.TestCase):
 
     def setUp(self):
-        self.dataset = KITTIDataset(
-                                    date=self.date,
-                                    driveNo=self.driveNo,
-                                    color=self.color,
-                                    sync=self.sync,
-                                    isLeft=self.isLeft)
+        self.dataset = KITTIBboxDataset(
+            date=self.date,
+            driveNo=self.driveNo,
+            color=self.color,
+            sync=self.sync,
+            isLeft=self.isLeft)
 
     @attr.slow
-    def test_kitti_semantic_segmentation_dataset(self):
-        indices = np.random.permutation(np.arange(len(self.dataset)))
-        for i in indices[:10]:
-            img = self.dataset[i]
-            assert_is_image(img, color=True)
+    def test_kitti_bbox_dataset(self):
+        assert_is_bbox_dataset(
+            self.dataset, len(kitti_bbox_label_names), n_example=10)
 
 
 testing.run_module(__name__, __file__)

@@ -20,10 +20,12 @@ or simply on command line:
 """
 
 # Version History:
-# 4/7/12 Christian Herdtweck: seems to work with a few random test xml tracklet files;
+# 4/7/12 Christian Herdtweck:
+#   seems to work with a few random test xml tracklet files;
 #   converts file contents to ElementTree and then to list of Tracklet objects;
 #   Tracklet objects have str and iter functions
-# 5/7/12 ch: added constants for state, occlusion, truncation and added consistency checks
+# 5/7/12 ch: added constants for state, occlusion,
+#            truncation and added consistency checks
 # 30/1/14 ch: create example function from example code
 
 import sys
@@ -61,7 +63,8 @@ class Tracklet(object):
     Tracklets are created in function parseXML and can most conveniently used as follows:
 
     for trackletObj in parseXML(trackletFile):
-      for translation, rotation, state, occlusion, truncation, amtOcclusion, amtBorders, absoluteFrameNumber in trackletObj:
+      for translation, rotation, state, occlusion, \
+          truncation, amtOcclusion, amtBorders, absoluteFrameNumber in trackletObj:
         ... your code here ...
       #end: for all frames
     #end: for all tracklets
