@@ -5,34 +5,40 @@ from chainer import cuda
 from chainercv.links.model.faster_rcnn.utils.bbox2loc import bbox2loc
 from chainercv.transforms.image.resize import resize
 from chainercv.utils.bbox.bbox_iou import bbox_iou
+from chainercv.utils import mask_to_bbox
 
 
 class ProposalTargetCreator(object):
     def __init__(
             self, n_sample=128,
-            loc_normalize_mean=(0., 0., 0., 0.),
-            loc_normalize_std=(0.2, 0.2, 0.5, 0.5),
             pos_ratio=0.25, pos_iou_thresh=0.5,
-            neg_iou_thresh_hi=0.5, neg_iou_thresh_lo=0.0,
-            mask_size=21, binary_thresh=0.4):
+            neg_iou_thresh_hi=0.5, neg_iou_thresh_lo=0.1,
+            binary_thresh=0.4):
 
         self.n_sample = n_sample
-        self.loc_normalize_mean = loc_normalize_mean
-        self.loc_normalize_std = loc_normalize_std
         self.pos_ratio = pos_ratio
         self.pos_iou_thresh = pos_iou_thresh
         self.neg_iou_thresh_hi = neg_iou_thresh_hi
         self.neg_iou_thresh_lo = neg_iou_thresh_lo
-        self.mask_size = mask_size
         self.binary_thresh = binary_thresh
 
-    def __call__(self, roi, bbox, mask, label):
+    def __call__(
+            self, roi, mask, label, bbox=None,
+            loc_normalize_mean=(0., 0., 0., 0.),
+            loc_normalize_std=(0.2, 0.2, 0.5, 0.5),
+            mask_size=(21, 21),
+    ):
 
         xp = cuda.get_array_module(roi)
         roi = cuda.to_cpu(roi)
-        bbox = cuda.to_cpu(bbox)
         mask = cuda.to_cpu(mask)
         label = cuda.to_cpu(label)
+        if bbox is None:
+            bbox = mask_to_bbox(mask)
+        else:
+            bbox = cuda.to_cpu(bbox)
+        if not isinstance(mask_size, tuple):
+            mask_size = (mask_size, mask_size)
 
         n_bbox, _ = bbox.shape
 
@@ -78,15 +84,15 @@ class ProposalTargetCreator(object):
 
         # locs
         # Compute offsets and scales to match sampled RoIs to the GTs.
-        loc_normalize_mean = np.array(self.loc_normalize_mean, np.float32)
-        loc_normalize_std = np.array(self.loc_normalize_std, np.float32)
+        loc_normalize_mean = np.array(loc_normalize_mean, np.float32)
+        loc_normalize_std = np.array(loc_normalize_std, np.float32)
         gt_roi_loc = bbox2loc(sample_roi, bbox[gt_assignment[keep_index]])
         gt_roi_loc = gt_roi_loc - loc_normalize_mean
         gt_roi_loc = gt_roi_loc / loc_normalize_std
 
         # masks
         gt_roi_mask = -1 * np.ones(
-            (len(keep_index), self.mask_size, self.mask_size),
+            (len(keep_index), mask_size[0], mask_size[1]),
             dtype=np.int32)
 
         for i, pos_ind in enumerate(pos_index):
@@ -94,8 +100,7 @@ class ProposalTargetCreator(object):
             gt_msk = mask[gt_assignment[pos_ind]]
             gt_roi_msk = gt_msk[bb[0]:bb[2], bb[1]:bb[3]]
             gt_roi_msk = resize(
-                gt_roi_msk.astype(np.float32)[None],
-                (self.mask_size, self.mask_size))[0]
+                gt_roi_msk.astype(np.float32)[None], mask_size)[0]
             gt_roi_msk = (gt_roi_msk >= self.binary_thresh).astype(np.int)
             gt_roi_mask[i] = gt_roi_msk
 

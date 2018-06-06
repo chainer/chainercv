@@ -21,26 +21,24 @@ class TestProposalTargetCreator(unittest.TestCase):
     def setUp(self):
 
         n_roi = 1024
-        n_bbox = 10
+        n_mask = 10
         img_size = (392, 512)
         self.roi = generate_random_bbox(n_roi, img_size, 16, 250)
-        self.bbox = generate_random_bbox(n_bbox, img_size, 16, 250)
         self.mask = np.random.uniform(
-            size=(n_bbox, img_size[0], img_size[1])) > 0.5
+            size=(n_mask, img_size[0], img_size[1])) > 0.5
         self.label = np.random.randint(
-            0, self.n_class - 1, size=(n_bbox,), dtype=np.int32)
+            0, self.n_class - 1, size=(n_mask,), dtype=np.int32)
 
         self.proposal_target_creator = ProposalTargetCreator(
             n_sample=self.n_sample,
-            pos_ratio=self.pos_ratio,
-            mask_size=self.mask_size,
-        )
+            pos_ratio=self.pos_ratio)
 
     def check_proposal_target_creator(
-            self, roi, bbox, mask, label, proposal_target_creator):
+            self, roi, mask, label, proposal_target_creator):
         xp = cuda.get_array_module(roi)
         sample_roi, gt_roi_loc, gt_roi_mask, gt_roi_label =\
-            proposal_target_creator(roi, bbox, mask, label)
+            proposal_target_creator(
+                roi, mask, label, mask_size=self.mask_size)
 
         # Test types
         self.assertIsInstance(sample_roi, xp.ndarray)
@@ -69,14 +67,13 @@ class TestProposalTargetCreator(unittest.TestCase):
 
     def test_proposal_target_creator_cpu(self):
         self.check_proposal_target_creator(
-            self.roi, self.bbox, self.mask, self.label,
+            self.roi, self.mask, self.label,
             self.proposal_target_creator)
 
     @attr.gpu
     def test_proposal_target_creator_gpu(self):
         self.check_proposal_target_creator(
             cuda.to_gpu(self.roi),
-            cuda.to_gpu(self.bbox),
             cuda.to_gpu(self.mask),
             cuda.to_gpu(self.label),
             self.proposal_target_creator)
