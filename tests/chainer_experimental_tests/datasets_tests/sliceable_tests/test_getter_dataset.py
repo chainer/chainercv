@@ -76,6 +76,11 @@ class TestGetterDataset(unittest.TestCase):
         self.assertEqual(self.dataset.keys, ('item0', 'item2'))
         self.assertEqual(self.dataset[3], ('item0(3)', 'item2(3)'))
 
+    def test_set_keys_multiple_bool(self):
+        self.dataset.keys = self.iterable((True, False, True, False))
+        self.assertEqual(self.dataset.keys, ('item0', 'item2'))
+        self.assertEqual(self.dataset[3], ('item0(3)', 'item2(3)'))
+
     def test_set_keys_multiple_mixed(self):
         self.dataset.keys = self.iterable(('item0', 2))
         self.assertEqual(self.dataset.keys, ('item0', 'item2'))
