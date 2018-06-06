@@ -88,7 +88,7 @@ class TestSliceableDataset(unittest.TestCase):
         with self.assertRaises(IndexError):
             self.dataset.slice[:, 3]
 
-    def test_slice_index_slice(self):
+    def test_slice_indices_slice(self):
         dataset = self.dataset.slice[3:8:2]
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), 3)
@@ -96,7 +96,7 @@ class TestSliceableDataset(unittest.TestCase):
         self.assertEqual(
             dataset[1], ('item0(5)', 'item1(5)', 'item2(5)'))
 
-    def test_slice_index_list(self):
+    def test_slice_indices_list(self):
         dataset = self.dataset.slice[[2, 1, 5]]
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), 3)

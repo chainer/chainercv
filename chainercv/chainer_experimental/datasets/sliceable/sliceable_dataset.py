@@ -92,33 +92,33 @@ class SliceHelper(object):
 
     def __getitem__(self, args):
         if isinstance(args, tuple):
-            index, keys = args
+            indices, keys = args
         else:
-            index = args
+            indices = args
             keys = self._dataset.keys
 
         key_indices = tuple(_as_indices(keys, self._dataset.keys))
         return_tuple = isinstance(keys, (list, tuple))
 
         return SlicedDataset(
-            self._dataset, index,
+            self._dataset, indices,
             tuple(key_indices) if return_tuple else key_indices[0])
 
 
 class SlicedDataset(SliceableDataset):
     """A sliced view for :class:`SliceableDataset`."""
 
-    def __init__(self, dataset, index, key_indices):
+    def __init__(self, dataset, indices, key_indices):
         self._dataset = dataset
-        self._index = index
+        self._indices = indices
         self._key_indices = key_indices
 
     def __len__(self):
-        if isinstance(self._index, slice):
-            start, end, step = self._index.indices(len(self._dataset))
+        if isinstance(self._indices, slice):
+            start, end, step = self._indices.indices(len(self._dataset))
             return len(range(start, end, step))
         else:
-            return len(self._index)
+            return len(self._indices)
 
     @property
     def keys(self):
@@ -136,10 +136,10 @@ class SlicedDataset(SliceableDataset):
         else:
             key_indices = _as_tuple(self._key_indices)[key_indices]
 
-        if isinstance(self._index, slice):
-            start, _, step = self._index.indices(len(self._dataset))
+        if isinstance(self._indices, slice):
+            start, _, step = self._indices.indices(len(self._dataset))
             return self._dataset.get_example_by_keys(
                 start + index * step, key_indices)
         else:
             return self._dataset.get_example_by_keys(
-                self._index[index], key_indices)
+                self._indices[index], key_indices)
