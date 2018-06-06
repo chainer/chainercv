@@ -24,13 +24,13 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
     .. _`evaluation page`: http://cocodataset.org/#detections-eval
 
     Args:
-        pred_bboxes (iterable of numpy.ndarray): See below.
-        pred_labels (iterable of numpy.ndarray): See below.
-        pred_scores (iterable of numpy.ndarray): See below.
-        gt_bboxes (iterable of numpy.ndarray): See below.
-        gt_labels (iterable of numpy.ndarray): See below.
-        gt_areas (iterable of numpy.ndarray): See below.
-        gt_crowdeds (iterable of numpy.ndarray): See below.
+        pred_bboxes (iterable of numpy.ndarray): See the table below.
+        pred_labels (iterable of numpy.ndarray): See the table below.
+        pred_scores (iterable of numpy.ndarray): See the table below.
+        gt_bboxes (iterable of numpy.ndarray): See the table below.
+        gt_labels (iterable of numpy.ndarray): See the table below.
+        gt_areas (iterable of numpy.ndarray): See the table below.
+        gt_crowdeds (iterable of numpy.ndarray): See the table below.
 
     .. csv-table::
         :header: name, shape, dtype, format
