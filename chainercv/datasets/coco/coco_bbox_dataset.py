@@ -49,7 +49,7 @@ class COCOBboxDataset(GetterDataset):
         :obj:`bbox` [#coco_bbox_1]_, ":math:`(R, 4)`", :obj:`float32`, \
         ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
         :obj:`label` [#coco_bbox_1]_, ":math:`(R,)`", :obj:`int32`, \
-        ":math:`[0, #fg\_class - 1]`"
+        ":math:`[0, \#fg\_class - 1]`"
         :obj:`area` [#coco_bbox_1]_ [#coco_bbox_2]_, ":math:`(R,)`", \
         :obj:`float32`, --
         :obj:`crowded` [#coco_bbox_3]_, ":math:`(R,)`", :obj:`bool`, --
