@@ -110,7 +110,7 @@ class TestEvalDetectionCOCO(unittest.TestCase):
 
         result = eval_detection_coco(
             pred_bboxes, pred_labels, pred_scores,
-            gt_bboxes, gt_labels, gt_crowdeds, gt_areas)
+            gt_bboxes, gt_labels, gt_areas, gt_crowdeds)
 
         expected = {
             'map/iou=0.50:0.95/area=all/maxDets=100': 0.5069852,
