@@ -74,7 +74,7 @@ class TestSliceableDataset(unittest.TestCase):
         self.assertEqual(dataset[3], ('item0(3)', 'item2(3)'))
 
     def test_slice_keys_multiple_bool(self):
-        dataset = self.dataset.slice[:, self.iterable([True, False, True])]
+        dataset = self.dataset.slice[:, self.iterable((True, False, True))]
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), len(self.dataset))
         self.assertEqual(dataset.keys, ('item0', 'item2'))
