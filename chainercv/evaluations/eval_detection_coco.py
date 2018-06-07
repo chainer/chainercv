@@ -60,8 +60,8 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
         dict:
 
         The keys, value-types and the description of the values are listed
-        below. Each key contains four information: AP or AR, the iou
-        thresholds, the size of objects, and the number of detections
+        below. The APs and ARs calculated with different iou
+        thresholds, sizes of objects, and numbers of detections
         per image. For more details on the 12 patterns of evaluation metrics,
         please refer to COCO's official `evaluation page`_.
 
@@ -116,7 +116,7 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
                 [#coco_det_eval_4]_
             ar/iou=0.50:0.95/area=large/maxDets=100, *float*, \
                 [#coco_det_eval_4]_
-            coco_eval, *pycocotools.cocoeval.COCOeval*, [#coco_det_eval_5]_
+            coco_eval, *pycocotools.cocoeval.COCOeval*, result from :obj:`pycocotools`
 
 
     .. [#coco_det_eval_1] An array of average precisions. \
@@ -129,10 +129,8 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
         for class :math:`l`. If class :math:`l` does not exist in \
         either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding \
         value is set to :obj:`numpy.nan`.
-    .. [#coco_det_eval_3] The average of Average Precisions over classes.
+    .. [#coco_det_eval_3] The average of average precisions over classes.
     .. [#coco_det_eval_4] The average of average recalls over classes.
-    .. [#coco_det_eval_5] The :class:`pycocotools.cocoeval.COCOeval` object \
-        used to conduct evaluation.
 
     """
     if not _available:
