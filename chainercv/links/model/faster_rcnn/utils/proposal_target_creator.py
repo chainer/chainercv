@@ -74,7 +74,7 @@ class ProposalTargetCreator(object):
                 :math:`L` is the number of foreground classes.
             loc_normalize_mean (tuple of four floats): Mean values to normalize
                 coordinates of bouding boxes.
-            loc_normalize_std (tupler of four floats): Standard deviation of
+            loc_normalize_std (tuple of four floats): Standard deviation of
                 the coordinates of bounding boxes.
 
         Returns:
