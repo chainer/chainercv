@@ -154,10 +154,10 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
     gt_crowdeds = (iter(gt_crowdeds) if gt_crowdeds is not None
                    else itertools.repeat(None))
 
-    ids = list()
-    pred_annos = list()
-    gt_annos = list()
-    unique_labels = dict()
+    ids = []
+    pred_annos = []
+    gt_annos = []
+    unique_labels = []
     for i, (pred_bbox, pred_label, pred_score, gt_bbox, gt_label,
             gt_area, gt_crowded) in enumerate(six.moves.zip(
                 pred_bboxes, pred_labels, pred_scores,
