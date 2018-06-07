@@ -16,3 +16,7 @@
 .rst-content .note {
     background-color: #e3e3e3 !important;
 }
+
+.wy-nav-content {
+    max-width: 1000px !important;
+}
