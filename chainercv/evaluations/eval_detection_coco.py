@@ -116,8 +116,8 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
                 [#coco_det_eval_4]_
             ar/iou=0.50:0.95/area=large/maxDets=100, *float*, \
                 [#coco_det_eval_4]_
-            coco_eval, *pycocotools.cocoeval.COCOeval*, result from :obj:`pycocotools`
-
+            coco_eval, *pycocotools.cocoeval.COCOeval*, \
+                result from :obj:`pycocotools`
 
     .. [#coco_det_eval_1] An array of average precisions. \
         The :math:`l`-th value corresponds to the average precision \
