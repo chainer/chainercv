@@ -155,7 +155,7 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
     ids = []
     pred_annos = []
     gt_annos = []
-    unique_labels = []
+    unique_labels = {}
     for i, (pred_bbox, pred_label, pred_score, gt_bbox, gt_label,
             gt_area, gt_crowded) in enumerate(six.moves.zip(
                 pred_bboxes, pred_labels, pred_scores,
