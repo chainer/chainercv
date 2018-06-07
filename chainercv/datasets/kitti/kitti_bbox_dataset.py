@@ -1,19 +1,16 @@
 import numpy as np
 import os
+import warnings
 try:
     import pykitti
     _available = True
 except ImportError:
     _available = False
 
-import itertools
-
-from chainercv import utils
-
-from chainercv.datasets.kitti.kitti_utils import get_kitti_sync_data
-from chainercv.datasets.kitti.kitti_utils import get_kitti_nosync_data
-from chainercv.datasets.kitti.kitti_utils import get_kitti_tracklets
 from chainercv.datasets.kitti.kitti_utils import get_kitti_label
+from chainercv.datasets.kitti.kitti_utils import get_kitti_nosync_data
+from chainercv.datasets.kitti.kitti_utils import get_kitti_sync_data
+from chainercv.datasets.kitti.kitti_utils import get_kitti_tracklets
 
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 

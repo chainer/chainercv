@@ -28,12 +28,9 @@ or simply on command line:
 #            truncation and added consistency checks
 # 30/1/14 ch: create example function from example code
 
-import sys
-
-from sys import argv as cmdLineArgs
 from xml.etree.ElementTree import ElementTree
-import numpy as np
 import itertools
+import numpy as np
 from warnings import warn
 
 STATE_UNSET = 0
@@ -75,13 +72,13 @@ class Tracklet(object):
     amtOcclusion and amtBorders could be None
 
     You can of course also directly access the fields
-      objType (string), size (len-3 ndarray), firstFrame/nFrames (int),
-      trans/rots (nFrames x 3 float ndarrays),
-      states/truncs (len-nFrames uint8 ndarrays),
-      occs (nFrames x 2 uint8 ndarray),
-      and for some tracklets amtOccs (nFrames x 2 float ndarray)
-      and amtBorders (nFrames x 3 float ndarray). The last two
-      can be None if the xml file did not include these fields in poses
+    objType (string), size (len-3 ndarray), firstFrame/nFrames (int),
+    trans/rots (nFrames x 3 float ndarrays),
+    states/truncs (len-nFrames uint8 ndarrays),
+    occs (nFrames x 2 uint8 ndarray),
+    and for some tracklets amtOccs (nFrames x 2 float ndarray)
+    and amtBorders (nFrames x 3 float ndarray). The last two
+    can be None if the xml file did not include these fields in poses
     """
 
     objectType = None
@@ -103,7 +100,6 @@ class Tracklet(object):
 
     def __str__(self):
         r""" return human-readable string representation of tracklet object
-
         called implicitly in
         # print(trackletObj)
         or in
@@ -124,23 +120,26 @@ class Tracklet(object):
         trackDataIter = iter(trackletObj)
         """
         if self.amtOccs is None:
-            # Python2
+            # Python2/3
             # return itertools.izip(
             #        self.trans, self.rots, self.states,
             #        self.occs, self.truncs,
             #        itertools.repeat(None), itertools.repeat(None),
-            #        xrange(self.firstFrame, self.firstFrame+self.nFrames))
-            # Python3
+            #        range(self.firstFrame, self.firstFrame+self.nFrames))
+            # xrange(self.firstFrame, self.firstFrame+self.nFrames))
+            Python3
             return zip(self.trans, self.rots, self.states,
                        self.occs, self.truncs,
                        repeat(None), repeat(None),
                        range(self.firstFrame, self.firstFrame+self.nFrames))
         else:
-            # Python2
-            # return itertools.izip(self.trans, self.rots, self.states,
+            # Python2/3
+            # return itertools.izip(
+            #        self.trans, self.rots, self.states,
             #        self.occs, self.truncs,
             #        self.amtOccs, self.amtBorders,
-            #        xrange(self.firstFrame, self.firstFrame+self.nFrames))
+            #        range(self.firstFrame, self.firstFrame+self.nFrames))
+            # xrange(self.firstFrame, self.firstFrame+self.nFrames))
             # Python3
             return zip(self.trans, self.rots, self.states,
                        self.occs, self.truncs,
@@ -151,11 +150,9 @@ class Tracklet(object):
 
 def parseXML(trackletFile):
     r""" parse tracklet xml file and convert results to list of Tracklet objects
-
     :param trackletFile: name of a tracklet xml file
     :returns: list of Tracklet objects read from xml file
     """
-
     newTrack_nFrames_isNone_ErrorStr = \
         'there are several pose lists for a single track!'
 
