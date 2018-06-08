@@ -1,22 +1,20 @@
-#!/usr/bin/env python
-"""
-parse XML files containing tracklet info for kitti data base (raw data section)
-(http://cvlibs.net/datasets/kitti/raw_data.php)
+"""Parse XML files containing tracklet info for kitti data base.
+   (http://cvlibs.net/datasets/kitti/raw_data.php)
 
-No guarantees that this code is correct, usage is at your own risk!
+   No guarantees that this code is correct, usage is at your own risk!
 
-created by Christian Herdtweck, Max Planck Institute for Biological Cybernetics
-  (christian.herdtweck@tuebingen.mpg.de)
+   created by Christian Herdtweck, Max Planck Institute for Biological Cybernetics
+   (christian.herdtweck@tuebingen.mpg.de)
 
-requires numpy!
+   requires numpy!
 
-example usage:
-  import parseTrackletXML as xmlParser
-  kittiDir = '/path/to/kitti/data'
-  drive = '2011_09_26_drive_0001'
-  xmlParser.example(kittiDir, drive)
-or simply on command line:
-  python parseTrackletXML.py
+   example usage:
+     import parseTrackletXML as xmlParser
+     kittiDir = '/path/to/kitti/data'
+     drive = '2011_09_26_drive_0001'
+     xmlParser.example(kittiDir, drive)
+   or simply on command line:
+     python parseTrackletXML.py
 """
 
 # Version History:
@@ -55,7 +53,7 @@ truncFromText = {'99': TRUNC_UNSET, '0': TRUNC_IN_IMAGE, '1': TRUNC_TRUNCATED,
 
 
 class Tracklet(object):
-    r""" representation an annotated object track
+    r"""Representation an annotated object track.
 
     Tracklets are created in function parseXML
       and can most conveniently used as follows:
@@ -77,8 +75,9 @@ class Tracklet(object):
     states/truncs (len-nFrames uint8 ndarrays),
     occs (nFrames x 2 uint8 ndarray),
     and for some tracklets amtOccs (nFrames x 2 float ndarray)
-    and amtBorders (nFrames x 3 float ndarray). The last two
-    can be None if the xml file did not include these fields in poses
+    and amtBorders (nFrames x 3 float ndarray).
+    The last two can be None if the xml file
+    did not include these fields in poses
     """
 
     objectType = None
@@ -95,11 +94,12 @@ class Tracklet(object):
     nFrames = None
 
     def __init__(self):
-        r""" create Tracklet with no info set """
+        """Create Tracklet with no info set."""
         self.size = np.nan*np.ones(3, dtype=float)
 
     def __str__(self):
-        r""" return human-readable string representation of tracklet object
+        """Return human-readable string representation of tracklet object.
+
         called implicitly in
         # print(trackletObj)
         or in
@@ -109,8 +109,9 @@ class Tracklet(object):
             self.nFrames, self.objectType)
 
     def __iter__(self):
-        r""" returns an iterator
-             that yields tuple of all the available data for each frame
+        """Returns an iterator.
+
+        that yields tuple of all the available data for each frame
 
         called whenever code iterates over a tracklet object, e.g. in
         for translation, rotation, state, occlusion, truncation,
@@ -121,38 +122,40 @@ class Tracklet(object):
         """
         if self.amtOccs is None:
             # Python2/3
-            # return itertools.izip(
-            #        self.trans, self.rots, self.states,
-            #        self.occs, self.truncs,
-            #        itertools.repeat(None), itertools.repeat(None),
-            #        range(self.firstFrame, self.firstFrame+self.nFrames))
+            return zip(
+                   self.trans, self.rots, self.states,
+                   self.occs, self.truncs,
+                   itertools.repeat(None), itertools.repeat(None),
+                   range(self.firstFrame, self.firstFrame+self.nFrames))
             # xrange(self.firstFrame, self.firstFrame+self.nFrames))
-            Python3
-            return zip(self.trans, self.rots, self.states,
-                       self.occs, self.truncs,
-                       repeat(None), repeat(None),
-                       range(self.firstFrame, self.firstFrame+self.nFrames))
+            # tmpAmtOccs = repeat(None)
+            # tmpAmtBorders = repeat(None)
+            # return zip(self.trans, self.rots, self.states,
+            #            self.occs, self.truncs,
+            #            tmpAmtOccs, tmpAmtBorders,
+            #            range(self.firstFrame, self.firstFrame + self.nFrames))
         else:
             # Python2/3
-            # return itertools.izip(
-            #        self.trans, self.rots, self.states,
-            #        self.occs, self.truncs,
-            #        self.amtOccs, self.amtBorders,
-            #        range(self.firstFrame, self.firstFrame+self.nFrames))
+            return zip(
+                   self.trans, self.rots, self.states,
+                   self.occs, self.truncs,
+                   self.amtOccs, self.amtBorders,
+                   range(self.firstFrame, self.firstFrame + self.nFrames))
             # xrange(self.firstFrame, self.firstFrame+self.nFrames))
-            # Python3
-            return zip(self.trans, self.rots, self.states,
-                       self.occs, self.truncs,
-                       self.amtOccs, self.amtBorders,
-                       range(self.firstFrame, self.firstFrame+self.nFrames))
+            # return zip(self.trans, self.rots, self.states,
+            #            self.occs, self.truncs,
+            #            self.amtOccs, self.amtBorders,
+            #            range(self.firstFrame, self.firstFrame + self.nFrames))
 # end: class Tracklet
 
 
 def parseXML(trackletFile):
-    r""" parse tracklet xml file and convert results to list of Tracklet objects
+    r"""Parse tracklet xml file and convert results to list of Tracklet objects.
+
     :param trackletFile: name of a tracklet xml file
     :returns: list of Tracklet objects read from xml file
     """
+
     newTrack_nFrames_isNone_ErrorStr = \
         'there are several pose lists for a single track!'
 

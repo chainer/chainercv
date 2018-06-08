@@ -28,7 +28,7 @@ from chainercv.utils import assert_is_bbox_dataset
         'driveNo': '0001',
         'color': True,
         'sync': True,
-        'isLeft': True
+        'isLeft': False
     },
     {
         'date': '2011_09_26',

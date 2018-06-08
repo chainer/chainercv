@@ -223,12 +223,11 @@ def get_kitti_label(tracklets, calib, cur_R_rect, cur_P_rect, framelength):
 
 
 def project_velo_points_in_img(pts3d, T_cam_velo, Rrect, Prect):
-    """
-    Project 3D points into 2D image. Expects pts3d as a 4xN
-    numpy array. Returns the 2D projection of the points that
+    """Project 3D points into 2D image. Expects pts3d as a 4xN numpy array.
+    
+    Returns the 2D projection of the points that
     are in front of the camera only an the corresponding 3D points.
     """
-
     # 3D points in camera reference frame.
     pts3d_cam = Rrect.dot(T_cam_velo.dot(pts3d))
 
