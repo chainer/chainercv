@@ -17,9 +17,9 @@ def _add_one(x):
 
 try:
     from chainermn import create_communicator
-    _chainermn_available = True
+    _available = True
 except ImportError:
-    _chainermn_available = False
+    _available = False
 
 
 @testing.parameterize(*testing.product({
@@ -126,7 +126,7 @@ class TestConv2DBNActiv(unittest.TestCase):
         self.check_backward(cuda.to_gpu(self.x), cuda.to_gpu(self.gy))
 
 
-@unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
+@unittest.skipUnless(_available, 'ChainerMN is not installed')
 class TestConv2DMultiNodeBNActiv(unittest.TestCase):
 
     in_channels = 1

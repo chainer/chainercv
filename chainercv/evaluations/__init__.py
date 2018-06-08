@@ -1,3 +1,4 @@
+from chainercv.evaluations.eval_detection_coco import eval_detection_coco  # NOQA
 from chainercv.evaluations.eval_detection_voc import calc_detection_voc_ap  # NOQA
 from chainercv.evaluations.eval_detection_voc import calc_detection_voc_prec_rec  # NOQA
 from chainercv.evaluations.eval_detection_voc import eval_detection_voc  # NOQA
