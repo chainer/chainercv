@@ -19,7 +19,7 @@ class FCISTrainChain(chainer.Chain):
 
     """Calculate losses for FCIS and report them.
 
-    This is used to train FCIS in the joint training scheme [#FCIS]_.
+    This is used to train FCIS in the joint training scheme [#FCISCVPR]_.
 
     The losses include:
 
@@ -30,7 +30,7 @@ class FCISTrainChain(chainer.Chain):
     * :obj:`roi_cls_loss`: The classification loss for the head module.
     * :obj:`roi_mask_loss`: The mask loss for the head module.
 
-    .. [#FCIS] Yi Li, Haozhi Qi, Jifeng Dai, Xiangyang Ji, Yichen Wei. \
+    .. [#FCISCVPR] Yi Li, Haozhi Qi, Jifeng Dai, Xiangyang Ji, Yichen Wei. \
     Fully Convolutional Instance-aware Semantic Segmentation. CVPR 2017.
 
     Args:
@@ -38,10 +38,10 @@ class FCISTrainChain(chainer.Chain):
             A FCIS model for training.
         rpn_sigma (float): Sigma parameter for the localization loss
             of Region Proposal Network (RPN). The default value is 3,
-            which is the value used in [#FCIS]_.
+            which is the value used in [#FCISCVPR]_.
         roi_sigma (float): Sigma paramter for the localization loss of
             the head. The default value is 1, which is the value used
-            in [#FCIS]_.
+            in [#FCISCVPR]_.
         anchor_target_creator: An instantiation of
             :class:`~chainercv.links.model.faster_rcnn.AnchorTargetCreator`.
         proposal_target_creator: An instantiation of
