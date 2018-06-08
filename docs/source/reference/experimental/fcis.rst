@@ -30,3 +30,18 @@ mask_voting
 ResNet101Extractor
 ~~~~~~~~~~~~~~~~~~
 .. autoclass:: ResNet101Extractor
+
+Train-only Utility
+------------------
+
+FCISTrainChain
+~~~~~~~~~~~~~~
+.. autoclass:: FCISTrainChain
+   :members:
+   :special-members:  __call__
+
+ProposalTargetCreator
+~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: ProposalTargetCreator
+   :members:
+   :special-members:  __call__
