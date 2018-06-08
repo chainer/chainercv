@@ -81,7 +81,7 @@ def main():
     parser.add_argument('--out', '-o', default='result',
                         help='Output directory')
     parser.add_argument('--seed', '-s', type=int, default=0)
-    parser.add_argument('--lr', '-l', type=float, default=0.000125)
+    parser.add_argument('--lr', '-l', type=float, default=0.0005)
     parser.add_argument(
         '--lr-cooldown-factor', '-lcf', type=float, default=0.1)
     parser.add_argument('--epoch', '-e', type=int, default=44)
