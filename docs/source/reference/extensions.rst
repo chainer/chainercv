@@ -7,6 +7,10 @@ Extensions
 Evaluator
 ---------
 
+DetectionCOCOEvaluator
+~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: DetectionCOCOEvaluator
+
 DetectionVOCEvaluator
 ~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: DetectionVOCEvaluator
