@@ -79,15 +79,14 @@ class TestEvalDetectionCOCOSomeClassNonExistent(unittest.TestCase):
     def test(self):
         result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
                                      self.pred_scores,
-                                     self.gt_bboxes, self.gt_labels,
-                                     gt_areas=[[2048]])
+                                     self.gt_bboxes, self.gt_labels)
         self.assertEqual(
-            result['ap/iou=0.50:0.95/area=medium/maxDets=100'].shape, (3,))
+            result['ap/iou=0.50:0.95/area=small/maxDets=100'].shape, (3,))
         self.assertTrue(
-            np.isnan(result['ap/iou=0.50:0.95/area=medium/maxDets=100'][0]))
+            np.isnan(result['ap/iou=0.50:0.95/area=small/maxDets=100'][0]))
         self.assertEqual(
-            np.nanmean(result['ap/iou=0.50:0.95/area=medium/maxDets=100'][1:]),
-            result['map/iou=0.50:0.95/area=medium/maxDets=100'])
+            np.nanmean(result['ap/iou=0.50:0.95/area=small/maxDets=100'][1:]),
+            result['map/iou=0.50:0.95/area=small/maxDets=100'])
 
 
 @unittest.skipUnless(_available, 'pycocotools is not installed')
