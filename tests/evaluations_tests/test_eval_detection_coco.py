@@ -57,8 +57,7 @@ class TestEvalDetectionCOCOSingleClass(unittest.TestCase):
         result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
                                      self.pred_scores,
                                      self.gt_bboxes, self.gt_labels,
-                                     gt_areas=[[2048]]
-                                     )
+                                     gt_areas=[[2048]])
         self.assertFalse(
             np.isnan(result['map/iou=0.50:0.95/area=medium/maxDets=100']))
         self.assertTrue(
