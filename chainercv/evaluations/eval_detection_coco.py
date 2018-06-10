@@ -118,6 +118,8 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
                 [#coco_det_eval_4]_
             coco_eval, *pycocotools.cocoeval.COCOeval*, \
                 result from :obj:`pycocotools`
+            existent_labels, *numpy.ndarray*, \
+                labels that exist in the ground truth or prediction. \
 
     .. [#coco_det_eval_1] An array of average precisions. \
         The :math:`l`-th value corresponds to the average precision \
@@ -155,7 +157,7 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
     ids = []
     pred_annos = []
     gt_annos = []
-    unique_labels = {}
+    existent_labels = {}
     for i, (pred_bbox, pred_label, pred_score, gt_bbox, gt_label,
             gt_area, gt_crowded) in enumerate(six.moves.zip(
                 pred_bboxes, pred_labels, pred_scores,
@@ -173,7 +175,7 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
                 _create_anno(pred_bb, pred_lb, pred_sc,
                              img_id=img_id, anno_id=len(pred_annos) + 1,
                              crw=0, ar=None))
-            unique_labels[pred_lb] = True
+            existent_labels[pred_lb] = True
 
         for gt_bb, gt_lb, gt_ar, gt_crw in zip(
                 gt_bbox, gt_label, gt_area, gt_crowded):
@@ -181,11 +183,17 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
                 _create_anno(gt_bb, gt_lb, None,
                              img_id=img_id, anno_id=len(gt_annos) + 1,
                              ar=gt_ar, crw=gt_crw))
-            unique_labels[gt_lb] = True
+            existent_labels[gt_lb] = True
         ids.append({'id': img_id})
+    existent_labels = sorted(list(existent_labels.keys()))
+    # if np.any(np.arange(np.max(existent_labels)) != np.array(existent_labels)):
+    #     raise NotImplementedError(
+    #         'For all label indices between 0 and the maximum label index, '
+    #         'there currently needs to be at least one in either prediction '
+    #         'or ground truth.')
 
-    pred_coco.dataset['categories'] = [{'id': i} for i in unique_labels.keys()]
-    gt_coco.dataset['categories'] = [{'id': i} for i in unique_labels.keys()]
+    pred_coco.dataset['categories'] = [{'id': i} for i in existent_labels]
+    gt_coco.dataset['categories'] = [{'id': i} for i in existent_labels]
     pred_coco.dataset['annotations'] = pred_annos
     gt_coco.dataset['annotations'] = gt_annos
     pred_coco.dataset['images'] = ids
@@ -248,8 +256,16 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
     for key, kwargs in all_kwargs.items():
         kwargs.update(common_kwargs)
         metrics, mean_metric = _summarize(**kwargs)
-        results[key] = metrics
+
+        # pycocotools ignores classes that are not included in
+        # either gt or prediction, but lies between 0 and
+        # the maximum label id.
+        # We set values for these classes to np.nan.
+        results[key] = np.nan * np.ones(np.max(existent_labels) + 1)
+        results[key][existent_labels] = metrics
         results['m' + key] = mean_metric
+
+    results['existent_labels'] = existent_labels
     return results
 
 

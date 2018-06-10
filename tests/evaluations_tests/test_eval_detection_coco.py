@@ -67,6 +67,30 @@ class TestEvalDetectionCOCOSingleClass(unittest.TestCase):
 
 
 @unittest.skipUnless(_available, 'pycocotools is not installed')
+class TestEvalDetectionCOCOSomeClassNone(unittest.TestCase):
+
+    def setUp(self):
+        self.pred_bboxes = np.array([[[0, 0, 10, 10], [0, 0, 20, 20]]])
+        self.pred_labels = np.array([[1, 2]])
+        self.pred_scores = np.array([[0.8, 0.9]])
+        self.gt_bboxes = np.array([[[0, 0, 10, 9]]])
+        self.gt_labels = np.array([[1, 2]])
+
+    def test(self):
+        result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
+                                     self.pred_scores,
+                                     self.gt_bboxes, self.gt_labels,
+                                     gt_areas=[[2048]])
+        self.assertEqual(
+            result['ap/iou=0.50:0.95/area=medium/maxDets=100'].shape, (3,))
+        self.assertTrue(
+            np.isnan(result['ap/iou=0.50:0.95/area=medium/maxDets=100'][0]))
+        self.assertEqual(
+            np.nanmean(result['ap/iou=0.50:0.95/area=medium/maxDets=100'][1:]),
+            result['map/iou=0.50:0.95/area=medium/maxDets=100'])
+
+
+@unittest.skipUnless(_available, 'pycocotools is not installed')
 class TestEvalDetectionCOCO(unittest.TestCase):
 
     @classmethod
@@ -107,10 +131,15 @@ class TestEvalDetectionCOCO(unittest.TestCase):
             'mar/iou=0.50:0.95/area=large/maxDets=100': 0.5642906
         }
 
+        non_existent_labels = np.setdiff1d(
+            np.arange(max(result['existent_labels'])),
+            result['existent_labels'])
         for key, item in expected.items():
             non_mean_key = key[1:]
             self.assertIsInstance(result[non_mean_key], np.ndarray)
-            self.assertEqual(result[non_mean_key].shape, (76,))
+            self.assertEqual(result[non_mean_key].shape, (80,))
+            self.assertTrue(
+                np.all(np.isnan(result[non_mean_key][non_existent_labels])))
             np.testing.assert_almost_equal(
                 result[key], expected[key], decimal=5)
 
