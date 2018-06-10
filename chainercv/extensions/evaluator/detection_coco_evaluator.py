@@ -86,19 +86,13 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
 
     Args:
         iterator (chainer.Iterator): An iterator. Each sample should be
-            following tuple :obj:`img, bbox, label` or
-            :obj:`img, bbox, label, difficult`.
-            :obj:`img` is an image, :obj:`bbox` is coordinates of bounding
-            boxes, :obj:`label` is labels of the bounding boxes and
-            :obj:`difficult` is whether the bounding boxes are difficult or
-            not. If :obj:`difficult` is returned, difficult ground truth
-            will be ignored from evaluation.
+            following tuple :obj:`img, bbox, label, area, crowded`.
         target (chainer.Link): A detection link. This link must have
             :meth:`predict` method that takes a list of images and returns
             :obj:`bboxes`, :obj:`labels` and :obj:`scores`.
         label_names (iterable of strings): An iterable of names of classes.
-            If this value is specified, average precision for each class is
-            also reported with the key :obj:`'ap/<label_names[l]>'`.
+            If this value is specified, average precision and average 
+            recalls for each class are reported.
 
     """
 
