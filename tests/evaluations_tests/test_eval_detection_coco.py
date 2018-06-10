@@ -14,28 +14,15 @@ except ImportError:
     _available = False
 
 
-data = {
-    'pred_bboxes': [
-        [[0, 0, 10, 10], [0, 0, 20, 20]]],
-    'pred_labels': [
-        [0, 0]],
-    'pred_scores': [
-        [0.8, 0.9]],
-    'gt_bboxes': [
-        [[0, 0, 10, 9]]],
-    'gt_labels': [
-        [0, 0]]}
-
-
 @unittest.skipUnless(_available, 'pycocotools is not installed')
-class TestEvalDetectionCOCOSimple(unittest.TestCase):
+class TestEvalDetectionCOCOSingleClass(unittest.TestCase):
 
     def setUp(self):
-        self.pred_bboxes = (np.array(bbox) for bbox in data['pred_bboxes'])
-        self.pred_labels = (np.array(label) for label in data['pred_labels'])
-        self.pred_scores = (np.array(score) for score in data['pred_scores'])
-        self.gt_bboxes = (np.array(bbox) for bbox in data['gt_bboxes'])
-        self.gt_labels = (np.array(label) for label in data['gt_labels'])
+        self.pred_bboxes = np.array([[[0, 0, 10, 10], [0, 0, 20, 20]]])
+        self.pred_labels = np.array([[0, 0]])
+        self.pred_scores = np.array([[0.8, 0.9]])
+        self.gt_bboxes = np.array([[[0, 0, 10, 9]]])
+        self.gt_labels = np.array([[0, 0]])
 
     def test_crowded(self):
         result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
