@@ -8,7 +8,7 @@ Evaluator
 ---------
 
 DetectionCOCOEvaluator
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: DetectionCOCOEvaluator
 
 DetectionVOCEvaluator
