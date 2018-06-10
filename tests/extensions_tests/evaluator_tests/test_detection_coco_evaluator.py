@@ -9,6 +9,12 @@ from chainer import testing
 from chainercv.extensions import DetectionCOCOEvaluator
 from chainercv.utils import generate_random_bbox
 
+try:
+    import pycocotools  # NOQA
+    _available = True
+except ImportError:
+    _available = False
+
 
 class _DetectionStubLink(chainer.Link):
 
@@ -29,6 +35,7 @@ class _DetectionStubLink(chainer.Link):
         return bboxes, labels, scores
 
 
+@unittest.skipUnless(_available, 'pycocotools is not installed')
 class TestDetectionCOCOEvaluator(unittest.TestCase):
 
     def setUp(self):
