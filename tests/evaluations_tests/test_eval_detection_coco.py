@@ -67,7 +67,7 @@ class TestEvalDetectionCOCOSingleClass(unittest.TestCase):
 
 
 @unittest.skipUnless(_available, 'pycocotools is not installed')
-class TestEvalDetectionCOCOSomeClassNone(unittest.TestCase):
+class TestEvalDetectionCOCOSomeClassNonExistent(unittest.TestCase):
 
     def setUp(self):
         self.pred_bboxes = np.array([[[0, 0, 10, 10], [0, 0, 20, 20]]])
