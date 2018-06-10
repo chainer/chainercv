@@ -186,11 +186,6 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
             existent_labels[gt_lb] = True
         ids.append({'id': img_id})
     existent_labels = sorted(list(existent_labels.keys()))
-    # if np.any(np.arange(np.max(existent_labels)) != np.array(existent_labels)):
-    #     raise NotImplementedError(
-    #         'For all label indices between 0 and the maximum label index, '
-    #         'there currently needs to be at least one in either prediction '
-    #         'or ground truth.')
 
     pred_coco.dataset['categories'] = [{'id': i} for i in existent_labels]
     gt_coco.dataset['categories'] = [{'id': i} for i in existent_labels]
