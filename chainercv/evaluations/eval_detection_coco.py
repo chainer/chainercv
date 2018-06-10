@@ -104,17 +104,17 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
                 [#coco_det_eval_3]_
             map/iou=0.50:0.95/area=large/maxDets=100, *float*, \
                 [#coco_det_eval_3]_
-            ar/iou=0.50:0.95/area=all/maxDets=1, *float*, \
+            mar/iou=0.50:0.95/area=all/maxDets=1, *float*, \
                 [#coco_det_eval_4]_
-            ar/iou=0.50/area=all/maxDets=10, *float*, \
+            mar/iou=0.50/area=all/maxDets=10, *float*, \
                 [#coco_det_eval_4]_
-            ar/iou=0.75/area=all/maxDets=100, *float*, \
+            mar/iou=0.75/area=all/maxDets=100, *float*, \
                 [#coco_det_eval_4]_
-            ar/iou=0.50:0.95/area=small/maxDets=100, *float*, \
+            mar/iou=0.50:0.95/area=small/maxDets=100, *float*, \
                 [#coco_det_eval_4]_
-            ar/iou=0.50:0.95/area=medium/maxDets=100, *float*, \
+            mar/iou=0.50:0.95/area=medium/maxDets=100, *float*, \
                 [#coco_det_eval_4]_
-            ar/iou=0.50:0.95/area=large/maxDets=100, *float*, \
+            mar/iou=0.50:0.95/area=large/maxDets=100, *float*, \
                 [#coco_det_eval_4]_
             coco_eval, *pycocotools.cocoeval.COCOeval*, \
                 result from :obj:`pycocotools`
