@@ -32,26 +32,22 @@ class TestEvalDetectionCOCOSingleClass(unittest.TestCase):
         # When the only ground truth is crowded, nothing is evaluated.
         # In that case, all the results are nan.
         self.assertTrue(
-            np.isnan(result['map/iou=0.50:0.95/area=small/max_dets=100']))
+            np.isnan(result['map/iou=0.50:0.95/area=all/max_dets=100']))
         self.assertTrue(
-            np.isnan(result['map/iou=0.50:0.95/area=medium/max_dets=100']))
+            np.isnan(result['map/iou=0.50/area=all/max_dets=100']))
         self.assertTrue(
-            np.isnan(result['map/iou=0.50:0.95/area=large/max_dets=100']))
+            np.isnan(result['map/iou=0.75/area=all/max_dets=100']))
 
-    def test_area_default(self):
+    def test_area_not_supplied(self):
         result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
                                      self.pred_scores,
                                      self.gt_bboxes, self.gt_labels)
-        # Test that the original bbox area is used, which is 90.
-        # In that case, the ground truth bounding box is assigned to segment
-        # "small".
-        # Therefore, the score for segments "medium" and "large" will be nan.
         self.assertFalse(
-            np.isnan(result['map/iou=0.50:0.95/area=small/max_dets=100']))
-        self.assertTrue(
-            np.isnan(result['map/iou=0.50:0.95/area=medium/max_dets=100']))
-        self.assertTrue(
-            np.isnan(result['map/iou=0.50:0.95/area=large/max_dets=100']))
+            'map/iou=0.50:0.95/area=small/max_dets=100' in result)
+        self.assertFalse(
+            'map/iou=0.50:0.95/area=medium/max_dets=100' in result)
+        self.assertFalse(
+            'map/iou=0.50:0.95/area=large/max_dets=100' in result)
 
     def test_area_specified(self):
         result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
@@ -81,12 +77,12 @@ class TestEvalDetectionCOCOSomeClassNonExistent(unittest.TestCase):
                                      self.pred_scores,
                                      self.gt_bboxes, self.gt_labels)
         self.assertEqual(
-            result['ap/iou=0.50:0.95/area=small/max_dets=100'].shape, (3,))
+            result['ap/iou=0.50:0.95/area=all/max_dets=100'].shape, (3,))
         self.assertTrue(
-            np.isnan(result['ap/iou=0.50:0.95/area=small/max_dets=100'][0]))
+            np.isnan(result['ap/iou=0.50:0.95/area=all/max_dets=100'][0]))
         self.assertEqual(
-            np.nanmean(result['ap/iou=0.50:0.95/area=small/max_dets=100'][1:]),
-            result['map/iou=0.50:0.95/area=small/max_dets=100'])
+            np.nanmean(result['ap/iou=0.50:0.95/area=all/max_dets=100'][1:]),
+            result['map/iou=0.50:0.95/area=all/max_dets=100'])
 
 
 @unittest.skipUnless(_available, 'pycocotools is not installed')
