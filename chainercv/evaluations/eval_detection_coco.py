@@ -119,7 +119,7 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
             coco_eval, *pycocotools.cocoeval.COCOeval*, \
                 result from :obj:`pycocotools`
             existent_labels, *numpy.ndarray*, \
-                labels that exist in the ground truth or prediction. \
+                used labels \
 
     .. [#coco_det_eval_1] An array of average precisions. \
         The :math:`l`-th value corresponds to the average precision \
