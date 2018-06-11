@@ -7,6 +7,12 @@ import chainer.training.extensions
 from chainercv.evaluations import eval_detection_coco
 from chainercv.utils import apply_to_iterator
 
+try:
+    import pycocotools.coco  # NOQA
+    _available = True
+except ImportError:
+    _available = False
+
 
 class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
 
@@ -103,6 +109,11 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
     def __init__(
             self, iterator, target,
             label_names=None):
+        if not _available:
+            raise ValueError(
+                'Please install pycocotools \n'
+                'pip install -e \'git+https://github.com/pdollar/coco.git'
+                '#egg=pycocotools&subdirectory=PythonAPI\'')
         super(DetectionCOCOEvaluator, self).__init__(
             iterator, target)
         self.label_names = label_names
