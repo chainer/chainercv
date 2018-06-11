@@ -14,7 +14,7 @@ from chainercv import utils
 import numpy as np
 
 # root = 'pfnet/chainercv/kitti'
-url_base = 'http://kitti.is.tue.mpg.de/kitti/raw_data/'
+url_base = 'https://s3.eu-central-1.amazonaws.com/avg-kitti/raw_data/'
 
 
 def get_kitti_sync_data(root, date, drive_num):
