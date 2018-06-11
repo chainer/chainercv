@@ -310,8 +310,9 @@ def parseXML(tracklet_filepath):
             elif frame_idx != new_track.nFrames:
                 warn(
                     'tracklet {0} is supposed to have {1} frames, \
-                        but perser found {1}!'.format(
-                            tracklet_idx, new_track.nFrames, frame_idx))
+                    but perser found {1}!'.format(tracklet_idx,
+                                                  new_track.nFrames,
+                                                  frame_idx))
             if np.abs(new_track.rots[:, :2]).sum() > 1e-16:
                 warn('track contains rotation other than yaw!')
 

@@ -11,45 +11,45 @@ from chainercv.utils import assert_is_bbox_dataset
 @testing.parameterize(
     {
         'date': '2011_09_26',
-        'driveNo': '0001',
+        'drive_num': '0001',
         'color': True,
         'sync': True,
-        'isLeft': True
+        'is_left': True
     },
     {
         'date': '2011_09_26',
-        'driveNo': '0001',
+        'drive_num': '0001',
         'color': True,
         'sync': False,
-        'isLeft': True
+        'is_left': True
     },
     {
         'date': '2011_09_26',
-        'driveNo': '0001',
+        'drive_num': '0001',
         'color': True,
         'sync': True,
-        'isLeft': False
+        'is_left': False
     },
     {
         'date': '2011_09_26',
-        'driveNo': '0017',
+        'drive_num': '0017',
         'color': True,
         'sync': True,
-        'isLeft': True
+        'is_left': True
     },
     {
         'date': '2011_09_28',
-        'driveNo': '0001',
+        'drive_num': '0001',
         'color': True,
         'sync': True,
-        'isLeft': True
+        'is_left': True
     },
     {
         'date': '2011_10_03',
-        'driveNo': '0047',
+        'drive_num': '0047',
         'color': True,
         'sync': True,
-        'isLeft': True
+        'is_left': True
     },
 )
 class TestKITTIBboxDataset(unittest.TestCase):
@@ -57,10 +57,10 @@ class TestKITTIBboxDataset(unittest.TestCase):
     def setUp(self):
         self.dataset = KITTIBboxDataset(
             date=self.date,
-            driveNo=self.driveNo,
+            drive_num=self.drive_num,
             color=self.color,
             sync=self.sync,
-            isLeft=self.isLeft)
+            is_left=self.is_left)
 
     @attr.slow
     def test_kitti_bbox_dataset(self):

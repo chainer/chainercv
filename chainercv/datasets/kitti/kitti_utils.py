@@ -1,11 +1,17 @@
 import os
-from urllib.parse import urljoin
+try:
+    # 3.x
+    from urllib.parse import urljoin
+except ImportError:
+    # 2.7
+    from urlparse import urljoin
 
 from chainer.dataset import download
-import numpy as np
 
-from chainercv import utils
 from chainercv.datasets.kitti import parseTrackletXML as xmlParser
+from chainercv import utils
+
+import numpy as np
 
 # root = 'pfnet/chainercv/kitti'
 url_base = 'http://kitti.is.tue.mpg.de/kitti/raw_data/'
@@ -90,8 +96,7 @@ def get_kitti_tracklets(data_root, date, drive_num):
     return tracklets
 
 
-def get_kitti_label(
-                    tracklets, calib,
+def get_kitti_label(tracklets, calib,
                     cur_rotation_matrix, cur_position_matrix,
                     framelength):
     # set list
@@ -224,8 +229,7 @@ def get_kitti_label(
     return bboxes, labels
 
 
-def project_velo_points_in_img(
-                               pts3d, transform_cam_velo,
+def project_velo_points_in_img(pts3d, transform_cam_velo,
                                rotaion_matrix, position_matrix):
     """Project 3D points into 2D imag e. Expects pts3d as a 4xN numpy array.
 
