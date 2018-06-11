@@ -281,6 +281,8 @@ def _create_anno(bb, lb, sc, img_id, anno_id, ar=None, crw=None):
     height = y_max - y_min
     width = x_max - x_min
     if ar is None:
+        # We compute dummy area to pass to pycocotools.
+        # Note that area dependent scores are ignored afterwards.
         ar = height * width
     if crw is None:
         crw = False
