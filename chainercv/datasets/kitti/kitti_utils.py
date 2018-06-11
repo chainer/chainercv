@@ -17,7 +17,7 @@ import numpy as np
 url_base = 'https://s3.eu-central-1.amazonaws.com/avg-kitti/raw_data/'
 
 
-def get_kitti_sync_data(root, date, drive_num):
+def get_kitti_sync_data(root, date, drive_num, tracklet):
     data_root = download.get_dataset_directory(root)
 
     # data
@@ -27,9 +27,6 @@ def get_kitti_sync_data(root, date, drive_num):
     # calibration
     url_calib = url_base + date + '_calib.zip'
 
-    # tracklet
-    url_tracklet = urljoin(url_base, folder + '/' + folder + '_tracklets.zip')
-
     download_file_path = utils.cached_download(url_data)
     ext = os.path.splitext(url_data)[1]
     utils.extractall(download_file_path, data_root, ext)
@@ -38,14 +35,19 @@ def get_kitti_sync_data(root, date, drive_num):
     ext = os.path.splitext(url_calib)[1]
     utils.extractall(download_file_path, data_root, ext)
 
-    download_file_path = utils.cached_download(url_tracklet)
-    ext = os.path.splitext(url_tracklet)[1]
-    utils.extractall(download_file_path, data_root, ext)
+    if tracklet is True:
+        # tracklet
+        url_tracklet = \
+            urljoin(url_base, folder + '/' + folder + '_tracklets.zip')
+
+        download_file_path = utils.cached_download(url_tracklet)
+        ext = os.path.splitext(url_tracklet)[1]
+        utils.extractall(download_file_path, data_root, ext)
 
     return data_root
 
 
-def get_kitti_nosync_data(root, date, drive_num):
+def get_kitti_nosync_data(root, date, drive_num, tracklet):
     data_root = download.get_dataset_directory(root)
 
     # data
@@ -55,9 +57,6 @@ def get_kitti_nosync_data(root, date, drive_num):
     # calibration
     url_calib = url_base + date + '_calib.zip'
 
-    # tracklet
-    url_tracklet = urljoin(url_base, folder + '/' + folder + '_tracklets.zip')
-
     download_file_path = utils.cached_download(url_data)
     ext = os.path.splitext(url_data)[1]
     utils.extractall(download_file_path, data_root, ext)
@@ -66,9 +65,14 @@ def get_kitti_nosync_data(root, date, drive_num):
     ext = os.path.splitext(url_calib)[1]
     utils.extractall(download_file_path, data_root, ext)
 
-    download_file_path = utils.cached_download(url_tracklet)
-    ext = os.path.splitext(url_tracklet)[1]
-    utils.extractall(download_file_path, data_root, ext)
+    if tracklet is True:
+        # tracklet
+        url_tracklet = \
+            urljoin(url_base, folder + '/' + folder + '_tracklets.zip')
+
+        download_file_path = utils.cached_download(url_tracklet)
+        ext = os.path.splitext(url_tracklet)[1]
+        utils.extractall(download_file_path, data_root, ext)
 
     return data_root
 
@@ -105,6 +109,9 @@ def get_kitti_label(tracklets, calib,
     for idx in range(0, framelength):
         bboxes[idx] = []
         labels[idx] = []
+
+    if tracklets is None:
+        return bboxes, labels
 
     # set ndarray
     # bboxes = np.zeros(framelength, dtype=np.float32)

@@ -14,21 +14,24 @@ from chainercv.utils import assert_is_bbox_dataset
         'drive_num': '0001',
         'color': True,
         'sync': True,
-        'is_left': True
+        'is_left': True,
+        'tracklet': True
     },
     {
         'date': '2011_09_26',
         'drive_num': '0001',
         'color': True,
         'sync': False,
-        'is_left': True
+        'is_left': True,
+        'tracklet': True
     },
     {
         'date': '2011_09_26',
         'drive_num': '0001',
         'color': True,
         'sync': True,
-        'is_left': False
+        'is_left': False,
+        'tracklet': True
     },
     {
         'date': '2011_09_26',
@@ -36,20 +39,23 @@ from chainercv.utils import assert_is_bbox_dataset
         'color': True,
         'sync': True,
         'is_left': True
+        'tracklet': False
     },
     {
         'date': '2011_09_28',
         'drive_num': '0001',
         'color': True,
         'sync': True,
-        'is_left': True
+        'is_left': True,
+        'tracklet': False
     },
     {
         'date': '2011_10_03',
         'drive_num': '0047',
         'color': True,
         'sync': True,
-        'is_left': True
+        'is_left': True,
+        'tracklet': True
     },
 )
 class TestKITTIBboxDataset(unittest.TestCase):
@@ -60,7 +66,8 @@ class TestKITTIBboxDataset(unittest.TestCase):
             drive_num=self.drive_num,
             color=self.color,
             sync=self.sync,
-            is_left=self.is_left)
+            is_left=self.is_left,
+            tracklet=self.tracklet)
 
     @attr.slow
     def test_kitti_bbox_dataset(self):

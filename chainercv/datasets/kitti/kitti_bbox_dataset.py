@@ -43,6 +43,7 @@ class KITTIBboxDataset(GetterDataset):
         color (bool): use glay/color image.
         sync (bool): get timer sync/nosync data.
         is_left (bool): left/right camera image use 2type.
+        tracklet (bool): 3d bblox data. date only 2011_09_26.
 
     This dataset returns the following data.
 
@@ -60,7 +61,7 @@ class KITTIBboxDataset(GetterDataset):
     """
 
     def __init__(self, data_dir='auto', date='', drive_num='',
-                 color=True, sync=True, is_left=True):
+                 color=True, sync=True, is_left=True, tracklet=False):
         super(KITTIBboxDataset, self).__init__()
 
         _check_available()
@@ -68,15 +69,22 @@ class KITTIBboxDataset(GetterDataset):
         self.color = color
         self.sync = sync
         self.is_left = is_left
+        if date == '2011_09_26':
+            self.tracklet = tracklet
+        else:
+            self.tracklet = False
+
         if data_dir == 'auto':
             if sync is True:
                 # download sync data
-                data_dir = get_kitti_sync_data(os.path.join(
-                    'pfnet', 'chainercv', 'KITTI'), date, drive_num)
+                data_dir = get_kitti_sync_data(
+                    os.path.join('pfnet', 'chainercv', 'KITTI'),
+                    date, drive_num, self.tracklet)
             else:
                 # download nosync data
-                data_dir = get_kitti_nosync_data(os.path.join(
-                    'pfnet', 'chainercv', 'KITTI'), date, drive_num)
+                data_dir = get_kitti_nosync_data(
+                    os.path.join('pfnet', 'chainercv', 'KITTI'),
+                    date, drive_num, self.tracklet)
 
         # use pykitti
         # read All images
@@ -110,7 +118,10 @@ class KITTIBboxDataset(GetterDataset):
                 self.imgs = np.array(list(self.dataset.cam1))
 
         # get object info(type/area/bbox/...)
-        self.tracklets = get_kitti_tracklets(data_dir, date, drive_num)
+        if self.tracklet is True:
+            self.tracklets = get_kitti_tracklets(data_dir, date, drive_num)
+        else:
+            self.tracklets = None
 
         self.bboxes, self.labels = get_kitti_label(
             self.tracklets, self.dataset.calib,
