@@ -38,7 +38,7 @@ from chainercv.utils import assert_is_bbox_dataset
         'drive_num': '0017',
         'color': True,
         'sync': True,
-        'is_left': True
+        'is_left': True,
         'tracklet': False
     },
     {
