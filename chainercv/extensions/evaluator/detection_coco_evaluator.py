@@ -30,54 +30,54 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
     .. csv-table::
         :header: key, description
 
-        ap/iou=0.50:0.95/area=all/maxDets=100/<label_names[l]>, \
+        ap/iou=0.50:0.95/area=all/max_dets=100/<label_names[l]>, \
             [#coco_det_ext_1]_
-        ap/iou=0.50/area=all/maxDets=100/<label_names[l]>, \
+        ap/iou=0.50/area=all/max_dets=100/<label_names[l]>, \
             [#coco_det_ext_1]_
-        ap/iou=0.75/area=all/maxDets=100/<label_names[l]>, \
+        ap/iou=0.75/area=all/max_dets=100/<label_names[l]>, \
             [#coco_det_ext_1]_
-        ap/iou=0.50:0.95/area=small/maxDets=100/<label_names[l]>, \
-            [#coco_det_ext_1]_
-        ap/iou=0.50:0.95/area=medium/maxDets=100/<label_names[l]>, \
-            [#coco_det_ext_1]_
-        ap/iou=0.50:0.95/area=large/maxDets=100/<label_names[l]>, \
-            [#coco_det_ext_1]_
-        ar/iou=0.50:0.95/area=all/maxDets=1/<label_names[l]>, \
+        ap/iou=0.50:0.95/area=small/max_dets=100/<label_names[l]>, \
+            [#coco_det_ext_1]_ [#coco_det_eval_5]_
+        ap/iou=0.50:0.95/area=medium/max_dets=100/<label_names[l]>, \
+            [#coco_det_ext_1]_ [#coco_det_eval_5]_
+        ap/iou=0.50:0.95/area=large/max_dets=100/<label_names[l]>, \
+            [#coco_det_ext_1]_ [#coco_det_eval_5]_
+        ar/iou=0.50:0.95/area=all/max_dets=1/<label_names[l]>, \
             [#coco_det_ext_2]_
-        ar/iou=0.50/area=all/maxDets=10/<label_names[l]>, \
+        ar/iou=0.50/area=all/max_dets=10/<label_names[l]>, \
             [#coco_det_ext_2]_
-        ar/iou=0.75/area=all/maxDets=100/<label_names[l]>, \
+        ar/iou=0.75/area=all/max_dets=100/<label_names[l]>, \
             [#coco_det_ext_2]_
-        ar/iou=0.50:0.95/area=small/maxDets=100/<label_names[l]>, \
-            [#coco_det_ext_2]_
-        ar/iou=0.50:0.95/area=medium/maxDets=100/<label_names[l]>, \
-            [#coco_det_ext_2]_
-        ar/iou=0.50:0.95/area=large/maxDets=100/<label_names[l]>, \
-            [#coco_det_ext_2]_
-        map/iou=0.50:0.95/area=all/maxDets=100, \
+        ar/iou=0.50:0.95/area=small/max_dets=100/<label_names[l]>, \
+            [#coco_det_ext_2]_ [#coco_det_eval_5]_
+        ar/iou=0.50:0.95/area=medium/max_dets=100/<label_names[l]>, \
+            [#coco_det_ext_2]_ [#coco_det_eval_5]_
+        ar/iou=0.50:0.95/area=large/max_dets=100/<label_names[l]>, \
+            [#coco_det_ext_2]_ [#coco_det_eval_5]_
+        map/iou=0.50:0.95/area=all/max_dets=100, \
             [#coco_det_ext_3]_
-        map/iou=0.50/area=all/maxDets=100, \
+        map/iou=0.50/area=all/max_dets=100, \
             [#coco_det_ext_3]_
-        map/iou=0.75/area=all/maxDets=100, \
+        map/iou=0.75/area=all/max_dets=100, \
             [#coco_det_ext_3]_
-        map/iou=0.50:0.95/area=small/maxDets=100, \
-            [#coco_det_ext_3]_
-        map/iou=0.50:0.95/area=medium/maxDets=100, \
-            [#coco_det_ext_3]_
-        map/iou=0.50:0.95/area=large/maxDets=100, \
-            [#coco_det_ext_3]_
-        ar/iou=0.50:0.95/area=all/maxDets=1, \
+        map/iou=0.50:0.95/area=small/max_dets=100, \
+            [#coco_det_ext_3]_ [#coco_det_eval_5]_
+        map/iou=0.50:0.95/area=medium/max_dets=100, \
+            [#coco_det_ext_3]_ [#coco_det_eval_5]_
+        map/iou=0.50:0.95/area=large/max_dets=100, \
+            [#coco_det_ext_3]_ [#coco_det_eval_5]_
+        ar/iou=0.50:0.95/area=all/max_dets=1, \
             [#coco_det_ext_4]_
-        ar/iou=0.50/area=all/maxDets=10, \
+        ar/iou=0.50/area=all/max_dets=10, \
             [#coco_det_ext_4]_
-        ar/iou=0.75/area=all/maxDets=100, \
+        ar/iou=0.75/area=all/max_dets=100, \
             [#coco_det_ext_4]_
-        ar/iou=0.50:0.95/area=small/maxDets=100, \
-            [#coco_det_ext_4]_
-        ar/iou=0.50:0.95/area=medium/maxDets=100, \
-            [#coco_det_ext_4]_
-        ar/iou=0.50:0.95/area=large/maxDets=100, \
-            [#coco_det_ext_4]_
+        ar/iou=0.50:0.95/area=small/max_dets=100, \
+            [#coco_det_ext_4]_ [#coco_det_eval_5]_
+        ar/iou=0.50:0.95/area=medium/max_dets=100, \
+            [#coco_det_ext_4]_ [#coco_det_eval_5]_
+        ar/iou=0.50:0.95/area=large/max_dets=100, \
+            [#coco_det_ext_4]_ [#coco_det_eval_5]_
 
     .. [#coco_det_ext_1] Average precision for class \
         :obj:`label_names[l]`, where :math:`l` is the index of the class. \
@@ -89,6 +89,7 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
         :obj:`gt_labels`, the corresponding value is set to :obj:`numpy.nan`.
     .. [#coco_det_ext_3] The average of average precisions over classes.
     .. [#coco_det_ext_4] The average of average recalls over classes.
+    .. [#coco_det_eval_5] Skip if :obj:`gt_areas` is :obj:`None`.
 
     Args:
         iterator (chainer.Iterator): An iterator. Each sample should be

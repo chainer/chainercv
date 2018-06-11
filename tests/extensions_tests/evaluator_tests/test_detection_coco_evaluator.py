@@ -65,7 +65,7 @@ class TestDetectionCOCOEvaluator(unittest.TestCase):
         # evaluator collect results in order to calculate their mean.
         self.assertEqual(len(reporter.observation), 0)
 
-        key = 'ap/iou=0.50:0.95/area=all/maxDets=100'
+        key = 'ap/iou=0.50:0.95/area=all/max_dets=100'
         np.testing.assert_equal(
             mean['target/m{}'.format(key)], self.expected_ap)
         np.testing.assert_equal(mean['target/{}/cls0'.format(key)], np.nan)
@@ -76,7 +76,7 @@ class TestDetectionCOCOEvaluator(unittest.TestCase):
     def test_call(self):
         mean = self.evaluator()
         # main is used as default
-        key = 'ap/iou=0.50:0.95/area=all/maxDets=100'
+        key = 'ap/iou=0.50:0.95/area=all/max_dets=100'
         np.testing.assert_equal(mean['main/m{}'.format(key)], self.expected_ap)
         np.testing.assert_equal(mean['main/{}/cls0'.format(key)], np.nan)
         np.testing.assert_equal(mean['main/{}/cls1'.format(key)], np.nan)
@@ -88,7 +88,7 @@ class TestDetectionCOCOEvaluator(unittest.TestCase):
         mean = self.evaluator()
         # name is used as a prefix
 
-        key = 'ap/iou=0.50:0.95/area=all/maxDets=100'
+        key = 'ap/iou=0.50:0.95/area=all/max_dets=100'
         np.testing.assert_equal(
             mean['eval/main/m{}'.format(key)], self.expected_ap)
         np.testing.assert_equal(mean['eval/main/{}/cls0'.format(key)], np.nan)
