@@ -27,6 +27,9 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
     Please note that if
     :obj:`label_names` is not specified, only the mAPs and  mARs are reported.
 
+    The underlying dataset of the iterator is assumed to return
+    :obj:`img, bbox, label` or :obj:`img, bbox, label, area, crowded`.
+
     .. csv-table::
         :header: key, description
 
@@ -136,11 +139,15 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
 
         pred_bboxes, pred_labels, pred_scores = out_values
 
-        if len(rest_values) != 4:
+        if len(rest_values) == 2:
+            gt_bboxes, gt_labels = rest_values
+        elif len(rest_values) == 4:
+            gt_bboxes, gt_labels, gt_areas, gt_crowdeds =\
+                rest_values
+        else:
             raise ValueError('the dataset should return '
-                             'gt_bboxes, gt_labels, gt_areas, gt_crowdeds')
-        gt_bboxes, gt_labels, gt_areas, gt_crowdeds =\
-            rest_values
+                             'sets of (img, bbox, label) or sets of '
+                             '(img, bbox, label, area, crowded).')
 
         result = eval_detection_coco(
             pred_bboxes, pred_labels, pred_scores,
