@@ -155,7 +155,6 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
                 if key.startswith('ap') or key.startswith('ar'):
                     for l, label_name in enumerate(self.label_names):
                         report_key = '{}/{:s}'.format(key, label_name)
-                        print(result[key], key, l)
                         try:
                             report[report_key] = result[key][l]
                         except IndexError:
