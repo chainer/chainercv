@@ -19,7 +19,7 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
     average recall).
     This extension reports the following values with keys.
     Please note that if
-    :obj:`label_names` is not specified, only the mAP and  mAR are reported.
+    :obj:`label_names` is not specified, only the mAPs and  mARs are reported.
 
     .. csv-table::
         :header: key, description
