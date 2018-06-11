@@ -1,23 +1,21 @@
-# tracklet parser
-from chainercv.datasets.kitti import parseTrackletXML as xmlParser
-
-import numpy as np
 import os
 from urllib.parse import urljoin
 
-from chainercv import utils
-
 from chainer.dataset import download
+import numpy as np
+
+from chainercv import utils
+from chainercv.datasets.kitti import parseTrackletXML as xmlParser
 
 # root = 'pfnet/chainercv/kitti'
 url_base = 'http://kitti.is.tue.mpg.de/kitti/raw_data/'
 
 
-def get_kitti_sync_data(root, date, driveNo):
+def get_kitti_sync_data(root, date, drive_num):
     data_root = download.get_dataset_directory(root)
 
     # data
-    folder = date + '_drive_' + driveNo
+    folder = date + '_drive_' + drive_num
     url_data = urljoin(url_base, folder + '/' + folder + '_sync.zip')
 
     # calibration
@@ -41,11 +39,11 @@ def get_kitti_sync_data(root, date, driveNo):
     return data_root
 
 
-def get_kitti_nosync_data(root, date, driveNo):
+def get_kitti_nosync_data(root, date, drive_num):
     data_root = download.get_dataset_directory(root)
 
     # data
-    folder = date + '_drive_' + driveNo
+    folder = date + '_drive_' + drive_num
     url_data = urljoin(url_base, folder + '/' + folder + '_extract.zip')
 
     # calibration
@@ -69,7 +67,7 @@ def get_kitti_nosync_data(root, date, driveNo):
     return data_root
 
 
-def get_kitti_tracklets(data_root, date, driveNo):
+def get_kitti_tracklets(data_root, date, drive_num):
     # read calibration files
     kitti_dir = os.path.join(data_root, date)
     # kitti_dir = kitti_dir.replace(os.path.sep, '/')
@@ -81,18 +79,21 @@ def get_kitti_tracklets(data_root, date, driveNo):
     # cam2cam = read_calib_file(
     #                os.path.join(kitti_dir, "calib_cam_to_cam.txt"))
     # read tracklet
-    folder = date + '_drive_' + driveNo + '_sync'
+    folder = date + '_drive_' + drive_num + '_sync'
     # tracklet = read_tracklet_file(
     #                os.path.join(kitti_dir, folder, "calib_imu_to_velo.txt"))
     # return tracklets
     # get dir names
     # read tracklets from file
-    myTrackletFile = os.path.join(kitti_dir, folder, 'tracklet_labels.xml')
-    tracklets = xmlParser.parseXML(myTrackletFile)
+    tracklet_filepath = os.path.join(kitti_dir, folder, 'tracklet_labels.xml')
+    tracklets = xmlParser.parseXML(tracklet_filepath)
     return tracklets
 
 
-def get_kitti_label(tracklets, calib, cur_R_rect, cur_P_rect, framelength):
+def get_kitti_label(
+                    tracklets, calib,
+                    cur_rotation_matrix, cur_position_matrix,
+                    framelength):
     # set list
     bboxes = [0] * framelength
     labels = [0] * framelength
@@ -113,15 +114,15 @@ def get_kitti_label(tracklets, calib, cur_R_rect, cur_P_rect, framelength):
         # matlab code: computeBox3D
         h, w, l = tracklet.size
         # in velodyne coordinates around zero point and without orientation yet
-        trackletBox = np.array([
+        tracklet_box = np.array([
             [-l/2, -l/2,  l/2, l/2, -l/2, -l/2,  l/2, l/2],
             [w/2, -w/2, -w/2, w/2,  w/2, -w/2, -w/2, w/2],
             [0.0,  0.0,  0.0, 0.0,    h,     h,   h,   h]])
 
-        # print('trackletBox : ' + trackletBox)
-        # print(trackletBox)
-        objTypeStr = tracklet.objectType
-        # print(objTypeStr)
+        # print('tracklet_box : ' + tracklet_box)
+        # print(tracklet_box)
+        objtype_str = tracklet.objectType
+        # print(objtype_str)
 
         # loop over all data in tracklet
         for translation, rotation, state, occlusion, truncation, \
@@ -137,12 +138,12 @@ def get_kitti_label(tracklets, calib, cur_R_rect, cur_P_rect, framelength):
             yaw = rotation[2]
             assert np.abs(rotation[:2]).sum(
             ) == 0, 'object rotations other than yaw given!'
-            rotMat = np.array([
+            rot_mat = np.array([
                 [np.cos(yaw), -np.sin(yaw), 0.0],
                 [np.sin(yaw),  np.cos(yaw), 0.0],
                 [0.0,          0.0, 1.0]])
-            cornerPosInVelo = np.dot(
-                rotMat, trackletBox) + np.tile(translation, (8, 1)).T
+            cornerpos_in_velo = np.dot(
+                rot_mat, tracklet_box) + np.tile(translation, (8, 1)).T
 
             # calc yaw as seen from the camera
             # (i.e. 0 degree = facing away from cam),
@@ -156,18 +157,19 @@ def get_kitti_label(tracklets, calib, cur_R_rect, cur_P_rect, framelength):
             # print(yaw)
             # print(yawVisual)
             # param = pykitti.utils.transform_from_rot_trans(
-            #             rotMat, translation)
+            #             rot_mat, translation)
             # print(param)
 
             # projection to image?
             # print(calib.P_rect_20)
             # param3 = translation.reshape(3, 1) * calib.P_rect_20
-            # print(cornerPosInVelo[:, 0:1].shape)
-            pt3d = np.vstack((cornerPosInVelo[:, 0:8], np.ones(8)))
+            # print(cornerpos_in_velo[:, 0:1].shape)
+            pt3d = np.vstack((cornerpos_in_velo[:, 0:8], np.ones(8)))
             # print(pt3d.shape)
             # print(calib.P_rect_20)
             pt2d = project_velo_points_in_img(
-                pt3d, calib.T_cam2_velo, cur_R_rect, cur_P_rect)
+                pt3d, calib.T_cam2_velo,
+                cur_rotation_matrix, cur_position_matrix)
 
             # print(pt2d)
             xmin = min(pt2d[0, :])
@@ -203,15 +205,15 @@ def get_kitti_label(tracklets, calib, cur_R_rect, cur_P_rect, framelength):
             bboxes[absoluteFrameNumber].append(param)
             # print(bboxes[absoluteFrameNumber])
 
-            # param_3d = cornerPosInVelo
-            # bboxes_3d[absoluteFrameNumber].append(cornerPosInVelo)
+            # param_3d = cornerpos_in_velo
+            # bboxes_3d[absoluteFrameNumber].append(cornerpos_in_velo)
             # label.append(param2)
             # label = np.stack(label).astype(np.int32)
             # labels[absoluteFrameNumber] = label
             # objectType
             # label_names
-            # not search objTypeStr? process
-            param2 = kitti_bbox_label_names.index(objTypeStr)
+            # not search objtype_str? process
+            param2 = kitti_bbox_label_names.index(objtype_str)
             labels[absoluteFrameNumber].append(param2)
             # labels[absoluteFrameNumber] = param2
             # print(bboxes[absoluteFrameNumber])
@@ -222,19 +224,21 @@ def get_kitti_label(tracklets, calib, cur_R_rect, cur_P_rect, framelength):
     return bboxes, labels
 
 
-def project_velo_points_in_img(pts3d, T_cam_velo, Rrect, Prect):
-    """Project 3D points into 2D image. Expects pts3d as a 4xN numpy array.
-    
+def project_velo_points_in_img(
+                               pts3d, transform_cam_velo,
+                               rotaion_matrix, position_matrix):
+    """Project 3D points into 2D imag e. Expects pts3d as a 4xN numpy array.
+
     Returns the 2D projection of the points that
     are in front of the camera only an the corresponding 3D points.
     """
     # 3D points in camera reference frame.
-    pts3d_cam = Rrect.dot(T_cam_velo.dot(pts3d))
+    pts3d_cam = rotaion_matrix.dot(transform_cam_velo.dot(pts3d))
 
     # Before projecting, keep only points with z > 0
     # (points that are in fronto of the camera).
     idx = (pts3d_cam[2, :] >= 0)
-    pts2d_cam = Prect.dot(pts3d_cam[:, idx])
+    pts2d_cam = position_matrix.dot(pts3d_cam[:, idx])
 
     # return pts3d[:, idx], pts2d_cam / pts2d_cam[2,:]
     return pts2d_cam / pts2d_cam[2, :]

@@ -1,18 +1,18 @@
-import numpy as np
 import os
 import warnings
+
+import numpy as np
 try:
     import pykitti
     _available = True
 except ImportError:
     _available = False
 
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.kitti.kitti_utils import get_kitti_label
 from chainercv.datasets.kitti.kitti_utils import get_kitti_nosync_data
 from chainercv.datasets.kitti.kitti_utils import get_kitti_sync_data
 from chainercv.datasets.kitti.kitti_utils import get_kitti_tracklets
-
-from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 
 
 def _check_available():
@@ -25,8 +25,7 @@ def _check_available():
 
 
 class KITTIBboxDataset(GetterDataset):
-
-    """Image dataset for test split of `KITTI dataset`_.
+    r"""Image dataset for test split of `KITTI dataset`_.
 
     .. _`KITTI dataset`: http://www.cvlibs.net/datasets/kitti/raw_data.php
 
@@ -40,10 +39,10 @@ class KITTIBboxDataset(GetterDataset):
         date ({'2011_09_26', '2011_09_28', '2011_09_29',
                                            '2011_09_30', '2011_10_03'}):
             reference Calibration datas.
-        driveNo ({'0xxx'}): get datas drive No.
+        drive_num ({'0xxx'}): get datas drive No.
         color (bool): use glay/color image.
         sync (bool): get timer sync/nosync data.
-        isLeft (bool): left/right camera image use 2type.
+        is_left (bool): left/right camera image use 2type.
 
     This dataset returns the following data.
 
@@ -60,62 +59,62 @@ class KITTIBboxDataset(GetterDataset):
         :obj:`bbox` and :obj:`label` not contain instances.
     """
 
-    def __init__(self, data_dir='auto', date='', driveNo='',
-                 color=True, sync=True, isLeft=True):
+    def __init__(self, data_dir='auto', date='', drive_num='',
+                 color=True, sync=True, is_left=True):
         super(KITTIBboxDataset, self).__init__()
 
         _check_available()
 
         self.color = color
         self.sync = sync
-        self.isLeft = isLeft
+        self.is_left = is_left
         if data_dir == 'auto':
             if sync is True:
                 # download sync data
                 data_dir = get_kitti_sync_data(os.path.join(
-                    'pfnet', 'chainercv', 'KITTI'), date, driveNo)
+                    'pfnet', 'chainercv', 'KITTI'), date, drive_num)
             else:
                 # download nosync data
                 data_dir = get_kitti_nosync_data(os.path.join(
-                    'pfnet', 'chainercv', 'KITTI'), date, driveNo)
+                    'pfnet', 'chainercv', 'KITTI'), date, drive_num)
 
         # use pykitti
         # read All images
         # imformat='None'
-        # self.dataset = pykitti.raw(data_dir, date, driveNo, frames=None)
+        # self.dataset = pykitti.raw(data_dir, date, drive_num, frames=None)
         self.dataset = pykitti.raw(
-            data_dir, date, driveNo, frames=None, imformat='cv2')
+            data_dir, date, drive_num, frames=None, imformat='cv2')
 
         # current camera calibration R/P settings.
         if self.color is True:
-            if self.isLeft is True:
+            if self.is_left is True:
                 # img02
-                self.cur_R_rect = self.dataset.calib.R_rect_20
-                self.cur_P_rect = self.dataset.calib.P_rect_20
+                self.cur_rotation_matrix = self.dataset.calib.R_rect_20
+                self.cur_position_matrix = self.dataset.calib.P_rect_20
                 self.imgs = np.array(list(self.dataset.cam2))
             else:
                 # img03
-                self.cur_R_rect = self.dataset.calib.R_rect_30
-                self.cur_P_rect = self.dataset.calib.P_rect_30
+                self.cur_rotation_matrix = self.dataset.calib.R_rect_30
+                self.cur_position_matrix = self.dataset.calib.P_rect_30
                 self.imgs = np.array(list(self.dataset.cam3))
         else:
-            if self.isLeft is True:
+            if self.is_left is True:
                 # img00
-                self.cur_R_rect = self.dataset.calib.R_rect_00
-                self.cur_P_rect = self.dataset.calib.P_rect_00
+                self.cur_rotation_matrix = self.dataset.calib.R_rect_00
+                self.cur_position_matrix = self.dataset.calib.P_rect_00
                 self.imgs = np.array(list(self.dataset.cam0))
             else:
                 # img01
-                self.cur_R_rect = self.dataset.calib.R_rect_10
-                self.cur_P_rect = self.dataset.calib.P_rect_10
+                self.cur_rotation_matrix = self.dataset.calib.R_rect_10
+                self.cur_position_matrix = self.dataset.calib.P_rect_10
                 self.imgs = np.array(list(self.dataset.cam1))
 
         # get object info(type/area/bbox/...)
-        self.tracklets = get_kitti_tracklets(data_dir, date, driveNo)
+        self.tracklets = get_kitti_tracklets(data_dir, date, drive_num)
 
         self.bboxes, self.labels = get_kitti_label(
             self.tracklets, self.dataset.calib,
-            self.cur_R_rect, self.cur_P_rect,
+            self.cur_rotation_matrix, self.cur_position_matrix,
             self.__len__())
 
         self.add_getter('img', self._get_image)
