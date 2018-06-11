@@ -91,7 +91,7 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
             :meth:`predict` method that takes a list of images and returns
             :obj:`bboxes`, :obj:`labels` and :obj:`scores`.
         label_names (iterable of strings): An iterable of names of classes.
-            If this value is specified, average precision and average 
+            If this value is specified, average precision and average
             recalls for each class are reported.
 
     """
