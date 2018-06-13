@@ -52,7 +52,7 @@ def main():
     # dataset
     train_dataset = TransformDataset(
         SBDInstanceSegmentationDataset(split='train'),
-        ('img', 'mask', 'label', 'scale'),
+        ('img', 'mask', 'label', 'bbox', 'scale'),
         Transform(model.fcis))
     if comm.rank == 0:
         indices = np.arange(len(train_dataset))

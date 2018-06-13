@@ -2,7 +2,6 @@ from __future__ import division
 
 import argparse
 import numpy as np
-import PIL
 import six
 
 import chainer
@@ -45,33 +44,19 @@ class Transform(object):
 
     def __call__(self, in_data):
         img, mask, label = in_data
+        bbox = mask_to_bbox(mask)
         _, orig_H, orig_W = img.shape
         img = self.fcis.prepare(img)
         _, H, W = img.shape
         scale = H / orig_H
-        mask = transforms.resize(
-            mask.astype(np.int), (H, W),
-            interpolation=PIL.Image.NEAREST)
-        mask = mask.astype(np.bool)
-        indices = self._get_keep_indices(mask)
-        mask = mask[indices]
-        label = label[indices]
+        mask = transforms.resize(mask.astype(np.float32), (H, W))
+        bbox = transforms.resize_bbox(bbox, (orig_H, orig_W), (H, W))
 
         img, params = transforms.random_flip(
             img, x_random=True, return_param=True)
         mask = transforms.flip(mask, x_flip=params['x_flip'])
-        return img, mask, label, scale
-
-    def _get_keep_indices(self, mask):
-        indices = []
-        bbox = mask_to_bbox(mask)
-        for i, bb in enumerate(bbox):
-            bb = np.round(bb).astype(np.int32)
-            H = bb[2] - bb[0]
-            W = bb[3] - bb[1]
-            if H > 0 and W > 0:
-                indices.append(i)
-        return np.array(indices, dtype=np.int32)
+        bbox = transforms.flip_bbox(bbox, (H, W), x_flip=params['x_flip'])
+        return img, mask, label, bbox, scale
 
 
 def main():

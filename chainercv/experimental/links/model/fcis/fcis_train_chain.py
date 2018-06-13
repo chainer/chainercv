@@ -69,7 +69,7 @@ class FCISTrainChain(chainer.Chain):
         self.anchor_target_creator = anchor_target_creator
         self.proposal_target_creator = proposal_target_creator
 
-    def __call__(self, imgs, masks, labels, scale):
+    def __call__(self, imgs, masks, labels, bboxes, scale):
         """Forward FCIS and calculate losses.
 
         Here are notations used.
@@ -90,6 +90,8 @@ class FCISTrainChain(chainer.Chain):
                 the definition, which means that the range of the value
                 is :math:`[0, L - 1]`. :math:`L` is the number of foreground
                 classes.
+            bboxes (~chainer.Variable): A batch of bounding boxes.
+                Its shape is :math:`(N, R, 4)`.
             scale (float or ~chainer.Variable): Amount of scaling applied to
                 the raw image during preprocessing.
 
@@ -123,8 +125,8 @@ class FCISTrainChain(chainer.Chain):
 
         # batch size = 1
         mask = masks[0]
-        bbox = mask_to_bbox(mask)
         label = labels[0]
+        bbox = bboxes[0]
         rpn_score = rpn_scores[0]
         rpn_loc = rpn_locs[0]
         roi = rois
