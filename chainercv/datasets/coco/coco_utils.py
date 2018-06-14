@@ -38,7 +38,7 @@ def get_coco(split, img_split):
         download_file_path = utils.cached_download(anno_url)
         ext = os.path.splitext(anno_url)[1]
         if split in ['train', 'val']:
-            utils.extractall(download_file_path, img_root, ext)
+            utils.extractall(download_file_path, data_dir, ext)
         elif split in ['valminusminival', 'minival']:
             utils.extractall(download_file_path, annos_root, ext)
     return data_dir
