@@ -46,7 +46,7 @@ class ProposalTargetCreator(object):
         self.binary_thresh = binary_thresh
 
     def __call__(
-            self, roi, mask, label, bbox=None,
+            self, roi, mask, label, bbox,
             loc_normalize_mean=(0., 0., 0., 0.),
             loc_normalize_std=(0.2, 0.2, 0.5, 0.5),
             mask_size=(21, 21),
@@ -54,11 +54,11 @@ class ProposalTargetCreator(object):
         """Assigns ground truth to sampled proposals.
 
         This function samples total of :obj:`self.n_sample` RoIs
-        from the combination of :obj:`roi` and :obj:`bbox`.
-        The RoIs are assigned with the ground truth class labels as well as
-        bounding box offsets and scales to match the ground truth bounding
-        boxes. As many as :obj:`pos_ratio * self.n_sample` RoIs are
-        sampled as foregrounds.
+        from the combination of :obj:`roi`, :obj:`mask`, :obj:`label`
+        and :obj: `bbox`. The RoIs are assigned with the ground truth class
+        labels as well as bounding box offsets and scales to match the ground
+        truth bounding boxes. As many as :obj:`pos_ratio * self.n_sample` RoIs
+        are sampled as foregrounds.
 
         Offsets and scales of bounding boxes are calculated using
         :func:`chainercv.links.model.faster_rcnn.bbox2loc`.
@@ -97,14 +97,14 @@ class ProposalTargetCreator(object):
 
             * **sample_roi**: Regions of interests that are sampled. \
                 Its shape is :math:`(S, 4)`.
-            * **gt_roi_loc**: Offsets and scales to match \
-                the sampled RoIs to the ground truth bounding boxes. \
-                Its shape is :math:`(S, 4)`.
             * **gt_roi_mask**: Masks assigned to sampled RoIs. Its shape is \
                 :math:`(S, RH, RW)`.
             * **gt_roi_label**: Labels assigned to sampled RoIs. Its shape is \
                 :math:`(S,)`. Its range is :math:`[0, L]`. The label with \
                 value 0 is the background.
+            * **gt_roi_loc**: Offsets and scales to match \
+                the sampled RoIs to the ground truth bounding boxes. \
+                Its shape is :math:`(S, 4)`.
 
         """
 
@@ -112,10 +112,8 @@ class ProposalTargetCreator(object):
         roi = cuda.to_cpu(roi)
         mask = cuda.to_cpu(mask)
         label = cuda.to_cpu(label)
-        if bbox is None:
-            bbox = mask_to_bbox(mask)
-        else:
-            bbox = cuda.to_cpu(bbox)
+        bbox = cuda.to_cpu(bbox)
+
         if not isinstance(mask_size, tuple):
             mask_size = (mask_size, mask_size)
 
@@ -185,8 +183,8 @@ class ProposalTargetCreator(object):
 
         if xp != np:
             sample_roi = cuda.to_gpu(sample_roi)
-            gt_roi_loc = cuda.to_gpu(gt_roi_loc)
             gt_roi_mask = cuda.to_gpu(gt_roi_mask)
             gt_roi_label = cuda.to_gpu(gt_roi_label)
+            gt_roi_loc = cuda.to_gpu(gt_roi_loc)
 
-        return sample_roi, gt_roi_loc, gt_roi_mask, gt_roi_label
+        return sample_roi, gt_roi_mask, gt_roi_label, gt_roi_loc

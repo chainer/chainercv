@@ -132,7 +132,7 @@ class FCISTrainChain(chainer.Chain):
         roi = rois
 
         # Sample RoIs and forward
-        sample_roi, gt_roi_loc, gt_roi_mask, gt_roi_label = \
+        sample_roi, gt_roi_mask, gt_roi_label, gt_roi_loc = \
             self.proposal_target_creator(
                 roi, mask, label, bbox, self.loc_normalize_mean,
                 self.loc_normalize_std, self.mask_size)
