@@ -12,7 +12,6 @@ from chainercv.links.model.faster_rcnn.faster_rcnn_train_chain \
     import _fast_rcnn_loc_loss
 from chainercv.links.model.faster_rcnn.utils.anchor_target_creator \
     import AnchorTargetCreator
-from chainercv.utils import mask_to_bbox
 
 
 class FCISTrainChain(chainer.Chain):
@@ -106,6 +105,8 @@ class FCISTrainChain(chainer.Chain):
             masks = masks.array
         if isinstance(labels, chainer.Variable):
             labels = labels.array
+        if isinstance(bboxes, chainer.Variable):
+            bboxes = bboxes.array
         if isinstance(scale, chainer.Variable):
             scale = scale.array
         scale = np.asscalar(cuda.to_cpu(scale))
