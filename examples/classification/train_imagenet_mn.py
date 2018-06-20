@@ -73,7 +73,6 @@ def main():
                         help='Convnet architecture')
     parser.add_argument('--communicator', type=str,
                         default='hierarchical', help='Type of communicator')
-    parser.add_argument('--pretrained_model')
     parser.add_argument('--loaderjob', type=int, default=4)
     parser.add_argument('--batchsize', type=int, default=32,
                         help='Batch size for each worker')
