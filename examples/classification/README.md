@@ -32,9 +32,14 @@ $ python eval_imagenet.py <path_to_val_dataset> [--model vgg16|resnet50|resnet10
 ## Training Models
 
 Training with multiple GPUs. Please install ChainerMN to use this feature.
+Please consult the full list of arguments with `python train_imagenet_mn.py -h`.
 ```
 $ mpiexec -n N python train_imagenet_mn.py <path_to_train_dataset> <path_to_val_dataset>
 ```
+
+##### Performance tip
+When training over multiple nodes, set the communicator to `pure_nccl` (requires NCCL2).
+The default communicator (`hierarchical`) uses MPI to communicate between nodes, which is slower than the pure NCCL communicator.
 
 
 ## How to prepare ImageNet Dataset
