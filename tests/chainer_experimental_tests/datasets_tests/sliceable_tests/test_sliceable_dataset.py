@@ -1,3 +1,4 @@
+import numpy as np
 import six
 import unittest
 
@@ -21,7 +22,11 @@ class SampleDataset(SliceableDataset):
             for key_index in key_indices)
 
 
-@testing.parameterize(*testing.product({'iterable': [tuple, list]}))
+@testing.parameterize(
+    {'iterable': tuple},
+    {'iterable': list},
+    {'iterable': np.array},
+)
 class TestSliceableDataset(unittest.TestCase):
 
     def setUp(self):
@@ -46,6 +51,8 @@ class TestSliceableDataset(unittest.TestCase):
         self.assertEqual(dataset[1], 'item0(1)')
 
     def test_slice_keys_single_tuple_name(self):
+        if self.iterable is np.array:
+            self.skipTest('ndarray of strings is not supported')
         dataset = self.dataset.slice[:, self.iterable(('item1',))]
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), len(self.dataset))
@@ -60,6 +67,8 @@ class TestSliceableDataset(unittest.TestCase):
         self.assertEqual(dataset[2], ('item1(2)',))
 
     def test_slice_keys_multiple_name(self):
+        if self.iterable is np.array:
+            self.skipTest('ndarray of strings is not supported')
         dataset = self.dataset.slice[:, self.iterable(('item0', 'item2'))]
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), len(self.dataset))
@@ -73,7 +82,16 @@ class TestSliceableDataset(unittest.TestCase):
         self.assertEqual(dataset.keys, ('item0', 'item2'))
         self.assertEqual(dataset[3], ('item0(3)', 'item2(3)'))
 
+    def test_slice_keys_multiple_bool(self):
+        dataset = self.dataset.slice[:, self.iterable((True, False, True))]
+        self.assertIsInstance(dataset, SliceableDataset)
+        self.assertEqual(len(dataset), len(self.dataset))
+        self.assertEqual(dataset.keys, ('item0', 'item2'))
+        self.assertEqual(dataset[3], ('item0(3)', 'item2(3)'))
+
     def test_slice_keys_multiple_mixed(self):
+        if self.iterable is np.array:
+            self.skipTest('ndarray of strings is not supported')
         dataset = self.dataset.slice[:, self.iterable(('item0', 2))]
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), len(self.dataset))
@@ -88,7 +106,11 @@ class TestSliceableDataset(unittest.TestCase):
         with self.assertRaises(IndexError):
             self.dataset.slice[:, 3]
 
-    def test_slice_index_slice(self):
+    def test_slice_keys_invalid_bool(self):
+        with self.assertRaises(ValueError):
+            self.dataset.slice[:, (True, False)]
+
+    def test_slice_indices_slice(self):
         dataset = self.dataset.slice[3:8:2]
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), 3)
@@ -96,13 +118,31 @@ class TestSliceableDataset(unittest.TestCase):
         self.assertEqual(
             dataset[1], ('item0(5)', 'item1(5)', 'item2(5)'))
 
-    def test_slice_index_list(self):
-        dataset = self.dataset.slice[[2, 1, 5]]
+    def test_slice_indices_list(self):
+        if self.iterable is tuple:
+            self.skipTest('tuple indices is not supported')
+        dataset = self.dataset.slice[self.iterable((2, 1, 5))]
         self.assertIsInstance(dataset, SliceableDataset)
         self.assertEqual(len(dataset), 3)
         self.assertEqual(dataset.keys, self.dataset.keys)
         self.assertEqual(
             dataset[0], ('item0(2)', 'item1(2)', 'item2(2)'))
+
+    def test_slice_indices_bool(self):
+        if self.iterable is tuple:
+            self.skipTest('tuple indices is not supported')
+        dataset = self.dataset.slice[self.iterable(
+            (False, True, False, False, True,
+             True, False, False, True, False))]
+        self.assertIsInstance(dataset, SliceableDataset)
+        self.assertEqual(len(dataset), 4)
+        self.assertEqual(dataset.keys, self.dataset.keys)
+        self.assertEqual(
+            dataset[1], ('item0(4)', 'item1(4)', 'item2(4)'))
+
+    def test_slice_indices_invalid_bool(self):
+        with self.assertRaises(ValueError):
+            self.dataset.slice[[False, True]]
 
     def test_iter(self):
         it = iter(self.dataset)

@@ -8,7 +8,7 @@ from chainercv import utils
 
 
 root = 'pfnet/chainercv/online_products'
-url = 'ftp://cs.stanford.edu/cs/cvgl/Stanford_Online_Products.zip'
+url = 'http://ftp.cs.stanford.edu/cs/cvgl/Stanford_Online_Products.zip'
 
 online_products_super_label_names = (
     'bicycle',
@@ -90,12 +90,18 @@ class OnlineProductsDataset(GetterDataset):
         self.super_class_ids += [int(id_[2]) - 1 for id_ in ids_tmp]
         self.paths += [os.path.join(data_dir, id_[3]) for id_ in ids_tmp]
 
-        self.add_getter('img', lambda i:
-                        utils.read_image(self.paths[i], color=True))
-        self.add_getter('label', lambda i:
-                        np.array(self.class_ids[i], np.int32))
-        self.add_getter('super_label', lambda i:
-                        np.array(self.super_class_ids[i], np.int32))
+        self.add_getter('img', self._get_label)
+        self.add_getter('label', self._get_label)
+        self.add_getter('super_label', self._get_super_label)
 
     def __len__(self):
         return len(self.paths)
+
+    def _get_image(self, i):
+        return utils.read_image(self.paths[i], color=True)
+
+    def _get_label(self, i):
+        return np.array(self.class_ids[i], np.int32)
+
+    def _get_super_label(self, i):
+        return np.array(self.super_class_ids[i], np.int32)

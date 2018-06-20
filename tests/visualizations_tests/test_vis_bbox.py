@@ -9,9 +9,9 @@ from chainercv.visualizations import vis_bbox
 
 try:
     import matplotlib  # NOQA
-    optional_modules = True
+    _available = True
 except ImportError:
-    optional_modules = False
+    _available = False
 
 
 @testing.parameterize(
@@ -48,6 +48,7 @@ except ImportError:
         'instance_colors': [
             (255, 0, 0), (0, 255, 0), (0, 0, 255), (100, 100, 100)]},
 )
+@unittest.skipUnless(_available, 'Matplotlib is not installed')
 class TestVisBbox(unittest.TestCase):
 
     def setUp(self):
@@ -65,9 +66,6 @@ class TestVisBbox(unittest.TestCase):
             self.instance_colors = None
 
     def test_vis_bbox(self):
-        if not optional_modules:
-            return
-
         ax = vis_bbox(
             self.img, self.bbox, self.label, self.score,
             label_names=self.label_names,
@@ -98,6 +96,7 @@ class TestVisBbox(unittest.TestCase):
         'n_bbox': 3, 'label': (-1, 1, 2), 'score': (0, 0.5, 1),
         'label_names': ('c0', 'c1', 'c2')},
 )
+@unittest.skipUnless(_available, 'Matplotlib is not installed')
 class TestVisBboxInvalidInputs(unittest.TestCase):
 
     def setUp(self):
@@ -111,9 +110,6 @@ class TestVisBboxInvalidInputs(unittest.TestCase):
             self.instance_colors = None
 
     def test_vis_bbox_invalid_inputs(self):
-        if not optional_modules:
-            return
-
         with self.assertRaises(ValueError):
             vis_bbox(
                 self.img, self.bbox, self.label, self.score,

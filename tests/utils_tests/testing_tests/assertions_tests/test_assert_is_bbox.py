@@ -17,6 +17,10 @@ from chainercv.utils import assert_is_bbox
         'size': (48, 64),
         'valid': True},
     {
+        'bbox': np.zeros((0, 4), dtype=np.float32),
+        'size': (48, 64),
+        'valid': True},
+    {
         'tl': np.random.uniform(20, 32, size=(10, 2)).astype(np.float32),
         'hw': np.random.uniform(16, 32, size=(10, 2)).astype(np.float32),
         'size': (16, 24),
@@ -37,6 +41,10 @@ from chainercv.utils import assert_is_bbox
         'valid': False},
     {
         'bbox': ((0, 1, 2, 3), (1, 2, 3, 4)),
+        'valid': False},
+    {
+        'bbox': np.zeros((0, 3), dtype=np.float32),
+        'size': (48, 64),
         'valid': False},
 )
 class TestAssertIsBbox(unittest.TestCase):

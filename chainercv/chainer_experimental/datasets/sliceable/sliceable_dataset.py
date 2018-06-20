@@ -1,21 +1,44 @@
+import numbers
+import numpy as np
 import six
 
 import chainer
 
 
+def _is_iterable(x):
+    if isinstance(x, str):
+        return False
+    return hasattr(x, '__iter__')
+
+
 def _as_tuple(t):
-    if isinstance(t, (tuple, list)):
+    if _is_iterable(t):
         return tuple(t)
     else:
         return t,
 
 
-def _as_indices(keys, key_names):
-    keys = _as_tuple(keys)
+def _bool_to_indices(indices, len_):
+    true_indices = []
+    for i, index in enumerate(indices):
+        if isinstance(index, (bool, np.bool_)):
+            if index:
+                true_indices.append(i)
+        else:
+            return indices
+
+    if not len(indices) == len_:
+        raise ValueError(
+            'The number of booleans is different from the length of dataset')
+    return true_indices
+
+
+def _as_key_indices(keys, key_names):
     key_names = _as_tuple(key_names)
+    keys = _bool_to_indices(_as_tuple(keys), len(key_names))
 
     for key in keys:
-        if isinstance(key, int):
+        if isinstance(key, numbers.Integral):
             key_index = key
             if key_index < 0:
                 key_index += len(key_names)
@@ -92,33 +115,35 @@ class SliceHelper(object):
 
     def __getitem__(self, args):
         if isinstance(args, tuple):
-            index, keys = args
+            indices, keys = args
         else:
-            index = args
+            indices = args
             keys = self._dataset.keys
 
-        key_indices = tuple(_as_indices(keys, self._dataset.keys))
-        return_tuple = isinstance(keys, (list, tuple))
+        if not isinstance(indices, slice):
+            indices = _bool_to_indices(indices, len(self._dataset))
+        key_indices = tuple(_as_key_indices(keys, self._dataset.keys))
+        return_tuple = _is_iterable(keys)
 
         return SlicedDataset(
-            self._dataset, index,
+            self._dataset, indices,
             tuple(key_indices) if return_tuple else key_indices[0])
 
 
 class SlicedDataset(SliceableDataset):
     """A sliced view for :class:`SliceableDataset`."""
 
-    def __init__(self, dataset, index, key_indices):
+    def __init__(self, dataset, indices, key_indices):
         self._dataset = dataset
-        self._index = index
+        self._indices = indices
         self._key_indices = key_indices
 
     def __len__(self):
-        if isinstance(self._index, slice):
-            start, end, step = self._index.indices(len(self._dataset))
+        if isinstance(self._indices, slice):
+            start, end, step = self._indices.indices(len(self._dataset))
             return len(range(start, end, step))
         else:
-            return len(self._index)
+            return len(self._indices)
 
     @property
     def keys(self):
@@ -136,10 +161,10 @@ class SlicedDataset(SliceableDataset):
         else:
             key_indices = _as_tuple(self._key_indices)[key_indices]
 
-        if isinstance(self._index, slice):
-            start, _, step = self._index.indices(len(self._dataset))
+        if isinstance(self._indices, slice):
+            start, _, step = self._indices.indices(len(self._dataset))
             return self._dataset.get_example_by_keys(
                 start + index * step, key_indices)
         else:
             return self._dataset.get_example_by_keys(
-                self._index[index], key_indices)
+                self._indices[index], key_indices)
