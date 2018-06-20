@@ -1,4 +1,4 @@
-mport glob
+import glob
 import os
 
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
