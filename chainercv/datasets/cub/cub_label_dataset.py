@@ -54,7 +54,7 @@ class CUBLabelDataset(CUBDatasetBase):
                   d_label in open(image_class_labels_file)]
         self._labels = np.array(labels, dtype=np.int32)
 
-        self.add_getter('label', lambda i: self._labels[i])
+        self.add_getter('label', self._get_label)
 
         keys = ('img', 'label')
         if return_bb:
@@ -62,3 +62,6 @@ class CUBLabelDataset(CUBDatasetBase):
         if return_prob_map:
             keys += ('prob_map',)
         self.keys = keys
+
+    def _get_label(self, i):
+        return self._labels[i]

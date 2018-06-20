@@ -41,8 +41,11 @@ class ADE20KTestImageDataset(GetterDataset):
         img_dir = os.path.join(data_dir, 'release_test', 'testing')
         self.img_paths = sorted(glob.glob(os.path.join(img_dir, '*.jpg')))
 
-        self.add_getter('img', lambda i: read_image(self.img_paths[i]))
+        self.add_getter('img', self._get_image)
         self.keys = 'img'  # do not return tuple
 
     def __len__(self):
         return len(self.img_paths)
+
+    def _get_image(self, i):
+        return read_image(self.img_paths[i])
