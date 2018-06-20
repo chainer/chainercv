@@ -35,7 +35,6 @@ class TrainTransform(object):
         self.mean = mean
 
     def __call__(self, in_data):
-        # https://github.com/facebook/fb.resnet.torch/blob/master/datasets/imagenet.lua#L80
         img, label = in_data
         _, H, W = img.shape
         img = random_sized_crop(img)
@@ -61,18 +60,18 @@ class ValTransform(object):
 def main():
     archs = {
         'resnet50': {'class': ResNet50, 'score_layer_name': 'fc6',
-                     'kwargs': {'fb_resnet': True}},
+                     'kwargs': {'arch': 'fb'}},
         'resnet101': {'class': ResNet101, 'score_layer_name': 'fc6',
-                      'kwargs': {'fb_resnet': True}},
+                      'kwargs': {'arch': 'fb'}},
         'resnet152': {'class': ResNet152, 'score_layer_name': 'fc6',
-                      'kwargs': {'fb_resnet': True}}
+                      'kwargs': {'arch': 'fb'}}
     }
     parser = argparse.ArgumentParser(
         description='Learning convnet from ILSVRC2012 dataset')
     parser.add_argument('train', help='Path to root of the train dataset')
     parser.add_argument('val', help='Path to root of the validation dataset')
     parser.add_argument('--arch',
-                        '-a', choices=archs.keys(), default='resnet18',
+                        '-a', choices=archs.keys(), default='resnet50',
                         help='Convnet architecture')
     parser.add_argument('--communicator', type=str,
                         default='hierarchical', help='Type of communicator')
@@ -94,6 +93,9 @@ def main():
         lr = args.lr
     else:
         lr = 0.1 * (args.batchsize * comm.size) / 256
+        if comm.rank == 0:
+            print('lr={}: lr is selected based on linear scaling rule'.format(
+                lr))
 
     label_names = directory_parsing_label_names(args.train)
 
@@ -114,10 +116,12 @@ def main():
     train_data = chainermn.scatter_dataset(train_data, comm, shuffle=True)
     val_data = chainermn.scatter_dataset(val_data, comm, shuffle=True)
     train_iter = chainer.iterators.MultiprocessIterator(
-        train_data, args.batchsize, shared_mem=3 * 224 * 224 * 4)
+        train_data, args.batchsize, shared_mem=3 * 224 * 224 * 4,
+        n_processes=args.loaderjob)
     val_iter = iterators.MultiprocessIterator(
         val_data, args.batchsize,
-        repeat=False, shuffle=False, shared_mem=3 * 224 * 224 * 4)
+        repeat=False, shuffle=False, shared_mem=3 * 224 * 224 * 4,
+        n_processes=args.loaderjob)
 
     optimizer = chainermn.create_multi_node_optimizer(
         CorrectedMomentumSGD(lr=lr, momentum=args.momentum), comm)
@@ -129,7 +133,10 @@ def main():
     if device >= 0:
         chainer.cuda.get_device(device).use()
         model.to_gpu()
+
+    # Configure GPU setting
     chainer.cuda.set_max_workspace_size(1 * 1024 * 1024 * 1024)
+    chainer.using_config('autotune', True)
 
     updater = chainer.training.StandardUpdater(
         train_iter, optimizer, device=device)
