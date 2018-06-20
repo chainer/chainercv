@@ -6,6 +6,7 @@ from chainer import testing
 from chainer.testing import attr
 
 from chainercv.experimental.links.model.fcis import FCISTrainChain
+from chainercv.utils import mask_to_bbox
 
 from test_fcis import _random_array
 from test_fcis import DummyFCIS
@@ -37,7 +38,8 @@ class TestFCISTrainChain(unittest.TestCase):
         self.scale = np.array(1.)
 
     def check_call(self, model, imgs, masks, labels, scale):
-        loss = model(imgs, masks, labels, scale)
+        bboxes = mask_to_bbox(masks[0])[None]
+        loss = model(imgs, masks, labels, bboxes, scale)
         self.assertEqual(loss.shape, ())
 
     def test_call_cpu(self):

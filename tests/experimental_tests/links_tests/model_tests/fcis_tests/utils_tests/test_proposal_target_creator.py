@@ -9,6 +9,7 @@ from chainer.testing import attr
 
 from chainercv.experimental.links.model.fcis import ProposalTargetCreator
 from chainercv.utils import generate_random_bbox
+from chainercv.utils import mask_to_bbox
 
 
 class TestProposalTargetCreator(unittest.TestCase):
@@ -36,9 +37,10 @@ class TestProposalTargetCreator(unittest.TestCase):
     def check_proposal_target_creator(
             self, roi, mask, label, proposal_target_creator):
         xp = cuda.get_array_module(roi)
-        sample_roi, gt_roi_loc, gt_roi_mask, gt_roi_label =\
+        bbox = mask_to_bbox(mask)
+        sample_roi, gt_roi_mask, gt_roi_label, gt_roi_loc =\
             proposal_target_creator(
-                roi, mask, label, mask_size=self.mask_size)
+                roi, mask, label, bbox, mask_size=self.mask_size)
 
         # Test types
         self.assertIsInstance(sample_roi, xp.ndarray)
