@@ -33,7 +33,7 @@ mpi4exec -n <n_gpu> python train_multi.py
 
 ```
 You can download weights that were trained by ChainerCV.
-- [FCIS ResNet101](https://chainercv-models.preferred.jp/fcis_resnet101_sbd_trained_2018_04_14.npz)
+- [FCIS ResNet101](https://chainercv-models.preferred.jp/fcis_resnet101_sbd_trained_2018_06_18.npz)
 
 ## References
 1. Yi Li et al. "Fully Convolutional Instance-aware Semantic Segmentation" CVPR 2017.
