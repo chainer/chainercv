@@ -62,9 +62,15 @@ class ADE20KSemanticSegmentationDataset(GetterDataset):
         self.img_paths = sorted(glob.glob(os.path.join(img_dir, '*.jpg')))
         self.label_paths = sorted(glob.glob(os.path.join(label_dir, '*.png')))
 
-        self.add_getter('img', lambda i: read_image(self.img_paths[i]))
-        self.add_getter('iabel', lambda i: read_image(
-            self.label_paths[i], dtype=np.int32, color=False)[0])
+        self.add_getter('img', self._get_image)
+        self.add_getter('label', self._get_label)
 
     def __len__(self):
         return len(self.img_paths)
+
+    def _get_image(self, i):
+        return read_image(self.img_paths[i])
+
+    def _get_label(self, i):
+        return read_image(
+            self.label_paths[i], dtype=np.int32, color=False)[0]
