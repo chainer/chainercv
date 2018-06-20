@@ -182,8 +182,6 @@ def main():
                 trigger=plot_interval
             )
 
-        trainer.extend(extensions.dump_graph('main/loss'))
-
     trainer.run()
 
 
