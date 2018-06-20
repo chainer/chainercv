@@ -161,20 +161,22 @@ class KITTIBboxDataset(GetterDataset):
 
         # convert list to ndarray
         if len(bbox[i]) == 0:
-            # Data Padding(Pass Bbox Test)
             # NG
             # bbox[i] = [[0.0, 0.0, 0.0, 0.0]]
-            bbox[i] = [[0.0, 0.0, 0.01, 0.01]]
-
-        np_bbox = np.array(bbox[i], dtype=np.float32)
+            # Data Padding(Pass Bbox Test)
+            # bbox[i] = [[0.0, 0.0, 0.01, 0.01]]
+            np_bbox = np.zeros((0, 4), dtype=np.float32)
+        else:
+            np_bbox = np.array(bbox[i], dtype=np.float32)
 
         if len(label[i]) == 0:
             # Data Padding(Pass Bbox Test)
-            label[i] = [7]
-
-        np_label = np.array(label[i], dtype=np.int32)
+            # label[i] = [0]
+            np_label = np.zeros((0, 1), dtype=np.int32)
+        else
+            np_label = np.array(label[i], dtype=np.int32)
 
         # debug print
-        print(np_bbox)
-        print(np_label)
+        # print(np_bbox)
+        # print(np_label)
         return np_bbox, np_label
