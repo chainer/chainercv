@@ -173,7 +173,7 @@ class KITTIBboxDataset(GetterDataset):
             # Data Padding(Pass Bbox Test)
             # label[i] = [0]
             np_label = np.zeros((0, 1), dtype=np.int32)
-        else
+        else:
             np_label = np.array(label[i], dtype=np.int32)
 
         # debug print
