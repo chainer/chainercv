@@ -9,9 +9,9 @@ from chainercv.utils import assert_is_instance_segmentation_dataset
 
 try:
     import scipy  # NOQA
-    _scipy_available = True
+    _available = True
 except ImportError:
-    _scipy_available = False
+    _available = False
 
 
 @testing.parameterize(
@@ -19,7 +19,7 @@ except ImportError:
     {'split': 'val'},
     {'split': 'trainval'}
 )
-@unittest.skipIf(not _scipy_available, 'SciPy is not installed')
+@unittest.skipUnless(_available, 'SciPy is not installed')
 class TestSBDInstanceSegmentationDataset(unittest.TestCase):
 
     def setUp(self):

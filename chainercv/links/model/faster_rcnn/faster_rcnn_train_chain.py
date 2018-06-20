@@ -40,7 +40,7 @@ class FasterRCNNTrainChain(chainer.Chain):
             in [#FRCNN]_.
         anchor_target_creator: An instantiation of
             :class:`~chainercv.links.model.faster_rcnn.AnchorTargetCreator`.
-        proposal_target_creator_params: An instantiation of
+        proposal_target_creator: An instantiation of
             :class:`~chainercv.links.model.faster_rcnn.ProposalTargetCreator`.
 
     """

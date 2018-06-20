@@ -26,7 +26,7 @@ The score is reported using a weight converted from a weight trained by Caffe.
 These scores are obtained using OpenCV backend. If Pillow is used, scores would differ.
 
 ```
-$ python eval_imagenet.py <path_to_val_dataset> [--model vgg16|resnet50|resnet101|resnet152] [--pretrained_model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>] [--crop center|10]
+$ python eval_imagenet.py <path_to_val_dataset> [--model vgg16|resnet50|resnet101|resnet152] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>] [--crop center|10]
 ```
 
 ## Training Models

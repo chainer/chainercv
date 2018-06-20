@@ -14,9 +14,9 @@ from chainercv.utils import ProgressHook
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('fcis_resnet101'),
+        '--model', choices=('fcis_resnet101',),
         default='fcis_resnet101')
-    parser.add_argument('--pretrained_model')
+    parser.add_argument('--pretrained-model')
     parser.add_argument('--iou-thresh', type=float, default=0.5)
     parser.add_argument('--gpu', type=int, default=-1)
     args = parser.parse_args()

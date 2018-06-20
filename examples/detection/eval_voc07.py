@@ -21,7 +21,7 @@ def main():
         '--model',
         choices=('faster_rcnn', 'ssd300', 'ssd512', 'yolo_v2', 'yolo_v3'),
         default='ssd300')
-    parser.add_argument('--pretrained_model')
+    parser.add_argument('--pretrained-model')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
     args = parser.parse_args()

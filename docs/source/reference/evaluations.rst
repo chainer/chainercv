@@ -4,6 +4,14 @@ Evaluations
 .. module:: chainercv.evaluations
 
 
+Detection COCO
+--------------
+
+eval_detection_coco
+~~~~~~~~~~~~~~~~~~~
+.. autofunction:: eval_detection_coco
+
+
 Detection VOC
 -------------
 

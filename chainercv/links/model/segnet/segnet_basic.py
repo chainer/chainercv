@@ -56,8 +56,8 @@ class SegNetBasic(chainer.Chain):
     _models = {
         'camvid': {
             'param': {'n_class': 11},
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.2/segnet_camvid_2017_05_28.npz'
+            'url': 'https://chainercv-models.preferred.jp/'
+            'segnet_camvid_trained_2017_05_28.npz'
         }
     }
 

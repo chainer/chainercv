@@ -52,5 +52,6 @@ def _check_example(example, n_fg_class):
         'The shape of label must be (*,).'
     assert len(label) == len(bbox), \
         'The length of label must be same as that of bbox.'
-    assert label.min() >= 0 and label.max() < n_fg_class, \
-        'The value of label must be in [0, n_fg_class - 1].'
+    if len(label) > 0:
+        assert label.min() >= 0 and label.max() < n_fg_class, \
+            'The value of label must be in [0, n_fg_class - 1].'
