@@ -92,8 +92,8 @@ def main():
     else:
         lr = 0.1 * (args.batchsize * comm.size) / 256
         if comm.rank == 0:
-            print('lr={}: lr is selected based on linear scaling rule'.format(
-                lr))
+            print('lr={}: lr is selected based on the linear '
+                  'scaling rule'.format(lr))
 
     label_names = directory_parsing_label_names(args.train)
 
