@@ -5,7 +5,6 @@ from chainer import cuda
 from chainercv.links.model.faster_rcnn.utils.bbox2loc import bbox2loc
 from chainercv.transforms.image.resize import resize
 from chainercv.utils.bbox.bbox_iou import bbox_iou
-from chainercv.utils import mask_to_bbox
 
 
 class ProposalTargetCreator(object):
