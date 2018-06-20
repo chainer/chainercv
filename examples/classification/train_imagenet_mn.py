@@ -123,10 +123,9 @@ def main():
     optimizer = chainermn.create_multi_node_optimizer(
         CorrectedMomentumSGD(lr=lr, momentum=args.momentum), comm)
     optimizer.setup(model)
-    for l in model.links():
-        if not isinstance(l, chainer.links.BatchNormalization):
-            for param in l.params():
-                param.update_rule.add_hook(WeightDecay(args.weight_decay))
+    for param in model.params():
+        if param.name != 'beta' and param.name != 'gamma':
+            param.update_rule.add_hook(WeightDecay(args.weight_decay))
 
     if device >= 0:
         chainer.cuda.get_device(device).use()
