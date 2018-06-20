@@ -88,11 +88,14 @@ class CityscapesSemanticSegmentationDataset(GetterDataset):
             img_path = os.path.join(img_dir, city_dname, img_path)
             self.img_paths.append(img_path)
 
-        self.add_getter('img', lambda i: read_image(self.img_paths[i]))
+        self.add_getter('img', self._get_image)
         self.add_getter('label', self._get_label)
 
     def __len__(self):
         return len(self.img_paths)
+
+    def _get_image(self, i):
+        return read_image(self.img_paths[i])
 
     def _get_label(self, i):
         label_orig = read_image(
