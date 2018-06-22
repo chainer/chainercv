@@ -157,8 +157,6 @@ def main():
         extensions.ProgressBar(update_interval=10))
 
     if extensions.PlotReport.available():
-        import matplotlib
-        matplotlib.use('Agg')
         trainer.extend(
             extensions.PlotReport(
                 ['main/loss'],
