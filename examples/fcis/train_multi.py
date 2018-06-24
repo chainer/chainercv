@@ -27,7 +27,10 @@ def main():
     parser.add_argument('--out', '-o', default='result',
                         help='Output directory')
     parser.add_argument('--seed', '-s', type=int, default=0)
-    parser.add_argument('--lr', '-l', type=float, default=0.0005)
+    parser.add_argument(
+        '--lr', '-l', type=float, default=0.0005,
+        help='Default value is for 1 GPU.\n'
+             'The learning rate should be multiplied by the number of gpu')
     parser.add_argument(
         '--lr-cooldown-factor', '-lcf', type=float, default=0.1)
     parser.add_argument('--epoch', '-e', type=int, default=42)
@@ -69,7 +72,7 @@ def main():
 
     # optimizer
     optimizer = chainermn.create_multi_node_optimizer(
-        chainer.optimizers.MomentumSGD(lr=args.lr * comm.size, momentum=0.9),
+        chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9),
         comm)
     optimizer.setup(model)
 
@@ -93,7 +96,7 @@ def main():
     # lr scheduler
     trainer.extend(
         chainer.training.extensions.ExponentialShift(
-            'lr', args.lr_cooldown_factor, init=args.lr * comm.size),
+            'lr', args.lr_cooldown_factor, init=args.lr),
         trigger=(args.cooldown_epoch, 'epoch'))
 
     if comm.rank == 0:
