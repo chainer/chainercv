@@ -69,7 +69,7 @@ def main():
     parser.add_argument('--lr', '-l', type=float, default=0.0005)
     parser.add_argument(
         '--lr-cooldown-factor', '-lcf', type=float, default=0.1)
-    parser.add_argument('--epoch', '-e', type=int, default=44)
+    parser.add_argument('--epoch', '-e', type=int, default=42)
     parser.add_argument('--cooldown-epoch', '-ce', type=int, default=28)
     args = parser.parse_args()
 
