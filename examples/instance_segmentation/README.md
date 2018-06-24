@@ -12,7 +12,7 @@ For the details, please check the documents and examples of each model.
 
 | Model | FPS | mAP@0.5 | mAP@0.7 |
 |:-:|:-:|:-:|:-:|
-| FCIS ResNet101 | | 64.2 % | 51.4 % |
+| FCIS ResNet101 | | 64.1 % | 51.2 % |
 
 You can reproduce these scores by the following command.
 

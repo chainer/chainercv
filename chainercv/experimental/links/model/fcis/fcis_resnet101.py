@@ -84,7 +84,7 @@ class FCISResNet101(FCIS):
         'sbd': {
             'param': {'n_fg_class': 20},
             'url': 'https://chainercv-models.preferred.jp/'
-            'fcis_resnet101_sbd_trained_2018_06_18.npz',
+            'fcis_resnet101_sbd_trained_2018_06_22.npz',
             'cv2': True
         }
     }

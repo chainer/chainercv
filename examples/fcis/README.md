@@ -5,7 +5,7 @@ SBD Train & Test
 
 | Model | mAP@0.5 in Original [1] | mAP@0.7 in Original [1] | mAP@0.5 in ChainerCV | mAP@0.7 in ChainerCV |
 |:-:|:-:|:-:|:-:|:-:|
-| FCIS ResNet101| 65.7 | 52.1 | 64.2 (1 GPU) | 51.4 (1 GPU) |
+| FCIS ResNet101| 65.7 | 52.1 | 64.1 (1 GPU) | 51.2 (1 GPU) |
 
 ## Demo
 Segment objects in an given image. This demo downloads SBD pretrained model automatically if a pretrained model path is not given.
