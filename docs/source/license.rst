@@ -20,6 +20,8 @@ See the following resources for the terms of use of a model with weights pretrai
       - resource
     * - ResNet50/101/152 (:obj:`imagenet`)
       - * `ResNet50/101/152 (trained on ImageNet) <https://github.com/KaimingHe/deep-residual-networks#models>`_
+    * - SEResNet/101/152 (:obj:`imagenet`)
+      - * `SEResNet50/101/152 (trained on ImageNet) <https://github.com/hujie-frank/SENet>`_
     * - VGG16 (:obj:`imagenet`)
       - * `VGG-16 (trained on ImageNet) <http://www.robots.ox.ac.uk/%7Evgg/research/very_deep/>`_
     * - FasterRCNNVGG16 (:obj:`imagenet`)
