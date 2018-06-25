@@ -58,7 +58,30 @@ class TestSEResNetCall(unittest.TestCase):
         self.check_call()
 
 
-# TODO(g-votte): Add TestSEResNetPretrained.
+@testing.parameterize(*testing.product({
+    'model': [SEResNet50, SEResNet101, SEResNet152],
+    'n_class': [None, 500, 1000],
+    'pretrained_model': ['imagenet'],
+    'mean': [None, np.random.uniform((3, 1, 1)).astype(np.float32)],
+}))
+class TestSEResNetPretrained(unittest.TestCase):
+
+    @attr.slow
+    def test_pretrained(self):
+        kwargs = {
+            'n_class': self.n_class,
+            'pretrained_model': self.pretrained_model,
+            'mean': self.mean,
+        }
+
+        if self.pretrained_model == 'imagenet':
+            valid = self.n_class in {None, 1000}
+
+        if valid:
+            self.model(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                self.model(**kwargs)
 
 
 testing.run_module(__name__, __file__)

@@ -79,21 +79,24 @@ class SEResNet(PickableSequentialChain):
             'imagenet': {
                 'param': {'n_class': 1000, 'mean': _imagenet_mean},
                 'overwritable': {'mean'},
-                'url': None  # TODO(g-votte): Put model URL.
+                'url': 'https://chainercv-models.preferred.jp/'
+                'se_resnet50_imagenet_converted_2018_06_25.npz'
             },
         },
         101: {
             'imagenet': {
                 'param': {'n_class': 1000, 'mean': _imagenet_mean},
                 'overwritable': {'mean'},
-                'url': None  # TODO(g-votte): Put model URL.
+                'url': 'https://chainercv-models.preferred.jp/'
+                'se_resnet101_imagenet_converted_2018_06_25.npz'
             },
         },
         152: {
             'imagenet': {
                 'param': {'n_class': 1000, 'mean': _imagenet_mean},
                 'overwritable': {'mean'},
-                'url': None  # TODO(g-votte): Put model URL.
+                'url': 'https://chainercv-models.preferred.jp/'
+                'se_resnet152_imagenet_converted_2018_06_25.npz'
             },
         }
     }
@@ -102,10 +105,6 @@ class SEResNet(PickableSequentialChain):
                  n_class=None,
                  pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}):
-
-        if pretrained_model == 'imagenet':
-            raise NotImplementedError
-
         blocks = self._blocks[n_layer]
 
         param, path = utils.prepare_pretrained_model(
@@ -124,7 +123,7 @@ class SEResNet(PickableSequentialChain):
             initialW = initializers.constant.Zero()
             fc_kwargs['initialW'] = initializers.constant.Zero()
         kwargs = {
-            'initialW': initialW, 'stride_first': True, 'add_se_block': True}
+            'initialW': initialW, 'stride_first': True, 'add_seblock': True}
 
         super(SEResNet, self).__init__()
         with self.init_scope():
