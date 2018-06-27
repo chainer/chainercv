@@ -271,7 +271,7 @@ class FCIS(chainer.Chain):
             bbox[:, 1::2] = self.xp.clip(bbox[:, 1::2], 0, size[1])
 
             # shape: (n_roi, roi_size, roi_size)
-            roi_seg_prob = F.softmax(roi_ag_seg_score).array[:, 1, :, :]
+            roi_seg_prob = F.softmax(roi_ag_seg_score).array[:, 1]
             roi_cls_prob = F.softmax(roi_cls_score).array
 
             roi_seg_prob = chainer.cuda.to_cpu(roi_seg_prob)
