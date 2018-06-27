@@ -16,4 +16,4 @@ dependencies:
   - scipy
   - pip:
     - chainermn==1.3.0
-    - pykitti==0.3.0
+    - pykitti==0.2.4

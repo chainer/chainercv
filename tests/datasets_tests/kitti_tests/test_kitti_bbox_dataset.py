@@ -43,28 +43,64 @@ from chainercv.utils import assert_is_bbox_dataset
     },
     {
         'date': '2011_09_26',
-        'drive_num': '0017',
-        'color': True,
-        'sync': True,
-        'is_left': True,
-        'tracklet': False
-    },
-    {
-        'date': '2011_09_28',
-        'drive_num': '0001',
-        'color': True,
-        'sync': True,
-        'is_left': True,
-        'tracklet': False
-    },
-    {
-        'date': '2011_10_03',
-        'drive_num': '0047',
+        'drive_num': '0005',
         'color': True,
         'sync': True,
         'is_left': True,
         'tracklet': True
     },
+    {
+        'date': '2011_09_26',
+        'drive_num': '0056',
+        'color': True,
+        'sync': True,
+        'is_left': True,
+        'tracklet': True
+    },
+    {
+        'date': '2011_09_26',
+        'drive_num': '0057',
+        'color': True,
+        'sync': True,
+        'is_left': True,
+        'tracklet': True
+    },
+    # Test NG(not Tracklet data)
+    # {
+    #     'date': '2011_09_26',
+    #     'drive_num': '0001',
+    #     'color': True,
+    #     'sync': True,
+    #     'is_left': True,
+    #     'tracklet': False
+    # },
+    # Test NG(Part of Framerate not Bbox/label data)
+    # {
+    #     'date': '2011_09_26',
+    #     'drive_num': '0017',
+    #     'color': True,
+    #     'sync': True,
+    #     'is_left': True,
+    #     'tracklet': True
+    # },
+    # Test NG(not Tracklet data)
+    # {
+    #     'date': '2011_09_28',
+    #     'drive_num': '0001',
+    #     'color': True,
+    #     'sync': True,
+    #     'is_left': True,
+    #     'tracklet': False
+    # },
+    # Test NG(not Tracklet data)
+    # {
+    #     'date': '2011_10_03',
+    #     'drive_num': '0047',
+    #     'color': True,
+    #     'sync': True,
+    #     'is_left': True,
+    #     'tracklet': True
+    # },
 )
 class TestKITTIBboxDataset(unittest.TestCase):
 

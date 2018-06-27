@@ -100,13 +100,13 @@ class KITTIBboxDataset(GetterDataset):
                 self.cur_rotation_matrix = self.dataset.calib.R_rect_20
                 self.cur_position_matrix = self.dataset.calib.P_rect_20
                 # pykitti>=0.3.0
-                self.imgs = np.array(list(self.dataset.get_cam2))
+                self.imgs = np.array(list(self.dataset.cam2))
             else:
                 # img03
                 self.cur_rotation_matrix = self.dataset.calib.R_rect_30
                 self.cur_position_matrix = self.dataset.calib.P_rect_30
                 # pykitti>=0.3.0
-                self.imgs = np.array(list(self.dataset.get_cam3))
+                self.imgs = np.array(list(self.dataset.cam3))
         else:
             # warnings.warn(
             #     'pykitti is gray image return (H, W, C=1) array,'
@@ -116,13 +116,13 @@ class KITTIBboxDataset(GetterDataset):
                 self.cur_rotation_matrix = self.dataset.calib.R_rect_00
                 self.cur_position_matrix = self.dataset.calib.P_rect_00
                 # pykitti>=0.3.0
-                self.imgs = np.array(list(self.dataset.get_cam0))
+                self.imgs = np.array(self.dataset.cam0)
             else:
                 # img01
                 self.cur_rotation_matrix = self.dataset.calib.R_rect_10
                 self.cur_position_matrix = self.dataset.calib.P_rect_10
                 # pykitti>=0.3.0
-                self.imgs = np.array(list(self.dataset.get_cam1))
+                self.imgs = np.array(self.dataset.cam1)
 
         # get object info(type/area/bbox/...)
         if self.tracklet is True:
@@ -152,6 +152,7 @@ class KITTIBboxDataset(GetterDataset):
             # reshape (H, W) -> (1, H, W)
             return img[np.newaxis]
         else:
+            # pykitti img data
             # transpose (H, W, C) -> (C, H, W)
             return img.transpose((2, 0, 1))
 
