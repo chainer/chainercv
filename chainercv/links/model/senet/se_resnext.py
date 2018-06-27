@@ -22,22 +22,27 @@ _imagenet_mean = np.array(
     dtype=np.float32)[:, np.newaxis, np.newaxis]
 
 
-class SEResNet(PickableSequentialChain):
+class SEResNeXt(PickableSequentialChain):
 
-    """Base class for SE-ResNet architecture.
+    """Base class for SE-ResNeXt architecture.
 
-    This architecture is based on ResNet. A squeeze-and-excitation block is
-    applied at the end of each non-identity branch of residual block. Please
-    refer to `the original paper  <https://arxiv.org/pdf/1709.01507.pdf>`_
-    for a detailed description of network architecture.
+    ResNeXt is a ResNet-based architecture, where grouped convolution is
+    adopted to the second convolution layer of each bottleneck block.
+    In addition, a squeeze-and-excitation block is applied at the end of
+    each non-identity branch of residual block. Please refer to `Aggregated
+    Residual Transformations for Deep Neural Networks
+    <https://arxiv.org/pdf/1611.05431.pdf>`_ and `Squeeze-and-Excitation
+    Networks <https://arxiv.org/pdf/1709.01507.pdf>`_ for detailed
+    description of network architecture.
 
     Similar to :class:`chainercv.links.model.resnet.ResNet`, ImageNet
     pretrained weights are downloaded when :obj:`pretrained_model` argument
     is :obj:`imagenet`, originally distributed at `the Github repository by
-    one of the paper authors <https://github.com/hujie-frank/SENet>`_.
+    one of the paper authors of SENet <https://github.com/hujie-frank/SENet>`_.
 
     .. seealso::
         :class:`chainercv.links.model.resnet.ResNet`
+        :class:`chainercv.links.model.senet.SEResNet`
         :class:`chainercv.links.connection.SEBlock`
 
     Args:
@@ -80,24 +85,21 @@ class SEResNet(PickableSequentialChain):
             'imagenet': {
                 'param': {'n_class': 1000, 'mean': _imagenet_mean},
                 'overwritable': {'mean'},
-                'url': 'https://chainercv-models.preferred.jp/'
-                'se_resnet50_imagenet_converted_2018_06_25.npz'
+                'url': None  # TODO(g-votte): Put download URL.
             },
         },
         101: {
             'imagenet': {
                 'param': {'n_class': 1000, 'mean': _imagenet_mean},
                 'overwritable': {'mean'},
-                'url': 'https://chainercv-models.preferred.jp/'
-                'se_resnet101_imagenet_converted_2018_06_25.npz'
+                'url': None  # TODO(g-votte): Put download URL.
             },
         },
         152: {
             'imagenet': {
                 'param': {'n_class': 1000, 'mean': _imagenet_mean},
                 'overwritable': {'mean'},
-                'url': 'https://chainercv-models.preferred.jp/'
-                'se_resnet152_imagenet_converted_2018_06_25.npz'
+                'url': None  # TODO(g-votte): Put download URL.
             },
         }
     }
@@ -106,6 +108,9 @@ class SEResNet(PickableSequentialChain):
                  n_class=None,
                  pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}):
+        if pretrained_model == 'imagenet':
+            raise NotImplementedError
+
         blocks = self._blocks[n_layer]
 
         param, path = utils.prepare_pretrained_model(
@@ -124,17 +129,18 @@ class SEResNet(PickableSequentialChain):
             initialW = initializers.constant.Zero()
             fc_kwargs['initialW'] = initializers.constant.Zero()
         kwargs = {
-            'initialW': initialW, 'stride_first': True, 'add_seblock': True}
+            'groups': 32, 'initialW': initialW, 'stride_first': False,
+            'add_seblock': True}
 
-        super(SEResNet, self).__init__()
+        super(SEResNeXt, self).__init__()
         with self.init_scope():
             self.conv1 = Conv2DBNActiv(None, 64, 7, 2, 3, nobias=True,
                                        initialW=initialW)
             self.pool1 = lambda x: F.max_pooling_2d(x, ksize=3, stride=2)
-            self.res2 = ResBlock(blocks[0], None, 64, 256, 1, **kwargs)
-            self.res3 = ResBlock(blocks[1], None, 128, 512, 2, **kwargs)
-            self.res4 = ResBlock(blocks[2], None, 256, 1024, 2, **kwargs)
-            self.res5 = ResBlock(blocks[3], None, 512, 2048, 2, **kwargs)
+            self.res2 = ResBlock(blocks[0], None, 128, 256, 1, **kwargs)
+            self.res3 = ResBlock(blocks[1], None, 256, 512, 2, **kwargs)
+            self.res4 = ResBlock(blocks[2], None, 512, 1024, 2, **kwargs)
+            self.res5 = ResBlock(blocks[3], None, 1024, 2048, 2, **kwargs)
             self.pool5 = global_average_pooling_2d
             self.fc6 = L.Linear(None, param['n_class'], **fc_kwargs)
             self.prob = F.softmax
@@ -143,55 +149,37 @@ class SEResNet(PickableSequentialChain):
             chainer.serializers.load_npz(path, self)
 
 
-class SEResNet50(SEResNet):
+class SEResNeXt50(SEResNeXt):
 
-    """SE-ResNet-50 Network.
+    """SE-ResNeXt-50 Network
 
-    Please consult the documentation for :class:`SEResNet`.
+    Please consult the documentation for :class:`SEResNeXt`.
 
     .. seealso::
-        :class:`chainercv.links.model.senet.SEResNet`
+        :class:`chainercv.links.model.senet.SEResNeXt`
 
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}):
-        super(SEResNet50, self).__init__(
+        super(SEResNeXt50, self).__init__(
             50, n_class, pretrained_model,
             mean, initialW, fc_kwargs)
 
 
-class SEResNet101(SEResNet):
+class SEResNeXt101(SEResNeXt):
 
-    """SE-ResNet-101 Network.
+    """SE-ResNeXt-101 Network
 
-    Please consult the documentation for :class:`SEResNet`.
+    Please consult the documentation for :class:`SEResNeXt`.
 
     .. seealso::
-        :class:`chainercv.links.model.senet.SEResNet`
+        :class:`chainercv.links.model.senet.SEResNeXt`
 
     """
 
     def __init__(self, n_class=None, pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}):
-        super(SEResNet101, self).__init__(
+        super(SEResNeXt101, self).__init__(
             101, n_class, pretrained_model,
-            mean, initialW, fc_kwargs)
-
-
-class SEResNet152(SEResNet):
-
-    """SE-ResNet-152 Network.
-
-    Please consult the documentation for :class:`SEResNet`.
-
-    .. seealso::
-        :class:`chainercv.links.model.senet.SEResNet`
-
-    """
-
-    def __init__(self, n_class=None, pretrained_model=None,
-                 mean=None, initialW=None, fc_kwargs={}):
-        super(SEResNet152, self).__init__(
-            152, n_class, pretrained_model,
             mean, initialW, fc_kwargs)
