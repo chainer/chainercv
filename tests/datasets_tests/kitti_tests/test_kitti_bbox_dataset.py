@@ -25,14 +25,14 @@ from chainercv.utils import assert_is_bbox_dataset
         'is_left': True,
         'tracklet': True
     },
-    {
-        'date': '2011_09_26',
-        'drive_num': '0001',
-        'color': False,
-        'sync': True,
-        'is_left': True,
-        'tracklet': True
-    },
+    # {
+    #     'date': '2011_09_26',
+    #     'drive_num': '0001',
+    #     'color': False,
+    #     'sync': True,
+    #     'is_left': True,
+    #     'tracklet': True
+    # },
     {
         'date': '2011_09_26',
         'drive_num': '0001',
