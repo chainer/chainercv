@@ -9,6 +9,7 @@ from chainercv.utils import assert_is_bbox_dataset
 
 
 @testing.parameterize(
+    # category : City
     {
         'date': '2011_09_26',
         'drive_num': '0001',
@@ -41,14 +42,33 @@ from chainercv.utils import assert_is_bbox_dataset
         'is_left': False,
         'tracklet': True
     },
-    {
-        'date': '2011_09_26',
-        'drive_num': '0009',
-        'color': True,
-        'sync': True,
-        'is_left': True,
-        'tracklet': True
-    },
+    # Test NG(not Tracklet data)
+    # {
+    #     'date': '2011_09_26',
+    #     'drive_num': '0001',
+    #     'color': True,
+    #     'sync': True,
+    #     'is_left': True,
+    #     'tracklet': False
+    # },
+    # Test NG(Part of Framerate not Bbox/label data)
+    # {
+    #     'date': '2011_09_26',
+    #     'drive_num': '0009',
+    #     'color': True,
+    #     'sync': True,
+    #     'is_left': True,
+    #     'tracklet': True
+    # },
+    # Test NG(Part of Framerate not Bbox/label data)
+    # {
+    #     'date': '2011_09_26',
+    #     'drive_num': '0017',
+    #     'color': True,
+    #     'sync': True,
+    #     'is_left': True,
+    #     'tracklet': True
+    # },
     {
         'date': '2011_09_26',
         'drive_num': '0056',
@@ -65,6 +85,16 @@ from chainercv.utils import assert_is_bbox_dataset
         'is_left': True,
         'tracklet': True
     },
+    # Test NG(not Tracklet data)
+    # {
+    #     'date': '2011_09_28',
+    #     'drive_num': '0001',
+    #     'color': True,
+    #     'sync': True,
+    #     'is_left': True,
+    #     'tracklet': False
+    # },
+    # category : Residential
     {
         'date': '2011_09_26',
         'drive_num': '0064',
@@ -73,6 +103,7 @@ from chainercv.utils import assert_is_bbox_dataset
         'is_left': True,
         'tracklet': True
     },
+    # category : Road
     {
         'date': '2011_09_26',
         'drive_num': '0032',
@@ -91,35 +122,28 @@ from chainercv.utils import assert_is_bbox_dataset
     },
     # Test NG(not Tracklet data)
     # {
-    #     'date': '2011_09_26',
-    #     'drive_num': '0001',
-    #     'color': True,
-    #     'sync': True,
-    #     'is_left': True,
-    #     'tracklet': False
-    # },
-    # Test NG(Part of Framerate not Bbox/label data)
-    # {
-    #     'date': '2011_09_26',
-    #     'drive_num': '0017',
+    #     'date': '2011_10_03',
+    #     'drive_num': '0047',
     #     'color': True,
     #     'sync': True,
     #     'is_left': True,
     #     'tracklet': True
     # },
+    # category : Campus
     # Test NG(not Tracklet data)
     # {
     #     'date': '2011_09_28',
-    #     'drive_num': '0001',
+    #     'drive_num': '0016',
     #     'color': True,
     #     'sync': True,
     #     'is_left': True,
-    #     'tracklet': False
+    #     'tracklet': True
     # },
+    # category : Person
     # Test NG(not Tracklet data)
     # {
-    #     'date': '2011_10_03',
-    #     'drive_num': '0047',
+    #     'date': '2011_09_28',
+    #     'drive_num': '0053',
     #     'color': True,
     #     'sync': True,
     #     'is_left': True,
