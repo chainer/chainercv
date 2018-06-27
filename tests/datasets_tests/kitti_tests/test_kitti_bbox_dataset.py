@@ -43,7 +43,7 @@ from chainercv.utils import assert_is_bbox_dataset
     },
     {
         'date': '2011_09_26',
-        'drive_num': '0005',
+        'drive_num': '0009',
         'color': True,
         'sync': True,
         'is_left': True,
@@ -60,6 +60,30 @@ from chainercv.utils import assert_is_bbox_dataset
     {
         'date': '2011_09_26',
         'drive_num': '0057',
+        'color': True,
+        'sync': True,
+        'is_left': True,
+        'tracklet': True
+    },
+    {
+        'date': '2011_09_26',
+        'drive_num': '0064',
+        'color': True,
+        'sync': True,
+        'is_left': True,
+        'tracklet': True
+    },
+    {
+        'date': '2011_09_26',
+        'drive_num': '0032',
+        'color': True,
+        'sync': True,
+        'is_left': True,
+        'tracklet': True
+    },
+    {
+        'date': '2011_09_26',
+        'drive_num': '0052',
         'color': True,
         'sync': True,
         'is_left': True,
