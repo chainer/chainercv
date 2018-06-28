@@ -77,7 +77,6 @@ class SEResNeXt(PickableSequentialChain):
     _blocks = {
         50: [3, 4, 6, 3],
         101: [3, 4, 23, 3],
-        152: [3, 8, 36, 3]
     }
 
     _models = {
@@ -85,32 +84,24 @@ class SEResNeXt(PickableSequentialChain):
             'imagenet': {
                 'param': {'n_class': 1000, 'mean': _imagenet_mean},
                 'overwritable': {'mean'},
-                'url': None  # TODO(g-votte): Put download URL.
+                'url': 'https://chainercv-models.preferred.jp/'
+                'se_resnext50_imagenet_converted_2018_06_28.npz'
             },
         },
         101: {
             'imagenet': {
                 'param': {'n_class': 1000, 'mean': _imagenet_mean},
                 'overwritable': {'mean'},
-                'url': None  # TODO(g-votte): Put download URL.
+                'url': 'https://chainercv-models.preferred.jp/'
+                'se_resnext101_imagenet_converted_2018_06_28.npz'
             },
         },
-        152: {
-            'imagenet': {
-                'param': {'n_class': 1000, 'mean': _imagenet_mean},
-                'overwritable': {'mean'},
-                'url': None  # TODO(g-votte): Put download URL.
-            },
-        }
     }
 
     def __init__(self, n_layer,
                  n_class=None,
                  pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}):
-        if pretrained_model == 'imagenet':
-            raise NotImplementedError
-
         blocks = self._blocks[n_layer]
 
         param, path = utils.prepare_pretrained_model(
