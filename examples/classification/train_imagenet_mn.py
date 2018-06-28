@@ -4,6 +4,7 @@ import argparse
 import chainer
 from chainer.datasets import TransformDataset
 from chainer import iterators
+from chainer.links import BatchNormalization
 from chainer.links import Classifier
 from chainer.optimizer import WeightDecay
 from chainer import training
@@ -20,6 +21,7 @@ from chainercv.transforms import scale
 from chainercv.datasets import directory_parsing_label_names
 
 from chainercv.chainer_experimental.optimizers import CorrectedMomentumSGD
+from chainercv.links.model.resnet import Bottleneck
 from chainercv.links import ResNet101
 from chainercv.links import ResNet152
 from chainercv.links import ResNet50
@@ -100,6 +102,11 @@ def main():
     extractor = arch['class'](n_class=len(label_names), **arch['kwargs'])
     extractor.pick = arch['score_layer_name']
     model = Classifier(extractor)
+    # Following https://arxiv.org/pdf/1706.02677.pdf,
+    # the gamma of the last BN of each resblock is initialized by zeros.
+    for l in model.links():
+        if isinstance(l, Bottleneck):
+            l.conv3.bn.gamma.data[:] = 0
 
     if comm.rank == 0:
         train_data = DirectoryParsingLabelDataset(args.train)
@@ -123,9 +130,10 @@ def main():
     optimizer = chainermn.create_multi_node_optimizer(
         CorrectedMomentumSGD(lr=lr, momentum=args.momentum), comm)
     optimizer.setup(model)
-    for param in model.params():
-        if param.name != 'beta' and param.name != 'gamma':
-            param.update_rule.add_hook(WeightDecay(args.weight_decay))
+    for l in model.links():
+        if not isinstance(l, BatchNormalization):
+            for param in l.params():
+                param.update_rule.add_hook(WeightDecay(args.weight_decay))
 
     if device >= 0:
         chainer.cuda.get_device(device).use()
