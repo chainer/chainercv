@@ -4,7 +4,6 @@ import argparse
 import chainer
 from chainer.datasets import TransformDataset
 from chainer import iterators
-from chainer.links import BatchNormalization
 from chainer.links import Classifier
 from chainer.optimizer import WeightDecay
 from chainer import training
