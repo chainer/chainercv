@@ -9,13 +9,23 @@ from chainer.links.caffe.caffe_function import CaffeFunction
 from chainercv.links import SEResNet101
 from chainercv.links import SEResNet152
 from chainercv.links import SEResNet50
+from chainercv.links import SEResNeXt101
+from chainercv.links import SEResNeXt50
 
 
 def _transfer_components(src, dst_conv, dst_bn, bname, cname):
     src_conv = getattr(src, 'conv{}_{}'.format(bname, cname))
     src_bn = getattr(src, 'conv{}_{}/bn'.format(bname, cname))
     src_scale = getattr(src, 'conv{}_{}/bn/scale'.format(bname, cname))
-    dst_conv.W.data[:] = src_conv.W.data
+    if dst_conv.groups == 1:
+        dst_conv.W.data[:] = src_conv.W.data
+    else:
+        group_size = src_conv.W.data.shape[1] // dst_conv.groups
+        for group in range(dst_conv.groups):
+            from_idx = group_size * group
+            to_idx = group_size * (group + 1)
+            dst_conv.W.data[from_idx: to_idx, :, :, :] = \
+                src_conv.W.data[from_idx: to_idx, from_idx: to_idx, :, :]
     dst_bn.avg_mean[:] = src_bn.avg_mean
     dst_bn.avg_var[:] = src_bn.avg_var
     dst_bn.gamma.data[:] = src_scale.W.data
@@ -134,7 +144,10 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        'model_name', choices=('se-resnet50', 'se-resnet101', 'se-resnet152'))
+        'model_name', choices=(
+            'se-resnet50', 'se-resnet101', 'se-resnet152',
+            'se-resnext50', 'se-resnext101',
+        ))
     parser.add_argument('caffemodel')
     parser.add_argument('output', nargs='?', default=None)
     args = parser.parse_args()
@@ -152,6 +165,14 @@ def main():
         model = SEResNet152(pretrained_model=None, n_class=1000)
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet152(caffemodel, model, _load_class_indices())
+    elif args.model_name == 'se-resnext50':
+        model = SEResNeXt50(pretrained_model=None, n_class=1000)
+        model(np.zeros((1, 3, 224, 224), dtype=np.float32))
+        _transfer_resnet50(caffemodel, model, _load_class_indices())
+    elif args.model_name == 'se-resnext101':
+        model = SEResNeXt101(pretrained_model=None, n_class=1000)
+        model(np.zeros((1, 3, 224, 224), dtype=np.float32))
+        _transfer_resnet101(caffemodel, model, _load_class_indices())
 
     if args.output is None:
         output = '{}_imagenet_convert.npz'.format(args.model_name)

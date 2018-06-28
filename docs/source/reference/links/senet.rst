@@ -26,3 +26,18 @@ SEResNet152
 ~~~~~~~~~~~
 .. autoclass:: SEResNet152
    :members:
+
+SEResNeXt
+~~~~~~~~~
+.. autoclass:: SEResNeXt
+   :members:
+
+SEResNeXt50
+~~~~~~~~~~~
+.. autoclass:: SEResNeXt50
+   :members:
+
+SEResNeXt101
+~~~~~~~~~~~~
+.. autoclass:: SEResNeXt101
+   :members:
