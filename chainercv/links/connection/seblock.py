@@ -2,8 +2,6 @@ import chainer
 import chainer.functions as F
 import chainer.links as L
 
-from chainercv.functions import global_average_pooling_2d
-
 
 class SEBlock(chainer.Chain):
 
@@ -36,7 +34,7 @@ class SEBlock(chainer.Chain):
     def __call__(self, u):
         n_batch, n_channels, height, width = u.shape
 
-        z = global_average_pooling_2d(u)
+        z = F.average(u, axis=(2, 3))
         x = F.relu(self.down(z))
         x = F.sigmoid(self.up(x))
 
