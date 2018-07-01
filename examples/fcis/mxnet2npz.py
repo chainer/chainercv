@@ -2,7 +2,6 @@ import argparse
 import chainer
 import mxnet as mx
 
-from chainercv.datasets import sbd_instance_segmentation_label_names
 from chainercv.experimental.links import FCISResNet101
 
 
@@ -12,12 +11,28 @@ def main():
     parser.add_argument('--param-file')
     parser.add_argument('--process', action='store_true')
     parser.add_argument(
-        '--out', '-o', type=str, default='fcis_resnet101_sbd_converted.npz')
+        '--dataset', choices=('sbd', 'coco'), type=str, default='sbd')
+    parser.add_argument(
+        '--out', '-o', type=str, default=None)
     args = parser.parse_args()
 
-    model = FCISResNet101(
-        n_fg_class=len(sbd_instance_segmentation_label_names),
-        pretrained_model=None)
+    if args.dataset == 'sbd':
+        model = FCISResNet101(
+            n_fg_class=20,
+            pretrained_model=None)
+    elif args.dataset == 'coco':
+        model = FCISResNet101(
+            n_fg_class=80,
+            pretrained_model=None,
+            anchor_scales=[4, 8, 16, 32],
+            proposal_creator_params={
+                'nms_thresh': 0.7,
+                'n_train_pre_nms': 6000,
+                'n_train_post_nms': 300,
+                'n_test_pre_nms': 6000,
+                'n_test_post_nms': 300,
+                'force_cpu_nms': False,
+                'min_size': 2})
     params = mx.nd.load(args.param_file)
     print('mxnet param is loaded: {}'.format(args.param_file))
     print('start conversion')
@@ -27,8 +42,10 @@ def main():
             params[test.replace('_test', '')] = params.pop(test)
     model = convert(model, params)
     print('finish conversion')
-    print('saving to {}'.format(args.out))
-    chainer.serializers.save_npz(args.out, model)
+    if args.out is None:
+        out = 'fcis_resnet101_{}_converted.npz'.format(args.dataset)
+    print('saving to {}'.format(out))
+    chainer.serializers.save_npz(out, model)
 
 
 def convert(model, params):
@@ -41,30 +58,30 @@ def convert(model, params):
                 continue
             elif param_name.startswith('rpn'):
                 if param_name == 'rpn_bbox_pred_bias':
-                    value = value.reshape((9, 4))
+                    value = value.reshape((-1, 4))
                     value = value[:, [1, 0, 3, 2]]
-                    value = value.reshape((36, ))
+                    value = value.reshape((-1, ))
                     assert model.rpn.loc.b.shape == value.shape
                     model.rpn.loc.b.array[:] = value
                     finished_keys.append(key)
                 elif param_name == 'rpn_bbox_pred_weight':
-                    value = value.reshape((9, 4, 512, 1, 1))
+                    value = value.reshape((-1, 4, 512, 1, 1))
                     value = value[:, [1, 0, 3, 2]]
-                    value = value.reshape((36, 512, 1, 1))
+                    value = value.reshape((-1, 512, 1, 1))
                     assert model.rpn.loc.W.shape == value.shape
                     model.rpn.loc.W.array[:] = value
                     finished_keys.append(key)
                 elif param_name == 'rpn_cls_score_bias':
-                    value = value.reshape((2, 9))
+                    value = value.reshape((2, -1))
                     value = value.transpose((1, 0))
-                    value = value.reshape((18, ))
+                    value = value.reshape((-1, ))
                     assert model.rpn.score.b.shape == value.shape
                     model.rpn.score.b.array[:] = value
                     finished_keys.append(key)
                 elif param_name == 'rpn_cls_score_weight':
-                    value = value.reshape((2, 9, 512, 1, 1))
+                    value = value.reshape((2, -1, 512, 1, 1))
                     value = value.transpose((1, 0, 2, 3, 4))
-                    value = value.reshape((18, 512, 1, 1))
+                    value = value.reshape((-1, 512, 1, 1))
                     assert model.rpn.score.W.shape == value.shape
                     model.rpn.score.W.array[:] = value
                     finished_keys.append(key)
