@@ -8,8 +8,8 @@ from chainercv.experimental.links import FCISResNet101
 def main():
     parser = argparse.ArgumentParser(
         description='Script to convert mxnet params to chainer npz')
-    parser.add_argument('mxnet-param-file',
-        help='Mxnet param file i.e. fcis_coco-0000.params')
+    parser.add_argument(
+        'mxnet-param-file', help='Mxnet param file i.e. fcis_coco-0000.params')
     parser.add_argument('--process', action='store_true')
     parser.add_argument(
         '--dataset', choices=('sbd', 'coco'), type=str, default='sbd')
@@ -61,7 +61,7 @@ def convert(model, params):
                 if param_name == 'rpn_bbox_pred_bias':
                     value = value.reshape((-1, 4))
                     value = value[:, [1, 0, 3, 2]]
-                    value = value.reshape((-1, ))
+                    value = value.reshape(-1)
                     assert model.rpn.loc.b.shape == value.shape
                     model.rpn.loc.b.array[:] = value
                     finished_keys.append(key)
@@ -75,7 +75,7 @@ def convert(model, params):
                 elif param_name == 'rpn_cls_score_bias':
                     value = value.reshape((2, -1))
                     value = value.transpose((1, 0))
-                    value = value.reshape((-1, ))
+                    value = value.reshape(-1)
                     assert model.rpn.score.b.shape == value.shape
                     model.rpn.score.b.array[:] = value
                     finished_keys.append(key)
@@ -121,7 +121,7 @@ def convert(model, params):
                 if param_name == 'fcis_bbox_bias':
                     value = value.reshape((2, 4, 7 * 7))
                     value = value[:, [1, 0, 3, 2]]
-                    value = value.reshape((392, ))
+                    value = value.reshape(392)
                     assert model.head.ag_loc.b.shape == value.shape
                     model.head.ag_loc.b.array[:] = value
                     finished_keys.append(key)
