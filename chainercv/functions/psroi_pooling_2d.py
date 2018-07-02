@@ -126,7 +126,7 @@ class PSROIPooling2D(function.Function):
         n_roi = bottom_rois.shape[0]
         top_data = cp.empty(
             (n_roi, self.out_c, self.out_h, self.out_w), dtype=np.float32)
-        cuda.cupy.ElementwiseKernel(
+        cuda.elementwise(
             '''
             raw float32 bottom_data, raw float32 bottom_rois,
             raw int32 bottom_roi_indices,
@@ -253,7 +253,7 @@ class PSROIPooling2D(function.Function):
         _, bottom_rois, bottom_roi_indices = inputs
         channels, height, width = self._bottom_data_shape[1:]
         bottom_diff = cuda.cupy.zeros(self._bottom_data_shape, np.float32)
-        cuda.cupy.ElementwiseKernel(
+        cuda.elementwise(
             '''
             raw float32 top_diff, raw float32 bottom_rois,
             raw int32 bottom_roi_indices,
