@@ -3,11 +3,10 @@ import json
 import numpy as np
 import os
 
-import chainer
-
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
+from chainercv.datasets.coco.coco_utils import get_coco
 from chainercv import utils
 
-from chainercv.datasets.coco.coco_utils import get_coco
 
 try:
     from pycocotools import mask as coco_mask
@@ -16,7 +15,7 @@ except ImportError:
     _availabel = False
 
 
-class COCOInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
+class COCOInstanceSegmentationDataset(GetterDataset):
 
     """Instance segmentation dataset for `MS COCO2014`_.
 
@@ -76,9 +75,8 @@ class COCOInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
                 'pip install -e \'git+https://github.com/pdollar/coco.git'
                 '#egg=pycocotools&subdirectory=PythonAPI\'')
 
+        super(COCOInstanceSegmentationDataset, self).__init__()
         self.use_crowded = use_crowded
-        self.return_crowded = return_crowded
-        self.return_area = return_area
 
         if split in ['val', 'minival', 'valminusminival']:
             img_split = 'val'
@@ -109,6 +107,26 @@ class COCOInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
             self.imgToAnns[ann['image_id']].append(ann)
             self.anns[ann['id']] = ann
 
+        self.add_getter('img', self._get_image)
+        self.add_getter(['mask', 'label', 'area', 'crowded'],
+                        self._get_annotations)
+        keys = ('img', 'mask', 'label')
+        if return_area:
+            keys += ('area',)
+        if return_crowded:
+            keys += ('crowded',)
+        self.keys = keys
+
+    def __len__(self):
+        return len(self.ids)
+
+    def _get_image(self, i):
+        img_id = self.ids[i]
+        img_path = os.path.join(
+            self.img_root, self.img_props[img_id]['file_name'])
+        img = utils.read_image(img_path, dtype=np.float32, color=True)
+        return img
+
     def _get_annotations(self, i):
         img_id = self.ids[i]
         # List[{'segmentation', 'area', 'iscrowd',
@@ -137,6 +155,14 @@ class COCOInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
         area = np.array(area, dtype=np.float32)
         if len(mask) == 0:
             mask = np.zeros((0, H, W), dtype=np.bool)
+
+        if not self.use_crowded:
+            not_crowded = np.logical_not(crowded)
+            label = label[not_crowded]
+            mask = mask[not_crowded]
+            crowded = crowded[not_crowded]
+            area = area[not_crowded]
+
         return mask, label, crowded, area
 
     def _segm_to_mask(self, segm, size):
@@ -153,35 +179,3 @@ class COCOInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
             rle = segm
         mask = coco_mask.decode(rle)
         return mask.astype(np.bool)
-
-    def __len__(self):
-        return len(self.ids)
-
-    def get_example(self, i):
-        img_id = self.ids[i]
-        img_path = os.path.join(
-            self.img_root, self.img_props[img_id]['file_name'])
-        img = utils.read_image(img_path, dtype=np.float32, color=True)
-        _, H, W = img.shape
-
-        mask, label, crowded, area = self._get_annotations(i)
-
-        if not self.use_crowded:
-            not_crowded = np.logical_not(crowded)
-            label = label[not_crowded]
-            mask = mask[not_crowded]
-            crowded = crowded[not_crowded]
-            area = area[not_crowded]
-
-        example = [img, mask, label]
-        if self.return_crowded:
-            example += [crowded]
-        if self.return_area:
-            example += [area]
-        return tuple(example)
-
-
-def _index_list_by_mask(l, mask):
-    indices = np.where(mask)[0]
-    l = [l[idx] for idx in indices]
-    return l
