@@ -3,7 +3,7 @@
 ## Performance
 SBD Train & Test
 
-| Model | mAP@0.5 in Original [1] | mAP@0.7 in Original [1] | mAP@0.5 converted to ChainerCV | mAP@0.7 converted to ChainerCV |  mAP@0.5 trained in ChainerCV | mAP@0.7 trained in ChainerCV |
+| Model | mAP@0.5 (Original [1]) | mAP@0.7 (Original [1]) | mAP@0.5 (weight conversion) | mAP@0.7 (weight conversion) |  mAP@0.5 (train) | mAP@0.7 (train) |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | FCIS ResNet101| 65.7 | 52.1 | 64.2 | 51.2 | 64.1 (1 GPU) | 51.2 (1 GPU) |
 
