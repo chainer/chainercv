@@ -91,21 +91,18 @@ class COCOInstanceSegmentationDataset(GetterDataset):
             data_dir, 'annotations', 'instances_{}2014.json'.format(split))
 
         self.data_dir = data_dir
-        anno = json.load(open(anno_path, 'r'))
+        annos = json.load(open(anno_path, 'r'))
 
-        self.img_props = dict()
-        for img in anno['images']:
-            self.img_props[img['id']] = img
-        self.ids = list(self.img_props.keys())
+        self.id_to_prop = {}
+        for prop in annos['images']:
+            self.id_to_prop[prop['id']] = prop
+        self.ids = sorted(list(self.id_to_prop.keys()))
 
-        cats = anno['categories']
-        self.cat_ids = [cat['id'] for cat in cats]
+        self.cat_ids = [cat['id'] for cat in annos['categories']]
 
-        self.anns = dict()
-        self.imgToAnns = defaultdict(list)
-        for ann in anno['annotations']:
-            self.imgToAnns[ann['image_id']].append(ann)
-            self.anns[ann['id']] = ann
+        self.id_to_anno = defaultdict(list)
+        for anno in annos['annotations']:
+            self.id_to_anno[anno['image_id']].append(anno)
 
         self.add_getter('img', self._get_image)
         self.add_getter(['mask', 'label', 'area', 'crowded'],
@@ -121,34 +118,32 @@ class COCOInstanceSegmentationDataset(GetterDataset):
         return len(self.ids)
 
     def _get_image(self, i):
-        img_id = self.ids[i]
         img_path = os.path.join(
-            self.img_root, self.img_props[img_id]['file_name'])
+            self.img_root, self.id_to_prop[self.ids[i]]['file_name'])
         img = utils.read_image(img_path, dtype=np.float32, color=True)
         return img
 
     def _get_annotations(self, i):
-        img_id = self.ids[i]
         # List[{'segmentation', 'area', 'iscrowd',
         #       'image_id', 'bbox', 'category_id', 'id'}]
-        annotation = self.imgToAnns[img_id]
-        H = self.img_props[img_id]['height']
-        W = self.img_props[img_id]['width']
+        annotation = self.id_to_anno[self.ids[i]]
+        H = self.id_to_prop[self.ids[i]]['height']
+        W = self.id_to_prop[self.ids[i]]['width']
 
         mask = []
         label = []
         crowded = []
         area = []
-        for ann in annotation:
-            lbl = self.cat_ids.index(ann['category_id'])
-            msk = self._segm_to_mask(ann['segmentation'], (H, W))
+        for anno in annotation:
+            lbl = self.cat_ids.index(anno['category_id'])
+            msk = self._segm_to_mask(anno['segmentation'], (H, W))
             # FIXME: some of minival annotations are malformed.
             if msk.shape != (H, W):
                 continue
             label.append(lbl)
             mask.append(msk)
-            crowded.append(ann['iscrowd'])
-            area.append(ann['area'])
+            crowded.append(anno['iscrowd'])
+            area.append(anno['area'])
         label = np.array(label, dtype=np.int32)
         mask = np.array(mask, dtype=np.bool)
         crowded = np.array(crowded, dtype=np.bool)
