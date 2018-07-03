@@ -65,9 +65,11 @@ class COCOInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
 
     """
 
-    def __init__(self, data_dir='auto', split='train',
-                 use_crowded=False, return_crowded=False,
-                 return_area=False):
+    def __init__(
+            self, data_dir='auto', split='train',
+            use_crowded=False, return_crowded=False,
+            return_area=False
+    ):
         if not _availabel:
             raise ValueError(
                 'Please install pycocotools \n'
@@ -77,6 +79,7 @@ class COCOInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
         self.use_crowded = use_crowded
         self.return_crowded = return_crowded
         self.return_area = return_area
+
         if split in ['val', 'minival', 'valminusminival']:
             img_split = 'val'
         else:
@@ -113,37 +116,28 @@ class COCOInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
         annotation = self.imgToAnns[img_id]
         H = self.img_props[img_id]['height']
         W = self.img_props[img_id]['width']
-        bbox = np.array([ann['bbox'] for ann in annotation],
-                        dtype=np.float32)
-        if len(bbox) == 0:
-            bbox = np.zeros((0, 4), dtype=np.float32)
-        # (x, y, width, height)  -> (x_min, y_min, x_max, y_max)
-        bbox[:, 2] = bbox[:, 0] + bbox[:, 2]
-        bbox[:, 3] = bbox[:, 1] + bbox[:, 3]
-        # (x_min, y_min, x_max, y_max) -> (y_min, x_min, y_max, x_max)
-        bbox = bbox[:, [1, 0, 3, 2]]
-        label = np.array([self.cat_ids.index(ann['category_id'])
-                          for ann in annotation], dtype=np.int32)
-        mask = np.array([self._segm_to_mask(anno['segmentation'], (H, W))
-                         for anno in annotation])
+
+        mask = []
+        label = []
+        crowded = []
+        area = []
+        for ann in annotation:
+            lbl = self.cat_ids.index(ann['category_id'])
+            msk = self._segm_to_mask(ann['segmentation'], (H, W))
+            # FIXME: some of minival annotations are malformed.
+            if msk.shape != (H, W):
+                continue
+            label.append(lbl)
+            mask.append(msk)
+            crowded.append(ann['iscrowd'])
+            area.append(ann['area'])
+        label = np.array(label, dtype=np.int32)
+        mask = np.array(mask, dtype=np.bool)
+        crowded = np.array(crowded, dtype=np.bool)
+        area = np.array(area, dtype=np.float32)
         if len(mask) == 0:
             mask = np.zeros((0, H, W), dtype=np.bool)
-        crowded = np.array([ann['iscrowd']
-                            for ann in annotation], dtype=np.bool)
-        area = np.array([ann['area']
-                         for ann in annotation], dtype=np.float32)
-
-        # Remove invalid boxes
-        bbox_area = np.prod(bbox[:, 2:] - bbox[:, :2], axis=1)
-        keep_mask = np.logical_and(bbox[:, 0] <= bbox[:, 2],
-                                   bbox[:, 1] <= bbox[:, 3])
-        keep_mask = np.logical_and(keep_mask, bbox_area > 0)
-        bbox = bbox[keep_mask]
-        mask = mask[keep_mask]
-        label = label[keep_mask]
-        crowded = crowded[keep_mask]
-        area = area[keep_mask]
-        return bbox, mask, label, crowded, area
+        return mask, label, crowded, area
 
     def _segm_to_mask(self, segm, size):
         # Copied from pycocotools.coco.COCO.annToMask
@@ -170,17 +164,16 @@ class COCOInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
         img = utils.read_image(img_path, dtype=np.float32, color=True)
         _, H, W = img.shape
 
-        bbox, mask, label, crowded, area = self._get_annotations(i)
+        mask, label, crowded, area = self._get_annotations(i)
 
         if not self.use_crowded:
             not_crowded = np.logical_not(crowded)
-            bbox = bbox[not_crowded]
             label = label[not_crowded]
             mask = mask[not_crowded]
             crowded = crowded[not_crowded]
             area = area[not_crowded]
 
-        example = [img, bbox, mask, label]
+        example = [img, mask, label]
         if self.return_crowded:
             example += [crowded]
         if self.return_area:
