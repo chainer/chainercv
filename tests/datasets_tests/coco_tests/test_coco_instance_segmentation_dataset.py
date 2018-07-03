@@ -3,10 +3,10 @@ import unittest
 import numpy as np
 
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.datasets import coco_instance_segmentation_label_names
 from chainercv.datasets import COCOInstanceSegmentationDataset
-from chainercv.testing import attr
 from chainercv.utils import assert_is_instance_segmentation_dataset
 
 
@@ -25,7 +25,6 @@ class TestCOCOInstanceSegmentationDataset(unittest.TestCase):
             return_area=self.return_area)
 
     @attr.slow
-    @attr.disk
     def test_coco_instance_segmentation_dataset(self):
         assert_is_instance_segmentation_dataset(
             self.dataset,
