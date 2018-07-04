@@ -4,8 +4,8 @@ import os
 from chainer.dataset import download
 
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
-from chainercv.datasets.voc.voc_utils import parse_voc_bbox_annotation
 from chainercv.datasets.imagenet.imagenet_utils import imagenet_det_synset_ids
+from chainercv.datasets.voc.voc_utils import parse_voc_bbox_annotation
 from chainercv.utils import read_image
 
 
@@ -104,7 +104,8 @@ class ImagenetDetBboxDataset(GetterDataset):
         self.add_getter('img', self._get_image)
         self.add_getter(('bbox', 'label'), self._get_inst_anno)
         if return_img_label:
-            self.add_getter(('img_label', 'img_label_type'), self._get_img_label)
+            self.add_getter(
+                ('img_label', 'img_label_type'), self._get_img_label)
 
     def __len__(self):
         return len(self.ids)
