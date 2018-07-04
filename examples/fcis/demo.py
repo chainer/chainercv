@@ -3,6 +3,7 @@ import chainer
 
 import matplotlib.pyplot as plt
 
+from chainercv.datasets import coco_instance_segmentation_label_names
 from chainercv.datasets import sbd_instance_segmentation_label_names
 from chainercv.experimental.links import FCISResNet101
 from chainercv.utils import mask_to_bbox
@@ -16,11 +17,26 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--pretrained-model', default='sbd')
+    parser.add_argument(
+        '--dataset', choices=('sbd', 'coco'), default='sbd')
     parser.add_argument('image')
     args = parser.parse_args()
 
-    model = FCISResNet101(
-        n_fg_class=20, pretrained_model=args.pretrained_model)
+    if args.dataset == 'sbd':
+        label_names = sbd_instance_segmentation_label_names
+        model = FCISResNet101(
+            n_fg_class=len(label_names),
+            pretrained_model=args.pretrained_model)
+    # coco
+    elif args.dataset == 'coco':
+        label_names = coco_instance_segmentation_label_names
+        proposal_creator_params = FCISResNet101.proposal_creator_params
+        proposal_creator_params['min_size'] = 2
+        model = FCISResNet101(
+            n_fg_class=len(label_names),
+            anchor_scales=(4, 8, 16, 32),
+            pretrained_model=args.pretrained_model,
+            proposal_creator_params=proposal_creator_params)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
@@ -35,8 +51,7 @@ def main():
     ax = vis_bbox(
         img, bbox, instance_colors=colors, alpha=0.5, linewidth=1.5)
     vis_instance_segmentation(
-        None, mask, label, score,
-        label_names=sbd_instance_segmentation_label_names,
+        None, mask, label, score, label_names=label_names,
         instance_colors=colors, alpha=0.7, ax=ax)
     plt.show()
 
