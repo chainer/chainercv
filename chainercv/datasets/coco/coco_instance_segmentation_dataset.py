@@ -12,9 +12,9 @@ from chainercv import utils
 
 try:
     from pycocotools import mask as coco_mask
-    _availabel = True
+    _available = True
 except ImportError:
-    _availabel = False
+    _available = False
 
 
 class COCOInstanceSegmentationDataset(GetterDataset):
@@ -71,7 +71,7 @@ class COCOInstanceSegmentationDataset(GetterDataset):
             use_crowded=False, return_crowded=False,
             return_area=False
     ):
-        if not _availabel:
+        if not _available:
             raise ValueError(
                 'Please install pycocotools \n'
                 'pip install -e \'git+https://github.com/pdollar/coco.git'
