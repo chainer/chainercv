@@ -13,6 +13,8 @@ Single crop error rate.
 | SE-ResNet50 | 22.7 % | 22.4 % [3,4] |
 | SE-ResNet101 | 21.8 % | 21.8 % [3,4] |
 | SE-ResNet152 | 21.4 % | 21.3 % [3,4] |
+| SE-ResNeXt50 | 20.9 % | 21.0 % [3,4] |
+| SE-ResNeXt101 | 19.7 % | 19.8 % [3,4] |
 
 Ten crop error rate.
 
@@ -25,6 +27,8 @@ Ten crop error rate.
 | SE-ResNet50 | 20.8 % |  |
 | SE-ResNet101 | 20.1 % |  |
 | SE-ResNet152 | 19.7 % |  |
+| SE-ResNeXt50 | 19.4 % |  |
+| SE-ResNeXt101 | 18.6 % |  |
 
 
 The results can be reproduced by the following command.

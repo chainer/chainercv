@@ -34,7 +34,7 @@ class SEBlock(chainer.Chain):
     def __call__(self, u):
         n_batch, n_channels, height, width = u.shape
 
-        z = _global_average_pooling_2d(u)
+        z = F.average(u, axis=(2, 3))
         x = F.relu(self.down(z))
         x = F.sigmoid(self.up(x))
 
@@ -42,10 +42,3 @@ class SEBlock(chainer.Chain):
         x = x.transpose((2, 3, 0, 1))
 
         return u * x
-
-
-def _global_average_pooling_2d(x):
-    n, channel, rows, cols = x.data.shape
-    h = F.average_pooling_2d(x, (rows, cols), stride=1)
-    h = h.reshape((n, channel))
-    return h
