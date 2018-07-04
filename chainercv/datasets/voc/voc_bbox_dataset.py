@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import warnings
-import xml.etree.ElementTree as ET
 
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.voc import voc_utils
@@ -89,27 +88,11 @@ class VOCBboxDataset(GetterDataset):
 
     def _get_annotations(self, i):
         id_ = self.ids[i]
-        anno = ET.parse(
-            os.path.join(self.data_dir, 'Annotations', id_ + '.xml'))
-        bbox = []
-        label = []
-        difficult = []
-        for obj in anno.findall('object'):
-            # when in not using difficult split, and the object is
-            # difficult, skipt it.
-            if not self.use_difficult and int(obj.find('difficult').text) == 1:
-                continue
-
-            difficult.append(int(obj.find('difficult').text))
-            bndbox_anno = obj.find('bndbox')
-            # subtract 1 to make pixel indexes 0-based
-            bbox.append([
-                int(bndbox_anno.find(tag).text) - 1
-                for tag in ('ymin', 'xmin', 'ymax', 'xmax')])
-            name = obj.find('name').text.lower().strip()
-            label.append(voc_utils.voc_bbox_label_names.index(name))
-        bbox = np.stack(bbox).astype(np.float32)
-        label = np.stack(label).astype(np.int32)
-        # When `use_difficult==False`, all elements in `difficult` are False.
-        difficult = np.array(difficult, dtype=np.bool)
+        anno_path = os.path.join(self.data_dir, 'Annotations', id_ + '.xml')
+        bbox, label, difficult = voc_utils.parse_voc_bbox_annotation(
+            anno_path, voc_utils.voc_bbox_label_names)
+        if not self.use_difficult:
+            bbox = bbox[np.logical_not(difficult)]
+            label = label[np.logical_not(difficult)]
+            difficult = difficult[np.logical_not(difficult)]
         return bbox, label, difficult
