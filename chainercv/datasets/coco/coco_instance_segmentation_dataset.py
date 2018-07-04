@@ -2,6 +2,8 @@ from collections import defaultdict
 import json
 import numpy as np
 import os
+import PIL.Image
+import PIL.ImageDraw
 
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.coco.coco_utils import get_coco
@@ -166,11 +168,16 @@ class COCOInstanceSegmentationDataset(GetterDataset):
         if isinstance(segm, list):
             # polygon -- a single object might consist of multiple parts
             # we merge all parts into one mask rle code
-            rles = coco_mask.frPyObjects(segm, H, W)
-            rle = coco_mask.merge(rles)
+            mask = np.zeros((H, W), dtype=np.uint8)
+            mask = PIL.Image.fromarray(mask)
+            for sgm in segm:
+                xy = np.array(sgm).reshape((-1, 2))
+                xy = [tuple(xy_i) for xy_i in xy]
+                PIL.ImageDraw.Draw(mask).polygon(xy=xy, outline=1, fill=1)
+            mask = np.asarray(mask)
         elif isinstance(segm['counts'], list):
             rle = coco_mask.frPyObjects(segm, H, W)
+            mask = coco_mask.decode(rle)
         else:
-            rle = segm
-        mask = coco_mask.decode(rle)
+            mask = coco_mask.decode(segm)
         return mask.astype(np.bool)
