@@ -34,9 +34,8 @@ class ImagenetDetBboxDataset(GetterDataset):
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/imagenet`.
-        split ({'train', 'val', 'trainval', 'test'}): Select a split of the
-            dataset. :obj:`test` split is only available for
-            2007 dataset.
+        split ({'train', 'val'}): Select a split of the
+            dataset.
         return_img_label (bool): If :obj:`True`, this dataset returns
             image-wise labels. This consits of two arrays:
             :obj:`img_label` and :obj:`img_label_type`.
