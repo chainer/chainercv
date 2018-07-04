@@ -71,6 +71,10 @@ ImagenetDetBboxDataset
 ~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: ImagenetDetBboxDataset
 
+ImagenetLocBboxDataset
+~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: ImagenetLocBboxDataset
+
 
 MS COCO
 -------
