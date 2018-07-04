@@ -36,4 +36,6 @@ def mask_to_bbox(mask):
         else:
             y_min, x_min, y_max, x_max = 0, 0, 0, 0
         bbox.append((y_min, x_min, y_max, x_max))
+    if len(bbox) == 0:
+        return xp.empty((0, 4), dtype=np.float32)
     return xp.array(bbox, dtype=np.float32)
