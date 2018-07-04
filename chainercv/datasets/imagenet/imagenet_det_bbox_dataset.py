@@ -11,7 +11,7 @@ from chainercv.utils import read_image
 
 class ImagenetDetBboxDataset(GetterDataset):
 
-    """ILSVRC2014 ImageNet detection dataset
+    """ILSVRC2014 ImageNet detection dataset.
 
     The data is distributed on the `official Kaggle page`_.
 
@@ -32,8 +32,8 @@ class ImagenetDetBboxDataset(GetterDataset):
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
-            :obj:`auto`, this class will automatically download data for you
-            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/imagenet`.
+            :obj:`auto`, this uses
+            :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/imagenet` by default.
         split ({'train', 'val'}): Select a split of the
             dataset.
         return_img_label (bool): If :obj:`True`, this dataset returns
