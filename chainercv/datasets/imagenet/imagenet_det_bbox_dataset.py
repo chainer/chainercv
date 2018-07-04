@@ -19,25 +19,23 @@ class ImagenetDetBboxDataset(GetterDataset):
         imagenet-object-detection-challenge
 
     Please refer to the readme of ILSVRC2014 dev kit for a comprehensive
-    documentation. Note that detection part of ILSVRC has not changed from
-    2014. Overview of annotation process is described in the `paper`_.
+    documentation. Note that the detection part of ILSVRC has not changed since
+    2014. An overview of annotation process is described in the `paper`_.
 
     .. _`paper`: http://ai.stanford.edu/~olga/papers/chi2014-MultiLabel.pdf
 
     Every image in the training set has one or more image-level labels.
-    The image-level labels determine the partial presence, full presence or
+    The image-level labels determine the full presence, partial presence or
     absence of one or more object categories.
-    Bounding boxes are provided around instances of the present
-    categories.
+    Bounding boxes are provided around instances of the present categories.
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
-            :obj:`auto`, this uses
-            :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/imagenet` by default.
-        split ({'train', 'val'}): Select a split of the
-            dataset.
+            :obj:`auto`,
+            :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/imagenet` is used.
+        split ({'train', 'val'}): Selects a split of the dataset.
         return_img_label (bool): If :obj:`True`, this dataset returns
-            image-wise labels. This consits of two arrays:
+            image-wise labels. This consists of two arrays:
             :obj:`img_label` and :obj:`img_label_type`.
 
     This dataset returns the following data.
@@ -56,10 +54,10 @@ class ImagenetDetBboxDataset(GetterDataset):
         :obj:`img_label_type` [#imagenet_det_1]_ [#imagenet_det_2]_, \
             ":math:`(M,)`", :obj:`int32`, ":math:`[-1, 1]`"
 
-    .. [#imagenet_det_1] available \
+    .. [#imagenet_det_1] available
         if :obj:`return_img_label = True`.
-    .. [#imagenet_det_2] :obj:`-1` means absent. :obj:`1` means present. \
-        :obj:`0` means partially present. When a category is partially \
+    .. [#imagenet_det_2] :obj:`-1` means absent. :obj:`1` means present.
+        :obj:`0` means partially present. When a category is partially
         present, the image contains at least one
         instance of X, but not all instances of X may be annotated with
         bounding boxes.
