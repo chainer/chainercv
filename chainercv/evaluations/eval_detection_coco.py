@@ -29,7 +29,8 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
         pred_scores (iterable of numpy.ndarray): See the table below.
         gt_bboxes (iterable of numpy.ndarray): See the table below.
         gt_labels (iterable of numpy.ndarray): See the table below.
-        gt_areas (iterable of numpy.ndarray): See the table below.
+        gt_areas (iterable of numpy.ndarray): See the table below. If
+            :obj:`None`, some scores are not returned.
         gt_crowdeds (iterable of numpy.ndarray): See the table below.
 
     .. csv-table::
@@ -68,56 +69,58 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
         .. csv-table::
             :header: key, type, description
 
-            ap/iou=0.50:0.95/area=all/maxDets=100, *numpy.ndarray*, \
+            ap/iou=0.50:0.95/area=all/max_dets=100, *numpy.ndarray*, \
                 [#coco_det_eval_1]_
-            ap/iou=0.50/area=all/maxDets=100, *numpy.ndarray*, \
+            ap/iou=0.50/area=all/max_dets=100, *numpy.ndarray*, \
                 [#coco_det_eval_1]_
-            ap/iou=0.75/area=all/maxDets=100, *numpy.ndarray*, \
+            ap/iou=0.75/area=all/max_dets=100, *numpy.ndarray*, \
                 [#coco_det_eval_1]_
-            ap/iou=0.50:0.95/area=small/maxDets=100, *numpy.ndarray*, \
-                [#coco_det_eval_1]_
-            ap/iou=0.50:0.95/area=medium/maxDets=100, *numpy.ndarray*, \
-                [#coco_det_eval_1]_
-            ap/iou=0.50:0.95/area=large/maxDets=100, *numpy.ndarray*, \
-                [#coco_det_eval_1]_
-            ar/iou=0.50:0.95/area=all/maxDets=1, *numpy.ndarray*, \
+            ap/iou=0.50:0.95/area=small/max_dets=100, *numpy.ndarray*, \
+                [#coco_det_eval_1]_ [#coco_det_eval_5]_
+            ap/iou=0.50:0.95/area=medium/max_dets=100, *numpy.ndarray*, \
+                [#coco_det_eval_1]_ [#coco_det_eval_5]_
+            ap/iou=0.50:0.95/area=large/max_dets=100, *numpy.ndarray*, \
+                [#coco_det_eval_1]_ [#coco_det_eval_5]_
+            ar/iou=0.50:0.95/area=all/max_dets=1, *numpy.ndarray*, \
                 [#coco_det_eval_2]_
-            ar/iou=0.50/area=all/maxDets=10, *numpy.ndarray*, \
+            ar/iou=0.50/area=all/max_dets=10, *numpy.ndarray*, \
                 [#coco_det_eval_2]_
-            ar/iou=0.75/area=all/maxDets=100, *numpy.ndarray*, \
+            ar/iou=0.75/area=all/max_dets=100, *numpy.ndarray*, \
                 [#coco_det_eval_2]_
-            ar/iou=0.50:0.95/area=small/maxDets=100, *numpy.ndarray*, \
-                [#coco_det_eval_2]_
-            ar/iou=0.50:0.95/area=medium/maxDets=100, *numpy.ndarray*, \
-                [#coco_det_eval_2]_
-            ar/iou=0.50:0.95/area=large/maxDets=100, *numpy.ndarray*, \
-                [#coco_det_eval_2]_
-            map/iou=0.50:0.95/area=all/maxDets=100, *float*, \
+            ar/iou=0.50:0.95/area=small/max_dets=100, *numpy.ndarray*, \
+                [#coco_det_eval_2]_ [#coco_det_eval_5]_
+            ar/iou=0.50:0.95/area=medium/max_dets=100, *numpy.ndarray*, \
+                [#coco_det_eval_2]_ [#coco_det_eval_5]_
+            ar/iou=0.50:0.95/area=large/max_dets=100, *numpy.ndarray*, \
+                [#coco_det_eval_2]_ [#coco_det_eval_5]_
+            map/iou=0.50:0.95/area=all/max_dets=100, *float*, \
                 [#coco_det_eval_3]_
-            map/iou=0.50/area=all/maxDets=100, *float*, \
+            map/iou=0.50/area=all/max_dets=100, *float*, \
                 [#coco_det_eval_3]_
-            map/iou=0.75/area=all/maxDets=100, *float*, \
+            map/iou=0.75/area=all/max_dets=100, *float*, \
                 [#coco_det_eval_3]_
-            map/iou=0.50:0.95/area=small/maxDets=100, *float*, \
-                [#coco_det_eval_3]_
-            map/iou=0.50:0.95/area=medium/maxDets=100, *float*, \
-                [#coco_det_eval_3]_
-            map/iou=0.50:0.95/area=large/maxDets=100, *float*, \
-                [#coco_det_eval_3]_
-            mar/iou=0.50:0.95/area=all/maxDets=1, *float*, \
+            map/iou=0.50:0.95/area=small/max_dets=100, *float*, \
+                [#coco_det_eval_3]_ [#coco_det_eval_5]_
+            map/iou=0.50:0.95/area=medium/max_dets=100, *float*, \
+                [#coco_det_eval_3]_ [#coco_det_eval_5]_
+            map/iou=0.50:0.95/area=large/max_dets=100, *float*, \
+                [#coco_det_eval_3]_ [#coco_det_eval_5]_
+            mar/iou=0.50:0.95/area=all/max_dets=1, *float*, \
                 [#coco_det_eval_4]_
-            mar/iou=0.50/area=all/maxDets=10, *float*, \
+            mar/iou=0.50/area=all/max_dets=10, *float*, \
                 [#coco_det_eval_4]_
-            mar/iou=0.75/area=all/maxDets=100, *float*, \
+            mar/iou=0.75/area=all/max_dets=100, *float*, \
                 [#coco_det_eval_4]_
-            mar/iou=0.50:0.95/area=small/maxDets=100, *float*, \
-                [#coco_det_eval_4]_
-            mar/iou=0.50:0.95/area=medium/maxDets=100, *float*, \
-                [#coco_det_eval_4]_
-            mar/iou=0.50:0.95/area=large/maxDets=100, *float*, \
-                [#coco_det_eval_4]_
+            mar/iou=0.50:0.95/area=small/max_dets=100, *float*, \
+                [#coco_det_eval_4]_ [#coco_det_eval_5]_
+            mar/iou=0.50:0.95/area=medium/max_dets=100, *float*, \
+                [#coco_det_eval_4]_ [#coco_det_eval_5]_
+            mar/iou=0.50:0.95/area=large/max_dets=100, *float*, \
+                [#coco_det_eval_4]_ [#coco_det_eval_5]_
             coco_eval, *pycocotools.cocoeval.COCOeval*, \
                 result from :obj:`pycocotools`
+            existent_labels, *numpy.ndarray*, \
+                used labels \
 
     .. [#coco_det_eval_1] An array of average precisions. \
         The :math:`l`-th value corresponds to the average precision \
@@ -131,6 +134,7 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
         value is set to :obj:`numpy.nan`.
     .. [#coco_det_eval_3] The average of average precisions over classes.
     .. [#coco_det_eval_4] The average of average recalls over classes.
+    .. [#coco_det_eval_5] Skip if :obj:`gt_areas` is :obj:`None`.
 
     """
     if not _available:
@@ -147,15 +151,19 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
     pred_scores = iter(pred_scores)
     gt_bboxes = iter(gt_bboxes)
     gt_labels = iter(gt_labels)
-    gt_areas = (iter(gt_areas) if gt_areas is not None
-                else itertools.repeat(None))
+    if gt_areas is None:
+        compute_area_dependent_metrics = False
+        gt_areas = itertools.repeat(None)
+    else:
+        compute_area_dependent_metrics = True
+        gt_areas = iter(gt_areas)
     gt_crowdeds = (iter(gt_crowdeds) if gt_crowdeds is not None
                    else itertools.repeat(None))
 
     ids = []
     pred_annos = []
     gt_annos = []
-    unique_labels = {}
+    existent_labels = {}
     for i, (pred_bbox, pred_label, pred_score, gt_bbox, gt_label,
             gt_area, gt_crowded) in enumerate(six.moves.zip(
                 pred_bboxes, pred_labels, pred_scores,
@@ -173,7 +181,7 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
                 _create_anno(pred_bb, pred_lb, pred_sc,
                              img_id=img_id, anno_id=len(pred_annos) + 1,
                              crw=0, ar=None))
-            unique_labels[pred_lb] = True
+            existent_labels[pred_lb] = True
 
         for gt_bb, gt_lb, gt_ar, gt_crw in zip(
                 gt_bbox, gt_label, gt_area, gt_crowded):
@@ -181,11 +189,12 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
                 _create_anno(gt_bb, gt_lb, None,
                              img_id=img_id, anno_id=len(gt_annos) + 1,
                              ar=gt_ar, crw=gt_crw))
-            unique_labels[gt_lb] = True
+            existent_labels[gt_lb] = True
         ids.append({'id': img_id})
+    existent_labels = sorted(existent_labels.keys())
 
-    pred_coco.dataset['categories'] = [{'id': i} for i in unique_labels.keys()]
-    gt_coco.dataset['categories'] = [{'id': i} for i in unique_labels.keys()]
+    pred_coco.dataset['categories'] = [{'id': i} for i in existent_labels]
+    gt_coco.dataset['categories'] = [{'id': i} for i in existent_labels]
     pred_coco.dataset['annotations'] = pred_annos
     gt_coco.dataset['annotations'] = gt_annos
     pred_coco.dataset['images'] = ids
@@ -207,49 +216,60 @@ def eval_detection_coco(pred_bboxes, pred_labels, pred_scores, gt_bboxes,
         'area_ranges': p.areaRngLbl,
         'max_detection_list': p.maxDets}
     all_kwargs = {
-        'ap/iou=0.50:0.95/area=all/maxDets=100': {
+        'ap/iou=0.50:0.95/area=all/max_dets=100': {
             'ap': True, 'iou_thresh': None, 'area_range': 'all',
             'max_detection': 100},
-        'ap/iou=0.50/area=all/maxDets=100': {
+        'ap/iou=0.50/area=all/max_dets=100': {
             'ap': True, 'iou_thresh': 0.5, 'area_range': 'all',
             'max_detection': 100},
-        'ap/iou=0.75/area=all/maxDets=100': {
+        'ap/iou=0.75/area=all/max_dets=100': {
             'ap': True, 'iou_thresh': 0.75, 'area_range': 'all',
             'max_detection': 100},
-        'ap/iou=0.50:0.95/area=small/maxDets=100': {
-            'ap': True, 'iou_thresh': None, 'area_range': 'small',
-            'max_detection': 100},
-        'ap/iou=0.50:0.95/area=medium/maxDets=100': {
-            'ap': True, 'iou_thresh': None, 'area_range': 'medium',
-            'max_detection': 100},
-        'ap/iou=0.50:0.95/area=large/maxDets=100': {
-            'ap': True, 'iou_thresh': None, 'area_range': 'large',
-            'max_detection': 100},
-        'ar/iou=0.50:0.95/area=all/maxDets=1': {
+        'ar/iou=0.50:0.95/area=all/max_dets=1': {
             'ap': False, 'iou_thresh': None, 'area_range': 'all',
             'max_detection': 1},
-        'ar/iou=0.50:0.95/area=all/maxDets=10': {
+        'ar/iou=0.50:0.95/area=all/max_dets=10': {
             'ap': False, 'iou_thresh': None, 'area_range': 'all',
             'max_detection': 10},
-        'ar/iou=0.50:0.95/area=all/maxDets=100': {
+        'ar/iou=0.50:0.95/area=all/max_dets=100': {
             'ap': False, 'iou_thresh': None, 'area_range': 'all',
             'max_detection': 100},
-        'ar/iou=0.50:0.95/area=small/maxDets=100': {
-            'ap': False, 'iou_thresh': None, 'area_range': 'small',
-            'max_detection': 100},
-        'ar/iou=0.50:0.95/area=medium/maxDets=100': {
-            'ap': False, 'iou_thresh': None, 'area_range': 'medium',
-            'max_detection': 100},
-        'ar/iou=0.50:0.95/area=large/maxDets=100': {
-            'ap': False, 'iou_thresh': None, 'area_range': 'large',
-            'max_detection': 100},
     }
+    if compute_area_dependent_metrics:
+        all_kwargs.update({
+            'ap/iou=0.50:0.95/area=small/max_dets=100': {
+                'ap': True, 'iou_thresh': None, 'area_range': 'small',
+                'max_detection': 100},
+            'ap/iou=0.50:0.95/area=medium/max_dets=100': {
+                'ap': True, 'iou_thresh': None, 'area_range': 'medium',
+                'max_detection': 100},
+            'ap/iou=0.50:0.95/area=large/max_dets=100': {
+                'ap': True, 'iou_thresh': None, 'area_range': 'large',
+                'max_detection': 100},
+            'ar/iou=0.50:0.95/area=small/max_dets=100': {
+                'ap': False, 'iou_thresh': None, 'area_range': 'small',
+                'max_detection': 100},
+            'ar/iou=0.50:0.95/area=medium/max_dets=100': {
+                'ap': False, 'iou_thresh': None, 'area_range': 'medium',
+                'max_detection': 100},
+            'ar/iou=0.50:0.95/area=large/max_dets=100': {
+                'ap': False, 'iou_thresh': None, 'area_range': 'large',
+                'max_detection': 100},
+        })
 
     for key, kwargs in all_kwargs.items():
         kwargs.update(common_kwargs)
         metrics, mean_metric = _summarize(**kwargs)
-        results[key] = metrics
+
+        # pycocotools ignores classes that are not included in
+        # either gt or prediction, but lies between 0 and
+        # the maximum label id.
+        # We set values for these classes to np.nan.
+        results[key] = np.nan * np.ones(np.max(existent_labels) + 1)
+        results[key][existent_labels] = metrics
         results['m' + key] = mean_metric
+
+    results['existent_labels'] = existent_labels
     return results
 
 
@@ -261,6 +281,8 @@ def _create_anno(bb, lb, sc, img_id, anno_id, ar=None, crw=None):
     height = y_max - y_min
     width = x_max - x_min
     if ar is None:
+        # We compute dummy area to pass to pycocotools.
+        # Note that area dependent scores are ignored afterwards.
         ar = height * width
     if crw is None:
         crw = False
