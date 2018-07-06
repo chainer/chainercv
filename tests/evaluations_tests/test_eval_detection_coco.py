@@ -97,7 +97,7 @@ class TestEvalDetectionCOCO(unittest.TestCase):
         cls.result = np.load(request.urlretrieve(os.path.join(
             base_url, 'eval_detection_coco_result_2017_10_16.npz'))[0])
 
-    def test_eval_detection_voc(self):
+    def test_eval_detection_coco(self):
         pred_bboxes = self.result['bboxes']
         pred_labels = self.result['labels']
         pred_scores = self.result['scores']
