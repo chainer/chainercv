@@ -162,7 +162,7 @@ def eval_instance_segmentation_coco(
     gt_crowdeds = (iter(gt_crowdeds) if gt_crowdeds is not None
                    else itertools.repeat(None))
 
-    ids = []
+    images = []
     pred_annos = []
     gt_annos = []
     existent_labels = {}
@@ -170,6 +170,7 @@ def eval_instance_segmentation_coco(
             gt_area, gt_crowded) in enumerate(six.moves.zip(
                 pred_masks, pred_labels, pred_scores,
                 gt_masks, gt_labels, gt_areas, gt_crowdeds)):
+        size = pred_mask[0].shape
         if gt_area is None:
             gt_area = itertools.repeat(None)
         if gt_crowded is None:
@@ -191,15 +192,15 @@ def eval_instance_segmentation_coco(
                              img_id=img_id, anno_id=len(gt_annos) + 1,
                              ar=gt_ar, crw=gt_crw))
             existent_labels[gt_lb] = True
-        ids.append({'id': img_id})
+        images.append({'id': img_id, 'height': size[0], 'width': size[1]})
     existent_labels = sorted(existent_labels.keys())
 
     pred_coco.dataset['categories'] = [{'id': i} for i in existent_labels]
     gt_coco.dataset['categories'] = [{'id': i} for i in existent_labels]
     pred_coco.dataset['annotations'] = pred_annos
     gt_coco.dataset['annotations'] = gt_annos
-    pred_coco.dataset['images'] = ids
-    gt_coco.dataset['images'] = ids
+    pred_coco.dataset['images'] = images
+    gt_coco.dataset['images'] = images
 
     with _redirect_stdout(open(os.devnull, 'w')):
         pred_coco.createIndex()
