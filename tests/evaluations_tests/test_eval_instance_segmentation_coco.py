@@ -33,11 +33,11 @@ class TestEvalInstanceSegmentationCOCOSimple(unittest.TestCase):
         # When the only ground truth is crowded, nothing is evaluated.
         # In that case, all the results are nan.
         self.assertTrue(
-            np.isnan(result['map/iou=0.50:0.95/area=small/maxDets=100']))
+            np.isnan(result['map/iou=0.50:0.95/area=all/max_dets=100']))
         self.assertTrue(
-            np.isnan(result['map/iou=0.50:0.95/area=medium/maxDets=100']))
+            np.isnan(result['map/iou=0.50/area=all/max_dets=100']))
         self.assertTrue(
-            np.isnan(result['map/iou=0.50:0.95/area=large/maxDets=100']))
+            np.isnan(result['map/iou=0.75/area=all/max_dets=100']))
 
     def test_area_not_supplied(self):
         result = eval_instance_segmentation_coco(
@@ -55,11 +55,11 @@ class TestEvalInstanceSegmentationCOCOSimple(unittest.TestCase):
             self.pred_masks, self.pred_labels, self.pred_scores,
             self.gt_masks, self.gt_labels, gt_areas=[[2048]])
         self.assertFalse(
-            np.isnan(result['map/iou=0.50:0.95/area=medium/maxDets=100']))
+            np.isnan(result['map/iou=0.50:0.95/area=medium/max_dets=100']))
         self.assertTrue(
-            np.isnan(result['map/iou=0.50:0.95/area=small/maxDets=100']))
+            np.isnan(result['map/iou=0.50:0.95/area=small/max_dets=100']))
         self.assertTrue(
-            np.isnan(result['map/iou=0.50:0.95/area=large/maxDets=100']))
+            np.isnan(result['map/iou=0.50:0.95/area=large/max_dets=100']))
 
 
 @unittest.skipUnless(_available, 'pycocotools is not installed')
@@ -92,8 +92,7 @@ class TestEvalInstanceSegmentationCOCO(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        base_url = 'https://github.com/yuyu2172/' \
-            'coco-evaluation/releases/download/0.0.5'
+        base_url = 'https://chainercv-models.preferred.jp/tests'
 
         cls.dataset = np.load(request.urlretrieve(os.path.join(
             base_url,
@@ -114,21 +113,21 @@ class TestEvalInstanceSegmentationCOCO(unittest.TestCase):
 
         result = eval_instance_segmentation_coco(
             pred_masks, pred_labels, pred_scores,
-            gt_masks, gt_labels, gt_crowdeds, gt_areas)
+            gt_masks, gt_labels, gt_areas, gt_crowdeds)
 
         expected = {
-            'map/iou=0.50:0.95/area=all/maxDets=100': 0.32170935,
-            'map/iou=0.50/area=all/maxDets=100': 0.56469292,
-            'map/iou=0.75/area=all/maxDets=100': 0.30133106,
-            'map/iou=0.50:0.95/area=small/maxDets=100': 0.38737403,
-            'map/iou=0.50:0.95/area=medium/maxDets=100': 0.31018272,
-            'map/iou=0.50:0.95/area=large/maxDets=100': 0.32693391,
-            'mar/iou=0.50:0.95/area=all/maxDets=1': 0.27037258,
-            'mar/iou=0.50:0.95/area=all/maxDets=10': 0.41759154,
-            'mar/iou=0.50:0.95/area=all/maxDets=100': 0.41898236,
-            'mar/iou=0.50:0.95/area=small/maxDets=100': 0.46944986,
-            'mar/iou=0.50:0.95/area=medium/maxDets=100': 0.37675923,
-            'mar/iou=0.50:0.95/area=large/maxDets=100': 0.38147151
+            'map/iou=0.50:0.95/area=all/max_dets=100': 0.32170935,
+            'map/iou=0.50/area=all/max_dets=100': 0.56469292,
+            'map/iou=0.75/area=all/max_dets=100': 0.30133106,
+            'map/iou=0.50:0.95/area=small/max_dets=100': 0.38737403,
+            'map/iou=0.50:0.95/area=medium/max_dets=100': 0.31018272,
+            'map/iou=0.50:0.95/area=large/max_dets=100': 0.32693391,
+            'mar/iou=0.50:0.95/area=all/max_dets=1': 0.27037258,
+            'mar/iou=0.50:0.95/area=all/max_dets=10': 0.41759154,
+            'mar/iou=0.50:0.95/area=all/max_dets=100': 0.41898236,
+            'mar/iou=0.50:0.95/area=small/max_dets=100': 0.46944986,
+            'mar/iou=0.50:0.95/area=medium/max_dets=100': 0.37675923,
+            'mar/iou=0.50:0.95/area=large/max_dets=100': 0.38147151
         }
 
         non_existent_labels = np.setdiff1d(
