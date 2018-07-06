@@ -134,8 +134,8 @@ class COCOInstanceSegmentationDataset(GetterDataset):
 
         mask = []
         label = []
-        crowded = []
         area = []
+        crowded = []
         for anno in annotation:
             lbl = self.cat_ids.index(anno['category_id'])
             msk = self._segm_to_mask(anno['segmentation'], (H, W))
@@ -148,8 +148,8 @@ class COCOInstanceSegmentationDataset(GetterDataset):
             area.append(anno['area'])
         label = np.array(label, dtype=np.int32)
         mask = np.array(mask, dtype=np.bool)
-        crowded = np.array(crowded, dtype=np.bool)
         area = np.array(area, dtype=np.float32)
+        crowded = np.array(crowded, dtype=np.bool)
         if len(mask) == 0:
             mask = np.zeros((0, H, W), dtype=np.bool)
 
@@ -157,10 +157,10 @@ class COCOInstanceSegmentationDataset(GetterDataset):
             not_crowded = np.logical_not(crowded)
             label = label[not_crowded]
             mask = mask[not_crowded]
-            crowded = crowded[not_crowded]
             area = area[not_crowded]
+            crowded = crowded[not_crowded]
 
-        return mask, label, crowded, area
+        return mask, label, area, crowded
 
     def _segm_to_mask(self, segm, size):
         # Copied from pycocotools.coco.COCO.annToMask
