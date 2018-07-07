@@ -107,8 +107,10 @@ class COCOInstanceSegmentationDataset(GetterDataset):
             self.id_to_anno[anno['image_id']].append(anno)
 
         self.add_getter('img', self._get_image)
-        self.add_getter(['mask', 'label', 'area', 'crowded'],
-                        self._get_annotations)
+        self.add_getter('mask', self._get_mask)
+        self.add_getter(
+            ['label', 'area', 'crowded'],
+            self._get_annotations)
         keys = ('img', 'mask', 'label')
         if return_area:
             keys += ('area',)
@@ -125,7 +127,7 @@ class COCOInstanceSegmentationDataset(GetterDataset):
         img = utils.read_image(img_path, dtype=np.float32, color=True)
         return img
 
-    def _get_annotations(self, i):
+    def _get_mask(self, i):
         # List[{'segmentation', 'area', 'iscrowd',
         #       'image_id', 'bbox', 'category_id', 'id'}]
         annotation = self.id_to_anno[self.ids[i]]
@@ -133,34 +135,44 @@ class COCOInstanceSegmentationDataset(GetterDataset):
         W = self.id_to_prop[self.ids[i]]['width']
 
         mask = []
-        label = []
-        area = []
         crowded = []
         for anno in annotation:
-            lbl = self.cat_ids.index(anno['category_id'])
             msk = self._segm_to_mask(anno['segmentation'], (H, W))
             # FIXME: some of minival annotations are malformed.
             if msk.shape != (H, W):
                 continue
-            label.append(lbl)
             mask.append(msk)
             crowded.append(anno['iscrowd'])
-            area.append(anno['area'])
-        label = np.array(label, dtype=np.int32)
         mask = np.array(mask, dtype=np.bool)
-        area = np.array(area, dtype=np.float32)
         crowded = np.array(crowded, dtype=np.bool)
         if len(mask) == 0:
             mask = np.zeros((0, H, W), dtype=np.bool)
 
         if not self.use_crowded:
             not_crowded = np.logical_not(crowded)
-            label = label[not_crowded]
             mask = mask[not_crowded]
+        return mask
+
+    def _get_annotations(self, i):
+        # List[{'segmentation', 'area', 'iscrowd',
+        #       'image_id', 'bbox', 'category_id', 'id'}]
+        annotation = self.id_to_anno[self.ids[i]]
+
+        label = np.array(
+            [self.cat_ids.index(anno['category_id']) for anno in annotation],
+            dtype=np.int32)
+        area = np.array(
+            [anno['area'] for anno in annotation], dtype=np.float32)
+        crowded = np.array(
+            [anno['iscrowd'] for anno in annotation], dtype=np.bool)
+
+        if not self.use_crowded:
+            not_crowded = np.logical_not(crowded)
+            label = label[not_crowded]
             area = area[not_crowded]
             crowded = crowded[not_crowded]
 
-        return mask, label, area, crowded
+        return label, area, crowded
 
     def _segm_to_mask(self, segm, size):
         # Copied from pycocotools.coco.COCO.annToMask
