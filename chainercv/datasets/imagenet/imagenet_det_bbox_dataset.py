@@ -96,6 +96,7 @@ class ImagenetDetBboxDataset(GetterDataset):
                         img_labels[id_].append((lb, int(anno_type)))
                 self.img_labels = img_labels
                 self.ids = list(img_labels.keys())
+                self.split_type = 'train'
         else:
             if return_img_label:
                 raise ValueError('split has to be \'train\' when '
@@ -107,8 +108,7 @@ class ImagenetDetBboxDataset(GetterDataset):
                     id_ = l.split()[0]
                     ids.append(id_)
                 self.ids = ids
-
-        self.split = split
+            self.split_type = 'val'
 
         self.add_getter('img', self._get_image)
         self.add_getter(('bbox', 'label'), self._get_inst_anno)
@@ -121,7 +121,7 @@ class ImagenetDetBboxDataset(GetterDataset):
 
     def _get_image(self, i):
         img_path = os.path.join(
-            self.base_dir, 'Data/DET', self.split,
+            self.base_dir, 'Data/DET', self.split_type,
             self.ids[i] + '.JPEG')
         img = read_image(img_path, color=True)
         return img
@@ -129,7 +129,7 @@ class ImagenetDetBboxDataset(GetterDataset):
     def _get_inst_anno(self, i):
         if 'extra' not in self.ids[i]:
             anno_path = os.path.join(
-                self.base_dir, 'Annotations/DET', self.split,
+                self.base_dir, 'Annotations/DET', self.split_type,
                 self.ids[i] + '.xml')
             bbox, label, _ = parse_voc_bbox_annotation(
                 anno_path, imagenet_det_synset_ids,
