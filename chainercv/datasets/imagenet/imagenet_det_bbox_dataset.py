@@ -11,7 +11,7 @@ from chainercv.utils import read_image
 
 class ImagenetDetBboxDataset(GetterDataset):
 
-    """ILSVRC2014 ImageNet detection dataset.
+    """ILSVRC ImageNet detection dataset.
 
     The data is distributed on the `official Kaggle page`_.
 
@@ -33,7 +33,10 @@ class ImagenetDetBboxDataset(GetterDataset):
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`,
             :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/imagenet` is used.
-        split ({'train', 'val'}): Selects a split of the dataset.
+        split ({'train', 'val', 'val1', 'val2'}): Selects a split of the
+            dataset.
+        year ({'2013', '2014'}): Use a dataset prepared for a challenge
+            held in :obj:`year`. The default value is :obj:`2014`.
         return_img_label (bool): If :obj:`True`, this dataset returns
             image-wise labels. This consists of two arrays:
             :obj:`img_label` and :obj:`img_label_type`.
@@ -64,11 +67,16 @@ class ImagenetDetBboxDataset(GetterDataset):
 
     """
 
-    def __init__(self, data_dir='auto', split='train', return_img_label=False):
+    def __init__(self, data_dir='auto', split='train', year='2014',
+                 return_img_label=False):
         super(ImagenetDetBboxDataset, self).__init__()
         if data_dir == 'auto':
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/imagenet')
+
+        if year not in ('2013', '2014'):
+            raise ValueError('\'year\' has to be either '
+                             '\'2013\' or \'2014\'.')
         self.base_dir = os.path.join(data_dir, 'ILSVRC')
         imageset_dir = os.path.join(self.base_dir, 'ImageSets/DET')
 
@@ -79,6 +87,9 @@ class ImagenetDetBboxDataset(GetterDataset):
                         imageset_dir, 'train_{}.txt'.format(lb + 1))) as f:
                     for l in f:
                         id_ = l.split()[0]
+                        if 'ILSVRC2014' in id_ and year != '2014':
+                            continue
+
                         anno_type = l.split()[1]
                         if id_ not in img_labels:
                             img_labels[id_] = []
@@ -91,7 +102,7 @@ class ImagenetDetBboxDataset(GetterDataset):
                                  'return_img_label is True')
             ids = []
             with open(os.path.join(
-                    imageset_dir, 'val.txt')) as f:
+                    imageset_dir, '{}.txt'.format(split))) as f:
                 for l in f:
                     id_ = l.split()[0]
                     ids.append(id_)
