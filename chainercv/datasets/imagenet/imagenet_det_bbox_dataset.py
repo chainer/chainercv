@@ -4,6 +4,7 @@ import os
 from chainer.dataset import download
 
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
+from chainercv.datasets.imagenet.imagenet_utils import get_ilsvrc_devkit
 from chainercv.datasets.imagenet.imagenet_utils import imagenet_det_synset_ids
 from chainercv.datasets.voc.voc_utils import parse_voc_bbox_annotation
 from chainercv.utils import read_image
@@ -40,6 +41,9 @@ class ImagenetDetBboxDataset(GetterDataset):
         return_img_label (bool): If :obj:`True`, this dataset returns
             image-wise labels. This consists of two arrays:
             :obj:`img_label` and :obj:`img_label_type`.
+        use_val_blacklist (bool): If :obj:`False`, images that are
+            included in the blacklist are avoided when
+            the split is :obj:`val`. The default value is :obj:`False`.
 
     This dataset returns the following data.
 
@@ -68,11 +72,15 @@ class ImagenetDetBboxDataset(GetterDataset):
     """
 
     def __init__(self, data_dir='auto', split='train', year='2014',
-                 return_img_label=False):
+                 return_img_label=False, use_val_blacklist=False):
         super(ImagenetDetBboxDataset, self).__init__()
         if data_dir == 'auto':
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/imagenet')
+            get_ilsvrc_devkit()
+        val_blacklist_path = os.path.join(
+            data_dir, 'ILSVRC2014_devkit/data/',
+            'ILSVRC2014_det_validation_blacklist.txt')
 
         if year not in ('2013', '2014'):
             raise ValueError('\'year\' has to be either '
@@ -101,12 +109,28 @@ class ImagenetDetBboxDataset(GetterDataset):
             if return_img_label:
                 raise ValueError('split has to be \'train\' when '
                                  'return_img_label is True')
+            if use_val_blacklist:
+                blacklist_ids = []
+            else:
+                ids = []
+                with open(os.path.join(
+                        imageset_dir, 'val.txt'.format(split))) as f:
+                    for l in f:
+                        id_ = l.split()[0]
+                        ids.append(id_)
+                blacklist_ids = []
+                with open(val_blacklist_path) as f:
+                    for l in f:
+                        index = int(l.split()[0])
+                        blacklist_ids.append(ids[index])
+
             ids = []
             with open(os.path.join(
                     imageset_dir, '{}.txt'.format(split))) as f:
                 for l in f:
                     id_ = l.split()[0]
-                    ids.append(id_)
+                    if id_ not in blacklist_ids:
+                        ids.append(id_)
                 self.ids = ids
             self.split_type = 'val'
 
