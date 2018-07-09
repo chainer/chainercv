@@ -130,3 +130,5 @@ coco_bbox_label_names = (
     'teddy bear',
     'hair drier',
     'toothbrush')
+
+coco_instance_segmentation_label_names = coco_bbox_label_names
