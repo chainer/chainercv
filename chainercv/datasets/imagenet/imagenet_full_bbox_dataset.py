@@ -22,7 +22,7 @@ class ImagenetFullBboxDataset(GetterDataset):
     The data needs to be downloaded from the official page.
     There are four steps to prepare data.
 
-    1. Download annotations http://image-net.org/download-bboxes from \
+    1. Download annotations from \
         http://image-net.org/Annotation/Annotation.tar.gz.
     2. Expand it under :obj:`DATA_DIR/Full/Annotation` with the following \
         command.
@@ -95,7 +95,7 @@ class ImagenetFullBboxDataset(GetterDataset):
             cls_dir = os.path.join(image_dir, cls_name)
             for name in sorted(os.listdir(cls_dir)):
                 img_path = os.path.join(
-                        self.base_dir, 'Data', cls_name, name[:-4] + '.JPEG')
+                    self.base_dir, 'Data', cls_name, name[:-4] + '.JPEG')
                 if os.path.exists(img_path):
                     self.paths.append(os.path.join(cls_dir, name))
                     self.img_paths.append(img_path)
