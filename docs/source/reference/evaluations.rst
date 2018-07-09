@@ -27,6 +27,12 @@ calc_detection_voc_prec_rec
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: calc_detection_voc_prec_rec
 
+Instance Segmentation COCO
+--------------------------
+
+eval_instance_segmentation_coco
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: eval_instance_segmentation_coco
 
 Instance Segmentation VOC
 -------------------------
