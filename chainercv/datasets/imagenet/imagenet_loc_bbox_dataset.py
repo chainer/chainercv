@@ -3,6 +3,7 @@ import os
 from chainer.dataset import download
 
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
+from chainercv.datasets.imagenet.imagenet_utils import get_ilsvrc_devkit
 from chainercv.datasets.imagenet.imagenet_utils import imagenet_loc_synset_ids
 from chainercv.datasets.voc.voc_utils import parse_voc_bbox_annotation
 from chainercv.utils import read_image
@@ -29,6 +30,9 @@ class ImagenetLocBboxDataset(GetterDataset):
             :obj:`auto`,
             :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/imagenet` is used.
         split ({'train', 'val'}): Selects a split of the dataset.
+        use_val_blacklist (bool): If :obj:`False`, images that are
+            included in the blacklist are avoided when
+            the split is :obj:`val`. The default value is :obj:`False`.
 
     This dataset returns the following data.
 
@@ -44,11 +48,16 @@ class ImagenetLocBboxDataset(GetterDataset):
 
     """
 
-    def __init__(self, data_dir='auto', split='train'):
+    def __init__(self, data_dir='auto', split='train',
+                 use_val_blacklist=False):
         super(ImagenetLocBboxDataset, self).__init__()
         if data_dir == 'auto':
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/imagenet')
+            get_ilsvrc_devkit()
+        val_blacklist_path = os.path.join(
+            data_dir, 'ILSVRC2014_devkit/data/',
+            'ILSVRC2014_clsloc_validation_blacklist.txt')
         self.base_dir = os.path.join(data_dir, 'ILSVRC')
         imageset_dir = os.path.join(self.base_dir, 'ImageSets/CLS-LOC')
 
@@ -57,10 +66,19 @@ class ImagenetLocBboxDataset(GetterDataset):
             imageset_path = os.path.join(imageset_dir, 'train_loc.txt')
         elif split == 'val':
             imageset_path = os.path.join(imageset_dir, 'val.txt')
+
+        if not use_val_blacklist:
+            blacklist = []
+            with open(val_blacklist_path) as f:
+                for l in f:
+                    blacklist.append(int(l))
+        else:
+            blacklist = []
         with open(imageset_path) as f:
             for l in f:
-                id_ = l.split()[0]
-                ids.append(id_)
+                if int(l.split()[1]) not in blacklist:
+                    id_ = l.split()[0]
+                    ids.append(id_)
         self.ids = ids
         self.split = split
 
