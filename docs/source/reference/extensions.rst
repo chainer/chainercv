@@ -11,6 +11,10 @@ DetectionVOCEvaluator
 ~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: DetectionVOCEvaluator
 
+InstanceSegmentationCOCOEvaluator
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: InstanceSegmentationCOCOEvaluator
+
 InstanceSegmentationVOCEvaluator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: InstanceSegmentationVOCEvaluator
