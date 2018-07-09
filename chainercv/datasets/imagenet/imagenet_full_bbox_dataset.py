@@ -77,6 +77,7 @@ class ImagenetFullBboxDataset(GetterDataset):
         if :obj:`return_img_label = True`.
 
     """
+
     def __init__(self, data_dir='auto',
                  return_img_label=False):
         super(ImagenetFullBboxDataset, self).__init__()
