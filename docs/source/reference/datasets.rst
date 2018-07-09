@@ -69,6 +69,10 @@ ImagenetDetBboxDataset
 ~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: ImagenetDetBboxDataset
 
+ImagenetFullBboxDataset
+~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: ImagenetFullBboxDataset
+
 ImagenetLocBboxDataset
 ~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: ImagenetLocBboxDataset
