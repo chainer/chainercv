@@ -4,6 +4,7 @@ import os
 from chainer.dataset import download
 
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
+from chainercv.datasets.imagenet.imagenet_utils import get_ilsvrc_devkit
 from chainercv.datasets.imagenet.imagenet_utils import imagenet_det_synset_ids
 from chainercv.datasets.voc.voc_utils import parse_voc_bbox_annotation
 from chainercv.utils import read_image
@@ -11,7 +12,7 @@ from chainercv.utils import read_image
 
 class ImagenetDetBboxDataset(GetterDataset):
 
-    """ILSVRC2014 ImageNet detection dataset.
+    """ILSVRC ImageNet detection dataset.
 
     The data is distributed on the `official Kaggle page`_.
 
@@ -33,10 +34,16 @@ class ImagenetDetBboxDataset(GetterDataset):
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`,
             :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/imagenet` is used.
-        split ({'train', 'val'}): Selects a split of the dataset.
+        split ({'train', 'val', 'val1', 'val2'}): Selects a split of the
+            dataset.
+        year ({'2013', '2014'}): Use a dataset prepared for a challenge
+            held in :obj:`year`. The default value is :obj:`2014`.
         return_img_label (bool): If :obj:`True`, this dataset returns
             image-wise labels. This consists of two arrays:
             :obj:`img_label` and :obj:`img_label_type`.
+        use_val_blacklist (bool): If :obj:`False`, images that are
+            included in the blacklist are avoided when
+            the split is :obj:`val`. The default value is :obj:`False`.
 
     This dataset returns the following data.
 
@@ -64,11 +71,20 @@ class ImagenetDetBboxDataset(GetterDataset):
 
     """
 
-    def __init__(self, data_dir='auto', split='train', return_img_label=False):
+    def __init__(self, data_dir='auto', split='train', year='2014',
+                 return_img_label=False, use_val_blacklist=False):
         super(ImagenetDetBboxDataset, self).__init__()
         if data_dir == 'auto':
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/imagenet')
+            get_ilsvrc_devkit()
+        val_blacklist_path = os.path.join(
+            data_dir, 'ILSVRC2014_devkit/data/',
+            'ILSVRC2014_det_validation_blacklist.txt')
+
+        if year not in ('2013', '2014'):
+            raise ValueError('\'year\' has to be either '
+                             '\'2013\' or \'2014\'.')
         self.base_dir = os.path.join(data_dir, 'ILSVRC')
         imageset_dir = os.path.join(self.base_dir, 'ImageSets/DET')
 
@@ -79,25 +95,44 @@ class ImagenetDetBboxDataset(GetterDataset):
                         imageset_dir, 'train_{}.txt'.format(lb + 1))) as f:
                     for l in f:
                         id_ = l.split()[0]
+                        if 'ILSVRC2014' in id_ and year != '2014':
+                            continue
+
                         anno_type = l.split()[1]
                         if id_ not in img_labels:
                             img_labels[id_] = []
                         img_labels[id_].append((lb, int(anno_type)))
                 self.img_labels = img_labels
                 self.ids = list(img_labels.keys())
+                self.split_type = 'train'
         else:
             if return_img_label:
                 raise ValueError('split has to be \'train\' when '
                                  'return_img_label is True')
+            if use_val_blacklist:
+                blacklist_ids = []
+            else:
+                ids = []
+                with open(os.path.join(
+                        imageset_dir, 'val.txt'.format(split))) as f:
+                    for l in f:
+                        id_ = l.split()[0]
+                        ids.append(id_)
+                blacklist_ids = []
+                with open(val_blacklist_path) as f:
+                    for l in f:
+                        index = int(l.split()[0])
+                        blacklist_ids.append(ids[index])
+
             ids = []
             with open(os.path.join(
-                    imageset_dir, 'val.txt')) as f:
+                    imageset_dir, '{}.txt'.format(split))) as f:
                 for l in f:
                     id_ = l.split()[0]
-                    ids.append(id_)
+                    if id_ not in blacklist_ids:
+                        ids.append(id_)
                 self.ids = ids
-
-        self.split = split
+            self.split_type = 'val'
 
         self.add_getter('img', self._get_image)
         self.add_getter(('bbox', 'label'), self._get_inst_anno)
@@ -110,7 +145,7 @@ class ImagenetDetBboxDataset(GetterDataset):
 
     def _get_image(self, i):
         img_path = os.path.join(
-            self.base_dir, 'Data/DET', self.split,
+            self.base_dir, 'Data/DET', self.split_type,
             self.ids[i] + '.JPEG')
         img = read_image(img_path, color=True)
         return img
@@ -118,7 +153,7 @@ class ImagenetDetBboxDataset(GetterDataset):
     def _get_inst_anno(self, i):
         if 'extra' not in self.ids[i]:
             anno_path = os.path.join(
-                self.base_dir, 'Annotations/DET', self.split,
+                self.base_dir, 'Annotations/DET', self.split_type,
                 self.ids[i] + '.xml')
             bbox, label, _ = parse_voc_bbox_annotation(
                 anno_path, imagenet_det_synset_ids,
