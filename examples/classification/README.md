@@ -10,6 +10,11 @@ Single crop error rate.
 | ResNet50 | 24.8 % | 24.7 % [2] |
 | ResNet101 | 23.6 % | 23.6 % [2] |
 | ResNet152 | 23.2 % | 23.0 % [2] |
+| SE-ResNet50 | 22.7 % | 22.4 % [3,4] |
+| SE-ResNet101 | 21.8 % | 21.8 % [3,4] |
+| SE-ResNet152 | 21.4 % | 21.3 % [3,4] |
+| SE-ResNeXt50 | 20.9 % | 21.0 % [3,4] |
+| SE-ResNeXt101 | 19.7 % | 19.8 % [3,4] |
 
 Ten crop error rate.
 
@@ -19,6 +24,11 @@ Ten crop error rate.
 | ResNet50 | 23.0 % | 22.9 % [2] |
 | ResNet101 | 21.8 % | 21.8 % [2] |
 | ResNet152 | 21.4 % | 21.4 % [2] |
+| SE-ResNet50 | 20.8 % |  |
+| SE-ResNet101 | 20.1 % |  |
+| SE-ResNet152 | 19.7 % |  |
+| SE-ResNeXt50 | 19.4 % |  |
+| SE-ResNeXt101 | 18.6 % |  |
 
 
 The results can be reproduced by the following command.
@@ -26,7 +36,7 @@ The score is reported using a weight converted from a weight trained by Caffe.
 These scores are obtained using OpenCV backend. If Pillow is used, scores would differ.
 
 ```
-$ python eval_imagenet.py <path_to_val_dataset> [--model vgg16|resnet50|resnet101|resnet152] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>] [--crop center|10]
+$ python eval_imagenet.py <path_to_val_dataset> [--model vgg16|resnet50|resnet101|resnet152|se-resnet50|se-resnet101|se-resnet152] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>] [--crop center|10]
 ```
 
 
@@ -58,3 +68,5 @@ The ImageNet Large Scale Visual Recognition Challenge (ILSVRC) dataset has 1000 
 
 1. Karen Simonyan, Andrew Zisserman. "Very Deep Convolutional Networks for Large-Scale Image Recognition" ICLR 2015
 2. Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. "Deep Residual Learning for Image Recognition" CVPR 2016
+3. Jie Hu, Li Shen, Gang Sun. "Squeeze-and-Excitation Networks" CVPR 2018
+4. https://github.com/hujie-frank/SENet

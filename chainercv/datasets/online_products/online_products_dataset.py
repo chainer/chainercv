@@ -8,7 +8,7 @@ from chainercv import utils
 
 
 root = 'pfnet/chainercv/online_products'
-url = 'ftp://cs.stanford.edu/cs/cvgl/Stanford_Online_Products.zip'
+url = 'http://ftp.cs.stanford.edu/cs/cvgl/Stanford_Online_Products.zip'
 
 online_products_super_label_names = (
     'bicycle',

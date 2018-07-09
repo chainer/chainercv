@@ -37,7 +37,10 @@ def get_coco(split, img_split):
         anno_url = anno_urls[split]
         download_file_path = utils.cached_download(anno_url)
         ext = os.path.splitext(anno_url)[1]
-        utils.extractall(download_file_path, annos_root, ext)
+        if split in ['train', 'val']:
+            utils.extractall(download_file_path, data_dir, ext)
+        elif split in ['valminusminival', 'minival']:
+            utils.extractall(download_file_path, annos_root, ext)
     return data_dir
 
 
@@ -127,3 +130,5 @@ coco_bbox_label_names = (
     'teddy bear',
     'hair drier',
     'toothbrush')
+
+coco_instance_segmentation_label_names = coco_bbox_label_names
