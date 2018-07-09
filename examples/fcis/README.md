@@ -35,5 +35,14 @@ mpi4exec -n <n_gpu> python train_multi.py --lr  <n_gpu>*0.0005
 You can download weights that were trained by ChainerCV.
 - [FCIS ResNet101](https://chainercv-models.preferred.jp/fcis_resnet101_sbd_trained_2018_06_22.npz)
 
+## Convert Mxnet model
+Convert `*.params` to `*.npz`.
+Note that the number of classes and network structure is specified by `--dataset`.
+
+```bash
+python mxnet2npz.py [--dataset sbd|coco] [--out <npz filename>] <param filename>
+```
+
+
 ## References
 1. Yi Li et al. "Fully Convolutional Instance-aware Semantic Segmentation" CVPR 2017.
