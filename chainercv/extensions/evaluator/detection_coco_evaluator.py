@@ -141,6 +141,8 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
 
         if len(rest_values) == 2:
             gt_bboxes, gt_labels = rest_values
+            gt_areas = None
+            gt_crowdeds = None
         elif len(rest_values) == 4:
             gt_bboxes, gt_labels, gt_areas, gt_crowdeds =\
                 rest_values
