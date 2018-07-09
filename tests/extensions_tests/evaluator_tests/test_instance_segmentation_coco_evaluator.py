@@ -8,6 +8,12 @@ from chainer import testing
 
 from chainercv.extensions import InstanceSegmentationCOCOEvaluator
 
+try:
+    import pycocotools.coco  # NOQA
+    _available = True
+except ImportError:
+    _available = False
+
 
 class _InstanceSegmentationStubLink(chainer.Link):
 
@@ -28,6 +34,7 @@ class _InstanceSegmentationStubLink(chainer.Link):
         return masks, labels, scores
 
 
+@unittest.skipUnless(_available, 'pycocotools is not installed')
 class TestInstanceSegmentationCOCOEvaluator(unittest.TestCase):
 
     def setUp(self):
