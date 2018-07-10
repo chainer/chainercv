@@ -6,7 +6,13 @@ from chainer.datasets import TupleDataset
 from chainer.iterators import SerialIterator
 from chainer import testing
 
-from chainercv.extensions import InstanceSegmentationVOCEvaluator
+from chainercv.extensions import InstanceSegmentationCOCOEvaluator
+
+try:
+    import pycocotools.coco  # NOQA
+    _available = True
+except ImportError:
+    _available = False
 
 
 class _InstanceSegmentationStubLink(chainer.Link):
@@ -28,7 +34,8 @@ class _InstanceSegmentationStubLink(chainer.Link):
         return masks, labels, scores
 
 
-class TestInstanceSegmentationVOCEvaluator(unittest.TestCase):
+@unittest.skipUnless(_available, 'pycocotools is not installed')
+class TestInstanceSegmentationCOCOEvaluator(unittest.TestCase):
 
     def setUp(self):
         masks = np.random.uniform(size=(10, 5, 32, 48)) > 0.5
@@ -39,7 +46,7 @@ class TestInstanceSegmentationVOCEvaluator(unittest.TestCase):
         self.link = _InstanceSegmentationStubLink(masks, labels)
         self.iterator = SerialIterator(
             self.dataset, 1, repeat=False, shuffle=False)
-        self.evaluator = InstanceSegmentationVOCEvaluator(
+        self.evaluator = InstanceSegmentationCOCOEvaluator(
             self.iterator, self.link, label_names=('cls0', 'cls1', 'cls2'))
         self.expected_ap = 1
 
@@ -53,27 +60,36 @@ class TestInstanceSegmentationVOCEvaluator(unittest.TestCase):
         # evaluator collect results in order to calculate their mean.
         self.assertEqual(len(reporter.observation), 0)
 
-        np.testing.assert_equal(mean['target/map'], self.expected_ap)
-        np.testing.assert_equal(mean['target/ap/cls0'], np.nan)
-        np.testing.assert_equal(mean['target/ap/cls1'], self.expected_ap)
-        np.testing.assert_equal(mean['target/ap/cls2'], np.nan)
+        key = 'ap/iou=0.50:0.95/area=all/max_dets=100'
+        np.testing.assert_equal(
+            mean['target/m{}'.format(key)], self.expected_ap)
+        np.testing.assert_equal(mean['target/{}/cls0'.format(key)], np.nan)
+        np.testing.assert_equal(
+            mean['target/{}/cls1'.format(key)], self.expected_ap)
+        np.testing.assert_equal(mean['target/{}/cls2'.format(key)], np.nan)
 
     def test_call(self):
         mean = self.evaluator()
         # main is used as default
-        np.testing.assert_equal(mean['main/map'], self.expected_ap)
-        np.testing.assert_equal(mean['main/ap/cls0'], np.nan)
-        np.testing.assert_equal(mean['main/ap/cls1'], self.expected_ap)
-        np.testing.assert_equal(mean['main/ap/cls2'], np.nan)
+        key = 'ap/iou=0.50:0.95/area=all/max_dets=100'
+        key = 'ap/iou=0.50:0.95/area=all/max_dets=100'
+        np.testing.assert_equal(mean['main/m{}'.format(key)], self.expected_ap)
+        np.testing.assert_equal(mean['main/{}/cls0'.format(key)], np.nan)
+        np.testing.assert_equal(
+            mean['main/{}/cls1'.format(key)], self.expected_ap)
+        np.testing.assert_equal(mean['main/{}/cls2'.format(key)], np.nan)
 
     def test_evaluator_name(self):
         self.evaluator.name = 'eval'
         mean = self.evaluator()
         # name is used as a prefix
-        np.testing.assert_equal(mean['eval/main/map'], self.expected_ap)
-        np.testing.assert_equal(mean['eval/main/ap/cls0'], np.nan)
-        np.testing.assert_equal(mean['eval/main/ap/cls1'], self.expected_ap)
-        np.testing.assert_equal(mean['eval/main/ap/cls2'], np.nan)
+        key = 'ap/iou=0.50:0.95/area=all/max_dets=100'
+        np.testing.assert_equal(
+            mean['eval/main/m{}'.format(key)], self.expected_ap)
+        np.testing.assert_equal(mean['eval/main/{}/cls0'.format(key)], np.nan)
+        np.testing.assert_equal(
+            mean['eval/main/{}/cls1'.format(key)], self.expected_ap)
+        np.testing.assert_equal(mean['eval/main/{}/cls2'.format(key)], np.nan)
 
     def test_current_report(self):
         reporter = chainer.Reporter()

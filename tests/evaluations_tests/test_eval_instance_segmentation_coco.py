@@ -5,7 +5,7 @@ import unittest
 
 from chainer import testing
 
-from chainercv.evaluations import eval_detection_coco
+from chainercv.evaluations import eval_instance_segmentation_coco
 
 try:
     import pycocotools  # NOQA
@@ -15,20 +15,21 @@ except ImportError:
 
 
 @unittest.skipUnless(_available, 'pycocotools is not installed')
-class TestEvalDetectionCOCOSingleClass(unittest.TestCase):
+class TestEvalInstanceSegmentationCOCOSimple(unittest.TestCase):
 
     def setUp(self):
-        self.pred_bboxes = np.array([[[0, 0, 10, 10], [0, 0, 20, 20]]])
+        self.pred_masks = np.array(
+            [[[[True, True], [True, True]],
+              [[True, False], [False, True]]]])
         self.pred_labels = np.array([[0, 0]])
         self.pred_scores = np.array([[0.8, 0.9]])
-        self.gt_bboxes = np.array([[[0, 0, 10, 9]]])
+        self.gt_masks = np.array([[[[True, True], [True, True]]]])
         self.gt_labels = np.array([[0, 0]])
 
     def test_crowded(self):
-        result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
-                                     self.pred_scores,
-                                     self.gt_bboxes, self.gt_labels,
-                                     gt_crowdeds=[[True]])
+        result = eval_instance_segmentation_coco(
+            self.pred_masks, self.pred_labels, self.pred_scores,
+            self.gt_masks, self.gt_labels, gt_crowdeds=[[True]])
         # When the only ground truth is crowded, nothing is evaluated.
         # In that case, all the results are nan.
         self.assertTrue(
@@ -39,9 +40,9 @@ class TestEvalDetectionCOCOSingleClass(unittest.TestCase):
             np.isnan(result['map/iou=0.75/area=all/max_dets=100']))
 
     def test_area_not_supplied(self):
-        result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
-                                     self.pred_scores,
-                                     self.gt_bboxes, self.gt_labels)
+        result = eval_instance_segmentation_coco(
+            self.pred_masks, self.pred_labels, self.pred_scores,
+            self.gt_masks, self.gt_labels)
         self.assertFalse(
             'map/iou=0.50:0.95/area=small/max_dets=100' in result)
         self.assertFalse(
@@ -50,10 +51,9 @@ class TestEvalDetectionCOCOSingleClass(unittest.TestCase):
             'map/iou=0.50:0.95/area=large/max_dets=100' in result)
 
     def test_area_specified(self):
-        result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
-                                     self.pred_scores,
-                                     self.gt_bboxes, self.gt_labels,
-                                     gt_areas=[[2048]])
+        result = eval_instance_segmentation_coco(
+            self.pred_masks, self.pred_labels, self.pred_scores,
+            self.gt_masks, self.gt_labels, gt_areas=[[2048]])
         self.assertFalse(
             np.isnan(result['map/iou=0.50:0.95/area=medium/max_dets=100']))
         self.assertTrue(
@@ -66,16 +66,18 @@ class TestEvalDetectionCOCOSingleClass(unittest.TestCase):
 class TestEvalDetectionCOCOSomeClassNonExistent(unittest.TestCase):
 
     def setUp(self):
-        self.pred_bboxes = np.array([[[0, 0, 10, 10], [0, 0, 20, 20]]])
+        self.pred_masks = np.array(
+            [[[[True, True], [True, True]],
+              [[True, False], [False, True]]]])
         self.pred_labels = np.array([[1, 2]])
         self.pred_scores = np.array([[0.8, 0.9]])
-        self.gt_bboxes = np.array([[[0, 0, 10, 9]]])
+        self.gt_masks = np.array([[[[True, True], [True, True]]]])
         self.gt_labels = np.array([[1, 2]])
 
     def test(self):
-        result = eval_detection_coco(self.pred_bboxes, self.pred_labels,
-                                     self.pred_scores,
-                                     self.gt_bboxes, self.gt_labels)
+        result = eval_instance_segmentation_coco(
+            self.pred_masks, self.pred_labels, self.pred_scores,
+            self.gt_masks, self.gt_labels)
         self.assertEqual(
             result['ap/iou=0.50:0.95/area=all/max_dets=100'].shape, (3,))
         self.assertTrue(
@@ -86,44 +88,48 @@ class TestEvalDetectionCOCOSomeClassNonExistent(unittest.TestCase):
 
 
 @unittest.skipUnless(_available, 'pycocotools is not installed')
-class TestEvalDetectionCOCO(unittest.TestCase):
+class TestEvalInstanceSegmentationCOCO(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         base_url = 'https://chainercv-models.preferred.jp/tests'
 
         cls.dataset = np.load(request.urlretrieve(os.path.join(
-            base_url, 'eval_detection_coco_dataset_2017_10_16.npz'))[0])
+            base_url,
+            'eval_instance_segmentation_coco_dataset_2018_07_06.npz'))[0],
+            encoding='latin1')
         cls.result = np.load(request.urlretrieve(os.path.join(
-            base_url, 'eval_detection_coco_result_2017_10_16.npz'))[0])
+            base_url,
+            'eval_instance_segmentation_coco_result_2018_07_06.npz'))[0],
+            encoding='latin1')
 
-    def test_eval_detection_coco(self):
-        pred_bboxes = self.result['bboxes']
+    def test_eval_instance_segmentation_coco(self):
+        pred_masks = self.result['masks']
         pred_labels = self.result['labels']
         pred_scores = self.result['scores']
 
-        gt_bboxes = self.dataset['bboxes']
+        gt_masks = self.dataset['masks']
         gt_labels = self.dataset['labels']
-        gt_areas = self.dataset['areas']
         gt_crowdeds = self.dataset['crowdeds']
+        gt_areas = self.dataset['areas']
 
-        result = eval_detection_coco(
-            pred_bboxes, pred_labels, pred_scores,
-            gt_bboxes, gt_labels, gt_areas, gt_crowdeds)
+        result = eval_instance_segmentation_coco(
+            pred_masks, pred_labels, pred_scores,
+            gt_masks, gt_labels, gt_areas, gt_crowdeds)
 
         expected = {
-            'map/iou=0.50:0.95/area=all/max_dets=100': 0.5069852,
-            'map/iou=0.50/area=all/max_dets=100': 0.69937725,
-            'map/iou=0.75/area=all/max_dets=100': 0.57538619,
-            'map/iou=0.50:0.95/area=small/max_dets=100': 0.58562572,
-            'map/iou=0.50:0.95/area=medium/max_dets=100': 0.51939969,
-            'map/iou=0.50:0.95/area=large/max_dets=100': 0.5013979,
-            'mar/iou=0.50:0.95/area=all/max_dets=1': 0.38919373,
-            'mar/iou=0.50:0.95/area=all/max_dets=10': 0.59606053,
-            'mar/iou=0.50:0.95/area=all/max_dets=100': 0.59773394,
-            'mar/iou=0.50:0.95/area=small/max_dets=100': 0.63981096,
-            'mar/iou=0.50:0.95/area=medium/max_dets=100': 0.5664206,
-            'mar/iou=0.50:0.95/area=large/max_dets=100': 0.5642906
+            'map/iou=0.50:0.95/area=all/max_dets=100': 0.32170935,
+            'map/iou=0.50/area=all/max_dets=100': 0.56469292,
+            'map/iou=0.75/area=all/max_dets=100': 0.30133106,
+            'map/iou=0.50:0.95/area=small/max_dets=100': 0.38737403,
+            'map/iou=0.50:0.95/area=medium/max_dets=100': 0.31018272,
+            'map/iou=0.50:0.95/area=large/max_dets=100': 0.32693391,
+            'mar/iou=0.50:0.95/area=all/max_dets=1': 0.27037258,
+            'mar/iou=0.50:0.95/area=all/max_dets=10': 0.41759154,
+            'mar/iou=0.50:0.95/area=all/max_dets=100': 0.41898236,
+            'mar/iou=0.50:0.95/area=small/max_dets=100': 0.46944986,
+            'mar/iou=0.50:0.95/area=medium/max_dets=100': 0.37675923,
+            'mar/iou=0.50:0.95/area=large/max_dets=100': 0.38147151
         }
 
         non_existent_labels = np.setdiff1d(

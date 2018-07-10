@@ -7,9 +7,17 @@ Extensions
 Evaluator
 ---------
 
+DetectionCOCOEvaluator
+~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: DetectionCOCOEvaluator
+
 DetectionVOCEvaluator
 ~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: DetectionVOCEvaluator
+
+InstanceSegmentationCOCOEvaluator
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: InstanceSegmentationCOCOEvaluator
 
 InstanceSegmentationVOCEvaluator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
