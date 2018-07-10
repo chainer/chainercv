@@ -74,7 +74,7 @@ class COCOInstanceSegmentationDataset(GetterDataset):
         if not _available:
             raise ValueError(
                 'Please install pycocotools \n'
-                'pip install -e \'git+https://github.com/pdollar/coco.git'
+                'pip install -e \'git+https://github.com/cocodataset/coco.git'
                 '#egg=pycocotools&subdirectory=PythonAPI\'')
 
         super(COCOInstanceSegmentationDataset, self).__init__()
