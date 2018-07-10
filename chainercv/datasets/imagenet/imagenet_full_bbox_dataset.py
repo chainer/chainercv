@@ -89,9 +89,7 @@ class ImagenetFullBboxDataset(GetterDataset):
         self.cls_names = []
         self.img_paths = []
         image_dir = os.path.join(self.base_dir, 'Annotation')
-        count = 0
         for cls_name in sorted(os.listdir(image_dir)):
-            count += 1
             cls_dir = os.path.join(image_dir, cls_name)
             for name in sorted(os.listdir(cls_dir)):
                 img_path = os.path.join(
