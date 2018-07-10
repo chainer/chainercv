@@ -86,6 +86,12 @@ class FCISResNet101(FCIS):
             'url': 'https://chainercv-models.preferred.jp/'
             'fcis_resnet101_sbd_trained_2018_06_22.npz',
             'cv2': True
+        },
+        'sbd_converted': {
+            'param': {'n_fg_class': 20},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'fcis_resnet101_sbd_converted_2018_07_02.npz',
+            'cv2': True
         }
     }
     feat_stride = 16
