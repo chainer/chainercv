@@ -72,3 +72,20 @@ Finally, this is a complete example using SSD300.
                             src.extractor.conv1_1.W.data)
     # the names of the weights that are skipped
     print(ignore_names)
+
+
+Copying non-parameter variables
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Above code does not copy non-parameter variables such as :obj:`avg_mean, avg_var` of Batch Normalization.
+The code below can be used to copy these variables.
+
+.. code-block:: python
+
+    # Copy Batch Normalization's statistics
+    dst_links = dict(dst.namedlinks())
+    for name, link in src.namedlinks():
+        if isinstance(link, L.BatchNormalization):
+            dst_bn = dst_links[name]
+            dst_bn.avg_mean[:] = link.avg_mean
+            dst_bn.avg_var[:] = link.avg_var
