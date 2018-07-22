@@ -22,14 +22,14 @@ You can train the model with the following code.
 Note that this code requires `SciPy` module.
 
 ```bash
-python train.py [--gpu <gpu>]
+python train_sbd.py [--gpu <gpu>]
 ```
 
-If you want to use multiple GPUs, use `train_multi.py`.
+If you want to use multiple GPUs, use `train_sbd_multi.py`.
 Note that this code requires `chainermn` module.
 
 ```bash
-mpi4exec -n <n_gpu> python train_multi.py --lr  <n_gpu>*0.0005
+mpi4exec -n <n_gpu> python train_sbd_multi.py --lr  <n_gpu>*0.0005
 
 ```
 You can download weights that were trained by ChainerCV.

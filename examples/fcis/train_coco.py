@@ -21,8 +21,8 @@ from chainercv.experimental.links.model.fcis.utils.proposal_target_creator \
 from chainercv.extensions import InstanceSegmentationCOCOEvaluator
 from chainercv.links.model.ssd import GradientScaling
 
-from train import concat_examples
-from train import Transform
+from train_sbd import concat_examples
+from train_sbd import Transform
 
 
 def main():
