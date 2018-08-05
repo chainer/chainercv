@@ -7,6 +7,10 @@ Faster R-CNN
 Detection Link
 --------------
 
+FasterRCNNResNet101
+~~~~~~~~~~~~~~~~~~~
+.. autoclass:: FasterRCNNResNet101
+
 FasterRCNNVGG16
 ~~~~~~~~~~~~~~~
 .. autoclass:: FasterRCNNVGG16

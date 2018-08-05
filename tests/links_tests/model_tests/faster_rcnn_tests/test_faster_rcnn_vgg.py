@@ -85,18 +85,16 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
         self.link = FasterRCNNTrainChain(faster_rcnn)
 
         self.n_bbox = 3
-        self.bboxes = chainer.Variable(
-            generate_random_bbox(self.n_bbox, (600, 800), 16, 350)[np.newaxis])
-        _labels = np.random.randint(
+        self.bboxes = generate_random_bbox(
+            self.n_bbox, (600, 800), 16, 350)[np.newaxis]
+        self.labels = np.random.randint(
             0, self.n_fg_class, size=(1, self.n_bbox)).astype(np.int32)
-        self.labels = chainer.Variable(_labels)
-        _imgs = np.random.uniform(
+        self.imgs = np.random.uniform(
             low=-122.5, high=122.5, size=(1, 3, 600, 800)).astype(np.float32)
-        self.imgs = chainer.Variable(_imgs)
-        self.scale = chainer.Variable(np.array(1.))
+        self.scales = np.array([1.])
 
     def check_call(self):
-        loss = self.link(self.imgs, self.bboxes, self.labels, self.scale)
+        loss = self.link(self.imgs, self.bboxes, self.labels, self.scales)
         self.assertEqual(loss.shape, ())
 
     @attr.slow
@@ -107,10 +105,10 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
     @attr.slow
     def test_call_gpu(self):
         self.link.to_gpu()
-        self.bboxes.to_gpu()
-        self.labels.to_gpu()
-        self.imgs.to_gpu()
-        self.scale.to_gpu()
+        self.bboxes = chainer.backends.cuda.to_gpu(self.bboxes)
+        self.labels = chainer.backends.cuda.to_gpu(self.labels)
+        self.imgs = chainer.backends.cuda.to_gpu(self.imgs)
+        self.scales = chainer.backends.cuda.to_gpu(self.scales)
         self.check_call()
 
 

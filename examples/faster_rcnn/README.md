@@ -2,10 +2,34 @@
 
 ### Performance
 
-| Training Setting | Evaluation | Reference | ChainerCV |
-|:-:|:-:|:-:|:-:|
-| VOC2007 trainval | VOC2007 test | 69.9 mAP [1] | 70.6 mAP |
-| VOC2007\&2012 trainval | VOC2007 test | 73.2 mAP [1] | 74.7 mAP |
+All evaluation is conducted using VOC2007 test.
+
+1. Models with `Train Data == VOC07` used trainval split of VOC2007 dataset.
+2. Models with `Train Data == VOC07\&12` used trainval splits of VOC2007 and VOC2012 datasets.
+
+##### Comparison with the reference implementations
+
+| backbone | author | train Data | start lr | weight decay | iteration | imgs/GPU | score |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| VGG16 | Reference [1] | VOC07 | 1e-3 | 5e-4 | 70000 | 1 | 69.9 mAP |
+| VGG16 | ChainerCV | VOC07 | 1e-3 | 5e-4 | 70000 | 1 | 70.6 mAP |
+| VGG16 | Refernce [1] | VOC07\&12 | 1e-3 | 5e-4 | 110000 | 1 | 73.2 mAP |
+| VGG16 | ChainerCV | VOC07\&12 | 1e-3 | 5e-4 | 110000 | 1 | 74.7 mAP |
+| ResNet101 | Reference [1] | VOC07\&12 | 1e-3 | 1e-4 | 110000 | 1 | 76.4 mAP |
+| ResNet101 | ChainerCV | VOC07\&12 | 1e-3 | 1e-4 | 110000 | 1 | XXXX mAP |
+
+##### Ablative study
+
+| backbone | author | train Data | start lr | weight decay | iteration | imgs/GPU | score |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| VGG16 | ChainerCV | VOC07 | 1e-3 | 5e-4 | 70000 | 1 | 70.6 mAP |
+| VGG16 | ChainerCV | VOC07 | 2e-3 | 5e-4 | 35000 | 2 | XXX mAP |
+| VGG16 | ChainerCV | VOC07\&12 | 1e-3 | 5e-4 | 110000 | 1 | 74.7 mAP |
+| VGG16 | ChainerCV | VOC07\&12 | 2e-3 | 5e-4 | 55000 | 2 | XXXmAP |
+| ResNet101 | ChainerCV | VOC07 | 1e-3 | 1e-4 | 70000 | 1 | XXXX mAP |
+| ResNet101 | ChainerCV | VOC07 | 2e-3 | 1e-4 | 35000 | 2 | XXXX mAP |
+| ResNet101 | ChainerCV | VOC07\&12 | 1e-3 | 1e-4 | 110000 | 1 | XXXX mAP |
+| ResNet101 | ChainerCV | VOC07\&12 | 2e-3 | 1e-4 | 55000 | 2 | XXXX mAP |
 
 
 ### Speed
@@ -45,14 +69,9 @@ On top of that, the anchors are not discretized in ChainerCV.
 
 
 ### Train code
-For training with VOC2007 (this setting is used by default)
+You can train the model with the following code.
 ```
-$ python train.py --dataset voc07 --step_size 50000 --iteration 70000 [--gpu <gpu>]
-```
-
-For training with VOC2007+2012
-```
-$ python train.py --dataset voc0712 --step_size 80000 --iteration 110000 [--gpu <gpu>]
+$ python train.py [--dataset voc07|voc0712] [--model vgg16|resnet101] [--batchsize <batchsize>] [--gpu <gpu>] [--lr <lr>] [--out <out>] [--step-size <step_size>] [--iteration <iteration>]
 ```
 
 PlotReport extension uses matplotlib. If you got `RuntimeError: Invalid DISPLAY variable` error on Linux environment, adding an environment variable specification is recommended:
@@ -60,6 +79,8 @@ PlotReport extension uses matplotlib. If you got `RuntimeError: Invalid DISPLAY 
 ```
 $ MPLBACKEND=Agg python train.py OPTIONS
 ```
+
+The weight decay rate is set to 5e-4 and 1e-4 for networks with VGG16 and ResNet101 feature extractors.
 
 ### Evaluation
 

@@ -33,13 +33,12 @@ class TestFasterRCNNTrainChain(unittest.TestCase):
             max_size=800,
         ))
 
-        self.bboxes = chainer.Variable(
-            generate_random_bbox(self.n_bbox, (600, 800), 16, 350)[np.newaxis])
-        _labels = np.random.randint(
+        self.bboxes = generate_random_bbox(
+            self.n_bbox, (600, 800), 16, 350)[np.newaxis]
+        self.labels = np.random.randint(
             0, self.n_fg_class, size=(1, self.n_bbox)).astype(np.int32)
-        self.labels = chainer.Variable(_labels)
-        self.imgs = chainer.Variable(_random_array((1, 3, 600, 800)))
-        self.scale = chainer.Variable(np.array(1.))
+        self.imgs = _random_array((1, 3, 600, 800))
+        self.scale = np.array([1.])
 
     def check_call(self):
         loss = self.link(self.imgs, self.bboxes, self.labels, self.scale)
@@ -51,9 +50,9 @@ class TestFasterRCNNTrainChain(unittest.TestCase):
     @attr.gpu
     def test_call_gpu(self):
         self.link.to_gpu()
-        self.imgs.to_gpu()
-        self.bboxes.to_gpu()
-        self.labels.to_gpu()
+        self.imgs = chainer.backends.cuda.to_gpu(self.imgs)
+        self.bboxes = chainer.backends.cuda.to_gpu(self.bboxes)
+        self.labels = chainer.backends.cuda.to_gpu(self.labels)
         self.check_call()
 
 

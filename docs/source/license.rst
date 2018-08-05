@@ -27,6 +27,11 @@ See the following resources for the terms of use of a model with weights pretrai
     * - FasterRCNNVGG16 (:obj:`voc07`/:obj:`voc0712`)
       - * `VGG-16 (trained on ImageNet) <http://www.robots.ox.ac.uk/%7Evgg/research/very_deep/>`_
         * `PASCAL VOC <http://host.robots.ox.ac.uk/pascal/VOC/>`_
+    * - FasterRCNNResNet101 (:obj:`imagenet`)
+      - * `ResNet50/101/152 (trained on ImageNet) <https://github.com/KaimingHe/deep-residual-networks#models>`_
+    * - FasterRCNNResNet101 (:obj:`voc07`/:obj:`voc0712`)
+      - * `ResNet50/101/152 (trained on ImageNet) <https://github.com/KaimingHe/deep-residual-networks#models>`_
+        * `PASCAL VOC <http://host.robots.ox.ac.uk/pascal/VOC/>`_
     * - SSD300/SSD512 (:obj:`imagenet`)
       - * `VGG-16 (trained on ImageNet, FC reduced) <https://github.com/weiliu89/caffe/tree/ssd#preparation>`_
     * - SSD300/SSD512 (:obj:`voc0712`)

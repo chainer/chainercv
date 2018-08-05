@@ -4,6 +4,8 @@ import argparse
 import numpy as np
 
 import chainer
+from chainer.dataset.convert import _concat_arrays
+from chainer.dataset.convert import to_device
 from chainer.datasets import ConcatenatedDataset
 from chainer.datasets import TransformDataset
 from chainer import training
@@ -14,8 +16,40 @@ from chainercv.datasets import voc_bbox_label_names
 from chainercv.datasets import VOCBboxDataset
 from chainercv.extensions import DetectionVOCEvaluator
 from chainercv.links import FasterRCNNVGG16
+from chainercv.links import FasterRCNNResNet101
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 from chainercv import transforms
+
+
+class PadAndConcatExamples(object):
+
+    # https://github.com/facebookresearch/Detectron/
+    # blob/master/detectron/utils/blob.py#L67
+
+    def __init__(self, stride=None):
+        self.stride = stride
+
+    def __call__(self, batch, device=None):
+        result = []
+        for i in range(4):
+            if i == 0:
+                imgs = [example[i] for example in batch]
+                max_size = np.array(
+                    [img.shape for img in imgs]).max(axis=0)[1:]
+                # Pad the images so that they can be divisible by a stride
+                if self.stride:
+                    max_size[0] = int(np.ceil(max_size[0] / stride) * stride)
+                    max_size[1] = int(np.ceil(max_size[1] / stride) * stride)
+                pad_imgs = np.zeros(
+                    ((len(imgs), 3, max_size[0], max_size[1])),
+                    dtype=imgs[0].dtype)
+                for i, img in enumerate(imgs):
+                    pad_imgs[i, :, :img.shape[1], :img.shape[2]] = img
+                result.append(to_device(device, pad_imgs))
+            else:
+                result.append(
+                    [to_device(device, example[i]) for example in batch])
+        return tuple(result)
 
 
 class Transform(object):
@@ -28,7 +62,7 @@ class Transform(object):
         _, H, W = img.shape
         img = self.faster_rcnn.prepare(img)
         _, o_H, o_W = img.shape
-        scale = o_H / H
+        scale = np.array(o_H / H)
         bbox = transforms.resize_bbox(bbox, (H, W), (o_H, o_W))
 
         # horizontally flip
@@ -46,16 +80,18 @@ def main():
     parser.add_argument('--dataset', choices=('voc07', 'voc0712'),
                         help='The dataset to use: VOC07, VOC07+12',
                         default='voc07')
+    parser.add_argument(
+        '--model', choices=('vgg16', 'resnet101'),
+        help='The feature extractor to use', default='vgg16')
+    parser.add_argument('--batchsize', type=int, default=1)
     parser.add_argument('--gpu', '-g', type=int, default=-1)
     parser.add_argument('--lr', '-l', type=float, default=1e-3)
+    parser.add_argument('--weight-decay', '-w', type=float, default=0.0005)
     parser.add_argument('--out', '-o', default='result',
                         help='Output directory')
-    parser.add_argument('--seed', '-s', type=int, default=0)
-    parser.add_argument('--step_size', '-ss', type=int, default=50000)
+    parser.add_argument('--step-size', '-ss', type=int, default=50000)
     parser.add_argument('--iteration', '-i', type=int, default=70000)
     args = parser.parse_args()
-
-    np.random.seed(args.seed)
 
     if args.dataset == 'voc07':
         train_data = VOCBboxDataset(split='trainval', year='2007')
@@ -65,8 +101,14 @@ def main():
             VOCBboxDataset(year='2012', split='trainval'))
     test_data = VOCBboxDataset(split='test', year='2007',
                                use_difficult=True, return_difficult=True)
-    faster_rcnn = FasterRCNNVGG16(n_fg_class=len(voc_bbox_label_names),
-                                  pretrained_model='imagenet')
+
+    if args.model == 'vgg16':
+        faster_rcnn = FasterRCNNVGG16(n_fg_class=len(voc_bbox_label_names),
+                                    pretrained_model='imagenet')
+    elif args.model == 'resnet101':
+        faster_rcnn = FasterRCNNResNet101(n_fg_class=len(voc_bbox_label_names),
+                                          pretrained_model='imagenet')
+
     faster_rcnn.use_preset('evaluate')
     model = FasterRCNNTrainChain(faster_rcnn)
     if args.gpu >= 0:
@@ -74,16 +116,27 @@ def main():
         model.to_gpu()
     optimizer = chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9)
     optimizer.setup(model)
-    optimizer.add_hook(chainer.optimizer_hooks.WeightDecay(rate=0.0005))
+    optimizer.add_hook(
+        chainer.optimizer_hooks.WeightDecay(rate=args.weight_decay))
+    if args.model == 'resnet101':
+        for p in model.params():
+            # Do not update batch normalization layers.
+            if p.name == 'gamma':
+                p.update_rule.enabled = False
+            elif p.name == 'beta':
+                p.update_rule.enabled = False
+        # Do not update for the first two blocks.
+        model.faster_rcnn.extractor.resnet.conv1.disable_update()
+        model.faster_rcnn.extractor.resnet.res2.disable_update()
 
     train_data = TransformDataset(train_data, Transform(faster_rcnn))
 
     train_iter = chainer.iterators.MultiprocessIterator(
-        train_data, batch_size=1, n_processes=None, shared_mem=100000000)
+        train_data, batch_size=args.batchsize, n_processes=None, shared_mem=100000000)
     test_iter = chainer.iterators.SerialIterator(
         test_data, batch_size=1, repeat=False, shuffle=False)
     updater = chainer.training.updaters.StandardUpdater(
-        train_iter, optimizer, device=args.gpu)
+        train_iter, optimizer, device=args.gpu, converter=PadAndConcatExamples())
 
     trainer = training.Trainer(
         updater, (args.iteration, 'iteration'), out=args.out)

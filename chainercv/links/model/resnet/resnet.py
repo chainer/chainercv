@@ -16,7 +16,7 @@ from chainercv import utils
 # RGB order
 # This is channel wise mean of mean image distributed at
 # https://github.com/KaimingHe/deep-residual-networks
-_imagenet_mean = np.array(
+imagenet_he_mean = np.array(
     [123.15163084, 115.90288257, 103.0626238],
     dtype=np.float32)[:, np.newaxis, np.newaxis]
 
@@ -110,7 +110,7 @@ class ResNet(PickableSequentialChain):
         'he': {
             50: {
                 'imagenet': {
-                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'param': {'n_class': 1000, 'mean': imagenet_he_mean},
                     'overwritable': {'mean'},
                     'url': 'https://chainercv-models.preferred.jp/'
                     'resnet50_imagenet_converted_2018_03_07.npz'
@@ -118,7 +118,7 @@ class ResNet(PickableSequentialChain):
             },
             101: {
                 'imagenet': {
-                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'param': {'n_class': 1000, 'mean': imagenet_he_mean},
                     'overwritable': {'mean'},
                     'url': 'https://chainercv-models.preferred.jp/'
                     'resnet101_imagenet_converted_2018_03_07.npz'
@@ -126,7 +126,7 @@ class ResNet(PickableSequentialChain):
             },
             152: {
                 'imagenet': {
-                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'param': {'n_class': 1000, 'mean': imagenet_he_mean},
                     'overwritable': {'mean'},
                     'url': 'https://chainercv-models.preferred.jp/'
                     'resnet152_imagenet_converted_2018_03_07.npz'
@@ -157,7 +157,7 @@ class ResNet(PickableSequentialChain):
         param, path = utils.prepare_pretrained_model(
             {'n_class': n_class, 'mean': mean},
             pretrained_model, self._models[arch][n_layer],
-            {'n_class': 1000, 'mean': _imagenet_mean})
+            {'n_class': 1000, 'mean': imagenet_he_mean})
         self.mean = param['mean']
 
         if initialW is None:

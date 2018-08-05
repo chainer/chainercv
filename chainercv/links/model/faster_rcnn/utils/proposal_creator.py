@@ -109,6 +109,7 @@ class ProposalCreator(object):
         loc = cuda.to_cpu(loc)
         score = cuda.to_cpu(score)
         anchor = cuda.to_cpu(anchor)
+        scale = cuda.to_cpu(scale)
 
         # Convert anchors into proposal via bbox transformations.
         roi = loc2bbox(anchor, loc)
