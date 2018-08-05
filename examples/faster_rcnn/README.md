@@ -2,11 +2,20 @@
 
 ### Performance
 
+
+###### VGG16
+
 | Training Setting | Evaluation | Reference | ChainerCV |
 |:-:|:-:|:-:|:-:|
 | VOC2007 trainval | VOC2007 test | 69.9 mAP [1] | 70.6 mAP |
 | VOC2007\&2012 trainval | VOC2007 test | 73.2 mAP [1] | 74.7 mAP |
 
+###### ResNet101
+
+| Training Setting | Evaluation | Reference | ChainerCV |
+|:-:|:-:|:-:|:-:|
+| VOC2007 trainval | VOC2007 test | | XXX mAP |
+| VOC2007\&2012 trainval | VOC2007 test | 76.4 mAP [1] | XXX mAP |
 
 ### Speed
 
@@ -47,12 +56,12 @@ On top of that, the anchors are not discretized in ChainerCV.
 ### Train code
 For training with VOC2007 (this setting is used by default)
 ```
-$ python train.py --dataset voc07 --step_size 50000 --iteration 70000 [--gpu <gpu>]
+$ python train.py --dataset voc07 --step-size 50000 --iteration 70000 [--gpu <gpu>]
 ```
 
 For training with VOC2007+2012
 ```
-$ python train.py --dataset voc0712 --step_size 80000 --iteration 110000 [--gpu <gpu>]
+$ python train.py --dataset voc0712 --step-size 80000 --iteration 110000 [--gpu <gpu>]
 ```
 
 PlotReport extension uses matplotlib. If you got `RuntimeError: Invalid DISPLAY variable` error on Linux environment, adding an environment variable specification is recommended:
@@ -60,6 +69,8 @@ PlotReport extension uses matplotlib. If you got `RuntimeError: Invalid DISPLAY 
 ```
 $ MPLBACKEND=Agg python train.py OPTIONS
 ```
+
+The weight decay rate is set to 5e-4 and 1e-4 for networks with VGG16 and ResNet101 feature extractors.
 
 ### Evaluation
 
