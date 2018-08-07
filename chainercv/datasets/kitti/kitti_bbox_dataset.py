@@ -21,7 +21,7 @@ def _check_available():
             'pykitti is not installed in your environment,'
             'so the dataset cannot be loaded.'
             'Please install pykitti to load dataset.\n\n'
-            '$ pip install pykitti>=0.3.0')
+            '$ pip install pykitti<=0.2.4')
 
 
 class KITTIBboxDataset(GetterDataset):
@@ -99,13 +99,13 @@ class KITTIBboxDataset(GetterDataset):
                 # img02
                 self.cur_rotation_matrix = self.dataset.calib.R_rect_20
                 self.cur_position_matrix = self.dataset.calib.P_rect_20
-                # pykitti>=0.3.0
+                # pykitti<=0.2.4
                 self.imgs = np.array(list(self.dataset.cam2))
             else:
                 # img03
                 self.cur_rotation_matrix = self.dataset.calib.R_rect_30
                 self.cur_position_matrix = self.dataset.calib.P_rect_30
-                # pykitti>=0.3.0
+                # pykitti<=0.2.4
                 self.imgs = np.array(list(self.dataset.cam3))
         else:
             # warnings.warn(
@@ -115,14 +115,14 @@ class KITTIBboxDataset(GetterDataset):
                 # img00
                 self.cur_rotation_matrix = self.dataset.calib.R_rect_00
                 self.cur_position_matrix = self.dataset.calib.P_rect_00
-                # pykitti>=0.3.0
-                self.imgs = np.array(self.dataset.cam0)
+                # pykitti<=0.2.4
+                self.imgs = np.array(list(self.dataset.cam0))
             else:
                 # img01
                 self.cur_rotation_matrix = self.dataset.calib.R_rect_10
                 self.cur_position_matrix = self.dataset.calib.P_rect_10
-                # pykitti>=0.3.0
-                self.imgs = np.array(self.dataset.cam1)
+                # pykitti<=0.2.4
+                self.imgs = np.array(list(self.dataset.cam1))
 
         # get object info(type/area/bbox/...)
         if self.tracklet is True:
