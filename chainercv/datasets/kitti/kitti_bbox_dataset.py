@@ -12,8 +12,9 @@ try:
         _available = True
     else:
         # pykitti>=0.3.0
-        warnings.warn('not support pykitti version : ' + pykitti_version)
-        _available = False
+        # warnings.warn('not support pykitti version : ' + pykitti_version)
+        # _available = False
+        _available = True
 except ImportError:
     _available = False
 
@@ -30,7 +31,7 @@ def _check_available():
             'pykitti is not installed in your environment,'
             'so the dataset cannot be loaded.'
             'Please install pykitti to load dataset.\n\n'
-            '$ pip install pykitti<=0.2.4')
+            '$ pip install pykitti==0.2.4')
 
 
 class KITTIBboxDataset(GetterDataset):
@@ -113,7 +114,23 @@ class KITTIBboxDataset(GetterDataset):
                     self.imgs = np.array(list(self.dataset.cam2))
                 else:
                     # pykitti>=0.3.0
-                    warnings.warn('not support pykitti version : ' + pykitti_version)
+                    # warnings.warn('not support pykitti version : ' + pykitti_version)
+                    # get PIL Image
+                    # convert from PIL.Image to numpy
+                    # print(np.asarray(list(self.dataset.cam2)))
+                    from PIL import Image
+                    dataArray = list()
+                    for cam2 in self.dataset.cam2:
+                        print(cam2)
+                        data = np.asarray(cam2)
+                        print(data)
+                        # Convert RGB to BGR 
+                        if len(data.shape) > 2:
+                            data = data[:, :, ::-1] 
+                        dataArray.append(data)
+
+                    print(dataArray)
+                    self.imgs = dataArray
                     pass
             else:
                 # img03
@@ -124,7 +141,21 @@ class KITTIBboxDataset(GetterDataset):
                     self.imgs = np.array(list(self.dataset.cam3))
                 else:
                     # pykitti>=0.3.0
-                    warnings.warn('not support pykitti version : ' + pykitti_version)
+                    # warnings.warn('not support pykitti version : ' + pykitti_version)
+                    # get PIL Image
+                    from PIL import Image
+                    dataArray = list()
+                    for cam2 in self.dataset.cam2:
+                        print(cam2)
+                        data = np.asarray(cam2)
+                        print(data)
+                        # Convert RGB to BGR
+                        if len(data.shape) > 2:
+                            data = data[:, :, ::-1]
+                        dataArray.append(data)
+
+                    print(dataArray)
+                    self.imgs = dataArray
                     pass
         else:
             # warnings.warn(
