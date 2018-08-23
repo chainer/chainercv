@@ -1,10 +1,19 @@
 import os
 import warnings
+from pkg_resources import get_distribution
+from pkg_resources import parse_version
 
 import numpy as np
 try:
     import pykitti
-    _available = True
+    pykitti_version = get_distribution('pykitti').version
+    if parse_version(pykitti_version) < parse_version('0.3.0'):
+        # pykitti<0.3.0
+        _available = True
+    else:
+        # pykitti>=0.3.0
+        warnings.warn('not support pykitti version : ' + pykitti_version)
+        _available = False
 except ImportError:
     _available = False
 
@@ -99,14 +108,24 @@ class KITTIBboxDataset(GetterDataset):
                 # img02
                 self.cur_rotation_matrix = self.dataset.calib.R_rect_20
                 self.cur_position_matrix = self.dataset.calib.P_rect_20
-                # pykitti<=0.2.4
-                self.imgs = np.array(list(self.dataset.cam2))
+                if parse_version(pykitti_version) < parse_version('0.3.0'):
+                    # pykitti<0.3.0
+                    self.imgs = np.array(list(self.dataset.cam2))
+                else:
+                    # pykitti>=0.3.0
+                    warnings.warn('not support pykitti version : ' + pykitti_version)
+                    pass
             else:
                 # img03
                 self.cur_rotation_matrix = self.dataset.calib.R_rect_30
                 self.cur_position_matrix = self.dataset.calib.P_rect_30
-                # pykitti<=0.2.4
-                self.imgs = np.array(list(self.dataset.cam3))
+                if parse_version(pykitti_version) < parse_version('0.3.0'):
+                    # pykitti<0.3.0
+                    self.imgs = np.array(list(self.dataset.cam3))
+                else:
+                    # pykitti>=0.3.0
+                    warnings.warn('not support pykitti version : ' + pykitti_version)
+                    pass
         else:
             # warnings.warn(
             #     'pykitti is gray image return (H, W, C=1) array,'
@@ -115,14 +134,24 @@ class KITTIBboxDataset(GetterDataset):
                 # img00
                 self.cur_rotation_matrix = self.dataset.calib.R_rect_00
                 self.cur_position_matrix = self.dataset.calib.P_rect_00
-                # pykitti<=0.2.4
-                self.imgs = np.array(list(self.dataset.cam0))
+                if parse_version(pykitti_version) < parse_version('0.3.0'):
+                    # pykitti<0.3.0
+                    self.imgs = np.array(list(self.dataset.cam0))
+                else:
+                    # pykitti>=0.3.0
+                    warnings.warn('not support pykitti version : ' + pykitti_version)
+                    pass
             else:
                 # img01
                 self.cur_rotation_matrix = self.dataset.calib.R_rect_10
                 self.cur_position_matrix = self.dataset.calib.P_rect_10
-                # pykitti<=0.2.4
-                self.imgs = np.array(list(self.dataset.cam1))
+                if parse_version(pykitti_version) < parse_version('0.3.0'):
+                    # pykitti<0.3.0
+                    self.imgs = np.array(list(self.dataset.cam1))
+                else:
+                    # pykitti>=0.3.0
+                    warnings.warn('not support pykitti version : ' + pykitti_version)
+                    pass
 
         # get object info(type/area/bbox/...)
         if self.tracklet is True:
