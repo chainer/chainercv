@@ -114,22 +114,17 @@ class KITTIBboxDataset(GetterDataset):
                     self.imgs = np.array(list(self.dataset.cam2))
                 else:
                     # pykitti>=0.3.0
-                    # warnings.warn('not support pykitti version : ' + pykitti_version)
                     # get PIL Image
                     # convert from PIL.Image to numpy
-                    # print(np.asarray(list(self.dataset.cam2)))
                     from PIL import Image
                     dataArray = list()
                     for cam2 in self.dataset.cam2:
-                        print(cam2)
                         data = np.asarray(cam2)
-                        print(data)
-                        # Convert RGB to BGR 
+                        # Convert RGB to BGR
                         if len(data.shape) > 2:
-                            data = data[:, :, ::-1] 
+                            data = data[:, :, ::-1]
                         dataArray.append(data)
 
-                    print(dataArray)
                     self.imgs = dataArray
                     pass
             else:
@@ -141,20 +136,17 @@ class KITTIBboxDataset(GetterDataset):
                     self.imgs = np.array(list(self.dataset.cam3))
                 else:
                     # pykitti>=0.3.0
-                    # warnings.warn('not support pykitti version : ' + pykitti_version)
                     # get PIL Image
+                    # convert from PIL.Image to numpy
                     from PIL import Image
                     dataArray = list()
                     for cam2 in self.dataset.cam2:
-                        print(cam2)
                         data = np.asarray(cam2)
-                        print(data)
                         # Convert RGB to BGR
                         if len(data.shape) > 2:
                             data = data[:, :, ::-1]
                         dataArray.append(data)
 
-                    print(dataArray)
                     self.imgs = dataArray
                     pass
         else:
@@ -170,7 +162,8 @@ class KITTIBboxDataset(GetterDataset):
                     self.imgs = np.array(list(self.dataset.cam0))
                 else:
                     # pykitti>=0.3.0
-                    warnings.warn('not support pykitti version : ' + pykitti_version)
+                    warnings.warn(
+                        'not support pykitti version : ' + pykitti_version)
                     pass
             else:
                 # img01
@@ -181,7 +174,8 @@ class KITTIBboxDataset(GetterDataset):
                     self.imgs = np.array(list(self.dataset.cam1))
                 else:
                     # pykitti>=0.3.0
-                    warnings.warn('not support pykitti version : ' + pykitti_version)
+                    warnings.warn(
+                        'not support pykitti version : ' + pykitti_version)
                     pass
 
         # get object info(type/area/bbox/...)
