@@ -117,7 +117,7 @@ class KITTIBboxDataset(GetterDataset):
                     # get PIL Image
                     # convert from PIL.Image to numpy
                     from PIL import Image
-                    dataArray = list()
+                    dataArray = []
                     for cam2 in self.dataset.cam2:
                         data = np.asarray(cam2)
                         # Convert RGB to BGR
@@ -139,7 +139,7 @@ class KITTIBboxDataset(GetterDataset):
                     # get PIL Image
                     # convert from PIL.Image to numpy
                     from PIL import Image
-                    dataArray = list()
+                    dataArray = []
                     for cam2 in self.dataset.cam2:
                         data = np.asarray(cam2)
                         # Convert RGB to BGR
