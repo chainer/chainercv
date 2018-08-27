@@ -1,5 +1,6 @@
 import os
 import warnings
+
 from pkg_resources import get_distribution
 from pkg_resources import parse_version
 
@@ -116,7 +117,6 @@ class KITTIBboxDataset(GetterDataset):
                     # pykitti>=0.3.0
                     # get PIL Image
                     # convert from PIL.Image to numpy
-                    from PIL import Image
                     dataArray = []
                     for cam2 in self.dataset.cam2:
                         data = np.asarray(cam2)
@@ -138,7 +138,6 @@ class KITTIBboxDataset(GetterDataset):
                     # pykitti>=0.3.0
                     # get PIL Image
                     # convert from PIL.Image to numpy
-                    from PIL import Image
                     dataArray = []
                     for cam2 in self.dataset.cam2:
                         data = np.asarray(cam2)
