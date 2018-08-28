@@ -1,3 +1,6 @@
+from chainercv.utils.testing.assertions.assert_is_bbox import assert_is_bbox
+
+
 def flip_bbox(bbox, size, y_flip=False, x_flip=False):
     """Flip bounding boxes accordingly.
 
@@ -23,6 +26,7 @@ def flip_bbox(bbox, size, y_flip=False, x_flip=False):
         Bounding boxes flipped according to the given flips.
 
     """
+    assert_is_bbox(bbox, size)
     H, W = size
     bbox = bbox.copy()
     if y_flip:
