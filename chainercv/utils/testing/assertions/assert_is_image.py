@@ -28,7 +28,7 @@ def assert_is_image(img, color=True, check_range=True):
 
     if color:
         assert C == 3, 'The number of channels must be 3.'
-    else:
+    elif color is False:
         assert C == 1, 'The number of channels must be 1.'
 
     if check_range:
