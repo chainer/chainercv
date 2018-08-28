@@ -15,7 +15,7 @@ class TestCropBbox(unittest.TestCase):
             (0, 5, 3, 6),
             (1, 2, 3, 4),
             (3, 3, 4, 6),
-        ))
+        ), dtype=np.float32)
         self.y_slice = slice(1, 5)
         self.x_slice = slice(0, 4)
 
@@ -25,7 +25,7 @@ class TestCropBbox(unittest.TestCase):
             (0, 0, 4, 4),
             (0, 2, 2, 4),
             (2, 3, 3, 4),
-        ))
+        ), dtype=np.float32)
 
         out, param = crop_bbox(
             self.bbox, y_slice=self.y_slice, x_slice=self.x_slice,
@@ -38,7 +38,7 @@ class TestCropBbox(unittest.TestCase):
             (0, 0, 2, 4),
             (0, 0, 4, 4),
             (0, 2, 2, 4),
-        ))
+        ), dtype=np.float32)
 
         out, param = crop_bbox(
             self.bbox, y_slice=self.y_slice, x_slice=self.x_slice,

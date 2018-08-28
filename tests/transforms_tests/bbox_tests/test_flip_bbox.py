@@ -4,13 +4,13 @@ import numpy as np
 
 from chainer import testing
 from chainercv.transforms import flip_bbox
+from chainercv.utils.testing.generate_random_bbox import generate_random_bbox
 
 
 class TestFlipBbox(unittest.TestCase):
 
     def test_flip_bbox(self):
-        bbox = np.random.uniform(
-            low=0., high=32., size=(10, 4))
+        bbox = generate_random_bbox(10, (32, 32), 0, 32)
 
         out = flip_bbox(bbox, size=(34, 32), y_flip=True)
         bbox_expected = bbox.copy()
