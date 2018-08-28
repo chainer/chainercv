@@ -1,6 +1,7 @@
 import PIL
 
 from chainercv.transforms import resize
+from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
 
 
 def scale(img, size, fit_short=True, interpolation=PIL.Image.BILINEAR):
@@ -30,6 +31,7 @@ def scale(img, size, fit_short=True, interpolation=PIL.Image.BILINEAR):
         ~numpy.ndarray: A scaled image in CHW format.
 
     """
+    assert_is_image(img, color=None)
     _, H, W = img.shape
 
     # If resizing is not necessary, return the input as is.

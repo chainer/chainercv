@@ -1,5 +1,7 @@
 import numpy as np
 
+from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
+
 
 def pca_lighting(img, sigma, eigen_value=None, eigen_vector=None):
     """AlexNet style color augmentation
@@ -30,6 +32,7 @@ def pca_lighting(img, sigma, eigen_value=None, eigen_vector=None):
         An image in CHW format.
     """
 
+    assert_is_image(img, color=True)
     if sigma <= 0:
         return img
 

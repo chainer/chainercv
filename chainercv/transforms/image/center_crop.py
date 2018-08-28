@@ -1,3 +1,6 @@
+from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
+
+
 def center_crop(img, size, return_param=False, copy=False):
     """Center crop an image by `size`.
 
@@ -35,6 +38,7 @@ def center_crop(img, size, return_param=False, copy=False):
                 out_img = img[:, y_slice, x_slice]
 
     """
+    assert_is_image(img, color=None)
     _, H, W = img.shape
     oH, oW = size
     if oH > H or oW > W:

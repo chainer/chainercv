@@ -1,3 +1,6 @@
+from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
+
+
 def flip(img, y_flip=False, x_flip=False, copy=False):
     """Flip an image in vertical or horizontal direction as specified.
 
@@ -11,6 +14,8 @@ def flip(img, y_flip=False, x_flip=False, copy=False):
     Returns:
         Transformed :obj:`img` in CHW format.
     """
+
+    assert_is_image(img, color=None)
     if y_flip:
         img = img[:, ::-1, :]
     if x_flip:
