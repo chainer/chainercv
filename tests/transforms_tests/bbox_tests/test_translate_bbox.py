@@ -4,13 +4,13 @@ import numpy as np
 
 from chainer import testing
 from chainercv.transforms import translate_bbox
+from chainercv.utils.testing.generate_random_bbox import generate_random_bbox
 
 
 class TestTranslateBbox(unittest.TestCase):
 
     def test_translate_bbox(self):
-        bbox = np.random.uniform(
-            low=0., high=32., size=(10, 4))
+        bbox = generate_random_bbox(10, (32, 32), 0, 32)
 
         out = translate_bbox(bbox, y_offset=5, x_offset=3)
         bbox_expected = np.empty_like(bbox)

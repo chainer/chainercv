@@ -4,13 +4,13 @@ import numpy as np
 
 from chainer import testing
 from chainercv.transforms import resize_bbox
+from chainercv.utils.testing.generate_random_bbox import generate_random_bbox
 
 
 class TestResizeBbox(unittest.TestCase):
 
     def test_resize_bbox(self):
-        bbox = np.random.uniform(
-            low=0., high=32., size=(10, 4))
+        bbox = generate_random_bbox(10, (32, 32), 0, 32)
 
         out = resize_bbox(bbox, in_size=(32, 32), out_size=(64, 128))
         bbox_expected = bbox.copy()
