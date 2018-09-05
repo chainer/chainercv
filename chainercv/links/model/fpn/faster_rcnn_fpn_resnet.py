@@ -3,11 +3,10 @@ import numpy as np
 import chainer.functions as F
 
 import chainercv
-
-from fpn import Head
-from fpn import FasterRCNN
-from fpn.fpn import FPN
-from fpn.rpn import RPN
+from chainercv.links.model.fpn import Head
+from chainercv.links.model.fpn import FasterRCNN
+from chainercv.links.model.fpn.fpn import FPN
+from chainercv.links.model.rpn import RPN
 
 
 def _make_fpn(cls, mean):
