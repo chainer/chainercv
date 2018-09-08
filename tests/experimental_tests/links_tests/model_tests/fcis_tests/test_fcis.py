@@ -183,7 +183,8 @@ class TestFasterRCNNPrepare(unittest.TestCase):
         )
 
     def check_prepare(self):
-        x = _random_array(np, self.in_shape)
+        x = np.random.randint(
+            0, 256, size=self.in_shape).astype(np.float32)
         out = self.link.prepare(x)
         self.assertIsInstance(out, np.ndarray)
         self.assertEqual(out.shape, self.expected_shape)
