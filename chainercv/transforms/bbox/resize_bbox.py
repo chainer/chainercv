@@ -24,7 +24,7 @@ def resize_bbox(bbox, in_size, out_size):
         Bounding boxes rescaled according to the given image shapes.
 
     """
-    assert_is_bbox(bbox, in_size)
+    assert_is_bbox(bbox)
     bbox = bbox.copy()
     y_scale = float(out_size[0]) / in_size[0]
     x_scale = float(out_size[1]) / in_size[1]
