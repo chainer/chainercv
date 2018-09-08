@@ -1,5 +1,7 @@
 import numpy as np
 
+from chainercv.utils.testing.assertions.assert_is_bbox import assert_is_bbox
+
 
 def crop_bbox(
         bbox, y_slice=None, x_slice=None,
@@ -46,7 +48,7 @@ def crop_bbox(
             bounding boxes.
 
     """
-
+    assert_is_bbox(bbox)
     t, b = _slice_to_bounds(y_slice)
     l, r = _slice_to_bounds(x_slice)
     crop_bb = np.array((t, l, b, r))

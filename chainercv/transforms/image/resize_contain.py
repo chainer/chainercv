@@ -3,6 +3,7 @@ import numpy as np
 import PIL
 
 from chainercv.transforms import resize
+from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
 
 
 def resize_contain(img, size, fill=0, interpolation=PIL.Image.BILINEAR,
@@ -52,6 +53,7 @@ def resize_contain(img, size, fill=0, interpolation=PIL.Image.BILINEAR,
             :obj:`height, width`.
 
     """
+    assert_is_image(img, color=None)
     C, H, W = img.shape
     out_H, out_W = size
     scale_h = out_H / H

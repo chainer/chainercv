@@ -1,4 +1,4 @@
-import numpy as np
+from chainer.backends import cuda
 
 
 def assert_is_image(img, color=True, check_range=True):
@@ -22,13 +22,15 @@ def assert_is_image(img, color=True, check_range=True):
 
     """
 
-    assert isinstance(img, np.ndarray), 'img must be a numpy.ndarray.'
+    xp = cuda.get_array_module(img)
+    assert isinstance(img, xp.ndarray), \
+        'img must be a numpy.ndarray or cupy.ndarray.'
     assert len(img.shape) == 3, 'img must be a 3-dimensional array.'
     C, H, W = img.shape
 
     if color:
         assert C == 3, 'The number of channels must be 3.'
-    else:
+    elif color is False:
         assert C == 1, 'The number of channels must be 1.'
 
     if check_range:

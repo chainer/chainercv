@@ -1,3 +1,6 @@
+from chainercv.utils.testing.assertions.assert_is_bbox import assert_is_bbox
+
+
 def translate_bbox(bbox, y_offset=0, x_offset=0):
     """Translate bounding boxes.
 
@@ -24,7 +27,7 @@ def translate_bbox(bbox, y_offset=0, x_offset=0):
         Bounding boxes translated according to the given offsets.
 
     """
-
+    assert_is_bbox(bbox)
     out_bbox = bbox.copy()
     out_bbox[:, :2] += (y_offset, x_offset)
     out_bbox[:, 2:] += (y_offset, x_offset)

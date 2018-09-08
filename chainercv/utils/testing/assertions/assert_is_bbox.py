@@ -1,4 +1,4 @@
-import numpy as np
+from chainer.backends import cuda
 
 
 def assert_is_bbox(bbox, size=None):
@@ -16,9 +16,10 @@ def assert_is_bbox(bbox, size=None):
             Each bounding box should be within the image.
     """
 
-    assert isinstance(bbox, np.ndarray), \
-        'bbox must be a numpy.ndarray.'
-    assert bbox.dtype == np.float32, \
+    xp = cuda.get_array_module(bbox)
+    assert isinstance(bbox, xp.ndarray), \
+        'bbox must be a numpy.ndarray or cupy.ndarray.'
+    assert bbox.dtype == xp.float32, \
         'The type of bbox must be numpy.float32,'
     assert bbox.shape[1:] == (4,), \
         'The shape of bbox must be (*, 4).'

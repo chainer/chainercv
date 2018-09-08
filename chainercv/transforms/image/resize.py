@@ -2,6 +2,8 @@ import numpy as np
 import PIL
 import warnings
 
+from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
+
 
 try:
     import cv2
@@ -68,5 +70,6 @@ def resize(img, size, interpolation=PIL.Image.BILINEAR):
         ~numpy.ndarray: A resize array in CHW format.
 
     """
+    assert_is_image(img, color=None)
     img = _resize(img, size, interpolation)
     return img

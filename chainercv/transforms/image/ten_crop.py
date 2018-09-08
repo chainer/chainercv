@@ -1,5 +1,7 @@
 import numpy as np
 
+from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
+
 
 def ten_crop(img, size):
     """Crop 10 regions from an array.
@@ -31,6 +33,7 @@ def ten_crop(img, size):
         The cropped arrays. The shape of tensor is :math:`(10, C, H, W)`.
 
     """
+    assert_is_image(img, color=None)
     H, W = size
     iH, iW = img.shape[1:3]
 
