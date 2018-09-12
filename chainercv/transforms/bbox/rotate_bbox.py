@@ -32,4 +32,5 @@ def rotate_bbox(bbox, k, size):
         rotated_bbox = np.concatenate(
             (bbox[:, 1:2], H - bbox[:, 2:3],
              bbox[:, 3:4], H - bbox[:, 0:1]), axis=1)
+    rotated_bbox = rotated_bbox.astype(bbox.dtype)
     return rotated_bbox
