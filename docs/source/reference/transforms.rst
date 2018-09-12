@@ -71,6 +71,10 @@ resize_bbox
 ~~~~~~~~~~~
 .. autofunction:: resize_bbox
 
+rotate_bbox
+~~~~~~~~~~~
+.. autofunction:: rotate_bbox
+
 translate_bbox
 ~~~~~~~~~~~~~~
 .. autofunction:: translate_bbox
