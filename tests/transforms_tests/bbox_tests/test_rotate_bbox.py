@@ -23,7 +23,7 @@ class TestRotateBbox(unittest.TestCase):
             rotate_size = size
         out = rotate_bbox(out, 4 - self.k, rotate_size)
 
-        np.testing.assert_equal(out, bbox)
+        np.testing.assert_almost_equal(out, bbox, decimal=6)
 
 
 testing.run_module(__name__, __file__)
