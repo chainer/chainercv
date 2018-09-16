@@ -12,6 +12,7 @@ from chainercv.transforms.image.random_rotate import random_rotate  # NOQA
 from chainercv.transforms.image.random_sized_crop import random_sized_crop  # NOQA
 from chainercv.transforms.image.resize import resize  # NOQA
 from chainercv.transforms.image.resize_contain import resize_contain  # NOQA
+from chainercv.transforms.image.rotate import rotate  # NOQA
 from chainercv.transforms.image.scale import scale  # NOQA
 from chainercv.transforms.image.ten_crop import ten_crop  # NOQA
 from chainercv.transforms.point.flip_point import flip_point  # NOQA
