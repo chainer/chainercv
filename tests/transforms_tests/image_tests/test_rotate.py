@@ -7,7 +7,14 @@ from chainer import testing
 from chainercv.transforms import flip
 from chainercv.transforms import rotate
 
+try:
+    import scipy  # NOQA
+    _available = True
+except ImportError:
+    _available = False
 
+
+@unittest.skipUnless(_available, 'SciPy is not installed')
 class TestRotate(unittest.TestCase):
 
     def test_rotate(self):
