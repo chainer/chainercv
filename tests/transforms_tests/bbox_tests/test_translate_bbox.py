@@ -10,14 +10,16 @@ from chainercv.utils.testing.generate_random_bbox import generate_random_bbox
 class TestTranslateBbox(unittest.TestCase):
 
     def test_translate_bbox(self):
-        bbox = generate_random_bbox(10, (32, 32), 0, 32)
+        size = (32, 24)
+        y_offset, x_offset = 5, 3
+        bbox = generate_random_bbox(10, size, 0, min(size))
 
-        out = translate_bbox(bbox, y_offset=5, x_offset=3)
+        out = translate_bbox(bbox, y_offset=y_offset, x_offset=x_offset)
         bbox_expected = np.empty_like(bbox)
-        bbox_expected[:, 0] = bbox[:, 0] + 5
-        bbox_expected[:, 1] = bbox[:, 1] + 3
-        bbox_expected[:, 2] = bbox[:, 2] + 5
-        bbox_expected[:, 3] = bbox[:, 3] + 3
+        bbox_expected[:, 0] = bbox[:, 0] + y_offset
+        bbox_expected[:, 1] = bbox[:, 1] + x_offset
+        bbox_expected[:, 2] = bbox[:, 2] + y_offset
+        bbox_expected[:, 3] = bbox[:, 3] + x_offset
         np.testing.assert_equal(out, bbox_expected)
 
 
