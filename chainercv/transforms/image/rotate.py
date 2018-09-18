@@ -21,11 +21,13 @@ def rotate(img, angle, expand=True):
     """Rotate images by degrees.
 
     Args:
-        img (~numpy.ndarray): An arrays that get flipped. This is in
+        img (~numpy.ndarray): An arrays that get rotated. This is in
             CHW format.
-        angle (float): Clock-wise rotation angle (degree) in [-180, 180].
+        angle (float): Counter clock-wise rotation angle (degree) in
+            [-180, 180].
         expand (bool): The output shaped is adapted or not.
-            If `True`, the input image is contained completel in the output.
+            If :obj:`True`, the input image is contained complete in
+            the output.
 
     Returns:
         ~numpy.ndarray:
