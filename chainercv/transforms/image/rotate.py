@@ -35,5 +35,7 @@ def rotate(img, angle, expand=True):
 
     """
 
+    _check_available()
+
     assert 180 >= angle >= -180
     return scipy.ndimage.rotate(img, angle, axes=(2, 1), reshape=expand)
