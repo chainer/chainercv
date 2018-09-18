@@ -7,7 +7,8 @@ def rotate_bbox(bbox, angle, size):
     Args:
         bbox (~numpy.ndarray): An array whose shape is :math:`(R, 4)`.
             :math:`R` is the number of bounding boxes.
-        angle (float): Clock-wise rotation angle (degree) in [-180, 180].
+        angle (float): Counter clock-wise rotation angle (degree) in
+            [-180, 180].
             image is rotated by 90 degrees.
         size (tuple): A tuple of length 2. The height and the width
             of the image.
