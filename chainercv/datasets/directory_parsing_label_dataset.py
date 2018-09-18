@@ -138,9 +138,14 @@ class DirectoryParsingLabelDataset(GetterDataset):
         self.img_paths, self.labels = _parse_label_dataset(
             root, label_names, check_img_file)
 
-        self.add_getter('img', lambda i:
-                        read_image(self.img_paths[i], color=self.color))
-        self.add_getter('label', lambda i: self.labels[i])
+        self.add_getter('img', self._get_image)
+        self.add_getter('label', self._get_label)
 
     def __len__(self):
         return len(self.img_paths)
+
+    def _get_image(self, i):
+        return read_image(self.img_paths[i], color=self.color)
+
+    def _get_label(self, i):
+        return self.labels[i]

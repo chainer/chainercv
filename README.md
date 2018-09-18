@@ -66,7 +66,7 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
   + Shape is `(R, 4)`.
   + Coordinates are ordered as `(y_min, x_min, y_max, x_max)`. The order is the opposite of OpenCV.
 + Semantic Segmentation Image
-  + Shape is `(height, weight)`. 
+  + Shape is `(height, width)`.
   + The value is class id, which is in range `[0, n_class - 1]`.
 
 # Sample Visualization

@@ -134,19 +134,12 @@ class SEResNet(PickableSequentialChain):
             self.res3 = ResBlock(blocks[1], None, 128, 512, 2, **kwargs)
             self.res4 = ResBlock(blocks[2], None, 256, 1024, 2, **kwargs)
             self.res5 = ResBlock(blocks[3], None, 512, 2048, 2, **kwargs)
-            self.pool5 = _global_average_pooling_2d
+            self.pool5 = lambda x: F.average(x, axis=(2, 3))
             self.fc6 = L.Linear(None, param['n_class'], **fc_kwargs)
             self.prob = F.softmax
 
         if path:
             chainer.serializers.load_npz(path, self)
-
-
-def _global_average_pooling_2d(x):
-    n, channel, rows, cols = x.data.shape
-    h = F.average_pooling_2d(x, (rows, cols), stride=1)
-    h = h.reshape((n, channel))
-    return h
 
 
 class SEResNet50(SEResNet):
