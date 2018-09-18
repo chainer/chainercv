@@ -5,9 +5,9 @@ import numpy as np
 from chainer import testing
 from chainer.testing import attr
 
+from chainercv.utils import assert_is_label_dataset
 from chainercv.datasets import OnlineProductsDataset
 from chainercv.datasets import online_products_super_label_names
-from chainercv.utils import assert_is_label_dataset
 
 
 @testing.parameterize(

@@ -90,7 +90,7 @@ class OnlineProductsDataset(GetterDataset):
             [int(id_[2]) - 1 for id_ in ids_tmp], dtype=np.int32)
         self.paths += [os.path.join(data_dir, id_[3]) for id_ in ids_tmp]
 
-        self.add_getter('img', self._get_label)
+        self.add_getter('img', self._get_image)
         self.add_getter('label', self._get_label)
         self.add_getter('super_label', self._get_super_label)
 
