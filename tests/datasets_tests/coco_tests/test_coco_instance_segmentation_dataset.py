@@ -12,6 +12,7 @@ from chainercv.utils import assert_is_instance_segmentation_dataset
 
 @testing.parameterize(*testing.product({
     'split': ['train', 'val', 'minival', 'valminusminival'],
+    'year': ['2014', '2017'],
     'use_crowded': [False, True],
     'return_crowded': [False, True],
     'return_area': [False, True]
@@ -20,7 +21,7 @@ class TestCOCOInstanceSegmentationDataset(unittest.TestCase):
 
     def setUp(self):
         self.dataset = COCOInstanceSegmentationDataset(
-            split=self.split,
+            split=self.split, year=self.year,
             use_crowded=self.use_crowded, return_crowded=self.return_crowded,
             return_area=self.return_area)
 

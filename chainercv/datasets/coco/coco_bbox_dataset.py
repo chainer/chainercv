@@ -12,15 +12,9 @@ from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 
 class COCOBboxDataset(GetterDataset):
 
-    """Bounding box dataset for `MS COCO2014`_.
+    """Bounding box dataset for `MS COCO`_.
 
-    .. _`MS COCO2014`: http://mscoco.org/dataset/#detections-challenge2015
-
-    There are total of 82,783 training and 40,504 validation images.
-    'minval' split is a subset of validation images that constitutes
-    5,000 images in the validation images. The remaining validation
-    images are called 'minvalminus'. Concrete list of image ids and
-    annotations for these splits are found `here`_.
+    .. _`MS COCO`: http://cocodataset.org/#home
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -28,6 +22,10 @@ class COCOBboxDataset(GetterDataset):
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/coco`.
         split ({'train', 'val', 'minival', 'valminusminival'}): Select
             a split of the dataset.
+        year ({'2014', '2017'}): Use a dataset prepared for a challenge
+            held in :obj:`year`.
+            Splits :obj:`minival` and :obj:`valminusminival` are only
+            supported in year :obj:`2014`.
         use_crowded (bool): If true, use bounding boxes that are labeled as
             crowded in the original annotation. The default value is
             :obj:`False`.
@@ -36,8 +34,6 @@ class COCOBboxDataset(GetterDataset):
         return_crowded (bool): If true, this dataset returns a boolean array
             that indicates whether bounding boxes are labeled as crowded
             or not. The default value is :obj:`False`.
-
-    .. _`here`: https://github.com/rbgirshick/py-faster-rcnn/tree/master/data
 
     This dataset returns the following data.
 
@@ -74,7 +70,7 @@ class COCOBboxDataset(GetterDataset):
 
     """
 
-    def __init__(self, data_dir='auto', split='train',
+    def __init__(self, data_dir='auto', split='train', year='2017',
                  use_crowded=False, return_area=False, return_crowded=False):
         super(COCOBboxDataset, self).__init__()
         self.use_crowded = use_crowded
@@ -83,12 +79,12 @@ class COCOBboxDataset(GetterDataset):
         else:
             img_split = 'train'
         if data_dir == 'auto':
-            data_dir = get_coco(split, img_split)
+            data_dir = get_coco(split, img_split, year)
 
         self.img_root = os.path.join(
-            data_dir, 'images', '{}2014'.format(img_split))
+            data_dir, 'images', '{}{}'.format(img_split, year))
         anno_path = os.path.join(
-            data_dir, 'annotations', 'instances_{}2014.json'.format(split))
+            data_dir, 'annotations', 'instances_{}{}.json'.format(split, year))
 
         self.data_dir = data_dir
         annos = json.load(open(anno_path, 'r'))

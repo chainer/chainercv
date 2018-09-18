@@ -19,9 +19,9 @@ except ImportError:
 
 class COCOInstanceSegmentationDataset(GetterDataset):
 
-    """Instance segmentation dataset for `MS COCO2014`_.
+    """Instance segmentation dataset for `MS COCO`_.
 
-    .. _`MS COCO2014`: http://mscoco.org/dataset/#detections-challenge2015
+    .. _`MS COCO`: http://cocodataset.org/#home
 
     When queried by an index, if :obj:`return_crowded == False`,
     this dataset returns a corresponding
@@ -36,14 +36,6 @@ class COCOInstanceSegmentationDataset(GetterDataset):
     instances. Please see more detail in the Fig. 12 (e) of the summary
     paper [#]_.
 
-    There are total of 82,783 training and 40,504 validation images.
-    'minval' split is a subset of validation images that constitutes
-    5000 images in the validation images. The remaining validation
-    images are called 'minvalminus'. Concrete list of image ids and
-    annotations for these splits are found `here`_.
-
-    .. _`here`: https://github.com/rbgirshick/py-faster-rcnn/tree/master/data
-
     .. [#] Tsung-Yi Lin, Michael Maire, Serge Belongie, Lubomir Bourdev, \
         Ross Girshick, James Hays, Pietro Perona, Deva Ramanan, \
         C. Lawrence Zitnick, Piotr Dollar.
@@ -56,6 +48,10 @@ class COCOInstanceSegmentationDataset(GetterDataset):
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/coco`.
         split ({'train', 'val', 'minival', 'valminusminival'}): Select
             a split of the dataset.
+        year ({'2014', '2017'}): Use a dataset prepared for a challenge
+            held in :obj:`year`.
+            Splits :obj:`minival` and :obj:`valminusminival` are only
+            supported in year :obj:`2014`.
         use_crowded (bool): If true, use bounding boxes that are labeled as
             crowded in the original annotation.
         return_crowded (bool): If true, this dataset returns a boolean array
@@ -67,7 +63,7 @@ class COCOInstanceSegmentationDataset(GetterDataset):
     """
 
     def __init__(
-            self, data_dir='auto', split='train',
+            self, data_dir='auto', split='train', year='2017',
             use_crowded=False, return_crowded=False,
             return_area=False
     ):
@@ -85,12 +81,12 @@ class COCOInstanceSegmentationDataset(GetterDataset):
         else:
             img_split = 'train'
         if data_dir == 'auto':
-            data_dir = get_coco(split, img_split)
+            data_dir = get_coco(split, img_split, year)
 
         self.img_root = os.path.join(
-            data_dir, 'images', '{}2014'.format(img_split))
+            data_dir, 'images', '{}{}'.format(img_split, year))
         anno_path = os.path.join(
-            data_dir, 'annotations', 'instances_{}2014.json'.format(split))
+            data_dir, 'annotations', 'instances_{}{}.json'.format(split, year))
 
         self.data_dir = data_dir
         annos = json.load(open(anno_path, 'r'))
