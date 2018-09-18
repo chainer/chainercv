@@ -33,4 +33,4 @@ def mask_to_bbox(mask):
         y_min, x_min = where.min(0)
         y_max, x_max = where.max(0) + 1
         bbox.append((y_min, x_min, y_max, x_max))
-    return xp.array(bbox)
+    return xp.array(bbox, dtype=np.float32)

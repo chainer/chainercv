@@ -26,20 +26,33 @@ class DummyYOLO(YOLOBase):
 
     def __call__(self, x):
         assert(x.shape[1:] == (3, self._insize, self._insize))
-        self._value = self.xp.random.uniform(
-            size=(x.shape[0], self._n_anchor, 4 + 1 + self._n_fg_class)) \
+        self._locs = self.xp.random.uniform(
+            size=(x.shape[0], self._n_anchor, 4)) \
             .astype(np.float32)
-        return chainer.Variable(self._value)
+        self._objs = self.xp.random.uniform(
+            size=(x.shape[0], self._n_anchor)) \
+            .astype(np.float32)
+        self._confs = self.xp.random.uniform(
+            size=(x.shape[0], self._n_anchor, self._n_fg_class)) \
+            .astype(np.float32)
+        return chainer.Variable(self._locs), \
+            chainer.Variable(self._objs), \
+            chainer.Variable(self._confs)
 
-    def _decode(self, loc, conf):
-        value = to_cpu(self._value)
+    def _decode(self, loc, obj, conf):
+        locs = to_cpu(self._locs)
+        objs = to_cpu(self._objs)
+        confs = to_cpu(self._confs)
+
         loc = to_cpu(loc)
+        obj = to_cpu(obj)
         conf = to_cpu(conf)
 
         if not hasattr(self, '_count'):
             self._count = 0
-        np.testing.assert_equal(loc, value[self._count, :, :4])
-        np.testing.assert_equal(conf, value[self._count, :, 4:])
+        np.testing.assert_equal(loc, locs[self._count])
+        np.testing.assert_equal(obj, objs[self._count])
+        np.testing.assert_equal(conf, confs[self._count])
         self._count += 1
 
         n_bbox = np.random.randint(self._n_anchor - 1)

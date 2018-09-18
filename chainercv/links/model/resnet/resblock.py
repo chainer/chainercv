@@ -3,6 +3,7 @@ import chainer.functions as F
 
 from chainercv.links import Conv2DBNActiv
 from chainercv.links import PickableSequentialChain
+from chainercv.links import SEBlock
 
 
 class ResBlock(PickableSequentialChain):
@@ -19,6 +20,9 @@ class ResBlock(PickableSequentialChain):
         stride (int or tuple of ints): Stride of filter application.
         dilate (int or tuple of ints): Dilation factor of filter applications.
             :obj:`dilate=d` and :obj:`dilate=(d, d)` are equivalent.
+        groups (int): The number of groups to use grouped convolution in the
+            second layer of each bottleneck. The default is one, where
+            grouped convolution is not used.
         initialW (callable): Initial weight value used in
             the convolutional layers.
         bn_kwargs (dict): Keyword arguments passed to initialize
@@ -28,25 +32,28 @@ class ResBlock(PickableSequentialChain):
             convolution with the first convolution layer.
             Otherwise, apply strided convolution with the
             second convolution layer.
+        add_seblock (bool): If :obj:`True`, apply a squeeze-and-excitation
+            block to each residual block.
 
     """
 
     def __init__(self, n_layer, in_channels, mid_channels,
-                 out_channels, stride, dilate=1, initialW=None,
-                 bn_kwargs={}, stride_first=False):
+                 out_channels, stride, dilate=1, groups=1, initialW=None,
+                 bn_kwargs={}, stride_first=False, add_seblock=False):
         super(ResBlock, self).__init__()
         # Dilate option is applied to all bottlenecks.
         with self.init_scope():
             self.a = Bottleneck(
                 in_channels, mid_channels, out_channels, stride, dilate,
-                initialW, bn_kwargs=bn_kwargs, residual_conv=True,
-                stride_first=stride_first)
+                groups, initialW, bn_kwargs=bn_kwargs, residual_conv=True,
+                stride_first=stride_first, add_seblock=add_seblock)
             for i in range(n_layer - 1):
                 name = 'b{}'.format(i + 1)
                 bottleneck = Bottleneck(
                     out_channels, mid_channels, out_channels, stride=1,
                     dilate=dilate, initialW=initialW, bn_kwargs=bn_kwargs,
-                    residual_conv=False)
+                    residual_conv=False, add_seblock=add_seblock,
+                    groups=groups)
                 self.add_link(name, bottleneck)
 
 
@@ -61,6 +68,9 @@ class Bottleneck(chainer.Chain):
         stride (int or tuple of ints): Stride of filter application.
         dilate (int or tuple of ints): Dilation factor of filter applications.
             :obj:`dilate=d` and :obj:`dilate=(d, d)` are equivalent.
+        groups (int): The number of groups to use grouped convolution in the
+            second layer. The default is one, where grouped convolution is
+            not used.
         initialW (callable): Initial weight value used in
             the convolutional layers.
         bn_kwargs (dict): Keyword arguments passed to initialize
@@ -70,12 +80,14 @@ class Bottleneck(chainer.Chain):
         stride_first (bool): If :obj:`True`, apply strided convolution
             with the first convolution layer. Otherwise, apply
             strided convolution with the second convolution layer.
+        add_seblock (bool): If :obj:`True`, apply a squeeze-and-excitation
+            block to each residual block.
 
     """
 
     def __init__(self, in_channels, mid_channels, out_channels,
-                 stride=1, dilate=1, initialW=None, bn_kwargs={},
-                 residual_conv=False, stride_first=False):
+                 stride=1, dilate=1, groups=1, initialW=None, bn_kwargs={},
+                 residual_conv=False, stride_first=False, add_seblock=False):
         if stride_first:
             first_stride = stride
             second_stride = 1
@@ -91,11 +103,13 @@ class Bottleneck(chainer.Chain):
             # pad = dilate
             self.conv2 = Conv2DBNActiv(mid_channels, mid_channels,
                                        3, second_stride, dilate, dilate,
-                                       nobias=True, initialW=initialW,
+                                       groups, nobias=True, initialW=initialW,
                                        bn_kwargs=bn_kwargs)
             self.conv3 = Conv2DBNActiv(mid_channels, out_channels, 1, 1, 0,
                                        nobias=True, initialW=initialW,
                                        activ=None, bn_kwargs=bn_kwargs)
+            if add_seblock:
+                self.se = SEBlock(out_channels)
             if residual_conv:
                 self.residual_conv = Conv2DBNActiv(
                     in_channels, out_channels, 1, stride, 0,
@@ -106,6 +120,8 @@ class Bottleneck(chainer.Chain):
         h = self.conv1(x)
         h = self.conv2(h)
         h = self.conv3(h)
+        if hasattr(self, 'se'):
+            h = self.se(h)
 
         if hasattr(self, 'residual_conv'):
             residual = self.residual_conv(x)

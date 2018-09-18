@@ -11,3 +11,7 @@ Conv2DActiv
 Conv2DBNActiv
 -------------
 .. autoclass:: Conv2DBNActiv
+
+SEBlock
+-------
+.. autoclass:: SEBlock

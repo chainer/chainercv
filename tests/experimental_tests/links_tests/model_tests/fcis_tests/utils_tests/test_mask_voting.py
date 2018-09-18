@@ -24,24 +24,24 @@ class TestMaskVoting(unittest.TestCase):
         self.bbox = generate_random_bbox(n_roi, self.size, 0, 18)
 
     def check_mask_voting(
-            self, roi_mask_prob, bbox, roi_prob,
+            self, seg_prob, bbox, cls_prob,
             size, bg_label, roi_size):
-        xp = chainer.cuda.get_array_module(roi_mask_prob)
-        roi_mask_prob, bbox, label, score = mask_voting(
-            roi_mask_prob, bbox, roi_prob, size,
+        xp = chainer.cuda.get_array_module(seg_prob)
+        seg_prob, bbox, label, cls_prob = mask_voting(
+            seg_prob, bbox, cls_prob, size,
             0.5, 0.3, 0.5, 0.4, bg_label=bg_label)
 
-        n_roi = roi_mask_prob.shape[0]
-        self.assertIsInstance(roi_mask_prob, xp.ndarray)
-        self.assertEqual(roi_mask_prob.shape[1:], (roi_size, roi_size))
+        n_roi = seg_prob.shape[0]
+        self.assertIsInstance(seg_prob, xp.ndarray)
+        self.assertEqual(seg_prob.shape[1:], (roi_size, roi_size))
         self.assertTrue(
-            xp.all(xp.logical_and(roi_mask_prob >= 0.0, roi_mask_prob <= 1.0)))
+            xp.all(xp.logical_and(seg_prob >= 0.0, seg_prob <= 1.0)))
 
         self.assertIsInstance(label, xp.ndarray)
         self.assertEqual(label.shape, (n_roi, ))
 
-        self.assertIsInstance(score, xp.ndarray)
-        self.assertEqual(score.shape, (n_roi, ))
+        self.assertIsInstance(cls_prob, xp.ndarray)
+        self.assertEqual(cls_prob.shape, (n_roi, ))
 
         assert_is_bbox(bbox, size)
 
