@@ -47,6 +47,10 @@ resize_contain
 ~~~~~~~~~~~~~~
 .. autofunction:: resize_contain
 
+rotate
+~~~~~~
+.. autofunction:: rotate
+
 scale
 ~~~~~
 .. autofunction:: scale
