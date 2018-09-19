@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 
 def random_rotate(img, return_param=False):
@@ -25,6 +26,10 @@ def random_rotate(img, return_param=False):
             times the image is rotated by 90 degrees.
 
     """
+    warnings.warn(
+        'chainercv.transforms.random_rotate is deprecated. '
+        'Please use a random function and chainercv.transforms.rotate '
+        'instead.', DeprecationWarning)
     k = np.random.randint(4)
     img = np.transpose(img, axes=(1, 2, 0))
     img = np.rot90(img, k)
