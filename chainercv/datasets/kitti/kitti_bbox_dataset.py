@@ -230,7 +230,4 @@ class KITTIBboxDataset(GetterDataset):
         else:
             np_label = np.array(label[i], dtype=np.int32)
 
-        # debug print
-        # print(np_bbox)
-        # print(np_label)
         return np_bbox, np_label

@@ -80,20 +80,10 @@ def get_kitti_nosync_data(root, date, drive_num, tracklet):
 def get_kitti_tracklets(data_root, date, drive_num):
     # read calibration files
     kitti_dir = os.path.join(data_root, date)
-    # kitti_dir = kitti_dir.replace(os.path.sep, '/')
-    # calibration_dir = os.path.join(data_root, date)
-    # imu2velo = read_calib_file(
-    #                os.path.join(kitti_dir, "calib_imu_to_velo.txt"))
-    # velo2cam = read_calib_file(
-    #                os.path.join(kitti_dir, "calib_velo_to_cam.txt"))
-    # cam2cam = read_calib_file(
-    #                os.path.join(kitti_dir, "calib_cam_to_cam.txt"))
+
     # read tracklet
     folder = date + '_drive_' + drive_num + '_sync'
-    # tracklet = read_tracklet_file(
-    #                os.path.join(kitti_dir, folder, "calib_imu_to_velo.txt"))
-    # return tracklets
-    # get dir names
+
     # read tracklets from file
     tracklet_filepath = os.path.join(kitti_dir, folder, 'tracklet_labels.xml')
     tracklets = xmlParser.parseXML(tracklet_filepath)
@@ -113,28 +103,21 @@ def get_kitti_label(tracklets, calib,
     if tracklets is None:
         return bboxes, labels
 
-    # set ndarray
-    # bboxes = np.zeros(framelength, dtype=np.float32)
-    # labels = np.zeros(framelength, dtype=np.int32)
-
-    # twoPi = 2.*np.pi
     # loop over tracklets
     for iTracklet, tracklet in enumerate(tracklets):
-        # print('tracklet {0: 3d}: {1}'.format(iTracklet, tracklet))
-
         # this part is inspired by kitti object development kit
         # matlab code: computeBox3D
-        h, w, l = tracklet.size
+        # h: height
+        # w: width
+        # lg : length
+        h, w, lg = tracklet.size
         # in velodyne coordinates around zero point and without orientation yet
         tracklet_box = np.array([
-            [-l/2, -l/2,  l/2, l/2, -l/2, -l/2,  l/2, l/2],
-            [w/2, -w/2, -w/2, w/2,  w/2, -w/2, -w/2, w/2],
-            [0.0,  0.0,  0.0, 0.0,    h,     h,   h,   h]])
+            [-lg/2, -lg/2, lg/2, lg/2, -lg/2, -lg/2, lg/2, lg/2],
+            [  w/2,  -w/2, -w/2,  w/2,   w/2,  -w/2, -w/2,  w/2],
+            [  0.0,   0.0,  0.0,  0.0,     h,     h,    h,    h]])
 
-        # print('tracklet_box : ' + tracklet_box)
-        # print(tracklet_box)
         objtype_str = tracklet.objectType
-        # print(objtype_str)
 
         # loop over all data in tracklet
         for translation, rotation, state, occlusion, truncation, \
@@ -164,26 +147,18 @@ def get_kitti_label(tracklets, calib,
             # makes quite a difference for objects in periphery!
             # Result is in [0, 2pi]
             x, y, z = translation
-            # print(translation)
+
             # yawVisual = ( yaw - np.arctan2(y, x) ) % twoPi
-            # print(yaw)
-            # print(yawVisual)
             # param = pykitti.utils.transform_from_rot_trans(
             #             rot_mat, translation)
-            # print(param)
 
             # projection to image?
-            # print(calib.P_rect_20)
             # param3 = translation.reshape(3, 1) * calib.P_rect_20
-            # print(cornerpos_in_velo[:, 0:1].shape)
             pt3d = np.vstack((cornerpos_in_velo[:, 0:8], np.ones(8)))
-            # print(pt3d.shape)
-            # print(calib.P_rect_20)
             pt2d = project_velo_points_in_img(
                 pt3d, calib.T_cam2_velo,
                 cur_rotation_matrix, cur_position_matrix)
 
-            # print(pt2d)
             xmin = min(pt2d[0, :])
             xmax = max(pt2d[0, :])
             ymin = min(pt2d[1, :])
@@ -210,25 +185,11 @@ def get_kitti_label(tracklets, calib,
                 ymax = 375.0
 
             param = np.array((ymin, xmin, ymax, xmax), dtype=np.float32)
-            # print(param)
-            # bbox.append(param)
-            # bbox = np.stack(bbox).astype(np.float32)
-            # bboxes[absoluteFrameNumber] = bbox
             bboxes[absoluteFrameNumber].append(param)
-            # print(bboxes[absoluteFrameNumber])
 
-            # param_3d = cornerpos_in_velo
-            # bboxes_3d[absoluteFrameNumber].append(cornerpos_in_velo)
-            # label.append(param2)
-            # label = np.stack(label).astype(np.int32)
-            # labels[absoluteFrameNumber] = label
-            # objectType
-            # label_names
             # not search objtype_str? process
             param2 = kitti_bbox_label_names.index(objtype_str)
             labels[absoluteFrameNumber].append(param2)
-            # labels[absoluteFrameNumber] = param2
-            # print(bboxes[absoluteFrameNumber])
 
         # end : for all frames in track
     # end : for all tracks
