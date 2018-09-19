@@ -114,8 +114,8 @@ def get_kitti_label(tracklets, calib,
         # in velodyne coordinates around zero point and without orientation yet
         tracklet_box = np.array([
             [-lg/2, -lg/2, lg/2, lg/2, -lg/2, -lg/2, lg/2, lg/2],
-            [  w/2,  -w/2, -w/2,  w/2,   w/2,  -w/2, -w/2,  w/2],
-            [  0.0,   0.0,  0.0,  0.0,     h,     h,    h,    h]])
+            [w/2,    -w/2, -w/2,  w/2,   w/2,  -w/2, -w/2,  w/2],
+            [0.0,     0.0,  0.0,  0.0,     h,     h,    h,    h]])
 
         objtype_str = tracklet.objectType
 
