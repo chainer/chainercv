@@ -22,8 +22,7 @@ class COCOBboxDataset(GetterDataset):
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/coco`.
         split ({'train', 'val', 'minival', 'valminusminival'}): Select
             a split of the dataset.
-        year ({'2014', '2017'}): Use a dataset prepared for a challenge
-            held in :obj:`year`.
+        year ({'2014', '2017'}): Use a dataset released in :obj:`year`.
             Splits :obj:`minival` and :obj:`valminusminival` are only
             supported in year :obj:`2014`.
         use_crowded (bool): If true, use bounding boxes that are labeled as
