@@ -32,11 +32,12 @@ def _check_available():
             'pykitti is not installed in your environment,'
             'so the dataset cannot be loaded.'
             'Please install pykitti to load dataset.\n\n'
-            '$ pip install pykitti==0.2.4')
+            '$ pip install pykitti')
 
 
 class KITTIBboxDataset(GetterDataset):
-    r"""Image dataset for test split of `KITTI dataset`_.
+
+    """Image dataset for test split of `KITTI dataset`_.
 
     .. _`KITTI dataset`: http://www.cvlibs.net/datasets/kitti/raw_data.php
 
@@ -67,8 +68,8 @@ class KITTIBboxDataset(GetterDataset):
         ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
         :obj:`label`, scalar, :obj:`int32`, ":math:`[0, \#class - 1]`"
 
-    .. [#kitti_bbox_1] If :obj:`use_pykitty = False`, \
-        :obj:`bbox` and :obj:`label` not contain instances.
+    .. [#kitti_bbox_1] If :obj:`tracklet = True`, \
+        :obj:`bbox` and :obj:`label` contain crowded instances.
     """
 
     def __init__(self, data_dir='auto', date='', drive_num='',
@@ -98,9 +99,6 @@ class KITTIBboxDataset(GetterDataset):
                     date, drive_num, self.tracklet)
 
         # use pykitti
-        # read All images
-        # imformat='None'
-        # self.dataset = pykitti.raw(data_dir, date, drive_num, frames=None)
         self.dataset = pykitti.raw(
             data_dir, date, drive_num, frames=None, imformat='cv2')
 
@@ -189,8 +187,6 @@ class KITTIBboxDataset(GetterDataset):
             self.__len__())
 
         self.add_getter('img', self._get_image)
-        # self.add_getter('label', self._get_label)
-        # self.add_getter('bbox', self._get_bbox)
         self.add_getter(['bbox', 'label'], self._get_annotations)
         keys = ('img', 'bbox', 'label')
         self.keys = keys
