@@ -29,7 +29,7 @@ class VOCBboxDataset(GetterDataset):
             a boolean array
             that indicates whether bounding boxes are labeled as difficult
             or not. The default value is :obj:`False`.
-        labels (list of string): The label names of classes. If :obj:`None`
+        labels (tuple of string): The label names of classes. If :obj:`None`
             is specified, :obj:`~chainercv.datasets.voc.voc_utils.voc_bbox_label_names`
             is assigned. Default is :obj:`None`.
 
@@ -84,6 +84,8 @@ class VOCBboxDataset(GetterDataset):
         if labels is None:
             self.labels = voc_utils.voc_bbox_label_names
         else:
+            if type(labels) is not tuple:
+                raise TypeError('\'labels\' argument should be a tuple.')
             self.labels = labels
 
     def __len__(self):
