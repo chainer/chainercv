@@ -29,6 +29,9 @@ class VOCBboxDataset(GetterDataset):
             a boolean array
             that indicates whether bounding boxes are labeled as difficult
             or not. The default value is :obj:`False`.
+        labels (list of string): The label names of classes. If :obj:`None`
+            is specified, :obj:`~chainercv.datasets.voc.voc_utils.voc_bbox_label_names`
+            is assigned. Default is :obj:`None`.
 
     This dataset returns the following data.
 
@@ -51,7 +54,7 @@ class VOCBboxDataset(GetterDataset):
     """
 
     def __init__(self, data_dir='auto', split='train', year='2012',
-                 use_difficult=False, return_difficult=False):
+                 use_difficult=False, return_difficult=False, labels=None):
         super(VOCBboxDataset, self).__init__()
 
         if data_dir == 'auto' and year in ['2007', '2012']:
@@ -77,6 +80,11 @@ class VOCBboxDataset(GetterDataset):
 
         if not return_difficult:
             self.keys = ('img', 'bbox', 'label')
+
+        if labels is None:
+            self.labels = voc_utils.voc_bbox_label_names
+        else:
+            self.labels = labels
 
     def __len__(self):
         return len(self.ids)
@@ -107,7 +115,7 @@ class VOCBboxDataset(GetterDataset):
                 int(bndbox_anno.find(tag).text) - 1
                 for tag in ('ymin', 'xmin', 'ymax', 'xmax')])
             name = obj.find('name').text.lower().strip()
-            label.append(voc_utils.voc_bbox_label_names.index(name))
+            label.append(self.labels.index(name))
         bbox = np.stack(bbox).astype(np.float32)
         label = np.stack(label).astype(np.int32)
         # When `use_difficult==False`, all elements in `difficult` are False.
