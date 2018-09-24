@@ -9,22 +9,40 @@ from chainercv.datasets import coco_instance_segmentation_label_names
 from chainercv.datasets import COCOInstanceSegmentationDataset
 from chainercv.utils import assert_is_instance_segmentation_dataset
 
+try:
+    import pycocotools  # NOQA
+    _available = True
+except ImportError:
+    _available = False
 
-@testing.parameterize(*testing.product({
-    'split': ['train', 'val', 'minival', 'valminusminival'],
-    'use_crowded': [False, True],
-    'return_crowded': [False, True],
-    'return_area': [False, True]
-}))
+
+def _create_paramters():
+    split_years = testing.product({
+        'split': ['train', 'val'],
+        'year': ['2014', '2017']})
+    split_years += [{'split': 'minival', 'year': '2014'},
+                    {'split': 'valminusminival', 'year': '2014'}]
+    use_and_return_args = testing.product({
+        'use_crowded': [False, True],
+        'return_crowded': [False, True],
+        'return_area': [False, True]})
+    params = testing.product_dict(
+        split_years,
+        use_and_return_args)
+    return params
+
+
+@testing.parameterize(*_create_paramters())
 class TestCOCOInstanceSegmentationDataset(unittest.TestCase):
 
     def setUp(self):
         self.dataset = COCOInstanceSegmentationDataset(
-            split=self.split,
+            split=self.split, year=self.year,
             use_crowded=self.use_crowded, return_crowded=self.return_crowded,
             return_area=self.return_area)
 
     @attr.slow
+    @unittest.skipUnless(_available, 'pycocotools is not installed')
     def test_coco_instance_segmentation_dataset(self):
         assert_is_instance_segmentation_dataset(
             self.dataset,
