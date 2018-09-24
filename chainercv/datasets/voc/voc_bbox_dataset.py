@@ -30,7 +30,8 @@ class VOCBboxDataset(GetterDataset):
             that indicates whether bounding boxes are labeled as difficult
             or not. The default value is :obj:`False`.
         labels (tuple of string): The label names of classes. If :obj:`None`
-            is specified, :obj:`~chainercv.datasets.voc.voc_utils.voc_bbox_label_names`
+            is specified,
+            :obj:`~chainercv.datasets.voc.voc_utils.voc_bbox_label_names`
             is assigned. Default is :obj:`None`.
 
     This dataset returns the following data.
@@ -117,7 +118,10 @@ class VOCBboxDataset(GetterDataset):
                 int(bndbox_anno.find(tag).text) - 1
                 for tag in ('ymin', 'xmin', 'ymax', 'xmax')])
             name = obj.find('name').text.lower().strip()
-            label.append(self.labels.index(name))
+            try:
+                label.append(self.labels.index(name))
+            except Exception as e:
+                print(str(type(e)), e, name)
         bbox = np.stack(bbox).astype(np.float32)
         label = np.stack(label).astype(np.int32)
         # When `use_difficult==False`, all elements in `difficult` are False.
