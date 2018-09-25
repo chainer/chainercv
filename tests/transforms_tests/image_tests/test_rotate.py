@@ -19,7 +19,7 @@ class TestRotate(unittest.TestCase):
 
     def test_rotate(self):
         img = np.random.uniform(size=(3, 32, 24))
-        angle = random.uniform(0, 180)
+        angle = random.uniform(-180, 180)
 
         out = rotate(img, angle)
         expected = flip(img, x_flip=True)
