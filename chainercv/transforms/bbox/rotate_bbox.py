@@ -21,7 +21,6 @@ def rotate_bbox(bbox, angle, size):
         raise ValueError(
             'angle which satisfies angle % 90 == 0 is only supported: {}'
             .format(angle))
-        return bbox
     H, W = size
     if angle % 360 == 0:
         return bbox
