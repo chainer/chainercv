@@ -10,17 +10,28 @@ from chainercv.datasets import COCOBboxDataset
 from chainercv.utils import assert_is_bbox_dataset
 
 
-@testing.parameterize(*testing.product({
-    'split': ['train', 'val', 'minival', 'valminusminival'],
-    'use_crowded': [False, True],
-    'return_area': [False, True],
-    'return_crowded': [False, True]
-}))
+def _create_paramters():
+    split_years = testing.product({
+        'split': ['train', 'val'],
+        'year': ['2014', '2017']})
+    split_years += [{'split': 'minival', 'year': '2014'},
+                    {'split': 'valminusminival', 'year': '2014'}]
+    use_and_return_args = testing.product({
+        'use_crowded': [False, True],
+        'return_crowded': [False, True],
+        'return_area': [False, True]})
+    params = testing.product_dict(
+        split_years,
+        use_and_return_args)
+    return params
+
+
+@testing.parameterize(*_create_paramters())
 class TestCOCOBboxDataset(unittest.TestCase):
 
     def setUp(self):
         self.dataset = COCOBboxDataset(
-            split=self.split,
+            split=self.split, year=self.year,
             use_crowded=self.use_crowded, return_area=self.return_area,
             return_crowded=self.return_crowded)
 

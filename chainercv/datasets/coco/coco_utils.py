@@ -7,34 +7,49 @@ from chainercv import utils
 
 root = 'pfnet/chainercv/coco'
 img_urls = {
-    'train': 'http://msvocds.blob.core.windows.net/coco2014/train2014.zip',
-    'val': 'http://msvocds.blob.core.windows.net/coco2014/val2014.zip'
+    '2014': {
+        'train': 'http://msvocds.blob.core.windows.net/coco2014/train2014.zip',
+        'val': 'http://msvocds.blob.core.windows.net/coco2014/val2014.zip'
+    },
+    '2017': {
+        'train': 'http://images.cocodataset.org/zips/train2017.zip',
+        'val': 'http://images.cocodataset.org/zips/val2017.zip'
+    }
 }
 anno_urls = {
-    'train': 'http://msvocds.blob.core.windows.net/annotations-1-0-3/'
-    'instances_train-val2014.zip',
-    'val': 'http://msvocds.blob.core.windows.net/annotations-1-0-3/'
-    'instances_train-val2014.zip',
-    'valminusminival': 'https://dl.dropboxusercontent.com/s/s3tw5zcg7395368/'
-    'instances_valminusminival2014.json.zip',
-    'minival': 'https://dl.dropboxusercontent.com/s/o43o90bna78omob/'
-    'instances_minival2014.json.zip'
+    '2014': {
+        'train': 'http://msvocds.blob.core.windows.net/annotations-1-0-3/'
+        'instances_train-val2014.zip',
+        'val': 'http://msvocds.blob.core.windows.net/annotations-1-0-3/'
+        'instances_train-val2014.zip',
+        'valminusminival': 'https://dl.dropboxusercontent.com/s/'
+        's3tw5zcg7395368/instances_valminusminival2014.json.zip',
+        'minival': 'https://dl.dropboxusercontent.com/s/o43o90bna78omob/'
+        'instances_minival2014.json.zip'
+    },
+    '2017': {
+        'train': 'http://images.cocodataset.org/annotations/'
+        'annotations_trainval2017.zip',
+        'val': 'http://images.cocodataset.org/annotations/'
+        'annotations_trainval2017.zip'
+    }
 }
 
 
-def get_coco(split, img_split):
-    url = img_urls[img_split]
+def get_coco(split, img_split, year):
+    url = img_urls[year][img_split]
     data_dir = download.get_dataset_directory(root)
     img_root = os.path.join(data_dir, 'images')
-    created_img_root = os.path.join(img_root, '{}2014'.format(img_split))
+    created_img_root = os.path.join(img_root, '{}{}'.format(img_split, year))
     annos_root = os.path.join(data_dir, 'annotations')
-    anno_path = os.path.join(annos_root, 'instances_{}2014.json'.format(split))
+    anno_path = os.path.join(
+        annos_root, 'instances_{}{}.json'.format(split, year))
     if not os.path.exists(created_img_root):
         download_file_path = utils.cached_download(url)
         ext = os.path.splitext(url)[1]
         utils.extractall(download_file_path, img_root, ext)
     if not os.path.exists(anno_path):
-        anno_url = anno_urls[split]
+        anno_url = anno_urls[year][split]
         download_file_path = utils.cached_download(anno_url)
         ext = os.path.splitext(anno_url)[1]
         if split in ['train', 'val']:

@@ -23,8 +23,7 @@ def rotate(img, angle, expand=True):
     Args:
         img (~numpy.ndarray): An arrays that get rotated. This is in
             CHW format.
-        angle (float): Counter clock-wise rotation angle (degree) in
-            [-180, 180].
+        angle (float): Counter clock-wise rotation angle (degree).
         expand (bool): The output shaped is adapted or not.
             If :obj:`True`, the input image is contained complete in
             the output.
@@ -37,5 +36,4 @@ def rotate(img, angle, expand=True):
 
     _check_available()
 
-    assert 180 >= angle >= -180
     return scipy.ndimage.rotate(img, angle, axes=(2, 1), reshape=expand)
