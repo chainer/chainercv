@@ -54,7 +54,7 @@ class ResBlock(PickableSequentialChain):
                     dilate=dilate, initialW=initialW, bn_kwargs=bn_kwargs,
                     residual_conv=False, add_seblock=add_seblock,
                     groups=groups)
-                self.add_link(name, bottleneck)
+                setattr(self, name, bottleneck)
 
 
 class Bottleneck(chainer.Chain):
