@@ -25,6 +25,9 @@ class TestSBDInstanceSegmentationDataset(unittest.TestCase):
     def setUp(self):
         self.dataset = SBDInstanceSegmentationDataset(split=self.split)
 
+    def tearDown(self):
+        del self.dataset
+
     @attr.slow
     def test_sbd_instance_segmentation_dataset(self):
         assert_is_instance_segmentation_dataset(

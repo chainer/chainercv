@@ -21,6 +21,9 @@ class TestCUBLabelDataset(unittest.TestCase):
         self.dataset = CUBLabelDataset(
             return_bb=self.return_bb, return_prob_map=self.return_prob_map)
 
+    def tearDown(self):
+        del self.dataset
+
     @attr.slow
     def test_cub_label_dataset(self):
         assert_is_label_dataset(

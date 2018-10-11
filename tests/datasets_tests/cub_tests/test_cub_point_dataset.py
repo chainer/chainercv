@@ -20,6 +20,9 @@ class TestCUBPointDataset(unittest.TestCase):
         self.dataset = CUBPointDataset(return_bb=self.return_bb,
                                        return_prob_map=self.return_prob_map)
 
+    def tearDown(self):
+        del self.dataset
+
     @attr.slow
     def test_camvid_dataset(self):
         assert_is_point_dataset(
