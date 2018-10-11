@@ -75,7 +75,6 @@ class TestDirectoryParsingLabelDataset(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
-        del self.dataset
 
     def test_directory_parsing_label_dataset(self):
         dataset = DirectoryParsingLabelDataset(
@@ -124,9 +123,6 @@ class TestNumericalSortDirectoryParsingLabelDataset(
             os.makedirs(class_dir)
             _save_img_file(os.path.join(class_dir, 'img_0.png'),
                            (48, 32), color=True)
-
-    def tearDown(self):
-        shutil.rmtree(self.temp_dir)
 
     def test_numerical_sort(self):
         dataset = DirectoryParsingLabelDataset(

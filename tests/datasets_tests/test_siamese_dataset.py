@@ -42,11 +42,6 @@ class TestSiameseDataset(unittest.TestCase):
             np.random.uniform(size=(N,) + self.img_shape), self.labels_1)
         self.n_class = np.max((self.labels_0, self.labels_1)) + 1
 
-    def tearDown(self):
-        del self.dataset_0
-        del self.dataset_1
-        del self.dataset
-
     def _check_example(self, example):
         assert_is_image(example[0])
         self.assertEqual(example[0].shape, self.img_shape)

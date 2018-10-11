@@ -44,9 +44,6 @@ class TestMixupSoftLabelDataset(unittest.TestCase):
         self.n_class = np.max((self.labels_0, self.labels_1)) + 1
         self.siamese_dataset = SiameseDataset(dataset_0, dataset_1)
 
-    def tearDown(self):
-        del self.dataset
-
     def _check_example(self, example):
         assert_is_image(example[0])
         self.assertEqual(example[0].shape, self.img_shape)
