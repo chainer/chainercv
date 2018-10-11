@@ -35,6 +35,9 @@ class TestFasterRCNNVGG16(unittest.TestCase):
 
         chainer.config.train = self.train
 
+    def tearDown(self):
+        del self.link
+
     def check_call(self):
         xp = self.link.xp
 
@@ -94,6 +97,9 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
             low=-122.5, high=122.5, size=(1, 3, 600, 800)).astype(np.float32)
         self.imgs = chainer.Variable(_imgs)
         self.scale = chainer.Variable(np.array(1.))
+
+    def tearDown(self):
+        del self.link
 
     def check_call(self):
         loss = self.link(self.imgs, self.bboxes, self.labels, self.scale)

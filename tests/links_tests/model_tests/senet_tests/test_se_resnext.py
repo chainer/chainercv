@@ -32,6 +32,9 @@ class TestSEResNeXtCall(unittest.TestCase):
             n_class=self.n_class, pretrained_model=None)
         self.link.pick = self.pick
 
+    def tearDown(self):
+        del self.link
+
     def check_call(self):
         xp = self.link.xp
 

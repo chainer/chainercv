@@ -25,6 +25,9 @@ class TestVGG16Call(unittest.TestCase):
             initialW=Zero())
         self.link.pick = self.pick
 
+    def tearDown(self):
+        del self.link
+
     def check_call(self):
         xp = self.link.xp
 
