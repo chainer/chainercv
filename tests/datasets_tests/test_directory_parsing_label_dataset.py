@@ -74,7 +74,7 @@ class TestDirectoryParsingLabelDataset(unittest.TestCase):
                                         self.color, self.suffix)
 
     def tearDown(self):
-        shutil.rmtree(self.temp_dir)
+        shutil.rmtree(self.tmp_dir)
 
     def test_directory_parsing_label_dataset(self):
         dataset = DirectoryParsingLabelDataset(
