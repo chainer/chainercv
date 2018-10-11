@@ -124,6 +124,9 @@ class TestNumericalSortDirectoryParsingLabelDataset(
             _save_img_file(os.path.join(class_dir, 'img_0.png'),
                            (48, 32), color=True)
 
+    def tearDown(self):
+        shutil.rmtree(self.tmp_dir)
+
     def test_numerical_sort(self):
         dataset = DirectoryParsingLabelDataset(
             self.tmp_dir, numerical_sort=True)
