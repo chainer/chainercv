@@ -1,8 +1,8 @@
-import unittest
-
 import numpy as np
 import os
+import shutil
 import tempfile
+import unittest
 
 from chainer import testing
 
