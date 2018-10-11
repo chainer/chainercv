@@ -78,7 +78,11 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k, comm=None):
         if comm:
             if xp is not np:
                 chainer.backends.cuda.Stream.null.synchronize()
+            # allreduce cannot treat a scalar
+            n_positive = xp.array((n_positive,))
             n_positive = comm.allreduce(n_positive) / comm.size
+            # as scalar
+            n_positive = xp.reshape(())
 
         if n_positive == 0:
             z = chainer.Variable(xp.zeros((), dtype=np.float32))
