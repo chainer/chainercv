@@ -103,7 +103,7 @@ class SegNetBasic(chainer.Chain):
             x = x[:, :, :min_h, :min_w]
             indices = indices[:, :, :min_h, :min_w]
         outsize = (x.shape[2] * 2, x.shape[3] * 2)
-        return F.upsampling_2d(x, indices, ksize=2, stride=2, pad=0, outsize=outsize)
+        return F.upsampling_2d(x, indices, ksize=2, stride=2, outsize=outsize)
 
     def __call__(self, x):
         """Compute an image-wise score from a batch of images
@@ -116,10 +116,6 @@ class SegNetBasic(chainer.Chain):
             An image-wise score. Its channel size is :obj:`self.n_class`.
 
         """
-        p1 = F.MaxPooling2D(2, 2)
-        p2 = F.MaxPooling2D(2, 2)
-        p3 = F.MaxPooling2D(2, 2)
-        p4 = F.MaxPooling2D(2, 2)
         h = F.local_response_normalization(x, 5, 1, 1e-4 / 5., 0.75)
         h, indices1 = F.max_pooling_2d(
             F.relu(self.conv1_bn(self.conv1(h))), 2, 2, return_indices=True)
