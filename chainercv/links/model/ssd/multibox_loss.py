@@ -77,7 +77,7 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k, comm=None):
         n_positive = xp.array(positive.sum())
 
         if comm:
-            n_positive = np.array(cuda.to_cpu(n_positive),)
+            n_positive = np.array((cuda.to_cpu(n_positive),))
             n_positive = comm.allreduce(n_positive) / comm.size
             n_positive = np.asscalar(n_positive)
 
