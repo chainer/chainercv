@@ -175,10 +175,12 @@ class TestMultiNodeMultiboxLoss(unittest.TestCase):
             mb_locs_local, mb_confs_local,
             gt_mb_locs_local, gt_mb_labels_local, k, self.comm)
 
-        loc_loss_local = cuda.to_cpu(loc_loss_local.array)
-        conf_loss_local = cuda.to_cpu(conf_loss_local.array)
-        loc_loss = self.comm.allreduce(loc_loss_local) / self.comm.size
-        conf_loss = self.comm.allreduce(conf_loss_local) / self.comm.size
+        loc_loss_local = cuda.to_cpu(loc_loss_local.array).reshape((-1,))
+        conf_loss_local = cuda.to_cpu(conf_loss_local.array).reshape((-1,))
+        loc_loss = np.asscalar(
+            self.comm.allreduce(loc_loss_local) / self.comm.size)
+        conf_loss = np.asscalar(
+            self.comm.allreduce(conf_loss_local) / self.comm.size)
 
         expect_loc_loss, expect_conf_loss = multibox_loss(
             self.mb_locs, self.mb_confs, self.gt_mb_locs, self.gt_mb_labels, k)
