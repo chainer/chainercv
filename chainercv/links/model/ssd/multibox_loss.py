@@ -3,6 +3,7 @@ from __future__ import division
 import numpy as np
 
 import chainer
+from chainer.backends import cuda
 import chainer.functions as F
 
 
@@ -76,13 +77,9 @@ def multibox_loss(mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, k, comm=None):
         n_positive = xp.array(positive.sum())
 
         if comm:
-            if xp is not np:
-                chainer.backends.cuda.Stream.null.synchronize()
-            # allreduce cannot treat a scalar
-            n_positive = xp.array((n_positive,))
+            n_positive = np.array(cuda.to_cpu(n_positive),)
             n_positive = comm.allreduce(n_positive) / comm.size
-            # as scalar
-            n_positive = xp.reshape(())
+            n_positive = np.asscalar(n_positive)
 
         if n_positive == 0:
             z = chainer.Variable(xp.zeros((), dtype=np.float32))
