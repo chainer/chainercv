@@ -48,15 +48,16 @@ class TestCityscapesSemanticSegmentationDataset(unittest.TestCase):
         self.dataset = CityscapesSemanticSegmentationDataset(
             self.temp_dir, self.label_mode, self.split, self.ignore_labels)
 
+    def tearDown(self):
+        shutil.rmtree(self.temp_dir)
+        del self.dataset
+
     def test_ignore_labels(self):
         for _, label_orig in self.dataset:
             H, W = label_orig.shape
             label_out = np.ones((H, W), dtype=np.int32) * -1
             for label in cityscapes_labels:
                 label_out[label_orig == label.trainId] = label.id
-
-    def tearDown(self):
-        shutil.rmtree(self.temp_dir)
 
     @attr.slow
     def test_cityscapes_semantic_segmentation_dataset(self):
@@ -81,6 +82,7 @@ class TestCityscapesTestImageDataset(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
+        del self.dataset
 
     @attr.slow
     def test_cityscapes_dataset(self):

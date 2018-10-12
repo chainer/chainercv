@@ -19,6 +19,9 @@ class TestOnlineProductsDataset(unittest.TestCase):
     def setUp(self):
         self.dataset = OnlineProductsDataset(split=self.split)
 
+    def tearDown(self):
+        del self.dataset
+
     @attr.slow
     def test_online_products_dataset(self):
         assert_is_label_dataset(

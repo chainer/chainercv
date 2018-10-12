@@ -35,6 +35,9 @@ class TestCOCOBboxDataset(unittest.TestCase):
             use_crowded=self.use_crowded, return_area=self.return_area,
             return_crowded=self.return_crowded)
 
+    def tearDown(self):
+        del self.dataset
+
     @attr.slow
     def test_coco_bbox_dataset(self):
         assert_is_bbox_dataset(
