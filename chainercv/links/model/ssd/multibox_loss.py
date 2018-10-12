@@ -3,7 +3,6 @@ from __future__ import division
 import numpy as np
 
 import chainer
-from chainer.backends import cuda
 import chainer.functions as F
 
 
