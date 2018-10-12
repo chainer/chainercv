@@ -17,6 +17,9 @@ class TestPSPNetResNet101(unittest.TestCase):
         self.link = PSPNetResNet101(
             n_class=self.n_class, input_size=self.input_size)
 
+    def tearDown(self):
+        del self.link
+
     def check_call(self):
         xp = self.link.xp
         x = chainer.Variable(xp.random.uniform(

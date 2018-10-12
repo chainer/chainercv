@@ -38,6 +38,9 @@ class TestResNetCall(unittest.TestCase):
             n_class=self.n_class, pretrained_model=None, arch=self.arch)
         self.link.pick = self.pick
 
+    def tearDown(self):
+        del self.link
+
     def check_call(self):
         xp = self.link.xp
 

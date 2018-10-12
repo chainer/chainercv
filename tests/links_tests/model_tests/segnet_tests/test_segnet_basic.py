@@ -19,6 +19,9 @@ class TestSegNetBasic(unittest.TestCase):
         self.n_class = 10
         self.link = SegNetBasic(n_class=self.n_class)
 
+    def tearDown(self):
+        del self.link
+
     def check_call(self):
         xp = self.link.xp
         x = chainer.Variable(xp.random.uniform(
