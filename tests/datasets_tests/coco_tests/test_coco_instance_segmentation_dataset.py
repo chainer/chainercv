@@ -41,9 +41,6 @@ class TestCOCOInstanceSegmentationDataset(unittest.TestCase):
             use_crowded=self.use_crowded, return_crowded=self.return_crowded,
             return_area=self.return_area)
 
-    def tearDown(self):
-        del self.dataset
-
     @attr.slow
     @unittest.skipUnless(_available, 'pycocotools is not installed')
     def test_coco_instance_segmentation_dataset(self):
