@@ -36,9 +36,6 @@ class TestVOCBboxDataset(unittest.TestCase):
             return_difficult=self.return_difficult)
         self.n_out = 4 if self.return_difficult else 3
 
-    def tearDown(self):
-        del self.dataset
-
     @attr.slow
     def test_as_bbox_dataset(self):
         assert_is_bbox_dataset(

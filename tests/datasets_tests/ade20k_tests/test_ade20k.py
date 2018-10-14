@@ -20,9 +20,6 @@ class TestADE20KSemanticSegmentationDataset(unittest.TestCase):
     def setUp(self):
         self.dataset = ADE20KSemanticSegmentationDataset(split=self.split)
 
-    def tearDown(self):
-        del self.dataset
-
     @attr.slow
     def test_ade20k_dataset(self):
         assert_is_semantic_segmentation_dataset(
@@ -34,9 +31,6 @@ class TestADE20KTestImageDataset(unittest.TestCase):
 
     def setUp(self):
         self.dataset = ADE20KTestImageDataset()
-
-    def tearDown(self):
-        del self.dataset
 
     @attr.slow
     def test_ade20k_dataset(self):

@@ -18,9 +18,6 @@ class TestYOLOv3(unittest.TestCase):
         self.insize = 416
         self.n_bbox = (13 * 13 + 26 * 26 + 52 * 52) * 3
 
-    def tearDown(self):
-        del self.link
-
     def _check_call(self):
         x = self.link.xp.array(
             np.random.uniform(-1, 1, size=(1, 3, self.insize, self.insize)),

@@ -8,7 +8,8 @@ from chainer.testing import attr
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 from chainercv.utils import generate_random_bbox
 
-from dummy_faster_rcnn import DummyFasterRCNN
+from tests.links_tests.model_tests.faster_rcnn_tests.dummy_faster_rcnn \
+    import DummyFasterRCNN
 
 
 def _random_array(shape):
