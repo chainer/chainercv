@@ -56,3 +56,6 @@ class TestPixelwiseSoftmaxClassifier(unittest.TestCase):
     def test_call_gpu(self):
         self.link.to_gpu()
         self._check_call()
+
+
+testing.run_module(__name__, __file__)
