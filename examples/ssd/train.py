@@ -111,6 +111,7 @@ def main():
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--out', default='result')
     parser.add_argument('--resume')
+    parser.add_argument('--short', action='store_true')
     args = parser.parse_args()
 
     if args.model == 'ssd300':
@@ -153,10 +154,12 @@ def main():
 
     updater = training.updaters.StandardUpdater(
         train_iter, optimizer, device=args.gpu)
-    trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
+    trainer = training.Trainer(
+        updater, (120000 if not args.short else 12, 'iteration'), args.out)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1, init=1e-3),
-        trigger=triggers.ManualScheduleTrigger([80000, 100000], 'iteration'))
+        trigger=triggers.ManualScheduleTrigger(
+            [80000, 100000] if not args.short else [8, 10], 'iteration'))
 
     trainer.extend(
         DetectionVOCEvaluator(
@@ -174,10 +177,12 @@ def main():
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
-    trainer.extend(extensions.snapshot(), trigger=(10000, 'iteration'))
+    trainer.extend(
+        extensions.snapshot(),
+        trigger=(10000 if not args.short else 1, 'iteration'))
     trainer.extend(
         extensions.snapshot_object(model, 'model_iter_{.updater.iteration}'),
-        trigger=(120000, 'iteration'))
+        trigger=(120000 if not args.short else 12, 'iteration'))
 
     if args.resume:
         serializers.load_npz(args.resume, trainer)
