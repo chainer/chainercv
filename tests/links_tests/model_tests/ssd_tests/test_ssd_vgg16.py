@@ -23,9 +23,6 @@ class TestSSDVGG16(unittest.TestCase):
             self.link = SSD512(n_fg_class=self.n_fg_class)
             self.n_bbox = 24564
 
-    def tearDown(self):
-        del self.link
-
     def _check_call(self):
         x = self.link.xp.array(
             np.random.uniform(-1, 1, size=(1, 3, self.insize, self.insize)),

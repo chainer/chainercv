@@ -18,9 +18,6 @@ class TestVOCInstanceSegmentationDataset(unittest.TestCase):
     def setUp(self):
         self.dataset = VOCInstanceSegmentationDataset(split=self.split)
 
-    def tearDown(self):
-        del self.dataset
-
     @attr.slow
     def test_voc_instance_segmentation_dataset(self):
         assert_is_instance_segmentation_dataset(
