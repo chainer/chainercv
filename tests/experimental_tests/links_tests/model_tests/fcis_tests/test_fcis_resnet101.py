@@ -33,9 +33,6 @@ class TestFCISResNet101(unittest.TestCase):
 
         chainer.config.train = self.train
 
-    def tearDown(self):
-        del self.link
-
     def check_call(self):
         xp = self.link.xp
 
