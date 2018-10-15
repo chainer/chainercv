@@ -149,7 +149,7 @@ def main():
     warmup_iter = 5 * len(train_data) // args.batchsize  # 5 epochs
     trainer.extend(
         extensions.LinearShift(
-            'lr', value_range=(0, lr), time_range=(0, warmup_iter)),
+            'lr', value_range=(lr / comm.size, lr), time_range=(0, warmup_iter)),
         trigger=chainer.training.triggers.ManualScheduleTrigger(
             list(range(warmup_iter + 1)), 'epoch'))
     trainer.extend(extensions.ExponentialShift('lr', 0.1),
