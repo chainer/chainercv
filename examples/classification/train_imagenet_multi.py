@@ -147,11 +147,13 @@ def main():
     trainer = training.Trainer(
         updater, (args.epoch, 'epoch'), out=args.out)
     warmup_iter = 5 * len(train_data) // args.batchsize  # 5 epochs
+    warmup_mult = min((8 / comm.size, 1))
     trainer.extend(
         extensions.LinearShift(
-            'lr', value_range=(lr / comm.size, lr), time_range=(0, warmup_iter)),
+            'lr', value_range=(lr * warmup_mult, lr),
+            time_range=(0, warmup_iter)),
         trigger=chainer.training.triggers.ManualScheduleTrigger(
-            list(range(warmup_iter + 1)), 'epoch'))
+            list(range(warmup_iter + 1)), 'iteration'))
     trainer.extend(extensions.ExponentialShift('lr', 0.1),
                    trigger=chainer.training.triggers.ManualScheduleTrigger(
                        [30, 60, 80], 'epoch'))
