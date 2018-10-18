@@ -27,6 +27,9 @@ from chainercv.links import ResNet50
 
 import chainermn
 
+import cv2
+cv2.setNumThreads(2)
+
 
 class TrainTransform(object):
 
@@ -56,6 +59,9 @@ class ValTransform(object):
         return img, label
 
 
+import multiprocessing
+
+
 def main():
     archs = {
         'resnet50': {'class': ResNet50, 'score_layer_name': 'fc6',
@@ -83,6 +89,19 @@ def main():
     parser.add_argument('--out', type=str, default='result')
     parser.add_argument('--epoch', type=int, default=90)
     args = parser.parse_args()
+
+    # We need to change the start method of multiprocessing module if we are
+    # using InfiniBand and MultiprocessIterator. This is because processes
+    # often crash when calling fork if they are using Infiniband.
+    # (c.f., https://www.open-mpi.org/faq/?category=tuning#fork-warning )
+    # Also, just setting the start method does not seem to be sufficient
+    # to actually launch the forkserver, so also start a dummy process.
+    # This must be done *before* calling `chainermn.create_communicator`!!!
+    multiprocessing.set_start_method('forkserver')
+    # TODO make this silent
+    p = multiprocessing.Process(target=print, args=('Initialize forkserver',))
+    p.start()
+    p.join()
 
     comm = chainermn.create_communicator(args.communicator)
     device = comm.intra_rank
