@@ -20,4 +20,5 @@ from chainercv.links.model.ssd import SSD300  # NOQA
 from chainercv.links.model.ssd import SSD512  # NOQA
 from chainercv.links.model.vgg import VGG16  # NOQA
 from chainercv.links.model.yolo import YOLOv2  # NOQA
+from chainercv.links.model.yolo import YOLOv2Tiny  # NOQA
 from chainercv.links.model.yolo import YOLOv3  # NOQA
