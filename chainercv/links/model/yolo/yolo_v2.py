@@ -70,7 +70,7 @@ class YOLOv2Base(YOLOBase):
         self.use_preset('visualize')
 
         with self.init_scope():
-            self.extractor = self._extractorDarknet19Extractor()
+            self.extractor = self._extractor()
             self.subnet = Convolution2D(
                 len(self._anchors) * (4 + 1 + self.n_fg_class), 1)
 
