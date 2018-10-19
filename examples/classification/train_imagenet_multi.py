@@ -1,5 +1,6 @@
 from __future__ import division
 import argparse
+import multiprocessing
 
 import chainer
 from chainer.datasets import TransformDataset
@@ -26,9 +27,6 @@ from chainercv.links import ResNet152
 from chainercv.links import ResNet50
 
 import chainermn
-
-import cv2
-cv2.setNumThreads(2)
 
 
 class TrainTransform(object):
@@ -57,9 +55,6 @@ class ValTransform(object):
         img = center_crop(img, (224, 224))
         img -= self.mean
         return img, label
-
-
-import multiprocessing
 
 
 def main():
