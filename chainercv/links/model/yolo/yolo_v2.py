@@ -259,7 +259,7 @@ class DarknetExtractor(chainer.ChainList):
         super(DarknetExtractor, self).__init__()
 
         # Darknet
-        for k in range(6):
+        for k in range(7):
             self.append(Conv2DBNActiv(16 << k, 3, pad=1, activ=_leaky_relu))
 
         # additional link
