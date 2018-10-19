@@ -7,7 +7,8 @@ from chainer.testing import attr
 
 from chainercv.utils import assert_is_detection_link
 
-from dummy_faster_rcnn import DummyFasterRCNN
+from tests.links_tests.model_tests.faster_rcnn_tests.dummy_faster_rcnn \
+    import DummyFasterRCNN
 
 
 def _random_array(xp, shape):

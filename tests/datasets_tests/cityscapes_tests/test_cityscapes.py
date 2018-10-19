@@ -50,7 +50,6 @@ class TestCityscapesSemanticSegmentationDataset(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
-        del self.dataset
 
     def test_ignore_labels(self):
         for _, label_orig in self.dataset:
@@ -82,7 +81,6 @@ class TestCityscapesTestImageDataset(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
-        del self.dataset
 
     @attr.slow
     def test_cityscapes_dataset(self):
