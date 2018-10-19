@@ -23,7 +23,9 @@ def _maxpool(x, ksize, stride=None):
         stride = ksize
 
     h = F.max_pooling_2d(x, ksize, stride=stride, pad=ksize - stride)
-    return h[:, :, ksize - stride:, ksize - stride:]
+    if ksize > stride:
+        h = h[:, :, ksize - stride:, ksize - stride:]
+    return h
 
 
 def _reorg(x):
