@@ -173,7 +173,7 @@ def main():
             time_range=(0, warmup_iter)),
         trigger=chainer.training.triggers.ManualScheduleTrigger(
             list(range(warmup_iter + 1)), 'iteration'))
-    trainer.extend(extensions.ExponentialShift('lr', 0.1),
+    trainer.extend(extensions.ExponentialShift('lr', 0.1, init=lr),
                    trigger=chainer.training.triggers.ManualScheduleTrigger(
                        [30, 60, 80], 'epoch'))
     evaluator = chainermn.create_multi_node_evaluator(
