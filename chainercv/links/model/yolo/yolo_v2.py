@@ -30,34 +30,10 @@ def _reorg(x):
 
 
 class YOLOv2Base(YOLOBase):
-    """YOLOv2.
+    """Base class for YOLOv2 and YOLOv2Tiny.
 
-    This is a model of YOLOv2 [#]_.
-    This model uses :class:`~chainercv.links.model.yolo.Darknet19Extractor` as
-    its feature extractor.
-
-    .. [#] Joseph Redmon, Ali Farhadi.
-       YOLO9000: Better, Faster, Stronger. CVPR 2017.
-
-    Args:
-        n_fg_class (int): The number of classes excluding the background.
-        pretrained_model (string): The weight file to be loaded.
-            This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
-            The default value is :obj:`None`.
-
-            * :obj:`'voc0712'`: Load weights trained on trainval split of \
-                PASCAL VOC 2007 and 2012. \
-                The weight file is downloaded and cached automatically. \
-                :obj:`n_fg_class` must be :obj:`20` or :obj:`None`. \
-                These weights were converted from the darknet model \
-                provided by `the original implementation \
-                <https://pjreddie.com/darknet/yolov2/>`_. \
-                The conversion code is \
-                `chainercv/examples/yolo/darknet2npz.py`.
-            * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
-                must be specified properly.
-            * :obj:`None`: Do not load weights.
-
+    An inheriting of this class should have :obj:`_extractor`,
+    :obj:`_models`, and :obj:`_anchors`.
     """
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
