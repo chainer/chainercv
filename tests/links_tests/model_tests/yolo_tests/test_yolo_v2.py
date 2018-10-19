@@ -6,15 +6,17 @@ from chainer import testing
 from chainer.testing import attr
 
 from chainercv.links import YOLOv2
+from chainercv.links import YOLOv2Tiny
 
 
 @testing.parameterize(*testing.product({
+    'model': [YOLOv2, YOLOv2Tiny],
     'n_fg_class': [1, 5, 20],
 }))
 class TestYOLOv2(unittest.TestCase):
 
     def setUp(self):
-        self.link = YOLOv2(n_fg_class=self.n_fg_class)
+        self.link = self.model(n_fg_class=self.n_fg_class)
         self.insize = 416
         self.n_bbox = 13 * 13 * 5
 
@@ -49,6 +51,7 @@ class TestYOLOv2(unittest.TestCase):
 
 
 @testing.parameterize(*testing.product({
+    'model': [YOLOv2, YOLOv2Tiny],
     'n_fg_class': [None, 10, 20],
     'pretrained_model': ['voc0712'],
 }))
@@ -65,10 +68,10 @@ class TestYOLOv2Pretrained(unittest.TestCase):
             valid = self.n_fg_class in {None, 20}
 
         if valid:
-            YOLOv2(**kwargs)
+            self.model(**kwargs)
         else:
             with self.assertRaises(ValueError):
-                YOLOv2(**kwargs)
+                self.model(**kwargs)
 
 
 testing.run_module(__name__, __file__)
