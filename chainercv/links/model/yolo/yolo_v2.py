@@ -18,8 +18,12 @@ def _leaky_relu(x):
     return F.leaky_relu(x, slope=0.1)
 
 
-def _maxpool(x):
-    return F.max_pooling_2d(x, 2)
+def _maxpool(x, ksize, stride=None):
+    if stride is None:
+        stride = ksize
+
+    h = F.max_pooling_2d(x, ksize, stride=stride, pad=ksize - stride)
+    return h[:, :, ksize - stride:, ksize - stride:]
 
 
 def _reorg(x):
@@ -191,7 +195,7 @@ class Darknet19Extractor(chainer.ChainList):
             elif i == 20:
                 h = F.concat((_reorg(h), tmp))
             if i in {0, 1, 4, 7, 12}:
-                h = _maxpool(h)
+                h = _maxpool(h, 2)
         return h
 
 
@@ -280,7 +284,9 @@ class DarknetExtractor(chainer.ChainList):
         for i, link in enumerate(self):
             h = link(h)
             if i < 5:
-                h = _maxpool(h)
+                h = _maxpool(h, 2)
+            elif i == 5:
+                h = _maxpool(h, 2, stride=1)
         return h
 
 
