@@ -42,9 +42,9 @@ $ python eval_imagenet.py <path_to_val_dataset> [--model vgg16|resnet50|resnet10
 ## Training Models
 
 Training with multiple GPUs. Please install ChainerMN to use this feature.
-Please consult the full list of arguments with `python train_imagenet_mn.py -h`.
+Please consult the full list of arguments with `python train_imagenet_multi.py -h`.
 ```
-$ mpiexec -n N python train_imagenet_mn.py <path_to_train_dataset> <path_to_val_dataset>
+$ mpiexec -n N python train_imagenet_multi.py <path_to_train_dataset> <path_to_val_dataset>
 ```
 
 ##### Performance tip

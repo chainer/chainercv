@@ -7,6 +7,7 @@ from chainer.datasets import TransformDataset
 from chainer import iterators
 from chainer.links import Classifier
 from chainer.optimizer import WeightDecay
+from chainer.optimizers import CorrectedMomentumSGD
 from chainer import training
 from chainer.training import extensions
 
@@ -20,7 +21,6 @@ from chainercv.transforms import scale
 
 from chainercv.datasets import directory_parsing_label_names
 
-from chainercv.chainer_experimental.optimizers import CorrectedMomentumSGD
 from chainercv.links.model.resnet import Bottleneck
 from chainercv.links import ResNet101
 from chainercv.links import ResNet152
@@ -85,16 +85,10 @@ def main():
     parser.add_argument('--epoch', type=int, default=90)
     args = parser.parse_args()
 
-    # We need to change the start method of multiprocessing module if we are
-    # using InfiniBand and MultiprocessIterator. This is because processes
-    # often crash when calling fork if they are using Infiniband.
-    # (c.f., https://www.open-mpi.org/faq/?category=tuning#fork-warning )
-    # Also, just setting the start method does not seem to be sufficient
-    # to actually launch the forkserver, so also start a dummy process.
-    # This must be done *before* calling `chainermn.create_communicator`!!!
+    # This fixes a crash caused by a bug with multiprocessing and MPI.
     multiprocessing.set_start_method('forkserver')
-    # TODO make this silent
-    p = multiprocessing.Process(target=print, args=('Initialize forkserver',))
+    p = multiprocessing.Process(
+        target=print, args=('Initialize forkserver',))  # NOQA
     p.start()
     p.join()
 
