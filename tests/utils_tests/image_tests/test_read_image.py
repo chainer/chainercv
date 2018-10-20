@@ -2,19 +2,84 @@ import numpy as np
 import tempfile
 import unittest
 
+import chainer
 from chainer import testing
 
 from chainercv.utils import read_image
 from chainercv.utils import write_image
+
+try:
+    import cv2  # NOQA
+    _cv2_available = True
+except ImportError:
+    _cv2_available = False
+
+
+def _create_paramters():
+    params = testing.product({
+        'size': [(48, 32)],
+        'color': [True, False],
+        'suffix': ['bmp', 'jpg', 'png'],
+        'dtype': [np.float32, np.uint8, bool],
+    })
+    if _cv2_available:
+        backend_params = {'backend': ['cv2', 'PIL']}
+    else:
+        backend_params = {'backend': ['PIL']}
+    params = testing.product_dict(params, testing.product(backend_params))
+    return params
+
+
+@testing.parameterize(*_create_paramters())
+class TestReadImage(unittest.TestCase):
+
+    def setUp(self):
+        chainer.config.cv_read_image_backend = self.backend
+
+        self.file = tempfile.NamedTemporaryFile(
+            suffix='.' + self.suffix, delete=False)
+        self.path = self.file.name
+
+        if self.color:
+            self.img = np.random.randint(
+                0, 255, size=(3,) + self.size, dtype=np.uint8)
+        else:
+            self.img = np.random.randint(
+                0, 255, size=(1,) + self.size, dtype=np.uint8)
+        write_image(self.img, self.path)
+
+    def test_read_image_as_color(self):
+        img = read_image(self.path, dtype=self.dtype)
+
+        self.assertEqual(img.shape, (3,) + self.size)
+        self.assertEqual(img.dtype, self.dtype)
+
+        if self.suffix in {'bmp', 'png'}:
+            np.testing.assert_equal(
+                img,
+                np.broadcast_to(self.img, (3,) + self.size).astype(self.dtype))
+
+    def test_read_image_as_grayscale(self):
+        img = read_image(self.path, dtype=self.dtype, color=False)
+
+        self.assertEqual(img.shape, (1,) + self.size)
+        self.assertEqual(img.dtype, self.dtype)
+
+        if self.suffix in {'bmp', 'png'} and not self.color:
+            np.testing.assert_equal(img, self.img.astype(self.dtype))
+
+    def test_read_image_mutable(self):
+        img = read_image(self.path)
+        img[:] = 0
+        np.testing.assert_equal(img, 0)
 
 
 @testing.parameterize(*testing.product({
     'size': [(48, 32)],
     'color': [True, False],
     'suffix': ['bmp', 'jpg', 'png'],
-    'dtype': [np.float32, np.uint8, bool],
-}))
-class TestReadImage(unittest.TestCase):
+    'dtype': [np.float32, np.uint8, bool]}))
+class TestReadImageDifferentBackends(unittest.TestCase):
 
     def setUp(self):
         self.file = tempfile.NamedTemporaryFile(
@@ -29,36 +94,19 @@ class TestReadImage(unittest.TestCase):
                 0, 255, size=(1,) + self.size, dtype=np.uint8)
         write_image(self.img, self.path)
 
-    def test_read_image_as_color(self):
-        if self.dtype == np.float32:
-            img = read_image(self.path)
+    @unittest.skipUnless(_cv2_available, 'cv2 is not installed')
+    def test_read_image_different_backends_as_color(self):
+        chainer.config.cv_read_image_backend = 'cv2'
+        cv2_img = read_image(self.path, dtype=self.dtype, color=True)
+
+        chainer.config.cv_read_image_backend = 'PIL'
+        pil_img = read_image(self.path, dtype=self.dtype, color=True)
+
+        if self.suffix != 'jpg':
+            np.testing.assert_almost_equal(cv2_img, pil_img)
         else:
-            img = read_image(self.path, dtype=self.dtype)
-
-        self.assertEqual(img.shape, (3,) + self.size)
-        self.assertEqual(img.dtype, self.dtype)
-
-        if self.suffix in {'bmp', 'png'}:
-            np.testing.assert_equal(
-                img,
-                np.broadcast_to(self.img, (3,) + self.size).astype(self.dtype))
-
-    def test_read_image_as_grayscale(self):
-        if self.dtype == np.float32:
-            img = read_image(self.path, color=False)
-        else:
-            img = read_image(self.path, dtype=self.dtype, color=False)
-
-        self.assertEqual(img.shape, (1,) + self.size)
-        self.assertEqual(img.dtype, self.dtype)
-
-        if self.suffix in {'bmp', 'png'} and not self.color:
-            np.testing.assert_equal(img, self.img.astype(self.dtype))
-
-    def test_read_image_mutable(self):
-        img = read_image(self.path)
-        img[:] = 0
-        np.testing.assert_equal(img, 0)
+            # jpg decoders are differnet, so they produce different results
+            assert np.mean(cv2_img == pil_img) > 0.99
 
 
 testing.run_module(__name__, __file__)
