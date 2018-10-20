@@ -87,8 +87,7 @@ def main():
 
     # This fixes a crash caused by a bug with multiprocessing and MPI.
     multiprocessing.set_start_method('forkserver')
-    p = multiprocessing.Process(
-        target=print, args=('Initialize forkserver',))  # NOQA
+    p = multiprocessing.Process()
     p.start()
     p.join()
 
