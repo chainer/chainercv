@@ -2,6 +2,7 @@ import numpy as np
 import unittest
 
 import chainer
+from chainer import testing
 
 from chainercv.experimental.links.model.fcis.utils.mask_voting \
     import mask_voting
@@ -49,3 +50,6 @@ class TestMaskVoting(unittest.TestCase):
         self.check_mask_voting(
             self.roi_mask_prob, self.bbox, self.roi_prob,
             self.size, self.bg_label, self.roi_size)
+
+
+testing.run_module(__name__, __file__)
