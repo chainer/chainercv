@@ -6,9 +6,9 @@ from chainercv.utils import download_model
 
 try:
     import cv2  # NOQA
-    _available = True
+    _cv2_available = True
 except ImportError:
-    _available = False
+    _cv2_available = False
 
 
 def prepare_pretrained_model(param, pretrained_model, models, default={}):
@@ -55,7 +55,7 @@ def prepare_pretrained_model(param, pretrained_model, models, default={}):
         path = download_model(model['url'])
 
         if model.get('cv2', False):
-            if not _available:
+            if not _cv2_available:
                 warnings.warn(
                     'cv2 is not installed on your environment. '
                     'The pretrained model is trained with cv2. '
