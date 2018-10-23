@@ -113,10 +113,10 @@ class SiameseDataset(GetterDataset):
                 if labels_1 is None:
                     labels_1 = np.array([example[1] for example in dataset_1])
 
-            if not (labels_0.dtype == np.int32 and labels_0.ndim == 1
-                    and len(labels_0) == len(dataset_0) and
-                    labels_1.dtype == np.int32 and labels_1.ndim == 1
-                    and len(labels_1) == len(dataset_1)):
+            if not (labels_0.dtype == np.int32 and labels_0.ndim == 1 and
+                    len(labels_0) == len(dataset_0) and
+                    labels_1.dtype == np.int32 and labels_1.ndim == 1 and
+                    len(labels_1) == len(dataset_1)):
                 raise ValueError('the labels are invalid.')
 
             # Construct mapping label->idx
