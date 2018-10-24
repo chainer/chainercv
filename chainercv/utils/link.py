@@ -68,7 +68,7 @@ def prepare_pretrained_model(param, pretrained_model, models, default={}):
                     'setting does not use cv2 as the backend of resize '
                     'function. The performance may change due to using '
                     'different backends. To suppress this warning, set '
-                    '`chainer.config.cv_resize_backend = "cv2".'
+                    '`chainer.config.cv_resize_backend = "cv2".',
                     RuntimeWarning)
     elif pretrained_model:
         path = pretrained_model
