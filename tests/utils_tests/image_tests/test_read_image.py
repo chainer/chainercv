@@ -15,22 +15,13 @@ except ImportError:
     _cv2_available = False
 
 
-def _create_paramters():
-    params = testing.product({
-        'size': [(48, 32)],
-        'color': [True, False],
-        'suffix': ['bmp', 'jpg', 'png'],
-        'dtype': [np.float32, np.uint8, bool],
-    })
-    if _cv2_available:
-        backend_params = {'backend': ['cv2', 'PIL']}
-    else:
-        backend_params = {'backend': ['PIL']}
-    params = testing.product_dict(params, testing.product(backend_params))
-    return params
-
-
-@testing.parameterize(*_create_paramters())
+@testing.parameterize(*testing.product({
+    'size': [(48, 32)],
+    'color': [True, False],
+    'suffix': ['bmp', 'jpg', 'png'],
+    'dtype': [np.float32, np.uint8, bool],
+    'backend': ['cv2', 'PIL'],
+}))
 class TestReadImage(unittest.TestCase):
 
     def setUp(self):

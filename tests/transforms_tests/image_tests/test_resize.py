@@ -7,29 +7,12 @@ import chainer
 from chainer import testing
 from chainercv.transforms import resize
 
-try:
-    import cv2  # NOQA
-    _cv2_available = True
-except ImportError:
-    _cv2_available = False
 
-
-def _create_paramters():
-    params = [
-        {'interpolation': PIL.Image.NEAREST},
-        {'interpolation': PIL.Image.BILINEAR},
-        {'interpolation': PIL.Image.BICUBIC},
-        {'interpolation': PIL.Image.LANCZOS}]
-
-    if _cv2_available:
-        backend_params = {'backend': ['cv2', 'PIL']}
-    else:
-        backend_params = {'backend': ['PIL']}
-    params = testing.product_dict(params, testing.product(backend_params))
-    return params
-
-
-@testing.parameterize(*_create_paramters())
+@testing.parameterize(*testing.product({
+    'interpolation': [PIL.Image.NEAREST, PIL.Image.BILINEAR,
+                      PIL.Image.BICUBIC, PIL.Image.LANCZOS],
+    'backend': ['cv2', 'PIL'],
+}))
 class TestResize(unittest.TestCase):
 
     def test_resize_color(self):
