@@ -85,44 +85,15 @@ class CUBDatasetBase(GetterDataset):
         return len(self.paths)
 
     def get_image(self, i):
-        """Returns the i-th image.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            An image.
-            The image is in CHW format and its color channel is ordered in
-            RGB.
-
-        """
         img = utils.read_image(
             os.path.join(self.data_dir, 'images', self.paths[i]),
             color=True)
         return img
 
     def get_bb(self, i):
-        """Returns the bounding box of the i-th example.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            A bounding box.
-
-        """
         return self.bbs[i]
 
     def get_prob_map(self, i):
-        """Returns the probability map of the i-th example.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            A probability map.
-
-        """
         prob_map = utils.read_image(self.prob_map_paths[i],
                                     dtype=np.uint8, color=False)
         prob_map = prob_map.astype(np.float32) / 255  # [0, 255] -> [0, 1]
