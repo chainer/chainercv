@@ -86,5 +86,8 @@ class CUBPointDataset(CUBDatasetBase):
         mask = np.array(self._mask_dict[i], dtype=np.bool)
 
         _, H, W = img.shape
-        mask[np.logical_or(point[:, 0] > H, point[:, 1] > W)] = False
+        invalid = np.logical_or(
+            np.logical_or(point[:, 0] > H, point[:, 1] > W),
+            np.any(point < 0, axis=1))
+        mask[invalid] = False
         return img, point, mask
