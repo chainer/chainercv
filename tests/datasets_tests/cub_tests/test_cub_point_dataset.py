@@ -21,7 +21,7 @@ class TestCUBPointDataset(unittest.TestCase):
                                        return_prob_map=self.return_prob_map)
 
     @attr.slow
-    def test_camvid_dataset(self):
+    def test_cub_point_dataset(self):
         assert_is_point_dataset(
             self.dataset, n_point=15, n_example=10)
 
