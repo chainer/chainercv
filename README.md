@@ -46,7 +46,7 @@ For additional features
 + OpenCV
 + SciPy
 + mpi4py
-+ pycocotools
++ [pycocotools](https://github.com/cocodataset/cocoapi/tree/master/PythonAPI/pycocotools)
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
 
