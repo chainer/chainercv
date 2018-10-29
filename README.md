@@ -45,6 +45,8 @@ For additional features
 + Matplotlib
 + OpenCV
 + SciPy
++ mpi4py
++ pycocotools
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
 
@@ -53,6 +55,7 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
     + `0.4.11` (for Chainer v1). It can be installed by `pip install chainercv==0.4.11`.
     + `0.7` (for Chainer v2). It can be installed by `pip install chainercv==0.7`.
     + `0.8` (for Chainer v3). It can be installed by `pip install chainercv==0.8`.
+    + `0.10` (for Chainer v4). It can be installed by `pip install chainercv==0.10`.
 
 # Data Conventions
 
