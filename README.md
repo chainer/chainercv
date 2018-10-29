@@ -42,7 +42,6 @@ The instruction on installation using Anaconda is [here](http://chainercv.readth
 
 For additional features
 
-+ [ChainerMN](https://github.com/chainer/chainermn)
 + Matplotlib
 + OpenCV
 + SciPy
