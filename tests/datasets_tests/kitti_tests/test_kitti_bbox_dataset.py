@@ -13,7 +13,6 @@ from chainercv.utils import assert_is_bbox_dataset
     {
         'date': '2011_09_26',
         'drive_num': '0001',
-        'color': True,
         'sync': True,
         'is_left': True,
         'tracklet': True
@@ -21,7 +20,6 @@ from chainercv.utils import assert_is_bbox_dataset
     {
         'date': '2011_09_26',
         'drive_num': '0001',
-        'color': True,
         'sync': False,
         'is_left': True,
         'tracklet': True
@@ -29,7 +27,6 @@ from chainercv.utils import assert_is_bbox_dataset
     # {
     #     'date': '2011_09_26',
     #     'drive_num': '0001',
-    #     'color': False,
     #     'sync': True,
     #     'is_left': True,
     #     'tracklet': True
@@ -37,7 +34,6 @@ from chainercv.utils import assert_is_bbox_dataset
     {
         'date': '2011_09_26',
         'drive_num': '0001',
-        'color': True,
         'sync': True,
         'is_left': False,
         'tracklet': True
@@ -46,7 +42,6 @@ from chainercv.utils import assert_is_bbox_dataset
     # {
     #     'date': '2011_09_26',
     #     'drive_num': '0001',
-    #     'color': True,
     #     'sync': True,
     #     'is_left': True,
     #     'tracklet': False
@@ -55,7 +50,6 @@ from chainercv.utils import assert_is_bbox_dataset
     # {
     #     'date': '2011_09_26',
     #     'drive_num': '0009',
-    #     'color': True,
     #     'sync': True,
     #     'is_left': True,
     #     'tracklet': True
@@ -64,7 +58,6 @@ from chainercv.utils import assert_is_bbox_dataset
     # {
     #     'date': '2011_09_26',
     #     'drive_num': '0017',
-    #     'color': True,
     #     'sync': True,
     #     'is_left': True,
     #     'tracklet': True
@@ -72,7 +65,6 @@ from chainercv.utils import assert_is_bbox_dataset
     {
         'date': '2011_09_26',
         'drive_num': '0056',
-        'color': True,
         'sync': True,
         'is_left': True,
         'tracklet': True
@@ -80,7 +72,6 @@ from chainercv.utils import assert_is_bbox_dataset
     {
         'date': '2011_09_26',
         'drive_num': '0057',
-        'color': True,
         'sync': True,
         'is_left': True,
         'tracklet': True
@@ -89,7 +80,6 @@ from chainercv.utils import assert_is_bbox_dataset
     # {
     #     'date': '2011_09_28',
     #     'drive_num': '0001',
-    #     'color': True,
     #     'sync': True,
     #     'is_left': True,
     #     'tracklet': False
@@ -98,7 +88,6 @@ from chainercv.utils import assert_is_bbox_dataset
     {
         'date': '2011_09_26',
         'drive_num': '0064',
-        'color': True,
         'sync': True,
         'is_left': True,
         'tracklet': True
@@ -107,7 +96,6 @@ from chainercv.utils import assert_is_bbox_dataset
     {
         'date': '2011_09_26',
         'drive_num': '0032',
-        'color': True,
         'sync': True,
         'is_left': True,
         'tracklet': True
@@ -115,7 +103,6 @@ from chainercv.utils import assert_is_bbox_dataset
     {
         'date': '2011_09_26',
         'drive_num': '0052',
-        'color': True,
         'sync': True,
         'is_left': True,
         'tracklet': True
@@ -124,7 +111,6 @@ from chainercv.utils import assert_is_bbox_dataset
     # {
     #     'date': '2011_10_03',
     #     'drive_num': '0047',
-    #     'color': True,
     #     'sync': True,
     #     'is_left': True,
     #     'tracklet': True
@@ -134,7 +120,6 @@ from chainercv.utils import assert_is_bbox_dataset
     # {
     #     'date': '2011_09_28',
     #     'drive_num': '0016',
-    #     'color': True,
     #     'sync': True,
     #     'is_left': True,
     #     'tracklet': True
@@ -144,7 +129,6 @@ from chainercv.utils import assert_is_bbox_dataset
     # {
     #     'date': '2011_09_28',
     #     'drive_num': '0053',
-    #     'color': True,
     #     'sync': True,
     #     'is_left': True,
     #     'tracklet': True
@@ -156,7 +140,6 @@ class TestKITTIBboxDataset(unittest.TestCase):
         self.dataset = KITTIBboxDataset(
             date=self.date,
             drive_num=self.drive_num,
-            color=self.color,
             sync=self.sync,
             is_left=self.is_left,
             tracklet=self.tracklet)
