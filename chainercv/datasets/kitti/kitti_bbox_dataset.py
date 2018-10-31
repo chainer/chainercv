@@ -24,7 +24,7 @@ from chainercv.datasets.kitti.kitti_utils import get_kitti_nosync_data
 from chainercv.datasets.kitti.kitti_utils import get_kitti_sync_data
 from chainercv.datasets.kitti.kitti_utils import get_kitti_tracklets
 from chainercv.datasets.kitti.kitti_utils import kitti_date_lists
-from chainercv.datasets.kitti.kitti_utils import kitti_date_num_dictionaries
+from chainercv.datasets.kitti.kitti_utils import kitti_date_num_dicts
 
 
 def _check_available():
@@ -55,9 +55,11 @@ class KITTIBboxDataset(GetterDataset):
     instances. Please see more detail in the Fig. ... (?) of the summary
     paper [#]_.
 
-    .. [#] Andreas Geiger and Philip Lenz and Christoph Stiller and Raquel Urtasun. \
+    .. [#] Andreas Geiger and Philip Lenz \
+         and Christoph Stiller and Raquel Urtasun. \
         `Vision meets Robotics: The KITTI Dataset \
-        <http://www.cvlibs.net/publications/Geiger2013IJRR.pdf>`_. Geiger2013IJRR.
+        <http://www.cvlibs.net/publications/Geiger2013IJRR.pdf>`_. \
+        Geiger2013IJRR.
 
 
     Args:
@@ -98,14 +100,14 @@ class KITTIBboxDataset(GetterDataset):
         self.is_left = is_left
 
         if date not in kitti_date_lists:
-            raise ValueError('\'date\' argment must be one of the ' + 
-                             str(date_lists) + 'values.')
+            raise ValueError('\'date\' argment must be one of the ' +
+                             str(kitti_date_lists) + 'values.')
 
         # date(key map)
         # if drive_num not in ['0001', '0002', ...]:
-        if drive_num not in kitti_date_num_dictionaries[date]:
-            raise ValueError('\'drive_num\' argment must be one of the ' + 
-                             str(kitti_date_num_dictionaries[date]) + 'values.')
+        if drive_num not in kitti_date_num_dicts[date]:
+            raise ValueError('\'drive_num\' argment must be one of the ' +
+                             str(kitti_date_num_dicts[date]) + 'values.')
 
         if date == '2011_09_26':
             self.tracklet = tracklet
@@ -128,8 +130,8 @@ class KITTIBboxDataset(GetterDataset):
             raise ValueError(
                 'kitti dataset does not exist at the expected location.'
                 'Please download it from http://www.cvlibs.net/datasets/kitti/'
-                'Then place directory "date + "_drive_" + drive_num" at {} and {} at {}.'.format(
-                    os.path.join(data_dir, 'date + "_drive_" + drive_num'), resol, label_dir))
+                'Then place directory at {}.'
+                .format(os.path.join(data_dir, date + '_drive_' + drive_num)))
 
         # use pykitti
         self.dataset = pykitti.raw(

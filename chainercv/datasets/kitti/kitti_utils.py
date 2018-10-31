@@ -252,7 +252,7 @@ kitti_ignore_bbox_label_color = (0, 0, 0)
 kitti_date_lists = ['2011_09_26', '2011_09_28',
                     '2011_09_29', '2011_09_30', '2011_10_03']
 
-kitti_date_num_dictionaries = {
+kitti_date_num_dicts = {
     # calibration date_num 0119(not nse)
     '2011_09_26': ['0001', '0002', '0005', '0009', '0011', '0013', '0014',
                    '0015', '0017', '0018', '0019', '0020', '0022', '0023',

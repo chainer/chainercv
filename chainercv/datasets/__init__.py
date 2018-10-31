@@ -23,7 +23,7 @@ from chainercv.datasets.kitti.kitti_bbox_dataset import KITTIBboxDataset  # NOQA
 from chainercv.datasets.kitti.kitti_utils import kitti_bbox_label_colors  # NOQA
 from chainercv.datasets.kitti.kitti_utils import kitti_bbox_label_names  # NOQA
 from chainercv.datasets.kitti.kitti_utils import kitti_date_lists  # NOQA
-from chainercv.datasets.kitti.kitti_utils import kitti_date_num_dictionaries  # NOQA
+from chainercv.datasets.kitti.kitti_utils import kitti_date_num_dicts  # NOQA
 from chainercv.datasets.kitti.kitti_utils import kitti_ignore_bbox_label_color  # NOQA
 from chainercv.datasets.kitti.parseTrackletXML import parseXML  # NOQA
 from chainercv.datasets.mixup_soft_label_dataset import MixUpSoftLabelDataset  # NOQA
