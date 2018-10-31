@@ -59,7 +59,7 @@ class YOLOBase(chainer.Chain):
 
            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
                where :math:`R` is the number of bounding boxes in a image. \
-               Each bouding box is organized by \
+               Each bounding box is organized by \
                :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \

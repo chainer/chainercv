@@ -49,7 +49,7 @@ class MultiboxCoder(object):
             Each integer indicates the size of a feature map.
         aspect_ratios (iterable of tuples of ints):
             An iterable of tuples of integers
-            used to compute the default bouding boxes.
+            used to compute the default bounding boxes.
             Each tuple indicates the aspect ratios of
             the default bounding boxes at each feature maps.
             The length of this iterable should be :obj:`len(grids)`.
@@ -117,7 +117,7 @@ class MultiboxCoder(object):
         Args:
             bbox (array): A float array of shape :math:`(R, 4)`,
                 where :math:`R` is the number of bounding boxes in an image.
-                Each bouding box is organized by
+                Each bounding box is organized by
                 :math:`(y_{min}, x_{min}, y_{max}, x_{max})`
                 in the second axis.
             label (array) : An integer array of shape :math:`(R,)`.
@@ -211,7 +211,7 @@ class MultiboxCoder(object):
 
             * **bbox**: A float array of shape :math:`(R, 4)`, \
                 where :math:`R` is the number of bounding boxes in a image. \
-                Each bouding box is organized by \
+                Each bounding box is organized by \
                 :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
                 in the second axis.
             * **label** : An integer array of shape :math:`(R,)`. \
