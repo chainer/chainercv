@@ -94,7 +94,7 @@ class TestReadImageDifferentBackends(unittest.TestCase):
         pil_img = read_image(self.path, dtype=self.dtype, color=True)
 
         if self.suffix != 'jpg':
-            np.testing.assert_almost_equal(cv2_img, pil_img)
+            np.testing.assert_equal(cv2_img, pil_img)
         else:
             # jpg decoders are differnet, so they produce different results
             assert np.mean(cv2_img == pil_img) > 0.99
