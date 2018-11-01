@@ -1,10 +1,9 @@
 from __future__ import division
 
-import math
 import numpy as np
 import random
 
-from chainercv.transforms.image.random_sized_crop import _sample_parameters
+from chainercv.transforms.image.random_sized_crop import random_sized_crop
 
 
 def random_erasing(img, prob=0.5,
@@ -79,22 +78,16 @@ def random_erasing(img, prob=0.5,
 
     """
     if random.uniform(0.0, 1.0) < prob:
-        _, H, W = img.shape
-        scale_ratio, aspect_ratio =\
-            _sample_parameters(
-                (H, W), scale_ratio_range, trial=100)
-
-        H_crop = int(math.floor(np.sqrt(scale_ratio * H * W * aspect_ratio)))
-        W_crop = int(math.floor(np.sqrt(scale_ratio * H * W / aspect_ratio)))
-        y_start = random.randint(0, H - H_crop)
-        x_start = random.randint(0, W - W_crop)
-        y_slice = slice(y_start, y_start + H_crop)
-        x_slice = slice(x_start, x_start + W_crop)
-
+        crop, params = random_sized_crop(img, scale_ratio_range,
+                                         aspect_ratio_range, return_param=True)
         if random_value:
-            img[:, y_slice, x_slice] = np.random.random((H_crop, W_crop)) * scale
+            crop[:] = np.random.random(crop.shape) * scale
         else:
-            img[:, y_slice, x_slice] = fixed_value[:, None, None]
+            crop[:] = fixed_value[:, None, None]
+        y_slice = params['y_slice']
+        x_slice = params['x_slice']
+        scale_ratio = params['scale_ratio']
+        aspect_ratio = params['aspect_ratio']
 
     else:
         y_slice = None
