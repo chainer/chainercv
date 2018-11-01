@@ -4,6 +4,7 @@ from chainercv.transforms.bbox.resize_bbox import resize_bbox  # NOQA
 from chainercv.transforms.bbox.rotate_bbox import rotate_bbox  # NOQA
 from chainercv.transforms.bbox.translate_bbox import translate_bbox  # NOQA
 from chainercv.transforms.image.center_crop import center_crop  # NOQA
+from chainercv.transforms.image.color_jitter import color_jitter  # NOQA
 from chainercv.transforms.image.flip import flip  # NOQA
 from chainercv.transforms.image.pca_lighting import pca_lighting  # NOQA
 from chainercv.transforms.image.random_crop import random_crop  # NOQA
