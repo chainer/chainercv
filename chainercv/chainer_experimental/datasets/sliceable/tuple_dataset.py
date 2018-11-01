@@ -13,18 +13,18 @@ class TupleDataset(SliceableDataset):
 
     >>> # omit keys
     >>> dataset = TupleDataset([0, 1, 2], [0, 1, 4])
-    >>> dataset.keys)  # (None, None)
+    >>> dataset.keys  # (None, None)
     >>> dataset.slice[:, 0][:]  # [0, 1, 2]
     >>>
     >>> dataset_more = TupleDataset(dataset, [0, 1, 8])
     >>> dataset_more.keys  # (None, None, None)
-    >>> dataset_more.slice[:, [1, 2]][:])  # [(0, 0), (1, 1), (4, 8)]
+    >>> dataset_more.slice[:, [1, 2]][:]  # [(0, 0), (1, 1), (4, 8)]
     >>>
     >>> # specify the name of a key
     >>> named_dataset = TupleDataset(('feat0', [0, 1, 2]), [0, 1, 4])
-    >>> named_dataset.keys)  # ('feat0', None)
+    >>> named_dataset.keys  # ('feat0', None)
     >>> # slice takes both key and index (or their mixture)
-    >>> named_dataset.slice[:, ['feat0', 1]][:])  # [(0, 0), (1, 1), (2, 4)]
+    >>> named_dataset.slice[:, ['feat0', 1]][:]  # [(0, 0), (1, 1), (2, 4)]
 
     Args:
         datasets: The underlying datasets.

@@ -23,7 +23,7 @@ Collection of Deep Learning Computer Vision Algorithms implemented in Chainer
 
 setup_requires = ['numpy']
 install_requires = [
-    'chainer>=4.0',
+    'chainer>=5.0',
     'Pillow'
 ]
 
@@ -104,7 +104,7 @@ cmdclass = {
 
 setup(
     name='chainercv',
-    version='0.10.0',
+    version='0.11.0',
     packages=find_packages(),
     author='Yusuke Niitani, Toru Ogawa',
     author_email='niitani@preferred.jp, ogawa@preferred.jp',
