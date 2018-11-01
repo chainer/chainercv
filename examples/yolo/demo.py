@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import chainer
 
 from chainercv.datasets import voc_bbox_label_names
+from chainercv.experimental.links import YOLOv2Tiny
 from chainercv.links import YOLOv2
-from chainercv.links import YOLOv2Tiny
 from chainercv.links import YOLOv3
 from chainercv import utils
 from chainercv.visualizations import vis_bbox

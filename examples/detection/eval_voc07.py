@@ -6,11 +6,11 @@ from chainer import iterators
 from chainercv.datasets import voc_bbox_label_names
 from chainercv.datasets import VOCBboxDataset
 from chainercv.evaluations import eval_detection_voc
+from chainercv.experimental.links import YOLOv2Tiny
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
 from chainercv.links import YOLOv2
-from chainercv.links import YOLOv2Tiny
 from chainercv.links import YOLOv3
 from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook

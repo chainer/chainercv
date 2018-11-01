@@ -7,7 +7,7 @@ from chainercv import transforms
 class YOLOBase(chainer.Chain):
     """Base class for YOLOv2 and YOLOv3.
 
-    An inheriting of this class should have :obj:`extractor`,
+    A subclass of this class should have :obj:`extractor`,
     :meth:`__call__`, and :meth:`_decode`.
     """
 

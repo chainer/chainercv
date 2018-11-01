@@ -1,11 +1,11 @@
 from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plt
 
+from chainercv.experimental.links import YOLOv2Tiny
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
 from chainercv.links import YOLOv2
-from chainercv.links import YOLOv2Tiny
 from chainercv.links import YOLOv3
 
 from chainercv.datasets import voc_bbox_label_names
