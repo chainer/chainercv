@@ -77,7 +77,7 @@ def random_erasing(img, prob=0.5,
         * **aspect_ratio** (float): :math:`a` in the description.
 
     """
-    if random.uniform(0.0, 1.0) > prob:
+    if random.uniform(0.0, 1.0) < prob:
         crop, params = random_sized_crop(img, scale_ratio_range,
                                          aspect_ratio_range, return_param=True)
         if random_value:
