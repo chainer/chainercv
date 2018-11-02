@@ -74,8 +74,8 @@ class COCOInstanceSegmentationDataset(GetterDataset):
 
         if year == '2017' and split in ['minival', 'valminusminival']:
             raise ValueError(
-                'coco2017 dataset does not support given split: {1}'
-                .format(year, split))
+                'coco2017 dataset does not support given split: {}'
+                .format(split))
 
         super(COCOInstanceSegmentationDataset, self).__init__()
         self.use_crowded = use_crowded
