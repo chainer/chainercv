@@ -40,8 +40,8 @@ def main():
         model.to_gpu()
 
     dataset = COCOInstanceSegmentationDataset(
-        split='minival', use_crowded=True,
-        return_crowded=True, return_area=True)
+        split='minival', year='2014',
+        use_crowded=True, return_crowded=True, return_area=True)
     iterator = iterators.SerialIterator(
         dataset, 1, repeat=False, shuffle=False)
 
