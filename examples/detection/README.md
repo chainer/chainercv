@@ -5,6 +5,7 @@
 - SSD300
 - SSD512
 - YOLOv2
+- YOLOv2 tiny
 - YOLOv3
 
 For the details, please check the documents and examples of each model.
@@ -20,11 +21,12 @@ For the details, please check the documents and examples of each model.
 | SSD300 | VOC2007\&2012 trainval | | 77.8 % |
 | SSD512 | VOC2007\&2012 trainval | | 79.7 % |
 | YOLOv2 | VOC2007\&2012 trainval | | 75.8 % |
+| YOLOv2 tiny | VOC2007\&2012 trainval | | 53.5 % |
 | YOLOv3 | VOC2007\&2012 trainval | | 80.2 % |
 
 You can reproduce these scores by the following command.
 ```
-$ python eval_voc07.py [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolo_v3] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
+$ python eval_voc07.py [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolo_v2_tiny|yolo_v3] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
 ```
 
 ## Visualization of models

@@ -6,12 +6,12 @@ from chainercv.links.model.ssd import random_distort
 
 try:
     import cv2  # NOQA
-    _available = True
+    _cv2_available = True
 except ImportError:
-    _available = False
+    _cv2_available = False
 
 
-@unittest.skipUnless(_available, 'cv2 is not installed')
+@unittest.skipUnless(_cv2_available, 'cv2 is not installed')
 class TestRandomDistort(unittest.TestCase):
 
     def test_random_distort(self):
