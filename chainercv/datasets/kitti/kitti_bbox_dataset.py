@@ -38,33 +38,12 @@ def _check_available():
 
 class KITTIBboxDataset(GetterDataset):
 
-    """Image dataset for test split of `KITTI dataset`_.
+    """Bounding box dataset for `KITTI dataset`_.
 
     .. _`KITTI dataset`: http://www.cvlibs.net/datasets/kitti/raw_data.php
 
-    When queried by an index, if :obj:`return_crowded == False`,
-    this dataset returns a corresponding
-    :obj:`img, bbox, mask, label, crowded, area`, a tuple of an image, bounding
-    boxes, masks, labels, crowdness indicators and areas of masks.
-    The parameters :obj:`return_crowded` and :obj:`return_area` decide
-    whether to return :obj:`crowded` and :obj:`area`.
-    :obj:`crowded` is a boolean array
-    that indicates whether bounding boxes are for crowd labeling.
-    When there are more than ten objects from the same category,
-    bounding boxes correspond to crowd of instances instead of individual
-    instances. Please see more detail in the Fig. ... (?) of the summary
-    paper [#]_.
-
-    .. [#] Andreas Geiger and Philip Lenz \
-         and Christoph Stiller and Raquel Urtasun. \
-        `Vision meets Robotics: The KITTI Dataset \
-        <http://www.cvlibs.net/publications/Geiger2013IJRR.pdf>`_. \
-        Geiger2013IJRR.
-
-
     Args:
-        data_dir (string): Path to the dataset directory. The directory should
-            contain the :obj:`---` directory. If this is
+        data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/kitti`.
         date ({'2011_09_26', '2011_09_28', '2011_09_29',
@@ -88,6 +67,19 @@ class KITTIBboxDataset(GetterDataset):
 
     .. [#kitti_bbox_1] If :obj:`tracklet = True`, \
         :obj:`bbox` and :obj:`label` contain crowded instances.
+
+    When queried by an index, if :obj:`tracklet == True`,
+    this dataset returns a corresponding
+    :obj:`img, bbox, label`, a tuple of an image, bounding boxes, labels.
+
+    Please see more detail in the Fig. 6 of the summary paper [#]_.
+
+    .. [#] Andreas Geiger and Philip Lenz \
+        and Christoph Stiller and Raquel Urtasun. \
+        `Vision meets Robotics: The KITTI Dataset \
+        <http://www.cvlibs.net/publications/Geiger2013IJRR.pdf>`_. \
+        Geiger2013IJRR.
+
     """
 
     def __init__(self, data_dir='auto', date='', drive_num='',
@@ -118,12 +110,12 @@ class KITTIBboxDataset(GetterDataset):
             if sync is True:
                 # download sync data
                 data_dir = get_kitti_sync_data(
-                    os.path.join('pfnet', 'chainercv', 'KITTI'),
+                    os.path.join('pfnet', 'chainercv', 'kitti'),
                     date, drive_num, self.tracklet)
             else:
                 # download nosync data
                 data_dir = get_kitti_nosync_data(
-                    os.path.join('pfnet', 'chainercv', 'KITTI'),
+                    os.path.join('pfnet', 'chainercv', 'kitti'),
                     date, drive_num, self.tracklet)
 
         if not os.path.exists(data_dir) or not os.path.exists(data_dir):
