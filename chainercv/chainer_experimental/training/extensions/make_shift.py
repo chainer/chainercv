@@ -5,7 +5,7 @@ def make_shift(attr, optimizer=None):
     """Decorator to make shift extensions.
 
     This decorator wraps a function and makes a shift extension.
-    Base function should takes :obj:`trainer` and returns a new value of
+    Base function should take :obj:`trainer` and return a new value of
     :obj:`attr`.
 
     Here is an example.
