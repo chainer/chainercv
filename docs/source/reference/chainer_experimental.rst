@@ -13,3 +13,12 @@ Sliceable
 .. toctree::
 
    chainer_experimental/sliceable
+
+Training
+--------
+
+Extensions
+~~~~~~~~~~
+.. toctree::
+
+   chainer_experimental/extensions
