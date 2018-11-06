@@ -16,7 +16,7 @@ class TestMakeShift(unittest.TestCase):
         trainer = testing.get_trainer_with_mock_updater(
             iter_per_epoch=10, extensions=[mod5_shift])
         trainer.updater.get_optimizer.return_value = mock.MagicMock()
-        trainer.updater.get_optimizer().x = 0
+        trainer.updater.get_optimizer().x = -1
 
         mod5_shift.initialize(trainer)
         for i in range(100):
