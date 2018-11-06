@@ -1,7 +1,7 @@
 from chainer.training import Extension
 
 
-def make_shift(attr='lr', optimizer=None):
+def make_shift(attr, optimizer=None):
     """Decorator to make shift extensions.
 
     This decorator wraps a function and makes a shift extensions.
