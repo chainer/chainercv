@@ -67,12 +67,12 @@ def main():
     # dataset
     train_dataset = TransformDataset(
         ConcatenatedDataset(
-            COCOInstanceSegmentationDataset(split='train'),
-            COCOInstanceSegmentationDataset(split='valminusminival')),
+            COCOInstanceSegmentationDataset(year='2014', split='train'),
+            COCOInstanceSegmentationDataset(year='2014', split='valminusminival')),
         ('img', 'mask', 'label', 'bbox', 'scale'),
         Transform(model.fcis))
     test_dataset = COCOInstanceSegmentationDataset(
-        split='minival', use_crowded=True,
+        year='2014', split='minival', use_crowded=True,
         return_crowded=True, return_area=True)
     if comm.rank == 0:
         indices = np.arange(len(train_dataset))
