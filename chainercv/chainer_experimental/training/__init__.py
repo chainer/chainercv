@@ -1,1 +1,1 @@
-from chainercv.chainer_experimental.training.extension import make_shift  # NOQA
+from chainercv.chainer_experimental.training import extensions  # NOQA

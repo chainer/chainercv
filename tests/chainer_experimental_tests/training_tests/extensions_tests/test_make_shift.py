@@ -2,7 +2,7 @@ import mock
 import unittest
 
 from chainer import testing
-from chainercv.chainer_experimental.training import make_shift
+from chainercv.chainer_experimental.training.extensions import make_shift
 
 
 @make_shift('x')
