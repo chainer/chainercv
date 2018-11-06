@@ -8,7 +8,7 @@ channels:
   'defaults'
 dependencies:
   - Cython
-  - opencv3=3.2.0
+  - opencv
   - matplotlib
   - numpy
   - Pillow
