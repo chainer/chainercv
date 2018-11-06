@@ -6,6 +6,7 @@ from chainercv.chainer_experimental.training.extensions import ManualScheduler
 
 
 def schedule(updater):
+    print(updater.iteration)
     return updater.iteration % 5
 
 
@@ -19,9 +20,11 @@ class TestManualScheduler(unittest.TestCase):
         trainer.updater.get_optimizer.return_value = mock.MagicMock()
         trainer.updater.get_optimizer().x = 0
 
+        extension.initialize(trainer)
         for i in range(100):
-            self.trainer.updater.update()
             self.assertEqual(trainer.updater.get_optimizer().x, i % 5)
+            trainer.updater.update()
+            extension(trainer)
 
 
 testing.run_module(__name__, __file__)
