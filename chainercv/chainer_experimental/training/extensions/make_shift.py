@@ -4,9 +4,22 @@ from chainer.training import Extension
 def make_shift(attr, optimizer=None):
     """Decorator to make shift extensions.
 
-    This decorator wraps a function and makes a shift extensions.
+    This decorator wraps a function and makes a shift extension.
     Base function should takes :obj:`trainer` and returns a new value of
     :obj:`attr`.
+
+    Here is an example.
+
+    >>> @make_shift('lr')
+    >>> def warmup(trainer):
+    >>>     base_lr = 0.01
+    >>>     rate = 0.1
+    >>>
+    >>>     iteration = trainer.updater.iteration
+    >>>     if iteration < 1000:
+    >>>         return base_lr * (rate + (1 - rate) * iteraion / 1000)
+    >>>     else:
+    >>>         return base_lr
 
     Args:
         attr (str): Name of the attribute to shift.
