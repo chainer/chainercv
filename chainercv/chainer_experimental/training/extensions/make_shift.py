@@ -10,6 +10,7 @@ def make_shift(attr, optimizer=None):
 
     Here is an example.
 
+    >>> # define an extension that updates 'lr' attribute
     >>> @make_shift('lr')
     >>> def warmup(trainer):
     >>>     base_lr = 0.01
@@ -20,6 +21,9 @@ def make_shift(attr, optimizer=None):
     >>>         return base_lr * (rate + (1 - rate) * iteraion / 1000)
     >>>     else:
     >>>         return base_lr
+    >>>
+    >>> # use the extension
+    >>> trainer.extend(warmup)
 
     Args:
         attr (str): Name of the attribute to shift.
