@@ -30,7 +30,7 @@ install:
   - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
       export LIBRARY_PATH="$HOME/miniconda/lib:$LIBRARY_PATH";
       export LD_LIBRARY_PATH="$HOME/miniconda/envs/chainercv/lib:$LD_LIBRARY_PATH";
-      conda env create -f environment.yml python="$TRAVIS_PYTHON_VERSION";
+      conda env create python="$TRAVIS_PYTHON_VERSION" -f environment.yml;
       source activate chainercv;
       (cd ..; pip install cython==0.28 'git+https://github.com/cocodataset/coco.git#egg=pycocotools&subdirectory=PythonAPI')
     else
