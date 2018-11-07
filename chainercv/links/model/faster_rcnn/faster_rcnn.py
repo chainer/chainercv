@@ -132,8 +132,8 @@ class FasterRCNN(chainer.Chain):
 
         Args:
             x (~chainer.Variable): 4D image variable.
-            scales (tuple of float): Amount of scaling applied to the raw image
-                during preprocessing.
+            scales (tuple of floats): Amount of scaling applied to each input
+                image during preprocessing.
 
         Returns:
             Variable, Variable, array, array:

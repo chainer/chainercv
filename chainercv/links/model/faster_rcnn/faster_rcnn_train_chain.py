@@ -79,8 +79,8 @@ class FasterRCNNTrainChain(chainer.Chain):
                 the definition, which means that the range of the value
                 is :math:`[0, L - 1]`. :math:`L` is the number of foreground
                 classes.
-            scale (~chainer.Variable): Amount of scaling applied to
-                the raw image during preprocessing.
+            scales (~chainer.Variable): Amount of scaling applied to
+                each input image during preprocessing.
 
         Returns:
             chainer.Variable:
