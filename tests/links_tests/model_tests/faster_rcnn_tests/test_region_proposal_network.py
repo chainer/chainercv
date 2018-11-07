@@ -9,15 +9,19 @@ from chainer.testing import attr
 from chainercv.links.model.faster_rcnn import RegionProposalNetwork
 
 
-@testing.parameterize(
-    {'train': True},
-    {'train': False},
-)
+@testing.parameterize(*(testing.product({
+    'B': [1],
+    'train': [True, False],
+    'scales': [None, 1.0, 2.0, [1.0]],
+}) + testing.product({
+    'B': [2],
+    'train': [True, False],
+    'scales': [None, 1.0, 2.0, [1.0, 2.0]],
+})))
 class TestRegionProposalNetwork(unittest.TestCase):
 
     def setUp(self):
         feat_stride = 4
-        self.B = 2
         C = 16
         H = 8
         W = 12
@@ -34,7 +38,6 @@ class TestRegionProposalNetwork(unittest.TestCase):
         )
         self.x = np.random.uniform(size=(self.B, C, H, W)).astype(np.float32)
         self.img_size = (H * feat_stride, W * feat_stride)
-        self.scales = np.ones((self.B, ), dtype=np.float32)
 
         chainer.config.train = self.train
 
