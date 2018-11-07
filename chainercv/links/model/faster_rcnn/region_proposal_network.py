@@ -67,7 +67,7 @@ class RegionProposalNetwork(chainer.Chain):
             self.loc = L.Convolution2D(
                 mid_channels, n_anchor * 4, 1, 1, 0, initialW=initialW)
 
-    def __call__(self, x, img_size, scales):
+    def __call__(self, x, img_size, scales=None):
         """Forward Region Proposal Network.
 
         Here are notations.
@@ -106,7 +106,13 @@ class RegionProposalNetwork(chainer.Chain):
                 Its shape is :math:`(H W A, 4)`.
 
         """
+
         n, _, hh, ww = x.shape
+        if scales is None:
+            scales = [1.0] * n
+        if not isinstance(scales, chainer.utils.collections_abc.Iterable):
+            scales = [scales] * n
+
         anchor = _enumerate_shifted_anchor(
             self.xp.array(self.anchor_base), self.feat_stride, hh, ww)
         n_anchor = anchor.shape[0] // (hh * ww)
