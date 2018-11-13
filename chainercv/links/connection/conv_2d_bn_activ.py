@@ -28,7 +28,7 @@ class Conv2DBNActiv(chainer.Chain):
 
     Example:
 
-        There are sevaral ways to initialize a :class:`Conv2DBNActiv`.
+        There are several ways to initialize a :class:`Conv2DBNActiv`.
 
         1. Give the first three arguments explicitly:
 
