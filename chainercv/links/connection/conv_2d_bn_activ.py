@@ -12,7 +12,7 @@ except ImportError:
 class Conv2DBNActiv(chainer.Chain):
     """Convolution2D --> Batch Normalization --> Activation
 
-    This is a chain that sequentially apllies a two-dimensional convolution,
+    This is a chain that sequentially applies a two-dimensional convolution,
     a batch normalization and an activation.
 
     The arguments are the same as that of
