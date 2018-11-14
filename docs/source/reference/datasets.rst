@@ -73,6 +73,15 @@ COCOInstanceSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: COCOInstanceSegmentationDataset
 
+
+KITTI
+-----
+
+KITTIDataset
+~~~~~~~~~~~~
+.. autoclass:: KITTIDataset
+
+
 OnlineProducts
 --------------
 
