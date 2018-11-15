@@ -43,7 +43,7 @@ def resize_contain(img, size, fill=0, interpolation=PIL.Image.BILINEAR,
         contents are listed below with key, value-type and the description
         of the value.
 
-        * **y_offset** (*int*): The y coodinate of the top left corner of\
+        * **y_offset** (*int*): The y coordinate of the top left corner of\
             the image after placing on the canvas.
         * **x_offset** (*int*): The x coordinate of the top left corner\
             of the image after placing on the canvas.
