@@ -22,6 +22,11 @@ def _read_image_cv2(path, dtype, color):
         # reshape (H, W) -> (1, H, W)
         return img[np.newaxis].astype(dtype)
     else:
+        # alpha channel is inclued
+        if img.shape[-1] == 4:
+            bgr = img[:, :, :3]
+            alpha = img[:, :, 3:] / 255
+            img = bgr * alpha + 255 * np.ones_like(bgr) * (1 - alpha)
         img = img[:, :, ::-1]  # BGR -> RGB
         img = img.transpose((2, 0, 1))  # HWC -> CHW
     return img.astype(dtype)
