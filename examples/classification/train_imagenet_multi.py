@@ -11,15 +11,15 @@ from chainer.optimizers import CorrectedMomentumSGD
 from chainer import training
 from chainer.training import extensions
 
+from chainercv.datasets import directory_parsing_label_names
 from chainercv.datasets import DirectoryParsingLabelDataset
-
 from chainercv.transforms import center_crop
 from chainercv.transforms import random_flip
 from chainercv.transforms import random_sized_crop
 from chainercv.transforms import resize
 from chainercv.transforms import scale
 
-from chainercv.datasets import directory_parsing_label_names
+from chainercv.chainer_experimental.training.extensions import make_shift
 
 from chainercv.links.model.resnet import Bottleneck
 from chainercv.links import ResNet101
@@ -153,16 +153,27 @@ def main():
 
     trainer = training.Trainer(
         updater, (args.epoch, 'epoch'), out=args.out)
-    warmup_iter = 5 * len(train_data) // args.batchsize  # 5 epochs
-    trainer.extend(
-        extensions.LinearShift(
-            'lr', value_range=(min((0.1, lr)), lr),
-            time_range=(0, warmup_iter)),
-        trigger=chainer.training.triggers.ManualScheduleTrigger(
-            list(range(warmup_iter + 1)), 'iteration'))
-    trainer.extend(extensions.ExponentialShift('lr', 0.1, init=lr),
-                   trigger=chainer.training.triggers.ManualScheduleTrigger(
-                       [30, 60, 80], 'epoch'))
+
+    @make_shift('lr')
+    def warmup_and_exponential_shift(trainer):
+        epoch = trainer.updater.epoch_detail
+        warmup_epoch = 5
+        if epoch < warmup_epoch:
+            if lr > 0.1:
+                warmup_rate = 0.1 / lr
+                rate = warmup_rate \
+                    + (1 - warmup_rate) * epoch / warmup_rate
+        elif epoch < 30:
+            rate = 1
+        elif epoch < 60:
+            rate = 0.1
+        elif epoch < 80:
+            rate = 0.01
+        else:
+            rate = 0.001
+        return rate * lr
+
+    trainer.extend(warmup_and_exponential_shift)
     evaluator = chainermn.create_multi_node_evaluator(
         extensions.Evaluator(val_iter, model, device=device), comm)
     trainer.extend(evaluator, trigger=(1, 'epoch'))
