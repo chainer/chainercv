@@ -58,7 +58,7 @@ class ValTransform(object):
 
 
 def main():
-    archs = {
+    model_cfgs = {
         'resnet50': {'class': ResNet50, 'score_layer_name': 'fc6',
                      'kwargs': {'arch': 'fb'}},
         'resnet101': {'class': ResNet101, 'score_layer_name': 'fc6',
@@ -70,9 +70,9 @@ def main():
         description='Learning convnet from ILSVRC2012 dataset')
     parser.add_argument('train', help='Path to root of the train dataset')
     parser.add_argument('val', help='Path to root of the validation dataset')
-    parser.add_argument('--arch',
-                        '-a', choices=archs.keys(), default='resnet50',
-                        help='Convnet architecture')
+    parser.add_argument('--model',
+                        '-m', choices=model_cfgs.keys(), default='resnet50',
+                        help='Convnet models')
     parser.add_argument('--communicator', type=str,
                         default='hierarchical', help='Type of communicator')
     parser.add_argument('--loaderjob', type=int, default=4)
@@ -104,9 +104,10 @@ def main():
 
     label_names = directory_parsing_label_names(args.train)
 
-    arch = archs[args.arch]
-    extractor = arch['class'](n_class=len(label_names), **arch['kwargs'])
-    extractor.pick = arch['score_layer_name']
+    model_cfg = model_cfgs[args.model]
+    extractor = model_cfg['class'](
+        n_class=len(label_names), **model_cfg['kwargs'])
+    extractor.pick = model_cfg['score_layer_name']
     model = Classifier(extractor)
     # Following https://arxiv.org/pdf/1706.02677.pdf,
     # the gamma of the last BN of each resblock is initialized by zeros.
