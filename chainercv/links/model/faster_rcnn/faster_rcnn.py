@@ -112,10 +112,10 @@ class FasterRCNN(chainer.Chain):
         # Total number of classes including the background.
         return self.head.n_class
 
-    def __call__(self, x, scale=1.):
+    def __call__(self, x, scales=None):
         """Forward Faster R-CNN.
 
-        Scaling paramter :obj:`scale` is used by RPN to determine the
+        Scaling paramter :obj:`scales` is used by RPN to determine the
         threshold to select small objects, which are going to be
         rejected irrespective of their confidence scores.
 
@@ -132,8 +132,8 @@ class FasterRCNN(chainer.Chain):
 
         Args:
             x (~chainer.Variable): 4D image variable.
-            scale (float): Amount of scaling applied to the raw image
-                during preprocessing.
+            scales (tuple of floats): Amount of scaling applied to each input
+                image during preprocessing.
 
         Returns:
             Variable, Variable, array, array:
@@ -153,7 +153,7 @@ class FasterRCNN(chainer.Chain):
 
         h = self.extractor(x)
         rpn_locs, rpn_scores, rois, roi_indices, anchor =\
-            self.rpn(h, img_size, scale)
+            self.rpn(h, img_size, scales)
         roi_cls_locs, roi_scores = self.head(
             h, rois, roi_indices)
         return roi_cls_locs, roi_scores, rois, roi_indices
@@ -258,7 +258,7 @@ class FasterRCNN(chainer.Chain):
 
            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
                where :math:`R` is the number of bounding boxes in a image. \
-               Each bouding box is organized by \
+               Each bounding box is organized by \
                :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
@@ -286,7 +286,7 @@ class FasterRCNN(chainer.Chain):
                 img_var = chainer.Variable(self.xp.asarray(img[None]))
                 scale = img_var.shape[3] / size[1]
                 roi_cls_locs, roi_scores, rois, _ = self.__call__(
-                    img_var, scale=scale)
+                    img_var, scales=[scale])
             # We are assuming that batch size is 1.
             roi_cls_loc = roi_cls_locs.array
             roi_score = roi_scores.array

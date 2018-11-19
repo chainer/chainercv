@@ -7,7 +7,7 @@ from chainercv import transforms
 class YOLOBase(chainer.Chain):
     """Base class for YOLOv2 and YOLOv3.
 
-    An inheriting this class should have :obj:`extractor`,
+    A subclass of this class should have :obj:`extractor`,
     :meth:`__call__`, and :meth:`_decode`.
     """
 
@@ -59,7 +59,7 @@ class YOLOBase(chainer.Chain):
 
            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
                where :math:`R` is the number of bounding boxes in a image. \
-               Each bouding box is organized by \
+               Each bounding box is organized by \
                :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \

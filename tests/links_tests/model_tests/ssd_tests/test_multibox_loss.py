@@ -12,9 +12,11 @@ from chainer.testing import attr
 
 from chainercv.links.model.ssd import multibox_loss
 
+from chainermn import create_communicator
+
 
 try:
-    from chainermn import create_communicator
+    import mpi4py.MPI  # NOQA
     _available = True
 except ImportError:
     _available = False
@@ -129,7 +131,7 @@ class TestMultiboxLoss(unittest.TestCase):
             self.k)
 
 
-@unittest.skipUnless(_available, 'ChainerMN is not installed')
+@unittest.skipUnless(_available, 'mpi4py is not installed')
 class TestMultiNodeMultiboxLoss(unittest.TestCase):
 
     k = 3

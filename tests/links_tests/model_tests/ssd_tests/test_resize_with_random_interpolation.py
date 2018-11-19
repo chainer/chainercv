@@ -6,12 +6,12 @@ from chainercv.links.model.ssd import resize_with_random_interpolation
 
 try:
     import cv2  # NOQA
-    _available = True
+    _cv2_available = True
 except ImportError:
-    _available = False
+    _cv2_available = False
 
 
-@unittest.skipUnless(_available, 'cv2 is not installed')
+@unittest.skipUnless(_cv2_available, 'cv2 is not installed')
 class TestResizeWithRandomInterpolation(unittest.TestCase):
 
     def test_resize_color(self):

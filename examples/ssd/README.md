@@ -21,7 +21,7 @@ $ python demo.py [--model ssd300|ssd512] [--gpu <gpu>] [--pretrained-model <mode
 ## Convert Caffe model
 Convert `*.caffemodel` to `*.npz`. Some layers are renamed to fit ChainerCV. SSD300 and SSD512 are supported.
 ```
-$ python caffe2npz <source>.caffemodel <target>.npz
+$ python caffe2npz.py <source>.caffemodel <target>.npz
 ```
 
 ## Evaluation
