@@ -164,6 +164,8 @@ def main():
                 warmup_rate = 0.1 / lr
                 rate = warmup_rate \
                     + (1 - warmup_rate) * epoch / warmup_epoch
+            else:
+                rate = 1
         elif epoch < 30:
             rate = 1
         elif epoch < 60:
