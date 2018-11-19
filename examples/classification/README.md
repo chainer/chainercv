@@ -8,8 +8,8 @@ Single crop error rate.
 |:-:|:-:|:-:|:-:|
 | VGG16 | 29.0 % | 28.5 % [1] | |
 | ResNet50 | 24.8 % | 24.7 % [2] | 23.53 % |
-| ResNet101 | 23.6 % | 23.6 % [2] | |
-| ResNet152 | 23.2 % | 23.0 % [2] | |
+| ResNet101 | 23.6 % | 23.6 % [2] | 22.22 % |
+| ResNet152 | 23.2 % | 23.0 % [2] | 21.60 % |
 | SE-ResNet50 | 22.7 % | 22.4 % [3,4] | |
 | SE-ResNet101 | 21.8 % | 21.8 % [3,4] | |
 | SE-ResNet152 | 21.4 % | 21.3 % [3,4] | |
@@ -53,12 +53,13 @@ The default communicator (`hierarchical`) uses MPI to communicate between nodes,
 
 ##### Detailed training results
 
-Scores are calculated from the statistics collected from five experiments with different random seeds.
+Here, we investigate the effect of the number of GPUs on the final performance.
+For more statistically reliable results, we obtained results from five different random seeds.
 
 | Model | # GPUs | Top 1 |
 |:-:|:-:|:-:|
 | ResNet50 | 8 | 23.53 (std=0.06) |
-| ResNet50 | 32 | XXX (std=YYY) |
+| ResNet50 | 32 | 23.56 (std=0.11) |
 
 
 ## How to prepare ImageNet Dataset
