@@ -12,8 +12,10 @@ from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_semantic_s
 from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_semantic_segmentation_label_names  # NOQA
 from chainercv.datasets.coco.coco_bbox_dataset import COCOBboxDataset  # NOQA
 from chainercv.datasets.coco.coco_instance_segmentation_dataset import COCOInstanceSegmentationDataset  # NOQA
+from chainercv.datasets.coco.coco_semantic_segmentation_dataset import COCOSemanticSegmentationDataset  # NOQA
 from chainercv.datasets.coco.coco_utils import coco_bbox_label_names  # NOQA
 from chainercv.datasets.coco.coco_utils import coco_instance_segmentation_label_names  # NOQA
+from chainercv.datasets.coco.coco_utils import coco_semantic_segmentation_dataset  # NOQA
 from chainercv.datasets.cub.cub_label_dataset import CUBLabelDataset  # NOQA
 from chainercv.datasets.cub.cub_point_dataset import CUBPointDataset  # NOQA
 from chainercv.datasets.cub.cub_utils import cub_label_names  # NOQA

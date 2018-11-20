@@ -16,7 +16,7 @@ img_urls = {
         'val': 'http://images.cocodataset.org/zips/val2017.zip'
     }
 }
-anno_urls = {
+instances_anno_urls = {
     '2014': {
         'train': 'http://msvocds.blob.core.windows.net/annotations-1-0-3/'
         'instances_train-val2014.zip',
@@ -36,26 +36,44 @@ anno_urls = {
 }
 
 
-def get_coco(split, img_split, year):
-    url = img_urls[year][img_split]
+panoptic_anno_url = 'http://images.cocodataset.org/annotations/' +\
+    'panoptic_annotations_trainval2017.zip'
+
+
+def get_coco(split, img_split, year, mode):
     data_dir = download.get_dataset_directory(root)
-    img_root = os.path.join(data_dir, 'images')
-    created_img_root = os.path.join(img_root, '{}{}'.format(img_split, year))
     annos_root = os.path.join(data_dir, 'annotations')
-    anno_path = os.path.join(
-        annos_root, 'instances_{}{}.json'.format(split, year))
+    img_root = os.path.join(data_dir, 'images')
+    created_img_root = os.path.join(
+        img_root, '{}{}'.format(img_split, year))
+    if mode == 'instances':
+        url = img_urls[year][img_split]
+        anno_url = instances_anno_urls[year][split]
+        anno_path = os.path.join(
+            annos_root, 'instances_{}{}.json'.format(split, year))
+    elif mode == 'panoptic':
+        url = img_urls[year][img_split]
+        anno_url = panoptic_anno_url
+        anno_path = os.path.join(
+            annos_root, 'panoptic_{}{}.json'.format(split, year))
+
     if not os.path.exists(created_img_root):
         download_file_path = utils.cached_download(url)
         ext = os.path.splitext(url)[1]
         utils.extractall(download_file_path, img_root, ext)
     if not os.path.exists(anno_path):
-        anno_url = anno_urls[year][split]
         download_file_path = utils.cached_download(anno_url)
         ext = os.path.splitext(anno_url)[1]
         if split in ['train', 'val']:
             utils.extractall(download_file_path, data_dir, ext)
         elif split in ['valminusminival', 'minival']:
             utils.extractall(download_file_path, annos_root, ext)
+
+    if mode == 'panoptic':
+        pixelmap_path = os.path.join(
+            annos_root, 'panoptic_{}{}'.format(split, year))
+        if not os.path.exists(pixelmap_path):
+            utils.extractall(pixelmap_path + '.zip', annos_root, '.zip')
     return data_dir
 
 
@@ -145,5 +163,143 @@ coco_bbox_label_names = (
     'teddy bear',
     'hair drier',
     'toothbrush')
+
+# annos = json.load(open('panoptic_val2017'))
+# label_names = [cat['name'] for cat in annos['categories']]
+coco_semantic_segmentation_label_names = (
+    'person',
+    'bicycle',
+    'car',
+    'motorcycle',
+    'airplane',
+    'bus',
+    'train',
+    'truck',
+    'boat',
+    'traffic light',
+    'fire hydrant',
+    'stop sign',
+    'parking meter',
+    'bench',
+    'bird',
+    'cat',
+    'dog',
+    'horse',
+    'sheep',
+    'cow',
+    'elephant',
+    'bear',
+    'zebra',
+    'giraffe',
+    'backpack',
+    'umbrella',
+    'handbag',
+    'tie',
+    'suitcase',
+    'frisbee',
+    'skis',
+    'snowboard',
+    'sports ball',
+    'kite',
+    'baseball bat',
+    'baseball glove',
+    'skateboard',
+    'surfboard',
+    'tennis racket',
+    'bottle',
+    'wine glass',
+    'cup',
+    'fork',
+    'knife',
+    'spoon',
+    'bowl',
+    'banana',
+    'apple',
+    'sandwich',
+    'orange',
+    'broccoli',
+    'carrot',
+    'hot dog',
+    'pizza',
+    'donut',
+    'cake',
+    'chair',
+    'couch',
+    'potted plant',
+    'bed',
+    'dining table',
+    'toilet',
+    'tv',
+    'laptop',
+    'mouse',
+    'remote',
+    'keyboard',
+    'cell phone',
+    'microwave',
+    'oven',
+    'toaster',
+    'sink',
+    'refrigerator',
+    'book',
+    'clock',
+    'vase',
+    'scissors',
+    'teddy bear',
+    'hair drier',
+    'toothbrush',
+    'banner',
+    'blanket',
+    'bridge',
+    'cardboard',
+    'counter',
+    'curtain',
+    'door-stuff',
+    'floor-wood',
+    'flower',
+    'fruit',
+    'gravel',
+    'house',
+    'light',
+    'mirror-stuff',
+    'net',
+    'pillow',
+    'platform',
+    'playingfield',
+    'railroad',
+    'river',
+    'road',
+    'roof',
+    'sand',
+    'sea',
+    'shelf',
+    'snow',
+    'stairs',
+    'tent',
+    'towel',
+    'wall-brick',
+    'wall-stone',
+    'wall-tile',
+    'wall-wood',
+    'water-other',
+    'window-blind',
+    'window-other',
+    'tree-merged',
+    'fence-merged',
+    'ceiling-merged',
+    'sky-other-merged',
+    'cabinet-merged',
+    'table-merged',
+    'floor-other-merged',
+    'pavement-merged',
+    'mountain-merged',
+    'grass-merged',
+    'dirt-merged',
+    'paper-merged',
+    'food-other-merged',
+    'building-other-merged',
+    'rock-merged',
+    'wall-other-merged',
+    'rug-merged')
+
 
 coco_instance_segmentation_label_names = coco_bbox_label_names
