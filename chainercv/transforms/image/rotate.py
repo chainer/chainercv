@@ -1,3 +1,4 @@
+import PIL
 import warnings
 
 
@@ -17,7 +18,7 @@ def _check_available():
             '$ pip install scipy')
 
 
-def rotate(img, angle, expand=True):
+def rotate(img, angle, expand=True, interpolation=PIL.Image.BILINEAR):
     """Rotate images by degrees.
 
     Args:
@@ -27,6 +28,10 @@ def rotate(img, angle, expand=True):
         expand (bool): The output shaped is adapted or not.
             If :obj:`True`, the input image is contained complete in
             the output.
+        interpolation (int): Determines sampling strategy. This is one of
+            :obj:`PIL.Image.NEAREST`, :obj:`PIL.Image.BILINEAR`,
+            :obj:`PIL.Image.BICUBIC`.
+            Bilinear interpolation is the default strategy.
 
     Returns:
         ~numpy.ndarray:
@@ -36,4 +41,14 @@ def rotate(img, angle, expand=True):
 
     _check_available()
 
-    return scipy.ndimage.rotate(img, angle, axes=(2, 1), reshape=expand)
+    # http://scikit-image.org/docs/dev/api/skimage.transform.html#warp
+    if interpolation == PIL.Image.NEAREST:
+        interpolation_order = 0
+    elif interpolation == PIL.Image.BILINEAR:
+        interpolation_order = 1
+    elif interpolation == PIL.Image.BICUBIC:
+        interpolation_order = 3
+
+    return scipy.ndimage.rotate(
+        img, angle, axes=(2, 1), reshape=expand,
+        order=interpolation_order)

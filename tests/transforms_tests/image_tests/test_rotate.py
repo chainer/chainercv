@@ -1,3 +1,4 @@
+import PIL
 import random
 import unittest
 
@@ -14,6 +15,10 @@ except ImportError:
     _available = False
 
 
+@testing.parameterize(*testing.product({
+    'interpolation': [PIL.Image.NEAREST, PIL.Image.BILINEAR,
+                      PIL.Image.BICUBIC],
+}))
 @unittest.skipUnless(_available, 'SciPy is not installed')
 class TestRotate(unittest.TestCase):
 
@@ -21,9 +26,11 @@ class TestRotate(unittest.TestCase):
         img = np.random.uniform(size=(3, 32, 24))
         angle = random.uniform(-180, 180)
 
-        out = rotate(img, angle)
+        out = rotate(img, angle, interpolation=self.interpolation)
         expected = flip(img, x_flip=True)
-        expected = rotate(expected, -1 * angle)
+        expected = rotate(
+            expected, -1 * angle,
+            interpolation=self.interpolation)
         expected = flip(expected, x_flip=True)
 
         np.testing.assert_almost_equal(out, expected, decimal=6)
