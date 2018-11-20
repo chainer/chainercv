@@ -4,6 +4,7 @@ import unittest
 
 import numpy as np
 
+import chainer
 from chainer import testing
 from chainercv.transforms import flip
 from chainercv.transforms import rotate
@@ -20,11 +21,11 @@ except ImportError:
                       PIL.Image.BICUBIC],
     'fill': [-1, 0, 100],
 }))
-@unittest.skipUnless(_available, 'SciPy is not installed')
 class TestRotate(unittest.TestCase):
 
-    def test_rotate(self):
-        img = np.random.uniform(size=(3, 32, 24))
+    def test_rotate_pil(self):
+        chainer.global_config.cv_rotate_backend = 'PIL'
+        img = np.random.uniform(0, 256, size=(3, 32, 24)).astype(np.float32)
         angle = random.uniform(-180, 180)
 
         out = rotate(img, angle, fill=self.fill,
@@ -38,7 +39,39 @@ class TestRotate(unittest.TestCase):
         if self.interpolation == PIL.Image.NEAREST:
             assert np.mean(out == expected) > 0.99
         else:
-            np.testing.assert_almost_equal(out, expected, decimal=6)
+            np.testing.assert_almost_equal(out, expected, decimal=3)
+
+    def test_rotate_cv2(self):
+        chainer.global_config.cv_rotate_backend = 'cv2'
+        img = np.random.uniform(0, 256, size=(3, 32, 24)).astype(np.float32)
+        angle = random.uniform(-180, 180)
+
+        out = rotate(img, angle, fill=self.fill,
+                     interpolation=self.interpolation)
+        opposite_out = rotate(img, -angle, fill=self.fill,
+                              interpolation=self.interpolation)
+
+        assert out.shape[1:] == opposite_out.shape[1:]
+
+    def test_rotate_pil_no_expand(self):
+        chainer.global_config.cv_rotate_backend = 'PIL'
+        img = np.random.uniform(0, 256, size=(3, 32, 24)).astype(np.float32)
+        angle = random.uniform(-180, 180)
+
+        out = rotate(img, angle, fill=self.fill,
+                     expand=False,
+                     interpolation=self.interpolation)
+        assert out.shape == img.shape
+
+    def test_rotate_cv2_no_expand(self):
+        chainer.global_config.cv_rotate_backend = 'cv2'
+        img = np.random.uniform(0, 256, size=(3, 32, 24)).astype(np.float32)
+        angle = random.uniform(-180, 180)
+
+        out = rotate(img, angle, fill=self.fill,
+                     expand=False,
+                     interpolation=self.interpolation)
+        assert out.shape == img.shape
 
 
 testing.run_module(__name__, __file__)
