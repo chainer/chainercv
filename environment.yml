@@ -5,6 +5,8 @@ channels:
 - !!python/unicode
   'mpi4py'
 - !!python/unicode
+  'anaconda'
+- !!python/unicode
   'defaults'
 dependencies:
   - Cython
