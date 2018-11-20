@@ -85,7 +85,7 @@ class COCOInstanceSegmentationDataset(GetterDataset):
         else:
             img_split = 'train'
         if data_dir == 'auto':
-            data_dir = get_coco(split, img_split, year)
+            data_dir = get_coco(split, img_split, year, 'instances')
 
         self.img_root = os.path.join(
             data_dir, 'images', '{}{}'.format(img_split, year))
