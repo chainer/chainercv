@@ -2,9 +2,9 @@ import json
 import numpy as np
 import os
 
-from chainercv import utils
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.coco.coco_utils import get_coco
+from chainercv import utils
 
 
 def _rgb2id(color):
