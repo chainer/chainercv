@@ -31,8 +31,7 @@ class COCOSemanticSegmentationDataset(GetterDataset):
         annos = json.load(open(anno_path, 'r'))
         self.annos = annos
 
-        self.cat_ids = ['-1']  # bg
-        self.cat_ids += cat['id'] for cat in annos['categories']]
+        self.cat_ids = [cat['id'] for cat in annos['categories']]
         self.img_paths = [ann['file_name'][:-4] + '.jpg'
                           for ann in annos['annotations']]
 
@@ -57,7 +56,7 @@ class COCOSemanticSegmentationDataset(GetterDataset):
             label_path,
             dtype=np.uint32, color=True)
         id_map = _rgb2id(rgb_id_map)
-        label = np.zeros_like(id_map, dtype=np.int32)
+        label = -1 * np.ones_like(id_map, dtype=np.int32)
         for inst in anno['segments_info']:
             mask = id_map == inst['id']
             label[mask] = self.cat_ids.index(inst['category_id'])
