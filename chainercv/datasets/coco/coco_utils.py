@@ -439,3 +439,6 @@ coco_semantic_segmentation_label_colors = (
 
 
 coco_instance_segmentation_label_names = coco_bbox_label_names
+coco_panoptic_segmentation_label_names = coco_semantic_segmentation_label_names
+coco_panoptic_segmentation_label_colors =\
+    coco_semantic_segmentation_label_colors
