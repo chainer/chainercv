@@ -50,6 +50,8 @@ class COCOSemanticSegmentationDataset(GetterDataset):
         return img
 
     def _get_label(self, i):
+        # https://github.com/cocodataset/panopticapi/blob/master/converters/
+        # panoptic2semantic_segmentation.py#L58
         anno = self.annos['annotations'][i]
         label_path = os.path.join(self.label_root, anno['file_name'])
         rgb_id_map = utils.read_image(
