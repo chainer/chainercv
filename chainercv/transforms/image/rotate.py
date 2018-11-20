@@ -18,7 +18,7 @@ def _check_available():
             '$ pip install scipy')
 
 
-def rotate(img, angle, expand=True, interpolation=PIL.Image.BILINEAR):
+def rotate(img, angle, expand=True, fill=0, interpolation=PIL.Image.BILINEAR):
     """Rotate images by degrees.
 
     Args:
@@ -28,6 +28,7 @@ def rotate(img, angle, expand=True, interpolation=PIL.Image.BILINEAR):
         expand (bool): The output shaped is adapted or not.
             If :obj:`True`, the input image is contained complete in
             the output.
+        fill (float): The value used for pixels outside the boundaries.
         interpolation (int): Determines sampling strategy. This is one of
             :obj:`PIL.Image.NEAREST`, :obj:`PIL.Image.BILINEAR`,
             :obj:`PIL.Image.BICUBIC`.
@@ -51,4 +52,4 @@ def rotate(img, angle, expand=True, interpolation=PIL.Image.BILINEAR):
 
     return scipy.ndimage.rotate(
         img, angle, axes=(2, 1), reshape=expand,
-        order=interpolation_order)
+        order=interpolation_order, cval=fill)
