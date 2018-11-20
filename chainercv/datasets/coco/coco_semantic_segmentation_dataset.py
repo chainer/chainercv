@@ -13,6 +13,34 @@ def _rgb2id(color):
 
 class COCOSemanticSegmentationDataset(GetterDataset):
 
+    """Semantic segmentation dataset for `MS COCO`_.
+
+    Semantic segmentations are generated from panoptic segmentations
+    as done in the `official toolkit`_.
+
+    .. _`MS COCO`: http://cocodataset.org/#home
+
+    .. _`official toolkit`: https://github.com/cocodataset/panopticapi/
+        blob/master/converters/panoptic2semantic_segmentation.py
+
+    Args:
+        data_dir (string): Path to the root of the training data. If this is
+            :obj:`auto`, this class will automatically download data for you
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/coco`.
+        split ({'train', 'val'}): Select a split of the dataset.
+
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`label`, ":math:`(H, W)`", :obj:`int32`, \
+        ":math:`[-1, \#class - 1]`"
+
+    """
+
     def __init__(self, data_dir='auto', split='train'):
         super(COCOSemanticSegmentationDataset, self).__init__()
         if data_dir == 'auto':
@@ -50,6 +78,8 @@ class COCOSemanticSegmentationDataset(GetterDataset):
         return img
 
     def _get_label(self, i):
+        # https://github.com/cocodataset/panopticapi/blob/master/converters/
+        # panoptic2semantic_segmentation.py#L58
         anno = self.annos['annotations'][i]
         label_path = os.path.join(self.label_root, anno['file_name'])
         rgb_id_map = utils.read_image(
