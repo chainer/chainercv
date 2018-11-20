@@ -35,7 +35,10 @@ class TestRotate(unittest.TestCase):
             interpolation=self.interpolation)
         expected = flip(expected, x_flip=True)
 
-        np.testing.assert_almost_equal(out, expected, decimal=6)
+        if self.interpolation == PIL.Image.NEAREST:
+            assert np.mean(out == expected) > 0.99
+        else:
+            np.testing.assert_almost_equal(out, expected, decimal=6)
 
 
 testing.run_module(__name__, __file__)
