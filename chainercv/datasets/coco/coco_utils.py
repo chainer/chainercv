@@ -46,20 +46,19 @@ def get_coco(split, img_split, year, mode):
     img_root = os.path.join(data_dir, 'images')
     created_img_root = os.path.join(
         img_root, '{}{}'.format(img_split, year))
+    img_url = img_urls[year][img_split]
     if mode == 'instances':
-        url = img_urls[year][img_split]
         anno_url = instances_anno_urls[year][split]
         anno_path = os.path.join(
             annos_root, 'instances_{}{}.json'.format(split, year))
     elif mode == 'panoptic':
-        url = img_urls[year][img_split]
         anno_url = panoptic_anno_url
         anno_path = os.path.join(
             annos_root, 'panoptic_{}{}.json'.format(split, year))
 
     if not os.path.exists(created_img_root):
-        download_file_path = utils.cached_download(url)
-        ext = os.path.splitext(url)[1]
+        download_file_path = utils.cached_download(img_url)
+        ext = os.path.splitext(img_url)[1]
         utils.extractall(download_file_path, img_root, ext)
     if not os.path.exists(anno_path):
         download_file_path = utils.cached_download(anno_url)
