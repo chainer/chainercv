@@ -64,7 +64,7 @@ def rotate(img, angle, expand=True, fill=0, interpolation=PIL.Image.BILINEAR):
     """Rotate images by degrees.
 
     The backend used by :func:`rotate` is configured by
-    :obj:`chainer.config.cv_rotate_backend`.
+    :obj:`chainer.global_config.cv_rotate_backend`.
     Two backends are supported: "cv2" and "PIL".
 
     Args:
