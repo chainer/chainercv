@@ -15,7 +15,6 @@ def get_ade20k(root, url):
 
 
 ade20k_semantic_segmentation_label_names = (
-    'other_objects',
     'wall',
     'edifice',
     'sky',
@@ -169,7 +168,6 @@ ade20k_semantic_segmentation_label_names = (
 )
 
 ade20k_semantic_segmentation_label_colors = (
-    (0, 0, 0),
     (120, 120, 120),
     (180, 120, 120),
     (6, 230, 230),
