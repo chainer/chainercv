@@ -255,6 +255,8 @@ class PSPNetResNet101(PSPNet):
                 Cityscapes dataset. \
                 The weight file is downloaded and cached automatically. \
                 :obj:`n_class` must be :obj:`19` or :obj:`None`.
+            * :obj:`'imagenet'`: Load ImageNet pretrained weights for \
+                the extractor.
             * `filepath`: A path of npz file. In this case, :obj:`n_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
@@ -277,7 +279,10 @@ class PSPNetResNet101(PSPNet):
             'param': {'n_class': 19, 'input_size': (713, 713)},
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.6/pspnet_resnet101_cityscapes_convert_2018_05_22.npz'
-        }
+        },
+        'imagenet': {
+            'url': 'XXX'
+        },
     }
 
     def __init__(self, n_class=None, pretrained_model=None,
@@ -300,7 +305,9 @@ class PSPNetResNet101(PSPNet):
             extractor, param['n_class'], param['input_size'],
             initialW, bn_kwargs)
 
-        if path:
+        if path == 'imagenet':
+            chainer.serializers.load_npz(path, self.extractor)
+        elif path:
             chainer.serializers.load_npz(path, self)
 
 
