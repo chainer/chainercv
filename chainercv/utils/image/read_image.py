@@ -22,7 +22,7 @@ def _read_image_cv2(path, dtype, color):
         # reshape (H, W) -> (1, H, W)
         return img[np.newaxis].astype(dtype)
     else:
-        # alpha channel is inclued
+        # alpha channel is included
         if img.shape[-1] == 4:
             bgr = img[:, :, :3]
             alpha = img[:, :, 3:] / 255
