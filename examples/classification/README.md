@@ -7,9 +7,9 @@ Single crop error rate.
 | Model | Top 1 | Reference Top 1 | Top 1 of model trained with ChainerCV |
 |:-:|:-:|:-:|:-:|
 | VGG16 | 29.0 % | 28.5 % [1] | |
-| ResNet50 | 24.8 % | 24.7 % [2] | 23.53 % |
-| ResNet101 | 23.6 % | 23.6 % [2] | 22.22 % |
-| ResNet152 | 23.2 % | 23.0 % [2] | 21.60 % |
+| ResNet50 | 24.8 % | 24.7 % [2] | 23.51 % |
+| ResNet101 | 23.6 % | 23.6 % [2] | 22.07 % |
+| ResNet152 | 23.2 % | 23.0 % [2] | 21.67 % |
 | SE-ResNet50 | 22.7 % | 22.4 % [3,4] | |
 | SE-ResNet101 | 21.8 % | 21.8 % [3,4] | |
 | SE-ResNet152 | 21.4 % | 21.3 % [3,4] | |
