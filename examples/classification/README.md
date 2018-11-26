@@ -34,7 +34,7 @@ Ten crop error rate.
 
 
 The results can be reproduced by the following command.
-The score is reported using a weight converted from a weight trained by Caffe or a weight trained with `train_imagenet_multi.py`.
+The score is reported using weights converted from the weights trained by Caffe.
 These scores are obtained using OpenCV backend. If Pillow is used, scores would differ.
 
 ```
