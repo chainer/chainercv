@@ -127,12 +127,10 @@ def main():
     train_data = chainermn.scatter_dataset(train_data, comm, shuffle=True)
     val_data = chainermn.scatter_dataset(val_data, comm, shuffle=True)
     train_iter = chainer.iterators.MultiprocessIterator(
-        train_data, args.batchsize, shared_mem=3 * 224 * 224 * 4,
-        n_processes=args.loaderjob)
+        train_data, args.batchsize, n_processes=args.loaderjob)
     val_iter = iterators.MultiprocessIterator(
         val_data, args.batchsize,
-        repeat=False, shuffle=False, shared_mem=3 * 224 * 224 * 4,
-        n_processes=args.loaderjob)
+        repeat=False, shuffle=False, n_processes=args.loaderjob)
 
     optimizer = chainermn.create_multi_node_optimizer(
         CorrectedMomentumSGD(lr=lr, momentum=args.momentum), comm)
