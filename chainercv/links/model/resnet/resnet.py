@@ -109,7 +109,8 @@ class ResNet(PickableSequentialChain):
                     'param': {'n_class': 1000, 'mean': _imagenet_mean},
                     'overwritable': {'mean'},
                     'url': 'https://chainercv-models.preferred.jp/'
-                    'resnet152_imagenet_trained_2018_11_26.npz'
+                    'resnet152_imagenet_trained_2018_11_26.npz',
+                    'cv2': True,
                 },
             },
             101: {
@@ -117,7 +118,8 @@ class ResNet(PickableSequentialChain):
                     'param': {'n_class': 1000, 'mean': _imagenet_mean},
                     'overwritable': {'mean'},
                     'url': 'https://chainercv-models.preferred.jp/'
-                    'resnet101_imagenet_trained_2018_11_26.npz'
+                    'resnet101_imagenet_trained_2018_11_26.npz',
+                    'cv2': True,
                 },
             },
             152: {
@@ -125,7 +127,8 @@ class ResNet(PickableSequentialChain):
                     'param': {'n_class': 1000, 'mean': _imagenet_mean},
                     'overwritable': {'mean'},
                     'url': 'https://chainercv-models.preferred.jp/'
-                    'resnet152_imagenet_trained_2018_11_26.npz'
+                    'resnet152_imagenet_trained_2018_11_26.npz',
+                    'cv2': True,
                 },
             },
         },
