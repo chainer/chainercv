@@ -54,11 +54,36 @@ class PyramidPoolingModule(chainer.ChainList):
 class DilatedResNet(PickableSequentialChain):
 
     _blocks = {
+        50: [3, 4, 6, 3],
         101: [3, 4, 23, 3],
     }
 
-    def __init__(self, n_layer, initialW, bn_kwargs=None):
+    _models = {
+        50: {
+            'imagenet': {
+                'url': 'https://chainercv-models.preferred.jp/'
+                'pspnet_resnet50_imagenet_trained_2018_11_26.npz',
+                'cv2': True
+            },
+        },
+        101: {
+            'imagenet': {
+                'url': 'https://chainercv-models.preferred.jp/'
+                'pspnet_resnet101_imagenet_trained_2018_11_26.npz',
+                'cv2': True
+            },
+        },
+    }
+
+    def __init__(self, n_layer, pretrained_model=None,
+                 initialW=None, bn_kwargs=None):
         n_block = self._blocks[n_layer]
+
+        _, path = utils.prepare_pretrained_model(
+            {},
+            pretrained_model,
+            self._models[n_layer])
+
         super(DilatedResNet, self).__init__()
         with self.init_scope():
             self.conv1_1 = Conv2DBNActiv(
@@ -82,6 +107,9 @@ class DilatedResNet(PickableSequentialChain):
             self.res5 = ResBlock(
                 n_block[3], 1024, 512, 2048, 1, 4,
                 initialW, bn_kwargs, stride_first=False)
+
+        if path:
+            chainer.serializers.load_npz(path, self, ignore_names=None)
 
 
 class PSPNet(chainer.Chain):
@@ -280,9 +308,6 @@ class PSPNetResNet101(PSPNet):
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
             'download/0.0.6/pspnet_resnet101_cityscapes_convert_2018_05_22.npz'
         },
-        'imagenet': {
-            'url': 'XXX'
-        },
     }
 
     def __init__(self, n_class=None, pretrained_model=None,
@@ -299,15 +324,18 @@ class PSPNetResNet101(PSPNet):
             bn_kwargs = {}
         if initialW is None:
             initialW = chainer.initializers.HeNormal()
-        extractor = DilatedResNet(101, initialW, bn_kwargs)
+        if pretrained_model == 'imagenet':
+            extractor_pretrained_model = 'imagenet'
+        else:
+            extractor_pretrained_model = None
+        extractor = DilatedResNet(
+            101, extractor_pretrained_model, initialW, bn_kwargs)
         extractor.pick = ('res4', 'res5')
         super(PSPNetResNet101, self).__init__(
             extractor, param['n_class'], param['input_size'],
             initialW, bn_kwargs)
 
-        if path == 'imagenet':
-            chainer.serializers.load_npz(path, self.extractor)
-        elif path:
+        if path:
             chainer.serializers.load_npz(path, self)
 
 
