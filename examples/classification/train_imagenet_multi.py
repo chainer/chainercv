@@ -143,10 +143,6 @@ def main():
         chainer.cuda.get_device(device).use()
         model.to_gpu()
 
-    # Configure GPU setting
-    chainer.cuda.set_max_workspace_size(1 * 1024 * 1024 * 1024)
-    chainer.using_config('autotune', True)
-
     updater = chainer.training.StandardUpdater(
         train_iter, optimizer, device=device)
 
