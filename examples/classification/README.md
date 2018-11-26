@@ -75,7 +75,7 @@ For more statistically reliable results, we obtained results from five different
 | ResNet50 | 32 | 23.56 (std=0.11) |
 
 
-## How to prepare ImageNet Dataset
+## How to prepare ImageNet dataset
 
 This instructions are based on the instruction found [here](https://github.com/facebook/fb.resnet.torch/blob/master/INSTALL.md#download-the-imagenet-dataset).
 
