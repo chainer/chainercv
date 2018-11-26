@@ -5,6 +5,7 @@ import numpy as np
 
 import chainer
 import chainer.functions as F
+from chainer import initializers
 import chainer.links as L
 
 from chainercv.experimental.links.model.pspnet.transforms import \
@@ -266,9 +267,9 @@ class PSPNet(chainer.Chain):
         return labels
 
 
-class PSPNetResNet101(PSPNet):
+class PSPNetResNet(PSPNet):
 
-    """PSPNet with Dilated ResNet101 as the feature extractor.
+    """PSPNet with Dilated ResNet as the feature extractor.
 
     .. seealso::
         :class:`chainercv.experimental.links.model.pspnet.PSPNet`
@@ -302,17 +303,17 @@ class PSPNetResNet101(PSPNet):
 
     """
 
-    _models = {
-        'cityscapes': {
-            'param': {'n_class': 19, 'input_size': (713, 713)},
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/pspnet_resnet101_cityscapes_convert_2018_05_22.npz'
-        },
-    }
-
     def __init__(self, n_class=None, pretrained_model=None,
                  input_size=None,
                  initialW=None, comm=None):
+        if initialW is None:
+            if pretrained_model:
+                initialW = initializers.constant.Zero()
+        if pretrained_model == 'imagenet':
+            extractor_pretrained_model = 'imagenet'
+            pretrained_model = None
+        else:
+            extractor_pretrained_model = None
         param, path = utils.prepare_pretrained_model(
             {'n_class': n_class, 'input_size': input_size},
             pretrained_model, self._models,
@@ -322,21 +323,49 @@ class PSPNetResNet101(PSPNet):
             bn_kwargs = {'comm': comm}
         else:
             bn_kwargs = {}
-        if initialW is None:
-            initialW = chainer.initializers.HeNormal()
-        if pretrained_model == 'imagenet':
-            extractor_pretrained_model = 'imagenet'
-        else:
-            extractor_pretrained_model = None
         extractor = DilatedResNet(
-            101, extractor_pretrained_model, initialW, bn_kwargs)
+            self._n_layer,
+            extractor_pretrained_model, initialW, bn_kwargs)
         extractor.pick = ('res4', 'res5')
-        super(PSPNetResNet101, self).__init__(
+        super(PSPNetResNet, self).__init__(
             extractor, param['n_class'], param['input_size'],
             initialW, bn_kwargs)
 
         if path:
             chainer.serializers.load_npz(path, self)
+
+
+class PSPNetResNet101(PSPNetResNet):
+
+    """PSPNet with Dilated ResNet101 as the feature extractor.
+
+    .. seealso::
+        :class:`chainercv.experimental.links.model.pspnet.PSPNetResNet`
+
+    """
+
+    _n_layer = 101
+    _models = {
+        'cityscapes': {
+            'param': {'n_class': 19, 'input_size': (713, 713)},
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.6/pspnet_resnet101_cityscapes_convert_2018_05_22.npz'
+        },
+    }
+
+
+class PSPNetResNet50(PSPNetResNet):
+
+    """PSPNet with Dilated ResNet50 as the feature extractor.
+
+    .. seealso::
+        :class:`chainercv.experimental.links.model.pspnet.PSPNetResNet`
+
+    """
+
+    _n_layer = 50
+    _models = {
+    }
 
 
 def _multiscale_predict(predict_method, img, scales):
