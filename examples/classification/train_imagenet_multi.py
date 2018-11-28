@@ -177,7 +177,6 @@ def main():
 
     log_interval = 0.1, 'epoch'
     print_interval = 0.1, 'epoch'
-    plot_interval = 1, 'epoch'
 
     if comm.rank == 0:
         trainer.extend(chainer.training.extensions.observe_lr(),
@@ -193,22 +192,6 @@ def main():
              'main/accuracy', 'validation/main/accuracy']
         ), trigger=print_interval)
         trainer.extend(extensions.ProgressBar(update_interval=10))
-
-        if extensions.PlotReport.available():
-            trainer.extend(
-                extensions.PlotReport(
-                    ['main/loss', 'validation/main/loss'],
-                    file_name='loss.png', trigger=plot_interval
-                ),
-                trigger=plot_interval
-            )
-            trainer.extend(
-                extensions.PlotReport(
-                    ['main/accuracy', 'validation/main/accuracy'],
-                    file_name='accuracy.png', trigger=plot_interval
-                ),
-                trigger=plot_interval
-            )
 
     trainer.run()
 
