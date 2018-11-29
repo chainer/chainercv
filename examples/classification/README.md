@@ -4,14 +4,14 @@
 
 ### Weight conversion
 
-Single crop error rate.
+Single crop error rates of the models with the weights converted from Caffe weights.
 
 | Model | Top 1 | Reference Top 1 |
 |:-:|:-:|:-:|
 | VGG16 | 29.0 % | 28.5 % [1] |
-| ResNet50 | 24.8 % | 24.7 % [2] |
-| ResNet101 | 23.6 % | 23.6 % [2] |
-| ResNet152 | 23.2 % | 23.0 % [2] |
+| ResNet50 (`arch=he`) | 24.8 % | 24.7 % [2] |
+| ResNet101 (`arch=he`) | 23.6 % | 23.6 % [2] |
+| ResNet152 (`arch=he`) | 23.2 % | 23.0 % [2] |
 | SE-ResNet50 | 22.7 % | 22.4 % [3,4] |
 | SE-ResNet101 | 21.8 % | 21.8 % [3,4] |
 | SE-ResNet152 | 21.4 % | 21.3 % [3,4] |
@@ -23,9 +23,9 @@ Ten crop error rate.
 | Model | Top 1 | Reference Top 1 |
 |:-:|:-:|:-:|
 | VGG16 | 27.1 % |   |
-| ResNet50 | 23.0 % | 22.9 % [2] |
-| ResNet101 | 21.8 % | 21.8 % [2] |
-| ResNet152 | 21.4 % | 21.4 % [2] |
+| ResNet50 (`arch=he`) | 23.0 % | 22.9 % [2] |
+| ResNet101 (`arch=he`) | 21.8 % | 21.8 % [2] |
+| ResNet152 (`arch=he`) | 21.4 % | 21.4 % [2] |
 | SE-ResNet50 | 20.8 % |  |
 | SE-ResNet101 | 20.1 % |  |
 | SE-ResNet152 | 19.7 % |  |
@@ -34,7 +34,6 @@ Ten crop error rate.
 
 
 The results can be reproduced by the following command.
-The score is reported using weights converted from the weights trained by Caffe.
 These scores are obtained using OpenCV backend. If Pillow is used, scores would differ.
 
 ```
@@ -47,9 +46,9 @@ Single crop error rates of the models trained with the ChainerCV's training scri
 
 | Model | Top 1 | Reference Top 1 |
 |:-:|:-:|:-:|
-| ResNet50 | 23.51 % | 23.60% [5] |
-| ResNet101 | 22.07 % | 22.08% [5] |
-| ResNet152 | 21.67 % |  |
+| ResNet50 (`arch=fb`) | 23.51 % | 23.60% [5] |
+| ResNet101 (`arch=fb`) | 22.07 % | 22.08% [5] |
+| ResNet152 (`arch=fb`) | 21.67 % |  |
 
 
 The scores of the models trained with `train_imagenet_multi.py`, which can be executed like below.
@@ -60,20 +59,20 @@ $ mpiexec -n N python train_imagenet_multi.py <path_to_train_dataset> <path_to_v
 
 The training procedure carefully follows the "ResNet in 1 hour" paper [5].
 
-##### Performance tip
+#### Performance tip
 When training over multiple nodes, set the communicator to `pure_nccl` (requires NCCL2).
 The default communicator (`hierarchical`) uses MPI to communicate between nodes, which is slower than the pure NCCL communicator.
 Also, cuDNN convolution functions can be optimized with extra commands (see https://docs.chainer.org/en/stable/performance.html#optimize-cudnn-convolution).
 
-##### Detailed training results
+#### Detailed training results
 
 Here, we investigate the effect of the number of GPUs on the final performance.
 For more statistically reliable results, we obtained results from five different random seeds.
 
 | Model | # GPUs | Top 1 |
 |:-:|:-:|:-:|
-| ResNet50 | 8 | 23.53 (std=0.06) |
-| ResNet50 | 32 | 23.56 (std=0.11) |
+| ResNet50 (`arch=fb`) | 8 | 23.53 (std=0.06) |
+| ResNet50 (`arch=fb`) | 32 | 23.56 (std=0.11) |
 
 
 ## How to prepare ImageNet dataset
