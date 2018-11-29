@@ -71,6 +71,11 @@ class COCOBboxDataset(GetterDataset):
 
     def __init__(self, data_dir='auto', split='train', year='2017',
                  use_crowded=False, return_area=False, return_crowded=False):
+        if year == '2017' and split in ['minival', 'valminusminival']:
+            raise ValueError(
+                'coco2017 dataset does not support given split: {}'
+                .format(split))
+
         super(COCOBboxDataset, self).__init__()
         self.use_crowded = use_crowded
         if split in ['val', 'minival', 'valminusminival']:
@@ -78,7 +83,7 @@ class COCOBboxDataset(GetterDataset):
         else:
             img_split = 'train'
         if data_dir == 'auto':
-            data_dir = get_coco(split, img_split, year)
+            data_dir = get_coco(split, img_split, year, 'instances')
 
         self.img_root = os.path.join(
             data_dir, 'images', '{}{}'.format(img_split, year))
