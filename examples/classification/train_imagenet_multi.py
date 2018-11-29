@@ -36,7 +36,6 @@ class TrainTransform(object):
 
     def __call__(self, in_data):
         img, label = in_data
-        _, H, W = img.shape
         img = random_sized_crop(img)
         img = resize(img, (224, 224))
         img = random_flip(img, x_random=True)
