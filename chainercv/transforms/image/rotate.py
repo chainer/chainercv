@@ -57,7 +57,10 @@ def _rotate_pil(img, angle, expand, fill, interpolation):
             ch.rotate(
                 angle, expand=expand,
                 fillcolor=fill, resample=interpolation)))
-    return np.stack(out).astype(img.dtype)
+    out = np.stack(out)
+    if np.issubdtype(img.dtype, np.integer):
+        out = np.round(out)
+    return out.astype(img.dtype)
 
 
 def rotate(img, angle, expand=True, fill=0, interpolation=PIL.Image.BILINEAR):
