@@ -1,25 +1,74 @@
+from __future__ import division
+import numpy as np
 import PIL
 import warnings
 
+import chainer
 
 try:
-    import scipy.ndimage
-    _available = True
+    import cv2
+    _cv2_available = True
 except ImportError:
-    _available = False
+    _cv2_available = False
 
 
-def _check_available():
-    if not _available:
-        warnings.warn(
-            'SciPy is not installed in your environment,'
-            'so rotate cannot be loaded.'
-            'Please install SciPy to load dataset.\n\n'
-            '$ pip install scipy')
+def _rotate_cv2(img, angle, expand, fill, interpolation):
+    if interpolation == PIL.Image.NEAREST:
+        cv_interpolation = cv2.INTER_NEAREST
+    elif interpolation == PIL.Image.BILINEAR:
+        cv_interpolation = cv2.INTER_LINEAR
+    elif interpolation == PIL.Image.BICUBIC:
+        cv_interpolation = cv2.INTER_CUBIC
+
+    _, H, W = img.shape
+    affine_mat = cv2.getRotationMatrix2D((W / 2, H / 2), angle, 1)
+    # Logic borrowed from Pillow
+    if expand:
+        # calculate output size
+        yy = []
+        xx = []
+        for y, x in ((0, 0), (H, 0), (H, W), (0, W)):
+            yy.append(
+                affine_mat[1, 0] * x + affine_mat[1, 1] * y + affine_mat[1, 2])
+            xx.append(
+                affine_mat[0, 0] * x + affine_mat[0, 1] * y + affine_mat[0, 2])
+        out_H = int(np.ceil(max(yy)) - np.floor(min(yy)))
+        out_W = int(np.ceil(max(xx)) - np.floor(min(xx)))
+
+        affine_mat[1][2] += out_H / 2 - H / 2
+        affine_mat[0][2] += out_W / 2 - W / 2
+    else:
+        out_H = H
+        out_W = W
+
+    img = img.transpose((1, 2, 0))
+    img = cv2.warpAffine(
+        img, affine_mat, (out_W, out_H), flags=cv_interpolation,
+        borderValue=fill)
+    img = img.transpose((2, 0, 1))
+    return img
+
+
+def _rotate_pil(img, angle, expand, fill, interpolation):
+    out = []
+    for ch in img:
+        ch = PIL.Image.fromarray(ch, mode='F')
+        out.append(np.array(
+            ch.rotate(
+                angle, expand=expand,
+                fillcolor=fill, resample=interpolation)))
+    out = np.stack(out)
+    if np.issubdtype(img.dtype, np.integer):
+        out = np.round(out)
+    return out.astype(img.dtype)
 
 
 def rotate(img, angle, expand=True, fill=0, interpolation=PIL.Image.BILINEAR):
     """Rotate images by degrees.
+
+    The backend used by :func:`rotate` is configured by
+    :obj:`chainer.global_config.cv_rotate_backend`.
+    Two backends are supported: "cv2" and "PIL".
 
     Args:
         img (~numpy.ndarray): An arrays that get rotated. This is in
@@ -39,17 +88,19 @@ def rotate(img, angle, expand=True, fill=0, interpolation=PIL.Image.BILINEAR):
         returns an array :obj:`out_img` that is the result of rotation.
 
     """
-
-    _check_available()
-
-    # http://scikit-image.org/docs/dev/api/skimage.transform.html#warp
-    if interpolation == PIL.Image.NEAREST:
-        interpolation_order = 0
-    elif interpolation == PIL.Image.BILINEAR:
-        interpolation_order = 1
-    elif interpolation == PIL.Image.BICUBIC:
-        interpolation_order = 3
-
-    return scipy.ndimage.rotate(
-        img, angle, axes=(2, 1), reshape=expand,
-        order=interpolation_order, cval=fill)
+    if chainer.config.cv_rotate_backend == 'cv2':
+        if _cv2_available:
+            return _rotate_cv2(img, angle, expand, fill, interpolation)
+        else:
+            warnings.warn(
+                'Although `chainer.config.cv_rotate_backend == "cv2"`, '
+                'cv2 is not found. As a fallback option, rotate uses '
+                'PIL. Either install cv2 or set '
+                '`chainer.global_config.cv_rotate_backend = "PIL"` to '
+                'suppress this warning.')
+            return _rotate_pil(img, angle, expand, fill, interpolation)
+    elif chainer.config.cv_rotate_backend == 'PIL':
+        return _rotate_pil(img, angle, expand, fill, interpolation)
+    else:
+        raise ValueError('chainer.config.cv_rotate_backend should be '
+                         'either "cv2" or "PIL".')
