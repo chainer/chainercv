@@ -45,6 +45,8 @@ def _rotate_cv2(img, angle, expand, fill, interpolation):
     img = cv2.warpAffine(
         img, affine_mat, (out_W, out_H), flags=cv_interpolation,
         borderValue=fill)
+    if img.ndim == 2:
+        img = img[:, :, None]
     img = img.transpose((2, 0, 1))
     return img
 

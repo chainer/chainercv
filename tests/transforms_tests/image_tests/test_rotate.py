@@ -20,12 +20,13 @@ except ImportError:
     'interpolation': [PIL.Image.NEAREST, PIL.Image.BILINEAR,
                       PIL.Image.BICUBIC],
     'fill': [-1, 0, 100],
+    'size': [(3, 32, 24), (1, 32, 24)],
 }))
 class TestRotate(unittest.TestCase):
 
     def test_rotate_pil(self):
         chainer.global_config.cv_rotate_backend = 'PIL'
-        img = np.random.uniform(0, 256, size=(3, 32, 24)).astype(np.float32)
+        img = np.random.uniform(0, 256, size=self.size).astype(np.float32)
         angle = random.uniform(-180, 180)
 
         out = rotate(img, angle, fill=self.fill,
@@ -43,7 +44,7 @@ class TestRotate(unittest.TestCase):
 
     def test_rotate_cv2(self):
         chainer.global_config.cv_rotate_backend = 'cv2'
-        img = np.random.uniform(0, 256, size=(3, 32, 24)).astype(np.float32)
+        img = np.random.uniform(0, 256, size=self.size).astype(np.float32)
         angle = random.uniform(-180, 180)
 
         out = rotate(img, angle, fill=self.fill,
@@ -55,7 +56,7 @@ class TestRotate(unittest.TestCase):
 
     def test_rotate_pil_no_expand(self):
         chainer.global_config.cv_rotate_backend = 'PIL'
-        img = np.random.uniform(0, 256, size=(3, 32, 24)).astype(np.float32)
+        img = np.random.uniform(0, 256, size=self.size).astype(np.float32)
         angle = random.uniform(-180, 180)
 
         out = rotate(img, angle, fill=self.fill,
@@ -65,7 +66,7 @@ class TestRotate(unittest.TestCase):
 
     def test_rotate_cv2_no_expand(self):
         chainer.global_config.cv_rotate_backend = 'cv2'
-        img = np.random.uniform(0, 256, size=(3, 32, 24)).astype(np.float32)
+        img = np.random.uniform(0, 256, size=self.size).astype(np.float32)
         angle = random.uniform(-180, 180)
 
         out = rotate(img, angle, fill=self.fill,
