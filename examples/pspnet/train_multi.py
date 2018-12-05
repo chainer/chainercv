@@ -1,6 +1,4 @@
 import argparse
-import cv2
-cv2.setNumThreads(0)
 import multiprocessing
 import numpy as np
 
@@ -16,7 +14,6 @@ from ade20k_utils import ade20k_semantic_segmentation_label_names
 from chainercv.datasets import CityscapesSemanticSegmentationDataset
 from chainercv.datasets import cityscapes_semantic_segmentation_label_names
 from chainercv.experimental.links import PSPNetResNet101
-from chainercv.experimental.links.model.pspnet.pspnet import DilatedResNet
 from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
 from chainercv.links import Conv2DBNActiv
 from chainercv.extensions import SemanticSegmentationEvaluator
@@ -25,6 +22,13 @@ from chainercv import transforms
 import PIL
 
 import chainermn
+
+try:
+    import cv2
+    # the function rotate has a bug with MultiprocessIterator
+    cv2.setNumThreads(0)
+except ImportError:
+    pass
 
 
 class Transform(object):
@@ -58,12 +62,11 @@ class Transform(object):
 
         # Rotate
         angle = np.random.uniform(-10, 10)
-        H, W = img.shape[1:]
-        img = img.transpose(1, 2, 0)
-        r = cv2.getRotationMatrix2D((W // 2, H // 2), angle, 1)
-        img = cv2.warpAffine(img, r, (W, H)).transpose(2, 0, 1)
-        label = cv2.warpAffine(label, r, (W, H), flags=cv2.INTER_NEAREST,
-                               borderValue=-1)
+        img = transforms.rotate(img, angle, expand=False)
+        label = transforms.rotate(
+            label[None], angle, expand=False,
+            interpolation=PIL.Image.NEAREST,
+            fill=-1)[0]
 
         # Resize
         if ((img.shape[1] < self.crop_size[0])
@@ -118,7 +121,7 @@ class TrainChain(chainer.Chain):
         return loss
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-dir', default='auto')
 
@@ -130,7 +133,6 @@ if __name__ == '__main__':
     parser.add_argument('--out', default='result')
     parser.add_argument('--iteration', default=None, type=int)
     parser.add_argument('--communicator', default='hierarchical')
-    parser.add_argument('--extractor-pretrained')
     args = parser.parse_args()
 
     dataset_cfgs = {
@@ -145,7 +147,7 @@ if __name__ == '__main__':
     }
     dataset_cfg = dataset_cfgs[args.dataset]
 
-    # This fixes a crash caused by a bug with multiprocessing and MPI.abs
+    # This fixes a crash caused by a bug with multiprocessing and MPI.
     multiprocessing.set_start_method('forkserver')
     p = multiprocessing.Process()
     p.start()
@@ -156,8 +158,8 @@ if __name__ == '__main__':
 
     n_class = len(dataset_cfg['label_names'])
     model = PSPNetResNet101(
-        n_class, input_size=dataset_cfg['input_size'], comm=comm)
-    chainer.serializers.load_npz(args.extractor_pretrained, model.extractor)
+        n_class, pretrained_model='imagenet',
+        input_size=dataset_cfg['input_size'], comm=comm)
 
     train_chain = TrainChain(model)
     if device >= 0:
@@ -239,6 +241,7 @@ if __name__ == '__main__':
             trigger=(n_iter, 'iteration'))
 
     trainer.run()
-ift
 
-from ade—
+
+if __name__ == '__main__':
+    main()
