@@ -244,7 +244,7 @@ def main():
     optimizer.setup(train_chain)
     for param in model.params():
         if param.name not in ('beta', 'gamma'):
-            param.update_rule.add_hook(WeightDecay(1e-4))
+            param.update_rule.add_hook(chainer.optimizer.WeightDecay(1e-4))
 
     updater = training.updaters.StandardUpdater(
         train_iter, optimizer, device=device)
