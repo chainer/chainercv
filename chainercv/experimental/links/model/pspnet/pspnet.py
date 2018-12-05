@@ -5,6 +5,7 @@ import numpy as np
 
 import chainer
 import chainer.functions as F
+from chainer import initializers
 import chainer.links as L
 
 from chainercv.experimental.links.model.pspnet.transforms import \
@@ -54,11 +55,36 @@ class PyramidPoolingModule(chainer.ChainList):
 class DilatedResNet(PickableSequentialChain):
 
     _blocks = {
+        50: [3, 4, 6, 3],
         101: [3, 4, 23, 3],
     }
 
-    def __init__(self, n_layer, initialW, bn_kwargs=None):
+    _models = {
+        50: {
+            'imagenet': {
+                'url': 'https://chainercv-models.preferred.jp/'
+                'pspnet_resnet50_imagenet_trained_2018_11_26.npz',
+                'cv2': True
+            },
+        },
+        101: {
+            'imagenet': {
+                'url': 'https://chainercv-models.preferred.jp/'
+                'pspnet_resnet101_imagenet_trained_2018_11_26.npz',
+                'cv2': True
+            },
+        },
+    }
+
+    def __init__(self, n_layer, pretrained_model=None,
+                 initialW=None, bn_kwargs=None):
         n_block = self._blocks[n_layer]
+
+        _, path = utils.prepare_pretrained_model(
+            {},
+            pretrained_model,
+            self._models[n_layer])
+
         super(DilatedResNet, self).__init__()
         with self.init_scope():
             self.conv1_1 = Conv2DBNActiv(
@@ -82,6 +108,9 @@ class DilatedResNet(PickableSequentialChain):
             self.res5 = ResBlock(
                 n_block[3], 1024, 512, 2048, 1, 4,
                 initialW=initialW, bn_kwargs=bn_kwargs, stride_first=False)
+
+        if path:
+            chainer.serializers.load_npz(path, self, ignore_names=None)
 
 
 class PSPNet(chainer.Chain):
@@ -238,9 +267,9 @@ class PSPNet(chainer.Chain):
         return labels
 
 
-class PSPNetResNet101(PSPNet):
+class PSPNetResNet(PSPNet):
 
-    """PSPNet with Dilated ResNet101 as the feature extractor.
+    """PSPNet with Dilated ResNet as the feature extractor.
 
     .. seealso::
         :class:`chainercv.experimental.links.model.pspnet.PSPNet`
@@ -255,6 +284,8 @@ class PSPNetResNet101(PSPNet):
                 Cityscapes dataset. \
                 The weight file is downloaded and cached automatically. \
                 :obj:`n_class` must be :obj:`19` or :obj:`None`.
+            * :obj:`'imagenet'`: Load ImageNet pretrained weights for \
+                the extractor.
             * `filepath`: A path of npz file. In this case, :obj:`n_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
@@ -283,6 +314,14 @@ class PSPNetResNet101(PSPNet):
     def __init__(self, n_class=None, pretrained_model=None,
                  input_size=None,
                  initialW=None, comm=None):
+        if initialW is None:
+            if pretrained_model:
+                initialW = initializers.constant.Zero()
+        if pretrained_model == 'imagenet':
+            extractor_pretrained_model = 'imagenet'
+            pretrained_model = None
+        else:
+            extractor_pretrained_model = None
         param, path = utils.prepare_pretrained_model(
             {'n_class': n_class, 'input_size': input_size},
             pretrained_model, self._models,
@@ -292,16 +331,49 @@ class PSPNetResNet101(PSPNet):
             bn_kwargs = {'comm': comm}
         else:
             bn_kwargs = {}
-        if initialW is None:
-            initialW = chainer.initializers.HeNormal()
-        extractor = DilatedResNet(101, initialW, bn_kwargs)
+        extractor = DilatedResNet(
+            self._n_layer,
+            extractor_pretrained_model, initialW, bn_kwargs)
         extractor.pick = ('res4', 'res5')
-        super(PSPNetResNet101, self).__init__(
+        super(PSPNetResNet, self).__init__(
             extractor, param['n_class'], param['input_size'],
             initialW, bn_kwargs)
 
         if path:
             chainer.serializers.load_npz(path, self)
+
+
+class PSPNetResNet101(PSPNetResNet):
+
+    """PSPNet with Dilated ResNet101 as the feature extractor.
+
+    .. seealso::
+        :class:`chainercv.experimental.links.model.pspnet.PSPNetResNet`
+
+    """
+
+    _n_layer = 101
+    _models = {
+        'cityscapes': {
+            'param': {'n_class': 19, 'input_size': (713, 713)},
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.6/pspnet_resnet101_cityscapes_convert_2018_05_22.npz'
+        },
+    }
+
+
+class PSPNetResNet50(PSPNetResNet):
+
+    """PSPNet with Dilated ResNet50 as the feature extractor.
+
+    .. seealso::
+        :class:`chainercv.experimental.links.model.pspnet.PSPNetResNet`
+
+    """
+
+    _n_layer = 50
+    _models = {
+    }
 
 
 def _multiscale_predict(predict_method, img, scales):
