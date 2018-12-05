@@ -16,6 +16,7 @@ from chainercv.datasets import cityscapes_semantic_segmentation_label_names
 from chainercv.datasets import CityscapesSemanticSegmentationDataset
 
 from chainercv.experimental.links import PSPNetResNet101
+from chainercv.experimental.links import PSPNetResNet50
 
 from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
 from chainercv.extensions import SemanticSegmentationEvaluator
@@ -165,8 +166,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-dir', default='auto')
     parser.add_argument('--dataset',
-                        choices=('ade20k', 'cityscapes'),
-                        default='ade20k')
+                        choices=('ade20k', 'cityscapes'))
+    parser.add_argument('--model',
+                        choices=('pspnet_resnet101', 'pspnet_resnet50'))
     parser.add_argument('--lr', default=1e-2)
     parser.add_argument('--batch-size', default=2, type=int)
     parser.add_argument('--out', default='result')
@@ -196,17 +198,19 @@ def main():
     device = comm.intra_rank
 
     n_class = len(dataset_cfg['label_names'])
-    model = PSPNetResNet101(
-        n_class, pretrained_model='imagenet',
-        input_size=dataset_cfg['input_size'])
+    if args.model == 'pspnet_resnet101':
+        model = PSPNetResNet101(
+            n_class, pretrained_model='imagenet',
+            input_size=dataset_cfg['input_size'])
+    elif args.model == 'pspnet_resnet50':
+        model = PSPNetResNet50(
+            n_class, pretrained_model='imagenet',
+            input_size=dataset_cfg['input_size'])
     train_chain = TrainChain(model)
     create_mnbn_model(model, comm)
     if device >= 0:
         chainer.cuda.get_device_from_id(device).use()
         train_chain.to_gpu()
-
-    chainer.cuda.set_max_workspace_size(1 * 1024 * 1024 * 1024)
-    chainer.using_config('autotune', True)
 
     if args.iteration is None:
         n_iter = dataset_cfg['iteration']
@@ -219,6 +223,7 @@ def main():
                 data_dir=args.data_dir, split='train')
             val = ADE20KSemanticSegmentationDataset(
                 data_dir=args.data_dir, split='val')
+            label_names = ade20k_semantic_segmentation_label_names
         elif args.dataset == 'cityscapes':
             train = CityscapesSemanticSegmentationDataset(
                 args.data_dir,
@@ -226,6 +231,7 @@ def main():
             val = CityscapesSemanticSegmentationDataset(
                 args.data_dir,
                 label_resolution='fine', split='val')
+            label_names = cityscapes_semantic_segmentation_label_names
         train = TransformDataset(
             train,
             ('img', 'label'),
@@ -254,13 +260,6 @@ def main():
         trigger=(1, 'iteration'))
 
     log_interval = 10, 'iteration'
-    val_interval = 10000, 'iteration'
-
-    evaluator = chainermn.create_multi_node_evaluator(
-        SemanticSegmentationEvaluator(
-            val_iter, model,
-            cityscapes_semantic_segmentation_label_names), comm)
-    trainer.extend(evaluator, trigger=(n_iter, 'iteration'))
 
     if comm.rank == 0:
         trainer.extend(extensions.LogReport(trigger=log_interval))
@@ -271,14 +270,14 @@ def main():
              'validation/main/pixel_accuracy']),
             trigger=log_interval)
         trainer.extend(extensions.ProgressBar(update_interval=10))
-
-        trainer.extend(
-            extensions.snapshot_object(
-                train_chain, 'snapshot_train_chain_{.updater.iteration}.npz'),
-            trigger=val_interval)
         trainer.extend(
             extensions.snapshot_object(
                 train_chain.model, 'snapshot_model_{.updater.iteration}.npz'),
+            trigger=(n_iter, 'iteration'))
+        trainer.extend(
+            SemanticSegmentationEvaluator(
+                val_iter, model,
+                label_names),
             trigger=(n_iter, 'iteration'))
 
     trainer.run()
