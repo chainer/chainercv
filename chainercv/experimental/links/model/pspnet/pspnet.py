@@ -98,16 +98,16 @@ class DilatedResNet(PickableSequentialChain):
                 x, ksize=3, stride=2, pad=1)
             self.res2 = ResBlock(
                 n_block[0], 128, 64, 256, 1, 1,
-                initialW, bn_kwargs, stride_first=False)
+                initialW=initialW, bn_kwargs=bn_kwargs, stride_first=False)
             self.res3 = ResBlock(
                 n_block[1], 256, 128, 512, 2, 1,
-                initialW, bn_kwargs, stride_first=False)
+                initialW=initialW, bn_kwargs=bn_kwargs, stride_first=False)
             self.res4 = ResBlock(
                 n_block[2], 512, 256, 1024, 1, 2,
-                initialW, bn_kwargs, stride_first=False)
+                initialW=initialW, bn_kwargs=bn_kwargs, stride_first=False)
             self.res5 = ResBlock(
                 n_block[3], 1024, 512, 2048, 1, 4,
-                initialW, bn_kwargs, stride_first=False)
+                initialW=initialW, bn_kwargs=bn_kwargs, stride_first=False)
 
         if path:
             chainer.serializers.load_npz(path, self, ignore_names=None)
@@ -302,6 +302,14 @@ class PSPNetResNet(PSPNet):
             normalization.
 
     """
+
+    _models = {
+        'cityscapes': {
+            'param': {'n_class': 19, 'input_size': (713, 713)},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'pspnet_resnet101_cityscapes_converted_2018_05_22.npz'
+        }
+    }
 
     def __init__(self, n_class=None, pretrained_model=None,
                  input_size=None,

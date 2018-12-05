@@ -51,7 +51,7 @@ def main():
     parser.add_argument('--out', '-o', default='result',
                         help='Output directory')
     parser.add_argument('--seed', '-s', type=int, default=0)
-    parser.add_argument('--step_size', '-ss', type=int, default=50000)
+    parser.add_argument('--step-size', '-ss', type=int, default=50000)
     parser.add_argument('--iteration', '-i', type=int, default=70000)
     args = parser.parse_args()
 

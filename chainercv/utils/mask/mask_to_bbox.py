@@ -30,7 +30,10 @@ def mask_to_bbox(mask):
     bbox = []
     for msk in mask:
         where = np.argwhere(msk)
-        y_min, x_min = where.min(0)
-        y_max, x_max = where.max(0) + 1
+        if len(where) > 0:
+            y_min, x_min = where.min(0)
+            y_max, x_max = where.max(0) + 1
+        else:
+            y_min, x_min, y_max, x_max = 0, 0, 0, 0
         bbox.append((y_min, x_min, y_max, x_max))
     return xp.array(bbox, dtype=np.float32)

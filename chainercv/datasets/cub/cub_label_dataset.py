@@ -2,6 +2,7 @@ import numpy as np
 import os
 
 from chainercv.datasets.cub.cub_utils import CUBDatasetBase
+from chainercv import utils
 
 
 class CUBLabelDataset(CUBDatasetBase):
@@ -54,7 +55,8 @@ class CUBLabelDataset(CUBDatasetBase):
                   d_label in open(image_class_labels_file)]
         self._labels = np.array(labels, dtype=np.int32)
 
-        self.add_getter('label', lambda i: self._labels[i])
+        self.add_getter('img', self._get_image)
+        self.add_getter('label', self._get_label)
 
         keys = ('img', 'label')
         if return_bb:
@@ -62,3 +64,12 @@ class CUBLabelDataset(CUBDatasetBase):
         if return_prob_map:
             keys += ('prob_map',)
         self.keys = keys
+
+    def _get_image(self, i):
+        img = utils.read_image(
+            os.path.join(self.data_dir, 'images', self.paths[i]),
+            color=True)
+        return img
+
+    def _get_label(self, i):
+        return self._labels[i]

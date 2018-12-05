@@ -3,6 +3,7 @@ import numpy as np
 import os
 
 from chainercv.datasets.cub.cub_utils import CUBDatasetBase
+from chainercv import utils
 
 
 class CUBPointDataset(CUBDatasetBase):
@@ -66,7 +67,8 @@ class CUBPointDataset(CUBDatasetBase):
             self._point_dict[id_].append(point)
             self._mask_dict[id_].append(mask)
 
-        self.add_getter(('point', 'mask'), self._get_annotations)
+        self.add_getter(('img', 'point', 'mask'),
+                        self._get_img_and_annotations)
 
         keys = ('img', 'point', 'mask')
         if return_bb:
@@ -75,7 +77,17 @@ class CUBPointDataset(CUBDatasetBase):
             keys += ('prob_map',)
         self.keys = keys
 
-    def _get_annotations(self, i):
+    def _get_img_and_annotations(self, i):
+        img = utils.read_image(
+            os.path.join(self.data_dir, 'images', self.paths[i]),
+            color=True)
+
         point = np.array(self._point_dict[i], dtype=np.float32)
         mask = np.array(self._mask_dict[i], dtype=np.bool)
-        return point, mask
+
+        _, H, W = img.shape
+        invalid = np.logical_or(
+            np.logical_or(point[:, 0] > H, point[:, 1] > W),
+            np.any(point < 0, axis=1))
+        mask[invalid] = False
+        return img, point, mask

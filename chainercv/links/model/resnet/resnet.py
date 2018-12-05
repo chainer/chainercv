@@ -55,10 +55,11 @@ class ResNet(PickableSequentialChain):
     loaded from weights distributed on the Internet.
     The list of pretrained models supported are as follows:
 
-    * :obj:`imagenet`: Loads weights trained with ImageNet and distributed \
+    * :obj:`imagenet`: Loads weights trained with ImageNet. \
+        When :obj:`arch=='he'`, the weights distributed \
         at `Model Zoo \
-        <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_.
-        This is only supported when :obj:`arch=='he'`.
+        <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_ \
+        are used.
 
     Args:
         n_layer (int): The number of layers.
@@ -103,36 +104,57 @@ class ResNet(PickableSequentialChain):
 
     _models = {
         'fb': {
-            50: {},
-            101: {},
-            152: {}
-        },
-        'he': {
             50: {
                 'imagenet': {
                     'param': {'n_class': 1000, 'mean': _imagenet_mean},
                     'overwritable': {'mean'},
-                    'url': 'https://github.com/yuyu2172/share-weights/'
-                    'releases/download/0.0.6/'
-                    'resnet50_imagenet_convert_2018_03_07.npz'
+                    'url': 'https://chainercv-models.preferred.jp/'
+                    'resnet152_imagenet_trained_2018_11_26.npz',
+                    'cv2': True,
                 },
             },
             101: {
                 'imagenet': {
                     'param': {'n_class': 1000, 'mean': _imagenet_mean},
                     'overwritable': {'mean'},
-                    'url': 'https://github.com/yuyu2172/share-weights/'
-                    'releases/download/0.0.6/'
-                    'resnet101_imagenet_convert_2018_03_07.npz'
+                    'url': 'https://chainercv-models.preferred.jp/'
+                    'resnet101_imagenet_trained_2018_11_26.npz',
+                    'cv2': True,
                 },
             },
             152: {
                 'imagenet': {
                     'param': {'n_class': 1000, 'mean': _imagenet_mean},
                     'overwritable': {'mean'},
-                    'url': 'https://github.com/yuyu2172/share-weights/'
-                    'releases/download/0.0.6/'
-                    'resnet152_imagenet_convert_2018_03_07.npz'
+                    'url': 'https://chainercv-models.preferred.jp/'
+                    'resnet152_imagenet_trained_2018_11_26.npz',
+                    'cv2': True,
+                },
+            },
+        },
+        'he': {
+            50: {
+                'imagenet': {
+                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'overwritable': {'mean'},
+                    'url': 'https://chainercv-models.preferred.jp/'
+                    'resnet50_imagenet_converted_2018_03_07.npz'
+                },
+            },
+            101: {
+                'imagenet': {
+                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'overwritable': {'mean'},
+                    'url': 'https://chainercv-models.preferred.jp/'
+                    'resnet101_imagenet_converted_2018_03_07.npz'
+                },
+            },
+            152: {
+                'imagenet': {
+                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'overwritable': {'mean'},
+                    'url': 'https://chainercv-models.preferred.jp/'
+                    'resnet152_imagenet_converted_2018_03_07.npz'
                 },
             }
         }
@@ -143,10 +165,6 @@ class ResNet(PickableSequentialChain):
                  pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}, arch='fb'):
         if arch == 'fb':
-            if pretrained_model == 'imagenet':
-                raise ValueError(
-                    'Pretrained weights for Facebook ResNet models '
-                    'are not supported. Please set arch to \'he\'.')
             stride_first = False
             conv1_no_bias = True
         elif arch == 'he':
@@ -183,19 +201,12 @@ class ResNet(PickableSequentialChain):
             self.res3 = ResBlock(blocks[1], None, 128, 512, 2, **kwargs)
             self.res4 = ResBlock(blocks[2], None, 256, 1024, 2, **kwargs)
             self.res5 = ResBlock(blocks[3], None, 512, 2048, 2, **kwargs)
-            self.pool5 = _global_average_pooling_2d
+            self.pool5 = lambda x: F.average(x, axis=(2, 3))
             self.fc6 = L.Linear(None, param['n_class'], **fc_kwargs)
             self.prob = F.softmax
 
         if path:
             chainer.serializers.load_npz(path, self)
-
-
-def _global_average_pooling_2d(x):
-    n, channel, rows, cols = x.data.shape
-    h = F.average_pooling_2d(x, (rows, cols), stride=1)
-    h = h.reshape((n, channel))
-    return h
 
 
 class ResNet50(ResNet):

@@ -12,6 +12,7 @@ from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
 from chainercv.links.model.resnet.resblock import ResBlock
+from chainercv.links import ResNet101
 from chainercv import utils
 
 
@@ -51,6 +52,10 @@ class FCISResNet101(FCIS):
             by modifying the environment variable.
         min_size (int): A preprocessing paramter for :meth:`prepare`.
         max_size (int): A preprocessing paramter for :meth:`prepare`.
+        roi_size (int): Height and width of the feature maps after
+            Position Sensitive RoI pooling.
+        group_size (int): Group height and width for Position Sensitive
+            ROI pooling.
         ratios (list of floats): This is ratios of width to height of
             the anchors.
         anchor_scales (list of numbers): This is areas of anchors.
@@ -78,8 +83,14 @@ class FCISResNet101(FCIS):
     _models = {
         'sbd': {
             'param': {'n_fg_class': 20},
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/fcis_resnet101_sbd_trained_2018_04_14.npz',
+            'url': 'https://chainercv-models.preferred.jp/'
+            'fcis_resnet101_sbd_trained_2018_06_22.npz',
+            'cv2': True
+        },
+        'sbd_converted': {
+            'param': {'n_fg_class': 20},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'fcis_resnet101_sbd_converted_2018_07_02.npz',
             'cv2': True
         }
     }
@@ -90,6 +101,7 @@ class FCISResNet101(FCIS):
             n_fg_class=None,
             pretrained_model=None,
             min_size=600, max_size=1000,
+            roi_size=21, group_size=7,
             ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
             loc_normalize_mean=(0.0, 0.0, 0.0, 0.0),
             loc_normalize_std=(0.2, 0.2, 0.5, 0.5),
@@ -123,7 +135,7 @@ class FCISResNet101(FCIS):
             proposal_creator_params=proposal_creator_params)
         head = FCISResNet101Head(
             param['n_fg_class'] + 1,
-            roi_size=21, group_size=7,
+            roi_size=roi_size, group_size=group_size,
             spatial_scale=1. / self.feat_stride,
             loc_normalize_mean=loc_normalize_mean,
             loc_normalize_std=loc_normalize_std,
@@ -137,8 +149,39 @@ class FCISResNet101(FCIS):
             mean, min_size, max_size,
             loc_normalize_mean, loc_normalize_std)
 
-        if path:
+        if path == 'imagenet':
+            self._copy_imagenet_pretrained_resnet()
+        elif path:
             chainer.serializers.load_npz(path, self)
+
+    def _copy_imagenet_pretrained_resnet(self):
+        def _copy_conv2dbn(src, dst):
+            dst.conv.W.array = src.conv.W.array
+            if src.conv.b is not None and dst.conv.b is not None:
+                dst.conv.b.array = src.conv.b.array
+            dst.bn.gamma.array = src.bn.gamma.array
+            dst.bn.beta.array = src.bn.beta.array
+            dst.bn.avg_var = src.bn.avg_var
+            dst.bn.avg_mean = src.bn.avg_mean
+
+        def _copy_bottleneck(src, dst):
+            if hasattr(src, 'residual_conv'):
+                _copy_conv2dbn(src.residual_conv, dst.residual_conv)
+            _copy_conv2dbn(src.conv1, dst.conv1)
+            _copy_conv2dbn(src.conv2, dst.conv2)
+            _copy_conv2dbn(src.conv3, dst.conv3)
+
+        def _copy_resblock(src, dst):
+            for layer_name in src.layer_names:
+                _copy_bottleneck(
+                    getattr(src, layer_name), getattr(dst, layer_name))
+
+        pretrained_model = ResNet101(arch='he', pretrained_model='imagenet')
+        _copy_conv2dbn(pretrained_model.conv1, self.extractor.conv1)
+        _copy_resblock(pretrained_model.res2, self.extractor.res2)
+        _copy_resblock(pretrained_model.res3, self.extractor.res3)
+        _copy_resblock(pretrained_model.res4, self.extractor.res4)
+        _copy_resblock(pretrained_model.res5, self.extractor.res5)
 
 
 class ResNet101Extractor(chainer.Chain):
@@ -185,6 +228,7 @@ class ResNet101Extractor(chainer.Chain):
         with chainer.using_config('train', False):
             h = self.pool1(self.conv1(x))
             h = self.res2(h)
+            h.unchain_backward()
             h = self.res3(h)
             res4 = self.res4(h)
             res5 = self.res5(res4)
@@ -248,7 +292,7 @@ class FCISResNet101Head(chainer.Chain):
                 1024, group_size * group_size * 2 * 4,
                 1, 1, 0, initialW=initialW)
 
-    def __call__(self, x, rois, roi_indices, img_size):
+    def __call__(self, x, rois, roi_indices, img_size, gt_roi_labels=None):
         """Forward the chain.
 
         We assume that there are :math:`N` batches.
@@ -272,7 +316,7 @@ class FCISResNet101Head(chainer.Chain):
 
         # PSROI pooling and regression
         roi_ag_seg_scores, roi_ag_locs, roi_cls_scores = self._pool(
-            h_cls_seg, h_ag_loc, rois, roi_indices)
+            h_cls_seg, h_ag_loc, rois, roi_indices, gt_roi_labels)
         if self.iter2:
             # 2nd Iteration
             # get rois2 for more precise prediction
@@ -288,7 +332,7 @@ class FCISResNet101Head(chainer.Chain):
 
             # PSROI pooling and regression
             roi_ag_seg_scores2, roi_ag_locs2, roi_cls_scores2 = self._pool(
-                h_cls_seg, h_ag_loc, rois2, roi_indices)
+                h_cls_seg, h_ag_loc, rois2, roi_indices, gt_roi_labels)
 
             # concat 1st and 2nd iteration results
             rois = self.xp.concatenate((rois, rois2))
@@ -303,14 +347,15 @@ class FCISResNet101Head(chainer.Chain):
             rois, roi_indices
 
     def _pool(
-            self, h_cls_seg, h_ag_loc, rois, roi_indices):
+            self, h_cls_seg, h_ag_loc, rois, roi_indices, gt_roi_labels):
         # PSROI Pooling
         # shape: (n_roi, n_class, 2, roi_size, roi_size)
         roi_cls_ag_seg_scores = psroi_pooling_2d(
             h_cls_seg, rois, roi_indices,
             self.n_class * 2, self.roi_size, self.roi_size,
             self.spatial_scale, self.group_size)
-        roi_cls_ag_seg_scores = roi_cls_ag_seg_scores.reshape(
+        roi_cls_ag_seg_scores = F.reshape(
+            roi_cls_ag_seg_scores,
             (-1, self.n_class, 2, self.roi_size, self.roi_size))
 
         # shape: (n_roi, 2*4, roi_size, roi_size)
@@ -320,26 +365,23 @@ class FCISResNet101Head(chainer.Chain):
             self.spatial_scale, self.group_size)
 
         # shape: (n_roi, n_class)
-        roi_cls_scores = _global_average_pooling_2d(
-            F.max(roi_cls_ag_seg_scores, axis=2))
+        roi_cls_scores = F.average(
+            F.max(roi_cls_ag_seg_scores, axis=2), axis=(2, 3))
 
         # Bbox Regression
-        # shape: (n_roi, 2*4)
-        roi_ag_locs = _global_average_pooling_2d(roi_ag_loc_scores)
-        roi_ag_locs = roi_ag_locs.reshape((-1, 2, 4))
+        # shape: (n_roi, 2, 4)
+        roi_ag_locs = F.average(roi_ag_loc_scores, axis=(2, 3))
+        roi_ag_locs = F.reshape(roi_ag_locs, (-1, 2, 4))
 
         # Mask Regression
         # shape: (n_roi, n_class, 2, roi_size, roi_size)
-        max_cls_indices = roi_cls_scores.array.argmax(axis=1)
+        if gt_roi_labels is None:
+            max_cls_indices = roi_cls_scores.array.argmax(axis=1)
+        else:
+            max_cls_indices = gt_roi_labels
+
         # shape: (n_roi, 2, roi_size, roi_size)
         roi_ag_seg_scores = roi_cls_ag_seg_scores[
             self.xp.arange(len(max_cls_indices)), max_cls_indices]
 
         return roi_ag_seg_scores, roi_ag_locs, roi_cls_scores
-
-
-def _global_average_pooling_2d(x):
-    n_roi, n_channel, H, W = x.array.shape
-    h = F.average_pooling_2d(x, (H, W), stride=1)
-    h = F.reshape(h, (n_roi, n_channel))
-    return h

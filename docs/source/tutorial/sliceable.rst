@@ -101,6 +101,22 @@ Usage: slice along with the axis of examples
     view = dataset.slice[[3, 1, 4]]
 
 
+Also, it can take a list of booleans as its first argument.
+Note that the length of the list should be the same as :obj:`len(dataset)`.
+
+.. code-block:: python
+
+    from chainercv.datasets import VOCBboxDataset
+    dataset = VOCBboxDataset()
+
+    # make booleans
+    bboxes = dataset.slice[:, 'bbox']
+    booleans = [len(bbox) >= 3 for bbox in bboxes]
+
+    # a collection of samples that contain at least three bounding boxes
+    view = dataset.slice[booleans]
+
+
 Usage: slice along with the axis of data
 ----------------------------------------
 :meth:`slice` takes names or indices of data as its second argument.
@@ -136,6 +152,12 @@ Usage: slice along with the axis of data
     view = dataset.slice[:, (1, 'label')]
     print(view.keys)  # ('bbox', 'label')
     bbox, label = view[0]
+
+    # use booleans
+    # note that the number of booleans should be the same as len(dataset.keys)
+    view = dataset.slice[:, (True, True, False)]
+    print(view.keys)  # ('img', 'bbox')
+    img, bbox = view[0]
 
 
 Usage: slice along with both axes

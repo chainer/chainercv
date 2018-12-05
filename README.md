@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/chainercv.svg)](https://pypi.python.org/pypi/chainercv)
 [![License](https://img.shields.io/github/license/chainer/chainercv.svg)](https://github.com/chainer/chainercv/blob/master/LICENSE)
 [![travis](https://travis-ci.org/chainer/chainercv.svg?branch=master)](https://travis-ci.org/chainer/chainercv)
-[![Read the Docs](https://media.readthedocs.org/static/projects/badges/passing.svg)](http://chainercv.readthedocs.io/en/latest/?badge=latest)
+[![Read the Docs](https://readthedocs.org/projects/chainercv/badge/?version=latest)](http://chainercv.readthedocs.io/en/latest/?badge=latest)
 
 # ChainerCV: a Library for Deep Learning in Computer Vision
 
@@ -13,7 +13,7 @@ You can find the documentation [here](http://chainercv.readthedocs.io/en/stable/
 
 Supported tasks:
 
-+ Image Classification ([ResNet](examples/resnet), [VGG](examples/vgg))
++ Image Classification ([ResNet](examples/resnet), [SENet](examples/senet), [VGG](examples/vgg))
 + Object Detection ([tutorial](http://chainercv.readthedocs.io/en/latest/tutorial/detection.html), [Faster R-CNN](examples/faster_rcnn), [SSD](examples/ssd), [YOLO](examples/yolo))
 + Semantic Segmentation ([SegNet](examples/segnet), [PSPNet](examples/pspnet))
 + Instance Segmentation ([FCIS](examples/fcis),)
@@ -42,10 +42,11 @@ The instruction on installation using Anaconda is [here](http://chainercv.readth
 
 For additional features
 
-+ [ChainerMN](https://github.com/chainer/chainermn)
 + Matplotlib
 + OpenCV
 + SciPy
++ mpi4py
++ [pycocotools](https://github.com/cocodataset/cocoapi/tree/master/PythonAPI/pycocotools)
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
 
@@ -54,6 +55,7 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
     + `0.4.11` (for Chainer v1). It can be installed by `pip install chainercv==0.4.11`.
     + `0.7` (for Chainer v2). It can be installed by `pip install chainercv==0.7`.
     + `0.8` (for Chainer v3). It can be installed by `pip install chainercv==0.8`.
+    + `0.10` (for Chainer v4). It can be installed by `pip install chainercv==0.10`.
 
 # Data Conventions
 
@@ -66,7 +68,7 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
   + Shape is `(R, 4)`.
   + Coordinates are ordered as `(y_min, x_min, y_max, x_max)`. The order is the opposite of OpenCV.
 + Semantic Segmentation Image
-  + Shape is `(height, weight)`. 
+  + Shape is `(height, width)`.
   + The value is class id, which is in range `[0, n_class - 1]`.
 
 # Sample Visualization

@@ -47,6 +47,10 @@ resize_contain
 ~~~~~~~~~~~~~~
 .. autofunction:: resize_contain
 
+rotate
+~~~~~~
+.. autofunction:: rotate
+
 scale
 ~~~~~
 .. autofunction:: scale
@@ -70,6 +74,10 @@ flip_bbox
 resize_bbox
 ~~~~~~~~~~~
 .. autofunction:: resize_bbox
+
+rotate_bbox
+~~~~~~~~~~~
+.. autofunction:: rotate_bbox
 
 translate_bbox
 ~~~~~~~~~~~~~~

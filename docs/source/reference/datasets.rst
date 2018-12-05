@@ -62,6 +62,20 @@ CUBPointDataset
 ~~~~~~~~~~~~~~~
 .. autoclass:: CUBPointDataset
 
+MS COCO
+-------
+
+COCOBboxDataset
+~~~~~~~~~~~~~~~
+.. autoclass:: COCOBboxDataset
+
+COCOInstanceSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: COCOInstanceSegmentationDataset
+
+COCOSemanticSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: COCOSemanticSegmentationDataset
 
 OnlineProducts
 --------------
