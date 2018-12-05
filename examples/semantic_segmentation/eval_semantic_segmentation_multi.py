@@ -8,19 +8,12 @@ from chainer import iterators
 
 import chainermn
 
-from chainercv.datasets import ade20k_semantic_segmentation_label_names
-from chainercv.datasets import ADE20KSemanticSegmentationDataset
-from chainercv.datasets import cityscapes_semantic_segmentation_label_names
-from chainercv.datasets import CityscapesSemanticSegmentationDataset
-from chainercv.datasets import camvid_label_names
-from chainercv.datasets import CamVidDataset
-
 from chainercv.evaluations import calc_semantic_segmentation_confusion
 from chainercv.evaluations import calc_semantic_segmentation_iou
-from chainercv.experimental.links import PSPNetResNet101
-from chainercv.links import SegNetBasic
 from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
+
+from eval_semantic_segmentation import get_dataset_and_model
 
 
 def main():
@@ -36,29 +29,8 @@ def main():
     comm = chainermn.create_communicator()
     device = comm.intra_rank
 
-    if args.dataset == 'cityscapes':
-        dataset = CityscapesSemanticSegmentationDataset(
-            split='val', label_resolution='fine')
-        label_names = cityscapes_semantic_segmentation_label_names
-    elif args.dataset == 'ade20k':
-        dataset = ADE20KSemanticSegmentationDataset(split='val')
-        label_names = ade20k_semantic_segmentation_label_names
-    elif args.dataset == 'camvid':
-        dataset = CamVidDataset(split='test')
-        label_names = camvid_label_names
-
-    if args.pretrained_model:
-        pretrained_model = args.pretrained_model
-    else:
-        pretrained_model = args.dataset
-    if args.model == 'pspnet_resnet101':
-        model = PSPNetResNet101(
-            n_class=len(label_names),
-            pretrained_model=pretrained_model, input_size=(713, 713)
-        )
-    elif args.model == 'segnet':
-        model = SegNetBasic(
-            n_class=len(label_names), pretrained_model=pretrained_model)
+    dataset, label_names, model = get_dataset_and_model(
+        args.dataset, args.model, args.pretrained_model)
 
     chainer.cuda.get_device_from_id(device).use()
     model.to_gpu()

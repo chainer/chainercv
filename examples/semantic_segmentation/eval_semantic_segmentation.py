@@ -17,6 +17,36 @@ from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
 
 
+def get_dataset_and_model(dataset_name, model_name, pretrained_model):
+    if dataset_name == 'cityscapes':
+        dataset = CityscapesSemanticSegmentationDataset(
+            split='val', label_resolution='fine')
+        label_names = cityscapes_semantic_segmentation_label_names
+    elif dataset_name == 'ade20k':
+        dataset = ADE20KSemanticSegmentationDataset(split='val')
+        label_names = ade20k_semantic_segmentation_label_names
+    elif dataset_name == 'camvid':
+        dataset = CamVidDataset(split='test')
+        label_names = camvid_label_names
+
+    n_class = len(label_names)
+
+    if pretrained_model:
+        pretrained_model = pretrained_model
+    else:
+        pretrained_model = dataset_name
+    if model_name == 'pspnet_resnet101':
+        model = PSPNetResNet101(
+            n_class=n_class,
+            pretrained_model=pretrained_model,
+            input_size=(713, 713)
+        )
+    elif model_name == 'segnet':
+        model = SegNetBasic(
+            n_class=n_class, pretrained_model=pretrained_model)
+    return dataset, label_names, model
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -28,29 +58,8 @@ def main():
     parser.add_argument('--pretrained-model')
     args = parser.parse_args()
 
-    if args.dataset == 'cityscapes':
-        dataset = CityscapesSemanticSegmentationDataset(
-            split='val', label_resolution='fine')
-        label_names = cityscapes_semantic_segmentation_label_names
-    elif args.dataset == 'ade20k':
-        dataset = ADE20KSemanticSegmentationDataset(split='val')
-        label_names = ade20k_semantic_segmentation_label_names
-    elif args.dataset == 'camvid':
-        dataset = CamVidDataset(split='test')
-        label_names = camvid_label_names
-
-    if args.pretrained_model:
-        pretrained_model = args.pretrained_model
-    else:
-        pretrained_model = args.dataset
-    if args.model == 'pspnet_resnet101':
-        model = PSPNetResNet101(
-            n_class=len(label_names),
-            pretrained_model=pretrained_model, input_size=(713, 713)
-        )
-    elif args.model == 'segnet':
-        model = SegNetBasic(
-            n_class=len(label_names), pretrained_model=pretrained_model)
+    dataset, label_names, model = get_dataset_and_model(
+        args.dataset, args.model, args.pretrained_model)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
