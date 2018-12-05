@@ -25,7 +25,3 @@ PSPNet
 ~~~~~~
 .. autoclass:: PSPNet
    :members:
-
-PSPNetResNet
-~~~~~~~~~~~~
-.. autoclass:: PSPNetResNet
