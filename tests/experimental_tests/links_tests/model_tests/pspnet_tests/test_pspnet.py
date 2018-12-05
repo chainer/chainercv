@@ -6,15 +6,20 @@ from chainer import testing
 from chainer.testing import attr
 
 from chainercv.experimental.links import PSPNetResNet101
+from chainercv.experimental.links import PSPNetResNet50
 from chainercv.utils import assert_is_semantic_segmentation_link
 
 
-class TestPSPNetResNet101(unittest.TestCase):
+@testing.parameterize(
+    {'model': PSPNetResNet101},
+    {'model': PSPNetResNet50},
+)
+class TestPSPNetResNet(unittest.TestCase):
 
     def setUp(self):
         self.n_class = 10
         self.input_size = (120, 160)
-        self.link = PSPNetResNet101(
+        self.link = self.model(
             n_class=self.n_class, input_size=self.input_size)
 
     def check_call(self):
@@ -48,10 +53,21 @@ class TestPSPNetResNet101(unittest.TestCase):
         assert_is_semantic_segmentation_link(self.link, self.n_class)
 
 
-@testing.parameterize(*testing.product({
-    'n_class': [None, 5, 19],
-    'pretrained_model': ['cityscapes'],
-}))
+def _create_paramters():
+    params = testing.product({
+        'model': [PSPNetResNet50],
+        'pretrained_model': ['imagenet'],
+        'n_class': [None, 5],
+    })
+    params += testing.product({
+        'model': [PSPNetResNet101],
+        'pretrained_model': ['imagenet', 'cityscapes'],
+        'n_class': [None, 5, 19],
+    })
+    return params
+
+
+@testing.parameterize(*_create_paramters())
 class TestPSPNetPretrained(unittest.TestCase):
 
     @attr.slow
@@ -61,11 +77,14 @@ class TestPSPNetPretrained(unittest.TestCase):
             'pretrained_model': self.pretrained_model,
         }
 
+        valid = True
         if self.pretrained_model == 'cityscapes':
             valid = self.n_class in {None, 19}
+        elif self.pretrained_model == 'imagenet':
+            valid = self.n_class in {5, 19}
 
         if valid:
-            PSPNetResNet101(**kwargs)
+            self.model(**kwargs)
         else:
             with self.assertRaises(ValueError):
                 PSPNetResNet101(**kwargs)
