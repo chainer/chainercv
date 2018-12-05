@@ -1,41 +1,40 @@
 import argparse
-import copy
 import cv2
 cv2.setNumThreads(0)
+import multiprocessing
 import numpy as np
 
 import chainer
-from chainer.datasets import ConcatenatedDataset
-from chainer.datasets import TransformDataset
-from chainer.optimizer_hooks import WeightDecay
 import chainer.functions as F
 import chainer.links as L
-from chainer import serializers
 from chainer import training
 from chainer.training import extensions
-from chainer.training import triggers
+from chainer.training.extensions import PolynomialShift
 
-from chainercv.chainer_experimental.training import PolynomialShift
+from ade20k_semantic_segmentation_dataset import ADE20KSemanticSegmentationDataset
+from ade20k_utils import ade20k_semantic_segmentation_label_names
 from chainercv.datasets import CityscapesSemanticSegmentationDataset
 from chainercv.datasets import cityscapes_semantic_segmentation_label_names
 from chainercv.experimental.links import PSPNetResNet101
+from chainercv.experimental.links.model.pspnet.pspnet import DilatedResNet
+from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
 from chainercv.links import Conv2DBNActiv
 from chainercv.extensions import SemanticSegmentationEvaluator
 from chainercv import transforms
 
 import PIL
 
+import chainermn
+
 
 class Transform(object):
 
     def __init__(
             self, mean,
-            scale_range=[0.5, 2.0], crop_size=(713, 713),
-            color_sigma=25.5):
+            scale_range=[0.5, 2.0], crop_size=(713, 713)):
         self.mean = mean
         self.scale_range = scale_range
         self.crop_size = crop_size
-        self.color_sigma = color_sigma
 
     def __call__(self, in_data):
         img, label = in_data
@@ -75,14 +74,10 @@ class Transform(object):
             label = transforms.resize(
                 label[None].astype(np.float32), self.crop_size, PIL.Image.NEAREST)
             label = label.astype(np.int32)[0]
-
         # Horizontal flip
         if np.random.rand() > 0.5:
             img = transforms.flip(img, x_flip=True)
             label = transforms.flip(label[None], x_flip=True)[0]
-
-        # Color augmentation
-        img = transforms.pca_lighting(img, self.color_sigma)
 
         # Mean subtraction
         img = img - self.mean
@@ -125,58 +120,125 @@ class TrainChain(chainer.Chain):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--gpu', type=int, default=-1)
+    parser.add_argument('--data-dir', default='auto')
+
+    parser.add_argument('--dataset',
+                        choices=('ade20k', 'cityscapes'),
+                        default='ade20k')
+    parser.add_argument('--lr', default=1e-2)
+    parser.add_argument('--batch-size', default=2, type=int)
     parser.add_argument('--out', default='result')
-    parser.add_argument('--resume')
+    parser.add_argument('--iteration', default=None, type=int)
+    parser.add_argument('--communicator', default='hierarchical')
+    parser.add_argument('--extractor-pretrained')
     args = parser.parse_args()
 
-    n_class = len(cityscapes_semantic_segmentation_label_names)
+    dataset_cfgs = {
+        'ade20k': {
+            'input_size': (473, 473),
+            'label_names': ade20k_semantic_segmentation_label_names,
+            'iteration': 150000},
+        'cityescapes': {
+            'input_size': (713, 713),
+            'label_names': cityscapes_semantic_segmentation_label_names,
+            'iteration': 90000}
+    }
+    dataset_cfg = dataset_cfgs[args.dataset]
 
-    model = PSPNetResNet101(n_class, input_size=(713, 713))
+    # This fixes a crash caused by a bug with multiprocessing and MPI.abs
+    multiprocessing.set_start_method('forkserver')
+    p = multiprocessing.Process()
+    p.start()
+    p.join()
+
+    comm = chainermn.create_communicator(args.communicator)
+    device = comm.intra_rank
+
+    n_class = len(dataset_cfg['label_names'])
+    model = PSPNetResNet101(
+        n_class, input_size=dataset_cfg['input_size'], comm=comm)
+    chainer.serializers.load_npz(args.extractor_pretrained, model.extractor)
+
     train_chain = TrainChain(model)
-    if args.gpu >= 0:
-        chainer.cuda.get_device_from_id(args.gpu).use()
+    if device >= 0:
+        chainer.cuda.get_device_from_id(device).use()
         train_chain.to_gpu()
 
-    n_iter = 90000
+    chainer.cuda.set_max_workspace_size(1 * 1024 * 1024 * 1024)
+    chainer.using_config('autotune', True)
 
-    train = TransformDataset(
-        CityscapesSemanticSegmentationDataset(
-            label_resolution='fine', split='train'),
-        Transform(model.mean))
-    val = CityscapesSemanticSegmentationDataset(
-            label_resolution='fine', split='val')
+    if args.iteration is None:
+        n_iter = dataset_cfg['iteration']
+    else:
+        n_iter = args.iteration
+
+    if comm.rank == 0:
+        if args.dataset == 'ade20k':
+            train = ADE20KSemanticSegmentationDataset(
+                data_dir=args.data_dir, split='train')
+            val = ADE20KSemanticSegmentationDataset(
+                data_dir=args.data_dir, split='val')
+        elif args.dataset == 'cityscapes':
+            train = CityscapesSemanticSegmentationDataset(
+                args.data_dir,
+                label_resolution='fine', split='train')
+            val = CityscapesSemanticSegmentationDataset(
+                args.data_dir,
+                label_resolution='fine', split='val')
+        train = TransformDataset(
+            train,
+            ('img', 'label'),
+            Transform(model.mean, crop_size=dataset_cfg['input_size']))
+    else:
+        train, val = None, None
+    train = chainermn.scatter_dataset(train, comm, shuffle=True)
+    val = chainermn.scatter_dataset(val, comm, shuffle=True)
     train_iter = chainer.iterators.MultiprocessIterator(
-       train, batch_size=2)
+       train, batch_size=args.batch_size, n_processes=2)
     val_iter = chainer.iterators.SerialIterator(
         val, batch_size=1, repeat=False, shuffle=False)
 
-    optimizer = chainer.optimizers.MomentumSGD(0.01, 0.9)
+    optimizer = chainermn.create_multi_node_optimizer(
+        chainer.optimizers.MomentumSGD(args.lr, 0.9), comm)
     optimizer.setup(train_chain)
-    optimizer.add_hook(chainer.optimizer.WeightDecay(0.9))
+    optimizer.add_hook(chainer.optimizer.WeightDecay(1e-4))
 
     updater = training.updaters.StandardUpdater(
-        train_iter, optimizer, device=args.gpu)
+        train_iter, optimizer, device=device)
     trainer = training.Trainer(updater, (n_iter, 'iteration'), args.out)
     trainer.extend(
-        PolynomialShift('lr', (0.9, n_iter), optimizer=optimizer),
+        PolynomialShift('lr', 0.9, n_iter, optimizer=optimizer),
         trigger=(1, 'iteration'))
 
     log_interval = 10, 'iteration'
     val_interval = 10000, 'iteration'
-    trainer.extend(extensions.LogReport(trigger=log_interval))
-    trainer.extend(extensions.observe_lr(), trigger=log_interval)
-    trainer.extend(extensions.PrintReport(
-        ['epoch', 'iteration', 'elapsed_time', 'lr', 'main/loss',
-         'validation/main/miou', 'validation/main/mean_class_accuracy',
-         'validation/main/pixel_accuracy']),
-        trigger=log_interval)
-    trainer.extend(extensions.ProgressBar(update_interval=10))
 
-    trainer.extend(
+    evaluator = chainermn.create_multi_node_evaluator(
         SemanticSegmentationEvaluator(
             val_iter, model,
-            cityscapes_semantic_segmentation_label_names),
-        trigger=val_interval)
+            cityscapes_semantic_segmentation_label_names), comm)
+    trainer.extend(evaluator, trigger=(n_iter, 'iteration'))
+
+    if comm.rank == 0:
+        trainer.extend(extensions.LogReport(trigger=log_interval))
+        trainer.extend(extensions.observe_lr(), trigger=log_interval)
+        trainer.extend(extensions.PrintReport(
+            ['epoch', 'iteration', 'elapsed_time', 'lr', 'main/loss',
+            'validation/main/miou', 'validation/main/mean_class_accuracy',
+            'validation/main/pixel_accuracy']),
+            trigger=log_interval)
+        trainer.extend(extensions.ProgressBar(update_interval=10))
+
+        trainer.extend(
+            extensions.snapshot_object(
+                train_chain, 'snapshot_train_chain_{.updater.iteration}.npz'),
+            trigger=val_interval)
+        trainer.extend(
+            extensions.snapshot_object(
+                train_chain.model, 'snapshot_model_{.updater.iteration}.npz'),
+            trigger=(n_iter, 'iteration'))
 
     trainer.run()
+ift
+
+from ade—
