@@ -1,4 +1,5 @@
 import argparse
+import copy
 import multiprocessing
 import numpy as np
 
@@ -9,14 +10,16 @@ from chainer import training
 from chainer.training import extensions
 from chainer.training.extensions import PolynomialShift
 
-from ade20k_semantic_segmentation_dataset import ADE20KSemanticSegmentationDataset
-from ade20k_utils import ade20k_semantic_segmentation_label_names
-from chainercv.datasets import CityscapesSemanticSegmentationDataset
+from chainercv.datasets import ade20k_semantic_segmentation_label_names
+from chainercv.datasets import ADE20KSemanticSegmentationDataset
 from chainercv.datasets import cityscapes_semantic_segmentation_label_names
+from chainercv.datasets import CityscapesSemanticSegmentationDataset
+
 from chainercv.experimental.links import PSPNetResNet101
+
 from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
-from chainercv.links import Conv2DBNActiv
 from chainercv.extensions import SemanticSegmentationEvaluator
+from chainercv.links import Conv2DBNActiv
 from chainercv import transforms
 
 import PIL
@@ -29,6 +32,43 @@ try:
     cv2.setNumThreads(0)
 except ImportError:
     pass
+
+
+def create_mnbn_model(link, comm):
+    """Returns a copy of a model with BN replaced by Multi-node BN."""
+    if isinstance(link, chainer.links.BatchNormalization):
+        mnbn = chainermn.links.MultiNodeBatchNormalization(
+            size=link.avg_mean.shape,
+            comm=comm,
+            decay=link.decay,
+            eps=link.eps,
+            dtype=link.avg_mean.dtype,
+            use_gamma=hasattr(link, 'gamma'),
+            use_beta=hasattr(link, 'beta'),
+        )
+        mnbn.copyparams(link)
+        for name in link._persistent:
+            mnbn.__dict__[name] = copy.deepcopy(link.__dict__[name])
+        return mnbn
+    elif isinstance(link, chainer.Chain):
+        new_children = [
+            (child_name, create_mnbn_model(
+                link.__dict__[child_name], comm))
+            for child_name in link._children
+        ]
+        new_link = copy.deepcopy(link)
+        for name, new_child in new_children:
+            new_link.__dict__[name] = new_child
+        return new_link
+    elif isinstance(link, chainer.ChainList):
+        new_children = [
+            create_mnbn_model(l, comm) for l in link]
+        new_link = copy.deepcopy(link)
+        for i, new_child in enumerate(new_children):
+            new_link._children[i] = new_child
+        return new_link
+    else:
+        return copy.deepcopy(link)
 
 
 class Transform(object):
@@ -106,7 +146,7 @@ class TrainChain(chainer.Chain):
         h_aux = self.aux_conv2(h_aux)
         h_aux = F.resize_images(h_aux, imgs.shape[2:])
 
-        h_main = model.ppm(h_main)
+        h_main = self.model.ppm(h_main)
         h_main = F.dropout(self.model.head_conv1(h_main), ratio=0.1)
         h_main = self.model.head_conv2(h_main)
         h_main = F.resize_images(h_main, imgs.shape[2:])
@@ -124,7 +164,6 @@ class TrainChain(chainer.Chain):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-dir', default='auto')
-
     parser.add_argument('--dataset',
                         choices=('ade20k', 'cityscapes'),
                         default='ade20k')
@@ -140,7 +179,7 @@ def main():
             'input_size': (473, 473),
             'label_names': ade20k_semantic_segmentation_label_names,
             'iteration': 150000},
-        'cityescapes': {
+        'cityscapes': {
             'input_size': (713, 713),
             'label_names': cityscapes_semantic_segmentation_label_names,
             'iteration': 90000}
@@ -159,9 +198,9 @@ def main():
     n_class = len(dataset_cfg['label_names'])
     model = PSPNetResNet101(
         n_class, pretrained_model='imagenet',
-        input_size=dataset_cfg['input_size'], comm=comm)
-
+        input_size=dataset_cfg['input_size'])
     train_chain = TrainChain(model)
+    create_mnbn_model(model, comm)
     if device >= 0:
         chainer.cuda.get_device_from_id(device).use()
         train_chain.to_gpu()
@@ -226,8 +265,8 @@ def main():
         trainer.extend(extensions.observe_lr(), trigger=log_interval)
         trainer.extend(extensions.PrintReport(
             ['epoch', 'iteration', 'elapsed_time', 'lr', 'main/loss',
-            'validation/main/miou', 'validation/main/mean_class_accuracy',
-            'validation/main/pixel_accuracy']),
+             'validation/main/miou', 'validation/main/mean_class_accuracy',
+             'validation/main/pixel_accuracy']),
             trigger=log_interval)
         trainer.extend(extensions.ProgressBar(update_interval=10))
 
