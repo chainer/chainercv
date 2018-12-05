@@ -5,10 +5,10 @@ from chainer import iterators
 
 from chainercv.datasets import ade20k_semantic_segmentation_label_names
 from chainercv.datasets import ADE20KSemanticSegmentationDataset
-from chainercv.datasets import cityscapes_semantic_segmentation_label_names
-from chainercv.datasets import CityscapesSemanticSegmentationDataset
 from chainercv.datasets import camvid_label_names
 from chainercv.datasets import CamVidDataset
+from chainercv.datasets import cityscapes_semantic_segmentation_label_names
+from chainercv.datasets import CityscapesSemanticSegmentationDataset
 
 from chainercv.evaluations import eval_semantic_segmentation
 from chainercv.experimental.links import PSPNetResNet101
