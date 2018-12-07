@@ -206,8 +206,8 @@ def main():
         model = PSPNetResNet50(
             n_class, pretrained_model='imagenet',
             input_size=dataset_cfg['input_size'])
-    train_chain = TrainChain(model)
-    create_mnbn_model(model, comm)
+    train_chain = create_mnbn_model(TrainChain(model), comm)
+    model = train_chain.model
     if device >= 0:
         chainer.cuda.get_device_from_id(device).use()
         train_chain.to_gpu()
