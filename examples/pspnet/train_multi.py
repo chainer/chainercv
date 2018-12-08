@@ -23,6 +23,8 @@ from chainercv.extensions import SemanticSegmentationEvaluator
 from chainercv.links import Conv2DBNActiv
 from chainercv import transforms
 
+from chainercv.links.model.ssd import GradientScaling
+
 import PIL
 
 import chainermn
@@ -251,6 +253,11 @@ def main():
     for param in model.params():
         if param.name not in ('beta', 'gamma'):
             param.update_rule.add_hook(chainer.optimizer.WeightDecay(1e-4))
+    for l in [
+            model.ppm, model.head_conv1, model.head_conv2,
+            train_chain.aux_conv1, train_chain.aux_conv2]:
+        for param in l.params():
+            param.update_rule.add_hook(GradientScaling(10))
 
     updater = training.updaters.StandardUpdater(
         train_iter, optimizer, device=device)
