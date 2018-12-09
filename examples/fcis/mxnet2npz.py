@@ -9,7 +9,8 @@ def main():
     parser = argparse.ArgumentParser(
         description='Script to convert mxnet params to chainer npz')
     parser.add_argument(
-        'mxnet_param_file', help='Mxnet param file i.e. fcis_coco-0000.params')
+        'mxnet_param_file', metavar='mxnet-param-file',
+        help='Mxnet param file i.e. fcis_coco-0000.params')
     parser.add_argument('--process', action='store_true')
     parser.add_argument(
         '--dataset', choices=('sbd', 'coco'), type=str, default='sbd')
