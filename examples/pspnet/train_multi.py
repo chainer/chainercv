@@ -250,7 +250,7 @@ def main():
     optimizer = chainermn.create_multi_node_optimizer(
         chainer.optimizers.MomentumSGD(args.lr, 0.9), comm)
     optimizer.setup(train_chain)
-    for param in model.params():
+    for param in train_chain.params():
         if param.name not in ('beta', 'gamma'):
             param.update_rule.add_hook(chainer.optimizer.WeightDecay(1e-4))
     for l in [
