@@ -241,11 +241,8 @@ def main():
     else:
         train, val = None, None
     train = chainermn.scatter_dataset(train, comm, shuffle=True)
-    val = chainermn.scatter_dataset(val, comm, shuffle=True)
     train_iter = chainer.iterators.MultiprocessIterator(
        train, batch_size=args.batch_size, n_processes=2)
-    val_iter = chainer.iterators.SerialIterator(
-        val, batch_size=1, repeat=False, shuffle=False)
 
     optimizer = chainermn.create_multi_node_optimizer(
         chainer.optimizers.MomentumSGD(args.lr, 0.9), comm)
@@ -281,6 +278,8 @@ def main():
             extensions.snapshot_object(
                 train_chain.model, 'snapshot_model_{.updater.iteration}.npz'),
             trigger=(n_iter, 'iteration'))
+        val_iter = chainer.iterators.SerialIterator(
+            val, batch_size=1, repeat=False, shuffle=False)
         trainer.extend(
             SemanticSegmentationEvaluator(
                 val_iter, model,
