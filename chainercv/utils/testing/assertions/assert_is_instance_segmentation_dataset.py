@@ -58,5 +58,6 @@ def _check_example(example, n_fg_class):
         'The shape of mask must be (R, H, W).'
     assert label.shape == (R,), \
         'The shape of label must be (R, ).'
-    assert label.min() >= 0 and label.max() < n_fg_class, \
-        'The value of label must be in [0, n_fg_class - 1].'
+    if len(label) > 0:
+        assert label.min() >= 0 and label.max() < n_fg_class, \
+            'The value of label must be in [0, n_fg_class - 1].'

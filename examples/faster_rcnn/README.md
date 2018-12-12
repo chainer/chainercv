@@ -47,12 +47,12 @@ On top of that, the anchors are not discretized in ChainerCV.
 ### Train code
 For training with VOC2007 (this setting is used by default)
 ```
-$ python train.py --dataset voc07 --step_size 50000 --iteration 70000 [--gpu <gpu>]
+$ python train.py --dataset voc07 --step-size 50000 --iteration 70000 [--gpu <gpu>]
 ```
 
 For training with VOC2007+2012
 ```
-$ python train.py --dataset voc0712 --step_size 80000 --iteration 110000 [--gpu <gpu>]
+$ python train.py --dataset voc0712 --step-size 80000 --iteration 110000 [--gpu <gpu>]
 ```
 
 PlotReport extension uses matplotlib. If you got `RuntimeError: Invalid DISPLAY variable` error on Linux environment, adding an environment variable specification is recommended:

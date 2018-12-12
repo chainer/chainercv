@@ -91,8 +91,8 @@ def calc_semantic_segmentation_iou(confusion):
         :math:`(n\_class,)`.
 
     """
-    iou_denominator = (confusion.sum(axis=1) + confusion.sum(axis=0)
-                       - np.diag(confusion))
+    iou_denominator = (confusion.sum(axis=1) + confusion.sum(axis=0) -
+                       np.diag(confusion))
     iou = np.diag(confusion) / iou_denominator
     return iou
 

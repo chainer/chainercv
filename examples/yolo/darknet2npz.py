@@ -5,6 +5,7 @@ import chainer
 from chainer.links import Convolution2D
 from chainer import serializers
 
+from chainercv.experimental.links import YOLOv2Tiny
 from chainercv.links import Conv2DBNActiv
 from chainercv.links import YOLOv2
 from chainercv.links import YOLOv3
@@ -61,7 +62,7 @@ def load_yolo_v3(file, model):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('yolo_v2', 'yolo_v3'),
+        '--model', choices=('yolo_v2', 'yolo_v2_tiny', 'yolo_v3'),
         default='yolo_v2')
     parser.add_argument('--n-fg-class', type=int, default=80)
     parser.add_argument('darknetmodel')
@@ -70,6 +71,8 @@ def main():
 
     if args.model == 'yolo_v2':
         model = YOLOv2(n_fg_class=args.n_fg_class)
+    elif args.model == 'yolo_v2_tiny':
+        model = YOLOv2Tiny(n_fg_class=args.n_fg_class)
     elif args.model == 'yolo_v3':
         model = YOLOv3(n_fg_class=args.n_fg_class)
 
@@ -80,10 +83,14 @@ def main():
         major = np.fromfile(f, dtype=np.int32, count=1)
         minor = np.fromfile(f, dtype=np.int32, count=1)
         np.fromfile(f, dtype=np.int32, count=1)  # revision
-        assert(major * 10 + minor >= 2 and major < 1000 and minor < 1000)
-        np.fromfile(f, dtype=np.int64, count=1)  # seen
+        if major * 10 + minor >= 2 and major < 1000 and minor < 1000:
+            np.fromfile(f, dtype=np.int64, count=1)  # seen
+        else:
+            np.fromfile(f, dtype=np.int32, count=1)  # seen
 
         if args.model == 'yolo_v2':
+            load_yolo_v2(f, model)
+        elif args.model == 'yolo_v2_tiny':
             load_yolo_v2(f, model)
         elif args.model == 'yolo_v3':
             load_yolo_v3(f, model)

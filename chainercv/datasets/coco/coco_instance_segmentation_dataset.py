@@ -19,36 +19,9 @@ except ImportError:
 
 class COCOInstanceSegmentationDataset(GetterDataset):
 
-    """Instance segmentation dataset for `MS COCO2014`_.
+    """Instance segmentation dataset for `MS COCO`_.
 
-    .. _`MS COCO2014`: http://mscoco.org/dataset/#detections-challenge2015
-
-    When queried by an index, if :obj:`return_crowded == False`,
-    this dataset returns a corresponding
-    :obj:`img, bbox, mask, label, crowded, area`, a tuple of an image, bounding
-    boxes, masks, labels, crowdness indicators and areas of masks.
-    The parameters :obj:`return_crowded` and :obj:`return_area` decide
-    whether to return :obj:`crowded` and :obj:`area`.
-    :obj:`crowded` is a boolean array
-    that indicates whether bounding boxes are for crowd labeling.
-    When there are more than ten objects from the same category,
-    bounding boxes correspond to crowd of instances instead of individual
-    instances. Please see more detail in the Fig. 12 (e) of the summary
-    paper [#]_.
-
-    There are total of 82,783 training and 40,504 validation images.
-    'minval' split is a subset of validation images that constitutes
-    5000 images in the validation images. The remaining validation
-    images are called 'minvalminus'. Concrete list of image ids and
-    annotations for these splits are found `here`_.
-
-    .. _`here`: https://github.com/rbgirshick/py-faster-rcnn/tree/master/data
-
-    .. [#] Tsung-Yi Lin, Michael Maire, Serge Belongie, Lubomir Bourdev, \
-        Ross Girshick, James Hays, Pietro Perona, Deva Ramanan, \
-        C. Lawrence Zitnick, Piotr Dollar.
-        `Microsoft COCO: Common Objects in Context \
-        <https://arxiv.org/abs/1405.0312>`_. arXiv 2014.
+    .. _`MS COCO`: http://cocodataset.org/#home
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -56,18 +29,53 @@ class COCOInstanceSegmentationDataset(GetterDataset):
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/coco`.
         split ({'train', 'val', 'minival', 'valminusminival'}): Select
             a split of the dataset.
-        use_crowded (bool): If true, use bounding boxes that are labeled as
-            crowded in the original annotation.
+        year ({'2014', '2017'}): Use a dataset released in :obj:`year`.
+            Splits :obj:`minival` and :obj:`valminusminival` are only
+            supported in year :obj:`2014`.
+        use_crowded (bool): If true, use masks that are labeled as crowded in
+            the original annotation.
         return_crowded (bool): If true, this dataset returns a boolean array
-            that indicates whether bounding boxes are labeled as crowded
+            that indicates whether masks are labeled as crowded
             or not. The default value is :obj:`False`.
         return_area (bool): If true, this dataset returns areas of masks
             around objects.
 
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`mask` [#coco_mask_1]_, ":math:`(R, H, W)`", :obj:`bool`, --
+        :obj:`label` [#coco_mask_1]_, ":math:`(R,)`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
+        :obj:`area` [#coco_mask_1]_ [#coco_mask_2]_, ":math:`(R,)`", \
+        :obj:`float32`, --
+        :obj:`crowded` [#coco_mask_3]_, ":math:`(R,)`", :obj:`bool`, --
+
+    .. [#coco_mask_1] If :obj:`use_crowded = True`, :obj:`mask`, \
+        :obj:`label` and :obj:`area` contain crowded instances.
+    .. [#coco_mask_2] :obj:`area` is available \
+        if :obj:`return_area = True`.
+    .. [#coco_mask_3] :obj:`crowded` is available \
+        if :obj:`return_crowded = True`.
+
+    When there are more than ten objects from the same category,
+    masks correspond to crowd of instances instead of individual
+    instances. Please see more detail in the Fig. 12 (e) of the summary
+    paper [#]_.
+
+    .. [#] Tsung-Yi Lin, Michael Maire, Serge Belongie, Lubomir Bourdev, \
+        Ross Girshick, James Hays, Pietro Perona, Deva Ramanan, \
+        C. Lawrence Zitnick, Piotr Dollar.
+        `Microsoft COCO: Common Objects in Context \
+        <https://arxiv.org/abs/1405.0312>`_. arXiv 2014.
+
     """
 
     def __init__(
-            self, data_dir='auto', split='train',
+            self, data_dir='auto', split='train', year='2017',
             use_crowded=False, return_crowded=False,
             return_area=False
     ):
@@ -77,6 +85,11 @@ class COCOInstanceSegmentationDataset(GetterDataset):
                 'pip install -e \'git+https://github.com/cocodataset/coco.git'
                 '#egg=pycocotools&subdirectory=PythonAPI\'')
 
+        if year == '2017' and split in ['minival', 'valminusminival']:
+            raise ValueError(
+                'coco2017 dataset does not support given split: {}'
+                .format(split))
+
         super(COCOInstanceSegmentationDataset, self).__init__()
         self.use_crowded = use_crowded
 
@@ -85,12 +98,12 @@ class COCOInstanceSegmentationDataset(GetterDataset):
         else:
             img_split = 'train'
         if data_dir == 'auto':
-            data_dir = get_coco(split, img_split)
+            data_dir = get_coco(split, img_split, year, 'instances')
 
         self.img_root = os.path.join(
-            data_dir, 'images', '{}2014'.format(img_split))
+            data_dir, 'images', '{}{}'.format(img_split, year))
         anno_path = os.path.join(
-            data_dir, 'annotations', 'instances_{}2014.json'.format(split))
+            data_dir, 'annotations', 'instances_{}{}.json'.format(split, year))
 
         self.data_dir = data_dir
         annos = json.load(open(anno_path, 'r'))

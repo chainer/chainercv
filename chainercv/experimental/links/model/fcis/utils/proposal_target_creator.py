@@ -85,7 +85,7 @@ class ProposalTargetCreator(object):
             bbox (array): The coordinates of ground truth bounding boxes.
                 Its shape is :math:`(R', 4)`.
             loc_normalize_mean (tuple of four floats): Mean values to normalize
-                coordinates of bouding boxes.
+                coordinates of bounding boxes.
             loc_normalize_std (tuple of four floats): Standard deviation of
                 the coordinates of bounding boxes.
             mask_size (tuple of int or int): Generated mask size, which is

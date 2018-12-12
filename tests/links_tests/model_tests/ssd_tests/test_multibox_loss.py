@@ -12,9 +12,11 @@ from chainer.testing import attr
 
 from chainercv.links.model.ssd import multibox_loss
 
+from chainermn import create_communicator
+
 
 try:
-    from chainermn import create_communicator
+    import mpi4py.MPI  # NOQA
     _available = True
 except ImportError:
     _available = False
@@ -129,7 +131,7 @@ class TestMultiboxLoss(unittest.TestCase):
             self.k)
 
 
-@unittest.skipUnless(_available, 'ChainerMN is not installed')
+@unittest.skipUnless(_available, 'mpi4py is not installed')
 class TestMultiNodeMultiboxLoss(unittest.TestCase):
 
     k = 3
@@ -177,8 +179,8 @@ class TestMultiNodeMultiboxLoss(unittest.TestCase):
 
         loc_loss_local = cuda.to_cpu(loc_loss_local.array)
         conf_loss_local = cuda.to_cpu(conf_loss_local.array)
-        loc_loss = self.comm.allreduce(loc_loss_local) / self.comm.size
-        conf_loss = self.comm.allreduce(conf_loss_local) / self.comm.size
+        loc_loss = self.comm.allreduce_obj(loc_loss_local) / self.comm.size
+        conf_loss = self.comm.allreduce_obj(conf_loss_local) / self.comm.size
 
         expect_loc_loss, expect_conf_loss = multibox_loss(
             self.mb_locs, self.mb_confs, self.gt_mb_locs, self.gt_mb_labels, k)

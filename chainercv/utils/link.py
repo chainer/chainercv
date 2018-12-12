@@ -1,12 +1,14 @@
 import warnings
 
+import chainer
+
 from chainercv.utils import download_model
 
 try:
     import cv2  # NOQA
-    _available = True
+    _cv2_available = True
 except ImportError:
-    _available = False
+    _cv2_available = False
 
 
 def prepare_pretrained_model(param, pretrained_model, models, default={}):
@@ -52,12 +54,22 @@ def prepare_pretrained_model(param, pretrained_model, models, default={}):
 
         path = download_model(model['url'])
 
-        if not _available and model.get('cv2', False):
-            warnings.warn(
-                'cv2 is not installed on your environment. '
-                'Pretrained models are trained with cv2. '
-                'The performace may change with Pillow backend.',
-                RuntimeWarning)
+        if model.get('cv2', False):
+            if not _cv2_available:
+                warnings.warn(
+                    'cv2 is not installed on your environment. '
+                    'The pretrained model is trained with cv2. '
+                    'The performace may change with Pillow backend.',
+                    RuntimeWarning)
+            if chainer.config.cv_resize_backend != 'cv2':
+                warnings.warn(
+                    'Although the pretrained model is trained using cv2 as '
+                    'the backend of resize function, the current '
+                    'setting does not use cv2 as the backend of resize '
+                    'function. The performance may change due to using '
+                    'different backends. To suppress this warning, set '
+                    '`chainer.config.cv_resize_backend = "cv2".',
+                    RuntimeWarning)
     elif pretrained_model:
         path = pretrained_model
     else:

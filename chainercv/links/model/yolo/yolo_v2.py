@@ -18,8 +18,14 @@ def _leaky_relu(x):
     return F.leaky_relu(x, slope=0.1)
 
 
-def _maxpool(x):
-    return F.max_pooling_2d(x, 2)
+def _maxpool(x, ksize, stride=None):
+    if stride is None:
+        stride = ksize
+
+    h = F.max_pooling_2d(x, ksize, stride=stride, pad=ksize - stride)
+    if ksize > stride:
+        h = h[:, :, ksize - stride:, ksize - stride:]
+    return h
 
 
 def _reorg(x):
@@ -29,108 +35,15 @@ def _reorg(x):
     return F.reshape(x, (n, c * 4, h // 2, w // 2))
 
 
-class Darknet19Extractor(chainer.ChainList):
-    """A Darknet19 based feature extractor for YOLOv2.
+class YOLOv2Base(YOLOBase):
+    """Base class for YOLOv2 and YOLOv2Tiny.
 
-    This is a feature extractor for :class:`~chainercv.links.model.yolo.YOLOv2`
+    A subclass of this class should have :obj:`_extractor`,
+    :obj:`_models`, and :obj:`_anchors`.
     """
-
-    insize = 416
-    grid = 13
-
-    def __init__(self):
-        super(Darknet19Extractor, self).__init__()
-
-        # Darknet19
-        for k, n_conv in enumerate((1, 1, 3, 3, 5, 5)):
-            for i in range(n_conv):
-                if i % 2 == 0:
-                    self.append(
-                        Conv2DBNActiv(32 << k, 3, pad=1, activ=_leaky_relu))
-                else:
-                    self.append(
-                        Conv2DBNActiv(32 << (k - 1), 1, activ=_leaky_relu))
-
-        # additional links
-        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
-        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
-        self.append(Conv2DBNActiv(64, 1, activ=_leaky_relu))
-        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
-
-    def __call__(self, x):
-        """Compute a feature map from a batch of images.
-
-        Args:
-            x (ndarray): An array holding a batch of images.
-                The images should be resized to :math:`416\\times 416`.
-
-        Returns:
-            Variable:
-        """
-
-        h = x
-        for i, link in enumerate(self):
-            h = link(h)
-            if i == 12:
-                tmp = h
-            elif i == 19:
-                h, tmp = tmp, h
-            elif i == 20:
-                h = F.concat((_reorg(h), tmp))
-            if i in {0, 1, 4, 7, 12}:
-                h = _maxpool(h)
-        return h
-
-
-class YOLOv2(YOLOBase):
-    """YOLOv2.
-
-    This is a model of YOLOv2 [#]_.
-    This model uses :class:`~chainercv.links.model.yolo.Darknet19Extractor` as
-    its feature extractor.
-
-    .. [#] Joseph Redmon, Ali Farhadi.
-       YOLO9000: Better, Faster, Stronger. CVPR 2017.
-
-    Args:
-        n_fg_class (int): The number of classes excluding the background.
-        pretrained_model (string): The weight file to be loaded.
-            This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
-            The default value is :obj:`None`.
-
-            * :obj:`'voc0712'`: Load weights trained on trainval split of \
-                PASCAL VOC 2007 and 2012. \
-                The weight file is downloaded and cached automatically. \
-                :obj:`n_fg_class` must be :obj:`20` or :obj:`None`. \
-                These weights were converted from the darknet model \
-                provided by `the original implementation \
-                <https://pjreddie.com/darknet/yolov2/>`_. \
-                The conversion code is \
-                `chainercv/examples/yolo/darknet2npz.py`.
-            * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
-                must be specified properly.
-            * :obj:`None`: Do not load weights.
-
-    """
-
-    _models = {
-        'voc0712': {
-            'param': {'n_fg_class': 20},
-            'url': 'https://chainercv-models.preferred.jp/'
-            'yolo_v2_voc0712_converted_2018_05_03.npz',
-            'cv2': True
-        },
-    }
-
-    _anchors = (
-        (1.73145, 1.3221),
-        (4.00944, 3.19275),
-        (8.09892, 5.05587),
-        (4.84053, 9.47112),
-        (10.0071, 11.2364))
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        super(YOLOv2, self).__init__()
+        super(YOLOv2Base, self).__init__()
 
         param, path = utils.prepare_pretrained_model(
             {'n_fg_class': n_fg_class}, pretrained_model, self._models)
@@ -139,7 +52,7 @@ class YOLOv2(YOLOBase):
         self.use_preset('visualize')
 
         with self.init_scope():
-            self.extractor = Darknet19Extractor()
+            self.extractor = self._extractor()
             self.subnet = Convolution2D(
                 len(self._anchors) * (4 + 1 + self.n_fg_class), 1)
 
@@ -153,11 +66,11 @@ class YOLOv2(YOLOBase):
             chainer.serializers.load_npz(path, self, strict=False)
 
     def to_cpu(self):
-        super(YOLOv2, self).to_cpu()
+        super(YOLOv2Base, self).to_cpu()
         self._default_bbox = cuda.to_cpu(self._default_bbox)
 
     def to_gpu(self, device=None):
-        super(YOLOv2, self).to_gpu(device)
+        super(YOLOv2Base, self).to_gpu(device)
         self._default_bbox = cuda.to_gpu(self._default_bbox, device)
 
     def __call__(self, x):
@@ -233,3 +146,106 @@ class YOLOv2(YOLOBase):
         score = self.xp.hstack(score).astype(np.float32)
 
         return bbox, label, score
+
+
+class Darknet19Extractor(chainer.ChainList):
+    """A Darknet19 based feature extractor for YOLOv2.
+
+    This is a feature extractor for :class:`~chainercv.links.model.yolo.YOLOv2`
+    """
+
+    insize = 416
+    grid = 13
+
+    def __init__(self):
+        super(Darknet19Extractor, self).__init__()
+
+        # Darknet19
+        for k, n_conv in enumerate((1, 1, 3, 3, 5, 5)):
+            for i in range(n_conv):
+                if i % 2 == 0:
+                    self.append(
+                        Conv2DBNActiv(32 << k, 3, pad=1, activ=_leaky_relu))
+                else:
+                    self.append(
+                        Conv2DBNActiv(32 << (k - 1), 1, activ=_leaky_relu))
+
+        # additional links
+        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
+        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
+        self.append(Conv2DBNActiv(64, 1, activ=_leaky_relu))
+        self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
+
+    def __call__(self, x):
+        """Compute a feature map from a batch of images.
+
+        Args:
+            x (ndarray): An array holding a batch of images.
+                The images should be resized to :math:`416\\times 416`.
+
+        Returns:
+            Variable:
+        """
+
+        h = x
+        for i, link in enumerate(self):
+            h = link(h)
+            if i == 12:
+                tmp = h
+            elif i == 19:
+                h, tmp = tmp, h
+            elif i == 20:
+                h = F.concat((_reorg(h), tmp))
+            if i in {0, 1, 4, 7, 12}:
+                h = _maxpool(h, 2)
+        return h
+
+
+class YOLOv2(YOLOv2Base):
+    """YOLOv2.
+
+    This is a model of YOLOv2 [#]_.
+    This model uses :class:`~chainercv.links.model.yolo.Darknet19Extractor` as
+    its feature extractor.
+
+    .. [#] Joseph Redmon, Ali Farhadi.
+       YOLO9000: Better, Faster, Stronger. CVPR 2017.
+
+    Args:
+        n_fg_class (int): The number of classes excluding the background.
+        pretrained_model (string): The weight file to be loaded.
+            This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
+            The default value is :obj:`None`.
+
+            * :obj:`'voc0712'`: Load weights trained on trainval split of \
+                PASCAL VOC 2007 and 2012. \
+                The weight file is downloaded and cached automatically. \
+                :obj:`n_fg_class` must be :obj:`20` or :obj:`None`. \
+                These weights were converted from the darknet model \
+                provided by `the original implementation \
+                <https://pjreddie.com/darknet/yolov2/>`_. \
+                The conversion code is \
+                `chainercv/examples/yolo/darknet2npz.py`.
+            * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
+                must be specified properly.
+            * :obj:`None`: Do not load weights.
+
+    """
+
+    _extractor = Darknet19Extractor
+
+    _models = {
+        'voc0712': {
+            'param': {'n_fg_class': 20},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'yolo_v2_voc0712_converted_2018_05_03.npz',
+            'cv2': True
+        },
+    }
+
+    _anchors = (
+        (1.73145, 1.3221),
+        (4.00944, 3.19275),
+        (8.09892, 5.05587),
+        (4.84053, 9.47112),
+        (10.0071, 11.2364))

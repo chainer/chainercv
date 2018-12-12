@@ -10,13 +10,15 @@ from chainer.testing import attr
 
 from chainercv.links import Conv2DBNActiv
 
+from chainermn import create_communicator
+
 
 def _add_one(x):
     return x + 1
 
 
 try:
-    from chainermn import create_communicator
+    import mpi4py.MPI  # NOQA
     _available = True
 except ImportError:
     _available = False
@@ -126,7 +128,7 @@ class TestConv2DBNActiv(unittest.TestCase):
         self.check_backward(cuda.to_gpu(self.x), cuda.to_gpu(self.gy))
 
 
-@unittest.skipUnless(_available, 'ChainerMN is not installed')
+@unittest.skipUnless(_available, 'mpi4py is not installed')
 class TestConv2DMultiNodeBNActiv(unittest.TestCase):
 
     in_channels = 1
