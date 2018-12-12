@@ -9,12 +9,12 @@ import chainer.links as L
 from chainercv import utils
 
 from fpn import exp_clip
-from fpn.roi_align_2d import roi_align_2d
 from fpn.smooth_l1 import smooth_l1
 
 
 class Head(chainer.Chain):
 
+    _canonical_level = 2
     _canonical_scale = 224
     _roi_size = 7
     _roi_sample_ratio = 2
@@ -38,35 +38,30 @@ class Head(chainer.Chain):
         self._scales = scales
 
     def __call__(self, hs, rois, roi_indices):
-        locs = []
-        confs = []
+        hs_ = []
         for l, h in enumerate(hs):
             if len(rois[l]) == 0:
-                locs.append(chainer.Variable(
-                    self.xp.empty((0, self._n_class, 4), dtype=np.float32)))
-                confs.append(chainer.Variable(
-                    self.xp.empty((0, self._n_class), dtype=np.float32)))
                 continue
+            F.roi_average_align_2d(
+                h, rois[l], roi_indices[l], self._roi_size, self._scales[l])
+            hs_.append(h)
+        hs = hs_
 
-            roi_iltrb = self.xp.hstack(
-                (roi_indices[l][:, None], rois[l][:, [1, 0, 3, 2]])) \
-                .astype(np.float32)
-            h = roi_align_2d(
-                h, roi_iltrb,
-                self._roi_size, self._roi_size,
-                self._scales[l], self._roi_sample_ratio)
+        if len(hs) == 0:
+            locs = chainer.Variable(
+                self.xp.empty((0, self._n_class, 4), dtype=np.float32))
+            confs = chainer.Variable(
+                self.xp.empty((0, self._n_class), dtype=np.float32))
+            return locs, confs
 
-            h = F.reshape(h, (h.shape[0], -1))
-            h = F.relu(self.fc1(h))
-            h = F.relu(self.fc2(h))
+        h = F.concat(hs, axis=0)
+        h = F.reshape(h, (h.shape[0], -1))
+        h = F.relu(self.fc1(h))
+        h = F.relu(self.fc2(h))
 
-            loc = self.loc(h)
-            loc = F.reshape(loc, (loc.shape[0], -1, 4))
-            locs.append(loc)
-
-            conf = self.conf(h)
-            confs.append(conf)
-
+        locs = self.loc(h)
+        locs = F.reshape(locs, (locs.shape[0], -1, 4))
+        confs = self.conf(h)
         return locs, confs
 
     def distribute(self, rois, roi_indices):
@@ -75,7 +70,7 @@ class Head(chainer.Chain):
             size / self._canonical_scale + 1e-6)).astype(np.int32)
         # skip last level
         level = self.xp.clip(
-            level + len(self._scales) // 2, 0, len(self._scales) - 2)
+            level + self._canonical_level, 0, len(self._scales) - 2)
 
         masks = [level == l for l in range(len(self._scales))]
         rois = [rois[mask] for mask in masks]

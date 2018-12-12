@@ -9,8 +9,6 @@ from chainercv.links.model.fpn.faster_rcnn import FasterRCNN  # NOQA
 from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import FasterRCNNFPNResNet101  # NOQA
 from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import FasterRCNNFPNResNet50  # NOQA
 from chainercv.links.model.fpn.fpn import FPN  # NOQA
-from chainercv.links.model.fpn.manual_scheduler import ManualScheduler  # NOQA
-from chainercv.links.model.fpn.roi_align_2d import roi_align_2d  # NOQA
 from chainercv.links.model.fpn.rpn import RPN  # NOQA
 from chainercv.links.model.fpn.rpn import rpn_loss  # NOQA
 from chainercv.links.model.fpn.smooth_l1 import smooth_l1  # NOQA
