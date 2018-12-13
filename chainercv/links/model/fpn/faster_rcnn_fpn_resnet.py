@@ -2,14 +2,13 @@ import chainer
 import chainer.functions as F
 import chainer.links as L
 
-from chainercv.links import ResNet101
-from chainercv.links import ResNet50
+from chainercv.links.model.fpn.head import Head
+from chainercv.links.model.fpn.faster_rcnn import FasterRCNN
+from chainercv.links.model.fpn.fpn import FPN
+from chainercv.links.model.fpn.rpn import RPN
+from chainercv.links.model.resnet import ResNet101
+from chainercv.links.model.resnet import ResNet50
 from chainercv import utils
-
-from chainercv.links.model.fpn import Head
-from chainercv.links.model.fpn import FasterRCNN
-from chainercv.links.model.fpn import FPN
-from chainercv.links.model.fpn import RPN
 
 
 class FasterRCNNFPNResNet(FasterRCNN):
@@ -43,13 +42,27 @@ class FasterRCNNFPNResNet(FasterRCNN):
 class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
 
     _base = ResNet50
-    _models = {}
+    _models = {
+        'coco': {
+            'param': {'n_fg_class': 80},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'faster_rcnn_fpn_resnet50_coco_trained_2018_12_13.npz',
+            'cv2': True
+        },
+    }
 
 
 class FasterRCNNFPNResNet101(FasterRCNNFPNResNet):
 
     _base = ResNet101
-    _models = {}
+    _models = {
+        'coco': {
+            'param': {'n_fg_class': 80},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'faster_rcnn_fpn_resnet101_coco_trained_2018_12_13.npz',
+            'cv2': True
+        },
+    }
 
 
 def _copyparams(dst, src):

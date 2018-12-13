@@ -3,31 +3,30 @@ import matplotlib.pyplot as plt
 
 import chainer
 
-import chainercv
 from chainercv.datasets import coco_bbox_label_names
 from chainercv.links import FasterRCNNFPNResNet101
 from chainercv.links import FasterRCNNFPNResNet50
 from chainercv import utils
+from chainercv.visualizations import vis_bbox
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument(
         '--model', choices=('resnet50', 'resnet101'), default='resnet50')
-    parser.add_argument('--pretrained-model')
+    parser.add_argument('--gpu', type=int, default=-1)
+    parser.add_argument('--pretrained-model', default='coco')
     parser.add_argument('image')
     args = parser.parse_args()
 
     if args.model == 'resnet50':
         model = FasterRCNNFPNResNet50(
-            n_fg_class=len(coco_bbox_label_names))
+            n_fg_class=len(coco_bbox_label_names),
+            pretrained_model=args.pretrained_model)
     elif args.model == 'resnet101':
         model = FasterRCNNFPNResNet101(
-            n_fg_class=len(coco_bbox_label_names))
-
-    if args.pretrained_model:
-        chainer.serializers.load_npz(args.pretrained_model, model)
+            n_fg_class=len(coco_bbox_label_names),
+            pretrained_model=args.pretrained_model)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
@@ -39,7 +38,7 @@ def main():
     label = labels[0]
     score = scores[0]
 
-    chainercv.visualizations.vis_bbox(
+    vis_bbox(
         img, bbox, label, score, label_names=coco_bbox_label_names)
     plt.show()
 
