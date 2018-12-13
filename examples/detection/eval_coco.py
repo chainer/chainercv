@@ -20,7 +20,7 @@ def main():
         default='faster_rcnn_fpn_resnet50')
     parser.add_argument('--pretrained-model')
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--pretrained-model')
+    parser.add_argument('--batchsize', type=int, default=1)
     args = parser.parse_args()
 
     if args.model == 'faster_rcnn_fpn_resnet50':
