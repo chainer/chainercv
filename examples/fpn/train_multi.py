@@ -10,8 +10,6 @@ from chainer.training import extensions
 
 import chainermn
 
-from chainercv.chainer_experimental.datasets.sliceable \
-    import ConcatenatedDataset
 from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
 from chainercv.chainer_experimental.training.extensions import make_shift
 from chainercv.datasets import coco_bbox_label_names
@@ -115,10 +113,8 @@ def main():
     train_chain.to_gpu()
 
     train = TransformDataset(
-        ConcatenatedDataset(
-            COCOBboxDataset(split='train'),
-            COCOBboxDataset(split='valminusminival'),
-        ), ('img', 'bbox', 'label'), transform)
+        COCOBboxDataset(year='2017', split='train'),
+        ('img', 'bbox', 'label'), transform)
 
     if comm.rank == 0:
         indices = np.arange(len(train))
