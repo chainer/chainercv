@@ -18,8 +18,6 @@ from chainercv.datasets import coco_bbox_label_names
 from chainercv.datasets import COCOBboxDataset
 from chainercv.links import FasterRCNNFPNResNet101
 from chainercv.links import FasterRCNNFPNResNet50
-from chainercv.links import ResNet101
-from chainercv.links import ResNet50
 from chainercv import transforms
 
 from chainercv.links.model.fpn import head_loss_post
@@ -92,20 +90,6 @@ def converter(batch, device=None):
     return tuple(list(v) for v in zip(*batch))
 
 
-def copyparams(dst, src):
-    if isinstance(dst, chainer.Chain):
-        for link in dst.children():
-            copyparams(link, src[link.name])
-    elif isinstance(dst, chainer.ChainList):
-        for i, link in enumerate(dst):
-            copyparams(link, src[i])
-    else:
-        dst.copyparams(src)
-        if isinstance(dst, L.BatchNormalization):
-            dst.avg_mean = src.avg_mean
-            dst.avg_var = src.avg_var
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -119,13 +103,11 @@ def main():
     device = comm.intra_rank
 
     if args.model == 'resnet50':
-        model = FasterRCNNFPNResNet50(n_fg_class=len(coco_bbox_label_names))
-        copyparams(model.extractor.base,
-                   ResNet50(pretrained_model='imagenet', arch='he'))
+        model = FasterRCNNFPNResNet50(
+            n_fg_class=len(coco_bbox_label_names), pratrained_model='imagenet')
     elif args.model == 'resnet101':
-        model = FasterRCNNFPNResNet101(n_fg_class=len(coco_bbox_label_names))
-        copyparams(model.extractor.base,
-                   ResNet101(pretrained_model='imagenet', arch='he'))
+        model = FasterRCNNFPNResNet101(
+            n_fg_class=len(coco_bbox_label_names), pratrained_model='imagenet')
 
     model.use_preset('evaluate')
     train_chain = TrainChain(model)
