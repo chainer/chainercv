@@ -197,9 +197,6 @@ def head_loss_pre(rois, roi_indices, std, bboxes, labels):
 
 
 def head_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
-    locs = F.concat(locs, axis=0)
-    confs = F.concat(confs, axis=0)
-
     xp = cuda.get_array_module(locs.array, confs.array)
 
     roi_indices = xp.hstack(roi_indices).astype(np.int32)

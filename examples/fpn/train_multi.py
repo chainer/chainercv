@@ -15,16 +15,16 @@ from chainercv.chainer_experimental.datasets.sliceable \
 from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
 from chainercv.datasets import coco_bbox_label_names
 from chainercv.datasets import COCOBboxDataset
+from chainercv.links import FasterRCNNFPNResNet101
+from chainercv.links import FasterRCNNFPNResNet50
 from chainercv.links import ResNet101
 from chainercv.links import ResNet50
 from chainercv import transforms
+from chianercv.utils import make_shift
 
-from fpn import head_loss_post
-from fpn import head_loss_pre
-from fpn import FasterRCNNFPNResNet101
-from fpn import FasterRCNNFPNResNet50
-from fpn import ManualScheduler
-from fpn import rpn_loss
+from chainercv.links.model.fpn import head_loss_post
+from chainercv.links.model.fpn import head_loss_pre
+from chainercv.links.model.fpn import rpn_loss
 
 
 class TrainChain(chainer.Chain):
@@ -109,7 +109,7 @@ def copyparams(dst, src):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('resnet50', 'resnet101'))
+        '--model', choices=('resnet50', 'resnet101'), default='resnet50')
     parser.add_argument('--batchsize', type=int, default=16)
     parser.add_argument('--out', default='result')
     parser.add_argument('--resume')
@@ -166,12 +166,13 @@ def main():
     trainer = training.Trainer(
         updater, (90000 * 16 / args.batchsize, 'iteration'), args.out)
 
-    def lr_schedule(updater):
+    @make_shift('lr')
+    def lr_schedule(trainer):
         base_lr = 0.02 * args.batchsize / 16
         warm_up_duration = 500
         warm_up_rate = 1 / 3
 
-        iteration = updater.iteration
+        iteration = trainer.updater.iteration
         if iteration < warm_up_duration:
             rate = warm_up_rate \
                 + (1 - warm_up_rate) * iteration / warm_up_duration
@@ -184,7 +185,7 @@ def main():
 
         return base_lr * rate
 
-    trainer.extend(ManualScheduler('lr', lr_schedule))
+    trainer.extend(lr_schedule)
 
     if comm.rank == 0:
         log_interval = 10, 'iteration'
