@@ -7,15 +7,23 @@ SBD Train & Test
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | FCIS ResNet101| 65.7 | 52.1 | 64.2 | 51.2 | 64.1 (1 GPU) | 51.2 (1 GPU) |
 
+COCO Train & Test
+| Model | mAP/iou@[0.5:0.95] (original [1])| mAP/iou@0.5 (original [1])| mAP/iou@[0.5:0.95] (weight conversion)| mAP/iou@0.5 (weight conversion)| mAP/iou@[0.5:0.95] (train)| mAP/iou@0.5 (train)|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| FCIS ResNet101 | 0.292 | 0.495 | 0.281 | 0.465 | * | * |
+
+\*: We use random sampling for sampling strategy. The original paper used OHEM sampling strategy.
+
 ## Demo
 Segment objects in an given image. This demo downloads SBD pretrained model automatically if a pretrained model path is not given.
 
 ```bash
-python demo.py [--gpu <gpu>] [--pretrained-model <model_path>] <image.jpg>
+python demo.py [--gpu <gpu>] [--pretrained-model <model_path>] [--dataset <sbd, coco>] <image.jpg>
 ```
 
 ## Evaluation
-The evaluation can be conducted using [`chainercv/examples/instance_segmentation/eval_sbd.py`](https://github.com/chainer/chainercv/blob/master/examples/instance_segmentation)
+The evaluation for sbd dataset can be conducted using [`chainercv/examples/instance_segmentation/eval_sbd.py`](https://github.com/chainer/chainercv/blob/master/examples/instance_segmentation)
+and the one for coco dataset can be conducted using [`chainercv/examples/instance_segmentation/eval_coco.py`](https://github.com/chainer/chainercv/blob/master/examples/instance_segmentation)
 
 ## Train
 You can train the model with the following code.
