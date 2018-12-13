@@ -326,8 +326,7 @@ class SSD512(SSD):
         },
     }
 
-    def __init__(self, n_fg_class=None, pretrained_model=None,
-                 use_pretrained_class_weights=True):
+    def __init__(self, n_fg_class=None, pretrained_model=None):
         param, path = utils.prepare_pretrained_model(
             {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
