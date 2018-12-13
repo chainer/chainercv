@@ -13,6 +13,7 @@ import chainermn
 from chainercv.chainer_experimental.datasets.sliceable \
     import ConcatenatedDataset
 from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
+from chainercv.chainer_experimental.training_extensions import make_shift
 from chainercv.datasets import coco_bbox_label_names
 from chainercv.datasets import COCOBboxDataset
 from chainercv.links import FasterRCNNFPNResNet101
@@ -20,7 +21,6 @@ from chainercv.links import FasterRCNNFPNResNet50
 from chainercv.links import ResNet101
 from chainercv.links import ResNet50
 from chainercv import transforms
-from chainercv.utils import make_shift
 
 from chainercv.links.model.fpn import head_loss_post
 from chainercv.links.model.fpn import head_loss_pre
