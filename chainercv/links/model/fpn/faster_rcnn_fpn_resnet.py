@@ -4,7 +4,7 @@ import chainercv
 from chainercv.links.model.fpn import Head
 from chainercv.links.model.fpn import FasterRCNN
 from chainercv.links.model.fpn.fpn import FPN
-from chainercv.links.model.rpn import RPN
+from chainercv.links.model.fpn.rpn import RPN
 
 
 def _make_fpn(cls):

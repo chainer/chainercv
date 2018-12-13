@@ -7,9 +7,10 @@ from chainer import initializers
 import chainer.links as L
 
 from chainercv import utils
-
-from fpn import exp_clip
-from fpn.smooth_l1 import smooth_l1
+from chainercv.links.model.fpn.misc import argsort
+from chainercv.links.model.fpn.misc import choice
+from chainercv.links.model.fpn.misc import exp_clip
+from chainercv.links.model.fpn.misc import smooth_l1
 
 
 class RPN(chainer.Chain):
@@ -101,7 +102,7 @@ class RPN(chainer.Chain):
                 roi_l[:, 2:] = self.xp.minimum(
                     roi_l[:, 2:], self.xp.array(in_shape[2:]))
 
-                order = _argsort(-conf_l)[:nms_limit_pre]
+                order = argsort(-conf_l)[:nms_limit_pre]
                 roi_l = roi_l[order]
                 conf_l = conf_l[order]
 
@@ -120,7 +121,7 @@ class RPN(chainer.Chain):
             roi = self.xp.vstack(roi).astype(np.float32)
             conf = self.xp.hstack(conf).astype(np.float32)
 
-            order = _argsort(-conf)[:nms_limit_post]
+            order = argsort(-conf)[:nms_limit_post]
             roi = roi[order]
 
             rois.append(roi)
@@ -177,7 +178,7 @@ def rpn_loss(locs, confs, anchors, sizes,  bboxes):
         fg_index = xp.where(gt_label == 1)[0]
         n_fg = int(batchsize_per_image * fg_ratio)
         if len(fg_index) > n_fg:
-            gt_label[_choice(fg_index, size=len(fg_index) - n_fg)] = -1
+            gt_label[choice(fg_index, size=len(fg_index) - n_fg)] = -1
 
         if len(bboxes[i]) > 0:
             bg_index = xp.where(xp.logical_and(
@@ -200,23 +201,3 @@ def rpn_loss(locs, confs, anchors, sizes,  bboxes):
     conf_loss /= len(sizes)
 
     return loc_loss, conf_loss
-
-
-# to avoid out of memory
-def _argsort(x):
-    xp = cuda.get_array_module(x)
-    i = np.argsort(cuda.to_cpu(x))
-    if xp is np:
-        return i
-    else:
-        return cuda.to_gpu(i)
-
-
-# to avoid out of memory
-def _choice(x, size):
-    xp = cuda.get_array_module(x)
-    y = np.random.choice(cuda.to_cpu(x), size, replace=False)
-    if xp is np:
-        return y
-    else:
-        return cuda.to_gpu(y)

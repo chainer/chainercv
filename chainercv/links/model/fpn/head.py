@@ -7,9 +7,10 @@ from chainer import initializers
 import chainer.links as L
 
 from chainercv import utils
-
-from fpn import exp_clip
-from fpn.smooth_l1 import smooth_l1
+from chainercv.links.model.fpn.misc import argsort
+from chainercv.links.model.fpn.misc import choice
+from chainercv.links.model.fpn.misc import exp_clip
+from chainercv.links.model.fpn.misc import smooth_l1
 
 
 class Head(chainer.Chain):
@@ -42,7 +43,7 @@ class Head(chainer.Chain):
         for l, h in enumerate(hs):
             if len(rois[l]) == 0:
                 continue
-            F.roi_average_align_2d(
+            h = F.roi_average_align_2d(
                 h, rois[l], roi_indices[l], self._roi_size, self._scales[l])
             hs_.append(h)
         hs = hs_
@@ -82,8 +83,8 @@ class Head(chainer.Chain):
                scales, sizes, nms_thresh, score_thresh):
         rois = self.xp.vstack(rois)
         roi_indices = self.xp.hstack(roi_indices)
-        locs = self.xp.vstack([loc.array for loc in locs])
-        confs = self.xp.vstack([conf.array for conf in confs])
+        locs = locs.array
+        confs = confs.array
 
         bboxes = []
         labels = []
@@ -121,44 +122,6 @@ class Head(chainer.Chain):
             scores.append(score)
 
         return bboxes, labels, scores
-
-
-class Caffe2FCUniform(chainer.initializer.Initializer):
-
-    def __call__(self, array):
-        scale = 1 / np.sqrt(array.shape[-1])
-        initializers.Uniform(scale)(array)
-
-
-def _suppress(raw_bbox, raw_score, nms_thresh, score_thresh):
-    xp = cuda.get_array_module(raw_bbox, raw_score)
-
-    bbox = []
-    label = []
-    score = []
-    for l in range(raw_score.shape[1] - 1):
-        bbox_l = raw_bbox[:, l + 1]
-        score_l = raw_score[:, l + 1]
-
-        mask = score_l >= score_thresh
-        bbox_l = bbox_l[mask]
-        score_l = score_l[mask]
-
-        order = _argsort(-score_l)
-        bbox_l = bbox_l[order]
-        score_l = score_l[order]
-        indices = utils.non_maximum_suppression(bbox_l, nms_thresh)
-        bbox_l = bbox_l[indices]
-        score_l = score_l[indices]
-
-        bbox.append(bbox_l)
-        label.append(xp.array((l,) * len(bbox_l)))
-        score.append(score_l)
-
-    bbox = xp.vstack(bbox).astype(np.float32)
-    label = xp.hstack(label).astype(np.int32)
-    score = xp.hstack(score).astype(np.float32)
-    return bbox, label, score
 
 
 def head_loss_pre(rois, roi_indices, std, bboxes, labels):
@@ -207,12 +170,12 @@ def head_loss_pre(rois, roi_indices, std, bboxes, labels):
         fg_index = xp.where(gt_label > 0)[0]
         n_fg = int(batchsize_per_image * fg_ratio)
         if len(fg_index) > n_fg:
-            gt_label[_choice(fg_index, size=len(fg_index) - n_fg)] = -1
+            gt_label[choice(fg_index, size=len(fg_index) - n_fg)] = -1
 
         bg_index = xp.where(gt_label == 0)[0]
         n_bg = batchsize_per_image - int((gt_label > 0).sum())
         if len(bg_index) > n_bg:
-            gt_label[_choice(bg_index, size=len(bg_index) - n_bg)] = -1
+            gt_label[choice(bg_index, size=len(bg_index) - n_bg)] = -1
 
         gt_locs[mask] = gt_loc
         gt_labels[mask] = gt_label
@@ -262,21 +225,39 @@ def head_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
     return loc_loss, conf_loss
 
 
-# to avoid out of memory
-def _argsort(x):
-    xp = cuda.get_array_module(x)
-    i = np.argsort(cuda.to_cpu(x))
-    if xp is np:
-        return i
-    else:
-        return cuda.to_gpu(i)
+class Caffe2FCUniform(chainer.initializer.Initializer):
+
+    def __call__(self, array):
+        scale = 1 / np.sqrt(array.shape[-1])
+        initializers.Uniform(scale)(array)
 
 
-# to avoid out of memory
-def _choice(x, size):
-    xp = cuda.get_array_module(x)
-    y = np.random.choice(cuda.to_cpu(x), size, replace=False)
-    if xp is np:
-        return y
-    else:
-        return cuda.to_gpu(y)
+def _suppress(raw_bbox, raw_score, nms_thresh, score_thresh):
+    xp = cuda.get_array_module(raw_bbox, raw_score)
+
+    bbox = []
+    label = []
+    score = []
+    for l in range(raw_score.shape[1] - 1):
+        bbox_l = raw_bbox[:, l + 1]
+        score_l = raw_score[:, l + 1]
+
+        mask = score_l >= score_thresh
+        bbox_l = bbox_l[mask]
+        score_l = score_l[mask]
+
+        order = argsort(-score_l)
+        bbox_l = bbox_l[order]
+        score_l = score_l[order]
+        indices = utils.non_maximum_suppression(bbox_l, nms_thresh)
+        bbox_l = bbox_l[indices]
+        score_l = score_l[indices]
+
+        bbox.append(bbox_l)
+        label.append(xp.array((l,) * len(bbox_l)))
+        score.append(score_l)
+
+    bbox = xp.vstack(bbox).astype(np.float32)
+    label = xp.hstack(label).astype(np.int32)
+    score = xp.hstack(score).astype(np.float32)
+    return bbox, label, score
