@@ -12,6 +12,7 @@ from chainercv.chainer_experimental.datasets.sliceable \
     import ConcatenatedDataset
 from chainercv.chainer_experimental.datasets.sliceable \
     import TransformDataset
+from chainercv.chainer_experimental.training.extensions import make_shift
 from chainercv.datasets import coco_instance_segmentation_label_names
 from chainercv.datasets import COCOInstanceSegmentationDataset
 from chainercv.experimental.links import FCISResNet101
@@ -35,8 +36,6 @@ def main():
         '--lr', '-l', type=float, default=0.0005,
         help='Default value is for 1 GPU.\n'
              'The learning rate should be multiplied by the number of gpu')
-    parser.add_argument(
-        '--lr-cooldown-factor', '-lcf', type=float, default=0.1)
     parser.add_argument('--epoch', '-e', type=int, default=18)
     parser.add_argument('--cooldown-epoch', '-ce', type=int, default=12)
     args = parser.parse_args()
@@ -89,7 +88,7 @@ def main():
 
     # optimizer
     optimizer = chainermn.create_multi_node_optimizer(
-        chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9),
+        chainer.optimizers.MomentumSGD(momentum=0.9),
         comm)
     optimizer.setup(model)
 
@@ -111,10 +110,21 @@ def main():
         updater, (args.epoch, 'epoch'), out=args.out)
 
     # lr scheduler
-    trainer.extend(
-        chainer.training.extensions.ExponentialShift(
-            'lr', args.lr_cooldown_factor, init=args.lr),
-        trigger=ManualScheduleTrigger(args.cooldown_epoch, 'epoch'))
+    @make_shift('lr')
+    def lr_scheduler(trainer):
+        base_lr = args.lr
+
+        iteration = trainer.updater.iteration
+        epoch = trainer.updater.epoch
+        if (iteration * comm.size) < 2000:
+            rate = 0.1
+        elif epoch < args.cooldown_epoch:
+            rate = 1
+        else:
+            rate = 0.1
+        return rate * base_lr
+
+    trainer.extend(lr_scheduler)
 
     if comm.rank == 0:
         # interval
@@ -164,8 +174,8 @@ def main():
                 test_iter, model.fcis,
                 label_names=coco_instance_segmentation_label_names),
             trigger=ManualScheduleTrigger(
-                [len(train_dataset) * args.cooldown_epoch,
-                 len(train_dataset) * args.epoch], 'iteration'))
+                [len(train_dataset) * args.cooldown_epoch - 1,
+                 len(train_dataset) * args.epoch - 1], 'iteration'))
 
         trainer.extend(extensions.dump_graph('main/loss'))
 
