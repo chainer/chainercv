@@ -68,7 +68,8 @@ def main():
     train_dataset = TransformDataset(
         ConcatenatedDataset(
             COCOInstanceSegmentationDataset(year='2014', split='train'),
-            COCOInstanceSegmentationDataset(year='2014', split='valminusminival')),
+            COCOInstanceSegmentationDataset(
+                year='2014', split='valminusminival')),
         ('img', 'mask', 'label', 'bbox', 'scale'),
         Transform(model.fcis))
     test_dataset = COCOInstanceSegmentationDataset(
