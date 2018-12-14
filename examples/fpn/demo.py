@@ -13,17 +13,19 @@ from chainercv.visualizations import vis_bbox
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('resnet50', 'resnet101'), default='resnet50')
+        '--model',
+        choices=('faster_rcnn_fpn_resnet50', 'faster_rcnn_fpn_resnet101'),
+        default='faster_rcnn_fpn_resnet50')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--pretrained-model', default='coco')
     parser.add_argument('image')
     args = parser.parse_args()
 
-    if args.model == 'resnet50':
+    if args.model == 'faster_rcnn_fpn_resnet50':
         model = FasterRCNNFPNResNet50(
             n_fg_class=len(coco_bbox_label_names),
             pretrained_model=args.pretrained_model)
-    elif args.model == 'resnet101':
+    elif args.model == 'faster_rcnn_fpn_resnet101':
         model = FasterRCNNFPNResNet101(
             n_fg_class=len(coco_bbox_label_names),
             pretrained_model=args.pretrained_model)
