@@ -102,10 +102,10 @@ def main():
 
     if args.model == 'resnet50':
         model = FasterRCNNFPNResNet50(
-            n_fg_class=len(coco_bbox_label_names), pratrained_model='imagenet')
+            n_fg_class=len(coco_bbox_label_names), pretrained_model='imagenet')
     elif args.model == 'resnet101':
         model = FasterRCNNFPNResNet101(
-            n_fg_class=len(coco_bbox_label_names), pratrained_model='imagenet')
+            n_fg_class=len(coco_bbox_label_names), pretrained_model='imagenet')
 
     model.use_preset('evaluate')
     train_chain = TrainChain(model)
