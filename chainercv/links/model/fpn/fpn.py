@@ -5,6 +5,22 @@ import chainer.links as L
 
 
 class FPN(chainer.Chain):
+    """An extractor class of Feature Pyramid Networks.
+
+    This class wraps a feature extractor and provides
+    multi-scale features.
+
+    Args:
+        base (Link): A base feature extractor.
+            It should have :meth:`__call__` and :obj:'mean'.
+            :meth:`__call__` should take a batch of images and return
+            feature maps of them. The size of the :math:`k+1`-th feature map
+            should be the half as that of the :math:`k`-th feature map.
+        n_base_output (int): The number of feature maps
+            that :obj:`base` returns.
+        scales (tuple of floats): The scales of feature maps.
+
+    """
 
     def __init__(self, base, n_base_output, scales):
         super().__init__()

@@ -12,6 +12,10 @@ from chainercv import utils
 
 
 class FasterRCNNFPNResNet(FasterRCNN):
+    """Base class for FasterRCNNFPNResNet50 and FasterRCNNFPNResNet101.
+
+    A subclass of this class should have :obj:`_base` and :obj:`_models`.
+    """
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
         param, path = utils.prepare_pretrained_model(
@@ -40,6 +44,36 @@ class FasterRCNNFPNResNet(FasterRCNN):
 
 
 class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
+    """Feature Pyramid Networks with ResNet-50.
+
+    This is a model of Feature Pyramid Networks [#]_.
+    This model uses :class:`~chainercv.links.ResNet50` as
+    its base feature extractor.
+
+    .. [#] Tsung-Yi Lin et al.
+       Feature Pyramid Networks for Object Detection. CVPR 2017
+
+    Args:
+       n_fg_class (int): The number of classes excluding the background.
+       pretrained_model (string): The weight file to be loaded.
+           This can take :obj:`'coco'`, `filepath` or :obj:`None`.
+           The default value is :obj:`None`.
+
+            * :obj:`'coco'`: Load weights trained on train split of \
+                MS COCO 2017. \
+                The weight file is downloaded and cached automatically. \
+                :obj:`n_fg_class` must be :obj:`80` or :obj:`None`.
+            * :obj:`'imagenet'`: Load weights of ResNet-50 trained on \
+                ImageNet. \
+                The weight file is downloaded and cached automatically. \
+                This option initializes weights partially and the rests are \
+                initialized randomly. In this case, :obj:`n_fg_class` \
+                can be set to any number.
+            * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
+                must be specified properly.
+            * :obj:`None`: Do not load weights.
+
+    """
 
     _base = ResNet50
     _models = {
@@ -53,6 +87,36 @@ class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
 
 
 class FasterRCNNFPNResNet101(FasterRCNNFPNResNet):
+    """Feature Pyramid Networks with ResNet-101.
+
+    This is a model of Feature Pyramid Networks [#]_.
+    This model uses :class:`~chainercv.links.ResNet101` as
+    its base feature extractor.
+
+    .. [#] Tsung-Yi Lin et al.
+       Feature Pyramid Networks for Object Detection. CVPR 2017
+
+    Args:
+       n_fg_class (int): The number of classes excluding the background.
+       pretrained_model (string): The weight file to be loaded.
+           This can take :obj:`'coco'`, `filepath` or :obj:`None`.
+           The default value is :obj:`None`.
+
+            * :obj:`'coco'`: Load weights trained on train split of \
+                MS COCO 2017. \
+                The weight file is downloaded and cached automatically. \
+                :obj:`n_fg_class` must be :obj:`80` or :obj:`None`.
+            * :obj:`'imagenet'`: Load weights of ResNet-101 trained on \
+                ImageNet. \
+                The weight file is downloaded and cached automatically. \
+                This option initializes weights partially and the rests are \
+                initialized randomly. In this case, :obj:`n_fg_class` \
+                can be set to any number.
+            * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
+                must be specified properly.
+            * :obj:`None`: Do not load weights.
+
+    """
 
     _base = ResNet101
     _models = {
