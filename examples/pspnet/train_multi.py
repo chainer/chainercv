@@ -78,7 +78,7 @@ class Transform(object):
 
     def __init__(
             self, mean,
-            scale_range=[0.5, 2.0], crop_size=(713, 713)):
+            crop_size, scale_range=[0.5, 2.0]):
         self.mean = mean
         self.scale_range = scale_range
         self.crop_size = crop_size
@@ -237,7 +237,7 @@ def main():
         train = TransformDataset(
             train,
             ('img', 'label'),
-            Transform(model.mean, crop_size=dataset_cfg['input_size']))
+            Transform(model.mean, dataset_cfg['input_size']))
     else:
         train, val = None, None
     train = chainermn.scatter_dataset(train, comm, shuffle=True)
