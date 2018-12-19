@@ -10,6 +10,10 @@ PSPNetResNet101
 ~~~~~~~~~~~~~~~
 .. autoclass:: PSPNetResNet101
 
+PSPNetResNet50
+~~~~~~~~~~~~~~
+.. autoclass:: PSPNetResNet50
+
 Utility
 -------
 

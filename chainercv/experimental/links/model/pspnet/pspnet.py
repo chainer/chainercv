@@ -5,6 +5,7 @@ import numpy as np
 
 import chainer
 import chainer.functions as F
+from chainer import initializers
 import chainer.links as L
 
 from chainercv.experimental.links.model.pspnet.transforms import \
@@ -16,25 +17,23 @@ from chainercv import transforms
 from chainercv import utils
 
 
+_imagenet_mean = np.array(
+    (123.68, 116.779, 103.939), dtype=np.float32)[:, None, None]
+
+
 class PyramidPoolingModule(chainer.ChainList):
 
-    def __init__(self, in_channels, feat_size, pyramids,
-                 initialW=None,
-                 bn_kwargs=None):
+    def __init__(self, in_channels, feat_size, pyramids, initialW=None):
         out_channels = in_channels // len(pyramids)
         super(PyramidPoolingModule, self).__init__(
             Conv2DBNActiv(
-                in_channels, out_channels, 1, 1, 0, 1, initialW=initialW,
-                bn_kwargs=bn_kwargs),
+                in_channels, out_channels, 1, 1, 0, 1, initialW=initialW),
             Conv2DBNActiv(
-                in_channels, out_channels, 1, 1, 0, 1, initialW=initialW,
-                bn_kwargs=bn_kwargs),
+                in_channels, out_channels, 1, 1, 0, 1, initialW=initialW),
             Conv2DBNActiv(
-                in_channels, out_channels, 1, 1, 0, 1, initialW=initialW,
-                bn_kwargs=bn_kwargs),
+                in_channels, out_channels, 1, 1, 0, 1, initialW=initialW),
             Conv2DBNActiv(
-                in_channels, out_channels, 1, 1, 0, 1, initialW=initialW,
-                bn_kwargs=bn_kwargs)
+                in_channels, out_channels, 1, 1, 0, 1, initialW=initialW),
         )
         kh = feat_size[0] // np.array(pyramids)
         kw = feat_size[1] // np.array(pyramids)
@@ -54,34 +53,61 @@ class PyramidPoolingModule(chainer.ChainList):
 class DilatedResNet(PickableSequentialChain):
 
     _blocks = {
+        50: [3, 4, 6, 3],
         101: [3, 4, 23, 3],
     }
 
-    def __init__(self, n_layer, initialW, bn_kwargs=None):
+    _models = {
+        50: {
+            'imagenet': {
+                'url': 'https://chainercv-models.preferred.jp/'
+                'pspnet_resnet50_imagenet_trained_2018_11_26.npz',
+                'cv2': True
+            },
+        },
+        101: {
+            'imagenet': {
+                'url': 'https://chainercv-models.preferred.jp/'
+                'pspnet_resnet101_imagenet_trained_2018_11_26.npz',
+                'cv2': True
+            },
+        },
+    }
+
+    def __init__(self, n_layer, pretrained_model=None,
+                 initialW=None):
         n_block = self._blocks[n_layer]
+
+        _, path = utils.prepare_pretrained_model(
+            {},
+            pretrained_model,
+            self._models[n_layer])
+
         super(DilatedResNet, self).__init__()
         with self.init_scope():
             self.conv1_1 = Conv2DBNActiv(
-                None, 64, 3, 2, 1, 1,
-                initialW=initialW, bn_kwargs=bn_kwargs)
+                None, 64, 3, 2, 1, 1, initialW=initialW)
             self.conv1_2 = Conv2DBNActiv(
-                64, 64, 3, 1, 1, 1, initialW=initialW, bn_kwargs=bn_kwargs)
+                64, 64, 3, 1, 1, 1, initialW=initialW)
             self.conv1_3 = Conv2DBNActiv(
-                64, 128, 3, 1, 1, 1, initialW=initialW, bn_kwargs=bn_kwargs)
+                64, 128, 3, 1, 1, 1, initialW=initialW)
             self.pool1 = lambda x: F.max_pooling_2d(
                 x, ksize=3, stride=2, pad=1)
             self.res2 = ResBlock(
                 n_block[0], 128, 64, 256, 1, 1,
-                initialW=initialW, bn_kwargs=bn_kwargs, stride_first=False)
+                initialW=initialW, stride_first=False)
             self.res3 = ResBlock(
                 n_block[1], 256, 128, 512, 2, 1,
-                initialW=initialW, bn_kwargs=bn_kwargs, stride_first=False)
+                initialW=initialW, stride_first=False)
             self.res4 = ResBlock(
                 n_block[2], 512, 256, 1024, 1, 2,
-                initialW=initialW, bn_kwargs=bn_kwargs, stride_first=False)
+                initialW=initialW, stride_first=False)
             self.res5 = ResBlock(
                 n_block[3], 1024, 512, 2048, 1, 4,
-                initialW=initialW, bn_kwargs=bn_kwargs, stride_first=False)
+                initialW=initialW, stride_first=False)
+
+        if path:
+            chainer.serializers.load_npz(path, self, ignore_names=None)
 
 
 class PSPNet(chainer.Chain):
@@ -98,45 +124,71 @@ class PSPNet(chainer.Chain):
     .. _here: https://github.com/hszhao/PSPNet
 
     Args:
-        extractor (chainer.Chain): A feature extractor.
         n_class (int): The number of channels in the last convolution layer.
+        pretrained_model (string): The weight file to be loaded.
+            This can take :obj:`'cityscapes'`, `filepath` or :obj:`None`.
+            The default value is :obj:`None`.
+            * :obj:`'cityscapes'`: Load weights trained on the train split of \
+                Cityscapes dataset. \
+                :obj:`n_class` must be :obj:`19` or :obj:`None`.
+            * :obj:`'imagenet'`: Load ImageNet pretrained weights for \
+                the extractor.
+            * `filepath`: A path of npz file. In this case, :obj:`n_class` \
+                must be specified properly.
+            * :obj:`None`: Do not load weights.
         input_size (tuple): The size of the input.
             This value is :math:`(height, width)`.
         initialW (callable): Initializer for the weights of
             convolution kernels.
-        bn_kwargs (dict): Keyword arguments passed to initialize
-            :class:`chainer.links.BatchNormalization`. If a ChainerMN
-            communicator (:class:`~chainermn.communicators.CommunicatorBase`)
-            is given with the key :obj:`comm`,
-            :class:`~chainermn.links.MultiNodeBatchNormalization` will be used
-            for the batch normalization. Otherwise,
-            :class:`~chainer.links.BatchNormalization` will be used.
 
     """
 
-    def __init__(self, extractor, n_class, input_size,
-                 initialW=None, bn_kwargs=None):
+    def __init__(self, n_class=None, pretrained_model=None,
+                 input_size=None, initialW=None):
         super(PSPNet, self).__init__()
-        pyramids = [6, 3, 2, 1]
 
+        if pretrained_model == 'imagenet':
+            extractor_pretrained_model = 'imagenet'
+            pretrained_model = None
+        else:
+            extractor_pretrained_model = None
+
+        param, path = utils.prepare_pretrained_model(
+            {'n_class': n_class, 'input_size': input_size},
+            pretrained_model, self._models,
+            default={'input_size': (713, 713)})
+        n_class = param['n_class']
+        input_size = param['input_size']
         if not isinstance(input_size, (list, tuple)):
             input_size = (int(input_size), int(input_size))
-
-        self.scales = None
-        self.mean = np.array(
-            [123.68, 116.779, 103.939], dtype=np.float32)[:, None, None]
         self.input_size = input_size
 
+        if initialW is None:
+            if pretrained_model:
+                initialW = initializers.constant.Zero()
+
+        kwargs = self._extractor_kwargs
+        kwargs.update({'pretrained_model': extractor_pretrained_model,
+                       'initialW': initialW})
+        extractor = self._extractor_cls(**kwargs)
+        extractor.pick = self._extractor_pick
+
+        self.scales = None
+        self.mean = _imagenet_mean
+
+        pyramids = [6, 3, 2, 1]
         feat_size = (input_size[0] // 8, input_size[1] // 8)
         with self.init_scope():
             self.extractor = extractor
-            self.ppm = PyramidPoolingModule(2048, feat_size, pyramids,
-                                            initialW=initialW,
-                                            bn_kwargs=bn_kwargs)
-            self.head_conv1 = Conv2DBNActiv(4096, 512, 3, 1, 1,
-                                            initialW=initialW)
+            self.ppm = PyramidPoolingModule(
+                2048, feat_size, pyramids, initialW=initialW)
+            self.head_conv1 = Conv2DBNActiv(
+                4096, 512, 3, 1, 1, initialW=initialW)
             self.head_conv2 = L.Convolution2D(
                 512, n_class, 1, 1, 0, False, initialW)
+
+        if path:
+            chainer.serializers.load_npz(path, self)
 
     @property
     def n_class(self):
@@ -245,63 +297,34 @@ class PSPNetResNet101(PSPNet):
     .. seealso::
         :class:`chainercv.experimental.links.model.pspnet.PSPNet`
 
-    Args:
-        n_class (int): The number of channels in the last convolution layer.
-        pretrained_model (string): The weight file to be loaded.
-            This can take :obj:`'cityscapes'`, `filepath` or :obj:`None`.
-            The default value is :obj:`None`.
-
-            * :obj:`'cityscapes'`: Load weights trained on train split of \
-                Cityscapes dataset. \
-                The weight file is downloaded and cached automatically. \
-                :obj:`n_class` must be :obj:`19` or :obj:`None`.
-            * `filepath`: A path of npz file. In this case, :obj:`n_class` \
-                must be specified properly.
-            * :obj:`None`: Do not load weights.
-
-        input_size (tuple): The size of the input.
-            This value is :math:`(height, width)`.
-        initialW (callable): Initializer for the weights of
-            convolution kernels.
-        comm (chainermn.communicator): If a ChainerMN communicator is
-            given, it will be used for distributed batch normalization during
-            training. If None, all batch normalization links will not share
-            the input vectors among GPUs before calculating mean and variance.
-            The original PSPNet implementation uses distributed batch
-            normalization.
-
     """
 
+    _extractor_cls = DilatedResNet
+    _extractor_kwargs = {'n_layer': 101}
+    _extractor_pick = ('res4', 'res5')
     _models = {
         'cityscapes': {
             'param': {'n_class': 19, 'input_size': (713, 713)},
-            'url': 'https://chainercv-models.preferred.jp/'
-            'pspnet_resnet101_cityscapes_converted_2018_05_22.npz'
-        }
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.6/pspnet_resnet101_cityscapes_convert_2018_05_22.npz'
+        },
     }
 
-    def __init__(self, n_class=None, pretrained_model=None,
-                 input_size=None,
-                 initialW=None, comm=None):
-        param, path = utils.prepare_pretrained_model(
-            {'n_class': n_class, 'input_size': input_size},
-            pretrained_model, self._models,
-            {'input_size': (713, 713)})
 
-        if comm is not None:
-            bn_kwargs = {'comm': comm}
-        else:
-            bn_kwargs = {}
-        if initialW is None:
-            initialW = chainer.initializers.HeNormal()
-        extractor = DilatedResNet(101, initialW, bn_kwargs)
-        extractor.pick = ('res4', 'res5')
-        super(PSPNetResNet101, self).__init__(
-            extractor, param['n_class'], param['input_size'],
-            initialW, bn_kwargs)
+class PSPNetResNet50(PSPNet):
 
-        if path:
-            chainer.serializers.load_npz(path, self)
+    """PSPNet with Dilated ResNet50 as the feature extractor.
+
+    .. seealso::
+        :class:`chainercv.experimental.links.model.pspnet.PSPNet`
+
+    """
+
+    _extractor_cls = DilatedResNet
+    _extractor_kwargs = {'n_layer': 50}
+    _extractor_pick = ('res4', 'res5')
+    _models = {
+    }
 
 
 def _multiscale_predict(predict_method, img, scales):
