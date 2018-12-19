@@ -305,8 +305,8 @@ class PSPNetResNet101(PSPNet):
     _models = {
         'cityscapes': {
             'param': {'n_class': 19, 'input_size': (713, 713)},
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.6/pspnet_resnet101_cityscapes_convert_2018_05_22.npz'
+            'url': 'https://chainercv-models.preferred.jp/'
+            'pspnet_resnet101_cityscapes_trained_2018_12_19.npz',
         },
     }
 
@@ -324,6 +324,11 @@ class PSPNetResNet50(PSPNet):
     _extractor_kwargs = {'n_layer': 50}
     _extractor_pick = ('res4', 'res5')
     _models = {
+        'cityscapes': {
+            'param': {'n_class': 19, 'input_size': (713, 713)},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'pspnet_resnet50_cityscapes_trained_2018_12_19.npz',
+        },
     }
 
 
