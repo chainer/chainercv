@@ -24,13 +24,15 @@ def main():
         '--model', choices=(
             'pspnet_resnet101', 'segnet'))
     parser.add_argument('--pretrained-model')
+    parser.add_argument('--input-size', type=int, default=None)
     args = parser.parse_args()
 
     comm = chainermn.create_communicator()
     device = comm.intra_rank
 
     dataset, label_names, model = get_dataset_and_model(
-        args.dataset, args.model, args.pretrained_model)
+        args.dataset, args.model, args.pretrained_model,
+        (args.input_size, args.input_size))
     assert (len(dataset) % comm.size == 0, \
             "The size of the dataset should be a multiple "\
             "of the number of GPUs")

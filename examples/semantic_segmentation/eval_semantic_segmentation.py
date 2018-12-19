@@ -12,12 +12,14 @@ from chainercv.datasets import CityscapesSemanticSegmentationDataset
 
 from chainercv.evaluations import eval_semantic_segmentation
 from chainercv.experimental.links import PSPNetResNet101
+from chainercv.experimental.links import PSPNetResNet50
 from chainercv.links import SegNetBasic
 from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
 
 
-def get_dataset_and_model(dataset_name, model_name, pretrained_model):
+def get_dataset_and_model(dataset_name, model_name, pretrained_model,
+                          input_size):
     if dataset_name == 'cityscapes':
         dataset = CityscapesSemanticSegmentationDataset(
             split='val', label_resolution='fine')
@@ -39,7 +41,13 @@ def get_dataset_and_model(dataset_name, model_name, pretrained_model):
         model = PSPNetResNet101(
             n_class=n_class,
             pretrained_model=pretrained_model,
-            input_size=(713, 713)
+            input_size=input_size
+        )
+    elif model_name == 'pspnet_resnet50':
+        model = PSPNetResNet50(
+            n_class=n_class,
+            pretrained_model=pretrained_model,
+            input_size=input_size
         )
     elif model_name == 'segnet':
         model = SegNetBasic(
@@ -56,10 +64,12 @@ def main():
             'pspnet_resnet101', 'segnet'))
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--pretrained-model')
+    parser.add_argument('--input-size', type=int, default=None)
     args = parser.parse_args()
 
     dataset, label_names, model = get_dataset_and_model(
-        args.dataset, args.model, args.pretrained_model)
+        args.dataset, args.model, args.pretrained_model,
+        (args.input_size, args.input_size))
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
