@@ -13,9 +13,13 @@ The scores are mIoU.
 
 ### Cityscapes
 
-| Model | Reference | ChainerCV (weight conversion) |
+| Model | Training Data | Reference | ChainerCV  |
 |:-:|:-:|:-:|
-| PSPNet with ResNet101 (single scale) | 79.70 % [1] | 79.03 % |
+| Dilated ResNet50 | fine only (3K) | 76.9 % |  73.99 % |
+| Dilated ResNet101 | fine only (3K) |  77.9 % | 76.01 % |
+
+
+Example
 
 ```
 $ python eval_semantic_segmentation.py --gpu <GPU> --dataset cityscapes --model pspnet_resnet101
@@ -28,7 +32,7 @@ $ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset citysca
 
 | Model | Reference | ChainerCV |
 |:-:|:-:|:-:|
-| SegNet | 46.3 % [2] | 49.4 % |
+| SegNet | 46.3 % [3] | 49.4 % |
 
 ```
 $ python eval_semantic_segmentation.py --gpu <GPU> --dataset camvid --model segnet
@@ -38,4 +42,5 @@ $ python eval_semantic_segmentation.py --gpu <GPU> --dataset camvid --model segn
 # Reference
 
 1. Hengshuang Zhao et al. "Pyramid Scene Parsing Network" CVPR 2017.
-2. Vijay Badrinarayanan et al. "SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation." PAMI, 2017.
+2. https://github.com/holyseven/PSPNet-TF-Reproduce (Validation scores of models for Cityscapes are lacking in the original paper)
+3. Vijay Badrinarayanan et al. "SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation." PAMI, 2017.
