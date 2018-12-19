@@ -1,8 +1,11 @@
 import argparse
+from collections import defaultdict
+import os
 
 import chainer
 import numpy as np
 
+from chainer.dataset import concat_examples
 from chainer.datasets import TransformDataset
 from chainer import iterators
 from chainer import optimizers
@@ -14,6 +17,31 @@ from chainercv.datasets import CamVidDataset
 from chainercv.extensions import SemanticSegmentationEvaluator
 from chainercv.links import PixelwiseSoftmaxClassifier
 from chainercv.links import SegNetBasic
+
+
+def recalculate_bn_statistics(model, batchsize):
+    train = CamVidDataset(split='train')
+    it = chainer.iterators.SerialIterator(
+        train, batchsize, repeat=False, shuffle=False)
+    bn_avg_mean = defaultdict(np.float32)
+    bn_avg_var = defaultdict(np.float32)
+
+    n_iter = 0
+    for batch in it:
+        imgs, _ = concat_examples(batch)
+        model(model.xp.array(imgs))
+        for name, link in model.namedlinks():
+            if name.endswith('_bn'):
+                bn_avg_mean[name] += link.avg_mean
+                bn_avg_var[name] += link.avg_var
+        n_iter += 1
+
+    for name, link in model.namedlinks():
+        if name.endswith('_bn'):
+            link.avg_mean = bn_avg_mean[name] / n_iter
+            link.avg_var = bn_avg_var[name] / n_iter
+
+    return model
 
 
 def transform(in_data):
@@ -81,9 +109,6 @@ def main():
             ['validation/main/miou'], x_key='iteration',
             file_name='miou.png'))
 
-    trainer.extend(extensions.snapshot_object(
-        model.predictor, filename='model_iteration-{.updater.iteration}'),
-        trigger=end_trigger)
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', 'elapsed_time', 'lr',
          'main/loss', 'validation/main/miou',
@@ -99,6 +124,10 @@ def main():
         trigger=validation_trigger)
 
     trainer.run()
+
+    chainer.serializers.save_npz(
+        os.path.join(args.out, 'snapshot_model.npz'),
+        recalculate_bn_statistics(model.predictor, 24))
 
 
 if __name__ == '__main__':
