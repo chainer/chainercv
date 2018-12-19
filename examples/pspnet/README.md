@@ -48,5 +48,5 @@ The evaluation can be conducted using [`chainercv/examples/semantic_segmentation
 
 ## References
 1. Hengshuang Zhao et al. "Pyramid Scene Parsing Network" CVPR 2017.
-2. https://github.com/holyseven/PSPNet-TF-Reproduce (Validation scores of models for Cityscapes are lacking in the original paper)
+2. https://github.com/holyseven/PSPNet-TF-Reproduce (Validation scores for Cityscapes are lacking in the original paper)
 3. [chainer-pspnet by mitmul](https://github.com/mitmul/chainer-pspnet)

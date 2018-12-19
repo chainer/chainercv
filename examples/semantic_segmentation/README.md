@@ -14,9 +14,9 @@ The scores are mIoU.
 ### Cityscapes
 
 | Model | Training Data | Reference | ChainerCV  |
-|:-:|:-:|:-:|
-| Dilated ResNet50 | fine only (3K) | 76.9 % |  73.99 % |
-| Dilated ResNet101 | fine only (3K) |  77.9 % | 76.01 % |
+|:-:|:-:|:-:|:-:|
+| PSPNet w/ Dilated ResNet50 | fine only (3K) | 76.9 % [2] |  73.99 % |
+| PSPNet w/ Dilated ResNet101 | fine only (3K) |  77.9 % [2] | 76.01 % |
 
 
 Example
@@ -42,5 +42,5 @@ $ python eval_semantic_segmentation.py --gpu <GPU> --dataset camvid --model segn
 # Reference
 
 1. Hengshuang Zhao et al. "Pyramid Scene Parsing Network" CVPR 2017.
-2. https://github.com/holyseven/PSPNet-TF-Reproduce (Validation scores of models for Cityscapes are lacking in the original paper)
+2. https://github.com/holyseven/PSPNet-TF-Reproduce (Validation scores for Cityscapes are lacking in the original paper)
 3. Vijay Badrinarayanan et al. "SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation." PAMI, 2017.
