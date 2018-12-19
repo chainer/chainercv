@@ -31,6 +31,9 @@ def main():
 
     dataset, label_names, model = get_dataset_and_model(
         args.dataset, args.model, args.pretrained_model)
+    assert (len(dataset) % comm.size == 0, \
+            "The size of the dataset should be a multiple "\
+            "of the number of GPUs")
 
     chainer.cuda.get_device_from_id(device).use()
     model.to_gpu()
