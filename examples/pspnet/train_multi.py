@@ -98,7 +98,8 @@ class Transform(object):
         # Crop
         if (scaled_H < self.crop_size[0]) or (scaled_W < self.crop_size[1]):
             shorter_side = min(img.shape[1:])
-            img, param = transforms.random_crop(img, (shorter_side, shorter_side), True)
+            img, param = transforms.random_crop(
+                img, (shorter_side, shorter_side), True)
         else:
             img, param = transforms.random_crop(img, self.crop_size, True)
         label = label[param['y_slice'], param['x_slice']]
@@ -118,7 +119,8 @@ class Transform(object):
         if ((label.shape[0] < self.crop_size[0])
                 or (label.shape[1] < self.crop_size[1])):
             label = transforms.resize(
-                label[None].astype(np.float32), self.crop_size, PIL.Image.NEAREST)
+                label[None].astype(np.float32),
+                self.crop_size, PIL.Image.NEAREST)
             label = label.astype(np.int32)[0]
         # Horizontal flip
         if np.random.rand() > 0.5:
@@ -242,7 +244,7 @@ def main():
         train, val = None, None
     train = chainermn.scatter_dataset(train, comm, shuffle=True)
     train_iter = chainer.iterators.MultiprocessIterator(
-       train, batch_size=args.batch_size, n_processes=2)
+        train, batch_size=args.batch_size, n_processes=2)
 
     optimizer = chainermn.create_multi_node_optimizer(
         chainer.optimizers.MomentumSGD(args.lr, 0.9), comm)

@@ -13,33 +13,34 @@ The scores are mIoU.
 
 ### Cityscapes
 
-| Model | Reference | ChainerCV (weight conversion) |
-|:-:|:-:|:-:|
-| PSPNet with ResNet101 (single scale) | 79.70 % [1] | 79.03 % |
+| Model | Training Data | Reference | ChainerCV  |
+|:-:|:-:|:-:|:-:|
+| PSPNet w/ Dilated ResNet50 | fine only (3K) | 76.9 % [2] |  73.99 % |
+| PSPNet w/ Dilated ResNet101 | fine only (3K) |  77.9 % [2] | 76.01 % |
+
+
+Example
 
 ```
-$ python eval_cityscapes.py [--model pspnet_resnet101] [--gpu <gpu>] [--pretrained-model <model_path>]
+$ python eval_semantic_segmentation.py --gpu <GPU> --dataset cityscapes --model pspnet_resnet101
+# with multiple GPUs
+$ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset cityscapes --model pspnet_resnet101
 ```
 
-You can conduct evaluation with multiple GPUs by `eval_cityscapes_multi.py`.
-Note that this script requires ChainerMN.
-
-```
-$ mpiexec -n <#gpu> python eval_cityscapes_multi.py [--model pspnet_resnet101] [--pretrained-model <model_path>]
-```
 
 ### CamVid
 
 | Model | Reference | ChainerCV |
 |:-:|:-:|:-:|
-| SegNet | 46.3 % [2] | 49.4 % |
+| SegNet | 46.3 % [3] | 49.4 % |
 
 ```
-$ python eval_camvid.py [--gpu <gpu>] [--pretrained-model <model_path>] [--batchsize <batchsize>]
+$ python eval_semantic_segmentation.py --gpu <GPU> --dataset camvid --model segnet
 ```
 
 
 # Reference
 
 1. Hengshuang Zhao et al. "Pyramid Scene Parsing Network" CVPR 2017.
-2. Vijay Badrinarayanan et al. "SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation." PAMI, 2017.
+2. https://github.com/holyseven/PSPNet-TF-Reproduce (Validation scores for Cityscapes are lacking in the original paper)
+3. Vijay Badrinarayanan et al. "SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation." PAMI, 2017.
