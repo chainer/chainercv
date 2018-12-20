@@ -134,7 +134,7 @@ class Transform(object):
 
 class TrainChain(chainer.Chain):
 
-    def __init__(self, model, ignore_label=-1):
+    def __init__(self, model):
         initialW = chainer.initializers.HeNormal()
         super(TrainChain, self).__init__()
         with self.init_scope():
@@ -143,7 +143,6 @@ class TrainChain(chainer.Chain):
                 None, 512, 3, 1, 1, initialW=initialW)
             self.aux_conv2 = L.Convolution2D(
                 None, model.n_class, 3, 1, 1, False, initialW=initialW)
-        self.ignore_label = ignore_label
 
     def __call__(self, imgs, labels):
         h_aux, h_main = self.model.extractor(imgs)
@@ -156,10 +155,8 @@ class TrainChain(chainer.Chain):
         h_main = self.model.head_conv2(h_main)
         h_main = F.resize_images(h_main, imgs.shape[2:])
 
-        aux_loss = F.softmax_cross_entropy(
-            h_aux, labels, ignore_label=self.ignore_label)
-        main_loss = F.softmax_cross_entropy(
-            h_main, labels, ignore_label=self.ignore_label)
+        aux_loss = F.softmax_cross_entropy(h_aux, labels)
+        main_loss = F.softmax_cross_entropy(h_main, labels)
         loss = 0.4 * aux_loss + main_loss
 
         chainer.reporter.report({'loss': loss}, self)
