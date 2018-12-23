@@ -308,6 +308,11 @@ class PSPNetResNet101(PSPNet):
             'url': 'https://chainercv-models.preferred.jp/'
             'pspnet_resnet101_cityscapes_trained_2018_12_19.npz',
         },
+        'ade20k': {
+            'param': {'n_class': 150, 'input_size': (473, 473)},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'pspnet_resnet101_ade20k_trained_2018_12_23.npz',
+        },
     }
 
 
@@ -328,6 +333,11 @@ class PSPNetResNet50(PSPNet):
             'param': {'n_class': 19, 'input_size': (713, 713)},
             'url': 'https://chainercv-models.preferred.jp/'
             'pspnet_resnet50_cityscapes_trained_2018_12_19.npz',
+        },
+        'ade20k': {
+            'param': {'n_class': 150, 'input_size': (473, 473)},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'pspnet_resnet50_ade20k_trained_2018_12_23.npz',
         },
     }
 

@@ -42,6 +42,22 @@ $ mpiexec -n 8 python3 train_multi.py --dataset cityscapes --model pspnet_resnet
 $ mpiexec -n 8 python3 train_multi.py --dataset cityscapes --model pspnet_resnet101 --iteration 90000
 ```
 
+### ADE20K
+
+The following table shows the performance of the models trained with our scripts.
+
+| Base model |  Reference | ChainerCV |
+|:-:|:-:|:-:|
+| Dilated ResNet50 | 41.68 % [1] |  34.97 % |
+| Dilated ResNet101 |  | 36.55 % |
+
+Here are the commands used to train the models included in the table.
+
+```
+$ mpiexec -n 8 python3 train_multi.py --dataset ade20k --model pspnet_resnet50 --iteration 150000
+$ mpiexec -n 8 python3 train_multi.py --dataset ade20k --model pspnet_resnet101 --iteration 150000
+```
+
 ## Evaluation
 The evaluation can be conducted using [`chainercv/examples/semantic_segmentation/eval_semantic_segmentation.py`](https://github.com/chainer/chainercv/blob/master/examples/semantic_segmentation).
 
