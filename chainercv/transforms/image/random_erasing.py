@@ -10,8 +10,7 @@ def random_erasing(img, prob=0.5,
                    scale_ratio_range=(0.02, 0.4),
                    aspect_ratio_range=(0.3, 1 / 0.3),
                    random_value=True,
-                   scale=1.0,
-                   fixed_value=np.array((0.4914, 0.4822, 0.4465)),
+                   fill=np.array((0.4914, 0.4822, 0.4465)),
                    return_param=False, copy=False):
     """Erase a rectangle region in an image with random or fixed values.
 
@@ -52,8 +51,7 @@ def random_erasing(img, prob=0.5,
         aspect_ratio_range (tuple of two floats): Determines
             the distribution from which an aspect ratio is sampled.
         random_value (bool): Fill the rectangle region with random values.
-        scale (float): Pixel value scale.
-        fixed_value (~numpy.ndarray): Determines pixel values
+        fill (~numpy.ndarray): Determines pixel values
             to fill the rectangle region.
             The default value is the ImageNet mean value.
         return_param (bool): Returns parameters if :obj:`True`.
@@ -77,13 +75,15 @@ def random_erasing(img, prob=0.5,
         * **aspect_ratio** (float): :math:`a` in the description.
 
     """
-    if random.uniform(0.0, 1.0) > prob:
+
+    if random.uniform(0.0, 1.0) < prob:
+        img = img.copy()
         crop, params = random_sized_crop(img, scale_ratio_range,
                                          aspect_ratio_range, return_param=True)
         if random_value:
-            crop[:] = np.random.random(crop.shape) * scale
+            crop[:] = np.random.random(crop.shape) * 255
         else:
-            crop[:] = fixed_value[:, None, None]
+            crop[:] = fill[:, None, None]
         y_slice = params['y_slice']
         x_slice = params['x_slice']
         scale_ratio = params['scale_ratio']
