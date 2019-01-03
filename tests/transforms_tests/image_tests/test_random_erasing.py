@@ -32,11 +32,10 @@ class TestRandomErasing(unittest.TestCase):
         prob = self.prob
         scale_ratio_range = (0.02, 0.4)
         aspect_ratio_range = (0.3, 1 / 0.3)
-        scale = 1.0
-        fixed_value = np.array((0.4914, 0.4822, 0.4465))
+        fill = np.array((0.4914, 0.4822, 0.4465))
         out, params = random_erasing(img, prob, scale_ratio_range,
                                      aspect_ratio_range, self.random_value,
-                                     scale, fixed_value,
+                                     fill,
                                      return_param=True)
 
         scale_ratio = params['scale_ratio']
