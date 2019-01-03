@@ -1,2 +1,2 @@
-include README.md
-recursive-include chainercv *
+recursive-include chainercv *.c
+recursive-exclude chainercv *.pyx

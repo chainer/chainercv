@@ -1,17 +1,15 @@
 import glob
 import os
 
-from chainer import dataset
-from chainercv.utils import read_image
-
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.ade20k.ade20k_utils import get_ade20k
-
+from chainercv.utils import read_image
 
 root = 'pfnet/chainercv/ade20k'
 url = 'http://data.csail.mit.edu/places/ADEchallenge/release_test.zip'
 
 
-class ADE20KTestImageDataset(dataset.DatasetMixin):
+class ADE20KTestImageDataset(GetterDataset):
 
     """Image dataset for test split of `ADE20K`_.
 
@@ -26,27 +24,28 @@ class ADE20KTestImageDataset(dataset.DatasetMixin):
             dataset is automatically downloaded into
             :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/ade20k`.
 
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
     """
 
     def __init__(self, data_dir='auto'):
+        super(ADE20KTestImageDataset, self).__init__()
+
         if data_dir is 'auto':
             data_dir = get_ade20k(root, url)
         img_dir = os.path.join(data_dir, 'release_test', 'testing')
         self.img_paths = sorted(glob.glob(os.path.join(img_dir, '*.jpg')))
 
+        self.add_getter('img', self._get_image)
+        self.keys = 'img'  # do not return tuple
+
     def __len__(self):
         return len(self.img_paths)
 
-    def get_example(self, i):
-        """Returns the i-th example.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            Returns a color image whose shape is (3, H, W). H and W are height
-            and width of the image. The dtype of the image is
-            :obj:`numpy.float32`.
-
-        """
+    def _get_image(self, i):
         return read_image(self.img_paths[i])

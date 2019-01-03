@@ -64,6 +64,14 @@ unzip
 .. autofunction:: unzip
 
 
+Link Utilities 
+--------------
+
+prepare_pretrained_model
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: prepare_pretrained_model
+
+
 Mask Utilities
 --------------
 
@@ -106,6 +114,10 @@ assert_is_label_dataset
 assert_is_point
 ~~~~~~~~~~~~~~~
 .. autofunction:: assert_is_point
+
+assert_is_point_dataset
+~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: assert_is_point_dataset
 
 assert_is_semantic_segmentation_dataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

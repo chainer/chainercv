@@ -7,7 +7,8 @@ from chainer.testing import attr
 
 from chainercv.utils import assert_is_detection_link
 
-from dummy_faster_rcnn import DummyFasterRCNN
+from tests.links_tests.model_tests.faster_rcnn_tests.dummy_faster_rcnn \
+    import DummyFasterRCNN
 
 
 def _random_array(xp, shape):
@@ -36,7 +37,8 @@ class TestFasterRCNN(unittest.TestCase):
         xp = self.link.xp
 
         x1 = chainer.Variable(_random_array(xp, (1, 3, 600, 800)))
-        roi_cls_locs, roi_scores, rois, roi_indices = self.link(x1)
+        scales = chainer.Variable(xp.array([1.], dtype=np.float32))
+        roi_cls_locs, roi_scores, rois, roi_indices = self.link(x1, scales)
 
         self.assertIsInstance(roi_cls_locs, chainer.Variable)
         self.assertIsInstance(roi_cls_locs.array, xp.ndarray)

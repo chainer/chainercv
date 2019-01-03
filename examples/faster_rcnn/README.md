@@ -27,7 +27,7 @@ Our experiment was conducted on Ubuntu 14.04.5 with Pascal Titan X.
 If a path to pretrained model path is not given, weights distributed on the internet will be used.
 
 ```
-$ python demo.py [--gpu <gpu>] [--pretrained_model <model_path>] <image>.jpg
+$ python demo.py [--gpu <gpu>] [--pretrained-model <model_path>] <image>.jpg
 ```
 
 This example will automatically download a pretrained weights from the internet when executed.
@@ -47,12 +47,12 @@ On top of that, the anchors are not discretized in ChainerCV.
 ### Train code
 For training with VOC2007 (this setting is used by default)
 ```
-$ python train.py --dataset voc07 --step_size 50000 --iteration 70000 [--gpu <gpu>]
+$ python train.py --dataset voc07 --step-size 50000 --iteration 70000 [--gpu <gpu>]
 ```
 
 For training with VOC2007+2012
 ```
-$ python train.py --dataset voc0712 --step_size 80000 --iteration 110000 [--gpu <gpu>]
+$ python train.py --dataset voc0712 --step-size 80000 --iteration 110000 [--gpu <gpu>]
 ```
 
 PlotReport extension uses matplotlib. If you got `RuntimeError: Invalid DISPLAY variable` error on Linux environment, adding an environment variable specification is recommended:

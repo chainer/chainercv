@@ -1,10 +1,12 @@
 from __future__ import division
 import numpy as np
+import PIL
 
 from chainercv.transforms import resize
 
 
-def resize_contain(img, size, fill=0, return_param=False):
+def resize_contain(img, size, fill=0, interpolation=PIL.Image.BILINEAR,
+                   return_param=False):
     """Resize the image to fit in the given area while keeping aspect ratio.
 
     If both the height and the width in :obj:`size` are larger than
@@ -23,6 +25,10 @@ def resize_contain(img, size, fill=0, return_param=False):
             If it is :class:`numpy.ndarray`,
             its shape should be :math:`(C, 1, 1)`,
             where :math:`C` is the number of channels of :obj:`img`.
+        interpolation (int): Determines sampling strategy. This is one of
+            :obj:`PIL.Image.NEAREST`, :obj:`PIL.Image.BILINEAR`,
+            :obj:`PIL.Image.BICUBIC`, :obj:`PIL.Image.LANCZOS`.
+            Bilinear interpolation is the default strategy.
         return_param (bool): Returns information of resizing and offsetting.
 
     Returns:
@@ -37,7 +43,7 @@ def resize_contain(img, size, fill=0, return_param=False):
         contents are listed below with key, value-type and the description
         of the value.
 
-        * **y_offset** (*int*): The y coodinate of the top left corner of\
+        * **y_offset** (*int*): The y coordinate of the top left corner of\
             the image after placing on the canvas.
         * **x_offset** (*int*): The x coordinate of the top left corner\
             of the image after placing on the canvas.
@@ -53,7 +59,7 @@ def resize_contain(img, size, fill=0, return_param=False):
     scale = min(min(scale_h, scale_w), 1)
     scaled_size = (int(H * scale), int(W * scale))
     if scale < 1:
-        img = resize(img, scaled_size)
+        img = resize(img, scaled_size, interpolation)
     y_slice, x_slice = _get_pad_slice(img, size=size)
     out_img = np.empty((C, out_H, out_W), dtype=img.dtype)
     out_img[:] = np.array(fill).reshape((-1, 1, 1))

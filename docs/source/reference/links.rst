@@ -20,6 +20,7 @@ Feature extraction links extract feature(s) from given images.
 .. toctree::
 
    links/resnet
+   links/senet
    links/vgg
 
 
@@ -33,6 +34,7 @@ For more details, please read :func:`FasterRCNN.predict`.
 
    links/faster_rcnn
    links/ssd
+   links/yolo
 
 
 Semantic Segmentation

@@ -1,19 +1,13 @@
 from __future__ import division
 import numpy as np
 
-from chainer import cuda
+from chainer.backends import cuda
 
 from chainercv.utils.bbox._nms_gpu_post import _nms_gpu_post
 
 
 if cuda.available:
     import cupy as cp
-
-    @cp.util.memoize(for_each_device=True)
-    def _load_kernel(kernel_name, code, options=()):
-        assert isinstance(options, tuple)
-        kernel_code = cp.cuda.compile_with_cache(code, options=options)
-        return kernel_code.get_function(kernel_name)
 
 
 def non_maximum_suppression(bbox, thresh, score=None,
@@ -193,7 +187,7 @@ def _call_nms_kernel(bbox, thresh):
 
     mask_dev = cp.zeros((n_bbox * col_blocks,), dtype=np.uint64)
     bbox = cp.ascontiguousarray(bbox, dtype=np.float32)
-    kern = _load_kernel('nms_kernel', _nms_gpu_code)
+    kern = cp.RawKernel(_nms_gpu_code, 'nms_kernel')
     kern(blocks, threads, args=(cp.int32(n_bbox), cp.float32(thresh),
                                 bbox, mask_dev))
 

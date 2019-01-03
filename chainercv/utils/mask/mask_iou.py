@@ -1,7 +1,7 @@
 from __future__ import division
 
 
-from chainer import cuda
+from chainer.backends import cuda
 
 
 def mask_iou(mask_a, mask_b):
