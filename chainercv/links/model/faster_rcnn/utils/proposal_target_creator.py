@@ -25,7 +25,7 @@ class ProposalTargetCreator(object):
             foreground.
         neg_iou_thresh_hi (float): RoI is considered to be the background
             if IoU is in
-            [:obj:`neg_iou_thresh_hi`, :obj:`neg_iou_thresh_hi`).
+            [:obj:`neg_iou_thresh_lo`, :obj:`neg_iou_thresh_hi`).
         neg_iou_thresh_lo (float): See above.
 
     """
