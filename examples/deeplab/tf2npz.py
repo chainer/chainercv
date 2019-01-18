@@ -1,8 +1,11 @@
 import argparse
-import tensorflow as tf
+
 import chainer
+
 from chainercv.datasets import voc_semantic_segmentation_label_names
 from chainercv.links import DeepLabV3plusXception65
+
+import tensorflow as tf
 
 _n_class = {
     'voc': len(voc_semantic_segmentation_label_names),
@@ -51,7 +54,7 @@ def get_session(graph_path):
 
 
 def get_weightmap(model):
-    weightmap = dict()
+    weightmap = {}
     if model == 'xception65':
         weightmap[('feature_extractor', 'entryflow_conv1')] = (
             'Conv2DBNActiv', 'deeplab/xception_65/entry_flow/conv1_1')
@@ -64,8 +67,10 @@ def get_weightmap(model):
         weightmap[('feature_extractor', 'entryflow_block3')] = (
             'XceptionBlock', 'deeplab/xception_65/entry_flow/block3/unit_1')
         for i in range(1, 17):
-            weightmap[('feature_extractor', 'middleflow_block{}'.format(i))] = (
-                'XceptionBlock', 'deeplab/xception_65/middle_flow/block1/unit_{}'.format(i))
+            weightmap[('feature_extractor',
+                       'middleflow_block{}'.format(i))] = (
+                'XceptionBlock',
+                'deeplab/xception_65/middle_flow/block1/unit_{}'.format(i))
         weightmap[('feature_extractor', 'exitflow_block1')] = (
             'XceptionBlock', 'deeplab/xception_65/exit_flow/block1/unit_1')
         weightmap[('feature_extractor', 'exitflow_block2')] = (
@@ -105,29 +110,32 @@ def resolve(weightmap):
         for key in list(weightmap.keys()):
             layer, op = weightmap.pop(key)
             if layer == 'Conv2DBNActiv':
-                weightmap[(*key, 'conv')] = ('Convolution2D', op)
-                weightmap[(*key, 'bn')] = ('BatchNormalization',
-                                           op + '/BatchNorm')
+                weightmap[key+('conv',)] = ('Convolution2D', op)
+                weightmap[key+('bn',)] = (
+                    'BatchNormalization', op + '/BatchNorm')
                 changed = True
             elif layer == 'SeparableConv2DBNActiv':
-                weightmap[(*key, 'depthwise')
-                          ] = ('Convolution2D_depthwise', op + '_depthwise')
-                weightmap[(*key, 'depthwise_bn')] = ('BatchNormalization',
-                                                     op + '_depthwise/BatchNorm')
-                weightmap[(*key, 'pointwise')] = ('Convolution2D',
-                                                  op + '_pointwise')
-                weightmap[(*key, 'pointwise_bn')] = ('BatchNormalization',
-                                                     op + '_pointwise/BatchNorm')
+                weightmap[key+('depthwise',)] = (
+                    'Convolution2D_depthwise', op + '_depthwise')
+                weightmap[key+('dw_bn',)] = (
+                    'BatchNormalization', op + '_depthwise/BatchNorm')
+                weightmap[key+('pointwise',)] = (
+                    'Convolution2D', op + '_pointwise')
+                weightmap[key+('pw_bn',)] = (
+                    'BatchNormalization', op + '_pointwise/BatchNorm')
                 changed = True
             elif layer == 'XceptionBlock':
-                weightmap[(*key, 'separable1')] = ('SeparableConv2DBNActiv',
-                                                   op + '/xception_module/separable_conv1')
-                weightmap[(*key, 'separable2')] = ('SeparableConv2DBNActiv',
-                                                   op + '/xception_module/separable_conv2')
-                weightmap[(*key, 'separable3')] = ('SeparableConv2DBNActiv',
-                                                   op + '/xception_module/separable_conv3')
-                weightmap[(*key, 'conv')] = ('Conv2DBNActiv',
-                                             op + '/xception_module/shortcut')
+                weightmap[key+('separable1',)] = (
+                    'SeparableConv2DBNActiv',
+                    op + '/xception_module/separable_conv1')
+                weightmap[key+('separable2',)] = (
+                    'SeparableConv2DBNActiv',
+                    op + '/xception_module/separable_conv2')
+                weightmap[key+('separable3',)] = (
+                    'SeparableConv2DBNActiv',
+                    op + '/xception_module/separable_conv3')
+                weightmap[key+('conv',)] = (
+                    'Conv2DBNActiv', op + '/xception_module/shortcut')
                 changed = True
             else:
                 weightmap[key] = (layer, op)
