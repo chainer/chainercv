@@ -20,15 +20,15 @@ class XceptionBlock(chainer.Chain):
         with self.init_scope():
             self.separable1 = SeparableConv2DBNActiv(
                 in_channels, depthlist[0], 3, 1,
-                dilate, dilate, bn_kwargs=bn_kwargs,
+                dilate, dilate, nobias=True, bn_kwargs=bn_kwargs,
                 dw_activ=dw_activ_list[0], pw_activ=pw_activ_list[0])
             self.separable2 = SeparableConv2DBNActiv(
                 depthlist[0], depthlist[1], 3, 1,
-                dilate, dilate, bn_kwargs=bn_kwargs,
+                dilate, dilate, nobias=True, bn_kwargs=bn_kwargs,
                 dw_activ=dw_activ_list[1], pw_activ=F.identity)
             self.separable3 = SeparableConv2DBNActiv(
                 depthlist[1], depthlist[2], 3, stride,
-                dilate, dilate, bn_kwargs=bn_kwargs,
+                dilate, dilate, nobias=True, bn_kwargs=bn_kwargs,
                 dw_activ=dw_activ_list[2], pw_activ=pw_activ_list[2])
             if skip_type == 'conv':
                 self.conv = Conv2DBNActiv(

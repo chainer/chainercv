@@ -19,15 +19,15 @@ class SeparableASPP(chainer.Chain):
                 in_channels, out_channels, 1, bn_kwargs=bn_kwargs)
             self.atrous1 = SeparableConv2DBNActiv(
                 in_channels, out_channels, 3, 1,
-                dilate_list[0], dilate_list[0],
+                dilate_list[0], dilate_list[0], nobias=True,
                 dw_activ=F.relu, pw_activ=F.relu, bn_kwargs=bn_kwargs)
             self.atrous2 = SeparableConv2DBNActiv(
                 in_channels, out_channels, 3, 1,
-                dilate_list[1], dilate_list[1],
+                dilate_list[1], dilate_list[1], nobias=True,
                 dw_activ=F.relu, pw_activ=F.relu, bn_kwargs=bn_kwargs)
             self.atrous3 = SeparableConv2DBNActiv(
                 in_channels, out_channels, 3, 1,
-                dilate_list[2], dilate_list[2],
+                dilate_list[2], dilate_list[2], nobias=True,
                 dw_activ=F.relu, pw_activ=F.relu, bn_kwargs=bn_kwargs)
             self.proj = Conv2DBNActiv(
                 out_channels * 5, out_channels, 1, bn_kwargs=bn_kwargs)

@@ -19,11 +19,12 @@ class Decoder(chainer.Chain):
 
         with self.init_scope():
             self.feature_proj = Conv2DBNActiv(in_channels, proj_channels, 1)
+            concat_channels = in_channels+proj_channels
             self.conv1 = SeparableConv2DBNActiv(
-                in_channels+proj_channels, depth_channels, 3, 1, 1, 1,
+                concat_channels, depth_channels, 3, 1, 1, 1, nobias=True,
                 dw_activ=F.relu, pw_activ=F.relu, bn_kwargs=bn_kwargs)
             self.conv2 = SeparableConv2DBNActiv(
-                depth_channels, depth_channels, 3, 1, 1, 1,
+                depth_channels, depth_channels, 3, 1, 1, 1, nobias=True,
                 dw_activ=F.relu, pw_activ=F.relu, bn_kwargs=bn_kwargs)
             self.conv_logits = L.Convolution2D(
                 depth_channels, out_channels, 1, 1, 0)
