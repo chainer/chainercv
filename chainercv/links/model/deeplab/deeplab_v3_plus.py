@@ -8,6 +8,7 @@ from chainercv.links.connection import Conv2DBNActiv
 from chainercv.links.connection import SeparableConv2DBNActiv
 from chainercv.links.model.deeplab.aspp import SeparableASPP
 from chainercv.links.model.deeplab.xception import Xception65
+from chainercv import utils
 
 import numpy as np
 
@@ -157,8 +158,39 @@ class DeepLabV3plus(chainer.Chain):
 
 
 class DeepLabV3plusXception65(DeepLabV3plus):
-    def __init__(self, n_class):
+    _models = {
+        'voc': {
+            'param': {
+                'n_class': 21,
+                'crop': (513, 513),
+                'extractor_kwargs': {
+                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-3},
+                },
+                'aspp_kwargs': {
+                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
+                },
+                'decoder_kwargs': {
+                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
+                },
+            },
+            # 'url': 'https://chainercv-models.preferred.jp/',
+        }
+    }
+
+    def __init__(self, n_class=None, pretrained_model=None,
+                 crop=None, extractor_kwargs={}, aspp_kwargs={},
+                 decoder_kwargs={}):
+        param, path = utils.prepare_pretrained_model(
+            {'n_class': n_class, 'crop': crop,
+             'extractor_kwargs': extractor_kwargs,
+             'aspp_kwargs': aspp_kwargs, 'decoder_kwargs': decoder_kwargs},
+            pretrained_model, self._models)
+        
         super(DeepLabV3plusXception65, self).__init__(
-            Xception65(bn_kwargs={'decay': 0.9997, 'eps': 1e-3}),
-            SeparableASPP(2048, 256, bn_kwargs={'decay': 0.9997, 'eps': 1e-5}),
-            Decoder(256, n_class, bn_kwargs={'decay': 0.9997, 'eps': 1e-5}))
+            Xception65(**param['extractor_kwargs']),
+            SeparableASPP(2048, 256, **param['aspp_kwargs']),
+            Decoder(256, param['n_class'], **param['decoder_kwargs']),
+            crop=param['crop'])
+
+        if path:
+            chainer.serializers.load_npz(path, self)
