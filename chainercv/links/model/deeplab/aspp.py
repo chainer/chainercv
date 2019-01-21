@@ -8,8 +8,27 @@ from chainercv.links import SeparableConv2DBNActiv
 
 
 class SeparableASPP(chainer.Chain):
+
+    """Atrous Spatial Pyramid Pooling with Separable Convolution.
+
+           average pooling with FC layer
+           1x1 Convolution
+    in --> Separable Convolution(k=12)   --> concat --> 1x1 Convolution
+           Separable Convolution(k=24)
+           Separable Convolution(k=36)
+
+    Args:
+        in_channels (int): Number of channels of input arrays.
+        out_channels (int): Number of channels of output arrays.
+        dilate_list (tuple of ints): Tuple of Dilation factors.
+            the length of this tuple must be 3.
+        bn_kwargs (dict): Keyword arguments passed to initialize
+            :class:`chainer.links.BatchNormalization`.
+
+    """
+
     def __init__(self, in_channels, out_channels=256,
-                 dilate_list=[12, 24, 36], bn_kwargs={}):
+                 dilate_list=(12, 24, 36), bn_kwargs={}):
         super(SeparableASPP, self).__init__()
 
         with self.init_scope():

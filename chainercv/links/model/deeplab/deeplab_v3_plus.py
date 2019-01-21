@@ -13,8 +13,23 @@ import numpy as np
 
 
 class Decoder(chainer.Chain):
+
+    """Decoder for DeepLab V3+.
+
+    Args:
+        in_channels (int): Number of channels of input arrays.
+        out_channels (int): Number of channels of output arrays.
+        proj_channels (int): Number of channels of output of
+            first 1x1 convolution.
+        depth_channels (int): Number of channels of output of
+            convolution after concatenation.
+        bn_kwargs (dict): Keyword arguments passed to initialize
+            :class:`chainer.links.BatchNormalization`.
+
+    """
+
     def __init__(self, in_channels, out_channels, proj_channels=48,
-                 depth_channels=256, dilate_list=[12, 24, 36], bn_kwargs={}):
+                 depth_channels=256, bn_kwargs={}):
         super(Decoder, self).__init__()
 
         with self.init_scope():
@@ -41,6 +56,20 @@ class Decoder(chainer.Chain):
 
 
 class DeepLabV3plus(chainer.Chain):
+
+    """Base class of DeepLab V3+.
+
+    Args:
+        fature_extractor (callable): feature extractor network.
+        aspp (callable): ASPP network.
+        decoder (callable): decoder network.
+        crop (tuple of ints): minimum image size of inputs.
+            if height or width is lower than this values,
+            input images are padded to be this shape.
+            The default value is :obj:`(513, 513)`
+
+    """
+
     def __init__(self, feature_extractor, aspp, decoder, crop=(513, 513)):
         super(DeepLabV3plus, self).__init__()
         self.crop = crop
@@ -52,7 +81,25 @@ class DeepLabV3plus(chainer.Chain):
 
         self.feature_extractor.pick = 'entryflow_block2', 'exitflow_block2'
 
-    def _prepare(self, image):
+    def prepare(self, image):
+        """Preprocess an image for feature extraction.
+
+        1. padded by mean pixel defined in feature extractor.
+        2. scaled to [-1.0, 1.0]
+
+        After resizing the image, the image is subtracted by a mean image value
+        :obj:`self.mean`.
+
+        Args:
+            image (~numpy.ndarray): An image. This is in CHW and RGB format.
+                The range of its value is :math:`[0, 255]`.
+
+        Returns:
+            ~numpy.ndarray:
+            A preprocessed image.
+
+        """
+
         _, H, W = image.shape
 
         # Pad image and label to have dimensions >= [crop_height, crop_width]
@@ -79,10 +126,24 @@ class DeepLabV3plus(chainer.Chain):
         return h
 
     def predict(self, imgs):
+        """Conduct semantic segmentation from images.
+
+        Args:
+            imgs (iterable of numpy.ndarray): Arrays holding images.
+                All images are in CHW and RGB format
+                and the range of their values are :math:`[0, 255]`.
+
+        Returns:
+            list of numpy.ndarray:
+
+            List of integer labels predicted from each image in the input list.
+
+        """
+
         labels = []
         for img in imgs:
             C, H, W = img.shape
-            img, crop = self._prepare(img)
+            img, crop = self.prepare(img)
 
             with chainer.using_config('train', False), \
                     chainer.function.no_backprop_mode():

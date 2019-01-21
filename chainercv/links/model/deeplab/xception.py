@@ -8,10 +8,37 @@ from chainercv.links import SeparableConv2DBNActiv
 
 
 class XceptionBlock(chainer.Chain):
+
+    """A building block for Xceptions.
+
+    Not only final outputs, this block also returns unactivated outputs
+    of second separable convolution.
+
+    Args:
+        in_channels (int): The number of channels of the input array.
+        depthlist (tuple of ints): Tuple of integers which defines
+            number of channels of intermediate arrays. the length of
+            this tuple must be 3.
+        stride (int or tuple of ints): Stride of filter application.
+        dilate (int or tuple of ints): Dilation factor of filter applications.
+            :obj:`dilate=d` and :obj:`dilate=(d, d)` are equivalent.
+        skip_type (string): the type of skip connection. If :obj:`sum`,
+            original input is summed to output of network directly.
+            When :obj:`conv`, convolution layer is applied before summation.
+            When :obj:`none`, skip connection is not used.
+            The default value is :obj:`conv`.
+        activ_first (boolean): If :obj:`True`, activation function is
+            applied first in this block.
+            The default value is :obj:`True`
+        bn_kwargs (dict): Keyword arguments passed to initialize
+            :class:`chainer.links.BatchNormalization`.
+
+    """
+
     def __init__(self, in_channels, depthlist, stride=1, dilate=1,
                  skip_type='conv', activ_first=True, bn_kwargs={},
-                 dw_activ_list=[F.identity, F.identity, F.identity],
-                 pw_activ_list=[F.relu, F.relu, F.identity]):
+                 dw_activ_list=[None, None, None],
+                 pw_activ_list=[F.relu, F.relu, None]):
         super(XceptionBlock, self).__init__()
         self.skip_type = skip_type
         self.activ_first = activ_first
@@ -62,6 +89,21 @@ class XceptionBlock(chainer.Chain):
 
 
 class Xception65(chainer.Chain):
+
+    """Xception65 for backbone network of DeepLab v3+.
+
+    Unlike original Xception65, this follows implementation in deeplab v3
+    (https://github.com/tensorflow/models/tree/master/research/deeplab).
+    this returns lowlevel feature (an output of second convolution in second
+    block in entryflow) and highlevel feature (an output before final average
+    pooling in original).
+
+    Args:
+        bn_kwargs (dict): Keyword arguments passed to initialize
+            :class:`chainer.links.BatchNormalization`.
+
+    """
+
     mean_pixel = [127.5, 127.5, 127.5]
 
     def __init__(self, bn_kwargs={}):
