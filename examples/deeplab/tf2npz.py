@@ -2,6 +2,8 @@ import argparse
 
 import chainer
 
+from chainercv.datasets import ade20k_semantic_segmentation_label_names
+from chainercv.datasets import cityscapes_semantic_segmentation_label_names
 from chainercv.datasets import voc_semantic_segmentation_label_names
 from chainercv.links import DeepLabV3plusXception65
 
@@ -9,6 +11,8 @@ import tensorflow as tf
 
 _n_class = {
     'voc': len(voc_semantic_segmentation_label_names),
+    'cityscapes': len(cityscapes_semantic_segmentation_label_names),
+    'ade20k': len(ade20k_semantic_segmentation_label_names),
 }
 
 _model_class = {
@@ -28,7 +32,7 @@ def load_param(param, weight, transpose=None):
 
 def get_model(name, task):
     n_class = _n_class[task]
-    model = _model_class[name](n_class)
+    model = _model_class[name](n_class, crop=(513, 513))
     return model
 
 
@@ -183,8 +187,8 @@ def transfer(model, sess, weightmap):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('model', choices=['xception65'])
-    parser.add_argument('task', choices=['voc'])
+    parser.add_argument('model', choices=list(_model_class.keys()))
+    parser.add_argument('task', choices=list(_n_class.keys()))
     parser.add_argument('graph_path')
     parser.add_argument('output')
     args = parser.parse_args()

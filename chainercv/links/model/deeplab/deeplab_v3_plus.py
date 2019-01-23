@@ -8,6 +8,7 @@ from chainercv.links.connection import Conv2DBNActiv
 from chainercv.links.connection import SeparableConv2DBNActiv
 from chainercv.links.model.deeplab.aspp import SeparableASPP
 from chainercv.links.model.deeplab.xception import Xception65
+from chainercv.transforms import resize
 from chainercv import utils
 
 import numpy as np
@@ -71,9 +72,12 @@ class DeepLabV3plus(chainer.Chain):
 
     """
 
-    def __init__(self, feature_extractor, aspp, decoder, crop=(513, 513)):
+    def __init__(self, feature_extractor, aspp, decoder,
+                 crop=(513, 513), scales=[1.0], flip=False):
         super(DeepLabV3plus, self).__init__()
         self.crop = crop
+        self.scales = scales
+        self.flip = flip
 
         with self.init_scope():
             self.feature_extractor = feature_extractor
@@ -126,6 +130,35 @@ class DeepLabV3plus(chainer.Chain):
         h = self.decoder(lowlevel, highlevel)
         return h
 
+    def _get_proba(self, img, scale, flip):
+        if flip:
+            img = img[:, :, ::-1]
+
+        _, H, W = img.shape
+        if scale == 1.0:
+            h, w = H, W
+        else:
+            h, w = int(H * scale), int(W * scale)
+            img = resize(img, (h, w))
+
+        img, crop = self.prepare(img)
+
+        with chainer.using_config('train', False), \
+                chainer.function.no_backprop_mode():
+            x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
+            x = self.__call__(x)
+            x = F.softmax(x, axis=1)
+            score = F.resize_images(x, crop)[0, :, :h, :w].array
+            score = chainer.backends.cuda.to_cpu(score)
+
+        if scale != 1.0:
+            score = resize(score, (H, W))
+
+        if flip:
+            score = score[:, :, ::-1]
+
+        return score
+
     def predict(self, imgs):
         """Conduct semantic segmentation from images.
 
@@ -141,19 +174,20 @@ class DeepLabV3plus(chainer.Chain):
 
         """
 
-        labels = []
-        for img in imgs:
-            C, H, W = img.shape
-            img, crop = self.prepare(img)
+        with chainer.using_config('train', False), \
+                chainer.function.no_backprop_mode():
+            labels = []
+            score = 0
+            n_aug = len(self.scales) if self.flip else len(self.scales) * 2
 
-            with chainer.using_config('train', False), \
-                    chainer.function.no_backprop_mode():
-                x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
-                x = self.__call__(x)
-                score = F.resize_images(x, crop)[0, :, :H, :W].array
-            score = chainer.backends.cuda.to_cpu(score)
-            label = np.argmax(score, axis=0).astype(np.int32)
-            labels.append(label)
+            for img in imgs:
+                for scale in self.scales:
+                    score += self._get_proba(img, scale, False) / n_aug
+                    if self.flip:
+                        score += self._get_proba(img, scale, True) / n_aug
+
+                label = np.argmax(score, axis=0).astype(np.int32)
+                labels.append(label)
         return labels
 
 
@@ -163,6 +197,44 @@ class DeepLabV3plusXception65(DeepLabV3plus):
             'param': {
                 'n_class': 21,
                 'crop': (513, 513),
+                'scales': [0.25, 0.75, 1.25],
+                'flip': True,
+                'extractor_kwargs': {
+                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-3},
+                },
+                'aspp_kwargs': {
+                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
+                },
+                'decoder_kwargs': {
+                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
+                },
+            },
+            # 'url': 'https://chainercv-models.preferred.jp/',
+        },
+        'cityscapes': {
+            'param': {
+                'n_class': 19,
+                'crop': (1025, 2049),
+                'scales': [0.25, 0.75, 1.25],
+                'flip': True,
+                'extractor_kwargs': {
+                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-3},
+                },
+                'aspp_kwargs': {
+                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
+                },
+                'decoder_kwargs': {
+                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
+                },
+            },
+            # 'url': 'https://chainercv-models.preferred.jp/',
+        },
+        'ade20k': {
+            'param': {
+                'n_class': 151,
+                'crop': (513, 513),
+                'scales': [0.25, 0.75, 1.25],
+                'flip': True,
                 'extractor_kwargs': {
                     'bn_kwargs': {'decay': 0.9997, 'eps': 1e-3},
                 },
@@ -178,19 +250,20 @@ class DeepLabV3plusXception65(DeepLabV3plus):
     }
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 crop=None, extractor_kwargs={}, aspp_kwargs={},
-                 decoder_kwargs={}):
+                 crop=(513, 513), scales=[1.0], flip=False,
+                 extractor_kwargs={}, aspp_kwargs={}, decoder_kwargs={}):
         param, path = utils.prepare_pretrained_model(
             {'n_class': n_class, 'crop': crop,
+             'scales': scales, 'flip': flip,
              'extractor_kwargs': extractor_kwargs,
              'aspp_kwargs': aspp_kwargs, 'decoder_kwargs': decoder_kwargs},
             pretrained_model, self._models)
-        
+
         super(DeepLabV3plusXception65, self).__init__(
             Xception65(**param['extractor_kwargs']),
             SeparableASPP(2048, 256, **param['aspp_kwargs']),
             Decoder(256, param['n_class'], **param['decoder_kwargs']),
-            crop=param['crop'])
+            crop=param['crop'], scales=param['scales'], flip=param['flip'])
 
         if path:
             chainer.serializers.load_npz(path, self)

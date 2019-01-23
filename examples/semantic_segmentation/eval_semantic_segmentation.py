@@ -13,6 +13,7 @@ from chainercv.datasets import CityscapesSemanticSegmentationDataset
 from chainercv.evaluations import eval_semantic_segmentation
 from chainercv.experimental.links import PSPNetResNet101
 from chainercv.experimental.links import PSPNetResNet50
+from chainercv.links import DeepLabV3plusXception65
 from chainercv.links import SegNetBasic
 from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
@@ -52,6 +53,14 @@ def get_dataset_and_model(dataset_name, model_name, pretrained_model,
     elif model_name == 'segnet':
         model = SegNetBasic(
             n_class=n_class, pretrained_model=pretrained_model)
+
+    elif model_name == 'deeplab_v3plus_xception65':
+        print(dataset_name)
+        print(DeepLabV3plusXception65._models[dataset_name])
+        model = DeepLabV3plusXception65(
+            pretrained_model=pretrained_model,
+            **DeepLabV3plusXception65._models[dataset_name]['param'])
+
     return dataset, label_names, model
 
 
@@ -61,7 +70,7 @@ def main():
         '--dataset', choices=('cityscapes', 'ade20k', 'camvid'))
     parser.add_argument(
         '--model', choices=(
-            'pspnet_resnet101', 'segnet'))
+            'pspnet_resnet101', 'segnet', 'deeplab_v3plus_xception65'))
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--pretrained-model')
     parser.add_argument('--input-size', type=int, default=None)
