@@ -26,6 +26,16 @@ from train_sbd import concat_examples
 from train_sbd import Transform
 
 
+def filter_dataset(dataset):
+    indices = []
+    for i in range(len(dataset)):
+        label = dataset._get_annotations(i)[0]
+        if len(label) > 0:
+            indices.append(i)
+    indices = np.array(indices, dtype=np.int32)
+    return dataset.slice[indices]
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='ChainerCV training example: FCIS')
@@ -63,17 +73,17 @@ def main():
     chainer.cuda.get_device_from_id(device).use()
     model.to_gpu()
 
-    # dataset
+    # train dataset
+    train_dataset = COCOInstanceSegmentationDataset(
+        year='2014', split='train')
+    vmml_dataset = COCOInstanceSegmentationDataset(
+        year='2014', split='valminusminival')
+    train_dataset = filter_dataset(train_dataset)
+    vmml_dataset = filter_dataset(vmml_dataset)
     train_dataset = TransformDataset(
-        ConcatenatedDataset(
-            COCOInstanceSegmentationDataset(year='2014', split='train'),
-            COCOInstanceSegmentationDataset(
-                year='2014', split='valminusminival')),
+        ConcatenatedDataset(train_dataset, vmml_dataset),
         ('img', 'mask', 'label', 'bbox', 'scale'),
         Transform(model.fcis))
-    test_dataset = COCOInstanceSegmentationDataset(
-        year='2014', split='minival', use_crowded=True,
-        return_crowded=True, return_area=True)
     if comm.rank == 0:
         indices = np.arange(len(train_dataset))
     else:
@@ -82,7 +92,14 @@ def main():
     train_dataset = train_dataset.slice[indices]
     train_iter = chainer.iterators.SerialIterator(train_dataset, batch_size=1)
 
+    # test dataset
     if comm.rank == 0:
+        test_dataset = COCOInstanceSegmentationDataset(
+            year='2014', split='minival', use_crowded=True,
+            return_crowded=True, return_area=True)
+        test_dataset = filter_dataset(test_dataset)
+        indices = np.arange(len(test_dataset))
+        test_dataset = test_dataset.slice[indices]
         test_iter = chainer.iterators.SerialIterator(
             test_dataset, batch_size=1, repeat=False, shuffle=False)
 
