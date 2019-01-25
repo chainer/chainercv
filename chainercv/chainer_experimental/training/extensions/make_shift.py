@@ -36,7 +36,11 @@ def make_shift(attr, optimizer=None):
     def deco(func):
         def ext(trainer):
             opt = optimizer or trainer.updater.get_optimizer('main')
-            setattr(opt, attr, func(trainer))
+            value = func(trainer)
+            if value is None:
+                raise ValueError(
+                    'The updated learning rate should not be None')
+            setattr(opt, attr, value)
         ext.default_name = func.__name__
         ext.priority = Extension.priority
         ext.initialize = ext

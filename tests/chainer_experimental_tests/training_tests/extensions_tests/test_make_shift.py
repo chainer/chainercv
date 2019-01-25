@@ -10,6 +10,11 @@ def mod5_shift(trainer):
     return trainer.updater.iteration % 5
 
 
+@make_shift('x')
+def return_none_shift(trainer):
+    return None
+
+
 class TestMakeShift(unittest.TestCase):
 
     def test_make_shift(self):
@@ -23,6 +28,15 @@ class TestMakeShift(unittest.TestCase):
             self.assertEqual(trainer.updater.get_optimizer().x, i % 5)
             trainer.updater.update()
             mod5_shift(trainer)
+
+    def test_return_none_shift(self):
+        trainer = testing.get_trainer_with_mock_updater(
+            iter_per_epoch=10, extensions=[return_none_shift])
+        trainer.updater.get_optimizer.return_value = mock.MagicMock()
+        trainer.updater.get_optimizer().x = -1
+
+        self.assertRaises(
+            ValueError, return_none_shift.initialize, trainer)
 
 
 testing.run_module(__name__, __file__)
