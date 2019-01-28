@@ -2,9 +2,9 @@ import chainer
 import chainer.functions as F
 import chainer.links as L
 
-from chainercv.links.model.fpn.head import Head
 from chainercv.links.model.fpn.faster_rcnn import FasterRCNN
 from chainercv.links.model.fpn.fpn import FPN
+from chainercv.links.model.fpn.head import Head
 from chainercv.links.model.fpn.rpn import RPN
 from chainercv.links.model.resnet import ResNet101
 from chainercv.links.model.resnet import ResNet50

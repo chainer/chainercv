@@ -6,11 +6,11 @@ import chainer.functions as F
 from chainer import initializers
 import chainer.links as L
 
-from chainercv import utils
 from chainercv.links.model.fpn.misc import argsort
 from chainercv.links.model.fpn.misc import choice
 from chainercv.links.model.fpn.misc import exp_clip
 from chainercv.links.model.fpn.misc import smooth_l1
+from chainercv import utils
 
 
 class RPN(chainer.Chain):

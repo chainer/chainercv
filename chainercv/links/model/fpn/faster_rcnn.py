@@ -159,7 +159,7 @@ class FasterRCNN(chainer.Chain):
             img -= self.extractor.mean
             resized_imgs.append(img)
 
-        size = np.array([img.shape[1:] for img in resized_imgs]).max(axis=0)
+        size = np.array([im.shape[1:] for im in resized_imgs]).max(axis=0)
         size = (np.ceil(size / self._stride) * self._stride).astype(int)
         x = np.zeros((len(imgs), 3, size[0], size[1]), dtype=np.float32)
         for i, img in enumerate(resized_imgs):

@@ -6,11 +6,11 @@ import chainer.functions as F
 from chainer import initializers
 import chainer.links as L
 
-from chainercv import utils
 from chainercv.links.model.fpn.misc import argsort
 from chainercv.links.model.fpn.misc import choice
 from chainercv.links.model.fpn.misc import exp_clip
 from chainercv.links.model.fpn.misc import smooth_l1
+from chainercv import utils
 
 
 class Head(chainer.Chain):
@@ -285,10 +285,10 @@ def head_loss_pre(rois, roi_indices, std, bboxes, labels):
     gt_labels = gt_labels[mask]
 
     masks = [roi_levels == l for l in range(n_level)]
-    rois = [rois[mask] for mask in masks]
-    roi_indices = [roi_indices[mask] for mask in masks]
-    gt_locs = [gt_locs[mask] for mask in masks]
-    gt_labels = [gt_labels[mask] for mask in masks]
+    rois = [rois[m] for m in masks]
+    roi_indices = [roi_indices[m] for m in masks]
+    gt_locs = [gt_locs[m] for m in masks]
+    gt_labels = [gt_labels[m] for m in masks]
 
     return rois, roi_indices, gt_locs, gt_labels
 
@@ -340,6 +340,7 @@ def head_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
 
 class Caffe2FCUniform(chainer.initializer.Initializer):
     """Initializer used in Caffe2.
+
     """
 
     def __call__(self, array):
