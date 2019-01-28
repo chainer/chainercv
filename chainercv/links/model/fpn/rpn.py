@@ -188,8 +188,8 @@ def rpn_loss(locs, confs, anchors, sizes,  bboxes):
          anchors (list of arrays): A list of arrays returned by
              :meth:`anchors`.
          sizes (list of tuples of two ints): A list of
-             :math:`(H_l, W_l)`, where :math:`H_l` and :math:`W_l`
-             are height and width of the :math:`l`-th feature map.
+             :math:`(H_n, W_n)`, where :math:`H_n` and :math:`W_n`
+             are height and width of the :math:`n`-th image.
          bboxes (list of arrays): A lisf of arrays whose shape is
              :math:`(R_n, 4)`, where :math:`R_n` is the number of
              ground truth bounding boxes.

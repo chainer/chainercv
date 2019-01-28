@@ -111,15 +111,23 @@ class Head(chainer.Chain):
         :obj:`labels` and :obj:`scores`.
 
         Args:
-            locs (list of arrays): A list of arrays whose shape is
-                :math:`(N, K_l, 4)`, where :math:`N` is the size of batch and
-                :math:`N_l` is the number of the anchor boxes
-                of the :math:`l`-th level.
-            confs (list of arrays): A list of array whose shape is
-                :math:`(N, K_l)`.
-            anchors (list of arrays): Anchor boxes returned by :meth:`anchors`.
-            in_shape (tuple of ints): The shape of input of array
-                the feature extractor.
+            rois (iterable of arrays): An iterable of arrays of
+                shape :math:`(R_l, 4)`, where :math:`R_l` is the number
+                of RoIs in the :math:`l`-th feature map.
+            roi_indices (iterable of arrays): An iterable of arrays of
+                shape :math:`(R_l,)`.
+            locs (iterable of arrays): An iterable of arrays whose shape is
+                :math:`(R_l, 4)`.
+            confs (iterable of arrays): An iterable of arrays whose shape is
+                :math:`(R'_l, n\_class)`.
+            scales (list of floats): A list of floats returned
+                by :meth:`~chainercv.links.model.fpn.faster_rcnn.prepare`
+            sizes (list of tuples of two ints): A list of
+                :math:`(H_n, W_n)`, where :math:`H_n` and :math:`W_n`
+                are height and width of the :math:`n`-th image.
+            nms_thresh (float): The threshold value
+                for :func:`~chainercv.utils.non_maximum_suppression`.
+            score_thresh (float): The threshold value for confidence score.
 
         Returns:
             tuple of three list of arrays:
@@ -290,10 +298,10 @@ def head_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
 
      Args:
          locs (iterable of arrays): An iterable of arrays whose shape is
-             :math:`(N, R'_l, 4)`, where :math:`R'_l` is the number of
+             :math:`(R'_l, 4)`, where :math:`R'_l` is the number of
              the anchor boxes of the :math:`l`-th level.
          confs (iterable of arrays): An iterable of arrays whose shape is
-             :math:`(N, K_l, n\_class)`.
+             :math:`(R'_l, n\_class)`.
          gt_locs (list of arrays): A list of arrays returned by
              :func:`head_locs_pre`
          gt_labels (list of arrays): A list of arrays returned by
