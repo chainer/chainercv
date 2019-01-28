@@ -14,6 +14,12 @@ from chainercv.links.model.fpn.misc import smooth_l1
 
 
 class RPN(chainer.Chain):
+    """Region Proposal Network of Feature Pyramid Networks.
+
+    Args:
+        scales (tuple of floats): The scales of feature maps.
+
+    """
 
     _anchor_size = 32
     _anchor_ratios = (0.5, 1, 2)
@@ -53,6 +59,19 @@ class RPN(chainer.Chain):
         return locs, confs
 
     def anchors(self, sizes):
+        """Calculates anchor boxes.
+
+        Args:
+            sizes (iterable of tuples of two ints): An iterable of
+                :math:`(H_l, W_l)`, where :math:`H_l` and :math:`W_l`
+                are height and width of the :math:`l`-th feature map.
+
+        Returns:
+            list of arrays:
+            The shape of the :math:`l`-th array is :math:`(H_l * W_l * A, 4)`,
+            where :math:`A` is the number of anchor ratios.
+
+        """
         anchors = []
         for l, (H, W) in enumerate(sizes):
             v, u, ar = np.meshgrid(
@@ -70,6 +89,32 @@ class RPN(chainer.Chain):
         return anchors
 
     def decode(self, locs, confs, anchors, in_shape):
+        """Decodes back to coordinates of RoIs.
+
+        This method decodes :obj:`locs` and :obj:`confs` returned
+        by a FPN network back to :obj:`rois` and :obj:`roi_indices`.
+
+        Args:
+            locs (list of arrays): A list of arrays whose shape is
+                :math:`(N, K_l, 4)`, where :math:`N` is the size of batch and
+                :math:`N_l` is the number of the anchor boxes
+                of the :math:`l`-th level.
+            confs (list of arrays): A list of array whose shape is
+                :math:`(N, K_l)`.
+            anchors (list of arrays): Anchor boxes returned by :meth:`anchors`.
+            in_shape (list of tuples of two ints): An iterable of
+                :math:`(H_n, W_n)`, where :math:`H_n` and :math:`W_n`
+                are height and width of the :math:`n`-th image.
+
+        Returns:
+            tuple of two arrays:
+            :obj:`rois` and :obj:`roi_indices`.
+
+            * **rois**: An array of shape :math:`(R, 4)`, \
+                where :math:`R` is the total number of RoIs in the given batch.
+            * **roi_indices** : An array of shape :math:`(R,)`.
+        """
+
         if chainer.config.train:
             nms_limit_pre = self._train_nms_limit_pre
             nms_limit_post = self._train_nms_limit_post
@@ -133,6 +178,23 @@ class RPN(chainer.Chain):
 
 
 def rpn_loss(locs, confs, anchors, sizes,  bboxes):
+    """Loss function for RPN.
+
+     Args:
+         locs (list of arrays): A list of arrays whose shape is
+             :math:`(N, K_l, 4)`, where :math:`K_l` is the number of
+             the anchor boxes of the :math:`l`-th level.
+         confs (list of arrays): A list of arrays whose shape is
+             :math:`(N, K_l)`.
+         anchors (list of arrays): Anchor boxes returned by :meth:`anchors`.
+         bboxes (list of arrays): A lisf of arrays whose shape is
+             :math:`(R_n, 4)`, where :math:`R_n` is the number of
+             ground truth bounding boxes.
+
+     Returns:
+         list of two variables:
+         :obj:`loc_loss` and :obj:`conf_loss`.
+    """
     fg_thresh = 0.7
     bg_thresh = 0.3
     batchsize_per_image = 256
