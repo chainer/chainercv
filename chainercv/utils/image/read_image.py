@@ -33,7 +33,7 @@ def _read_image_pil(path, dtype, color):
         if color:
             img = f.convert('RGB')
         else:
-            img = f.convert('P')
+            img = f.convert('L')
         img = np.asarray(img, dtype=dtype)
     finally:
         if hasattr(f, 'close'):
