@@ -21,8 +21,8 @@ class TestReadImage(unittest.TestCase):
         self.path = self.file.name
 
         self.img = np.random.randint(
-            0, 255, size=(1,) + self.size, dtype=np.uint8)
-        write_image(self.img, self.path)
+            0, 255, size=self.size, dtype=np.uint8)
+        write_image(self.img[np.newaxis], self.path)
 
     def test_read_label(self):
         if self.dtype == np.uint8:
@@ -30,7 +30,7 @@ class TestReadImage(unittest.TestCase):
         else:
             img = read_label(self.path, dtype=self.dtype)
 
-        self.assertEqual(img.shape, (1,) + self.size)
+        self.assertEqual(img.shape, self.size)
         self.assertEqual(img.dtype, self.dtype)
 
         if self.suffix in {'bmp', 'png'}:

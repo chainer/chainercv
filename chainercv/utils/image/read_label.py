@@ -31,8 +31,8 @@ def read_label(path, dtype=np.uint8):
             f.close()
 
     if img.ndim == 2:
-        # reshape (H, W) -> (1, H, W)
-        return img[np.newaxis]
+        return img
+    elif img.shape[2] == 1:
+        return img[:, :, 0]
     else:
-        # transpose (H, W, C) -> (C, H, W)
-        return img.transpose((2, 0, 1))
+        raise ValueError("Color image can't be accepted as label image.")
