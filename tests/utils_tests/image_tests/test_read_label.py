@@ -33,9 +33,6 @@ class TestReadImage(unittest.TestCase):
         self.assertEqual(img.shape, (1,) + self.size)
         self.assertEqual(img.dtype, self.dtype)
 
-        print(self.img.astype(self.dtype))
-        print(img)
-
         if self.suffix in {'bmp', 'png'}:
             np.testing.assert_equal(img, self.img.astype(self.dtype))
 

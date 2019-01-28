@@ -35,6 +35,7 @@ def _read_image_pil(path, dtype, color):
         else:
             img = f.convert('L')
         img = np.asarray(img, dtype=dtype)
+        img.flags.writeable = True
     finally:
         if hasattr(f, 'close'):
             f.close()
