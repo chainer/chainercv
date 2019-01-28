@@ -132,9 +132,6 @@ class FCISTrainChain(chainer.Chain):
         rpn_loc = rpn_locs[0]
         roi = rois
 
-        if len(bbox) == 0:
-            return chainer.Variable(self.xp.array(0, dtype=np.float32))
-
         # Sample RoIs and forward
         sample_roi, gt_roi_mask, gt_roi_label, gt_roi_loc = \
             self.proposal_target_creator(
