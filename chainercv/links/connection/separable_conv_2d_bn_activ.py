@@ -48,7 +48,12 @@ class SeparableConv2DBNActiv(chainer.Chain):
             identity function).
         pw_activ (callable): An activation function of pointwise convolution.
         bn_kwargs (dict): Keyword arguments passed to initialize
-            :class:`chainer.links.BatchNormalization`.
+            :class:`chainer.links.BatchNormalization`. If a ChainerMN
+            communicator (:class:`~chainermn.communicators.CommunicatorBase`)
+            is given with the key :obj:`comm`,
+            :obj:`~chainermn.links.MultiNodeBatchNormalization` will be used
+            for the batch normalization. Otherwise,
+            :obj:`~chainer.links.BatchNormalization` will be used.
 
     """
 
@@ -67,11 +72,18 @@ class SeparableConv2DBNActiv(chainer.Chain):
                 in_channels, in_channels, ksize=ksize, stride=stride,
                 pad=pad, dilate=dilate, groups=in_channels,
                 nobias=nobias, initialW=dw_initialW)
-            self.dw_bn = BatchNormalization(in_channels, **bn_kwargs)
             self.pointwise = Convolution2D(
                 in_channels, out_channels, 1,
                 nobias=nobias, initialW=pw_initialW)
-            self.pw_bn = BatchNormalization(out_channels, **bn_kwargs)
+
+            if 'comm' in bn_kwargs:
+                self.dw_bn = MultiNodeBatchNormalization(
+                    out_channels, **bn_kwargs)
+                self.pw_bn = MultiNodeBatchNormalization(
+                    out_channels, **bn_kwargs)
+            else:
+                self.dw_bn = BatchNormalization(in_channels, **bn_kwargs)
+                self.pw_bn = BatchNormalization(out_channels, **bn_kwargs)
 
     def __call__(self, x):
         h = self.depthwise(x)
