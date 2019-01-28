@@ -185,7 +185,8 @@ def rpn_loss(locs, confs, anchors, sizes,  bboxes):
              the anchor boxes of the :math:`l`-th level.
          confs (iterable of arrays): An iterable of arrays whose shape is
              :math:`(N, K_l)`.
-         anchors (list of arrays): Anchor boxes returned by :meth:`anchors`.
+         anchors (list of arrays): A list of arrays returned by
+             :meth:`anchors`.
          sizes (list of tuples of two ints): A list of
              :math:`(H_l, W_l)`, where :math:`H_l` and :math:`W_l`
              are height and width of the :math:`l`-th feature map.
@@ -194,7 +195,7 @@ def rpn_loss(locs, confs, anchors, sizes,  bboxes):
              ground truth bounding boxes.
 
      Returns:
-         list of two variables:
+         tuple of two variables:
          :obj:`loc_loss` and :obj:`conf_loss`.
     """
     fg_thresh = 0.7

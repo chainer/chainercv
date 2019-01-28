@@ -14,7 +14,13 @@ from chainercv.links.model.fpn.misc import smooth_l1
 
 
 class Head(chainer.Chain):
+    """Head network of Feature Pyramid Networks.
 
+    Args:
+        n_class (int): The number of classes including background.
+        scales (tuple of floats): The scales of feature maps.
+
+    """
     _canonical_level = 2
     _canonical_scale = 224
     _roi_size = 7
@@ -66,6 +72,23 @@ class Head(chainer.Chain):
         return locs, confs
 
     def distribute(self, rois, roi_indices):
+        """Assigns Rois to feature maps according to their size.
+
+        Args:
+            rois (array): An array of shape :math:`(R, 4)`, \
+                where :math:`R` is the total number of RoIs in the given batch.
+            roi_indices (array): An array of shape :math:`(R,)`.
+
+        Returns:
+            tuple of two lists:
+            :obj:`rois` and :obj:`roi_indices`.
+
+            * **rois**: A list of arrays of shape :math:`(R_l, 4)`, \
+                where :math:`R_l` is the number of RoIs in the :math:`l`-th \
+                feature map.
+            * **roi_indices** : A list of arrays of shape :math:`(R_l,)`.
+        """
+
         size = self.xp.sqrt(self.xp.prod(rois[:, 2:] - rois[:, :2], axis=1))
         level = self.xp.floor(self.xp.log2(
             size / self._canonical_scale + 1e-6)).astype(np.int32)
@@ -81,6 +104,40 @@ class Head(chainer.Chain):
 
     def decode(self, rois, roi_indices, locs, confs,
                scales, sizes, nms_thresh, score_thresh):
+        """Decodes back to coordinates of RoIs.
+
+        This method decodes :obj:`locs` and :obj:`confs` returned
+        by a FPN network back to :obj:`bboxes`,
+        :obj:`labels` and :obj:`scores`.
+
+        Args:
+            locs (list of arrays): A list of arrays whose shape is
+                :math:`(N, K_l, 4)`, where :math:`N` is the size of batch and
+                :math:`N_l` is the number of the anchor boxes
+                of the :math:`l`-th level.
+            confs (list of arrays): A list of array whose shape is
+                :math:`(N, K_l)`.
+            anchors (list of arrays): Anchor boxes returned by :meth:`anchors`.
+            in_shape (tuple of ints): The shape of input of array
+                the feature extractor.
+
+        Returns:
+            tuple of three list of arrays:
+            :obj:`bboxes`, :obj:`labels` and :obj:`scores`.
+
+           * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
+               where :math:`R` is the number of bounding boxes in a image. \
+               Each bounding box is organized by \
+               :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
+               in the second axis.
+           * **labels** : A list of integer arrays of shape :math:`(R,)`. \
+               Each value indicates the class of the bounding box. \
+               Values are in range :math:`[0, L - 1]`, where :math:`L` is the \
+               number of the foreground classes.
+           * **scores** : A list of float arrays of shape :math:`(R,)`. \
+               Each value indicates how confident the prediction is.
+        """
+
         rois = self.xp.vstack(rois)
         roi_indices = self.xp.hstack(roi_indices)
         locs = locs.array
@@ -125,6 +182,38 @@ class Head(chainer.Chain):
 
 
 def head_loss_pre(rois, roi_indices, std, bboxes, labels):
+    """Loss function for Head (pre).
+
+    This function processes RoIs for :func:`head_loss_post`.
+
+    Args:
+        rois (iterable of arrays): An iterable of arrays of
+            shape :math:`(R_l, 4)`, where :math:`R_l` is the number
+            of RoIs in the :math:`l`-th feature map.
+        roi_indices (iterable of arrays): An iterable of arrays of
+            shape :math:`(R_l,)`.
+        std (tuple of floats): Two coefficients used for encoding
+            bounding boxes.
+        bboxes (list of arrays): A lisf of arrays whose shape is
+            :math:`(R_n, 4)`, where :math:`R_n` is the number of
+            ground truth bounding boxes.
+        labels (list of arrays): A lisf of arrays whose shape is
+            :math:`(R_n,)`.
+
+     Returns:
+         tuple of four arrays:
+         :obj:`rois`, :obj:`roi_indices`, :obj:`gt_locs`, and :obj:`gt_labels`.
+
+          * **rois**: A list of arrays of shape :math:`(R'_l, 4)`, \
+              where :math:`R'_l` is the number of RoIs in the :math:`l`-th \
+              feature map.
+          * **roi_indices**: A list of arrays of shape :math:`(R'_l,)`.
+          * **gt_locs**: A list of arrays of shape :math:`(R'_l, 4) \
+              indicating the bounding boxes of ground truth.
+          * **roi_indices**: A list of arrays of shape :math:`(R'_l,)` \
+              indicating the classes of ground truth.
+    """
+
     thresh = 0.5
     batchsize_per_image = 512
     fg_ratio = 0.25
@@ -197,6 +286,25 @@ def head_loss_pre(rois, roi_indices, std, bboxes, labels):
 
 
 def head_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
+    """Loss function for Head (post).
+
+     Args:
+         locs (iterable of arrays): An iterable of arrays whose shape is
+             :math:`(N, R'_l, 4)`, where :math:`R'_l` is the number of
+             the anchor boxes of the :math:`l`-th level.
+         confs (iterable of arrays): An iterable of arrays whose shape is
+             :math:`(N, K_l, n\_class)`.
+         gt_locs (list of arrays): A list of arrays returned by
+             :func:`head_locs_pre`
+         gt_labels (list of arrays): A list of arrays returned by
+             :func:`head_locs_pre`
+         batchsize (int): The size of batch.
+
+     Returns:
+         tuple of two variables:
+         :obj:`loc_loss` and :obj:`conf_loss`.
+    """
+
     xp = cuda.get_array_module(locs.array, confs.array)
 
     roi_indices = xp.hstack(roi_indices).astype(np.int32)
@@ -223,6 +331,8 @@ def head_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
 
 
 class Caffe2FCUniform(chainer.initializer.Initializer):
+    """Initializer used in Caffe2.
+    """
 
     def __call__(self, array):
         scale = 1 / np.sqrt(array.shape[-1])
