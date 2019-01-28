@@ -13,7 +13,7 @@ from chainercv.utils import write_image
     'suffix': ['bmp', 'jpg', 'png'],
     'dtype': [np.float32, np.uint8, bool],
 }))
-class TestReadImage(unittest.TestCase):
+class TestReadLabel(unittest.TestCase):
 
     def setUp(self):
         self.file = tempfile.NamedTemporaryFile(

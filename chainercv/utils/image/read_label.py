@@ -3,7 +3,7 @@ from PIL import Image
 
 
 def read_label(path, dtype=np.uint8):
-    """Read an label image from a file.
+    """Read a label image from a file.
 
     This function reads an label image from given file. If reading label
     doesn't work collectly, try :func:`~chainercv.utils.read_image` with
