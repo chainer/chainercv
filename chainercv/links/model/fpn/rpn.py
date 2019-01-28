@@ -102,9 +102,8 @@ class RPN(chainer.Chain):
             confs (list of arrays): A list of array whose shape is
                 :math:`(N, K_l)`.
             anchors (list of arrays): Anchor boxes returned by :meth:`anchors`.
-            in_shape (list of tuples of two ints): An iterable of
-                :math:`(H_n, W_n)`, where :math:`H_n` and :math:`W_n`
-                are height and width of the :math:`n`-th image.
+            in_shape (tuple of ints): The shape of input of array
+                the feature extractor.
 
         Returns:
             tuple of two arrays:
@@ -181,12 +180,15 @@ def rpn_loss(locs, confs, anchors, sizes,  bboxes):
     """Loss function for RPN.
 
      Args:
-         locs (list of arrays): A list of arrays whose shape is
+         locs (iterable of arrays): An iterable of arrays whose shape is
              :math:`(N, K_l, 4)`, where :math:`K_l` is the number of
              the anchor boxes of the :math:`l`-th level.
-         confs (list of arrays): A list of arrays whose shape is
+         confs (iterable of arrays): An iterable of arrays whose shape is
              :math:`(N, K_l)`.
          anchors (list of arrays): Anchor boxes returned by :meth:`anchors`.
+         sizes (list of tuples of two ints): A list of
+             :math:`(H_l, W_l)`, where :math:`H_l` and :math:`W_l`
+             are height and width of the :math:`l`-th feature map.
          bboxes (list of arrays): A lisf of arrays whose shape is
              :math:`(R_n, 4)`, where :math:`R_n` is the number of
              ground truth bounding boxes.
