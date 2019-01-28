@@ -4,6 +4,11 @@ from chainer.functions import relu
 from chainer.links import BatchNormalization
 from chainer.links import Convolution2D
 
+try:
+    from chainermn.links import MultiNodeBatchNormalization
+except ImportError:
+    pass
+
 
 class SeparableConv2DBNActiv(chainer.Chain):
 
