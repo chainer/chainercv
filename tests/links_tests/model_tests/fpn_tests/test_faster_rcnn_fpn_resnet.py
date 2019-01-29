@@ -3,8 +3,8 @@ import unittest
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links import FasterRCNNFPNResNet50
 from chainercv.links import FasterRCNNFPNResNet101
+from chainercv.links import FasterRCNNFPNResNet50
 from chainercv.utils import assert_is_detection_link
 
 
