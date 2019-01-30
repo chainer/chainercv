@@ -152,12 +152,9 @@ def main():
         # training extensions
         model_name = model.fcis.__class__.__name__
         trainer.extend(
-            chainer.training.extensions.snapshot_object(
-                model.fcis,
-                savefun=chainer.serializers.save_npz,
-                filename='%s_model_iter_{.updater.iteration}.npz'
-                         % model_name),
-            trigger=(1, 'epoch'))
+            extensions.snapshot_object(
+                model.fcis, filename='snapshot_model.npz'),
+            trigger=(args.epoch, 'epoch'))
         trainer.extend(
             extensions.observe_lr(),
             trigger=log_interval)
@@ -173,7 +170,6 @@ def main():
             'main/roi_mask_loss',
             'validation/main/map/iou=0.50:0.95/area=all/max_dets=100',
         ]
-
         trainer.extend(
             extensions.PrintReport(report_items), trigger=print_interval)
         trainer.extend(
@@ -191,8 +187,8 @@ def main():
                 test_iter, model.fcis,
                 label_names=coco_instance_segmentation_label_names),
             trigger=ManualScheduleTrigger(
-                [len(train_dataset) * args.cooldown_epoch - 1,
-                 len(train_dataset) * args.epoch - 1], 'iteration'))
+                [len(train_dataset) * args.cooldown_epoch,
+                 len(train_dataset) * args.epoch], 'iteration'))
 
         trainer.extend(extensions.dump_graph('main/loss'))
 
