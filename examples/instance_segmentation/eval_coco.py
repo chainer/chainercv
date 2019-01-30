@@ -24,7 +24,7 @@ def main():
         if args.pretrained_model:
             pretrained_model = args.pretrained_model
         else:
-            pretrained_model = 'sbd'
+            pretrained_model = 'coco'
         proposal_creator_params = FCISResNet101.proposal_creator_params
         proposal_creator_params['min_size'] = 2
         model = FCISResNet101(
