@@ -16,19 +16,23 @@ from chainercv.visualizations import vis_instance_segmentation
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--pretrained-model', default='sbd')
+    parser.add_argument('--pretrained-model', default=None)
     parser.add_argument(
         '--dataset', choices=('sbd', 'coco'), default='sbd')
     parser.add_argument('image')
     args = parser.parse_args()
 
     if args.dataset == 'sbd':
+        if args.pretrained_model is None:
+            args.pretrained_model = 'coco'
         label_names = sbd_instance_segmentation_label_names
         model = FCISResNet101(
             n_fg_class=len(label_names),
             pretrained_model=args.pretrained_model)
     # coco
     elif args.dataset == 'coco':
+        if args.pretrained_model is None:
+            args.pretrained_model = 'coco'
         label_names = coco_instance_segmentation_label_names
         proposal_creator_params = FCISResNet101.proposal_creator_params
         proposal_creator_params['min_size'] = 2
