@@ -92,6 +92,18 @@ class FCISResNet101(FCIS):
             'url': 'https://chainercv-models.preferred.jp/'
             'fcis_resnet101_sbd_converted_2018_07_02.npz',
             'cv2': True
+        },
+        'coco': {
+            'param': {'n_fg_class': 80},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'fcis_resnet101_coco_trained_2019_01_30.npz',
+            'cv2': True
+        },
+        'coco_converted': {
+            'param': {'n_fg_class': 80},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'fcis_resnet101_coco_converted_2019_01_30.npz',
+            'cv2': True
         }
     }
     feat_stride = 16
