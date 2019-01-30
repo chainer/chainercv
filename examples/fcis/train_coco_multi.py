@@ -150,7 +150,6 @@ def main():
         print_interval = 20, 'iteration'
 
         # training extensions
-        model_name = model.fcis.__class__.__name__
         trainer.extend(
             extensions.snapshot_object(
                 model.fcis, filename='snapshot_model.npz'),
