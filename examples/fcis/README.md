@@ -10,7 +10,7 @@ SBD Train & Test
 COCO Train & Test
 | Model | mAP/iou@[0.5:0.95] (original [1])| mAP/iou@0.5 (original [1])| mAP/iou@[0.5:0.95] (weight conversion)| mAP/iou@0.5 (weight conversion)| mAP/iou@[0.5:0.95] (train)| mAP/iou@0.5 (train)|
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| FCIS ResNet101 | 0.292 | 0.495 | 0.281 | 0.465 | * | * |
+| FCIS ResNet101 | 0.292 | 0.495 | 0.281 | 0.465 | 0.243 (3 GPU) | 0.426 (3 GPU) |
 
 \*: We use random sampling for sampling strategy. The original paper used OHEM sampling strategy.
 
