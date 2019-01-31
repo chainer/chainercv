@@ -24,12 +24,11 @@ def main():
 
     if args.dataset == 'sbd':
         if args.pretrained_model is None:
-            args.pretrained_model = 'coco'
+            args.pretrained_model = 'sbd'
         label_names = sbd_instance_segmentation_label_names
         model = FCISResNet101(
             n_fg_class=len(label_names),
             pretrained_model=args.pretrained_model)
-    # coco
     elif args.dataset == 'coco':
         if args.pretrained_model is None:
             args.pretrained_model = 'coco'
