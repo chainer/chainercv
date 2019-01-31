@@ -26,7 +26,7 @@ from chainercv.links.model.fpn import rpn_loss
 class TrainChain(chainer.Chain):
 
     def __init__(self, model):
-        super().__init__()
+        super(TrainChain, self).__init__()
         with self.init_scope():
             self.model = model
 

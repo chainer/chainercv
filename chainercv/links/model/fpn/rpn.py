@@ -30,7 +30,7 @@ class RPN(chainer.Chain):
     _test_nms_limit_post = 1000
 
     def __init__(self, scales):
-        super().__init__()
+        super(RPN, self).__init__()
 
         init = {'initialW': initializers.Normal(0.01)}
         with self.init_scope():

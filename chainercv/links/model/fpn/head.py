@@ -28,7 +28,7 @@ class Head(chainer.Chain):
     std = (0.1, 0.2)
 
     def __init__(self, n_class, scales):
-        super().__init__()
+        super(Head, self).__init__()
 
         fc_init = {
             'initialW': Caffe2FCUniform(),

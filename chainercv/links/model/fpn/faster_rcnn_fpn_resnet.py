@@ -29,7 +29,7 @@ class FasterRCNNFPNResNet(FasterRCNN):
         extractor = FPN(
             base, len(base.pick), (1 / 4, 1 / 8, 1 / 16, 1 / 32, 1 / 64))
 
-        super().__init__(
+        super(FasterRCNNFPNResNet, self).__init__(
             extractor=extractor,
             rpn=RPN(extractor.scales),
             head=Head(param['n_fg_class'] + 1, extractor.scales),

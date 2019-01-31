@@ -43,7 +43,7 @@ class FasterRCNN(chainer.Chain):
     _stride = 32
 
     def __init__(self, extractor, rpn, head):
-        super().__init__()
+        super(FasterRCNN, self).__init__()
         with self.init_scope():
             self.extractor = extractor
             self.rpn = rpn

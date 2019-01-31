@@ -23,7 +23,7 @@ class FPN(chainer.Chain):
     """
 
     def __init__(self, base, n_base_output, scales):
-        super().__init__()
+        super(FPN, self).__init__()
         with self.init_scope():
             self.base = base
             self.inner = chainer.ChainList()
