@@ -26,16 +26,6 @@ from train_sbd import concat_examples
 from train_sbd import Transform
 
 
-def filter_dataset(dataset):
-    indices = []
-    for i in range(len(dataset)):
-        label = dataset._get_annotations(i)[0]
-        if len(label) > 0:
-            indices.append(i)
-    indices = np.array(indices, dtype=np.int32)
-    return dataset.slice[indices]
-
-
 def main():
     parser = argparse.ArgumentParser(
         description='ChainerCV training example: FCIS')
@@ -78,8 +68,19 @@ def main():
         year='2014', split='train')
     vmml_dataset = COCOInstanceSegmentationDataset(
         year='2014', split='valminusminival')
-    train_dataset = filter_dataset(train_dataset)
-    vmml_dataset = filter_dataset(vmml_dataset)
+
+    # filter non-annotated data
+    train_indices = np.array(
+        [i for i, label in enumerate(train_dataset.slice[:, ['label']])
+         if len(label[0]) > 0],
+        dtype=np.int32)
+    train_dataset = train_dataset.slice[train_indices]
+    vmml_indices = np.array(
+        [i for i, label in enumerate(vmml_dataset.slice[:, ['label']])
+         if len(label[0]) > 0],
+        dtype=np.int32)
+    vmml_dataset = vmml_dataset.slice[vmml_indices]
+
     train_dataset = TransformDataset(
         ConcatenatedDataset(train_dataset, vmml_dataset),
         ('img', 'mask', 'label', 'bbox', 'scale'),
@@ -97,7 +98,6 @@ def main():
         test_dataset = COCOInstanceSegmentationDataset(
             year='2014', split='minival', use_crowded=True,
             return_crowded=True, return_area=True)
-        test_dataset = filter_dataset(test_dataset)
         indices = np.arange(len(test_dataset))
         test_dataset = test_dataset.slice[indices]
         test_iter = chainer.iterators.SerialIterator(
