@@ -82,8 +82,9 @@ class TestFCISResNet101(unittest.TestCase):
 
 
 @testing.parameterize(*testing.product({
-    'n_fg_class': [None, 10, 20],
-    'pretrained_model': ['sbd'],
+    'n_fg_class': [None, 10, 20, 80],
+    'anchor_scales': [(8, 16, 32), (4, 8, 16, 32)],
+    'pretrained_model': ['sbd', 'sbd_converted', 'coco', 'coco_converted'],
 }))
 class TestFCISResNet101Pretrained(unittest.TestCase):
 
@@ -91,11 +92,16 @@ class TestFCISResNet101Pretrained(unittest.TestCase):
     def test_pretrained(self):
         kwargs = {
             'n_fg_class': self.n_fg_class,
+            'anchor_scales': self.anchor_scales,
             'pretrained_model': self.pretrained_model,
         }
 
-        if self.pretrained_model == 'sbd':
-            valid = self.n_fg_class in {None, 20}
+        if self.pretrained_model.startswith('sbd'):
+            valid = self.n_fg_class in [None, 20]
+            valid = valid and self.anchor_scales == (8, 16, 32)
+        elif self.pretrained_model.startswith('coco'):
+            valid = self.n_fg_class in [None, 80]
+            valid = valid and self.anchor_scales == (4, 8, 16, 32)
 
         if valid:
             FCISResNet101(**kwargs)
