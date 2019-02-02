@@ -10,7 +10,28 @@ except ImportError:
     _cv2_available = False
 
 
-def _read_image_cv2(path, dtype, color):
+def _handle_four_channel_image(img, alpha):
+    if alpha is None:
+        raise ValueError(
+            'An RGBA image is read by chainercv.utils.read_image, '
+            'but the `alphe` option is not set. Please set the option so that '
+            'the function knows how to handle RGBA images.'
+        )
+    elif alpha == 'ignore':
+        img = img[:, :, :3]
+    elif alpha == 'blend_with_white':
+        color_channel = img[:, :, :3]
+        alpha_channel = img[:, :, 3:] / 255
+        img = (color_channel * alpha_channel +
+               255 * np.ones_like(color_channel) * (1 - alpha_channel))
+    elif alpha == 'blend_with_black':
+        color_channel = img[:, :, :3]
+        alpha_channel = img[:, :, 3:] / 255
+        img = color_channel * alpha_channel
+    return img
+
+
+def _read_image_cv2(path, dtype, color, alpha):
     if color:
         color_option = cv2.IMREAD_COLOR
     else:
@@ -24,22 +45,25 @@ def _read_image_cv2(path, dtype, color):
     else:
         # alpha channel is included
         if img.shape[-1] == 4:
-            bgr = img[:, :, :3]
-            alpha = img[:, :, 3:] / 255
-            img = bgr * alpha + 255 * np.ones_like(bgr) * (1 - alpha)
+            img = _handle_four_channel_image(img, alpha)
         img = img[:, :, ::-1]  # BGR -> RGB
         img = img.transpose((2, 0, 1))  # HWC -> CHW
     return img.astype(dtype)
 
 
-def _read_image_pil(path, dtype, color):
+def _read_image_pil(path, dtype, color, alpha):
     f = Image.open(path)
     try:
         if color:
-            img = f.convert('RGB')
+            if f.mode == 'RGBA':
+                img = f.convert('RGBA')
+            else:
+                img = f.convert('RGB')
         else:
             img = f.convert('P')
         img = np.asarray(img, dtype=dtype)
+        if img.shape[-1] == 4:
+            img = _handle_four_channel_image(img, alpha)
     finally:
         if hasattr(f, 'close'):
             f.close()
@@ -52,7 +76,7 @@ def _read_image_pil(path, dtype, color):
         return img.transpose((2, 0, 1))
 
 
-def read_image(path, dtype=np.float32, color=True):
+def read_image(path, dtype=np.float32, color=True, alpha=None):
     """Read an image from a file.
 
     This function reads an image from given file. The image is CHW format and
@@ -70,13 +94,22 @@ def read_image(path, dtype=np.float32, color=True):
             If :obj:`True`, the number of channels is three. In this case,
             the order of the channels is RGB. This is the default behaviour.
             If :obj:`False`, this function returns a grayscale image.
+        alpha (None or {'ignore', 'blend_with_white', 'blend_with_black'}): Choose
+           how RGBA images are handled. By default, an error is raised.
+           Here are the other possible behaviors:
+
+           * `'ignore'`: Ignore alpha channel.
+           * `'blend_with_white'`: Blend RGB image multiplied by alpha on \
+                a white image.
+           * `'blend_with_black'`: Blend RGB image multiplied by alpha on \
+                a black image.
 
     Returns:
         ~numpy.ndarray: An image.
     """
     if chainer.config.cv_read_image_backend == 'cv2':
         if _cv2_available:
-            return _read_image_cv2(path, dtype, color)
+            return _read_image_cv2(path, dtype, color, alpha)
         else:
             warnings.warn(
                 'Although `chainer.config.cv_read_image_backend == "cv2"`, '
@@ -86,7 +119,7 @@ def read_image(path, dtype=np.float32, color=True):
                 'this warning.')
             return _read_image_pil(path, dtype, color)
     elif chainer.config.cv_read_image_backend == 'PIL':
-        return _read_image_pil(path, dtype, color)
+        return _read_image_pil(path, dtype, color, alpha)
     else:
         raise ValueError('chainer.config.cv_read_image_backend should be '
                          'either "cv2" or "PIL".')
