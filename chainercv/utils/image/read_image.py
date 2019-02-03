@@ -123,7 +123,7 @@ def read_image(path, dtype=np.float32, color=True, alpha=None):
                 'PIL. Either install cv2 or set '
                 '`chainer.config.cv_read_image_backend = "PIL" to suppress '
                 'this warning.')
-            return _read_image_pil(path, dtype, color)
+            return _read_image_pil(path, dtype, color, alpha)
     elif chainer.config.cv_read_image_backend == 'PIL':
         return _read_image_pil(path, dtype, color, alpha)
     else:
