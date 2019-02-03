@@ -85,12 +85,14 @@ class TestReadImage(unittest.TestCase):
                 np.broadcast_to(self.img, (3,) + self.size).astype(self.dtype))
 
     def test_read_image_as_grayscale(self):
-        img = read_image(self.path, dtype=self.dtype, color=False, alpha=self.alpha)
+        img = read_image(
+            self.path, dtype=self.dtype, color=False, alpha=self.alpha)
 
         self.assertEqual(img.shape, (1,) + self.size)
         self.assertEqual(img.dtype, self.dtype)
 
-        if self.suffix in {'bmp', 'png'} and not self.color and self.alpha is None:
+        if (self.suffix in {'bmp', 'png'}
+                and not self.color and self.alpha is None):
             np.testing.assert_equal(img, self.img.astype(self.dtype))
 
     def test_read_image_mutable(self):
@@ -123,10 +125,12 @@ class TestReadImageDifferentBackends(unittest.TestCase):
     @unittest.skipUnless(_cv2_available, 'cv2 is not installed')
     def test_read_image_different_backends_as_color(self):
         chainer.config.cv_read_image_backend = 'cv2'
-        cv2_img = read_image(self.path, dtype=self.dtype, color=self.color, alpha=self.alpha)
+        cv2_img = read_image(
+            self.path, dtype=self.dtype, color=self.color, alpha=self.alpha)
 
         chainer.config.cv_read_image_backend = 'PIL'
-        pil_img = read_image(self.path, dtype=self.dtype, color=self.color, alpha=self.alpha)
+        pil_img = read_image(
+            self.path, dtype=self.dtype, color=self.color, alpha=self.alpha)
 
         if self.suffix != 'jpg':
             if self.dtype == np.float32 and self.alpha is not None:
