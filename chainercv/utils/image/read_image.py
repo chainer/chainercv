@@ -38,8 +38,8 @@ def _read_image_cv2(path, dtype, color, alpha):
         if alpha is None:
             color_option = cv2.IMREAD_COLOR
         else:
-            # images with alpha channel are read as (H, W, 4) by cv2.imread.
-            # For those without alpha channel are read as (H, W, 3).
+            # Images with alpha channel are read as (H, W, 4) by cv2.imread.
+            # Images without alpha channel are read as (H, W, 3).
             color_option = cv2.IMREAD_UNCHANGED
     else:
         color_option = cv2.IMREAD_GRAYSCALE
