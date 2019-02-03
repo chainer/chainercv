@@ -210,6 +210,13 @@ class FCIS(chainer.Chain):
             self.binary_thresh = 0.4
             self.limit = 100
             self.min_drop_size = 16
+        elif preset == 'coco_evaluate':
+            self.nms_thresh = 0.3
+            self.score_thresh = 1e-3
+            self.mask_merge_thresh = 0.5
+            self.binary_thresh = 0.4
+            self.limit = 100
+            self.min_drop_size = 2
         else:
             raise ValueError('preset must be visualize or evaluate')
 
