@@ -9,13 +9,14 @@ from chainercv import utils
 
 def get_ade20k(root, url):
     data_root = download.get_dataset_directory(root)
+    if os.path.exists(os.path.join(data_root, 'ADEChallengeData2016')):
+        return data_root
     cache_path = utils.cached_download(url)
     utils.extractall(cache_path, data_root, os.path.splitext(url)[1])
     return data_root
 
 
 ade20k_semantic_segmentation_label_names = (
-    'other_objects',
     'wall',
     'edifice',
     'sky',
@@ -169,7 +170,6 @@ ade20k_semantic_segmentation_label_names = (
 )
 
 ade20k_semantic_segmentation_label_colors = (
-    (0, 0, 0),
     (120, 120, 120),
     (180, 120, 120),
     (6, 230, 230),

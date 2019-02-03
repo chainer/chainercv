@@ -90,7 +90,7 @@ def read_image(path, dtype=np.float32, color=True, alpha=None):
     order of the channels is RGB.
 
     The backend used by :func:`read_image` is configured by
-    :obj:`chainer.config.cv_read_image_backend`.
+    :obj:`chainer.global_config.cv_read_image_backend`.
     Two backends are supported: "cv2" and "PIL".
 
     Args:
@@ -121,8 +121,8 @@ def read_image(path, dtype=np.float32, color=True, alpha=None):
                 'Although `chainer.config.cv_read_image_backend == "cv2"`, '
                 'cv2 is not found. As a fallback option, read_image uses '
                 'PIL. Either install cv2 or set '
-                '`chainer.config.cv_read_image_backend = "PIL" to suppress '
-                'this warning.')
+                '`chainer.global_config.cv_read_image_backend = "PIL"` '
+                'to suppress this warning.')
             return _read_image_pil(path, dtype, color, alpha)
     elif chainer.config.cv_read_image_backend == 'PIL':
         return _read_image_pil(path, dtype, color, alpha)

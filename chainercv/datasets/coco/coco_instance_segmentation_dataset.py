@@ -23,25 +23,6 @@ class COCOInstanceSegmentationDataset(GetterDataset):
 
     .. _`MS COCO`: http://cocodataset.org/#home
 
-    When queried by an index, if :obj:`return_crowded == False`,
-    this dataset returns a corresponding
-    :obj:`img, bbox, mask, label, crowded, area`, a tuple of an image, bounding
-    boxes, masks, labels, crowdness indicators and areas of masks.
-    The parameters :obj:`return_crowded` and :obj:`return_area` decide
-    whether to return :obj:`crowded` and :obj:`area`.
-    :obj:`crowded` is a boolean array
-    that indicates whether bounding boxes are for crowd labeling.
-    When there are more than ten objects from the same category,
-    bounding boxes correspond to crowd of instances instead of individual
-    instances. Please see more detail in the Fig. 12 (e) of the summary
-    paper [#]_.
-
-    .. [#] Tsung-Yi Lin, Michael Maire, Serge Belongie, Lubomir Bourdev, \
-        Ross Girshick, James Hays, Pietro Perona, Deva Ramanan, \
-        C. Lawrence Zitnick, Piotr Dollar.
-        `Microsoft COCO: Common Objects in Context \
-        <https://arxiv.org/abs/1405.0312>`_. arXiv 2014.
-
     Args:
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
@@ -51,13 +32,45 @@ class COCOInstanceSegmentationDataset(GetterDataset):
         year ({'2014', '2017'}): Use a dataset released in :obj:`year`.
             Splits :obj:`minival` and :obj:`valminusminival` are only
             supported in year :obj:`2014`.
-        use_crowded (bool): If true, use bounding boxes that are labeled as
-            crowded in the original annotation.
+        use_crowded (bool): If true, use masks that are labeled as crowded in
+            the original annotation.
         return_crowded (bool): If true, this dataset returns a boolean array
-            that indicates whether bounding boxes are labeled as crowded
+            that indicates whether masks are labeled as crowded
             or not. The default value is :obj:`False`.
         return_area (bool): If true, this dataset returns areas of masks
             around objects.
+
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`mask` [#coco_mask_1]_, ":math:`(R, H, W)`", :obj:`bool`, --
+        :obj:`label` [#coco_mask_1]_, ":math:`(R,)`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
+        :obj:`area` [#coco_mask_1]_ [#coco_mask_2]_, ":math:`(R,)`", \
+        :obj:`float32`, --
+        :obj:`crowded` [#coco_mask_3]_, ":math:`(R,)`", :obj:`bool`, --
+
+    .. [#coco_mask_1] If :obj:`use_crowded = True`, :obj:`mask`, \
+        :obj:`label` and :obj:`area` contain crowded instances.
+    .. [#coco_mask_2] :obj:`area` is available \
+        if :obj:`return_area = True`.
+    .. [#coco_mask_3] :obj:`crowded` is available \
+        if :obj:`return_crowded = True`.
+
+    When there are more than ten objects from the same category,
+    masks correspond to crowd of instances instead of individual
+    instances. Please see more detail in the Fig. 12 (e) of the summary
+    paper [#]_.
+
+    .. [#] Tsung-Yi Lin, Michael Maire, Serge Belongie, Lubomir Bourdev, \
+        Ross Girshick, James Hays, Pietro Perona, Deva Ramanan, \
+        C. Lawrence Zitnick, Piotr Dollar.
+        `Microsoft COCO: Common Objects in Context \
+        <https://arxiv.org/abs/1405.0312>`_. arXiv 2014.
 
     """
 
@@ -85,7 +98,7 @@ class COCOInstanceSegmentationDataset(GetterDataset):
         else:
             img_split = 'train'
         if data_dir == 'auto':
-            data_dir = get_coco(split, img_split, year)
+            data_dir = get_coco(split, img_split, year, 'instances')
 
         self.img_root = os.path.join(
             data_dir, 'images', '{}{}'.format(img_split, year))

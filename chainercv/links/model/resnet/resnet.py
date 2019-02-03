@@ -55,10 +55,11 @@ class ResNet(PickableSequentialChain):
     loaded from weights distributed on the Internet.
     The list of pretrained models supported are as follows:
 
-    * :obj:`imagenet`: Loads weights trained with ImageNet and distributed \
+    * :obj:`imagenet`: Loads weights trained with ImageNet. \
+        When :obj:`arch=='he'`, the weights distributed \
         at `Model Zoo \
-        <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_.
-        This is only supported when :obj:`arch=='he'`.
+        <https://github.com/BVLC/caffe/wiki/Model-Zoo>`_ \
+        are used.
 
     Args:
         n_layer (int): The number of layers.
@@ -103,9 +104,33 @@ class ResNet(PickableSequentialChain):
 
     _models = {
         'fb': {
-            50: {},
-            101: {},
-            152: {}
+            50: {
+                'imagenet': {
+                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'overwritable': {'mean'},
+                    'url': 'https://chainercv-models.preferred.jp/'
+                    'resnet50_imagenet_trained_2018_11_26.npz',
+                    'cv2': True,
+                },
+            },
+            101: {
+                'imagenet': {
+                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'overwritable': {'mean'},
+                    'url': 'https://chainercv-models.preferred.jp/'
+                    'resnet101_imagenet_trained_2018_11_26.npz',
+                    'cv2': True,
+                },
+            },
+            152: {
+                'imagenet': {
+                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                    'overwritable': {'mean'},
+                    'url': 'https://chainercv-models.preferred.jp/'
+                    'resnet152_imagenet_trained_2018_11_26.npz',
+                    'cv2': True,
+                },
+            },
         },
         'he': {
             50: {
@@ -140,10 +165,6 @@ class ResNet(PickableSequentialChain):
                  pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}, arch='fb'):
         if arch == 'fb':
-            if pretrained_model == 'imagenet':
-                raise ValueError(
-                    'Pretrained weights for Facebook ResNet models '
-                    'are not supported. Please set arch to \'he\'.')
             stride_first = False
             conv1_no_bias = True
         elif arch == 'he':

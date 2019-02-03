@@ -44,7 +44,7 @@ def resize(img, size, interpolation=PIL.Image.BILINEAR):
     """Resize image to match the given shape.
 
     The backend used by :func:`resize` is configured by
-    :obj:`chainer.config.cv_resize_backend`.
+    :obj:`chainer.global_config.cv_resize_backend`.
     Two backends are supported: "cv2" and "PIL".
 
     Args:
@@ -69,8 +69,8 @@ def resize(img, size, interpolation=PIL.Image.BILINEAR):
                 'Although `chainer.config.cv_resize_backend == "cv2"`, '
                 'cv2 is not found. As a fallback option, resize uses '
                 'PIL. Either install cv2 or set '
-                '`chainer.config.cv_resize_backend = "PIL" to suppress '
-                'this warning.')
+                '`chainer.global_config.cv_resize_backend = "PIL"` to '
+                'suppress this warning.')
             return _resize_pil(img, size, interpolation)
     elif chainer.config.cv_resize_backend == 'PIL':
         return _resize_pil(img, size, interpolation)

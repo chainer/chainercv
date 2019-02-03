@@ -52,7 +52,7 @@ class SegNetBasic(chainer.Chain):
         'camvid': {
             'param': {'n_class': 11},
             'url': 'https://chainercv-models.preferred.jp/'
-            'segnet_camvid_trained_2017_05_28.npz'
+            'segnet_camvid_trained_2018_12_05.npz'
         }
     }
 
