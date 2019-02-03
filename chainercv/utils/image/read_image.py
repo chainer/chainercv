@@ -1,3 +1,5 @@
+from __future__ import division
+
 import chainer
 import numpy as np
 from PIL import Image
