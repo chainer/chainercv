@@ -36,6 +36,8 @@ def _read_image_cv2(path, dtype, color, alpha):
         if alpha is None:
             color_option = cv2.IMREAD_COLOR
         else:
+            # images with alpha channel are read as (H, W, 4) by cv2.imread.
+            # For those without alpha channel are read as (H, W, 3).
             color_option = cv2.IMREAD_UNCHANGED
     else:
         color_option = cv2.IMREAD_GRAYSCALE
@@ -66,7 +68,8 @@ def _read_image_pil(path, dtype, color, alpha):
             img = f.convert('P')
         img = np.asarray(img, dtype=dtype)
         if img.shape[-1] == 4:
-            img = _handle_four_channel_image(img, alpha)
+            img = _handle_four_channel_image(
+                img, alpha).astype(dtype, copy=False)
     finally:
         if hasattr(f, 'close'):
             f.close()
