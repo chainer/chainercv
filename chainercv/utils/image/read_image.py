@@ -100,15 +100,15 @@ def read_image(path, dtype=np.float32, color=True, alpha=None):
             If :obj:`True`, the number of channels is three. In this case,
             the order of the channels is RGB. This is the default behaviour.
             If :obj:`False`, this function returns a grayscale image.
-        alpha (None or {'ignore', 'blend_with_white', 'blend_with_black'}): Choose
-           how RGBA images are handled. By default, an error is raised.
-           Here are the other possible behaviors:
+        alpha (None or {'ignore', 'blend_with_white', 'blend_with_black'}): \
+            Choose how RGBA images are handled. By default, an error is raised.
+            Here are the other possible behaviors:
 
-           * `'ignore'`: Ignore alpha channel.
-           * `'blend_with_white'`: Blend RGB image multiplied by alpha on \
-                a white image.
-           * `'blend_with_black'`: Blend RGB image multiplied by alpha on \
-                a black image.
+            * `'ignore'`: Ignore alpha channel.
+            * `'blend_with_white'`: Blend RGB image multiplied by alpha on \
+                 a white image.
+            * `'blend_with_black'`: Blend RGB image multiplied by alpha on \
+                 a black image.
 
     Returns:
         ~numpy.ndarray: An image.
