@@ -129,7 +129,7 @@ class TestReadImageDifferentBackends(unittest.TestCase):
         pil_img = read_image(self.path, dtype=self.dtype, color=self.color, alpha=self.alpha)
 
         if self.suffix != 'jpg':
-            if self.dtype == np.float32:
+            if self.dtype == np.float32 and self.alpha is not None:
                 np.testing.assert_almost_equal(cv2_img, pil_img, decimal=4)
             else:
                 np.testing.assert_equal(cv2_img, pil_img)
