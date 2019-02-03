@@ -33,7 +33,10 @@ def _handle_four_channel_image(img, alpha):
 
 def _read_image_cv2(path, dtype, color, alpha):
     if color:
-        color_option = cv2.IMREAD_COLOR
+        if alpha is None:
+            color_option = cv2.IMREAD_COLOR
+        else:
+            color_option = cv2.IMREAD_UNCHANGED
     else:
         color_option = cv2.IMREAD_GRAYSCALE
 
