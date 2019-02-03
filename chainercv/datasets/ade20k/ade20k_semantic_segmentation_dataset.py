@@ -6,6 +6,7 @@ import numpy as np
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.ade20k.ade20k_utils import get_ade20k
 from chainercv.utils import read_image
+from chainercv.utils import read_label
 
 root = 'pfnet/chainercv/ade20k'
 url = 'http://data.csail.mit.edu/places/ADEchallenge/ADEChallengeData2016.zip'
@@ -72,5 +73,4 @@ class ADE20KSemanticSegmentationDataset(GetterDataset):
         return read_image(self.img_paths[i])
 
     def _get_label(self, i):
-        return read_image(
-            self.label_paths[i], dtype=np.int32, color=False)[0]
+        return read_label(self.label_paths[i], dtype=np.int32)
