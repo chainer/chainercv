@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 
 
-def read_label(path, dtype=np.uint8):
+def read_label(path, dtype=np.int32):
     """Read a label image from a file.
 
     This function reads an label image from given file. If reading label
@@ -11,7 +11,7 @@ def read_label(path, dtype=np.uint8):
 
     Args:
         path (string): A path of image file.
-        dtype: The type of array. The default value is :obj:`~numpy.uint8`.
+        dtype: The type of array. The default value is :obj:`~numpy.int32`.
         color (bool): This option determines the number of channels.
             If :obj:`True`, the number of channels is three. In this case,
             the order of the channels is RGB. This is the default behaviour.

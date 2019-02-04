@@ -11,7 +11,7 @@ from chainercv.utils import write_image
 @testing.parameterize(*testing.product({
     'size': [(48, 32)],
     'suffix': ['bmp', 'jpg', 'png'],
-    'dtype': [np.float32, np.uint8, bool],
+    'dtype': [np.float32, np.uint8, np.int32, bool],
 }))
 class TestReadLabel(unittest.TestCase):
 
@@ -25,7 +25,7 @@ class TestReadLabel(unittest.TestCase):
         write_image(self.img[np.newaxis], self.path)
 
     def test_read_label(self):
-        if self.dtype == np.uint8:
+        if self.dtype == np.int32:
             img = read_label(self.path)
         else:
             img = read_label(self.path, dtype=self.dtype)
