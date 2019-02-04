@@ -297,7 +297,7 @@ def head_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
     """Loss function for Head (post).
 
      Args:
-         locs (array): An array whose shape is :math:`(R, n\_class,  4)`,
+         locs (array): An array whose shape is :math:`(R, n\_class, 4)`,
              where :math:`R` is the total number of RoIs in the given batch.
          confs (array): An iterable of arrays whose shape is
              :math:`(R, n\_class)`.

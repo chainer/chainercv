@@ -8,6 +8,8 @@ from chainer import testing
 from chainer.testing import attr
 
 from chainercv.links.model.fpn import Head
+from chainercv.links.model.fpn import head_loss_post
+from chainercv.links.model.fpn import head_loss_pre
 
 
 def _random_array(xp, shape):
@@ -127,6 +129,97 @@ class TestHead(unittest.TestCase):
             self.assertEqual(bboxes[n].shape[1:], (4,))
             self.assertEqual(labels[n].shape[1:], (1,))
             self.assertEqual(scores[n].shape[1:], (1,))
+
+
+class TestHeadLoss(unittest.TestCase):
+
+    def _check_head_loss_pre(self, xp):
+        rois = [
+            xp.array(((4, 1, 6, 3),), dtype=np.float32),
+            xp.array(
+                ((0, 1, 2, 3), (5, 4, 10, 6)), dtype=np.float32),
+            xp.array(((10, 4, 12, 10),), dtype=np.float32),
+        ]
+        roi_indices = [
+            xp.array((0,), dtype=np.int32),
+            xp.array((1, 0), dtype=np.int32),
+            xp.array((1,), dtype=np.int32),
+        ]
+
+        bboxes = [
+            xp.array(((2, 4, 6, 7), (1, 12, 3, 30)), dtype=np.float32),
+            xp.array(((10, 2, 12, 12),), dtype=np.float32),
+        ]
+        labels = [
+            xp.array((10, 4), dtype=np.float32),
+            xp.array((1,), dtype=np.float32),
+        ]
+        rois, roi_indices, gt_locs, gt_labels = head_loss_pre(
+            rois, roi_indices,  (0.1, 0.2), bboxes, labels)
+
+        self.assertEqual(len(rois), 3)
+        self.assertEqual(len(roi_indices), 3)
+        self.assertEqual(len(gt_locs), 3)
+        self.assertEqual(len(gt_labels), 3)
+        for l in range(3):
+            self.assertIsInstance(rois[l], xp.ndarray)
+            self.assertIsInstance(roi_indices[l], xp.ndarray)
+            self.assertIsInstance(gt_locs[l], xp.ndarray)
+            self.assertIsInstance(gt_labels[l], xp.ndarray)
+
+            self.assertEqual(rois[l].shape[0], roi_indices[l].shape[0])
+            self.assertEqual(rois[l].shape[0], gt_locs[l].shape[0])
+            self.assertEqual(rois[l].shape[0], gt_labels[l].shape[0])
+            self.assertEqual(rois[l].shape[1:], (4,))
+            self.assertEqual(roi_indices[l].shape[1:], ())
+            self.assertEqual(gt_locs[l].shape[1:], (4,))
+            self.assertEqual(gt_labels[l].shape[1:], ())
+
+    def test_head_loss_pre_cpu(self):
+        self._check_head_loss_pre(np)
+
+    @attr.gpu
+    def test_head_loss_pre_gpu(self):
+        import cupy
+        self._check_head_loss_pre(cupy)
+
+    def _check_head_loss_post(self, xp):
+        locs = chainer.Variable(_random_array(xp, (20, 81, 4)))
+        confs = chainer.Variable(_random_array(xp, (20, 81)))
+        roi_indices = [
+            xp.random.randint(0, 2, size=5).astype(np.int32),
+            xp.random.randint(0, 2, size=7).astype(np.int32),
+            xp.random.randint(0, 2, size=8).astype(np.int32),
+        ]
+        gt_locs = [
+            _random_array(xp, (5, 4)),
+            _random_array(xp, (7, 4)),
+            _random_array(xp, (8, 4)),
+        ]
+        gt_labels = [
+            xp.random.randint(0, 80, size=5).astype(np.int32),
+            xp.random.randint(0, 80, size=7).astype(np.int32),
+            xp.random.randint(0, 80, size=8).astype(np.int32),
+        ]
+
+        loc_loss, conf_loss = head_loss_post(
+            locs, confs, roi_indices, gt_locs, gt_labels, 2)
+
+        self.assertIsInstance(loc_loss, chainer.Variable)
+        self.assertIsInstance(loc_loss.array, xp.ndarray)
+        self.assertEqual(loc_loss.shape, ())
+
+        self.assertIsInstance(conf_loss, chainer.Variable)
+        self.assertIsInstance(conf_loss.array, xp.ndarray)
+        self.assertEqual(conf_loss.shape, ())
+
+    def test_head_loss_post_cpu(self):
+        self._check_head_loss_post(np)
+
+    @attr.gpu
+    def test_head_loss_post_gpu(self):
+        import cupy
+        self._check_head_loss_post(cupy)
 
 
 testing.run_module(__name__, __file__)
