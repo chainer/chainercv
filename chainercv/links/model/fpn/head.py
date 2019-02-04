@@ -301,10 +301,12 @@ def head_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
              where :math:`R` is the total number of RoIs in the given batch.
          confs (array): An iterable of arrays whose shape is
              :math:`(R, n\_class)`.
+         roi_indices (list of arrays): A list of arrays returned by
+             :func:`head_locs_pre`.
          gt_locs (list of arrays): A list of arrays returned by
-             :func:`head_locs_pre`
+             :func:`head_locs_pre`.
          gt_labels (list of arrays): A list of arrays returned by
-             :func:`head_locs_pre`
+             :func:`head_locs_pre`.
          batchsize (int): The size of batch.
 
      Returns:
