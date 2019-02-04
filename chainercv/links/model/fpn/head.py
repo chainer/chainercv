@@ -116,10 +116,9 @@ class Head(chainer.Chain):
                 of RoIs in the :math:`l`-th feature map.
             roi_indices (iterable of arrays): An iterable of arrays of
                 shape :math:`(R_l,)`.
-            locs (iterable of arrays): An iterable of arrays whose shape is
-                :math:`(R_l, 4)`.
-            confs (iterable of arrays): An iterable of arrays whose shape is
-                :math:`(R'_l, n\_class)`.
+            locs (array): An array whose shape is :math:`(R, n\_class, 4)`,
+                where :math:`R` is the total number of RoIs in the given batch.
+            confs (array): An array whose shape is :math:`(R, n\_class)`.
             scales (list of floats): A list of floats returned
                 by :meth:`~chainercv.links.model.fpn.faster_rcnn.prepare`
             sizes (list of tuples of two ints): A list of
@@ -133,16 +132,17 @@ class Head(chainer.Chain):
             tuple of three list of arrays:
             :obj:`bboxes`, :obj:`labels` and :obj:`scores`.
 
-           * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
-               where :math:`R` is the number of bounding boxes in a image. \
+           * **bboxes**: A list of float arrays of shape :math:`(R'_n, 4)`, \
+               where :math:`R'_n` is the number of bounding boxes in \
+               the :math:`n`-th image.
                Each bounding box is organized by \
                :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
                in the second axis.
-           * **labels** : A list of integer arrays of shape :math:`(R,)`. \
+           * **labels** : A list of integer arrays of shape :math:`(R'_n,)`. \
                Each value indicates the class of the bounding box. \
                Values are in range :math:`[0, L - 1]`, where :math:`L` is the \
                number of the foreground classes.
-           * **scores** : A list of float arrays of shape :math:`(R,)`. \
+           * **scores** : A list of float arrays of shape :math:`(R'_n,)`. \
                Each value indicates how confident the prediction is.
         """
 
@@ -297,11 +297,10 @@ def head_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
     """Loss function for Head (post).
 
      Args:
-         locs (iterable of arrays): An iterable of arrays whose shape is
-             :math:`(R'_l, 4)`, where :math:`R'_l` is the number of
-             the anchor boxes of the :math:`l`-th level.
-         confs (iterable of arrays): An iterable of arrays whose shape is
-             :math:`(R'_l, n\_class)`.
+         locs (array): An array whose shape is :math:`(R, n\_class,  4)`,
+             where :math:`R` is the total number of RoIs in the given batch.
+         confs (array): An iterable of arrays whose shape is
+             :math:`(R, n\_class)`.
          gt_locs (list of arrays): A list of arrays returned by
              :func:`head_locs_pre`
          gt_labels (list of arrays): A list of arrays returned by
