@@ -156,5 +156,6 @@ class PickableSequentialChain(chainer.Chain):
         copied = super(PickableSequentialChain, self).copy(*args, **kargs)
         copied.layer_names = copy.copy(self.layer_names)
         copied._pick = copy.copy(self._pick)
+        copied._return_tuple = copy.copy(self._return_tuple)
 
         return copied
