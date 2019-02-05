@@ -113,8 +113,9 @@ class TestHead(unittest.TestCase):
 
         bboxes, labels, scores = self.link.decode(
             rois, roi_indices,
+            locs, confs,
             (0.4, 0.2), ((100, 100), (200, 200)),
-            locs, confs, 0.5, 0.1)
+            0.5, 0.1)
 
         self.assertEqual(len(bboxes), 2)
         self.assertEqual(len(labels), 2)
@@ -127,8 +128,16 @@ class TestHead(unittest.TestCase):
             self.assertEqual(bboxes[n].shape[0], labels[n].shape[0])
             self.assertEqual(bboxes[n].shape[0], scores[n].shape[0])
             self.assertEqual(bboxes[n].shape[1:], (4,))
-            self.assertEqual(labels[n].shape[1:], (1,))
-            self.assertEqual(scores[n].shape[1:], (1,))
+            self.assertEqual(labels[n].shape[1:], ())
+            self.assertEqual(scores[n].shape[1:], ())
+
+    def test_decode_cpu(self):
+        self._check_decode()
+
+    @attr.gpu
+    def test_decode_gpu(self):
+        self.link.to_gpu()
+        self._check_decode()
 
 
 class TestHeadLoss(unittest.TestCase):
