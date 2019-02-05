@@ -43,6 +43,22 @@ class RPN(chainer.Chain):
         self._scales = scales
 
     def __call__(self, hs):
+        """Calculates RoIs.
+
+        Args:
+            hs (iterable of array): An iterable of feature maps.
+
+        Returns:
+            tuple of two arrays:
+            :obj:`locs` and :obj:`confs`.
+
+            * **locs**: A list of arrays whose shape is \
+                :math:`(N, K_l, 4)`, where :math:`N` is the size of batch and \
+                :math:`K_l` is the number of the anchor boxes \
+                of the :math:`l`-th level.
+            " **confs**: A list of array whose shape is :math:`(N, K_l)`.
+        """
+
         locs = []
         confs = []
         for h in hs:

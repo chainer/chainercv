@@ -35,11 +35,13 @@ Head
 ~~~~
 .. autoclass:: Head
    :members:
+   :special-members:  __call__
 
 RPN
 ~~~~
 .. autoclass:: RPN
    :members:
+   :special-members:  __call__
 
 Train-only Utility
 ------------------

@@ -45,6 +45,26 @@ class Head(chainer.Chain):
         self._scales = scales
 
     def __call__(self, hs, rois, roi_indices):
+        """Calculates RoIs.
+
+        Args:
+            hs (iterable of array): An iterable of feature maps.
+            rois (list of arrays): A list of arrays of shape: math: `(R_l, 4)`,
+                where: math: `R_l` is the number of RoIs in the: math: `l`- th
+                feature map.
+            roi_indices (list of arrays): A list of arrays of
+                shape :math:`(R_l,)`.
+
+        Returns:
+            tuple of two arrays:
+            :obj:`locs` and :obj:`confs`.
+
+            * **locs**: An arrays whose shape is \
+                :math:`(R, n\_class, 4)`, where :math:`R` is the total number \
+                of RoIs in the batch.
+            " **confs**: A list of array whose shape is :math:`(R, n\_class)`.
+        """
+
         hs_ = []
         for l, h in enumerate(hs):
             if len(rois[l]) == 0:
