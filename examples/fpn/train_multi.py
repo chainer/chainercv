@@ -97,6 +97,8 @@ def main():
         choices=('faster_rcnn_fpn_resnet50', 'faster_rcnn_fpn_resnet101'),
         default='faster_rcnn_fpn_resnet50')
     parser.add_argument('--batchsize', type=int, default=16)
+    parser.add_argument('--iteration', type=int, default=90000)
+    parser.add_argument('--step', type=int, nargs='*', default=[60000, 80000])
     parser.add_argument('--out', default='result')
     parser.add_argument('--resume')
     args = parser.parse_args()
@@ -144,7 +146,7 @@ def main():
     updater = training.updaters.StandardUpdater(
         train_iter, optimizer, converter=converter, device=device)
     trainer = training.Trainer(
-        updater, (90000 * 16 / args.batchsize, 'iteration'), args.out)
+        updater, (args.iteration * 16 / args.batchsize, 'iteration'), args.out)
 
     @make_shift('lr')
     def lr_schedule(trainer):
@@ -156,12 +158,11 @@ def main():
         if iteration < warm_up_duration:
             rate = warm_up_rate \
                 + (1 - warm_up_rate) * iteration / warm_up_duration
-        elif iteration < 60000 * 16 / args.batchsize:
-            rate = 1
-        elif iteration < 80000 * 16 / args.batchsize:
-            rate = 0.1
         else:
-            rate = 0.01
+            rate = 1
+            for step in args.step:
+                if iteration >= step * 16 / args.batchsize:
+                    rate *= 0.1
 
         return base_lr * rate
 
