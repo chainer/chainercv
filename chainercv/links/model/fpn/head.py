@@ -154,7 +154,7 @@ class Head(chainer.Chain):
 
            * **bboxes**: A list of float arrays of shape :math:`(R'_n, 4)`, \
                where :math:`R'_n` is the number of bounding boxes in \
-               the :math:`n`-th image.
+               the :math:`n`-th image. \
                Each bounding box is organized by \
                :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
                in the second axis.
