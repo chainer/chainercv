@@ -12,7 +12,7 @@ class FPN(chainer.Chain):
 
     Args:
         base (Link): A base feature extractor.
-            It should have :meth:`__call__` and :obj:'mean'.
+            It should have :meth:`__call__` and :obj:`mean`.
             :meth:`__call__` should take a batch of images and return
             feature maps of them. The size of the :math:`k+1`-th feature map
             should be the half as that of the :math:`k`-th feature map.
