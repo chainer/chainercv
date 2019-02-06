@@ -20,6 +20,13 @@ from chainercv.links.model.ssd import GradientScaling
 from chainercv import transforms
 from chainercv.utils.mask.mask_to_bbox import mask_to_bbox
 
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+try:
+    import cv2
+    cv2.setNumThreads(0)
+except ImportError:
+    pass
+
 
 def concat_examples(batch, device=None):
     # batch: img, mask, label, scale

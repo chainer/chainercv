@@ -1,6 +1,7 @@
 from __future__ import division
 
 import argparse
+import multiprocessing
 import numpy as np
 
 import chainer
@@ -26,6 +27,14 @@ from train_sbd import concat_examples
 from train_sbd import Transform
 
 
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+try:
+    import cv2
+    cv2.setNumThreads(0)
+except ImportError:
+    pass
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='ChainerCV training example: FCIS')
@@ -39,6 +48,13 @@ def main():
     parser.add_argument('--epoch', '-e', type=int, default=18)
     parser.add_argument('--cooldown-epoch', '-ce', type=int, default=12)
     args = parser.parse_args()
+
+    # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
+    if hasattr(multiprocessing, 'set_start_method'):
+        multiprocessing.set_start_method('forkserver')
+        p = multiprocessing.Process()
+        p.start()
+        p.join()
 
     # chainermn
     comm = chainermn.create_communicator()

@@ -1,6 +1,7 @@
 from __future__ import division
 
 import argparse
+import multiprocessing
 import numpy as np
 
 import chainer
@@ -23,6 +24,13 @@ from chainercv import transforms
 from chainercv.links.model.fpn import head_loss_post
 from chainercv.links.model.fpn import head_loss_pre
 from chainercv.links.model.fpn import rpn_loss
+
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+try:
+    import cv2
+    cv2.setNumThreads(0)
+except ImportError:
+    pass
 
 
 class TrainChain(chainer.Chain):
@@ -102,6 +110,13 @@ def main():
     parser.add_argument('--out', default='result')
     parser.add_argument('--resume')
     args = parser.parse_args()
+
+    # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
+    if hasattr(multiprocessing, 'set_start_method'):
+        multiprocessing.set_start_method('forkserver')
+        p = multiprocessing.Process()
+        p.start()
+        p.join()
 
     comm = chainermn.create_communicator()
     device = comm.intra_rank

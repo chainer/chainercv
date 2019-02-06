@@ -29,6 +29,13 @@ import PIL
 
 import chainermn
 
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+try:
+    import cv2
+    cv2.setNumThreads(0)
+except ImportError:
+    pass
+
 
 def create_mnbn_model(link, comm):
     """Returns a copy of a model with BN replaced by Multi-node BN."""
@@ -182,11 +189,12 @@ def main():
     }
     dataset_cfg = dataset_cfgs[args.dataset]
 
-    # This fixes a crash caused by a bug with multiprocessing and MPI.
-    multiprocessing.set_start_method('forkserver')
-    p = multiprocessing.Process()
-    p.start()
-    p.join()
+    # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
+    if hasattr(multiprocessing, 'set_start_method'):
+        multiprocessing.set_start_method('forkserver')
+        p = multiprocessing.Process()
+        p.start()
+        p.join()
 
     comm = chainermn.create_communicator(args.communicator)
     device = comm.intra_rank

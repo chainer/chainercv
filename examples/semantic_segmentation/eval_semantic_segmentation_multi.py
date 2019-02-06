@@ -1,6 +1,7 @@
 from __future__ import division
 
 import argparse
+import multiprocessing
 import numpy as np
 
 import chainer
@@ -26,6 +27,13 @@ def main():
     parser.add_argument('--pretrained-model')
     parser.add_argument('--input-size', type=int, default=None)
     args = parser.parse_args()
+
+    # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
+    if hasattr(multiprocessing, 'set_start_method'):
+        multiprocessing.set_start_method('forkserver')
+        p = multiprocessing.Process()
+        p.start()
+        p.join()
 
     comm = chainermn.create_communicator()
     device = comm.intra_rank
