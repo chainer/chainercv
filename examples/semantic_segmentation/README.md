@@ -18,15 +18,11 @@ The scores are mIoU.
 | PSPNet with ResNet101 (single scale) | 79.70 % [1] | 79.03 % |
 
 ```
-$ python eval_cityscapes.py [--model pspnet_resnet101] [--gpu <gpu>] [--pretrained-model <model_path>]
+$ python eval_semantic_segmentation.py --gpu <GPU> --dataset cityscapes --model pspnet_resnet101
+# with multiple GPUs
+$ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset cityscapes --model pspnet_resnet101
 ```
 
-You can conduct evaluation with multiple GPUs by `eval_cityscapes_multi.py`.
-Note that this script requires ChainerMN.
-
-```
-$ mpiexec -n <#gpu> python eval_cityscapes_multi.py [--model pspnet_resnet101] [--pretrained-model <model_path>]
-```
 
 ### CamVid
 
@@ -35,7 +31,7 @@ $ mpiexec -n <#gpu> python eval_cityscapes_multi.py [--model pspnet_resnet101] [
 | SegNet | 46.3 % [2] | 49.4 % |
 
 ```
-$ python eval_camvid.py [--gpu <gpu>] [--pretrained-model <model_path>] [--batchsize <batchsize>]
+$ python eval_semantic_segmentation.py --gpu <GPU> --dataset camvid --model segnet
 ```
 
 

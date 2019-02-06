@@ -53,7 +53,7 @@ $ python demo.py [--gpu <gpu>] [--pretrained-model <model_path>] 0001TP_008550.p
 | ChainerCV      | 82.7 %          | **67.1 %**     | **49.4 %** |
 | Official       | **82.8 %**      | 62.3%          | 46.3 %     |
 
-The evaluation can be conducted using [`chainercv/examples/semantic_segmentation/eval_cityscapes.py`](https://github.com/chainer/chainercv/blob/master/examples/semantic_segmentation).
+The evaluation can be conducted using [`chainercv/examples/semantic_segmentation/eval_semantic_segmentation.py`](https://github.com/chainer/chainercv/blob/master/examples/semantic_segmentation).
 
 
 # Reference

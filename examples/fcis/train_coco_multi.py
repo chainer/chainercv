@@ -9,16 +9,21 @@ from chainer.training.triggers import ManualScheduleTrigger
 import chainermn
 
 from chainercv.chainer_experimental.datasets.sliceable \
+    import ConcatenatedDataset
+from chainercv.chainer_experimental.datasets.sliceable \
     import TransformDataset
-from chainercv.datasets import sbd_instance_segmentation_label_names
-from chainercv.datasets import SBDInstanceSegmentationDataset
+from chainercv.chainer_experimental.training.extensions import make_shift
+from chainercv.datasets import coco_instance_segmentation_label_names
+from chainercv.datasets import COCOInstanceSegmentationDataset
 from chainercv.experimental.links import FCISResNet101
 from chainercv.experimental.links import FCISTrainChain
-from chainercv.extensions import InstanceSegmentationVOCEvaluator
+from chainercv.experimental.links.model.fcis.utils.proposal_target_creator \
+    import ProposalTargetCreator
+from chainercv.extensions import InstanceSegmentationCOCOEvaluator
 from chainercv.links.model.ssd import GradientScaling
 
-from train import concat_examples
-from train import Transform
+from train_sbd import concat_examples
+from train_sbd import Transform
 
 
 def main():
@@ -31,10 +36,8 @@ def main():
         '--lr', '-l', type=float, default=0.0005,
         help='Default value is for 1 GPU.\n'
              'The learning rate should be multiplied by the number of gpu')
-    parser.add_argument(
-        '--lr-cooldown-factor', '-lcf', type=float, default=0.1)
-    parser.add_argument('--epoch', '-e', type=int, default=42)
-    parser.add_argument('--cooldown-epoch', '-ce', type=int, default=28)
+    parser.add_argument('--epoch', '-e', type=int, default=18)
+    parser.add_argument('--cooldown-epoch', '-ce', type=int, default=12)
     args = parser.parse_args()
 
     # chainermn
@@ -44,17 +47,42 @@ def main():
     np.random.seed(args.seed)
 
     # model
+    proposal_creator_params = FCISResNet101.proposal_creator_params
+    proposal_creator_params['min_size'] = 2
     fcis = FCISResNet101(
-        n_fg_class=len(sbd_instance_segmentation_label_names),
-        pretrained_model='imagenet', iter2=False)
-    fcis.use_preset('evaluate')
-    model = FCISTrainChain(fcis)
+        n_fg_class=len(coco_instance_segmentation_label_names),
+        anchor_scales=(4, 8, 16, 32),
+        pretrained_model='imagenet', iter2=False,
+        proposal_creator_params=proposal_creator_params)
+    fcis.use_preset('coco_evaluate')
+    proposal_target_creator = ProposalTargetCreator()
+    proposal_target_creator.neg_iou_thresh_lo = 0.0
+    model = FCISTrainChain(
+        fcis, proposal_target_creator=proposal_target_creator)
+
     chainer.cuda.get_device_from_id(device).use()
     model.to_gpu()
 
-    # dataset
+    # train dataset
+    train_dataset = COCOInstanceSegmentationDataset(
+        year='2014', split='train')
+    vmml_dataset = COCOInstanceSegmentationDataset(
+        year='2014', split='valminusminival')
+
+    # filter non-annotated data
+    train_indices = np.array(
+        [i for i, label in enumerate(train_dataset.slice[:, ['label']])
+         if len(label[0]) > 0],
+        dtype=np.int32)
+    train_dataset = train_dataset.slice[train_indices]
+    vmml_indices = np.array(
+        [i for i, label in enumerate(vmml_dataset.slice[:, ['label']])
+         if len(label[0]) > 0],
+        dtype=np.int32)
+    vmml_dataset = vmml_dataset.slice[vmml_indices]
+
     train_dataset = TransformDataset(
-        SBDInstanceSegmentationDataset(split='train'),
+        ConcatenatedDataset(train_dataset, vmml_dataset),
         ('img', 'mask', 'label', 'bbox', 'scale'),
         Transform(model.fcis))
     if comm.rank == 0:
@@ -65,14 +93,19 @@ def main():
     train_dataset = train_dataset.slice[indices]
     train_iter = chainer.iterators.SerialIterator(train_dataset, batch_size=1)
 
+    # test dataset
     if comm.rank == 0:
-        test_dataset = SBDInstanceSegmentationDataset(split='val')
+        test_dataset = COCOInstanceSegmentationDataset(
+            year='2014', split='minival', use_crowded=True,
+            return_crowded=True, return_area=True)
+        indices = np.arange(len(test_dataset))
+        test_dataset = test_dataset.slice[indices]
         test_iter = chainer.iterators.SerialIterator(
             test_dataset, batch_size=1, repeat=False, shuffle=False)
 
     # optimizer
     optimizer = chainermn.create_multi_node_optimizer(
-        chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9),
+        chainer.optimizers.MomentumSGD(momentum=0.9),
         comm)
     optimizer.setup(model)
 
@@ -94,10 +127,21 @@ def main():
         updater, (args.epoch, 'epoch'), out=args.out)
 
     # lr scheduler
-    trainer.extend(
-        chainer.training.extensions.ExponentialShift(
-            'lr', args.lr_cooldown_factor, init=args.lr),
-        trigger=(args.cooldown_epoch, 'epoch'))
+    @make_shift('lr')
+    def lr_scheduler(trainer):
+        base_lr = args.lr
+
+        iteration = trainer.updater.iteration
+        epoch = trainer.updater.epoch
+        if (iteration * comm.size) < 2000:
+            rate = 0.1
+        elif epoch < args.cooldown_epoch:
+            rate = 1
+        else:
+            rate = 0.1
+        return rate * base_lr
+
+    trainer.extend(lr_scheduler)
 
     if comm.rank == 0:
         # interval
@@ -115,7 +159,7 @@ def main():
             trigger=log_interval)
         trainer.extend(
             extensions.LogReport(log_name='log.json', trigger=log_interval))
-        trainer.extend(extensions.PrintReport([
+        report_items = [
             'iteration', 'epoch', 'elapsed_time', 'lr',
             'main/loss',
             'main/rpn_loc_loss',
@@ -123,8 +167,10 @@ def main():
             'main/roi_loc_loss',
             'main/roi_cls_loss',
             'main/roi_mask_loss',
-            'validation/main/map',
-        ]), trigger=print_interval)
+            'validation/main/map/iou=0.50:0.95/area=all/max_dets=100',
+        ]
+        trainer.extend(
+            extensions.PrintReport(report_items), trigger=print_interval)
         trainer.extend(
             extensions.ProgressBar(update_interval=10))
 
@@ -136,10 +182,9 @@ def main():
                 trigger=plot_interval)
 
         trainer.extend(
-            InstanceSegmentationVOCEvaluator(
+            InstanceSegmentationCOCOEvaluator(
                 test_iter, model.fcis,
-                iou_thresh=0.5, use_07_metric=True,
-                label_names=sbd_instance_segmentation_label_names),
+                label_names=coco_instance_segmentation_label_names),
             trigger=ManualScheduleTrigger(
                 [len(train_dataset) * args.cooldown_epoch,
                  len(train_dataset) * args.epoch], 'iteration'))
