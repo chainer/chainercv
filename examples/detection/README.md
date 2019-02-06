@@ -2,6 +2,8 @@
 
 ## Supported models
 - Faster R-CNN
+- Faster R-CNN FPN ResNet50
+- Faster R-CNN FPN ResNet101
 - SSD300
 - SSD512
 - YOLOv2
