@@ -63,9 +63,7 @@ class VOCSemanticSegmentationDataset(GetterDataset):
     def _get_label(self, i):
         label_path = os.path.join(
             self.data_dir, 'SegmentationClass', self.ids[i] + '.png')
-        # TODO(yuyu2172): Find an option to load properly even with cv2.
-        with chainer.using_config('cv_read_image_backend', 'PIL'):
-            label = read_label(label_path, dtype=np.int32)
+        label = read_label(label_path, dtype=np.int32)
         label[label == 255] = -1
         # (1, H, W) -> (H, W)
         return label
