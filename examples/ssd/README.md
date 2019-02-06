@@ -39,7 +39,7 @@ For the details and workaround, please see [Chainer's Tips and FAQs](https://doc
 If you want to use multiple GPUs, use `train_multi.py`.
 Note that this code requires `chainermn` module.
 ```
-$ mpi4exec -n <#gpu> python train_multi.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--test-batchsize <batchsize>]
+$ mpiexec -n <#gpu> python train_multi.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--test-batchsize <batchsize>]
 ```
 
 You can download weights that were trained by ChainerCV.
