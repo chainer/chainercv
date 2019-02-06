@@ -1,8 +1,6 @@
 import numpy as np
 import os
 
-import chainer
-
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
