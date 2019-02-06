@@ -24,6 +24,13 @@ from chainercv.links.model.fpn import head_loss_post
 from chainercv.links.model.fpn import head_loss_pre
 from chainercv.links.model.fpn import rpn_loss
 
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+try:
+    import cv2
+    cv2.setNumThreads(0)
+except ImportError:
+    pass
+
 
 class TrainChain(chainer.Chain):
 

@@ -28,6 +28,13 @@ from chainercv.links import ResNet50
 
 import chainermn
 
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+try:
+    import cv2
+    cv2.setNumThreads(0)
+except ImportError:
+    pass
+
 
 class TrainTransform(object):
 

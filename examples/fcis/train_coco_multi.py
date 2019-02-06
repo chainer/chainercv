@@ -26,6 +26,14 @@ from train_sbd import concat_examples
 from train_sbd import Transform
 
 
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+try:
+    import cv2
+    cv2.setNumThreads(0)
+except ImportError:
+    pass
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='ChainerCV training example: FCIS')
