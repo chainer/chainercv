@@ -16,7 +16,7 @@ def _handle_four_channel_image(img, alpha):
     if alpha is None:
         raise ValueError(
             'An RGBA image is read by chainercv.utils.read_image, '
-            'but the `alphe` option is not set. Please set the option so that '
+            'but the `alpha` option is not set. Please set the option so that '
             'the function knows how to handle RGBA images.'
         )
     elif alpha == 'ignore':
