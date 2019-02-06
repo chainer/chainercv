@@ -208,7 +208,7 @@ def rpn_loss(locs, confs, anchors, sizes,  bboxes):
          sizes (list of tuples of two ints): A list of
              :math:`(H_n, W_n)`, where :math:`H_n` and :math:`W_n`
              are height and width of the :math:`n`-th image.
-         bboxes (list of arrays): A lisf of arrays whose shape is
+         bboxes (list of arrays): A list of arrays whose shape is
              :math:`(R_n, 4)`, where :math:`R_n` is the number of
              ground truth bounding boxes.
 

@@ -8,7 +8,7 @@ MS COCO 2017 Val
 | Faster-RCNN FPN ResNet50 | 36.7 % [2] | 37.1 % |
 | Faster-RCNN FPN ResNet101 | 39.4 % [2] | 39.5 % |
 
-Scores are mean of mean Average Precision (mmAP).
+Scores are the mean of mean Average Precision (mmAP).
 
 ## Demo
 Detect objects in an given image. This demo downloads MS COCO pretrained model automatically if a pretrained model path is not given.

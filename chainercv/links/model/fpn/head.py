@@ -70,7 +70,8 @@ class Head(chainer.Chain):
             if len(rois[l]) == 0:
                 continue
             h = F.roi_average_align_2d(
-                h, rois[l], roi_indices[l], self._roi_size, self._scales[l])
+                h, rois[l], roi_indices[l], self._roi_size,
+                self._scales[l], self._roi_sample_ratio)
             hs_.append(h)
         hs = hs_
 
@@ -222,14 +223,14 @@ def head_loss_pre(rois, roi_indices, std, bboxes, labels):
             shape :math:`(R_l,)`.
         std (tuple of floats): Two coefficients used for encoding
             bounding boxes.
-        bboxes (list of arrays): A lisf of arrays whose shape is
+        bboxes (list of arrays): A list of arrays whose shape is
             :math:`(R_n, 4)`, where :math:`R_n` is the number of
             ground truth bounding boxes.
-        labels (list of arrays): A lisf of arrays whose shape is
+        labels (list of arrays): A list of arrays whose shape is
             :math:`(R_n,)`.
 
      Returns:
-         tuple of four arrays:
+         tuple of four lists:
          :obj:`rois`, :obj:`roi_indices`, :obj:`gt_locs`, and :obj:`gt_labels`.
 
           * **rois**: A list of arrays of shape :math:`(R'_l, 4)`, \
