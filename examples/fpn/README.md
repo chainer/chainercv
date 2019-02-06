@@ -4,7 +4,7 @@
 MS COCO 2017 Val
 
 | Model | Original | ChainerCV |
-|:-:|:-:|:-:|:-:|
+|:-:|:-:|:-:|
 | Faster-RCNN FPN ResNet50 | 36.7 % [2] | 37.1 % |
 | Faster-RCNN FPN ResNet101 | 39.4 % [2] | 39.5 % |
 
