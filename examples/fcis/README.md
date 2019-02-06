@@ -29,7 +29,7 @@ If you want to use multiple GPUs, use `train_multi.py`.
 Note that this code requires `chainermn` module.
 
 ```bash
-mpi4exec -n <n_gpu> python train_multi.py --lr  <n_gpu>*0.0005
+mpiexec -n <n_gpu> python train_multi.py --lr  <n_gpu>*0.0005
 
 ```
 You can download weights that were trained by ChainerCV.
