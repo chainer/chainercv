@@ -64,6 +64,13 @@ def main():
     parser.add_argument('--resume')
     args = parser.parse_args()
 
+    # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
+    if hasattr(multiprocessing, 'set_start_method'):
+        multiprocessing.set_start_method('forkserver')
+        p = multiprocessing.Process()
+        p.start()
+        p.join()
+
     comm = chainermn.create_communicator()
     device = comm.intra_rank
 
@@ -96,9 +103,6 @@ def main():
     indices = chainermn.scatter_dataset(indices, comm, shuffle=True)
     train = train.slice[indices]
 
-    # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
-    if hasattr(multiprocessing, 'set_start_method'):
-        multiprocessing.set_start_method('forkserver')
     train_iter = chainer.iterators.MultiprocessIterator(
         train, args.batchsize // comm.size, n_processes=2)
 

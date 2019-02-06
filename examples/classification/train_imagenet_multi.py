@@ -91,11 +91,12 @@ def main():
     parser.add_argument('--epoch', type=int, default=90)
     args = parser.parse_args()
 
-    # This fixes a crash caused by a bug with multiprocessing and MPI.
-    multiprocessing.set_start_method('forkserver')
-    p = multiprocessing.Process()
-    p.start()
-    p.join()
+    # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
+    if hasattr(multiprocessing, 'set_start_method'):
+        multiprocessing.set_start_method('forkserver')
+        p = multiprocessing.Process()
+        p.start()
+        p.join()
 
     comm = chainermn.create_communicator(args.communicator)
     device = comm.intra_rank

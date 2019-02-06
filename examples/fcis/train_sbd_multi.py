@@ -1,6 +1,7 @@
 from __future__ import division
 
 import argparse
+import multiprocessing
 import numpy as np
 
 import chainer
@@ -43,6 +44,13 @@ def main():
     parser.add_argument('--epoch', '-e', type=int, default=42)
     parser.add_argument('--cooldown-epoch', '-ce', type=int, default=28)
     args = parser.parse_args()
+
+    # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
+    if hasattr(multiprocessing, 'set_start_method'):
+        multiprocessing.set_start_method('forkserver')
+        p = multiprocessing.Process()
+        p.start()
+        p.join()
 
     # chainermn
     comm = chainermn.create_communicator()
