@@ -87,10 +87,8 @@ class CUBDatasetBase(GetterDataset):
         return self.bbs[i]
 
     def _get_prob_map(self, i):
-        prob_map = utils.read_image(self.prob_map_paths[i],
-                                    dtype=np.uint8, color=False)
+        prob_map = utils.read_label(self.prob_map_paths[i], dtype=np.uint8)
         prob_map = prob_map.astype(np.float32) / 255  # [0, 255] -> [0, 1]
-        prob_map = prob_map[0]  # (1, H, W) --> (H, W)
         return prob_map
 
 

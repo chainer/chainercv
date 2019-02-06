@@ -9,6 +9,7 @@ from chainer.dataset import download
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv import utils
 from chainercv.utils import read_image
+from chainercv.utils import read_label
 
 
 root = 'pfnet/chainercv/camvid'
@@ -113,7 +114,7 @@ class CamVidDataset(GetterDataset):
 
     def _get_label(self, i):
         _, label_path = self.paths[i]
-        label = read_image(label_path, dtype=np.int32, color=False)[0]
+        label = read_label(label_path, dtype=np.int32)
         # Label id 11 is for unlabeled pixels.
         label[label == 11] = -1
         return label
