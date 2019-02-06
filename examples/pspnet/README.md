@@ -25,6 +25,9 @@ Scores are measured by mean Intersection over Union (mIoU).
 ## Training model
 
 The model can be trained with a script `train_mutli.py`.
+When `cv2` and `MultiprocessIterator` are used together, the process stucks in some situation.
+In that case, the problem can be solved by setting the configuration of multi-threaded methods ([detail](
+https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator)).
 
 ### Cityscapes
 
