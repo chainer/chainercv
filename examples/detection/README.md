@@ -29,6 +29,18 @@ You can reproduce these scores by the following command.
 $ python eval_voc07.py [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolo_v2_tiny|yolo_v3] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
 ```
 
+### MS COCO2017 Val
+
+| Model | Train dataset | FPS | mmAP |
+|:-:|:-:|:-:|:-:|
+| Faster R-CNN FPN ResNet50 | COCO2017 train | | 37.1 % |
+| Faster R-CNN FPN ResNet101 | COCO2017 train | | 39.5 % |
+
+You can reproduce these scores by the following command.
+```
+$ python eval_coco.py [--model faster_rcnn_fpn_resnet50|faster_rcnn_fpn_resnet101] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
+```
+
 ## Visualization of models
 
 ![Visualization of models](https://user-images.githubusercontent.com/3014172/40634581-bb01f52a-6330-11e8-8502-ba3dacd81dc8.png)
