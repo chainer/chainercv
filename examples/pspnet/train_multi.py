@@ -29,13 +29,6 @@ import PIL
 
 import chainermn
 
-try:
-    import cv2
-    # the function rotate has a bug with MultiprocessIterator
-    cv2.setNumThreads(0)
-except ImportError:
-    pass
-
 
 def create_mnbn_model(link, comm):
     """Returns a copy of a model with BN replaced by Multi-node BN."""

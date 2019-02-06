@@ -60,7 +60,7 @@ class TestReadImage(unittest.TestCase):
             np.testing.assert_equal(img, self.img.astype(self.dtype))
 
     def test_read_image_mutable(self):
-        img = read_image(self.path)
+        img = read_image(self.path, dtype=self.dtype, color=self.color)
         img[:] = 0
         np.testing.assert_equal(img, 0)
 
