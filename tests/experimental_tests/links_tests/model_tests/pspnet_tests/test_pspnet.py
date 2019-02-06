@@ -56,12 +56,12 @@ class TestPSPNetResNet(unittest.TestCase):
 def _create_paramters():
     params = testing.product({
         'model': [PSPNetResNet50],
-        'pretrained_model': ['imagenet'],
+        'pretrained_model': ['imagenet', 'cityscapes', 'ade20k'],
         'n_class': [None, 5],
     })
     params += testing.product({
         'model': [PSPNetResNet101],
-        'pretrained_model': ['imagenet', 'cityscapes'],
+        'pretrained_model': ['imagenet', 'cityscapes', 'ade20k'],
         'n_class': [None, 5, 19],
     })
     return params
