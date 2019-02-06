@@ -131,6 +131,9 @@ class PSPNet(chainer.Chain):
             * :obj:`'cityscapes'`: Load weights trained on the train split of \
                 Cityscapes dataset. \
                 :obj:`n_class` must be :obj:`19` or :obj:`None`.
+            * :obj:`'ade20k'`: Load weights trained on the train split of \
+                ADE20K dataset. \
+                :obj:`n_class` must be :obj:`150` or :obj:`None`.
             * :obj:`'imagenet'`: Load ImageNet pretrained weights for \
                 the extractor.
             * `filepath`: A path of npz file. In this case, :obj:`n_class` \
