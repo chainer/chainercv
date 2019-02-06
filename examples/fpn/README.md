@@ -23,7 +23,7 @@ The evaluation can be conducted using [`chainercv/examples/detection/eval_coco.p
 You can train the model with the following code.
 Note that this code requires `chainermn` module.
 ```
-$ mpi4exec -n <#gpu> python train_multi.py [--model faster_rcnn_fpn_resnet50|faster_rcnn_fpn_101] [--batchsize <batchsize>]
+$ mpi4exec -n <#gpu> python train_multi.py [--model faster_rcnn_fpn_resnet50|faster_rcnn_fpn_resnet101] [--batchsize <batchsize>]
 ```
 
 ## References
