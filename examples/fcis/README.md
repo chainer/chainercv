@@ -46,7 +46,6 @@ Note that this code requires `chainermn` module.
 mpiexec -n <n_gpu> python train_sbd_multi.py --lr  <n_gpu>*0.0005
 ```
 
-
 You can download weights that were trained by ChainerCV.
 - [FCIS ResNet101 SBD Trained](https://chainercv-models.preferred.jp/fcis_resnet101_sbd_trained_2018_06_22.npz)
 
