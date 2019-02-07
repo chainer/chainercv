@@ -99,7 +99,7 @@ class FasterRCNNTrainChain(chainer.Chain):
         n = bboxes.shape[0]
         if n != 1:
             raise ValueError('Currently only batch size 1 is supported.')
-        scales = cuda.to_cpu(scales)
+        scales = cuda.to_cpu(scales).tolist()
 
         _, _, H, W = imgs.shape
         img_size = (H, W)
