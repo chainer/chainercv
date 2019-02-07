@@ -72,7 +72,6 @@ def _read_image_pil(path, dtype, color, alpha):
         if img.shape[-1] == 4:
             img = _handle_four_channel_image(
                 img, alpha).astype(dtype, copy=False)
-        img.flags.writeable = True
     finally:
         if hasattr(f, 'close'):
             f.close()

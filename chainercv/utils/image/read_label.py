@@ -25,7 +25,6 @@ def read_label(path, dtype=np.int32):
     try:
         img = f.convert('P')
         img = np.array(img, dtype=dtype)
-        img.flags.writeable = True
     finally:
         if hasattr(f, 'close'):
             f.close()
