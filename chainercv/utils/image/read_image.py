@@ -68,7 +68,7 @@ def _read_image_pil(path, dtype, color, alpha):
                 img = f.convert('RGB')
         else:
             img = f.convert('L')
-        img = np.asarray(img, dtype=dtype)
+        img = np.array(img, dtype=dtype)
         if img.shape[-1] == 4:
             img = _handle_four_channel_image(
                 img, alpha).astype(dtype, copy=False)
