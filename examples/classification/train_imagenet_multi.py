@@ -1,6 +1,7 @@
 from __future__ import division
 import argparse
 import multiprocessing
+import numpy as np
 
 import chainer
 from chainer.datasets import TransformDataset
@@ -122,17 +123,25 @@ def main():
         if isinstance(l, Bottleneck):
             l.conv3.bn.gamma.data[:] = 0
 
+    train_data = DirectoryParsingLabelDataset(args.train)
+    val_data = DirectoryParsingLabelDataset(args.val)
+    train_data = TransformDataset(
+        train_data, TrainTransform(extractor.mean))
+    val_data = TransformDataset(val_data, ValTransform(extractor.mean))
+    print('finished loading dataset')
+
     if comm.rank == 0:
-        train_data = DirectoryParsingLabelDataset(args.train)
-        val_data = DirectoryParsingLabelDataset(args.val)
-        train_data = TransformDataset(
-            train_data, TrainTransform(extractor.mean))
-        val_data = TransformDataset(val_data, ValTransform(extractor.mean))
-        print('finished loading dataset')
+        train_indices = np.arange(len(train_data))
+        val_indices = np.arange(len(val_data))
     else:
-        train_data, val_data = None, None
-    train_data = chainermn.scatter_dataset(train_data, comm, shuffle=True)
-    val_data = chainermn.scatter_dataset(val_data, comm, shuffle=True)
+        train_indices = None
+        val_indices = None
+
+    train_indices = chainermn.scatter_dataset(
+        train_indices, comm, shuffle=True)
+    val_indices = chainermn.scatter_dataset(val_indices, comm, shuffle=True)
+    train_data = train_data.slice[train_indices]
+    val_data = val_data.slice[val_indices]
     train_iter = chainer.iterators.MultiprocessIterator(
         train_data, args.batchsize, n_processes=args.loaderjob)
     val_iter = iterators.MultiprocessIterator(

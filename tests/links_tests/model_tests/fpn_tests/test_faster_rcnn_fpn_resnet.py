@@ -1,11 +1,12 @@
+import numpy as np
 import unittest
 
+import chainer
 from chainer import testing
 from chainer.testing import attr
 
 from chainercv.links import FasterRCNNFPNResNet101
 from chainercv.links import FasterRCNNFPNResNet50
-from chainercv.utils import assert_is_detection_link
 
 
 @testing.parameterize(*testing.product({
@@ -17,15 +18,24 @@ class TestFasterRCNNFPNResNet(unittest.TestCase):
     def setUp(self):
         self.link = self.model(n_fg_class=self.n_fg_class)
 
+    def _check_call(self):
+        imgs = [
+            np.random.uniform(-1, 1, size=(3, 48, 48)).astype(np.float32),
+            np.random.uniform(-1, 1, size=(3, 32, 64)).astype(np.float32),
+        ]
+        x, _ = self.link.prepare(imgs)
+        with chainer.using_config('train', False):
+            self.link(self.link.xp.array(x))
+
     @attr.slow
     def test_call_cpu(self):
-        assert_is_detection_link(self.link, self.n_fg_class)
+        self._check_call()
 
     @attr.gpu
     @attr.slow
     def test_call_gpu(self):
         self.link.to_gpu()
-        assert_is_detection_link(self.link, self.n_fg_class)
+        self._check_call()
 
 
 @testing.parameterize(*testing.product({

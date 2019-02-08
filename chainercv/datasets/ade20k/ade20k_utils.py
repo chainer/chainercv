@@ -1,6 +1,7 @@
 # The values used here are copied from CSAILVision/sceneparsing:
 # https://github.com/CSAILVision/sceneparsing
 
+import filelock
 import os
 
 from chainer.dataset import download
@@ -9,10 +10,13 @@ from chainercv import utils
 
 def get_ade20k(root, url):
     data_root = download.get_dataset_directory(root)
-    if os.path.exists(os.path.join(data_root, 'ADEChallengeData2016')):
-        return data_root
-    cache_path = utils.cached_download(url)
-    utils.extractall(cache_path, data_root, os.path.splitext(url)[1])
+    # To support ChainerMN, target directory should be locked
+    # before extracting ADE20K.
+    with filelock.FileLock(os.path.join(data_root, 'lock')):
+        if os.path.exists(os.path.join(data_root, 'ADEChallengeData2016')):
+            return data_root
+        cache_path = utils.cached_download(url)
+        utils.extractall(cache_path, data_root, os.path.splitext(url)[1])
     return data_root
 
 

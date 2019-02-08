@@ -38,9 +38,14 @@ def main():
     comm = chainermn.create_communicator()
     device = comm.intra_rank
 
+    if args.input_size is None:
+        input_size = None
+    else:
+        input_size = (args.input_size, args.input_size)
+
     dataset, label_names, model = get_dataset_and_model(
         args.dataset, args.model, args.pretrained_model,
-        (args.input_size, args.input_size))
+        input_size)
     assert len(dataset) % comm.size == 0, \
         "The size of the dataset should be a multiple "\
         "of the number of GPUs"

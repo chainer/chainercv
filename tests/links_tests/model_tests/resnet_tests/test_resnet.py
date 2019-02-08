@@ -81,7 +81,7 @@ class TestResNetPretrained(unittest.TestCase):
         }
 
         if self.pretrained_model == 'imagenet':
-            valid = self.n_class in {None, 1000} and self.arch == 'he'
+            valid = self.n_class in {None, 1000}
 
         if valid:
             self.model(**kwargs)

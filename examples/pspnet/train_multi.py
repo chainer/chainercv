@@ -219,28 +219,34 @@ def main():
     else:
         n_iter = args.iteration
 
-    if comm.rank == 0:
-        if args.dataset == 'ade20k':
-            train = ADE20KSemanticSegmentationDataset(
-                data_dir=args.data_dir, split='train')
+    if args.dataset == 'ade20k':
+        train = ADE20KSemanticSegmentationDataset(
+            data_dir=args.data_dir, split='train')
+        if comm.rank == 0:
             val = ADE20KSemanticSegmentationDataset(
                 data_dir=args.data_dir, split='val')
-            label_names = ade20k_semantic_segmentation_label_names
-        elif args.dataset == 'cityscapes':
-            train = CityscapesSemanticSegmentationDataset(
-                args.data_dir,
-                label_resolution='fine', split='train')
+        label_names = ade20k_semantic_segmentation_label_names
+    elif args.dataset == 'cityscapes':
+        train = CityscapesSemanticSegmentationDataset(
+            args.data_dir,
+            label_resolution='fine', split='train')
+        if comm.rank == 0:
             val = CityscapesSemanticSegmentationDataset(
                 args.data_dir,
                 label_resolution='fine', split='val')
-            label_names = cityscapes_semantic_segmentation_label_names
-        train = TransformDataset(
-            train,
-            ('img', 'label'),
-            Transform(model.mean, dataset_cfg['input_size']))
+        label_names = cityscapes_semantic_segmentation_label_names
+    train = TransformDataset(
+        train,
+        ('img', 'label'),
+        Transform(model.mean, dataset_cfg['input_size']))
+
+    if comm.rank == 0:
+        indices = np.arange(len(train))
     else:
-        train, val = None, None
-    train = chainermn.scatter_dataset(train, comm, shuffle=True)
+        indices = None
+    indices = chainermn.scatter_dataset(indices, comm, shuffle=True)
+    train = train.slice[indices]
+
     train_iter = chainer.iterators.MultiprocessIterator(
         train, batch_size=args.batch_size, n_processes=2)
 
