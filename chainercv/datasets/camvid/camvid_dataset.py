@@ -54,7 +54,7 @@ def get_camvid():
     # before extracting CamVid.
     with filelock.FileLock(os.path.join(data_root, 'lock')):
         download_file_path = utils.cached_download(url)
-        if len(glob.glob(os.path.join(data_root, '*'))) != 9:
+        if len(glob.glob(os.path.join(data_root, '*'))) != 10:
             utils.extractall(
                 download_file_path, data_root, os.path.splitext(url)[1])
         data_dir = os.path.join(data_root, 'SegNet-Tutorial-master/CamVid')
