@@ -50,6 +50,24 @@ def _roi_pooling_slice(size, stride, max_size, roi_offset):
 class PSROIAveragePooling2D(function.Function):
 
     def __init__(self, out_c, out_h, out_w, spatial_scale, group_size):
+        if not (isinstance(out_c, int) and out_c > 0):
+            raise TypeError(
+                'out_c must be positive integer: {}, {}'
+                .format(type(out_c), out_c))
+        if not (isinstance(out_h, int) and out_h > 0):
+            raise TypeError(
+                'out_h must be positive integer: {}, {}'
+                .format(type(out_h), out_h))
+        if not (isinstance(out_w, int) and out_w > 0):
+            raise TypeError(
+                'out_w must be positive integer: {}, {}'
+                .format(type(out_w), out_w))
+        if isinstance(spatial_scale, int):
+            spatial_scale = float(spatial_scale)
+        if not (isinstance(group_size, int) and group_size > 0):
+            raise TypeError(
+                'group_size must be positive integer: {}, {}'
+                .format(type(group_size), group_size))
         self.out_c, self.out_h, self.out_w = out_c, out_h, out_w
         self.spatial_scale = spatial_scale
         self.group_size = group_size
