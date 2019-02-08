@@ -2,8 +2,8 @@ import glob
 import os
 import shutil
 
-import numpy as np
 import filelock
+import numpy as np
 
 from chainer.dataset import download
 
