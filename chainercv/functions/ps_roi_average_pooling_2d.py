@@ -33,9 +33,6 @@ from chainer.backends import cuda
 from chainer import function
 from chainer.utils import type_check
 
-if cuda.available:
-    import cupy as cp
-
 
 def _roi_pooling_slice(size, stride, max_size, roi_offset):
     start = int(np.floor(size * stride))
@@ -142,7 +139,7 @@ class PSROIAveragePooling2D(function.Function):
         bottom_data, bottom_rois, bottom_roi_indices = inputs
         channels, height, width = bottom_data.shape[1:]
         n_roi = bottom_rois.shape[0]
-        top_data = cp.empty(
+        top_data = cuda.cupy.empty(
             (n_roi, self.out_c, self.out_h, self.out_w), dtype=np.float32)
         cuda.elementwise(
             '''
