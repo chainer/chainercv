@@ -13,7 +13,7 @@ from chainercv import functions
 @testing.parameterize(*testing.product({
     'sampling_ratio': [None, 1, 2, (None, 3), (1, 2)],
 }))
-class TestPSROIAveragePolling2D(unittest.TestCase):
+class TestPSROIAverageAlign2D(unittest.TestCase):
 
     def setUp(self):
         self.N = 3
