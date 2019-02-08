@@ -1,7 +1,7 @@
 # Modified work:
 # -----------------------------------------------------------------------------
-# Copyright (c) 2018 Preferred Infrastructure, Inc.
-# Copyright (c) 2018 Preferred Networks, Inc.
+# Copyright (c) 2019 Preferred Infrastructure, Inc.
+# Copyright (c) 2019 Preferred Networks, Inc.
 # -----------------------------------------------------------------------------
 
 # Original work:
@@ -268,6 +268,7 @@ class PSROIAverageAlign2D(function.Function):
         n_roi = bottom_rois.shape[0]
         top_data = cuda.cupy.empty(
             (n_roi, self.out_c, self.out_h, self.out_w), dtype=np.float32)
+
         if self.sampling_ratio[0] is None:
             sampling_ratio_h = 0
         else:
@@ -278,12 +279,10 @@ class PSROIAverageAlign2D(function.Function):
             sampling_ratio_w = self.sampling_ratio[1]
         cuda.elementwise(
             '''
-            raw T bottom_data, T spatial_scale, int32 channels,
-            int32 height, int32 width,
+            raw T bottom_data, raw T bottom_rois, raw int32 bottom_roi_indices,
+            T spatial_scale, int32 channels, int32 height, int32 width,
             int32 pooled_dim, int32 pooled_height, int32 pooled_width,
-            int32 group_size, int32 sampling_ratio_h, int32 sampling_ratio_w,
-            raw T bottom_rois, raw int32 bottom_roi_indices
-
+            int32 group_size, int32 sampling_ratio_h, int32 sampling_ratio_w
             ''',
             'T top_data',
             '''
@@ -375,10 +374,10 @@ class PSROIAverageAlign2D(function.Function):
             ''',
             'ps_roi_average_align_2d_fwd',
             preamble=_GET_BILINEAR_INTERP_KERNEL,
-        )(bottom_data, self.spatial_scale, channels, height, width,
+        )(bottom_data, bottom_rois, bottom_roi_indices,
+          self.spatial_scale, channels, height, width,
           self.out_c, self.out_h, self.out_w, self.group_size,
-          sampling_ratio_h, sampling_ratio_w,
-          bottom_rois, bottom_roi_indices, top_data)
+          sampling_ratio_h, sampling_ratio_w, top_data)
 
         return top_data,
 
@@ -476,11 +475,10 @@ class PSROIAverageAlign2D(function.Function):
             sampling_ratio_w = self.sampling_ratio[1]
         cuda.elementwise(
             '''
-            raw T top_diff, T spatial_scale,
-            int32 channels, int32 height, int32 width,
+            raw T top_diff, raw T bottom_rois, raw int32 bottom_roi_indices,
+            T spatial_scale, int32 channels, int32 height, int32 width,
             int32 pooled_dim, int32 pooled_height, int32 pooled_width,
-            int32 group_size, int32 sampling_ratio_h, int32 sampling_ratio_w,
-            raw T bottom_rois, raw int32 bottom_roi_indices
+            int32 group_size, int32 sampling_ratio_h, int32 sampling_ratio_w
             ''',
             'raw T bottom_diff',
             '''
@@ -546,7 +544,6 @@ class PSROIAverageAlign2D(function.Function):
                         static_cast<T>(ix + .5f) * bin_size_w /
                             static_cast<T>(roi_bin_grid_w);
 
-                    // bilinear_interpolation_gradient {{
                     int y_low, x_low, y_high, x_high;
                     T w1, w2, w3, w4;
                     bool ret = get_bilinear_interp_params(
@@ -578,10 +575,11 @@ class PSROIAverageAlign2D(function.Function):
             }
             ''', 'ps_roi_average_align_2d_bwd',
             preamble=_GET_BILINEAR_INTERP_KERNEL,
-        )(gy[0], self.spatial_scale, channels, height, width,
+        )(gy[0], bottom_rois, bottom_roi_indices,
+          self.spatial_scale, channels, height, width,
           self.out_c, self.out_h, self.out_w,
           self.group_size, sampling_ratio_h, sampling_ratio_w,
-          bottom_rois, bottom_roi_indices, bottom_diff, size=gy[0].size)
+          bottom_diff, size=gy[0].size)
 
         return bottom_diff, None, None
 
@@ -622,6 +620,8 @@ def ps_roi_average_align_2d(
 
     See the original paper proposing PSROIPooling:
     `R-FCN <https://arxiv.org/abs/1605.06409>`_.
+    See the original paper proposing ROIAlign:
+    `Mask R-CNN <https://arxiv.org/abs/1703.06870>`_.
 
     """
     return PSROIAverageAlign2D(
