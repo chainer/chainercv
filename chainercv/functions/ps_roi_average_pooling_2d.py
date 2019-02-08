@@ -47,7 +47,7 @@ def _roi_pooling_slice(size, stride, max_size, roi_offset):
     return slice(start, end), end - start
 
 
-class PSROIPooling2D(function.Function):
+class PSROIAveragePooling2D(function.Function):
 
     def __init__(self, out_c, out_h, out_w, spatial_scale, group_size):
         self.out_c, self.out_h, self.out_w = out_c, out_h, out_w
@@ -197,7 +197,7 @@ class PSROIPooling2D(function.Function):
 
             float bin_area = (hend - hstart) * (wend - wstart);
             top_data = is_empty? (float) 0. : out_sum / bin_area;
-            ''', 'psroi_pooling_2d_fwd'
+            ''', 'ps_roi_average_pooling_2d_fwd'
         )(bottom_data, bottom_rois, bottom_roi_indices,
           self.spatial_scale, channels, height, width,
           self.out_c, self.out_h, self.out_w, self.group_size,
@@ -327,7 +327,7 @@ class PSROIPooling2D(function.Function):
                     &bottom_diff[bottom_diff_offset + bottom_index], diff_val);
               }
             }
-            ''', 'psroi_pooling_2d_bwd'
+            ''', 'ps_roi_average_pooling_2d_bwd'
         )(gy[0], bottom_rois, bottom_roi_indices,
           self.spatial_scale, channels, height, width,
           self.out_c, self.out_h, self.out_w,
@@ -336,11 +336,11 @@ class PSROIPooling2D(function.Function):
         return bottom_diff, None, None
 
 
-def psroi_pooling_2d(
+def ps_roi_average_pooling_2d(
         x, rois, roi_indices, out_c, out_h, out_w,
         spatial_scale, group_size
 ):
-    """Position Sensitive Region of Interest (ROI) pooling function.
+    """Position Sensitive Region of Interest (ROI) Average pooling function.
 
     This function computes position sensitive average of input spatial patch
     with the given region of interests. Each ROI is splitted into
@@ -368,5 +368,5 @@ def psroi_pooling_2d(
     `R-FCN <https://arxiv.org/abs/1605.06409>`_.
 
     """
-    return PSROIPooling2D(out_c, out_h, out_w, spatial_scale,
-                          group_size)(x, rois, roi_indices)
+    return PSROIAveragePooling2D(out_c, out_h, out_w, spatial_scale,
+                                 group_size)(x, rois, roi_indices)
