@@ -10,7 +10,7 @@ import unittest
 from chainercv import functions
 
 
-class TestPSROIAveragePolling2D(unittest.TestCase):
+class TestPSROIAveragePooling2D(unittest.TestCase):
 
     def setUp(self):
         self.N = 3
