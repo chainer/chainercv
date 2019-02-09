@@ -26,23 +26,17 @@ class ConstantStubLink(chainer.Link):
             self._tuple = False
             outputs = outputs,
 
-        self._outputs = []
-        for output in outputs:
+        self._n_outputs = len(outputs)
+
+        for i, output in enumerate(outputs):
             if not isinstance(output, np.ndarray):
                 raise ValueError(
                     'output must be numpy.ndarray or tuple of numpy.ndarray')
-            self._outputs.append(chainer.Variable(output))
-        self._outputs = tuple(self._outputs)
+            self.add_persistent('_outputs_%d' % i, output)
 
-    def to_cpu(self):
-        super(ConstantStubLink, self).to_cpu()
-        for output in self._outputs:
-            output.to_cpu()
-
-    def to_gpu(self):
-        super(ConstantStubLink, self).to_gpu()
-        for output in self._outputs:
-            output.to_gpu()
+    def _outputs(self):
+        for i in range(self._n_outputs):
+            yield getattr(self, '_outputs_%d' % i)
 
     def __call__(self, *_):
         """Returns value(s).
@@ -59,6 +53,6 @@ class ConstantStubLink(chainer.Link):
         """
 
         if self._tuple:
-            return self._outputs
+            return tuple(chainer.as_variable(a) for a in self._outputs())
         else:
-            return self._outputs[0]
+            return chainer.as_variable(self._outputs_0)
