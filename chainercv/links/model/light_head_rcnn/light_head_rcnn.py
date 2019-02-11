@@ -5,10 +5,11 @@ import numpy as np
 import chainer
 from chainer.backends import cuda
 import chainer.functions as F
-from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
-from chainercv.utils import non_maximum_suppression
 
+from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
 from chainercv.transforms.image.resize import resize
+from chainercv.utils.bbox.non_maximum_suppression import \
+    non_maximum_suppression
 
 
 class LightHeadRCNN(chainer.Chain):

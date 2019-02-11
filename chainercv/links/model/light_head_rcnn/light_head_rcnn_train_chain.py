@@ -1,9 +1,12 @@
+from __future__ import division
+
 import numpy as np
 import warnings
 
 import chainer
 from chainer.backends import cuda
 import chainer.functions as F
+
 from chainercv.links.model.faster_rcnn.utils.anchor_target_creator import\
     AnchorTargetCreator
 from chainercv.links.model.light_head_rcnn.utils.proposal_target_creator \

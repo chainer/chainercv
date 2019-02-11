@@ -7,7 +7,7 @@ import chainer.functions as F
 import chainer.links as L
 
 from chainercv.functions import ps_roi_max_align_2d
-from chainercv.links import Conv2DBNActiv
+from chainercv.links.connection.conv_2d_bn_activ import Conv2DBNActiv
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 from chainercv.links.model.light_head_rcnn.global_context_module import \
@@ -15,7 +15,7 @@ from chainercv.links.model.light_head_rcnn.global_context_module import \
 from chainercv.links.model.light_head_rcnn.light_head_rcnn import \
     LightHeadRCNN
 from chainercv.links.model.resnet.resblock import ResBlock
-from chainercv.links import ResNet101
+from chainercv.links.model.resnet.resnet import ResNet101
 from chainercv import utils
 
 
