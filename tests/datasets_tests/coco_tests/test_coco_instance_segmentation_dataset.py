@@ -80,8 +80,9 @@ class TestCOCOInstanceSegmentationDataset(unittest.TestCase):
                 i = np.random.randint(0, len(self.dataset))
                 example = self.dataset[i]
                 bbox = example[-1]
-                mask = example[1]
-                assert_is_bbox(bbox, len(mask))
+                img, mask = example[:2]
+                assert_is_bbox(bbox, img.shape[1:])
+                self.assertEqual(len(bbox), len(mask))
 
 
 testing.run_module(__name__, __file__)
