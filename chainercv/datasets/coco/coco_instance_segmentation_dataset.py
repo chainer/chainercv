@@ -72,7 +72,7 @@ class COCOInstanceSegmentationDataset(COCOInstancesBaseDataset):
     def __init__(
             self, data_dir='auto', split='train', year='2017',
             use_crowded=False, return_crowded=False,
-            return_area=False
+            return_area=False, return_bbox=False
     ):
         if not _available:
             raise ValueError(
