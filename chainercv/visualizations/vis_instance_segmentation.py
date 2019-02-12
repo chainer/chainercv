@@ -9,7 +9,7 @@ from chainercv.visualizations import vis_image
 
 def vis_instance_segmentation(
         img, mask, label=None, score=None, label_names=None,
-        instance_colors=None, alpha=0.7, sort_by_score=False, ax=None):
+        instance_colors=None, alpha=0.7, sort_by_score=True, ax=None):
     """Visualize instance segmentation.
 
     Example:
