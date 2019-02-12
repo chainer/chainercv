@@ -147,7 +147,7 @@ def expand_boxes(bbox, scale):
 
 
 def mask_loss_pre(rois, roi_indices, gt_masks, gt_head_labels,
-                  mask_size=28):
+                  mask_size):
     xp = cuda.get_array_module(*rois)
 
     n_level = len(rois)
@@ -174,9 +174,8 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_head_labels,
         iou = bbox_iou(mask_roi, gt_bbox)
         gt_index = iou.argmax(axis=1)
         gt_segms[index] = segm_wrt_bbox(
-            gt_mask[gt_index], mask_roi, (M, M))
+            gt_mask[gt_index], mask_roi, (mask_size, mask_size))
 
-    # indices = [(mask_roi_levels == l).nonzero() for l in range(n_level)]
     flag_masks = [mask_roi_levels == l for l in range(n_level)]
     mask_rois = [mask_rois[m] for m in flag_masks]
     mask_roi_indices = [mask_roi_indices[m] for m in flag_masks]
