@@ -74,7 +74,8 @@ class TestVisInstanceSegmentation(unittest.TestCase):
         ax = vis_instance_segmentation(
             self.img, self.mask, self.label, self.score,
             label_names=self.label_names,
-            instance_colors=self.instance_colors)
+            instance_colors=self.instance_colors,
+            sort_by_score=self.sort_by_score)
 
         self.assertIsInstance(ax, matplotlib.axes.Axes)
 
@@ -116,7 +117,7 @@ class TestVisInstanceSegmentationInvalidInputs(unittest.TestCase):
         with self.assertRaises(ValueError):
             vis_instance_segmentation(
                 self.img, self.mask, self.label, self.score,
-                label_names=self.label_names)
+                label_names=self.label_names, sort_by_score=self.sort_by_score)
 
 
 testing.run_module(__name__, __file__)
