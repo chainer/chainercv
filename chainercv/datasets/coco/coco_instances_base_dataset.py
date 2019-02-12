@@ -9,6 +9,11 @@ from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.coco.coco_utils import get_coco
 from chainercv import utils
 
+try:
+    from pycocotools import mask as coco_mask
+except ImportError:
+    pass
+
 
 class COCOInstancesBaseDataset(GetterDataset):
 

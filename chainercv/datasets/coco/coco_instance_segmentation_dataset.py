@@ -1,8 +1,9 @@
-from chainercv.datasets.coco.coco_instances_base_dataset import COCOInstancesBaseDataset
+from chainercv.datasets.coco.coco_instances_base_dataset import \
+    COCOInstancesBaseDataset
 
 
 try:
-    from pycocotools import mask as coco_mask
+    import pycocotools  # NOQA
     _available = True
 except ImportError:
     _available = False
