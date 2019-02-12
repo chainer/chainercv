@@ -7,6 +7,8 @@ from chainercv.datasets import coco_instance_segmentation_label_names
 from chainercv.datasets import COCOInstanceSegmentationDataset
 from chainercv.evaluations import eval_instance_segmentation_coco
 from chainercv.experimental.links import FCISResNet101
+from chainercv.links import MaskRCNNFPNResNet101
+from chainercv.links import MaskRCNNFPNResNet50
 from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
 
@@ -14,15 +16,17 @@ from chainercv.utils import ProgressHook
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('fcis_resnet101',),
+        '--model', choices=(
+            'fcis_resnet101',
+            'mask_rcnn_fpn_resnet101', 'mask_rcnn_fpn_resnet50'),
         default='fcis_resnet101')
     parser.add_argument('--pretrained-model', default=None)
     parser.add_argument('--gpu', type=int, default=-1)
     args = parser.parse_args()
 
+    if args.pretrained_model is None:
+        args.pretrained_model = 'coco'
     if args.model == 'fcis_resnet101':
-        if args.pretrained_model is None:
-            args.pretrained_model = 'coco'
         proposal_creator_params = FCISResNet101.proposal_creator_params
         proposal_creator_params['min_size'] = 2
         model = FCISResNet101(
@@ -30,8 +34,19 @@ def main():
             anchor_scales=(4, 8, 16, 32),
             pretrained_model=args.pretrained_model,
             proposal_creator_params=proposal_creator_params)
+        preset = 'coco_evaluate'
+    elif args.model == 'mask_rcnn_fpn_resnet50':
+        model = MaskRCNNFPNResNet50(
+            len(coco_instance_segmentation_label_names),
+            args.pretrained_model)
+        preset = 'evaluate'
+    elif args.model == 'mask_rcnn_fpn_resnet101':
+        model = MaskRCNNFPNResNet101(
+            len(coco_instance_segmentation_label_names),
+            args.pretrained_model)
+        preset = 'evaluate'
 
-    model.use_preset('coco_evaluate')
+    model.use_preset(preset)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
