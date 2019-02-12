@@ -90,6 +90,11 @@ def vis_instance_segmentation(
     # Returns newly instantiated matplotlib.axes.Axes object if ax is None
     ax = vis_image(img, ax=ax)
 
+    if score is not None and len(mask) != len(score):
+        raise ValueError('The length of score must be same as that of mask')
+    if label is not None and len(mask) != len(label):
+        raise ValueError('The length of label must be same as that of mask')
+
     if sort_by_score and score is not None:
         order = np.argsort(score)
         mask = mask[order]
@@ -98,13 +103,6 @@ def vis_instance_segmentation(
             label = label[order]
 
     bbox = mask_to_bbox(mask)
-
-    if len(bbox) != len(mask):
-        raise ValueError('The length of mask must be same as that of bbox')
-    if label is not None and len(bbox) != len(label):
-        raise ValueError('The length of label must be same as that of bbox')
-    if score is not None and len(bbox) != len(score):
-        raise ValueError('The length of score must be same as that of bbox')
 
     n_inst = len(bbox)
     if instance_colors is None:
