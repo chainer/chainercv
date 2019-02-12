@@ -63,7 +63,7 @@ class TestEvalInstanceSegmentationCOCOSimple(unittest.TestCase):
 
 
 @unittest.skipUnless(_available, 'pycocotools is not installed')
-class TestEvalDetectionCOCOSomeClassNonExistent(unittest.TestCase):
+class TestEvalInstanceSegmentationCOCOSomeClassNonExistent(unittest.TestCase):
 
     def setUp(self):
         self.pred_masks = np.array(
@@ -88,6 +88,29 @@ class TestEvalDetectionCOCOSomeClassNonExistent(unittest.TestCase):
 
 
 @unittest.skipUnless(_available, 'pycocotools is not installed')
+class TestEvalInstanceSegmentationCOCOEmptyPred(unittest.TestCase):
+
+    def setUp(self):
+        self.pred_masks = np.zeros((1, 0, 2, 2), dtype=np.bool)
+        self.pred_labels = np.zeros((1, 0), dtype=np.int32)
+        self.pred_scores = np.zeros((1, 0), dtype=np.float32)
+        self.gt_masks = np.array([[[[True, True], [True, True]]]])
+        self.gt_labels = np.array([[1, 2]])
+
+    def test(self):
+        result = eval_instance_segmentation_coco(
+            self.pred_masks, self.pred_labels, self.pred_scores,
+            self.gt_masks, self.gt_labels)
+        self.assertEqual(
+            result['ap/iou=0.50:0.95/area=all/max_dets=100'].shape, (2,))
+        self.assertTrue(
+            np.isnan(result['ap/iou=0.50:0.95/area=all/max_dets=100'][0]))
+        self.assertEqual(
+            np.nanmean(result['ap/iou=0.50:0.95/area=all/max_dets=100'][1:]),
+            result['map/iou=0.50:0.95/area=all/max_dets=100'])
+
+
+@unittest.skipUnless(_available, 'pycocotools is not installed')
 class TestEvalInstanceSegmentationCOCO(unittest.TestCase):
 
     @classmethod
@@ -100,7 +123,7 @@ class TestEvalInstanceSegmentationCOCO(unittest.TestCase):
             encoding='latin1')
         cls.result = np.load(request.urlretrieve(os.path.join(
             base_url,
-            'eval_instance_segmentation_coco_result_2018_07_06.npz'))[0],
+            'eval_instance_segmentation_coco_result_2019_02_12.npz'))[0],
             encoding='latin1')
 
     def test_eval_instance_segmentation_coco(self):

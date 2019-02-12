@@ -168,7 +168,7 @@ def eval_instance_segmentation_coco(
             gt_area, gt_crowded) in enumerate(six.moves.zip(
                 pred_masks, pred_labels, pred_scores,
                 gt_masks, gt_labels, gt_areas, gt_crowdeds)):
-        size = pred_mask[0].shape
+        size = pred_mask.shape[1:]
         if gt_area is None:
             gt_area = itertools.repeat(None)
         if gt_crowded is None:
