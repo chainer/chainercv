@@ -21,7 +21,6 @@ def assert_is_instance_segmentation_link(link, n_fg_class):
         np.random.randint(0, 256, size=(3, 480, 320)).astype(np.float32)]
 
     result = link.predict(imgs)
-    print(result)
     assert len(result) == 3, \
         'Link must return three elements: masks, labels and scores.'
     masks, labels, scores = result
