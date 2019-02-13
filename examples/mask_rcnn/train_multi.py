@@ -1,5 +1,7 @@
 import argparse
+import multiprocessing
 import numpy as np
+import PIL
 
 import chainer
 import chainer.links as L
@@ -35,13 +37,29 @@ except ImportError:
 class TrainChain(chainer.Chain):
 
     def __init__(self, model):
-        super().__init__()
+        super(TrainChain, self).__init__()
         with self.init_scope():
             self.model = model
 
+    def prepare_mask(self, masks, resized_sizes, pad_size):
+        resized_masks = []
+        for size, mask in zip(resized_sizes, masks):
+            resized_masks.append(transforms.resize(
+                mask.astype(np.float32),
+                size, interpolation=PIL.Image.NEAREST).astype(np.bool))
+        pad_masks = []
+        for mask in resized_masks:
+            n_class, H, W = mask.shape
+            pad_mask = self.xp.zeros(
+                (n_class, pad_size[0], pad_size[1]), dtype=np.bool)
+            pad_mask[:, :H, :W] = self.xp.array(mask)
+            pad_masks.append(pad_mask)
+        return pad_masks
+
     def __call__(self, imgs, masks, labels, bboxes):
-        x, masks, scales = self.model.prepare(imgs, masks)
-        B = len(x)
+        x, scales, resized_sizes = self.model.prepare(imgs, masks)
+        B, _, pad_H, pad_W = x.shape
+        masks = self.prepare_mask(masks, resized_sizes, (pad_H, pad_W))
         bboxes = [self.xp.array(bbox) * scale
                   for bbox, scale in zip(bboxes, scales)]
         labels = [self.xp.array(label) for label in labels]
@@ -125,12 +143,22 @@ def copyparams(dst, src):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('resnet50', 'resnet101'))
+        '--model', choices=('resnet50', 'resnet101'),
+        default='resnet50')
     parser.add_argument('--batchsize', type=int, default=16)
+    parser.add_argument('--iteration', type=int, default=90000)
+    parser.add_argument('--step', type=int, nargs='*', default=[60000, 80000])
     parser.add_argument('--out', default='result')
     parser.add_argument('--resume')
     parser.add_argument('--communicator', default='hierarchical')
     args = parser.parse_args()
+
+    # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
+    if hasattr(multiprocessing, 'set_start_method'):
+        multiprocessing.set_start_method('forkserver')
+        p = multiprocessing.Process()
+        p.start()
+        p.join()
 
     comm = chainermn.create_communicator(args.communicator)
     device = comm.intra_rank
@@ -175,10 +203,11 @@ def main():
         if isinstance(link, L.BatchNormalization):
             link.disable_update()
 
+    n_iteration = args.iteration * 16 / args.batchsize
     updater = training.updaters.StandardUpdater(
         train_iter, optimizer, converter=converter, device=device)
     trainer = training.Trainer(
-        updater, (90000 * 16 / args.batchsize, 'iteration'), args.out)
+        updater, (n_iteration, 'iteration'), args.out)
 
     @make_shift('lr')
     def lr_schedule(trainer):
@@ -217,7 +246,7 @@ def main():
         trainer.extend(
             extensions.snapshot_object(
                 model, 'model_iter_{.updater.iteration}'),
-            trigger=(90000 * 16 / args.batchsize, 'iteration'))
+            trigger=(n_iteration, 'iteration'))
 
     if args.resume:
         serializers.load_npz(args.resume, trainer, strict=False)

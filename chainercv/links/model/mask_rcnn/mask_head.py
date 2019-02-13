@@ -18,12 +18,12 @@ from chainercv.utils.mask.mask_to_bbox import mask_to_bbox
 
 class MaskHead(chainer.Chain):
 
+    _canonical_level = 2
     _canonical_scale = 224
     _roi_size = 14
     _roi_sample_ratio = 2
     mask_size = _roi_size * 2
 
-    # Remember, initialization is MSRAFill
     def __init__(self, n_class, scales):
         super(MaskHead, self).__init__()
 
@@ -67,13 +67,12 @@ class MaskHead(chainer.Chain):
         return self.seg(h)
 
     def distribute(self, rois, roi_indices):
-        size = self.xp.sqrt(
-            self.xp.prod(rois[:, 2:] + 1 - rois[:, :2], axis=1))
+        size = self.xp.sqrt(self.xp.prod(rois[:, 2:] - rois[:, :2], axis=1))
         level = self.xp.floor(self.xp.log2(
             size / self._canonical_scale + 1e-6)).astype(np.int32)
         # skip last level
         level = self.xp.clip(
-            level + len(self._scales) // 2, 0, len(self._scales) - 2)
+            level + self._canonical_level, 0, len(self._scales) - 2)
 
         masks = [level == l for l in range(len(self._scales))]
         rois = [rois[mask] for mask in masks]
