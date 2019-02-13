@@ -51,6 +51,17 @@ For more details, please read :func:`SegNetBasic.predict`.
    links/segnet
 
 
+Instance Segmentation
+~~~~~~~~~~~~~~~~~~~~~
+
+Instance segmentation links share a common method :meth:`predict` to detect masks that cover objects in an image.
+For more details, please read :func:`MaskRCNN.predict`.
+
+.. toctree::
+
+   links/mask_rcnn
+
+
 Classifiers
 ~~~~~~~~~~~
 
