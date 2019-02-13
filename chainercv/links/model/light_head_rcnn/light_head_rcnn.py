@@ -88,7 +88,7 @@ class LightHeadRCNN(chainer.Chain):
         # Total number of classes including the background.
         return self.head.n_class
 
-    def __call__(self, x, scales):
+    def __call__(self, x, scales=None):
         """Forward Light Head R-CNN.
 
         Scaling paramter :obj:`scales` is used by RPN to determine the
