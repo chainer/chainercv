@@ -126,25 +126,12 @@ def converter(batch, device=None):
     return tuple(list(v) for v in zip(*batch))
 
 
-def copyparams(dst, src):
-    if isinstance(dst, chainer.Chain):
-        for link in dst.children():
-            copyparams(link, src[link.name])
-    elif isinstance(dst, chainer.ChainList):
-        for i, link in enumerate(dst):
-            copyparams(link, src[i])
-    else:
-        dst.copyparams(src)
-        if isinstance(dst, L.BatchNormalization):
-            dst.avg_mean = src.avg_mean
-            dst.avg_var = src.avg_var
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('resnet50', 'resnet101'),
-        default='resnet50')
+        '--model',
+        choices=('mask_rcnn_fpn_resnet50', 'mask_rcnn_fpn_resnet101'),
+        default='mask_rcnn_fpn_resnet50')
     parser.add_argument('--batchsize', type=int, default=16)
     parser.add_argument('--iteration', type=int, default=90000)
     parser.add_argument('--step', type=int, nargs='*', default=[60000, 80000])
@@ -163,11 +150,11 @@ def main():
     comm = chainermn.create_communicator(args.communicator)
     device = comm.intra_rank
 
-    if args.model == 'resnet50':
+    if args.model == 'mask_rcnn_fpn_resnet50':
         model = MaskRCNNFPNResNet50(
             n_fg_class=len(coco_instance_segmentation_label_names),
             pretrained_model='imagenet')
-    elif args.model == 'resnet101':
+    elif args.model == 'mask_rcnn_fpn_resnet101':
         model = MaskRCNNFPNResNet101(
             n_fg_class=len(coco_instance_segmentation_label_names),
             pretrained_model='imagenet')

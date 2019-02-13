@@ -18,6 +18,14 @@ from chainercv.utils.mask.mask_to_bbox import mask_to_bbox
 
 class MaskHead(chainer.Chain):
 
+    """Mask Head network of Mask R-CNN.
+
+    Args:
+        n_class (int): The number of classes including background.
+        scales (tuple of floats): The scales of feature maps.
+
+    """
+
     _canonical_level = 2
     _canonical_scale = 224
     _roi_size = 14
@@ -67,6 +75,30 @@ class MaskHead(chainer.Chain):
         return self.seg(h)
 
     def distribute(self, rois, roi_indices):
+        """Assigns feature levels to Rois based on their size.
+
+        Args:
+            rois (array): An array of shape :math:`(R, 4)`, \
+                where :math:`R` is the total number of RoIs in the given batch.
+            roi_indices (array): An array of shape :math:`(R,)`.
+
+        Returns:
+            two lists and one array:
+            :obj:`out_rois`, :obj:`out_roi_indices` and :obj:`order`.
+
+            * **out_rois**: A list of arrays of shape :math:`(R_l, 4)`, \
+                where :math:`R_l` is the number of RoIs in the :math:`l`-th \
+                feature map.
+            * **out_roi_indices** : A list of arrays of shape :math:`(R_l,)`.
+            * **order**: A correspondence between the output and the input. \
+                The relationship below is satisfied.
+
+            .. code:: python
+
+                xp.concatenate(out_rois, axis=0)[order[i]] == rois[i]
+
+        """
+
         size = self.xp.sqrt(self.xp.prod(rois[:, 2:] - rois[:, :2], axis=1))
         level = self.xp.floor(self.xp.log2(
             size / self._canonical_scale + 1e-6)).astype(np.int32)
@@ -75,18 +107,39 @@ class MaskHead(chainer.Chain):
             level + self._canonical_level, 0, len(self._scales) - 2)
 
         masks = [level == l for l in range(len(self._scales))]
-        rois = [rois[mask] for mask in masks]
-        roi_indices = [roi_indices[mask] for mask in masks]
+        out_rois = [rois[mask] for mask in masks]
+        out_roi_indices = [roi_indices[mask] for mask in masks]
         order = self.xp.argsort(
             self.xp.concatenate([self.xp.where(mask)[0] for mask in masks]))
-        return rois, roi_indices, order
+        return out_rois, out_roi_indices, order
 
     def decode(self, segms, bboxes, labels, sizes):
-        # CPU is used because cv2.resize only accepts numpy arrays.
-        segms = [chainer.backends.cuda.to_cpu(segm) for segm in segms]
-        bboxes = [chainer.backends.cuda.to_cpu(bbox) for bbox in bboxes]
-        labels = [chainer.backends.cuda.to_cpu(label) for label in labels]
+        """Decodes back to masks.
 
+        Args:
+            segms (iterable of arrays): An iterable of arrays of
+                shape :math:`(R_n, n\_class, M, M)`.
+            bboxes (iterable of arrays): An iterable of arrays of
+                shape :math:`(R_n, 4)`.
+            labels (iterable of arrays): An iterable of arrays of
+                shape :math:`(R_n,)`.
+            sizes (list of tuples of two ints): A list of
+                :math:`(H_n, W_n)`, where :math:`H_n` and :math:`W_n`
+                are height and width of the :math:`n`-th image.
+
+        Returns:
+            list of arrays:
+            This list contains instance segmentation for each image
+            in the batch.
+            More precisely, this is a list of boolean arrays of shape
+            :math:`(R'_n, H_n, W_n)`, where :math:`R'_n` is the number of
+            bounding boxes in the :math:`n`-th image.
+        """
+
+        xp = chainer.backends.cuda.get_array_module(*segms)
+        if xp != np:
+            raise ValueError(
+                'MaskHead.decode only supports numpy inputs for now.')
         masks = []
         # To work around an issue with cv2.resize (it seems to automatically
         # pad with repeated border values), we manually zero-pad the masks by 1
@@ -101,7 +154,7 @@ class MaskHead(chainer.Chain):
             img_H, img_W = size
             mask = np.zeros((len(bbox), img_H, img_W), dtype=np.bool)
 
-            bbox = expand_boxes(bbox, cv2_expand_scale)
+            bbox = _expand_boxes(bbox, cv2_expand_scale)
             for i, (bb, sgm, lbl) in enumerate(zip(bbox, segm, label)):
                 bb = bb.astype(np.int32)
                 padded_mask[1:-1, 1:-1] = sgm[lbl + 1]
@@ -124,7 +177,7 @@ class MaskHead(chainer.Chain):
         return masks
 
 
-def expand_boxes(bbox, scale):
+def _expand_boxes(bbox, scale):
     """Expand an array of boxes by a given scale."""
     xp = chainer.backends.cuda.get_array_module(bbox)
 
@@ -147,6 +200,42 @@ def expand_boxes(bbox, scale):
 
 def mask_loss_pre(rois, roi_indices, gt_masks, gt_head_labels,
                   mask_size):
+    """Loss function for Mask Head (pre).
+
+    This function processes RoIs for :func:`mask_loss_post` by
+    selecting RoIs for mask loss calculation and
+    preparing ground truth network output.
+
+    Args:
+        rois (iterable of arrays): An iterable of arrays of
+            shape :math:`(R_l, 4)`, where :math:`R_l` is the number
+            of RoIs in the :math:`l`-th feature map.
+        roi_indices (iterable of arrays): An iterable of arrays of
+            shape :math:`(R_l,)`.
+        gt_masks (iterable of arrays): An iterable of arrays whose shape is
+            :math:`(R_n, H, W)`, where :math:`R_n` is the number of
+            ground truth objects.
+        gt_head_labels (iterable of arrays): An iterable of arrays of
+            shape :math:`(R_l,)`. This is a collection of ground-truth
+            labels assigned to :obj:`rois` during bounding box localization
+            stage. The range of value is :math:`(0, n\_class - 1)`.
+        mask_size (int): Size of the ground truth network output.
+
+    Returns:
+        tuple of four lists:
+        :obj:`mask_rois`, :obj:`mask_roi_indices`,
+        :obj:`gt_segms`, and :obj:`gt_mask_labels`.
+
+        * **rois**: A list of arrays of shape :math:`(R'_l, 4)`, \
+            where :math:`R'_l` is the number of RoIs in the :math:`l`-th \
+            feature map.
+        * **roi_indices**: A list of arrays of shape :math:`(R'_l,)`.
+        * **gt_segms**: A list of arrays of shape :math:`(R'_l, M, M). \
+            :math:`M` is the argument :obj:`mask_size`.
+        * **gt_mask_labels**: A list of arrays of shape :math:`(R'_l,)` \
+            indicating the classes of ground truth.
+    """
+
     xp = cuda.get_array_module(*rois)
 
     n_level = len(rois)
@@ -172,7 +261,7 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_head_labels,
         mask_roi = mask_rois[index]
         iou = bbox_iou(mask_roi, gt_bbox)
         gt_index = iou.argmax(axis=1)
-        gt_segms[index] = segm_wrt_bbox(
+        gt_segms[index] = _segm_wrt_bbox(
             gt_mask[gt_index], mask_roi, (mask_size, mask_size))
 
     flag_masks = [mask_roi_levels == l for l in range(n_level)]
@@ -185,8 +274,23 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_head_labels,
 
 def mask_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels,
                    batchsize):
-    # Just compute loss for the foreground class
-    # divide by the batchsize
+    """Loss function for Head (post).
+
+     Args:
+         segms (array): An array whose shape is :math:`(R, n\_class, M, M)`,
+             where :math:`R` is the total number of RoIs in the given batch.
+         mask_roi_indices (array): A list of arrays returned by
+             :func:`mask_loss_pre`.
+         gt_segms (list of arrays): A list of arrays returned by
+             :func:`mask_loss_pre`.
+         gt_mask_labels (list of arrays): A list of arrays returned by
+             :func:`mask_loss_pre`.
+         batchsize (int): The size of batch.
+
+     Returns:
+        chainer.Variable:
+        Mask loss.
+    """
     xp = cuda.get_array_module(segms.array)
 
     mask_roi_indices = xp.hstack(mask_roi_indices).astype(np.int32)
@@ -206,7 +310,7 @@ def mask_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels,
     return mask_loss
 
 
-def segm_wrt_bbox(mask, bbox, size):
+def _segm_wrt_bbox(mask, bbox, size):
     xp = chainer.backends.cuda.get_array_module(mask)
 
     bbox = bbox.astype(np.int32)

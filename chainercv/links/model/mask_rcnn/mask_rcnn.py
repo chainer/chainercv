@@ -1,7 +1,6 @@
 from __future__ import division
 
 import numpy as np
-import PIL
 
 import chainer
 from chainer.backends import cuda
@@ -133,7 +132,6 @@ class MaskRCNN(chainer.Chain):
             rois, roi_indices, head_locs, head_confs,
             scales, sizes, self.nms_thresh, self.score_thresh)
 
-        # Rescale bbox to the scaled resolution
         rescaled_bboxes = [bbox * scale for scale, bbox in zip(scales, bboxes)]
         # Change bboxes to RoI and RoI indices format
         mask_rois_before_reordering, mask_roi_indices_before_reordering =\
@@ -153,13 +151,12 @@ class MaskRCNN(chainer.Chain):
                      dtype=np.float32)
                  for segm in segms]
 
-        masks = self.mask_head.decode(
-            segms,
-            [bbox / scale for bbox, scale in zip(rescaled_bboxes, scales)],
-            labels, sizes)
-
-        masks = [cuda.to_cpu(mask) for mask in masks]
-        labels = [cuda.to_cpu(label) for label in labels]
+        segms = [chainer.backends.cuda.to_cpu(segm) for segm in segms]
+        bboxes = [chainer.backends.cuda.to_cpu(bbox / scale)
+                  for bbox, scale in zip(rescaled_bboxes, scales)]
+        labels = [chainer.backends.cuda.to_cpu(label) for label in labels]
+        # Currently MaskHead only supports numpy inputs
+        masks = self.mask_head.decode(segms, bboxes, labels, sizes)
         scores = [cuda.to_cpu(score) for score in scores]
         return masks, labels, scores
 
@@ -172,8 +169,9 @@ class MaskRCNN(chainer.Chain):
                 and the range of their value is :math:`[0, 255]`.
 
         Returns:
-            Two arrays: preprocessed images and \
-            scales that were caluclated in prepocessing.
+            Three arrays: preprocessed images, \
+            scales that were caluclated in prepocessing and
+            the size of the images after resizing.
 
         """
         scales = []
