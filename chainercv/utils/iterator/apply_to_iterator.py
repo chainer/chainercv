@@ -153,63 +153,74 @@ def _apply(func, iterator, n_input, hook, comm):
         comm_rank = comm.rank
 
     while True:
+        in_values = []
+        rest_values = []
         if comm_rank == 0:
             for i in range(comm_size):
                 try:
-                    b = next(iterator)
+                    batch = next(iterator)
+                    # batch:
+                    #     [(in_val0, in_val1, ... , rest_val0, rest_val1, ...)]
+                    #     or [in_val]
+
+                    in_values_part = []
+                    for sample in batch:
+                        if isinstance(sample, tuple):
+                            in_values.append(sample[0:n_input])
+                            rest_values.append(sample[n_input:])
+                            in_values_part.append(sample[0:n_input])
+                        else:
+                            in_values.append((sample,))
+                            rest_values.append(())
+                            in_values_part.append((sample,))
+
+                    # in_values_part: [(in_val0, in_val1, ...)]
+                    #     ->  ([in_val0], [in_val1], ...)
+                    in_values_part = tuple(
+                        list(v) for v in zip(*in_values_part))
+
                 except StopIteration:
-                    b = None
+                    in_values_part = None
                     comm_size -= 1
 
                 if i == 0:
-                    batch = b
+                    in_values_local = in_values_part
                 else:
-                    comm.send_obj(b, i)
+                    comm.send_obj(in_values_part, i)
         else:
-            batch = comm.recv_obj(0)
+            in_values_local = comm.recv_obj(0)
 
-        if batch is None:
+        if in_values_local is None:
             break
-        # batch: [(in_val0, in_val1, ... , rest_val0, rest_val1, ...)] or
-        #     [in_val]
 
-        in_values = []
-        rest_values = []
-        for sample in batch:
-            if isinstance(sample, tuple):
-                in_values.append(sample[0:n_input])
-                rest_values.append(sample[n_input:])
-            else:
-                in_values.append((sample,))
-                rest_values.append(())
-
-        # in_values: [(in_val0, in_val1, ...)]
-        #     ->  ([in_val0], [in_val1], ...)
-        in_values = tuple(list(v) for v in zip(*in_values))
-
-        # rest_values: [(rest_val0, rest_val1, ...)]
-        #     -> ([rest_val0], [rest_val1], ...)
-        rest_values = tuple(list(v) for v in zip(*rest_values))
-
-        # out_values: ([out_val0], [out_val1], ...) or [out_val]
-        out_values = func(*in_values)
-        if not isinstance(out_values, tuple):
-            # pred_values: [out_val] -> ([out_val],)
-            out_values = out_values,
+        # out_values_local: ([out_val0], [out_val1], ...) or [out_val]
+        out_values_local = func(*in_values_local)
+        if not isinstance(out_values_local, tuple):
+            # out_values_local: [out_val] -> ([out_val],)
+            out_values_local = out_values_local,
 
         if comm_rank == 0:
+            out_values = out_values_local
             for i in range(1, comm_size):
-                values_slave = comm.recv_obj(i)
-                for vals, vals_slave in zip(
-                        in_values + out_values + rest_values, values_slave):
-                    vals += vals_slave
+                out_values_local = comm.recv_obj(i)
+                for out_vals, out_vals_local in zip(
+                        out_values, out_values_local):
+                    out_vals += out_vals_local
+
+            # in_values: [(in_val0, in_val1, ...)]
+            #     ->  ([in_val0], [in_val1], ...)
+            in_values = tuple(list(v) for v in zip(*in_values))
+
+            # rest_values: [(rest_val0, rest_val1, ...)]
+            #     -> ([rest_val0], [rest_val1], ...)
+            rest_values = tuple(list(v) for v in zip(*rest_values))
 
             if hook:
                 hook(in_values, out_values, rest_values)
 
             yield in_values, out_values, rest_values
         else:
-            comm.send_obj(in_values + out_values + rest_values, 0)
+            comm.send_obj(out_values_local, 0)
 
 
 def _flatten(iterator):
