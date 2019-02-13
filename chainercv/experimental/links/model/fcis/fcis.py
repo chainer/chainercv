@@ -266,7 +266,7 @@ class FCIS(chainer.Chain):
                 img_var = chainer.Variable(self.xp.array(img[None]))
                 scale = img_var.shape[3] / size[1]
                 roi_ag_seg_scores, _, roi_cls_scores, bboxes, _ = \
-                    self.__call__(img_var, scale)
+                    self.__call__(img_var, scales=[scale])
 
             # We are assuming that batch size is 1.
             roi_ag_seg_score = chainer.cuda.to_cpu(roi_ag_seg_scores.array)
