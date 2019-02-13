@@ -2,10 +2,18 @@ import numpy as np
 import unittest
 
 import chainer
+from chainer.backends import cuda
 from chainer import testing
 from chainer.testing import attr
 
 from chainercv.links import LightHeadRCNNResNet101
+from chainercv.links.model.light_head_rcnn import LightHeadRCNNTrainChain
+from chainercv.utils import generate_random_bbox
+
+
+def _random_array(shape):
+    return np.array(
+        np.random.uniform(-1, 1, size=shape), dtype=np.float32)
 
 
 @testing.parameterize(
@@ -72,6 +80,48 @@ class TestLightHeadRCNNResNet101(unittest.TestCase):
     def test_call_gpu(self):
         self.link.to_gpu()
         self.check_call()
+
+
+class TestLightHeadRCNNResNet101Loss(unittest.TestCase):
+
+    B = 1
+    n_fg_class = 20
+    n_anchor = 9
+    n_train_post_nms = 12
+    n_test_post_nms = 8
+    n_bbox = 3
+
+    def setUp(self):
+        proposal_creator_params = {
+            'n_train_post_nms': self.n_train_post_nms,
+            'n_test_post_nms': self.n_test_post_nms
+        }
+        self.model = LightHeadRCNNTrainChain(
+            LightHeadRCNNResNet101(
+                self.n_fg_class, pretrained_model=None,
+                proposal_creator_params=proposal_creator_params))
+
+        self.bboxes = generate_random_bbox(
+            self.n_bbox, (600, 800), 16, 350)[np.newaxis]
+        self.labels = np.random.randint(
+            0, self.n_fg_class, size=(1, self.n_bbox)).astype(np.int32)
+        self.imgs = _random_array((1, 3, 600, 800))
+        self.scales = np.array([1.])
+
+    def check_call(self, model, imgs, bboxes, labels, scales):
+        loss = self.model(imgs, bboxes, labels, scales)
+        self.assertEqual(loss.shape, ())
+
+    def test_call_cpu(self):
+        self.check_call(
+            self.model, self.imgs, self.bboxes, self.labels, self.scales)
+
+    @attr.gpu
+    def test_call_gpu(self):
+        self.model.to_gpu()
+        self.check_call(
+            self.model, cuda.to_gpu(self.imgs),
+            self.bboxes, self.labels, self.scales)
 
 
 @testing.parameterize(*testing.product({
