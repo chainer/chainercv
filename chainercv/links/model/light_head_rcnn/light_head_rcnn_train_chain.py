@@ -203,7 +203,8 @@ def _ohem_loss(
     # sort in CPU because of GPU memory
     roi_cls_loc_loss = cuda.to_cpu(roi_loc_loss.array + roi_cls_loss.array)
     indices = roi_cls_loc_loss.argsort(axis=0)[::-1][:n_ohem_sample]
-    indices = cuda.to_gpu(indices)
+    if cuda.get_array_module(roi_loc_loss.array) != np:
+        indices = cuda.to_gpu(indices)
     roi_loc_loss = F.sum(roi_loc_loss[indices]) / n_ohem_sample
     roi_cls_loss = F.sum(roi_cls_loss[indices]) / n_ohem_sample
 
