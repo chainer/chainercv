@@ -43,8 +43,7 @@ def main():
     parser.add_argument('--seed', '-s', type=int, default=0)
     parser.add_argument(
         '--lr', '-l', type=float, default=None,
-        help='This value is for 1 GPU.\n'
-             'The learning rate should be multiplied by the number of gpu')
+        help='Learning rate for multi GPUs')
     parser.add_argument('--batch-size', type=int, default=8)
     parser.add_argument('--epoch', '-e', type=int, default=18)
     parser.add_argument('--cooldown-epoch', '-ce', type=int, default=12)
