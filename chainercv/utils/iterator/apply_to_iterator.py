@@ -206,12 +206,12 @@ def _apply(func, iterator, n_input, hook, comm):
                 # out_values_local: [out_val] -> ([out_val],)
                 out_values_local = out_values_local,
 
-        if comm_rank == 0:
-            if comm is None:
-                out_values_locals = [out_values_local]
-            else:
-                out_values_locals = comm.gather_obj(out_values_local)
+        if comm is None:
+            out_values_locals = [out_values_local]
+        else:
+            out_values_locals = comm.gather_obj(out_values_local)
 
+        if comm_rank == 0:
             out_values = out_values_locals.pop(0)
             for out_values_local in out_values_locals:
                 if out_values_local is None:
@@ -232,8 +232,6 @@ def _apply(func, iterator, n_input, hook, comm):
                 hook(in_values, out_values, rest_values)
 
             yield in_values, out_values, rest_values
-        else:
-            comm.gather_obj(out_values_local)
 
 
 def _flatten(iterator):
