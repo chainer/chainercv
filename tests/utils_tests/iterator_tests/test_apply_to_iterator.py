@@ -96,6 +96,12 @@ class TestApplyToIterator(unittest.TestCase):
             self.hook = None
 
     def _check_apply_to_iterator(self, comm=None):
+        if comm is not None and not comm.rank == 0:
+            apply_to_iterator(
+                self.func, self.iterator, n_input=self.n_input,
+                hook=self.hook, comm=comm)
+            return
+
         in_values, out_values, rest_values = apply_to_iterator(
             self.func, self.iterator, n_input=self.n_input,
             hook=self.hook, comm=comm)
