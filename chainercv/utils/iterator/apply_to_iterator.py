@@ -1,7 +1,7 @@
 from chainercv.utils.iterator.unzip import unzip
 
 
-def apply_to_iterator(func, iterator, n_input=1, hook=None):
+def apply_to_iterator(func, iterator, n_input=1, hook=None, comm=None):
     """Apply a function/method to batches from an iterator.
 
     This function applies a function/method to an iterator of batches.
@@ -76,12 +76,21 @@ def apply_to_iterator(func, iterator, n_input=1, hook=None):
         iterator (iterator): An iterator of batches.
             The first :obj:`n_input` elements in each sample are
             treated as input values. They are passed to :obj:`func`.
+            If :obj:`comm` is specified, only the iterator of the root
+            worker is used.
         n_input (int): The number of input data. The default value is :obj:`1`.
         hook: A callable that is called after each iteration.
             :obj:`in_values`, :obj:`out_values`, and :obj:`rest_values`
             are passed as arguments.
             Note that these values do not contain data from the previous
             iterations.
+            If :obj:`comm` is specified, only the root worker executes
+            this hook. In that case, the arguments of the hook will be values
+            of all worksers.
+        comm (~chainermn.communicators.CommunicatorBase):
+            A ChainerMN communicator.
+            If it is specified, this function scatters the iterator of
+            root worker and gathers the results to the root worker.
 
     Returns:
         Three tuples of iterators:
@@ -112,26 +121,55 @@ def apply_to_iterator(func, iterator, n_input=1, hook=None):
             will be empty.
     """
 
-    in_values, out_values, rest_values = unzip(
-        _apply(func, iterator, n_input, hook))
+    if comm is None or comm.rank == 0:
+        in_values, out_values, rest_values = unzip(
+            _apply(func, iterator, n_input, hook, comm))
 
-    # in_values: iter of ([in_val0], [in_val1], ...)
-    #     -> (iter of in_val0, iter of in_val1, ...)
-    in_values = tuple(map(_flatten, unzip(in_values)))
+        # in_values: iter of ([in_val0], [in_val1], ...)
+        #     -> (iter of in_val0, iter of in_val1, ...)
+        in_values = tuple(map(_flatten, unzip(in_values)))
 
-    # out_values: iter of ([out_val0], [out_val1], ...)
-    #     -> (iter of out_val0, iter of out_val1, ...)
-    out_values = tuple(map(_flatten, unzip(out_values)))
+        # out_values: iter of ([out_val0], [out_val1], ...)
+        #     -> (iter of out_val0, iter of out_val1, ...)
+        out_values = tuple(map(_flatten, unzip(out_values)))
 
-    # rest_values: iter of ([rest_val0], [rest_val1], ...)
-    #     -> (iter of rest_val0, iter of rest_val1, ...)
-    rest_values = tuple(map(_flatten, unzip(rest_values)))
+        # rest_values: iter of ([rest_val0], [rest_val1], ...)
+        #     -> (iter of rest_val0, iter of rest_val1, ...)
+        rest_values = tuple(map(_flatten, unzip(rest_values)))
 
-    return in_values, out_values, rest_values
+        return in_values, out_values, rest_values
+    else:
+        # dummy loop to proceed generator
+        for _ in _apply(func, None, n_input, None, comm):
+            pass
 
 
-def _apply(func, iterator, n_input, hook):
-    for batch in iterator:
+def _apply(func, iterator, n_input, hook, comm):
+    if comm is None:
+        comm_size = 1
+        comm_rank = 0
+    else:
+        comm_size = comm.size
+        comm_rank = comm.rank
+
+    while True:
+        if comm_rank == 0:
+            for i in range(comm_size):
+                try:
+                    b = next(iterator)
+                except StopIteration:
+                    b = None
+                    comm_size -= 1
+
+                if i == 0:
+                    batch = b
+                else:
+                    comm.send_obj(b, i)
+        else:
+            batch = comm.recv_obj(0)
+
+        if batch is None:
+            break
         # batch: [(in_val0, in_val1, ... , rest_val0, rest_val1, ...)] or
         #     [in_val]
 
@@ -159,10 +197,19 @@ def _apply(func, iterator, n_input, hook):
             # pred_values: [out_val] -> ([out_val],)
             out_values = out_values,
 
-        if hook:
-            hook(in_values, out_values, rest_values)
+        if comm_rank == 0:
+            for i in range(1, comm_size):
+                values_slave = comm.recv_obj(i)
+                for vals, vals_slave in zip(
+                        in_values + out_values + rest_values, values_slave):
+                    vals += vals_slave
 
-        yield in_values, out_values, rest_values
+            if hook:
+                hook(in_values, out_values, rest_values)
+
+            yield in_values, out_values, rest_values
+        else:
+            comm.send_obj(in_values + out_values + rest_values, 0)
 
 
 def _flatten(iterator):
