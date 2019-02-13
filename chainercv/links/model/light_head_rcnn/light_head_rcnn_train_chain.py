@@ -9,7 +9,7 @@ import chainer.functions as F
 
 from chainercv.links.model.faster_rcnn.utils.anchor_target_creator import\
     AnchorTargetCreator
-from chainercv.links.model.light_head_rcnn.utils.proposal_target_creator \
+from chainercv.links.model.faster_rcnn.utils.proposal_target_creator \
     import ProposalTargetCreator
 
 
@@ -51,8 +51,7 @@ class LightHeadRCNNTrainChain(chainer.Chain):
     def __init__(
             self, light_head_rcnn,
             rpn_sigma=3., roi_sigma=1., n_ohem_sample=256,
-            anchor_target_creator=AnchorTargetCreator(),
-            proposal_target_creator=ProposalTargetCreator()
+            anchor_target_creator=None, proposal_target_creator=None,
     ):
         super(LightHeadRCNNTrainChain, self).__init__()
         with self.init_scope():
@@ -61,8 +60,15 @@ class LightHeadRCNNTrainChain(chainer.Chain):
         self.roi_sigma = roi_sigma
         self.n_ohem_sample = n_ohem_sample
 
-        self.anchor_target_creator = anchor_target_creator
-        self.proposal_target_creator = proposal_target_creator
+        if anchor_target_creator is None:
+            self.anchor_target_creator = AnchorTargetCreator()
+        else:
+            self.anchor_target_creator = anchor_target_creator
+
+        if proposal_target_creator is None:
+            self.proposal_target_creator = ProposalTargetCreator(n_sample=None)
+        else:
+            self.proposal_target_creator = proposal_target_creator
 
         self.loc_normalize_mean = light_head_rcnn.loc_normalize_mean
         self.loc_normalize_std = light_head_rcnn.loc_normalize_std
