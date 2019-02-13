@@ -153,59 +153,72 @@ def _apply(func, iterator, n_input, hook, comm):
         comm_rank = comm.rank
 
     while True:
-        in_values = []
-        rest_values = []
         if comm_rank == 0:
-            for i in range(comm_size):
-                try:
-                    batch = next(iterator)
-                    # batch:
-                    #     [(in_val0, in_val1, ... , rest_val0, rest_val1, ...)]
-                    #     or [in_val]
+            try:
+                batch = next(iterator)
+                # batch: [(in_val0, in_val1, ... , rest_val0, rest_val1, ...)]
+                #     or [in_val]
 
-                    in_values_part = []
-                    for sample in batch:
-                        if isinstance(sample, tuple):
-                            in_values.append(sample[0:n_input])
-                            rest_values.append(sample[n_input:])
-                            in_values_part.append(sample[0:n_input])
-                        else:
-                            in_values.append((sample,))
-                            rest_values.append(())
-                            in_values_part.append((sample,))
+                q = len(batch) // comm_size
+                r = len(batch) % comm_size
 
-                    # in_values_part: [(in_val0, in_val1, ...)]
-                    #     ->  ([in_val0], [in_val1], ...)
-                    in_values_part = tuple(
-                        list(v) for v in zip(*in_values_part))
+                in_values = []
+                rest_values = []
+                in_values_locals = [[] for _ in range(comm_size)]
+                for i, sample in enumerate(batch):
+                    if i < (q + 1) * r:
+                        k = i // (q + 1)
+                    else:
+                        k = (i - r) // q
 
-                except StopIteration:
-                    in_values_part = None
-                    comm_size -= 1
+                    if isinstance(sample, tuple):
+                        in_values.append(sample[0:n_input])
+                        rest_values.append(sample[n_input:])
+                        in_values_locals[k].append(sample[0:n_input])
+                    else:
+                        in_values.append((sample,))
+                        rest_values.append(())
+                        in_values_locals[k].append((sample,))
 
-                if i == 0:
-                    in_values_local = in_values_part
-                else:
-                    comm.send_obj(in_values_part, i)
+            except StopIteration:
+                in_values_locals = [None] * comm_size
+
         else:
-            in_values_local = comm.recv_obj(0)
+            in_values_locals = None
+
+        if comm is None:
+            in_values_local = in_values_locals[0]
+        else:
+            in_values_local = comm.mpi_comm.scatter(in_values_locals)
 
         if in_values_local is None:
             break
+        elif len(in_values_local) == 0:
+            out_values_local = None
+        else:
+            # in_values_local: [(in_val0, in_val1, ...)]
+            #     ->  ([in_val0], [in_val1], ...)
+            in_values_local = tuple(list(v) for v in zip(*in_values_local))
 
-        # out_values_local: ([out_val0], [out_val1], ...) or [out_val]
-        out_values_local = func(*in_values_local)
-        if not isinstance(out_values_local, tuple):
-            # out_values_local: [out_val] -> ([out_val],)
-            out_values_local = out_values_local,
+            # out_values_local: ([out_val0], [out_val1], ...) or [out_val]
+            out_values_local = func(*in_values_local)
+            if not isinstance(out_values_local, tuple):
+                # out_values_local: [out_val] -> ([out_val],)
+                out_values_local = out_values_local,
 
         if comm_rank == 0:
-            out_values = out_values_local
-            for i in range(1, comm_size):
-                out_values_local = comm.recv_obj(i)
-                for out_vals, out_vals_local in zip(
+            if comm is None:
+                out_values_locals = [out_values_local]
+            else:
+                out_values_locals = comm.gather_obj(out_values_local)
+
+            out_values = out_values_locals.pop(0)
+            for out_values_local in out_values_locals:
+                if out_values_local is None:
+                    break
+                for out_val, out_val_local in zip(
                         out_values, out_values_local):
-                    out_vals += out_vals_local
+                    out_val += out_val_local
 
             # in_values: [(in_val0, in_val1, ...)]
             #     ->  ([in_val0], [in_val1], ...)
@@ -220,7 +233,7 @@ def _apply(func, iterator, n_input, hook, comm):
 
             yield in_values, out_values, rest_values
         else:
-            comm.send_obj(out_values_local, 0)
+            comm.gather_obj(out_values_local)
 
 
 def _flatten(iterator):
