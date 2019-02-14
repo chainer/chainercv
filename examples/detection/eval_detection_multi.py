@@ -14,8 +14,8 @@ from eval_detection import setup
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', ('voc', 'coco'))
-    parser.add_argument('--model', sorted(models.keys()))
+    parser.add_argument('--dataset', choices=('voc', 'coco'))
+    parser.add_argument('--model', choices=sorted(models.keys()))
     parser.add_argument('--pretrained-model')
     parser.add_argument('--batchsize', type=int)
     args = parser.parse_args()
