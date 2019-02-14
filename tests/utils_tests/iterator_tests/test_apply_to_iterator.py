@@ -101,6 +101,7 @@ class TestApplyToIterator(unittest.TestCase):
             hook=self.hook, comm=comm)
 
         if comm is not None and not comm.rank == 0:
+            self.assertEqual(values, None)
             return
 
         in_values, out_values, rest_values = values
