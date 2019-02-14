@@ -2,10 +2,16 @@ import numpy as np
 import unittest
 
 import chainer
+from chainer.backends import cuda
 from chainer import testing
 from chainer.testing import attr
 
 from chainercv.experimental.links import FCISResNet101
+from chainercv.experimental.links.model.fcis import FCISTrainChain
+from chainercv.utils import mask_to_bbox
+
+from tests.experimental_tests.links_tests.model_tests.fcis_tests.test_fcis \
+    import _random_array
 
 
 @testing.parameterize(
@@ -79,6 +85,49 @@ class TestFCISResNet101(unittest.TestCase):
     def test_call_gpu(self):
         self.link.to_gpu()
         self.check_call()
+
+
+class TestFCISResNet101Loss(unittest.TestCase):
+
+    B = 1
+    n_fg_class = 20
+    n_bbox = 3
+    n_anchor = 9
+    n_train_post_nms = 12
+    n_test_post_nms = 8
+
+    def setUp(self):
+        proposal_creator_params = {
+            'n_train_post_nms': self.n_train_post_nms,
+            'n_test_post_nms': self.n_test_post_nms,
+        }
+        self.model = FCISTrainChain(
+            FCISResNet101(
+                self.n_fg_class, pretrained_model=None, iter2=False,
+                proposal_creator_params=proposal_creator_params))
+
+        self.masks = np.random.randint(
+            0, 2, size=(1, self.n_bbox, 600, 800)).astype(np.bool)
+        self.labels = np.random.randint(
+            0, self.n_fg_class, size=(1, self.n_bbox)).astype(np.int32)
+        self.imgs = _random_array(np, (1, 3, 600, 800))
+        self.scale = np.array(1.)
+
+    def check_call(self, model, imgs, masks, labels, scale):
+        bboxes = mask_to_bbox(masks[0])[None]
+        loss = model(imgs, masks, labels, bboxes, scale)
+        self.assertEqual(loss.shape, ())
+
+    def test_call_cpu(self):
+        self.check_call(
+            self.model, self.imgs, self.masks, self.labels, self.scale)
+
+    @attr.gpu
+    def test_call_gpu(self):
+        self.model.to_gpu()
+        self.check_call(
+            self.model, cuda.to_gpu(self.imgs),
+            self.masks, self.labels, self.scale)
 
 
 @testing.parameterize(*testing.product({
