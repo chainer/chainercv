@@ -62,12 +62,12 @@ CUBPointDataset
 ~~~~~~~~~~~~~~~
 .. autoclass:: CUBPointDataset
 
-Imagenet
+ImageNet
 --------
 
-ImagenetDetBboxDataset
+ImageNetDetBboxDataset
 ~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: ImagenetDetBboxDataset
+.. autoclass:: ImageNetDetBboxDataset
 
 MS COCO
 -------

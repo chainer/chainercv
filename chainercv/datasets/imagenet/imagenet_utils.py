@@ -1,3 +1,4 @@
+import filelock
 import os
 
 from chainer.dataset import download
@@ -9,12 +10,14 @@ devkit_url = 'http://image-net.org/image/ilsvrc2014/ILSVRC2014_devkit.tgz'
 
 def get_ilsvrc_devkit():
     data_root = download.get_dataset_directory(root)
-    base_dir = os.path.join(data_root, 'ILSVRC2014_devkit')
-    if os.path.exists(base_dir):
-        return data_root
-    download_file_path = utils.cached_download(devkit_url)
-    ext = os.path.splitext(devkit_url)[1]
-    utils.extractall(download_file_path, data_root, ext)
+
+    with filelock.FileLock(os.path.join(data_root, 'lock')):
+        base_dir = os.path.join(data_root, 'ILSVRC2014_devkit')
+        if os.path.exists(base_dir):
+            return data_root
+        download_file_path = utils.cached_download(devkit_url)
+        ext = os.path.splitext(devkit_url)[1]
+        utils.extractall(download_file_path, data_root, ext)
     return data_root
 
 
