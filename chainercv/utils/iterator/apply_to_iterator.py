@@ -85,8 +85,7 @@ def apply_to_iterator(func, iterator, n_input=1, hook=None, comm=None):
             Note that these values do not contain data from the previous
             iterations.
             If :obj:`comm` is specified, only the root worker executes
-            this hook. In that case, the arguments of the hook will be values
-            of all worksers.
+            this hook.
         comm (~chainermn.communicators.CommunicatorBase):
             A ChainerMN communicator.
             If it is specified, this function scatters the iterator of
