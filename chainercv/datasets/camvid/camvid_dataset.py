@@ -2,6 +2,7 @@ import glob
 import os
 import shutil
 
+import filelock
 import numpy as np
 
 from chainer.dataset import download
@@ -9,6 +10,7 @@ from chainer.dataset import download
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv import utils
 from chainercv.utils import read_image
+from chainercv.utils import read_label
 
 
 root = 'pfnet/chainercv/camvid'
@@ -48,15 +50,18 @@ camvid_ignore_label_color = (0, 0, 0)
 
 def get_camvid():
     data_root = download.get_dataset_directory(root)
-    download_file_path = utils.cached_download(url)
-    if len(glob.glob(os.path.join(data_root, '*'))) != 9:
-        utils.extractall(
-            download_file_path, data_root, os.path.splitext(url)[1])
-    data_dir = os.path.join(data_root, 'SegNet-Tutorial-master/CamVid')
-    if os.path.exists(data_dir):
-        for fn in glob.glob(os.path.join(data_dir, '*')):
-            shutil.move(fn, os.path.join(data_root, os.path.basename(fn)))
-        shutil.rmtree(os.path.dirname(data_dir))
+    # To support ChainerMN, target directory should be locked
+    # before extracting CamVid.
+    with filelock.FileLock(os.path.join(data_root, 'lock')):
+        download_file_path = utils.cached_download(url)
+        if len(glob.glob(os.path.join(data_root, '*'))) != 10:
+            utils.extractall(
+                download_file_path, data_root, os.path.splitext(url)[1])
+        data_dir = os.path.join(data_root, 'SegNet-Tutorial-master/CamVid')
+        if os.path.exists(data_dir):
+            for fn in glob.glob(os.path.join(data_dir, '*')):
+                shutil.move(fn, os.path.join(data_root, os.path.basename(fn)))
+            shutil.rmtree(os.path.dirname(data_dir))
     return data_root
 
 
@@ -113,7 +118,7 @@ class CamVidDataset(GetterDataset):
 
     def _get_label(self, i):
         _, label_path = self.paths[i]
-        label = read_image(label_path, dtype=np.int32, color=False)[0]
+        label = read_label(label_path, dtype=np.int32)
         # Label id 11 is for unlabeled pixels.
         label[label == 11] = -1
         return label

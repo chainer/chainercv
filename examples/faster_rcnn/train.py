@@ -17,6 +17,13 @@ from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 from chainercv import transforms
 
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+try:
+    import cv2
+    cv2.setNumThreads(0)
+except ImportError:
+    pass
+
 
 class Transform(object):
 
@@ -51,7 +58,7 @@ def main():
     parser.add_argument('--out', '-o', default='result',
                         help='Output directory')
     parser.add_argument('--seed', '-s', type=int, default=0)
-    parser.add_argument('--step_size', '-ss', type=int, default=50000)
+    parser.add_argument('--step-size', '-ss', type=int, default=50000)
     parser.add_argument('--iteration', '-i', type=int, default=70000)
     args = parser.parse_args()
 

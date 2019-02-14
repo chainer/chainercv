@@ -10,11 +10,6 @@ from chainercv.transforms import resize
 from chainercv import utils
 
 
-def _pool_without_cudnn(p, x):
-    with chainer.using_config('use_cudnn', 'never'):
-        return p.apply((x,))[0]
-
-
 class SegNetBasic(chainer.Chain):
 
     """SegNet Basic for semantic segmentation.
@@ -57,7 +52,7 @@ class SegNetBasic(chainer.Chain):
         'camvid': {
             'param': {'n_class': 11},
             'url': 'https://chainercv-models.preferred.jp/'
-            'segnet_camvid_trained_2017_05_28.npz'
+            'segnet_camvid_trained_2018_12_05.npz'
         }
     }
 
@@ -101,16 +96,14 @@ class SegNetBasic(chainer.Chain):
         if path:
             chainer.serializers.load_npz(path, self)
 
-    def _upsampling_2d(self, x, pool):
-        if x.shape != pool.indexes.shape:
-            min_h = min(x.shape[2], pool.indexes.shape[2])
-            min_w = min(x.shape[3], pool.indexes.shape[3])
+    def _upsampling_2d(self, x, indices):
+        if x.shape != indices.shape:
+            min_h = min(x.shape[2], indices.shape[2])
+            min_w = min(x.shape[3], indices.shape[3])
             x = x[:, :, :min_h, :min_w]
-            pool.indexes = pool.indexes[:, :, :min_h, :min_w]
+            indices = indices[:, :, :min_h, :min_w]
         outsize = (x.shape[2] * 2, x.shape[3] * 2)
-        return F.upsampling_2d(
-            x, pool.indexes, ksize=(pool.kh, pool.kw),
-            stride=(pool.sy, pool.sx), pad=(pool.ph, pool.pw), outsize=outsize)
+        return F.upsampling_2d(x, indices, ksize=2, stride=2, outsize=outsize)
 
     def __call__(self, x):
         """Compute an image-wise score from a batch of images
@@ -123,22 +116,22 @@ class SegNetBasic(chainer.Chain):
             An image-wise score. Its channel size is :obj:`self.n_class`.
 
         """
-        p1 = F.MaxPooling2D(2, 2)
-        p2 = F.MaxPooling2D(2, 2)
-        p3 = F.MaxPooling2D(2, 2)
-        p4 = F.MaxPooling2D(2, 2)
         h = F.local_response_normalization(x, 5, 1, 1e-4 / 5., 0.75)
-        h = _pool_without_cudnn(p1, F.relu(self.conv1_bn(self.conv1(h))))
-        h = _pool_without_cudnn(p2, F.relu(self.conv2_bn(self.conv2(h))))
-        h = _pool_without_cudnn(p3, F.relu(self.conv3_bn(self.conv3(h))))
-        h = _pool_without_cudnn(p4, F.relu(self.conv4_bn(self.conv4(h))))
-        h = self._upsampling_2d(h, p4)
+        h, indices1 = F.max_pooling_2d(
+            F.relu(self.conv1_bn(self.conv1(h))), 2, 2, return_indices=True)
+        h, indices2 = F.max_pooling_2d(
+            F.relu(self.conv2_bn(self.conv2(h))), 2, 2, return_indices=True)
+        h, indices3 = F.max_pooling_2d(
+            F.relu(self.conv3_bn(self.conv3(h))), 2, 2, return_indices=True)
+        h, indices4 = F.max_pooling_2d(
+            F.relu(self.conv4_bn(self.conv4(h))), 2, 2, return_indices=True)
+        h = self._upsampling_2d(h, indices4)
         h = self.conv_decode4_bn(self.conv_decode4(h))
-        h = self._upsampling_2d(h, p3)
+        h = self._upsampling_2d(h, indices3)
         h = self.conv_decode3_bn(self.conv_decode3(h))
-        h = self._upsampling_2d(h, p2)
+        h = self._upsampling_2d(h, indices2)
         h = self.conv_decode2_bn(self.conv_decode2(h))
-        h = self._upsampling_2d(h, p1)
+        h = self._upsampling_2d(h, indices1)
         h = self.conv_decode1_bn(self.conv_decode1(h))
         score = self.conv_classifier(h)
         return score

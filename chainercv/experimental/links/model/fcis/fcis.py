@@ -88,7 +88,7 @@ class FCIS(chainer.Chain):
         # Total number of classes including the background.
         return self.head.n_class
 
-    def __call__(self, x, scale=1.):
+    def __call__(self, x, scales=None):
         """Forward FCIS.
 
         Scaling paramter :obj:`scale` is used by RPN to determine the
@@ -112,8 +112,8 @@ class FCIS(chainer.Chain):
 
         Args:
             x (~chainer.Variable): 4D image variable.
-            scale (float): Amount of scaling applied to the raw image
-                during preprocessing.
+            scales (tuple of floats): Amount of scaling applied to each input
+                image during preprocessing.
 
         Returns:
             Variable, Variable, Variable, array, array:
@@ -136,7 +136,7 @@ class FCIS(chainer.Chain):
         # Feature Extractor
         rpn_features, roi_features = self.extractor(x)
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.rpn(
-            rpn_features, img_size, scale)
+            rpn_features, img_size, scales)
         roi_ag_seg_scores, roi_ag_locs, roi_cls_scores, rois, roi_indices = \
             self.head(roi_features, rois, roi_indices, img_size)
         return roi_ag_seg_scores, roi_ag_locs, roi_cls_scores, \
@@ -210,6 +210,13 @@ class FCIS(chainer.Chain):
             self.binary_thresh = 0.4
             self.limit = 100
             self.min_drop_size = 16
+        elif preset == 'coco_evaluate':
+            self.nms_thresh = 0.3
+            self.score_thresh = 1e-3
+            self.mask_merge_thresh = 0.5
+            self.binary_thresh = 0.4
+            self.limit = 100
+            self.min_drop_size = 2
         else:
             raise ValueError('preset must be visualize or evaluate')
 
@@ -259,12 +266,25 @@ class FCIS(chainer.Chain):
                 img_var = chainer.Variable(self.xp.array(img[None]))
                 scale = img_var.shape[3] / size[1]
                 roi_ag_seg_scores, _, roi_cls_scores, bboxes, _ = \
-                    self.__call__(img_var, scale)
+                    self.__call__(img_var, scales=[scale])
 
             # We are assuming that batch size is 1.
-            roi_ag_seg_score = roi_ag_seg_scores.array
-            roi_cls_score = roi_cls_scores.array
-            bbox = bboxes / scale
+            roi_ag_seg_score = chainer.cuda.to_cpu(roi_ag_seg_scores.array)
+            roi_cls_score = chainer.cuda.to_cpu(roi_cls_scores.array)
+            bbox = chainer.cuda.to_cpu(bboxes)
+
+            # filter bounding boxes with min_size
+            height = bbox[:, 2] - bbox[:, 0]
+            width = bbox[:, 3] - bbox[:, 1]
+            keep_indices = np.where(
+                (height >= self.min_drop_size) &
+                (width >= self.min_drop_size))[0]
+            roi_ag_seg_score = roi_ag_seg_score[keep_indices, :, :]
+            roi_cls_score = roi_cls_score[keep_indices]
+            bbox = bbox[keep_indices, :]
+
+            # scale bbox
+            bbox = bbox / scale
 
             # shape: (n_rois, 4)
             bbox[:, 0::2] = self.xp.clip(bbox[:, 0::2], 0, size[0])
@@ -274,25 +294,11 @@ class FCIS(chainer.Chain):
             roi_seg_prob = F.softmax(roi_ag_seg_score).array[:, 1]
             roi_cls_prob = F.softmax(roi_cls_score).array
 
-            roi_seg_prob = chainer.cuda.to_cpu(roi_seg_prob)
-            roi_cls_prob = chainer.cuda.to_cpu(roi_cls_prob)
-            bbox = chainer.cuda.to_cpu(bbox)
-
             roi_seg_prob, bbox, label, roi_cls_prob = mask_voting(
                 roi_seg_prob, bbox, roi_cls_prob, size,
                 self.score_thresh, self.nms_thresh,
                 self.mask_merge_thresh, self.binary_thresh,
                 limit=self.limit, bg_label=0)
-
-            height = bbox[:, 2] - bbox[:, 0]
-            width = bbox[:, 3] - bbox[:, 1]
-            keep_indices = np.where(
-                (height > self.min_drop_size) &
-                (width > self.min_drop_size))[0]
-            roi_seg_prob = roi_seg_prob[keep_indices]
-            bbox = bbox[keep_indices]
-            label = label[keep_indices]
-            roi_cls_prob = roi_cls_prob[keep_indices]
 
             mask = np.zeros(
                 (len(roi_seg_prob), size[0], size[1]), dtype=np.bool)

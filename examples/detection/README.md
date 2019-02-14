@@ -2,9 +2,12 @@
 
 ## Supported models
 - Faster R-CNN
+- Faster R-CNN FPN ResNet50
+- Faster R-CNN FPN ResNet101
 - SSD300
 - SSD512
 - YOLOv2
+- YOLOv2 tiny
 - YOLOv3
 
 For the details, please check the documents and examples of each model.
@@ -20,11 +23,24 @@ For the details, please check the documents and examples of each model.
 | SSD300 | VOC2007\&2012 trainval | | 77.8 % |
 | SSD512 | VOC2007\&2012 trainval | | 79.7 % |
 | YOLOv2 | VOC2007\&2012 trainval | | 75.8 % |
+| YOLOv2 tiny | VOC2007\&2012 trainval | | 53.5 % |
 | YOLOv3 | VOC2007\&2012 trainval | | 80.2 % |
 
 You can reproduce these scores by the following command.
 ```
-$ python eval_voc07.py [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolo_v3] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
+$ python eval_voc07.py [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolo_v2_tiny|yolo_v3] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
+```
+
+### MS COCO2017 Val
+
+| Model | Train dataset | FPS | mmAP |
+|:-:|:-:|:-:|:-:|
+| Faster R-CNN FPN ResNet50 | COCO2017 train | | 37.1 % |
+| Faster R-CNN FPN ResNet101 | COCO2017 train | | 39.5 % |
+
+You can reproduce these scores by the following command.
+```
+$ python eval_coco.py [--model faster_rcnn_fpn_resnet50|faster_rcnn_fpn_resnet101] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
 ```
 
 ## Visualization of models

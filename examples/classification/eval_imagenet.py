@@ -37,7 +37,7 @@ def main():
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--crop', choices=('center', '10'), default='center')
-    parser.add_argument('--resnet-arch', default='he')
+    parser.add_argument('--resnet-arch', default='fb')
     args = parser.parse_args()
 
     dataset = DirectoryParsingLabelDataset(args.val)

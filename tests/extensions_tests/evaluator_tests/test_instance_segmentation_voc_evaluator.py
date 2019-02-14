@@ -32,7 +32,7 @@ class TestInstanceSegmentationVOCEvaluator(unittest.TestCase):
 
     def setUp(self):
         masks = np.random.uniform(size=(10, 5, 32, 48)) > 0.5
-        labels = np.ones((10, 5))
+        labels = np.ones((10, 5), dtype=np.int32)
         self.dataset = TupleDataset(
             np.random.uniform(size=(10, 3, 32, 48)),
             masks, labels)

@@ -1,8 +1,8 @@
-import unittest
-
 import numpy as np
 import os
+import shutil
 import tempfile
+import unittest
 
 from chainer import testing
 
@@ -73,6 +73,9 @@ class TestDirectoryParsingLabelDataset(unittest.TestCase):
                                         self.n_sub_directory, self.size,
                                         self.color, self.suffix)
 
+    def tearDown(self):
+        shutil.rmtree(self.tmp_dir)
+
     def test_directory_parsing_label_dataset(self):
         dataset = DirectoryParsingLabelDataset(
             self.tmp_dir, color=self.color)
@@ -120,6 +123,9 @@ class TestNumericalSortDirectoryParsingLabelDataset(
             os.makedirs(class_dir)
             _save_img_file(os.path.join(class_dir, 'img_0.png'),
                            (48, 32), color=True)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp_dir)
 
     def test_numerical_sort(self):
         dataset = DirectoryParsingLabelDataset(

@@ -1,26 +1,12 @@
-from collections import defaultdict
-import json
-import numpy as np
-import os
-
-from chainercv import utils
-
-from chainercv.datasets.coco.coco_utils import get_coco
-
-from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
+from chainercv.datasets.coco.coco_instances_base_dataset import \
+    COCOInstancesBaseDataset
 
 
-class COCOBboxDataset(GetterDataset):
+class COCOBboxDataset(COCOInstancesBaseDataset):
 
-    """Bounding box dataset for `MS COCO2014`_.
+    """Bounding box dataset for `MS COCO`_.
 
-    .. _`MS COCO2014`: http://mscoco.org/dataset/#detections-challenge2015
-
-    There are total of 82,783 training and 40,504 validation images.
-    'minval' split is a subset of validation images that constitutes
-    5,000 images in the validation images. The remaining validation
-    images are called 'minvalminus'. Concrete list of image ids and
-    annotations for these splits are found `here`_.
+    .. _`MS COCO`: http://cocodataset.org/#home
 
     Args:
         data_dir (string): Path to the root of the training data. If this is
@@ -28,6 +14,9 @@ class COCOBboxDataset(GetterDataset):
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/coco`.
         split ({'train', 'val', 'minival', 'valminusminival'}): Select
             a split of the dataset.
+        year ({'2014', '2017'}): Use a dataset released in :obj:`year`.
+            Splits :obj:`minival` and :obj:`valminusminival` are only
+            supported in year :obj:`2014`.
         use_crowded (bool): If true, use bounding boxes that are labeled as
             crowded in the original annotation. The default value is
             :obj:`False`.
@@ -36,8 +25,6 @@ class COCOBboxDataset(GetterDataset):
         return_crowded (bool): If true, this dataset returns a boolean array
             that indicates whether bounding boxes are labeled as crowded
             or not. The default value is :obj:`False`.
-
-    .. _`here`: https://github.com/rbgirshick/py-faster-rcnn/tree/master/data
 
     This dataset returns the following data.
 
@@ -74,90 +61,13 @@ class COCOBboxDataset(GetterDataset):
 
     """
 
-    def __init__(self, data_dir='auto', split='train',
+    def __init__(self, data_dir='auto', split='train', year='2017',
                  use_crowded=False, return_area=False, return_crowded=False):
-        super(COCOBboxDataset, self).__init__()
-        self.use_crowded = use_crowded
-        if split in ['val', 'minival', 'valminusminival']:
-            img_split = 'val'
-        else:
-            img_split = 'train'
-        if data_dir == 'auto':
-            data_dir = get_coco(split, img_split)
-
-        self.img_root = os.path.join(
-            data_dir, 'images', '{}2014'.format(img_split))
-        anno_path = os.path.join(
-            data_dir, 'annotations', 'instances_{}2014.json'.format(split))
-
-        self.data_dir = data_dir
-        annos = json.load(open(anno_path, 'r'))
-
-        self.id_to_prop = {}
-        for prop in annos['images']:
-            self.id_to_prop[prop['id']] = prop
-        self.ids = sorted(list(self.id_to_prop.keys()))
-
-        self.cat_ids = [cat['id'] for cat in annos['categories']]
-
-        self.id_to_anno = defaultdict(list)
-        for anno in annos['annotations']:
-            self.id_to_anno[anno['image_id']].append(anno)
-
-        self.add_getter('img', self._get_image)
-        self.add_getter(['bbox', 'label', 'area', 'crowded'],
-                        self._get_annotations)
-
+        super(COCOBboxDataset, self).__init__(
+            data_dir, split, year, use_crowded)
         keys = ('img', 'bbox', 'label')
         if return_area:
             keys += ('area',)
         if return_crowded:
             keys += ('crowded',)
         self.keys = keys
-
-    def __len__(self):
-        return len(self.ids)
-
-    def _get_image(self, i):
-        img_path = os.path.join(
-            self.img_root, self.id_to_prop[self.ids[i]]['file_name'])
-        img = utils.read_image(img_path, dtype=np.float32, color=True)
-        return img
-
-    def _get_annotations(self, i):
-        # List[{'segmentation', 'area', 'iscrowd',
-        #       'image_id', 'bbox', 'category_id', 'id'}]
-        annotation = self.id_to_anno[self.ids[i]]
-        bbox = np.array([ann['bbox'] for ann in annotation],
-                        dtype=np.float32)
-        if len(bbox) == 0:
-            bbox = np.zeros((0, 4), dtype=np.float32)
-        # (x, y, width, height)  -> (x_min, y_min, x_max, y_max)
-        bbox[:, 2] = bbox[:, 0] + bbox[:, 2]
-        bbox[:, 3] = bbox[:, 1] + bbox[:, 3]
-        # (x_min, y_min, x_max, y_max) -> (y_min, x_min, y_max, x_max)
-        bbox = bbox[:, [1, 0, 3, 2]]
-
-        label = np.array([self.cat_ids.index(ann['category_id'])
-                          for ann in annotation], dtype=np.int32)
-
-        area = np.array([ann['area']
-                         for ann in annotation], dtype=np.float32)
-
-        crowded = np.array([ann['iscrowd']
-                            for ann in annotation], dtype=np.bool)
-
-        # Remove invalid boxes
-        bbox_area = np.prod(bbox[:, 2:] - bbox[:, :2], axis=1)
-        keep_mask = np.logical_and(bbox[:, 0] <= bbox[:, 2],
-                                   bbox[:, 1] <= bbox[:, 3])
-        keep_mask = np.logical_and(keep_mask, bbox_area > 0)
-
-        if not self.use_crowded:
-            keep_mask = np.logical_and(keep_mask, np.logical_not(crowded))
-
-        bbox = bbox[keep_mask]
-        label = label[keep_mask]
-        area = area[keep_mask]
-        crowded = crowded[keep_mask]
-        return bbox, label, area, crowded

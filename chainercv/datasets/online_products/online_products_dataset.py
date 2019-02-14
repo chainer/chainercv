@@ -79,23 +79,29 @@ class OnlineProductsDataset(GetterDataset):
             data_dir = _get_online_products()
         self.data_dir = data_dir
 
-        self.class_ids = []
-        self.super_class_ids = []
         self.paths = []
         # for split in ['train', 'test']:
         id_list_file = os.path.join(data_dir, 'Ebay_{}.txt'.format(split))
         ids_tmp = [id_.strip().split() for id_ in open(id_list_file)][1:]
         # ids start from 0
-        self.class_ids += [int(id_[1]) - 1 for id_ in ids_tmp]
-        self.super_class_ids += [int(id_[2]) - 1 for id_ in ids_tmp]
+        self.class_ids = np.array(
+            [int(id_[1]) - 1 for id_ in ids_tmp], dtype=np.int32)
+        self.super_class_ids = np.array(
+            [int(id_[2]) - 1 for id_ in ids_tmp], dtype=np.int32)
         self.paths += [os.path.join(data_dir, id_[3]) for id_ in ids_tmp]
 
-        self.add_getter('img', lambda i:
-                        utils.read_image(self.paths[i], color=True))
-        self.add_getter('label', lambda i:
-                        np.array(self.class_ids[i], np.int32))
-        self.add_getter('super_label', lambda i:
-                        np.array(self.super_class_ids[i], np.int32))
+        self.add_getter('img', self._get_image)
+        self.add_getter('label', self._get_label)
+        self.add_getter('super_label', self._get_super_label)
 
     def __len__(self):
         return len(self.paths)
+
+    def _get_image(self, i):
+        return utils.read_image(self.paths[i], color=True)
+
+    def _get_label(self, i):
+        return self.class_ids[i]
+
+    def _get_super_label(self, i):
+        return self.super_class_ids[i]

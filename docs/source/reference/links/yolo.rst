@@ -43,3 +43,9 @@ YOLOBase
 .. autoclass:: YOLOBase
    :members:
    :special-members:  __call__
+
+YOLOv2Base
+~~~~~~~~~~
+.. autoclass:: YOLOv2Base
+   :members:
+   :special-members:  __call__

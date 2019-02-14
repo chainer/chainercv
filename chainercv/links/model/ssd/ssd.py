@@ -53,7 +53,7 @@ class SSD(chainer.Chain):
             for each feature map. This value is used by
             :class:`~chainercv.links.model.ssd.MultiboxCoder`.
         variance (tuple of floats): Two coefficients for decoding
-            the locations of bounding boxe.
+            the locations of bounding boxes.
             This value is used by
             :class:`~chainercv.links.model.ssd.MultiboxCoder`.
             The default value is :obj:`(0.1, 0.2)`.
@@ -179,7 +179,7 @@ class SSD(chainer.Chain):
 
            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
                where :math:`R` is the number of bounding boxes in a image. \
-               Each bouding box is organized by \
+               Each bounding box is organized by \
                :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \

@@ -80,6 +80,10 @@ COCOInstanceSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: COCOInstanceSegmentationDataset
 
+COCOSemanticSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: COCOSemanticSegmentationDataset
+
 OnlineProducts
 --------------
 

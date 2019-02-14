@@ -4,6 +4,7 @@ import os
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
+from chainercv.utils import read_label
 
 
 class VOCSemanticSegmentationDataset(GetterDataset):
@@ -60,7 +61,7 @@ class VOCSemanticSegmentationDataset(GetterDataset):
     def _get_label(self, i):
         label_path = os.path.join(
             self.data_dir, 'SegmentationClass', self.ids[i] + '.png')
-        label = read_image(label_path, dtype=np.int32, color=False)
+        label = read_label(label_path, dtype=np.int32)
         label[label == 255] = -1
         # (1, H, W) -> (H, W)
-        return label[0]
+        return label

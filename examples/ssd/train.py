@@ -24,6 +24,10 @@ from chainercv.links.model.ssd import random_crop_with_bbox_constraints
 from chainercv.links.model.ssd import random_distort
 from chainercv.links.model.ssd import resize_with_random_interpolation
 
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+import cv2
+cv2.setNumThreads(0)
+
 
 class MultiboxTrainChain(chainer.Chain):
 
@@ -108,6 +112,8 @@ def main():
     parser.add_argument(
         '--model', choices=('ssd300', 'ssd512'), default='ssd300')
     parser.add_argument('--batchsize', type=int, default=32)
+    parser.add_argument('--iteration', type=int, default=120000)
+    parser.add_argument('--step', type=int, nargs='*', default=[80000, 100000])
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--out', default='result')
     parser.add_argument('--resume')
@@ -153,16 +159,18 @@ def main():
 
     updater = training.updaters.StandardUpdater(
         train_iter, optimizer, device=args.gpu)
-    trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
+    trainer = training.Trainer(
+        updater, (args.iteration, 'iteration'), args.out)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1, init=1e-3),
-        trigger=triggers.ManualScheduleTrigger([80000, 100000], 'iteration'))
+        trigger=triggers.ManualScheduleTrigger(args.step, 'iteration'))
 
     trainer.extend(
         DetectionVOCEvaluator(
             test_iter, model, use_07_metric=True,
             label_names=voc_bbox_label_names),
-        trigger=(10000, 'iteration'))
+        trigger=triggers.ManualScheduleTrigger(
+            args.step + [args.iteration], 'iteration'))
 
     log_interval = 10, 'iteration'
     trainer.extend(extensions.LogReport(trigger=log_interval))
@@ -174,10 +182,13 @@ def main():
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
-    trainer.extend(extensions.snapshot(), trigger=(10000, 'iteration'))
+    trainer.extend(
+        extensions.snapshot(),
+        trigger=triggers.ManualScheduleTrigger(
+            args.step + [args.iteration], 'iteration'))
     trainer.extend(
         extensions.snapshot_object(model, 'model_iter_{.updater.iteration}'),
-        trigger=(120000, 'iteration'))
+        trigger=(args.iteration, 'iteration'))
 
     if args.resume:
         serializers.load_npz(args.resume, trainer)
