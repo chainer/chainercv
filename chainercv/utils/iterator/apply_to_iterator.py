@@ -1,3 +1,5 @@
+import warnings
+
 from chainercv.utils.iterator.unzip import unzip
 
 
@@ -151,6 +153,7 @@ def _apply(func, iterator, n_input, hook, comm):
         comm_size = comm.size
         comm_rank = comm.rank
 
+    batchsize_checked = False
     while True:
         if comm_rank == 0:
             try:
@@ -160,6 +163,17 @@ def _apply(func, iterator, n_input, hook, comm):
 
                 q = len(batch) // comm_size
                 r = len(batch) % comm_size
+
+                if not batchsize_checked and not r == 0:
+                    warnings.warn(
+                        'The batchsize of the given iterator ({}) is not '
+                        'a multiple of the number of workers ({}). '
+                        'The total batchsize among all workers should be '
+                        'specified and current setting will have a bad '
+                        'effect on performace. '
+                        .format(len(batch), comm_size),
+                        RuntimeWarning)
+                    batchsize_checked = True
 
                 in_values = []
                 rest_values = []
