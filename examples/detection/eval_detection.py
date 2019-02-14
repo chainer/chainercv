@@ -25,11 +25,11 @@ models = {
     'faster_rcnn': (FasterRCNNVGG16, {'voc': 'voc07'}, 32),
     'faster_rcnn_fpn_resnet50': (FasterRCNNFPNResNet50, {}, 1),
     'faster_rcnn_fpn_resnet101': (FasterRCNNFPNResNet101, {}, 1),
-    'ssd300': {SSD300, {'voc': 'voc0712'}, 32},
-    'ssd512': {SSD512, {'voc': 'voc0712'}, 16},
-    'yolo_v2': {YOLOv2, {'voc': 'voc0712'}, 32},
-    'yolo_v2_tiny': {YOLOv2Tiny, {'voc': 'voc0712'}, 32},
-    'yolo_v3': {YOLOv3, {'voc': 'voc0712'}, 16},
+    'ssd300': (SSD300, {'voc': 'voc0712'}, 32),
+    'ssd512': (SSD512, {'voc': 'voc0712'}, 16),
+    'yolo_v2': (YOLOv2, {'voc': 'voc0712'}, 32),
+    'yolo_v2_tiny': (YOLOv2Tiny, {'voc': 'voc0712'}, 32),
+    'yolo_v3': (YOLOv3, {'voc': 'voc0712'}, 16),
 }
 
 
