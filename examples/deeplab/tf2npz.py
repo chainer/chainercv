@@ -187,13 +187,15 @@ def transfer(model, sess, weightmap):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('model', choices=list(_model_class.keys()))
+    # parser.add_argument('model', choices=list(_model_class.keys()))
     parser.add_argument('task', choices=list(_n_class.keys()))
     parser.add_argument('graph_path')
     parser.add_argument('output')
     args = parser.parse_args()
 
-    model = get_model(args.model, args.task)
+    # currently, xception65 is only implemented.
+    # model = get_model(args.model, args.task)
+    model = get_model('xception65', args.task)
     sess = get_session(args.graph_path)
     weightmap = get_weightmap(args.model)
     weightmap = resolve(weightmap)

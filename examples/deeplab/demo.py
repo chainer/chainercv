@@ -18,12 +18,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--pretrained-model')
+    parser.add_argument('--input-size', type=int, default=513)
     parser.add_argument('image')
     args = parser.parse_args()
 
     model = DeepLabV3plusXception65(
         pretrained_model=args.pretrained_model,
-        **DeepLabV3plusXception65._models['voc']['param'])
+        crop=args.input_size)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
@@ -41,8 +42,7 @@ def main():
     vis_semantic_segmentation(
         None, label, voc_semantic_segmentation_label_names,
         voc_semantic_segmentation_label_colors, ax=ax2)
-    plt.savefig('hasdfa.png')
-    # plt.show()
+    plt.show()
 
 
 if __name__ == '__main__':
