@@ -9,6 +9,8 @@ from chainercv.datasets import camvid_label_names
 from chainercv.datasets import CamVidDataset
 from chainercv.datasets import cityscapes_semantic_segmentation_label_names
 from chainercv.datasets import CityscapesSemanticSegmentationDataset
+from chainercv.datasets import voc_semantic_segmentation_label_names
+from chainercv.datasets import VOCSemanticSegmentationDataset
 
 from chainercv.evaluations import eval_semantic_segmentation
 from chainercv.experimental.links import PSPNetResNet101
@@ -17,6 +19,11 @@ from chainercv.links import DeepLabV3plusXception65
 from chainercv.links import SegNetBasic
 from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
+import pathlib
+import PIL
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
 
 
 def get_dataset_and_model(dataset_name, model_name, pretrained_model,
@@ -31,6 +38,9 @@ def get_dataset_and_model(dataset_name, model_name, pretrained_model,
     elif dataset_name == 'camvid':
         dataset = CamVidDataset(split='test')
         label_names = camvid_label_names
+    elif dataset_name == 'voc':
+        dataset = VOCSemanticSegmentationDataset(split='val')
+        label_names = voc_semantic_segmentation_label_names
 
     n_class = len(label_names)
 
@@ -55,7 +65,6 @@ def get_dataset_and_model(dataset_name, model_name, pretrained_model,
             n_class=n_class, pretrained_model=pretrained_model)
     elif model_name == 'deeplab_v3plus_xception65':
         model = DeepLabV3plusXception65(
-            n_class=n_class,
             pretrained_model=pretrained_model)
 
     return dataset, label_names, model
@@ -64,7 +73,7 @@ def get_dataset_and_model(dataset_name, model_name, pretrained_model,
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--dataset', choices=('cityscapes', 'ade20k', 'camvid'))
+        '--dataset', choices=('cityscapes', 'ade20k', 'camvid', 'voc'))
     parser.add_argument(
         '--model', choices=(
             'pspnet_resnet101', 'segnet', 'deeplab_v3plus_xception65'))

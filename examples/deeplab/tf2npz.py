@@ -32,7 +32,8 @@ def load_param(param, weight, transpose=None):
 
 def get_model(name, task):
     n_class = _n_class[task]
-    model = _model_class[name](n_class, crop=(513, 513))
+    model = _model_class[name](n_class, crop=(513, 513), scales=(1.0,), flip=False,
+                                                extractor_kwargs={}, aspp_kwargs={}, decoder_kwargs={})
     return model
 
 
@@ -194,10 +195,11 @@ def main():
     args = parser.parse_args()
 
     # currently, xception65 is only implemented.
-    # model = get_model(args.model, args.task)
-    model = get_model('xception65', args.task)
+    # model_name = args.model
+    model_name = 'xception65'
+    model = get_model(model_name, args.task)
     sess = get_session(args.graph_path)
-    weightmap = get_weightmap(args.model)
+    weightmap = get_weightmap(model_name)
     weightmap = resolve(weightmap)
 
     transfer(model, sess, weightmap)
