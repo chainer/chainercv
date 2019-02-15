@@ -15,15 +15,25 @@ from chainercv.utils import ProgressHook
 
 models = {
     # model: (class, dataset -> pretrained_model, default batchsize)
-    'fcis_resnet101': (FCISResNet101, {'sbd': 'coco'}, 1),
+    'fcis_resnet101': (FCISResNet101, {'sbd': 'sbd', 'coco': 'coco'}, 1),
 }
 
 
-def setup(dataset, model, pretrained_model, batchsize):
+def setup(dataset, model_name, pretrained_model, batchsize):
+    cls, pretrained_models, default_batchsize = models[model_name]
     dataset_name = dataset
+    if pretrained_model is None:
+        pretrained_model = pretrained_models.get(dataset_name, dataset_name)
+    if batchsize is None:
+        batchsize = default_batchsize
+
     if dataset_name == 'sbd':
         dataset = SBDInstanceSegmentationDataset(split='val')
         label_names = sbd_instance_segmentation_label_names
+
+        model = cls(
+            n_fg_class=len(label_names), pretrained_model=pretrained_model)
+        model.use_preset('evaluate')
 
         def eval_(out_values, rest_values):
             pred_masks, pred_labels, pred_scores = out_values
@@ -46,6 +56,19 @@ def setup(dataset, model, pretrained_model, batchsize):
             split='minival', year='2014',
             use_crowded=True, return_crowded=True, return_area=True)
         label_names = coco_instance_segmentation_label_names
+        if model_name == 'fcis_resnet101':
+            proposal_creator_params = cls.proposal_creator_params
+            proposal_creator_params['min_size'] = 2
+            model = cls(
+                n_fg_class=len(label_names),
+                anchor_scales=(4, 8, 16, 32),
+                pretrained_model=pretrained_model,
+                proposal_creator_params=proposal_creator_params)
+            model.use_preset('coco_evaluate')
+        else:
+            model = cls(
+                n_fg_class=len(label_names), pretrained_model=pretrained_model)
+            model.use_preset('evaluate')
 
         def eval_(out_values, rest_values):
             pred_masks, pred_labels, pred_scores = out_values
@@ -60,19 +83,6 @@ def setup(dataset, model, pretrained_model, batchsize):
                 print('mmAP ({}):'.format(area),
                       result['map/iou=0.50:0.95/area={}/max_dets=100'.format(
                           area)])
-
-    cls, pretrained_models, default_batchsize = models[model]
-    if pretrained_model is None:
-        pretrained_model = pretrained_models.get(dataset_name, dataset_name)
-    model = cls(n_fg_class=len(label_names), pretrained_model=pretrained_model)
-
-    if dataset_name == 'sbd':
-        model.use_preset('evaluate')
-    elif dataset_name == 'coco':
-        model.use_preset('coco_evaluate')
-
-    if batchsize is None:
-        batchsize = default_batchsize
 
     return dataset, label_names, eval_, model, batchsize
 
