@@ -25,7 +25,7 @@ $ python caffe2npz.py <source>.caffemodel <target>.npz
 ```
 
 ## Evaluation
-The evaluation can be conducted using [`chainercv/examples/detection/eval_voc07.py`](https://github.com/chainer/chainercv/blob/master/examples/detection).
+The evaluation can be conducted using [`chainercv/examples/detection/eval_detection.py`](https://github.com/chainer/chainercv/blob/master/examples/detection).
 
 ## Train
 You can train the model with the following code.
