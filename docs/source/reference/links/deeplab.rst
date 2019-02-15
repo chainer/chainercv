@@ -1,14 +1,14 @@
 DeepLab
-=======
+=======
 
-.. module:: chainercv.links.model.deeplab
+.. module:: chainercv.links.model.deeplab
 
 Semantic Segmentation Link
 --------------------------
 
-DeepLabV3plusXception65
+DeepLabV3plusXception65
 ~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: DeepLabV3plusXception65
+.. autoclass:: DeepLabV3plusXception65
 
 Utility
 -------
@@ -31,9 +31,11 @@ SeparableASPP
     :members:
     :special_members: __call__
 
-Xception65
-~~~~~~~~~~
-.. autoclass:: Xception65
+
+Xception65
+~~~~~~~~~~
+
+.. autoclass:: Xception65
     :members:
     :special_members: __call__
 
