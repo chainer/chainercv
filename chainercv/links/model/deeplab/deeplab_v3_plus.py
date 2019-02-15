@@ -75,6 +75,9 @@ class DeepLabV3plus(chainer.Chain):
     def __init__(self, feature_extractor, aspp, decoder,
                  crop=(513, 513), scales=[1.0], flip=False):
         super(DeepLabV3plus, self).__init__()
+
+        if not isinstance(crop, (list, tuple)):
+            crop = (int(crop), int(crop))
         self.crop = crop
         self.scales = scales
         self.flip = flip
@@ -197,8 +200,8 @@ class DeepLabV3plusXception65(DeepLabV3plus):
             'param': {
                 'n_class': 21,
                 'crop': (513, 513),
-                'scales': [0.25, 0.75, 1.25],
-                'flip': True,
+                'scales': (1.0,),
+                'flip': False,
                 'extractor_kwargs': {
                     'bn_kwargs': {'decay': 0.9997, 'eps': 1e-3},
                 },
@@ -209,14 +212,16 @@ class DeepLabV3plusXception65(DeepLabV3plus):
                     'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
                 },
             },
-            # 'url': 'https://chainercv-models.preferred.jp/',
+            'overwritable': ('scales', 'flip'),
+            'url': 'https://chainercv-models.preferred.jp/'
+            'deeplabv3plus_xception65_voc_converted_2019_02_15.npz',
         },
         'cityscapes': {
             'param': {
                 'n_class': 19,
                 'crop': (1025, 2049),
-                'scales': [0.25, 0.75, 1.25],
-                'flip': True,
+                'scales': (1.0,),
+                'flip': False,
                 'extractor_kwargs': {
                     'bn_kwargs': {'decay': 0.9997, 'eps': 1e-3},
                 },
@@ -227,14 +232,16 @@ class DeepLabV3plusXception65(DeepLabV3plus):
                     'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
                 },
             },
-            # 'url': 'https://chainercv-models.preferred.jp/',
+            'overwritable': ('scales', 'flip'),
+            'url': 'https://chainercv-models.preferred.jp/'
+            'deeplabv3plus_xception65_cityscapes_converted_2019_02_15.npz',
         },
         'ade20k': {
             'param': {
                 'n_class': 151,
                 'crop': (513, 513),
-                'scales': [0.25, 0.75, 1.25],
-                'flip': True,
+                'scales': (1.0,),
+                'flip': False,
                 'extractor_kwargs': {
                     'bn_kwargs': {'decay': 0.9997, 'eps': 1e-3},
                 },
@@ -245,13 +252,15 @@ class DeepLabV3plusXception65(DeepLabV3plus):
                     'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
                 },
             },
-            # 'url': 'https://chainercv-models.preferred.jp/',
+            'overwritable': ('scales', 'flip'),
+            'url': 'https://chainercv-models.preferred.jp/'
+            'deeplabv3plus_xception65_ade20k_converted_2019_02_15.npz',
         }
     }
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 crop=(513, 513), scales=[1.0], flip=False,
-                 extractor_kwargs={}, aspp_kwargs={}, decoder_kwargs={}):
+                 crop=None, scales=None, flip=None,
+                 extractor_kwargs=None, aspp_kwargs=None, decoder_kwargs=None):
         param, path = utils.prepare_pretrained_model(
             {'n_class': n_class, 'crop': crop,
              'scales': scales, 'flip': flip,
