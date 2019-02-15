@@ -19,11 +19,6 @@ from chainercv.links import DeepLabV3plusXception65
 from chainercv.links import SegNetBasic
 from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
-import pathlib
-import PIL
-import numpy as np
-import matplotlib.pyplot as plt
-import tensorflow as tf
 
 
 def get_dataset_and_model(dataset_name, model_name, pretrained_model,

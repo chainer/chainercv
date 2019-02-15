@@ -32,8 +32,9 @@ def load_param(param, weight, transpose=None):
 
 def get_model(name, task):
     n_class = _n_class[task]
-    model = _model_class[name](n_class, crop=(513, 513), scales=(1.0,), flip=False,
-                                                extractor_kwargs={}, aspp_kwargs={}, decoder_kwargs={})
+    model = _model_class[name](n_class, crop=(513, 513), scales=(1.0,),
+                               flip=False, extractor_kwargs={},
+                               aspp_kwargs={}, decoder_kwargs={})
     return model
 
 
