@@ -93,19 +93,23 @@ class TrainChain(chainer.Chain):
         mask_rois, mask_roi_indices, gt_segms, gt_mask_labels = mask_loss_pre(
             rois, roi_indices, masks, head_gt_labels,
             self.model.mask_head.mask_size)
-        segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
-        mask_loss = mask_loss_post(
-            segms, mask_roi_indices, gt_segms, gt_mask_labels, B)
-
-        loss = (rpn_loc_loss + rpn_conf_loss +
+        n_roi = sum([len(roi) for roi in mask_rois])
+        if n_roi > 0:
+            segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
+            mask_loss = mask_loss_post(
+                segms, mask_roi_indices, gt_segms, gt_mask_labels, B)
+            loss = (rpn_loc_loss + rpn_conf_loss + 
                 head_loc_loss + head_conf_loss + mask_loss)
-        chainer.reporter.report({
-            'loss': loss,
-            'loss/rpn/loc': rpn_loc_loss, 'loss/rpn/conf': rpn_conf_loss,
-            'loss/head/loc': head_loc_loss, 'loss/head/conf': head_conf_loss,
-            'loss/mask': mask_loss},
-            self)
-
+            chainer.reporter.report({
+                'loss': loss,
+                'loss/rpn/loc': rpn_loc_loss, 'loss/rpn/conf': rpn_conf_loss,
+                'loss/head/loc': head_loc_loss, 'loss/head/conf': head_conf_loss,
+                'loss/mask': mask_loss},
+                self)
+        else:
+            # ChainerMN hangs when a subset of nodes has a different
+            # computational graph from the rest.
+            loss = chainer.Variable(self.xp.array(0, dtype=np.float32))
         return loss
 
 
