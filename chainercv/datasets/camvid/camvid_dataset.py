@@ -1,8 +1,8 @@
+import filelock
 import glob
 import os
 import shutil
 
-import filelock
 import numpy as np
 
 from chainer.dataset import download
@@ -50,8 +50,7 @@ camvid_ignore_label_color = (0, 0, 0)
 
 def get_camvid():
     data_root = download.get_dataset_directory(root)
-    # To support ChainerMN, target directory should be locked
-    # before extracting CamVid.
+    # To support ChainerMN, the target directory should be locked.
     with filelock.FileLock(os.path.join(data_root, 'lock')):
         download_file_path = utils.cached_download(url)
         if len(glob.glob(os.path.join(data_root, '*'))) != 10:
