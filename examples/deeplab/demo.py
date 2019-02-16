@@ -16,13 +16,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--pretrained-model', default='cityscapes')
-    parser.add_argument('--input-size', type=int, default=None)
+    parser.add_argument('--min-input-size', type=int, default=None)
     parser.add_argument('image')
     args = parser.parse_args()
 
     model = DeepLabV3plusXception65(
         pretrained_model=args.pretrained_model,
-        crop=args.input_size)
+        min_input_size=args.min_input_size)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()

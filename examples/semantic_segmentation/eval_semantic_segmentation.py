@@ -62,7 +62,7 @@ def get_dataset_and_model(dataset_name, model_name, pretrained_model,
         model = DeepLabV3plusXception65(
             n_class=n_class,
             pretrained_model=pretrained_model,
-            crop=input_size)
+            min_input_size=input_size)
 
     return dataset, label_names, model
 

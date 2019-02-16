@@ -68,10 +68,9 @@ class DeepLabV3plus(chainer.Chain):
             as :obj:`(lowlevel, highlevel)`.
         aspp (callable): ASPP network.
         decoder (callable): Decoder network.
-        crop (tuple of ints): Minimum image size of inputs.
-            if height or width is lower than this values,
-            input images are padded to be this shape.
-            The default value is :obj:`(513, 513)`
+        min_input_size (int or tuple of ints): Minimum image size of inputs.
+            if height or width is lower than this values, input images are
+            padded to be this shape. The default value is :obj:`(513, 513)`
         scales (tuple of floats): Scales for multi-scale prediction.
             Final outputs are averaged after softmax activation.
             The default value is :obj:`(1.0,)`.
@@ -83,12 +82,12 @@ class DeepLabV3plus(chainer.Chain):
     """
 
     def __init__(self, feature_extractor, aspp, decoder,
-                 crop=(513, 513), scales=(1.0,), flip=False):
+                 min_input_size, scales=(1.0,), flip=False):
         super(DeepLabV3plus, self).__init__()
 
-        if not isinstance(crop, (list, tuple)):
-            crop = (int(crop), int(crop))
-        self.crop = crop
+        if not isinstance(min_input_size, (list, tuple)):
+            min_input_size = (int(min_input_size), int(min_input_size))
+        self.min_input_size = min_input_size
         self.scales = scales
         self.flip = flip
 
@@ -118,22 +117,19 @@ class DeepLabV3plus(chainer.Chain):
 
         _, H, W = image.shape
 
-        # Pad image and label to have dimensions >= [crop_height, crop_width]
-        h = max(self.crop[0], H)
-        w = max(self.crop[1], W)
-        crop = (h, w)
+        # Pad image and label to have dimensions >= min_input_size
+        h = max(self.min_input_size[0], H)
+        w = max(self.min_input_size[1], W)
 
         # Pad image with mean pixel value.
-        mean = np.array(
-            self.feature_extractor.mean, dtype=np.float32)
-        bg = np.zeros((3, h, w), dtype=np.float32) + mean[:, None, None]
+        bg = np.zeros((3, h, w), dtype=np.float32) + self.feature_extractor.mean
         bg[:, :H, :W] = image
         image = bg
 
         # scale to [-1.0, 1.0]
         image = image / 127.5 - 1.0
 
-        return image, crop
+        return image
 
     def __call__(self, x):
         lowlevel, highlevel = self.feature_extractor(x)
@@ -152,15 +148,13 @@ class DeepLabV3plus(chainer.Chain):
             h, w = int(H * scale), int(W * scale)
             img = resize(img, (h, w))
 
-        img, crop = self.prepare(img)
+        img = self.prepare(img)
 
-        with chainer.using_config('train', False), \
-                chainer.function.no_backprop_mode():
-            x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
-            x = self.__call__(x)
-            x = F.softmax(x, axis=1)
-            score = F.resize_images(x, crop)[0, :, :h, :w].array
-            score = chainer.backends.cuda.to_cpu(score)
+        x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
+        x = self.__call__(x)
+        x = F.softmax(x, axis=1)
+        score = F.resize_images(x, img.shape[1:])[0, :, :h, :w].array
+        score = chainer.backends.cuda.to_cpu(score)
 
         if scale != 1.0:
             score = resize(score, (H, W))
@@ -207,7 +201,7 @@ class DeepLabV3plusXception65(DeepLabV3plus):
         'voc': {
             'param': {
                 'n_class': 21,
-                'crop': (513, 513),
+                'min_input_size': (513, 513),
                 'scales': (1.0,),
                 'flip': False,
                 'extractor_kwargs': {
@@ -227,7 +221,7 @@ class DeepLabV3plusXception65(DeepLabV3plus):
         'cityscapes': {
             'param': {
                 'n_class': 19,
-                'crop': (1025, 2049),
+                'min_input_size': (1025, 2049),
                 'scales': (1.0,),
                 'flip': False,
                 'extractor_kwargs': {
@@ -247,7 +241,7 @@ class DeepLabV3plusXception65(DeepLabV3plus):
         'ade20k': {
             'param': {
                 'n_class': 151,
-                'crop': (513, 513),
+                'min_input_size': (513, 513),
                 'scales': (1.0,),
                 'flip': False,
                 'extractor_kwargs': {
@@ -267,20 +261,22 @@ class DeepLabV3plusXception65(DeepLabV3plus):
     }
 
     def __init__(self, n_class=None, pretrained_model=None,
-                 crop=None, scales=None, flip=None,
+                 min_input_size=None, scales=None, flip=None,
                  extractor_kwargs=None, aspp_kwargs=None, decoder_kwargs=None):
         param, path = utils.prepare_pretrained_model(
-            {'n_class': n_class, 'crop': crop,
+            {'n_class': n_class, 'min_input_size': min_input_size,
              'scales': scales, 'flip': flip,
              'extractor_kwargs': extractor_kwargs,
              'aspp_kwargs': aspp_kwargs, 'decoder_kwargs': decoder_kwargs},
-            pretrained_model, self._models)
+            pretrained_model, self._models,
+            default={'min_input_size': (513, 513)})
 
         super(DeepLabV3plusXception65, self).__init__(
             Xception65(**param['extractor_kwargs']),
             SeparableASPP(2048, 256, **param['aspp_kwargs']),
             Decoder(256, param['n_class'], 48, 256, **param['decoder_kwargs']),
-            crop=param['crop'], scales=param['scales'], flip=param['flip'])
+            min_input_size=param['min_input_size'], scales=param['scales'],
+            flip=param['flip'])
 
         if path:
             chainer.serializers.load_npz(path, self)
