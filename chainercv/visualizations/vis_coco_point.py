@@ -51,9 +51,7 @@ def vis_coco_point(img, point, point_score, thresh=2, ax=None):
     colors = [cmap(i) for i in np.linspace(0, 1, len(coco_point_skeleton) + 2)]
 
     # plt.autoscale(False)
-    for i in range(len(point)):
-        pnt = point[i]
-        pnt_sc = point_score[i]
+    for pnt, pnt_sc in zip(point, point_score):
         for l in range(len(coco_point_skeleton)):
             i0 = coco_point_skeleton[l][0]
             i1 = coco_point_skeleton[l][1]
@@ -80,17 +78,17 @@ def vis_coco_point(img, point, point_score, thresh=2, ax=None):
             pnt[coco_point_names.index('right_shoulder'), :2] +
             pnt[coco_point_names.index('left_shoulder'), :2]) / 2
         mid_shoulder_sc = np.minimum(
-            pnt[coco_point_names.index('right_shoulder'), 2],
-            pnt[coco_point_names.index('left_shoulder'), 2])
+            pnt_sc[coco_point_names.index('right_shoulder')],
+            pnt_sc[coco_point_names.index('left_shoulder')])
 
         mid_hip = (
             pnt[coco_point_names.index('right_hip'), :2] +
             pnt[coco_point_names.index('left_hip'), :2]) / 2
         mid_hip_sc = np.minimum(
-            pnt[coco_point_names.index('right_hip'), 2],
-            pnt[coco_point_names.index('left_hip'), 2])
+            pnt_sc[coco_point_names.index('right_hip')],
+            pnt_sc[coco_point_names.index('left_hip')])
         if (mid_shoulder_sc > thresh and
-                pnt[coco_point_names.index('nose'), 2] > thresh):
+                pnt_sc[coco_point_names.index('nose')] > thresh):
             y = [mid_shoulder[0], pnt[coco_point_names.index('nose'), 0]]
             x = [mid_shoulder[1], pnt[coco_point_names.index('nose'), 1]]
             line = ax.plot(x, y)
