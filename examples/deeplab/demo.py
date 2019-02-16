@@ -17,8 +17,8 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--pretrained-model')
-    parser.add_argument('--input-size', type=int, default=513)
+    parser.add_argument('--pretrained-model', default='cityscapes')
+    parser.add_argument('--input-size', type=int, default=None)
     parser.add_argument('image')
     args = parser.parse_args()
 

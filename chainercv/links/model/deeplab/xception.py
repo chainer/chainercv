@@ -17,7 +17,7 @@ class XceptionBlock(chainer.Chain):
     Args:
         in_channels (int): The number of channels of the input array.
         depthlist (tuple of ints): Tuple of integers which defines
-            number of channels of intermediate arrays. the length of
+            number of channels of intermediate arrays. The length of
             this tuple must be 3.
         stride (int or tuple of ints): Stride of filter application.
         dilate (int or tuple of ints): Dilation factor of filter applications.
@@ -30,8 +30,9 @@ class XceptionBlock(chainer.Chain):
         activ_first (boolean): If :obj:`True`, activation function is
             applied first in this block.
             The default value is :obj:`True`
-        bn_kwargs (dict): Keyword arguments passed to initialize
-            :class:`chainer.links.BatchNormalization`.
+        bn_kwargs (dict):  Keywod arguments passed to initialize the batch
+            normalization layers of :class:`chainercv.links.Conv2DBNActiv` and
+            :class:`chainercv.links.SeparableConv2DBNActiv`.
 
     """
 
@@ -94,17 +95,18 @@ class Xception65(chainer.Chain):
 
     Unlike original Xception65, this follows implementation in deeplab v3
     (https://github.com/tensorflow/models/tree/master/research/deeplab).
-    this returns lowlevel feature (an output of second convolution in second
+    This returns lowlevel feature (an output of second convolution in second
     block in entryflow) and highlevel feature (an output before final average
     pooling in original).
 
     Args:
-        bn_kwargs (dict): Keyword arguments passed to initialize
-            :class:`chainer.links.BatchNormalization`.
+        bn_kwargs (dict):  Keywod arguments passed to initialize the batch
+            normalization layers of :class:`chainercv.links.Conv2DBNActiv` and
+            :class:`chainercv.links.SeparableConv2DBNActiv`.
 
     """
 
-    mean_pixel = [127.5, 127.5, 127.5]
+    mean = [127.5, 127.5, 127.5]
 
     def __init__(self, bn_kwargs={}):
         super(Xception65, self).__init__()

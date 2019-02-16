@@ -22,12 +22,13 @@ class SeparableASPP(chainer.Chain):
         out_channels (int): Number of channels of output arrays.
         dilate_list (tuple of ints): Tuple of Dilation factors.
             the length of this tuple must be 3.
-        bn_kwargs (dict): Keyword arguments passed to initialize
-            :class:`chainer.links.BatchNormalization`.
+        bn_kwargs (dict): Keywod arguments passed to initialize the batch
+            normalization layers of :class:`chainercv.links.Conv2DBNActiv` and
+            :class:`chainercv.links.SeparableConv2DBNActiv`.
 
     """
 
-    def __init__(self, in_channels, out_channels=256,
+    def __init__(self, in_channels, out_channels,
                  dilate_list=(12, 24, 36), bn_kwargs={}):
         super(SeparableASPP, self).__init__()
 

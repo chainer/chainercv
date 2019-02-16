@@ -25,13 +25,14 @@ class Decoder(chainer.Chain):
             first 1x1 convolution.
         depth_channels (int): Number of channels of output of
             convolution after concatenation.
-        bn_kwargs (dict): Keyword arguments passed to initialize
-            :class:`chainer.links.BatchNormalization`.
+        bn_kwargs (dict): Keywod arguments passed to initialize the batch
+            normalization layers of :class:`chainercv.links.Conv2DBNActiv` and
+            :class:`chainercv.links.SeparableConv2DBNActiv`.
 
     """
 
-    def __init__(self, in_channels, out_channels, proj_channels=48,
-                 depth_channels=256, bn_kwargs={}):
+    def __init__(self, in_channels, out_channels, proj_channels,
+                 depth_channels, bn_kwargs={}):
         super(Decoder, self).__init__()
 
         with self.init_scope():
@@ -62,18 +63,27 @@ class DeepLabV3plus(chainer.Chain):
     """Base class of DeepLab V3+.
 
     Args:
-        fature_extractor (callable): feature extractor network.
+        fature_extractor (callable): Feature extractor network.
+            This network should return lowlevel and highlevel feature maps
+            as :obj:`(lowlevel, highlevel)`.
         aspp (callable): ASPP network.
-        decoder (callable): decoder network.
-        crop (tuple of ints): minimum image size of inputs.
+        decoder (callable): Decoder network.
+        crop (tuple of ints): Minimum image size of inputs.
             if height or width is lower than this values,
             input images are padded to be this shape.
             The default value is :obj:`(513, 513)`
+        scales (tuple of floats): Scales for multi-scale prediction.
+            Final outputs are averaged after softmax activation.
+            The default value is :obj:`(1.0,)`.
+        flip (bool): When this is true, a left-right flipped images are
+            also input and finally averaged. When :obj:`len(scales)` are
+            more than 1, flipped prediction is performed in each scales.
+            The default value is :obj:`False`
 
     """
 
     def __init__(self, feature_extractor, aspp, decoder,
-                 crop=(513, 513), scales=[1.0], flip=False):
+                 crop=(513, 513), scales=(1.0,), flip=False):
         super(DeepLabV3plus, self).__init__()
 
         if not isinstance(crop, (list, tuple)):
@@ -86,8 +96,6 @@ class DeepLabV3plus(chainer.Chain):
             self.feature_extractor = feature_extractor
             self.aspp = aspp
             self.decoder = decoder
-
-        self.feature_extractor.pick = 'entryflow_block2', 'exitflow_block2'
 
     def prepare(self, image):
         """Preprocess an image for feature extraction.
@@ -116,9 +124,9 @@ class DeepLabV3plus(chainer.Chain):
         crop = (h, w)
 
         # Pad image with mean pixel value.
-        mean_pixel = np.array(
-            self.feature_extractor.mean_pixel, dtype=np.float32)
-        bg = np.zeros((3, h, w), dtype=np.float32) + mean_pixel[:, None, None]
+        mean = np.array(
+            self.feature_extractor.mean, dtype=np.float32)
+        bg = np.zeros((3, h, w), dtype=np.float32) + mean[:, None, None]
         bg[:, :H, :W] = image
         image = bg
 
@@ -271,7 +279,7 @@ class DeepLabV3plusXception65(DeepLabV3plus):
         super(DeepLabV3plusXception65, self).__init__(
             Xception65(**param['extractor_kwargs']),
             SeparableASPP(2048, 256, **param['aspp_kwargs']),
-            Decoder(256, param['n_class'], **param['decoder_kwargs']),
+            Decoder(256, param['n_class'], 48, 256, **param['decoder_kwargs']),
             crop=param['crop'], scales=param['scales'], flip=param['flip'])
 
         if path:

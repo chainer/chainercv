@@ -7,7 +7,7 @@ from chainer.testing import attr
 from chainercv.links.model.deeplab import SeparableASPP
 
 
-class TestConvolutionCrop(unittest.TestCase):
+class TestSeparableASPP(unittest.TestCase):
 
     def setUp(self):
         self.in_channels = 128

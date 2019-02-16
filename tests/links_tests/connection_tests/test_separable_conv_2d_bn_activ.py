@@ -20,7 +20,7 @@ def _add_one(x):
     'args_style': 'explicit',
     'activ': ['relu', 'add_one', None],
 }))
-class TestConv2DBNActiv(unittest.TestCase):
+class TestSeparableConv2DBNActiv(unittest.TestCase):
 
     in_channels = 3
     out_channels = 3
