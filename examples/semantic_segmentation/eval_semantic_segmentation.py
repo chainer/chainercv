@@ -60,7 +60,9 @@ def get_dataset_and_model(dataset_name, model_name, pretrained_model,
             n_class=n_class, pretrained_model=pretrained_model)
     elif model_name == 'deeplab_v3plus_xception65':
         model = DeepLabV3plusXception65(
-            pretrained_model=pretrained_model)
+            n_class=n_class,
+            pretrained_model=pretrained_model,
+            crop=input_size)
 
     return dataset, label_names, model
 
