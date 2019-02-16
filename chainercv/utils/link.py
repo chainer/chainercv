@@ -50,7 +50,7 @@ def prepare_pretrained_model(param, pretrained_model, models, default={}):
                 if key not in overwritable \
                    and not param[key] == model_param[key]:
                     raise ValueError(
-                        '{} must be {:d}'.format(key, model_param[key]))
+                        '{} must be {}'.format(key, model_param[key]))
 
         path = download_model(model['url'])
 

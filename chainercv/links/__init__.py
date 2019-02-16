@@ -9,6 +9,8 @@ from chainercv.links.model.pixelwise_softmax_classifier import PixelwiseSoftmaxC
 
 from chainercv.links.model.deeplab import DeepLabV3plusXception65  # NOQA
 from chainercv.links.model.faster_rcnn.faster_rcnn_vgg import FasterRCNNVGG16  # NOQA
+from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import FasterRCNNFPNResNet101  # NOQA
+from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import FasterRCNNFPNResNet50  # NOQA
 from chainercv.links.model.resnet import ResNet101  # NOQA
 from chainercv.links.model.resnet import ResNet152  # NOQA
 from chainercv.links.model.resnet import ResNet50  # NOQA

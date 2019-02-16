@@ -79,9 +79,14 @@ def main():
     parser.add_argument('--input-size', type=int, default=None)
     args = parser.parse_args()
 
+    if args.input_size is None:
+        input_size = None
+    else:
+        input_size = (args.input_size, args.input_size)
+
     dataset, label_names, model = get_dataset_and_model(
         args.dataset, args.model, args.pretrained_model,
-        (args.input_size, args.input_size))
+        input_size)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()

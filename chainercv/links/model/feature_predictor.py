@@ -103,6 +103,8 @@ class FeaturePredictor(chainer.Chain):
                 img = scale(img, size=self.scale_size)
             else:
                 img = resize(img, size=self.scale_size)
+        else:
+            img = img.copy()
 
         if self.crop == '10':
             imgs = ten_crop(img, self.crop_size)

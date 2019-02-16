@@ -25,7 +25,7 @@ $ python caffe2npz.py <source>.caffemodel <target>.npz
 ```
 
 ## Evaluation
-The evaluation can be conducted using [`chainercv/examples/detection/eval_voc07.py`](https://github.com/chainer/chainercv/blob/master/examples/detection).
+The evaluation can be conducted using [`chainercv/examples/detection/eval_detection.py`](https://github.com/chainer/chainercv/blob/master/examples/detection).
 
 ## Train
 You can train the model with the following code.
@@ -33,13 +33,11 @@ Note that this code requires `cv2` module.
 ```
 $ python train.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--gpu <gpu>]
 ```
-Note that this training process sometimes stucks due to `cv2` issue.
-For the details and workaround, please see [Chainer's Tips and FAQs](https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator).
 
 If you want to use multiple GPUs, use `train_multi.py`.
 Note that this code requires `chainermn` module.
 ```
-$ mpi4exec -n <#gpu> python train_multi.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--test-batchsize <batchsize>]
+$ mpiexec -n <#gpu> python train_multi.py [--model ssd300|ssd512] [--batchsize <batchsize>] [--test-batchsize <batchsize>]
 ```
 
 You can download weights that were trained by ChainerCV.

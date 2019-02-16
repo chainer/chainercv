@@ -33,6 +33,7 @@ For more details, please read :func:`FasterRCNN.predict`.
 .. toctree::
 
    links/faster_rcnn
+   links/fpn
    links/ssd
    links/yolo
 

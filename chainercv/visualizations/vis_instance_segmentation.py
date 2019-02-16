@@ -9,7 +9,7 @@ from chainercv.visualizations import vis_image
 
 def vis_instance_segmentation(
         img, mask, label=None, score=None, label_names=None,
-        instance_colors=None, alpha=0.7, ax=None):
+        instance_colors=None, alpha=0.7, sort_by_score=True, ax=None):
     """Visualize instance segmentation.
 
     Example:
@@ -77,6 +77,8 @@ def vis_instance_segmentation(
             value is :obj:`0`, the figure will be completely transparent.
             The default value is :obj:`0.7`. This option is useful for
             overlaying the label on the source image.
+        sort_by_score (bool): When :obj:`True`, instances with high scores
+            are always visualized in front of instances with low scores.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
 
@@ -88,14 +90,19 @@ def vis_instance_segmentation(
     # Returns newly instantiated matplotlib.axes.Axes object if ax is None
     ax = vis_image(img, ax=ax)
 
-    bbox = mask_to_bbox(mask)
+    if score is not None and len(mask) != len(score):
+        raise ValueError('The length of score must be same as that of mask')
+    if label is not None and len(mask) != len(label):
+        raise ValueError('The length of label must be same as that of mask')
 
-    if len(bbox) != len(mask):
-        raise ValueError('The length of mask must be same as that of bbox')
-    if label is not None and len(bbox) != len(label):
-        raise ValueError('The length of label must be same as that of bbox')
-    if score is not None and len(bbox) != len(score):
-        raise ValueError('The length of score must be same as that of bbox')
+    if sort_by_score and score is not None:
+        order = np.argsort(score)
+        mask = mask[order]
+        score = score[order]
+        if label is not None:
+            label = label[order]
+
+    bbox = mask_to_bbox(mask)
 
     n_inst = len(bbox)
     if instance_colors is None:
