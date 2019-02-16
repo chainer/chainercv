@@ -5,7 +5,7 @@ DeepLab V3+
 
 | Network backborn | Training | Evaluation | Eval scales | Reference | ChainerCV (weight conversion) |
 |:-:|:-:|:-:|:-:|:-:|:-:|
-| Xception65 | VOC2012 trainaug | VOC2012 val | (1.0,) |  82.36 % * |  82.36 % |
+| Xception65 | VOC2012 trainaug | VOC2012 val | (1.0,) |  82.36 % * |  82.36 % |
 | Xception65 | Cityscapes train fine | Cityscapes val fine | (1.0,) | 79.12 % * | 79.14 % |
 
 Scores are measured by mean Intersection over Union (mIoU).  
