@@ -6,6 +6,8 @@ import chainer.functions as F
 from chainercv.links import Conv2DBNActiv
 from chainercv.links import SeparableConv2DBNActiv
 
+import numpy as np
+
 
 class XceptionBlock(chainer.Chain):
 
@@ -106,7 +108,9 @@ class Xception65(chainer.Chain):
 
     """
 
-    mean = [127.5, 127.5, 127.5]
+    
+    mean = np.array([127.5, 127.5, 127.5],
+                    dtype=np.float32)[:, np.newaxis, np.newaxis]
 
     def __init__(self, bn_kwargs={}):
         super(Xception65, self).__init__()
