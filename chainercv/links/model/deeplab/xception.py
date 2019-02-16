@@ -108,7 +108,6 @@ class Xception65(chainer.Chain):
 
     """
 
-    
     mean = np.array([127.5, 127.5, 127.5],
                     dtype=np.float32)[:, np.newaxis, np.newaxis]
 

@@ -122,7 +122,8 @@ class DeepLabV3plus(chainer.Chain):
         w = max(self.min_input_size[1], W)
 
         # Pad image with mean pixel value.
-        bg = np.zeros((3, h, w), dtype=np.float32) + self.feature_extractor.mean
+        mean = self.feature_extractor.mean
+        bg = np.zeros((3, h, w), dtype=np.float32) + mean
         bg[:, :H, :W] = image
         image = bg
 
