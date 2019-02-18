@@ -161,10 +161,11 @@ class PSROIAverageAlign2D(function.Function):
         top_data = np.empty(
             (n_roi, self.out_c, self.out_h, self.out_w), dtype=np.float32)
 
-        group_size = self.group_size
-        pooled_dim, pooled_width, pooled_height \
-            = self.out_c, self.out_w, self.out_h
         spatial_scale = self.spatial_scale
+        pooled_dim = self.out_c
+        pooled_height = self.out_h
+        pooled_width = self.out_w
+        group_size = self.group_size
 
         for i in six.moves.range(top_data.size):
             pw = i % pooled_width
