@@ -172,7 +172,7 @@ class PSROIAverageAlign2D(function.Function):
             ctop = int(i / pooled_width / pooled_height) % pooled_dim
             n = int(i / pooled_width / pooled_height / pooled_dim)
 
-            roi_batch_ind = int(bottom_roi_indices[n])
+            roi_batch_ind = bottom_roi_indices[n]
             roi_start_h = bottom_rois[n, 0] * spatial_scale
             roi_start_w = bottom_rois[n, 1] * spatial_scale
             roi_end_h = bottom_rois[n, 2] * spatial_scale
