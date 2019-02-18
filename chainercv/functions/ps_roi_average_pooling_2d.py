@@ -34,16 +34,6 @@ from chainer import function
 from chainer.utils import type_check
 
 
-def _roi_pooling_slice(size, stride, max_size, roi_offset):
-    start = int(np.floor(size * stride))
-    end = int(np.ceil((size + 1) * stride))
-
-    start = min(max(start + roi_offset, 0), max_size)
-    end = min(max(end + roi_offset, 0), max_size)
-
-    return slice(start, end), end - start
-
-
 class PSROIAveragePooling2D(function.Function):
 
     def __init__(self, out_c, out_h, out_w, spatial_scale, group_size):
