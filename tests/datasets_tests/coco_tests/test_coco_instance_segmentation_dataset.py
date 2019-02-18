@@ -7,6 +7,7 @@ from chainer.testing import attr
 
 from chainercv.datasets import coco_instance_segmentation_label_names
 from chainercv.datasets import COCOInstanceSegmentationDataset
+from chainercv.utils import assert_is_bbox
 from chainercv.utils import assert_is_instance_segmentation_dataset
 
 try:
@@ -25,7 +26,8 @@ def _create_paramters():
     use_and_return_args = testing.product({
         'use_crowded': [False, True],
         'return_crowded': [False, True],
-        'return_area': [False, True]})
+        'return_area': [False, True],
+        'return_bbox': [False, True]})
     params = testing.product_dict(
         split_years,
         use_and_return_args)
@@ -39,7 +41,7 @@ class TestCOCOInstanceSegmentationDataset(unittest.TestCase):
         self.dataset = COCOInstanceSegmentationDataset(
             split=self.split, year=self.year,
             use_crowded=self.use_crowded, return_crowded=self.return_crowded,
-            return_area=self.return_area)
+            return_area=self.return_area, return_bbox=self.return_bbox)
 
     @attr.slow
     @unittest.skipUnless(_available, 'pycocotools is not installed')
@@ -61,7 +63,10 @@ class TestCOCOInstanceSegmentationDataset(unittest.TestCase):
             for _ in range(10):
                 i = np.random.randint(0, len(self.dataset))
                 example = self.dataset[i]
-                crowded = example[-1]
+                if self.return_area:
+                    crowded = example[4]
+                else:
+                    crowded = example[3]
                 mask = example[1]
                 self.assertIsInstance(crowded, np.ndarray)
                 self.assertEqual(crowded.dtype, np.bool)
@@ -69,6 +74,15 @@ class TestCOCOInstanceSegmentationDataset(unittest.TestCase):
 
                 if not self.use_crowded:
                     np.testing.assert_equal(crowded, 0)
+
+        if self.return_bbox:
+            for _ in range(10):
+                i = np.random.randint(0, len(self.dataset))
+                example = self.dataset[i]
+                bbox = example[-1]
+                img, mask = example[:2]
+                assert_is_bbox(bbox, img.shape[1:])
+                self.assertEqual(len(bbox), len(mask))
 
 
 testing.run_module(__name__, __file__)

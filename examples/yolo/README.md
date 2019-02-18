@@ -29,7 +29,7 @@ $ python darknet2npz.py [--model yolo_v2|yolo_v2_tiny|yolo_v3] [--n-fg-class <#f
 ```
 
 ## Evaluation
-The evaluation can be conducted using [`chainercv/examples/detection/eval_voc07.py`](https://github.com/chainer/chainercv/blob/master/examples/detection).
+The evaluation can be conducted using [`chainercv/examples/detection/eval_detection.py`](https://github.com/chainer/chainercv/blob/master/examples/detection).
 
 ## References
 1. Joseph Redmon et al. "YOLO9000: Better, Faster, Stronger" CVPR 2017.

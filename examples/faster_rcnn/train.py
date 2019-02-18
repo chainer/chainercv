@@ -17,6 +17,13 @@ from chainercv.links import FasterRCNNVGG16
 from chainercv.links.model.faster_rcnn import FasterRCNNTrainChain
 from chainercv import transforms
 
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+try:
+    import cv2
+    cv2.setNumThreads(0)
+except ImportError:
+    pass
+
 
 class Transform(object):
 

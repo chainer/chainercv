@@ -1,6 +1,7 @@
 from __future__ import division
 
 import argparse
+import multiprocessing
 import numpy as np
 
 import chainer
@@ -10,6 +11,7 @@ import chainermn
 
 from chainercv.chainer_experimental.datasets.sliceable \
     import TransformDataset
+from chainercv.chainer_experimental.training.extensions import make_shift
 from chainercv.datasets import sbd_instance_segmentation_label_names
 from chainercv.datasets import SBDInstanceSegmentationDataset
 from chainercv.experimental.links import FCISResNet101
@@ -17,8 +19,15 @@ from chainercv.experimental.links import FCISTrainChain
 from chainercv.extensions import InstanceSegmentationVOCEvaluator
 from chainercv.links.model.ssd import GradientScaling
 
-from train import concat_examples
-from train import Transform
+from train_sbd import concat_examples
+from train_sbd import Transform
+
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+try:
+    import cv2
+    cv2.setNumThreads(0)
+except ImportError:
+    pass
 
 
 def main():
@@ -28,14 +37,19 @@ def main():
                         help='Output directory')
     parser.add_argument('--seed', '-s', type=int, default=0)
     parser.add_argument(
-        '--lr', '-l', type=float, default=0.0005,
-        help='Default value is for 1 GPU.\n'
-             'The learning rate should be multiplied by the number of gpu')
-    parser.add_argument(
-        '--lr-cooldown-factor', '-lcf', type=float, default=0.1)
+        '--lr', '-l', type=float, default=None,
+        help='Learning rate for multi GPUs')
+    parser.add_argument('--batch-size', type=int, default=8)
     parser.add_argument('--epoch', '-e', type=int, default=42)
     parser.add_argument('--cooldown-epoch', '-ce', type=int, default=28)
     args = parser.parse_args()
+
+    # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
+    if hasattr(multiprocessing, 'set_start_method'):
+        multiprocessing.set_start_method('forkserver')
+        p = multiprocessing.Process()
+        p.start()
+        p.join()
 
     # chainermn
     comm = chainermn.create_communicator()
@@ -63,7 +77,8 @@ def main():
         indices = None
     indices = chainermn.scatter_dataset(indices, comm, shuffle=True)
     train_dataset = train_dataset.slice[indices]
-    train_iter = chainer.iterators.SerialIterator(train_dataset, batch_size=1)
+    train_iter = chainer.iterators.SerialIterator(
+        train_dataset, batch_size=args.batch_size // comm.size)
 
     if comm.rank == 0:
         test_dataset = SBDInstanceSegmentationDataset(split='val')
@@ -93,11 +108,21 @@ def main():
     trainer = chainer.training.Trainer(
         updater, (args.epoch, 'epoch'), out=args.out)
 
-    # lr scheduler
-    trainer.extend(
-        chainer.training.extensions.ExponentialShift(
-            'lr', args.lr_cooldown_factor, init=args.lr),
-        trigger=(args.cooldown_epoch, 'epoch'))
+    @make_shift('lr')
+    def lr_scheduler(trainer):
+        if args.lr is None:
+            base_lr = 0.0005 * args.batch_size
+        else:
+            base_lr = args.lr
+
+        epoch = trainer.updater.epoch
+        if epoch < args.cooldown_epoch:
+            rate = 1
+        else:
+            rate = 0.1
+        return rate * base_lr
+
+    trainer.extend(lr_scheduler)
 
     if comm.rank == 0:
         # interval

@@ -39,6 +39,10 @@ read_image
 ~~~~~~~~~~
 .. autofunction:: read_image
 
+read_label
+~~~~~~~~~~
+.. autofunction:: read_label
+
 tile_images
 ~~~~~~~~~~~
 .. autofunction:: tile_images

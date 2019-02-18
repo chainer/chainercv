@@ -1,3 +1,4 @@
+import filelock
 import numpy as np
 import os
 
@@ -16,28 +17,32 @@ prob_map_url = 'http://www.vision.caltech.edu/visipedia-data/'\
 
 def get_cub():
     data_root = download.get_dataset_directory(root)
-    base_path = os.path.join(data_root, 'CUB_200_2011')
-    if os.path.exists(base_path):
-        # skip downloading
-        return base_path
+    # To support ChainerMN, the target directory should be locked.
+    with filelock.FileLock(os.path.join(data_root, 'lock')):
+        base_path = os.path.join(data_root, 'CUB_200_2011')
+        if os.path.exists(base_path):
+            # skip downloading
+            return base_path
 
-    download_file_path = utils.cached_download(url)
-    ext = os.path.splitext(url)[1]
-    utils.extractall(download_file_path, data_root, ext)
+        download_file_path = utils.cached_download(url)
+        ext = os.path.splitext(url)[1]
+        utils.extractall(download_file_path, data_root, ext)
     return base_path
 
 
 def get_cub_prob_map():
     data_root = download.get_dataset_directory(root)
-    base_path = os.path.join(data_root, 'segmentations')
-    if os.path.exists(base_path):
-        # skip downloading
-        return base_path
+    # To support ChainerMN, the target directory should be locked.
+    with filelock.FileLock(os.path.join(data_root, 'lock')):
+        base_path = os.path.join(data_root, 'segmentations')
+        if os.path.exists(base_path):
+            # skip downloading
+            return base_path
 
-    prob_map_download_file_path = utils.cached_download(prob_map_url)
-    prob_map_ext = os.path.splitext(prob_map_url)[1]
-    utils.extractall(
-        prob_map_download_file_path, data_root, prob_map_ext)
+        prob_map_download_file_path = utils.cached_download(prob_map_url)
+        prob_map_ext = os.path.splitext(prob_map_url)[1]
+        utils.extractall(
+            prob_map_download_file_path, data_root, prob_map_ext)
     return base_path
 
 
@@ -87,10 +92,8 @@ class CUBDatasetBase(GetterDataset):
         return self.bbs[i]
 
     def _get_prob_map(self, i):
-        prob_map = utils.read_image(self.prob_map_paths[i],
-                                    dtype=np.uint8, color=False)
+        prob_map = utils.read_label(self.prob_map_paths[i], dtype=np.uint8)
         prob_map = prob_map.astype(np.float32) / 255  # [0, 255] -> [0, 1]
-        prob_map = prob_map[0]  # (1, H, W) --> (H, W)
         return prob_map
 
 

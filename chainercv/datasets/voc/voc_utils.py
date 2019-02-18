@@ -1,3 +1,4 @@
+import filelock
 import numpy as np
 import os
 
@@ -26,15 +27,18 @@ def get_voc(year, split):
         key = '2007_test'
 
     data_root = download.get_dataset_directory(root)
-    base_path = os.path.join(data_root, 'VOCdevkit/VOC{}'.format(year))
-    split_file = os.path.join(base_path, 'ImageSets/Main/{}.txt'.format(split))
-    if os.path.exists(split_file):
-        # skip downloading
-        return base_path
+    # To support ChainerMN, the target directory should be locked.
+    with filelock.FileLock(os.path.join(data_root, 'lock')):
+        base_path = os.path.join(data_root, 'VOCdevkit/VOC{}'.format(year))
+        split_file = os.path.join(
+            base_path, 'ImageSets/Main/{}.txt'.format(split))
+        if os.path.exists(split_file):
+            # skip downloading
+            return base_path
 
-    download_file_path = utils.cached_download(urls[key])
-    ext = os.path.splitext(urls[key])[1]
-    utils.extractall(download_file_path, data_root, ext)
+        download_file_path = utils.cached_download(urls[key])
+        ext = os.path.splitext(urls[key])[1]
+        utils.extractall(download_file_path, data_root, ext)
     return base_path
 
 

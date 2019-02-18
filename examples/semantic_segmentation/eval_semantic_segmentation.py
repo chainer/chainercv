@@ -9,10 +9,13 @@ from chainercv.datasets import camvid_label_names
 from chainercv.datasets import CamVidDataset
 from chainercv.datasets import cityscapes_semantic_segmentation_label_names
 from chainercv.datasets import CityscapesSemanticSegmentationDataset
+from chainercv.datasets import voc_semantic_segmentation_label_names
+from chainercv.datasets import VOCSemanticSegmentationDataset
 
 from chainercv.evaluations import eval_semantic_segmentation
 from chainercv.experimental.links import PSPNetResNet101
 from chainercv.experimental.links import PSPNetResNet50
+from chainercv.links import DeepLabV3plusXception65
 from chainercv.links import SegNetBasic
 from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
@@ -30,6 +33,9 @@ def get_dataset_and_model(dataset_name, model_name, pretrained_model,
     elif dataset_name == 'camvid':
         dataset = CamVidDataset(split='test')
         label_names = camvid_label_names
+    elif dataset_name == 'voc':
+        dataset = VOCSemanticSegmentationDataset(split='val')
+        label_names = voc_semantic_segmentation_label_names
 
     n_class = len(label_names)
 
@@ -52,24 +58,35 @@ def get_dataset_and_model(dataset_name, model_name, pretrained_model,
     elif model_name == 'segnet':
         model = SegNetBasic(
             n_class=n_class, pretrained_model=pretrained_model)
+    elif model_name == 'deeplab_v3plus_xception65':
+        model = DeepLabV3plusXception65(
+            n_class=n_class,
+            pretrained_model=pretrained_model,
+            min_input_size=input_size)
+
     return dataset, label_names, model
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--dataset', choices=('cityscapes', 'ade20k', 'camvid'))
+        '--dataset', choices=('cityscapes', 'ade20k', 'camvid', 'voc'))
     parser.add_argument(
         '--model', choices=(
-            'pspnet_resnet101', 'segnet'))
+            'pspnet_resnet101', 'segnet', 'deeplab_v3plus_xception65'))
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--pretrained-model')
     parser.add_argument('--input-size', type=int, default=None)
     args = parser.parse_args()
 
+    if args.input_size is None:
+        input_size = None
+    else:
+        input_size = (args.input_size, args.input_size)
+
     dataset, label_names, model = get_dataset_and_model(
         args.dataset, args.model, args.pretrained_model,
-        (args.input_size, args.input_size))
+        input_size)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()

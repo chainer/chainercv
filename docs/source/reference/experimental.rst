@@ -4,6 +4,16 @@ Experimental
 Links
 -----
 
+Detection
+~~~~~~~~~
+
+Detection links share a common method :meth:`predict` to detect objects in images.
+
+.. toctree::
+
+   experimental/yolo
+
+
 Semantic Segmentation
 ~~~~~~~~~~~~~~~~~~~~~
 

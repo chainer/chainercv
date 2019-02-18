@@ -4,6 +4,7 @@ import os
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
+from chainercv.utils import read_label
 
 
 class VOCInstanceSegmentationDataset(GetterDataset):
@@ -70,11 +71,9 @@ class VOCInstanceSegmentationDataset(GetterDataset):
             self.data_dir, 'SegmentationClass', data_id + '.png')
         inst_file = os.path.join(
             self.data_dir, 'SegmentationObject', data_id + '.png')
-        label_img = read_image(label_file, dtype=np.int32, color=False)
-        label_img = label_img[0]
+        label_img = read_label(label_file, dtype=np.int32)
         label_img[label_img == 255] = -1
-        inst_img = read_image(inst_file, dtype=np.int32, color=False)
-        inst_img = inst_img[0]
+        inst_img = read_label(inst_file, dtype=np.int32)
         inst_img[inst_img == 0] = -1
         inst_img[inst_img == 255] = -1
         return label_img, inst_img

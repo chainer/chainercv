@@ -32,6 +32,7 @@ class TestCropBbox(unittest.TestCase):
             return_param=True)
         np.testing.assert_equal(out, expected)
         np.testing.assert_equal(param['index'], (0, 1, 3, 4))
+        np.testing.assert_equal(param['truncated_index'], (0, 1, 3))
 
     def test_crop_bbox_disallow_outside_center(self):
         expected = np.array((
@@ -45,6 +46,7 @@ class TestCropBbox(unittest.TestCase):
             allow_outside_center=False, return_param=True)
         np.testing.assert_equal(out, expected)
         np.testing.assert_equal(param['index'], (0, 1, 3))
+        np.testing.assert_equal(param['truncated_index'], (0, 1))
 
 
 testing.run_module(__name__, __file__)

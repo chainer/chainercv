@@ -64,7 +64,7 @@ $ MPLBACKEND=Agg python train.py OPTIONS
 ### Evaluation
 
 The evaluation score is reported by `DetectionVOCEvaluator` during training.
-Also, the evaluation can be conducted outside of training loop by using [`chainercv/examples/detection/eval_voc07.py`](https://github.com/chainer/chainercv/blob/master/examples/detection).
+Also, the evaluation can be conducted outside of training loop by using [`chainercv/examples/detection/eval_detection.py`](https://github.com/chainer/chainercv/blob/master/examples/detection).
 
 
 ### References

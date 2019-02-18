@@ -44,6 +44,9 @@ def crop_bbox(
 
         * **index** (*numpy.ndarray*): An array holding indices of used \
             bounding boxes.
+        * **trancated_index** (*numpy.ndarray*): An array holding indices of \
+            truncated bounding boxes, with respect to **returned** \
+            :obj:`bbox`, rather than original :obj:`bbox`.
 
     """
 
@@ -58,17 +61,26 @@ def crop_bbox(
         mask = np.logical_and(crop_bb[:2] <= center, center < crop_bb[2:]) \
                  .all(axis=1)
 
-    bbox = bbox.copy()
+    original_bbox, bbox = bbox, bbox.copy()
     bbox[:, :2] = np.maximum(bbox[:, :2], crop_bb[:2])
     bbox[:, 2:] = np.minimum(bbox[:, 2:], crop_bb[2:])
+
+    truncated_mask = np.any(original_bbox != bbox, axis=1)
+
     bbox[:, :2] -= crop_bb[:2]
     bbox[:, 2:] -= crop_bb[:2]
 
     mask = np.logical_and(mask, (bbox[:, :2] < bbox[:, 2:]).all(axis=1))
     bbox = bbox[mask]
+    truncated_mask = truncated_mask[mask]
 
     if return_param:
-        return bbox, {'index': np.flatnonzero(mask)}
+        index = np.flatnonzero(mask)
+        truncated_index = np.flatnonzero(truncated_mask)
+        return bbox, {
+            'index': index,
+            'truncated_index': truncated_index,
+        }
     else:
         return bbox
 

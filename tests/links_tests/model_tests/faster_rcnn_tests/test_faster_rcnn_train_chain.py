@@ -40,10 +40,10 @@ class TestFasterRCNNTrainChain(unittest.TestCase):
             0, self.n_fg_class, size=(1, self.n_bbox)).astype(np.int32)
         self.labels = chainer.Variable(_labels)
         self.imgs = chainer.Variable(_random_array((1, 3, 600, 800)))
-        self.scale = chainer.Variable(np.array(1.))
+        self.scales = chainer.Variable(np.array([1.]))
 
     def check_call(self):
-        loss = self.link(self.imgs, self.bboxes, self.labels, self.scale)
+        loss = self.link(self.imgs, self.bboxes, self.labels, self.scales)
         self.assertEqual(loss.shape, ())
 
     def test_call_cpu(self):

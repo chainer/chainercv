@@ -166,7 +166,7 @@ class TestFCIS(unittest.TestCase):
     {'in_shape': (3, 300, 600), 'expected_shape': (3, 200, 400)},
     {'in_shape': (3, 600, 900), 'expected_shape': (3, 200, 300)}
 )
-class TestFasterRCNNPrepare(unittest.TestCase):
+class TestFCISPrepare(unittest.TestCase):
 
     min_size = 200
     max_size = 400

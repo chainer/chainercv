@@ -8,6 +8,7 @@ from chainer.dataset import download
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.cityscapes.cityscapes_utils import cityscapes_labels
 from chainercv.utils import read_image
+from chainercv.utils import read_label
 
 
 class CityscapesSemanticSegmentationDataset(GetterDataset):
@@ -98,8 +99,7 @@ class CityscapesSemanticSegmentationDataset(GetterDataset):
         return read_image(self.img_paths[i])
 
     def _get_label(self, i):
-        label_orig = read_image(
-            self.label_paths[i], dtype=np.int32, color=False)[0]
+        label_orig = read_label(self.label_paths[i], dtype=np.int32)
         if self.ignore_labels:
             label_out = np.ones(label_orig.shape, dtype=np.int32) * -1
             for label in cityscapes_labels:

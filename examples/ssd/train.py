@@ -24,6 +24,10 @@ from chainercv.links.model.ssd import random_crop_with_bbox_constraints
 from chainercv.links.model.ssd import random_distort
 from chainercv.links.model.ssd import resize_with_random_interpolation
 
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+import cv2
+cv2.setNumThreads(0)
+
 
 class MultiboxTrainChain(chainer.Chain):
 

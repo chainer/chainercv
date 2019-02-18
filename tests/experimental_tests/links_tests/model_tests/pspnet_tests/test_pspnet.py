@@ -53,22 +53,12 @@ class TestPSPNetResNet(unittest.TestCase):
         assert_is_semantic_segmentation_link(self.link, self.n_class)
 
 
-def _create_paramters():
-    params = testing.product({
-        'model': [PSPNetResNet50],
-        'pretrained_model': ['imagenet'],
-        'n_class': [None, 5],
-    })
-    params += testing.product({
-        'model': [PSPNetResNet101],
-        'pretrained_model': ['imagenet', 'cityscapes'],
-        'n_class': [None, 5, 19],
-    })
-    return params
-
-
-@testing.parameterize(*_create_paramters())
-class TestPSPNetPretrained(unittest.TestCase):
+@testing.parameterize(*testing.product({
+    'model': [PSPNetResNet50, PSPNetResNet101],
+    'pretrained_model': ['cityscapes', 'ade20k', 'imagenet'],
+    'n_class': [None, 19, 150],
+}))
+class TestPSPNetResNetPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
@@ -77,17 +67,18 @@ class TestPSPNetPretrained(unittest.TestCase):
             'pretrained_model': self.pretrained_model,
         }
 
-        valid = True
         if self.pretrained_model == 'cityscapes':
             valid = self.n_class in {None, 19}
+        elif self.pretrained_model == 'ade20k':
+            valid = self.n_class in {None, 150}
         elif self.pretrained_model == 'imagenet':
-            valid = self.n_class in {5, 19}
+            valid = self.n_class is not None
 
         if valid:
             self.model(**kwargs)
         else:
             with self.assertRaises(ValueError):
-                PSPNetResNet101(**kwargs)
+                self.model(**kwargs)
 
 
 testing.run_module(__name__, __file__)

@@ -4,6 +4,7 @@ from chainercv.utils.download import cached_download  # NOQA
 from chainercv.utils.download import download_model  # NOQA
 from chainercv.utils.download import extractall  # NOQA
 from chainercv.utils.image import read_image  # NOQA
+from chainercv.utils.image import read_label  # NOQA
 from chainercv.utils.image import tile_images  # NOQA
 from chainercv.utils.image import write_image  # NOQA
 from chainercv.utils.iterator import apply_to_iterator  # NOQA
