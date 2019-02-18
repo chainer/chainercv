@@ -10,6 +10,9 @@ import unittest
 from chainercv import functions
 
 
+@testing.parameterize(*testing.product({
+    'spatial_scale': [0.6, 1.0, 2.0],
+}))
 class TestPSROIAveragePooling2D(unittest.TestCase):
 
     def setUp(self):
@@ -33,7 +36,6 @@ class TestPSROIAveragePooling2D(unittest.TestCase):
         self.roi_indices = np.array([0, 2, 1, 0], dtype=np.int32)
         self.n_roi = self.rois.shape[0]
         self.out_h, self.out_w = 4, 4
-        self.spatial_scale = 1.0
         self.gy = np.random.uniform(
             -1, 1, (self.n_roi, self.out_c, self.out_h, self.out_w))
         self.gy = self.gy.astype(np.float32)
