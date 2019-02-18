@@ -32,92 +32,66 @@ def _pair(x):
     return x, x
 
 
-def _get_bilinear_interp_params(y, x, height, width):
-    if y < -1 or y > height or x < -1 or x > width:
+def _get_bounds(p, limit):
+    if p < -1 or p > limit:
         # out of range, so it is empty
-        return (None,) * 8
-
-    if y <= 0:
-        y = 0
-    if x <= 0:
-        x = 0
-
-    y_low = int(y)
-    x_low = int(x)
-
-    if y_low >= height - 1:
-        y_high = y_low = height - 1
-        y = float(y_low)
+        return None, None, None
+    if p <= 0:
+        p = 0
+    low = int(np.floor(p))
+    if low >= limit - 1:
+        high = low = limit - 1
+        p = float(low)
     else:
-        y_high = y_low + 1
+        high = low + 1
+    return p, low, high
 
-    if x_low >= width - 1:
-        x_high = x_low = width - 1
-        x = float(x_low)
-    else:
-        x_high = x_low + 1
 
+def _get_bilinear_interp_params(y, x, y_low, x_low, y_high, x_high):
     ly = y - y_low
     lx = x - x_low
     hy = 1. - ly
     hx = 1. - lx
-
     w1 = hy * hx
     w2 = hy * lx
     w3 = ly * hx
     w4 = ly * lx
-
-    return y_low, x_low, y_high, x_high, w1, w2, w3, w4
+    return w1, w2, w3, w4
 
 
 _GET_BILINEAR_INTERP_KERNEL = '''
 __device__
-bool get_bilinear_interp_params(
-    T x, T y, const int height, const int width,
-    int &y_low, int &x_low, int &y_high, int &x_high,
-    T &w1, T &w2, T &w3, T &w4) {
-    // deal with cases that inverse elements are
-    // out of feature map boundary
-    if (y < -1. || y > height || x < -1. || x > width) {
+bool get_bounds(
+    T &p, const int limit, int &low, int &high) {
+    if (p < -1. || p > limit) {
         // empty
         return false;
     }
-
-    if (y <= 0) {
-        y = 0;
+    if (p <= 0) {
+        p = 0;
     }
-    if (x <= 0) {
-        x = 0;
-    }
-
-    y_low = (int)y;
-    x_low = (int)x;
-
-    if (y_low >= height - 1) {
-        y_high = y_low = height - 1;
-        y = (T)y_low;
+    low = (int)p;
+    if (low >= limit - 1) {
+        high = low = limit - 1;
+        p = (T)low;
     } else {
-        y_high = y_low + 1;
+        high = low + 1;
     }
+    return true;
+}
 
-    if (x_low >= width - 1) {
-        x_high = x_low = width - 1;
-        x = (T)x_low;
-    } else {
-        x_high = x_low + 1;
-    }
-
+__device__
+void get_bilinear_interp_params(
+    T y, T x, int y_low, int x_low, int y_high, int x_high,
+    T &w1, T &w2, T &w3, T &w4) {
     T ly = y - y_low;
     T lx = x - x_low;
     T hy = 1. - ly;
     T hx = 1. - lx;
-
     w1 = hy * hx;
     w2 = hy * lx;
     w3 = ly * hx;
     w4 = ly * lx;
-
-    return true;
 }
 '''
 
@@ -216,31 +190,34 @@ class PSROIAverageAlign2D(function.Function):
             c = (ctop * group_size + gh) * group_size + gw
 
             if self.sampling_ratio[0] is None:
-                roi_bin_grid_h = np.ceil(roi_height / pooled_height)
+                roi_bin_grid_h = int(np.ceil(roi_height / pooled_height))
             else:
                 roi_bin_grid_h = self.sampling_ratio[0]
             if self.sampling_ratio[1] is None:
-                roi_bin_grid_w = np.ceil(roi_width / pooled_width)
+                roi_bin_grid_w = int(np.ceil(roi_width / pooled_width))
             else:
                 roi_bin_grid_w = self.sampling_ratio[1]
 
             count = roi_bin_grid_h * roi_bin_grid_w
 
             output_val = 0.
-            iy = 0
-            while iy < roi_bin_grid_h:
+            for iy in six.moves.range(roi_bin_grid_h):
                 y = roi_start_h + ph * bin_size_h + \
                     (iy + .5) * bin_size_h / roi_bin_grid_h
-                ix = 0
-                while ix < roi_bin_grid_w:
+                y, y_low, y_high = _get_bounds(y, height)
+                if y is None or y_low is None or y_high is None:
+                    continue
+                for ix in six.moves.range(roi_bin_grid_w):
                     x = roi_start_w + pw * bin_size_w + \
                         (ix + .5) * bin_size_w / roi_bin_grid_w
 
-                    # bilinear interpolation {{
-                    y_low, x_low, y_high, x_high, w1, w2, w3, w4 = \
-                        _get_bilinear_interp_params(y, x, height, width)
-                    if y_low is None:
+                    x, x_low, x_high = _get_bounds(x, width)
+                    if x is None or x_low is None or x_high is None:
                         continue
+
+                    # bilinear interpolation {{
+                    w1, w2, w3, w4 = _get_bilinear_interp_params(
+                        y, x, y_low, x_low, y_high, x_high)
 
                     v1 = bottom_data[roi_batch_ind, c, y_low, x_low]
                     v2 = bottom_data[roi_batch_ind, c, y_low, x_high]
@@ -250,9 +227,6 @@ class PSROIAverageAlign2D(function.Function):
                     output_val += w1 * v1 + w2 * v2 + w3 * v3 + w4 * v4
 
                     # }}
-
-                    ix += 1
-                iy += 1
 
             output_val /= count
             top_data[n, ctop, ph, pw] = output_val
@@ -338,22 +312,21 @@ class PSROIAverageAlign2D(function.Function):
                 T y = roi_start_h + ph * bin_size_h +
                     static_cast<T>(iy + .5f) * bin_size_h /
                         static_cast<T>(roi_bin_grid_h);  // e.g. 0.5, 1.5
+                int y_low, y_high;
+                bool y_ret = get_bounds(y, height, y_low, y_high);
+                if (!y_ret) continue;
                 for (int ix = 0; ix < roi_bin_grid_w; ix++) {
                     T x = roi_start_w + pw * bin_size_w +
                         static_cast<T>(ix + .5f) * bin_size_w /
                             static_cast<T>(roi_bin_grid_w);
 
-                    // bilinear_interpolation {{
-                    int y_low, x_low, y_high, x_high;
+                    int x_low, x_high;
+                    bool x_ret = get_bounds(x, width, x_low, x_high);
+                    if (!x_ret) continue;
+                    // bilinear_interpolation_gradient {{
                     T w1, w2, w3, w4;
-                    bool ret = get_bilinear_interp_params(
-                        x, y, height, width,
-                        y_low, x_low, y_high, x_high,
-                        w1, w2, w3, w4
-                    );
-                    if (!ret) {
-                        continue;
-                    }
+                    get_bilinear_interp_params(
+                        y, x, y_low, x_low, y_high, x_high, w1, w2, w3, w4);
 
                     T v1 = bottom_data[bottom_data_offset +
                                            y_low * width + x_low];
@@ -419,30 +392,32 @@ class PSROIAverageAlign2D(function.Function):
             top_diff_this_bin = top_diff[n, ctop, ph, pw]
 
             if self.sampling_ratio[0] is None:
-                roi_bin_grid_h = np.ceil(roi_height / pooled_height)
+                roi_bin_grid_h = int(np.ceil(roi_height / pooled_height))
             else:
                 roi_bin_grid_h = self.sampling_ratio[0]
             if self.sampling_ratio[1] is None:
-                roi_bin_grid_w = np.ceil(roi_width / pooled_width)
+                roi_bin_grid_w = int(np.ceil(roi_width / pooled_width))
             else:
                 roi_bin_grid_w = self.sampling_ratio[1]
 
             count = roi_bin_grid_h * roi_bin_grid_w
 
-            iy = 0
-            while iy < roi_bin_grid_h:
+            for iy in six.moves.range(roi_bin_grid_h):
                 y = roi_start_h + ph * bin_size_h + \
                     (iy + .5) * bin_size_h / roi_bin_grid_h
-                ix = 0
-                while ix < roi_bin_grid_w:
+                y, y_low, y_high = _get_bounds(y, height)
+                if y is None or y_low is None or y_high is None:
+                    continue
+                for ix in six.moves.range(roi_bin_grid_w):
                     x = roi_start_w + pw * bin_size_w + \
                         (ix + .5) * bin_size_w / roi_bin_grid_w
 
-                    # bilinear_interpolation_gradient {{
-                    y_low, x_low, y_high, x_high, w1, w2, w3, w4 = \
-                        _get_bilinear_interp_params(y, x, height, width)
-                    if y_low is None:
+                    x, x_low, x_high = _get_bounds(x, width)
+                    if x is None or x_low is None or x_high is None:
                         continue
+                    # bilinear_interpolation_gradient {{
+                    w1, w2, w3, w4 = _get_bilinear_interp_params(
+                        y, x, y_low, x_low, y_high, x_high)
 
                     g1 = top_diff_this_bin * w1 / count
                     g2 = top_diff_this_bin * w2 / count
@@ -455,8 +430,7 @@ class PSROIAverageAlign2D(function.Function):
                         bottom_diff[roi_batch_ind, c, y_low, x_high] += g2
                         bottom_diff[roi_batch_ind, c, y_high, x_low] += g3
                         bottom_diff[roi_batch_ind, c, y_high, x_high] += g4
-                    ix += 1
-                iy += 1
+                    # }}
 
         return bottom_diff, None, None
 
@@ -539,21 +513,21 @@ class PSROIAverageAlign2D(function.Function):
                 T y = roi_start_h + ph * bin_size_h +
                     static_cast<T>(iy + .5f) * bin_size_h /
                         static_cast<T>(roi_bin_grid_h);  // e.g. 0.5, 1.5
+                int y_low, y_high;
+                bool y_ret = get_bounds(y, height, y_low, y_high);
+                if (!y_ret) continue;
                 for (int ix = 0; ix < roi_bin_grid_w; ix++) {
                     T x = roi_start_w + pw * bin_size_w +
                         static_cast<T>(ix + .5f) * bin_size_w /
                             static_cast<T>(roi_bin_grid_w);
 
-                    int y_low, x_low, y_high, x_high;
+                    int x_low, x_high;
+                    bool x_ret = get_bounds(x, width, x_low, x_high);
+                    if (!x_ret) continue;
+                    // bilinear_interpolation_gradient {{
                     T w1, w2, w3, w4;
-                    bool ret = get_bilinear_interp_params(
-                        x, y, height, width,
-                        y_low, x_low, y_high, x_high,
-                        w1, w2, w3, w4
-                    );
-                    if (!ret) {
-                        continue;
-                    }
+                    get_bilinear_interp_params(
+                        y, x, y_low, x_low, y_high, x_high, w1, w2, w3, w4);
 
                     T g1 = top_diff_this_bin * w1 / count;
                     T g2 = top_diff_this_bin * w2 / count;
