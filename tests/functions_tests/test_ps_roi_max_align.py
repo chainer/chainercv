@@ -1,5 +1,6 @@
 import chainer
 from chainer.backends import cuda
+import chainer.functions as F
 from chainer import gradient_check
 from chainer import testing
 from chainer.testing import attr
@@ -68,10 +69,15 @@ class TestPSROIMaxAlign2D(unittest.TestCase):
 
     def check_backward(self, x_data, roi_data, roi_index_data, y_grad_data):
         def f(x, rois, roi_indices):
-            return functions.ps_roi_max_align_2d(
+            y = functions.ps_roi_max_align_2d(
                 x, rois, roi_indices, self.out_c, self.out_h, self.out_w,
                 self.spatial_scale, self.group_size,
                 sampling_ratio=self.sampling_ratio)
+            xp = cuda.get_array_module(y)
+            y = F.where(
+                xp.isinf(y.array), xp.zeros(y.shape, dtype=y.dtype), y)
+            return y
+
         gradient_check.check_backward(
             f, (x_data, roi_data, roi_index_data), y_grad_data,
             no_grads=[False, True, True], **self.check_backward_options)
