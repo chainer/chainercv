@@ -18,10 +18,10 @@ img_urls = {
 }
 instances_anno_urls = {
     '2014': {
-        'train': 'http://msvocds.blob.core.windows.net/annotations-1-0-3/'
-        'instances_train-val2014.zip',
-        'val': 'http://msvocds.blob.core.windows.net/annotations-1-0-3/'
-        'instances_train-val2014.zip',
+        'train': 'http://images.cocodataset.org/annotations/'
+        'annotations_trainval2014.zip',
+        'val': 'http://images.cocodataset.org/annotations/'
+        'annotations_trainval2014.zip',
         'valminusminival': 'https://dl.dropboxusercontent.com/s/'
         's3tw5zcg7395368/instances_valminusminival2014.json.zip',
         'minival': 'https://dl.dropboxusercontent.com/s/o43o90bna78omob/'
