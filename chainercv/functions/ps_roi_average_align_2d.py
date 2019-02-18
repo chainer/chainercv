@@ -268,14 +268,10 @@ class PSROIAverageAlign2D(function.Function):
             int n = i / pooled_width / pooled_height / pooled_dim;
 
             int roi_batch_ind = bottom_roi_indices[n];
-            T roi_start_h = static_cast<T>(
-                round(bottom_rois[n * 4 + 0])) * spatial_scale;
-            T roi_start_w = static_cast<T>(
-                round(bottom_rois[n * 4 + 1])) * spatial_scale;
-            T roi_end_h = static_cast<T>(
-                round(bottom_rois[n * 4 + 2])) * spatial_scale;
-            T roi_end_w = static_cast<T>(
-                round(bottom_rois[n * 4 + 3])) * spatial_scale;
+            T roi_start_h = bottom_rois[n * 4 + 0] * spatial_scale;
+            T roi_start_w = bottom_rois[n * 4 + 1] * spatial_scale;
+            T roi_end_h = bottom_rois[n * 4 + 2] * spatial_scale;
+            T roi_end_w = bottom_rois[n * 4 + 3] * spatial_scale;
 
             // Force too small ROIs to be 1x1
             T roi_height = max(roi_end_h - roi_start_h, 0.1);
@@ -465,14 +461,10 @@ class PSROIAverageAlign2D(function.Function):
 
             // Do not using rounding; this implementation detail is critical
             int roi_batch_ind = bottom_roi_indices[n];
-            T roi_start_h = static_cast<T>(
-                round(bottom_rois[n * 4 + 0])) * spatial_scale;
-            T roi_start_w = static_cast<T>(
-                round(bottom_rois[n * 4 + 1])) * spatial_scale;
-            T roi_end_h = static_cast<T>(
-                round(bottom_rois[n * 4 + 2])) * spatial_scale;
-            T roi_end_w = static_cast<T>(
-                round(bottom_rois[n * 4 + 3])) * spatial_scale;
+            T roi_start_h = bottom_rois[n * 4 + 0] * spatial_scale;
+            T roi_start_w = bottom_rois[n * 4 + 1] * spatial_scale;
+            T roi_end_h = bottom_rois[n * 4 + 2] * spatial_scale;
+            T roi_end_w = bottom_rois[n * 4 + 3] * spatial_scale;
 
             // Force too small ROIs to be 1x1
             T roi_height = max(roi_end_h - roi_start_h, 0.1);
