@@ -141,7 +141,7 @@ class PSROIMaxAlign2D(function.Function):
             else:
                 roi_bin_grid_w = self.sampling_ratio[1]
 
-            maxval = -1e20
+            maxval = - np.inf
             maxidx = -1
             for iy in six.moves.range(roi_bin_grid_h):
                 y = roi_start_h + ph * bin_size_h + \
@@ -249,7 +249,7 @@ class PSROIMaxAlign2D(function.Function):
                 ? sampling_ratio_w
                 : ceil(roi_width / pooled_width);
 
-            T maxval = -1E+20;
+            T maxval = - (T) (1.0 / 0.0);
             int maxidx = -1;
             for (int iy = 0; iy < roi_bin_grid_h; iy++)  // e.g. iy = 0, 1
             {
