@@ -118,8 +118,8 @@ class PSROIAveragePooling2D(function.Function):
 
             hstart = int(np.floor(ph * bin_size_h + roi_start_h))
             wstart = int(np.floor(pw * bin_size_w + roi_start_w))
-            hend = int(np.floor((ph + 1) * bin_size_h + roi_start_h))
-            wend = int(np.floor((pw + 1) * bin_size_w + roi_start_w))
+            hend = int(np.ceil((ph + 1) * bin_size_h + roi_start_h))
+            wend = int(np.ceil((pw + 1) * bin_size_w + roi_start_w))
             hstart = min(max(hstart, 0), height)
             wstart = min(max(wstart, 0), width)
             hend = min(max(hend, 0), height)
@@ -263,8 +263,8 @@ class PSROIAveragePooling2D(function.Function):
 
             hstart = int(np.floor(ph * bin_size_h + roi_start_h))
             wstart = int(np.floor(pw * bin_size_w + roi_start_w))
-            hend = int(np.floor((ph + 1) * bin_size_h + roi_start_h))
-            wend = int(np.floor((pw + 1) * bin_size_w + roi_start_w))
+            hend = int(np.ceil((ph + 1) * bin_size_h + roi_start_h))
+            wend = int(np.ceil((pw + 1) * bin_size_w + roi_start_w))
             hstart = min(max(hstart, 0), height)
             wstart = min(max(wstart, 0), width)
             hend = min(max(hend, 0), height)
