@@ -89,47 +89,60 @@ class PSROIAveragePooling2D(function.Function):
         self._bottom_data_shape = inputs[0].shape
 
         bottom_data, bottom_rois, bottom_roi_indices = inputs
-        channels, height, width = bottom_data.shape[1:]
+        height, width = bottom_data.shape[2:]
         n_roi = bottom_rois.shape[0]
         top_data = np.empty(
             (n_roi, self.out_c, self.out_h, self.out_w), dtype=np.float32)
 
-        for i_roi in six.moves.range(n_roi):
-            y_min, x_min, y_max, x_max = bottom_rois[i_roi]
-            batch_index = bottom_roi_indices[i_roi]
-            y_min = round(y_min * self.spatial_scale)
-            x_min = round(x_min * self.spatial_scale)
-            y_max = round(y_max * self.spatial_scale)
-            x_max = round(x_max * self.spatial_scale)
-            roi_height = max(y_max - y_min, 0.1)
-            roi_width = max(x_max - x_min, 0.1)
+        group_size = self.group_size
+        pooled_dim, pooled_height, pooled_width \
+            = self.out_c, self.out_h, self.out_w
+        spatial_scale = self.spatial_scale
 
-            stride_c = channels / self.out_c
-            stride_h = roi_height / self.out_h
-            stride_w = roi_width / self.out_w
-            group_h = int(round(self.out_h / self.group_size))
-            group_w = int(round(self.out_w / self.group_size))
+        for i in six.moves.range(top_data.size):
+            pw = i % pooled_width
+            ph = int(i / pooled_width) % pooled_height
+            ctop = int(i / pooled_width / pooled_height) % pooled_dim
+            n = int(i / pooled_width / pooled_height / pooled_dim)
 
-            for out_h in six.moves.range(self.out_h):
-                slice_h, len_h = _roi_pooling_slice(
-                    out_h, stride_h, height, int(y_min))
-                if slice_h.stop <= slice_h.start:
-                    continue
-                for out_w in six.moves.range(self.out_w):
-                    slice_w, len_w = _roi_pooling_slice(
-                        out_w, stride_w, width, int(x_min))
-                    if slice_w.stop <= slice_w.start:
-                        continue
-                    for out_c in six.moves.range(self.out_c):
-                        slice_c, len_c = _roi_pooling_slice(
-                            out_c, stride_c, channels, 0)
-                        roi_data = bottom_data[
-                            batch_index, slice_c, slice_h, slice_w]\
-                            .reshape((len_c, -1))
-                        c = (out_h // group_h) * self.group_size \
-                            + (out_w // group_w)
-                        top_data[i_roi, out_c, out_h, out_w] = np.average(
-                            roi_data[c])
+            roi_batch_ind = bottom_roi_indices[n]
+            roi_start_h = bottom_rois[n, 0] * spatial_scale
+            roi_start_w = bottom_rois[n, 1] * spatial_scale
+            roi_end_h = bottom_rois[n, 2] * spatial_scale
+            roi_end_w = bottom_rois[n, 3] * spatial_scale
+
+            roi_height = max(roi_end_h - roi_start_h, 0.1)
+            roi_width = max(roi_end_w - roi_start_w, 0.1)
+            bin_size_h = roi_height / pooled_height
+            bin_size_w = roi_width / pooled_width
+
+            hstart = int(np.floor(ph * bin_size_h + roi_start_h))
+            wstart = int(np.floor(pw * bin_size_w + roi_start_w))
+            hend = int(np.floor((ph + 1) * bin_size_h + roi_start_h))
+            wend = int(np.floor((pw + 1) * bin_size_w + roi_start_w))
+            hstart = min(max(hstart, 0), height)
+            wstart = min(max(wstart, 0), width)
+            hend = min(max(hend, 0), height)
+            wend = min(max(wend, 0), width)
+
+            gh = int(np.floor(ph * group_size / pooled_height))
+            gw = int(np.floor(pw * group_size / pooled_width))
+            gh = min(max(gh, 0), group_size - 1)
+            gw = min(max(gw, 0), group_size - 1)
+            c = (ctop * group_size + gh) * group_size + gw
+
+            if hstart >= hend or wstart >= wend:
+                top_data[n, ctop, ph, pw] = 0
+                continue
+
+            output_val = 0.
+            count = (hend - hstart) * (wend - wstart)
+            for iy in six.moves.range(hstart, hend):
+                for ix in six.moves.range(wstart, wend):
+                    output_val += bottom_data[roi_batch_ind, c, iy, ix]
+            output_val /= count
+            top_data[n, ctop, ph, pw] = output_val
+
         return top_data,
 
     def forward_gpu(self, inputs):
@@ -222,46 +235,56 @@ class PSROIAveragePooling2D(function.Function):
 
     def backward_cpu(self, inputs, gy):
         _, bottom_rois, bottom_roi_indices = inputs
-        channels, height, width = self._bottom_data_shape[1:]
-        n_roi = bottom_rois.shape[0]
+        top_diff = gy[0]
+        height, width = self._bottom_data_shape[2:]
         bottom_diff = np.zeros(self._bottom_data_shape, np.float32)
 
-        for i_roi in six.moves.range(n_roi):
-            y_min, x_min, y_max, x_max = bottom_rois[i_roi]
-            batch_index = bottom_roi_indices[i_roi]
-            y_min = round(y_min * self.spatial_scale)
-            x_min = round(x_min * self.spatial_scale)
-            y_max = round(y_max * self.spatial_scale)
-            x_max = round(x_max * self.spatial_scale)
-            roi_height = max(y_max - y_min, 0.1)
-            roi_width = max(x_max - x_min, 0.1)
+        group_size = self.group_size
+        pooled_dim, pooled_width, pooled_height \
+            = self.out_c, self.out_w, self.out_h
+        spatial_scale = self.spatial_scale
 
-            stride_c = channels / self.out_c
-            stride_h = roi_height / self.out_h
-            stride_w = roi_width / self.out_w
-            group_h = int(round(self.out_h / self.group_size))
-            group_w = int(round(self.out_w / self.group_size))
+        for i in six.moves.range(top_diff.size):
+            pw = i % pooled_width
+            ph = int(i / pooled_width) % pooled_height
+            ctop = int(i / pooled_width / pooled_height) % pooled_dim
+            n = int(i / pooled_width / pooled_height / pooled_dim)
 
-            for out_h in six.moves.range(self.out_h):
-                slice_h, len_h = _roi_pooling_slice(
-                    out_h, stride_h, height, int(y_min))
-                if slice_h.stop <= slice_h.start:
-                    continue
-                for out_w in six.moves.range(self.out_w):
-                    slice_w, len_w = _roi_pooling_slice(
-                        out_w, stride_w, width, int(x_min))
-                    if slice_w.stop <= slice_w.start:
-                        continue
-                    for out_c in six.moves.range(self.out_c):
-                        diff_val = gy[0][i_roi, out_c, out_h, out_w]
-                        diff_val = diff_val / len_h / len_w
-                        start_c = int(np.floor(out_c * stride_c))
-                        start_c = min(max(start_c, 0), channels)
+            roi_batch_ind = int(bottom_roi_indices[n])
+            roi_start_h = bottom_rois[n, 0] * spatial_scale
+            roi_start_w = bottom_rois[n, 1] * spatial_scale
+            roi_end_h = bottom_rois[n, 2] * spatial_scale
+            roi_end_w = bottom_rois[n, 3] * spatial_scale
 
-                        c = (out_h // group_h) * self.group_size \
-                            + (out_w // group_w) + start_c
-                        bottom_diff[batch_index, c, slice_h, slice_w] \
-                            += diff_val
+            roi_height = max(roi_end_h - roi_start_h, 0.1)
+            roi_width = max(roi_end_w - roi_start_w, 0.1)
+            bin_size_h = roi_height / pooled_height
+            bin_size_w = roi_width / pooled_width
+
+            hstart = int(np.floor(ph * bin_size_h + roi_start_h))
+            wstart = int(np.floor(pw * bin_size_w + roi_start_w))
+            hend = int(np.floor((ph + 1) * bin_size_h + roi_start_h))
+            wend = int(np.floor((pw + 1) * bin_size_w + roi_start_w))
+            hstart = min(max(hstart, 0), height)
+            wstart = min(max(wstart, 0), width)
+            hend = min(max(hend, 0), height)
+            wend = min(max(wend, 0), width)
+
+            gh = int(np.floor(ph * group_size / pooled_height))
+            gw = int(np.floor(pw * group_size / pooled_width))
+            gh = min(max(gh, 0), group_size - 1)
+            gw = min(max(gw, 0), group_size - 1)
+            c = (ctop * group_size + gh) * group_size + gw
+
+            if (hstart >= hend) or (wstart >= wend):
+                continue
+
+            count = (hend - hstart) * (wend - wstart)
+            diff_val = top_diff[n, ctop, ph, pw] / count
+            for iy in six.moves.range(hstart, hend):
+                for ix in six.moves.range(wstart, wend):
+                    bottom_diff[roi_batch_ind, c, iy, ix] += diff_val
+
         return bottom_diff, None, None
 
     def backward_gpu(self, inputs, gy):
