@@ -29,6 +29,7 @@ from chainercv.functions.ps_roi_average_align_2d \
     import _GET_BILINEAR_INTERP_KERNEL
 from chainercv.functions.ps_roi_average_align_2d \
     import _get_bilinear_interp_params
+from chainercv.functions.ps_roi_average_align_2d import _get_bounds
 
 
 def _pair(x):
@@ -132,30 +133,33 @@ class PSROIMaxAlign2D(function.Function):
             c = (ctop * group_size + gh) * group_size + gw
 
             if self.sampling_ratio[0] is None:
-                roi_bin_grid_h = np.ceil(roi_height / pooled_height)
+                roi_bin_grid_h = int(np.ceil(roi_height / pooled_height))
             else:
                 roi_bin_grid_h = self.sampling_ratio[0]
             if self.sampling_ratio[1] is None:
-                roi_bin_grid_w = np.ceil(roi_width / pooled_width)
+                roi_bin_grid_w = int(np.ceil(roi_width / pooled_width))
             else:
                 roi_bin_grid_w = self.sampling_ratio[1]
 
             maxval = -1e20
             maxidx = -1
-            iy = 0
-            while iy < roi_bin_grid_h:
+            for iy in six.moves.range(roi_bin_grid_h):
                 y = roi_start_h + ph * bin_size_h + \
                     (iy + .5) * bin_size_h / roi_bin_grid_h
-                ix = 0
-                while ix < roi_bin_grid_w:
+                y, y_low, y_high = _get_bounds(y, height)
+                if y is None or y_low is None or y_high is None:
+                    continue
+                for ix in six.moves.range(roi_bin_grid_w):
                     x = roi_start_w + pw * bin_size_w + \
                         (ix + .5) * bin_size_w / roi_bin_grid_w
 
-                    # bilinear interpolation {{
-                    y_low, x_low, y_high, x_high, w1, w2, w3, w4 = \
-                        _get_bilinear_interp_params(y, x, height, width)
-                    if y_low is None:
+                    x, x_low, x_high = _get_bounds(x, width)
+                    if x is None or x_low is None or x_high is None:
                         continue
+
+                    # bilinear interpolation {{
+                    w1, w2, w3, w4 = _get_bilinear_interp_params(
+                        y, x, y_low, x_low, y_high, x_high)
 
                     v1 = bottom_data[roi_batch_ind, c, y_low, x_low]
                     v2 = bottom_data[roi_batch_ind, c, y_low, x_high]
@@ -168,8 +172,7 @@ class PSROIMaxAlign2D(function.Function):
                         maxval = tmpval
                         maxidx = bottom_index
 
-                    ix += 1
-                iy += 1
+                    # }}
 
             top_data[n, ctop, ph, pw] = maxval
             self.argmax_data[n, ctop, ph, pw] = maxidx
@@ -257,22 +260,21 @@ class PSROIMaxAlign2D(function.Function):
                 T y = roi_start_h + ph * bin_size_h +
                     static_cast<T>(iy + .5f) * bin_size_h /
                         static_cast<T>(roi_bin_grid_h);  // e.g. 0.5, 1.5
+                int y_low, y_high;
+                bool y_ret = get_bounds(y, height, y_low, y_high);
+                if (!y_ret) continue;
                 for (int ix = 0; ix < roi_bin_grid_w; ix++) {
                     T x = roi_start_w + pw * bin_size_w +
                         static_cast<T>(ix + .5f) * bin_size_w /
                             static_cast<T>(roi_bin_grid_w);
 
+                    int x_low, x_high;
+                    bool x_ret = get_bounds(x, width, x_low, x_high);
+                    if (!x_ret) continue;
                     // bilinear_interpolation {{
-                    int y_low, x_low, y_high, x_high;
                     T w1, w2, w3, w4;
-                    bool ret = get_bilinear_interp_params(
-                        x, y, height, width,
-                        y_low, x_low, y_high, x_high,
-                        w1, w2, w3, w4
-                    );
-                    if (!ret) {
-                        continue;
-                    }
+                    get_bilinear_interp_params(
+                        y, x, y_low, x_low, y_high, x_high, w1, w2, w3, w4);
 
                     T v1 = bottom_data[bottom_data_offset +
                                            y_low * width + x_low];
@@ -344,11 +346,11 @@ class PSROIMaxAlign2D(function.Function):
             top_diff_this_bin = top_diff[n, ctop, ph, pw]
 
             if self.sampling_ratio[0] is None:
-                roi_bin_grid_h = np.ceil(roi_height / pooled_height)
+                roi_bin_grid_h = int(np.ceil(roi_height / pooled_height))
             else:
                 roi_bin_grid_h = self.sampling_ratio[0]
             if self.sampling_ratio[1] is None:
-                roi_bin_grid_w = np.ceil(roi_width / pooled_width)
+                roi_bin_grid_w = int(np.ceil(roi_width / pooled_width))
             else:
                 roi_bin_grid_w = self.sampling_ratio[1]
 
@@ -361,11 +363,16 @@ class PSROIMaxAlign2D(function.Function):
             x = roi_start_w + pw * bin_size_w + \
                 (ix + .5) * bin_size_w / roi_bin_grid_w
 
-            # bilinear_interpolation_gradient {{
-            y_low, x_low, y_high, x_high, w1, w2, w3, w4 = \
-                _get_bilinear_interp_params(y, x, height, width)
-            if y_low is None:
+            y, y_low, y_high = _get_bounds(y, height)
+            if y is None or y_low is None or y_high is None:
                 continue
+            x, x_low, x_high = _get_bounds(x, width)
+            if x is None or x_low is None or x_high is None:
+                continue
+
+            # bilinear_interpolation_gradient {{
+            w1, w2, w3, w4 = _get_bilinear_interp_params(
+                y, x, y_low, x_low, y_high, x_high)
 
             g1 = top_diff_this_bin * w1
             g2 = top_diff_this_bin * w2
@@ -465,16 +472,17 @@ class PSROIMaxAlign2D(function.Function):
                 static_cast<T>(ix + .5f) * bin_size_w /
                     static_cast<T>(roi_bin_grid_w);
 
-            int y_low, x_low, y_high, x_high;
+            int y_low, y_high;
+            bool y_ret = get_bounds(y, height, y_low, y_high);
+            if (!y_ret) continue;
+            int x_low, x_high;
+            bool x_ret = get_bounds(x, width, x_low, x_high);
+            if (!x_ret) continue;
+
+            // bilinear_interpolation_gradient {{
             T w1, w2, w3, w4;
-            bool ret = get_bilinear_interp_params(
-                x, y, height, width,
-                y_low, x_low, y_high, x_high,
-                w1, w2, w3, w4
-            );
-            if (!ret) {
-                continue;
-            }
+            get_bilinear_interp_params(
+                y, x, y_low, x_low, y_high, x_high, w1, w2, w3, w4);
 
             T g1 = top_diff_this_bin * w1;
             T g2 = top_diff_this_bin * w2;
