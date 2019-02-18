@@ -61,6 +61,9 @@ def resize(img, size, interpolation=PIL.Image.BILINEAR):
         ~numpy.ndarray: A resize array in CHW format.
 
     """
+    if len(img) == 0:
+        return np.zeros((0,) + size, dtype=img.dtype)
+
     if chainer.config.cv_resize_backend == 'cv2':
         if _cv2_available:
             return _resize_cv2(img, size, interpolation)
