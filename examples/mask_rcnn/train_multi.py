@@ -27,11 +27,11 @@ from chainercv.links.model.mask_rcnn import mask_loss_post
 from chainercv.links.model.mask_rcnn import mask_loss_pre
 
 # https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
-try:
-    import cv2
-    cv2.setNumThreads(0)
-except ImportError:
-    pass
+# try:
+#     import cv2
+#     cv2.setNumThreads(0)
+# except ImportError:
+#     pass
 
 
 class TrainChain(chainer.Chain):
@@ -122,8 +122,10 @@ class Transform(object):
         self.max_size = max_size
 
     def __call__(self, in_data):
+        import time
+        start = time.time()
         img, mask, label, bbox = in_data
-
+        original = mask.shape
         # Flipping
         img, params = transforms.random_flip(
             img, x_random=True, return_param=True)
@@ -168,7 +170,7 @@ def main():
     parser.add_argument('--communicator', default='hierarchical')
     parser.add_argument('--cprofile', action='store_true', help='cprofile')
     args = parser.parse_args()
-    chainer.global_config.cv_resize_backend = 'PIL'
+    # chainer.global_config.cv_resize_backend = 'PIL'
     # chainer.global_config.cv_read_image_backend = 'PIL'
 
     # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
