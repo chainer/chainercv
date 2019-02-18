@@ -123,13 +123,13 @@ class PSROIMaxAlign2D(function.Function):
 
             roi_height = max(roi_end_h - roi_start_h, 1.)
             roi_width = max(roi_end_w - roi_start_w, 1.)
-            bin_size_h = 1. * roi_height / pooled_height
-            bin_size_w = 1. * roi_width / pooled_width
+            bin_size_h = roi_height / pooled_height
+            bin_size_w = roi_width / pooled_width
 
-            gh = np.floor(float(ph) * group_size / pooled_height)
-            gw = np.floor(float(pw) * group_size / pooled_width)
-            gh = int(min(max(gh, 0), group_size - 1))
-            gw = int(min(max(gw, 0), group_size - 1))
+            gh = int(np.floor(float(ph) * group_size / pooled_height))
+            gw = int(np.floor(float(pw) * group_size / pooled_width))
+            gh = min(max(gh, 0), group_size - 1)
+            gw = min(max(gw, 0), group_size - 1)
             c = (ctop * group_size + gh) * group_size + gw
 
             if self.sampling_ratio[0] is None:
@@ -334,13 +334,13 @@ class PSROIMaxAlign2D(function.Function):
 
             roi_width = max(roi_end_w - roi_start_w, 1.)
             roi_height = max(roi_end_h - roi_start_h, 1.)
-            bin_size_h = 1. * roi_height / pooled_height
-            bin_size_w = 1. * roi_width / pooled_width
+            bin_size_h = roi_height / pooled_height
+            bin_size_w = roi_width / pooled_width
 
-            gh = np.floor(float(ph) * group_size / pooled_height)
-            gw = np.floor(float(pw) * group_size / pooled_width)
-            gh = int(min(max(gh, 0), group_size - 1))
-            gw = int(min(max(gw, 0), group_size - 1))
+            gh = int(np.floor(float(ph) * group_size / pooled_height))
+            gw = int(np.floor(float(pw) * group_size / pooled_width))
+            gh = min(max(gh, 0), group_size - 1)
+            gw = min(max(gw, 0), group_size - 1)
             c = (ctop * group_size + gh) * group_size + gw
 
             top_diff_this_bin = top_diff[n, ctop, ph, pw]
