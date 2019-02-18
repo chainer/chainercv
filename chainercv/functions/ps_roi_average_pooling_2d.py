@@ -3,7 +3,7 @@
 # Copyright (c) 2018 Preferred Networks, Inc.
 # ------------------------------------------------------------------------
 
-# Original works of CUDA kernel in forward_gpu and forward_gpu:
+# Original works of CUDA kernel in forward_gpu and backward_gpu:
 # ------------------------------------------------------------------------
 # Copyright (c) 2017 Microsoft
 #
