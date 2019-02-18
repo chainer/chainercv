@@ -57,7 +57,7 @@ class TrainChain(chainer.Chain):
         return pad_masks
 
     def __call__(self, imgs, masks, labels, bboxes):
-        x, scales, resized_sizes = self.model.prepare(imgs, masks)
+        x, scales, resized_sizes = self.model.prepare(imgs)
         B, _, pad_H, pad_W = x.shape
         masks = self.prepare_mask(masks, resized_sizes, (pad_H, pad_W))
         bboxes = [self.xp.array(bbox) * scale

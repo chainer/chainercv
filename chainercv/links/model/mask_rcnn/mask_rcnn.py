@@ -160,7 +160,7 @@ class MaskRCNN(chainer.Chain):
         scores = [cuda.to_cpu(score) for score in scores]
         return masks, labels, scores
 
-    def prepare(self, imgs, masks=None):
+    def prepare(self, imgs):
         """Preprocess images.
 
         Args:
