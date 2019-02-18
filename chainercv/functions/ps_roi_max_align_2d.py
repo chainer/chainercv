@@ -121,13 +121,13 @@ class PSROIMaxAlign2D(function.Function):
             roi_end_h = bottom_rois[n, 2] * spatial_scale
             roi_end_w = bottom_rois[n, 3] * spatial_scale
 
-            roi_height = max(roi_end_h - roi_start_h, 1.)
-            roi_width = max(roi_end_w - roi_start_w, 1.)
+            roi_height = max(roi_end_h - roi_start_h, 0.1)
+            roi_width = max(roi_end_w - roi_start_w, 0.1)
             bin_size_h = roi_height / pooled_height
             bin_size_w = roi_width / pooled_width
 
-            gh = int(np.floor(float(ph) * group_size / pooled_height))
-            gw = int(np.floor(float(pw) * group_size / pooled_width))
+            gh = int(np.floor(ph * group_size / pooled_height))
+            gw = int(np.floor(pw * group_size / pooled_width))
             gh = min(max(gh, 0), group_size - 1)
             gw = min(max(gw, 0), group_size - 1)
             c = (ctop * group_size + gh) * group_size + gw
@@ -216,14 +216,10 @@ class PSROIMaxAlign2D(function.Function):
             int n = i / pooled_width / pooled_height / pooled_dim;
 
             int roi_batch_ind = bottom_roi_indices[n];
-            T roi_start_h = static_cast<T>(
-                round(bottom_rois[n * 4 + 0])) * spatial_scale;
-            T roi_start_w = static_cast<T>(
-                round(bottom_rois[n * 4 + 1])) * spatial_scale;
-            T roi_end_h = static_cast<T>(
-                round(bottom_rois[n * 4 + 2])) * spatial_scale;
-            T roi_end_w = static_cast<T>(
-                round(bottom_rois[n * 4 + 3])) * spatial_scale;
+            T roi_start_h = bottom_rois[n * 4 + 0] * spatial_scale;
+            T roi_start_w = bottom_rois[n * 4 + 1] * spatial_scale;
+            T roi_end_h = bottom_rois[n * 4 + 2] * spatial_scale;
+            T roi_end_w = bottom_rois[n * 4 + 3] * spatial_scale;
 
             // Force too small ROIs to be 1x1
             T roi_height = max(roi_end_h - roi_start_h, 0.1);
@@ -332,8 +328,8 @@ class PSROIMaxAlign2D(function.Function):
             roi_end_h = bottom_rois[n, 2] * spatial_scale
             roi_end_w = bottom_rois[n, 3] * spatial_scale
 
-            roi_width = max(roi_end_w - roi_start_w, 1.)
-            roi_height = max(roi_end_h - roi_start_h, 1.)
+            roi_height = max(roi_end_h - roi_start_h, 0.1)
+            roi_width = max(roi_end_w - roi_start_w, 0.1)
             bin_size_h = roi_height / pooled_height
             bin_size_w = roi_width / pooled_width
 
@@ -419,14 +415,10 @@ class PSROIMaxAlign2D(function.Function):
 
             // Do not using rounding; this implementation detail is critical
             int roi_batch_ind = bottom_roi_indices[n];
-            T roi_start_h = static_cast<T>(
-                round(bottom_rois[n * 4 + 0])) * spatial_scale;
-            T roi_start_w = static_cast<T>(
-                round(bottom_rois[n * 4 + 1])) * spatial_scale;
-            T roi_end_h = static_cast<T>(
-                round(bottom_rois[n * 4 + 2])) * spatial_scale;
-            T roi_end_w = static_cast<T>(
-                round(bottom_rois[n * 4 + 3])) * spatial_scale;
+            T roi_start_h = bottom_rois[n * 4 + 0] * spatial_scale;
+            T roi_start_w = bottom_rois[n * 4 + 1] * spatial_scale;
+            T roi_end_h = bottom_rois[n * 4 + 2] * spatial_scale;
+            T roi_end_w = bottom_rois[n * 4 + 3] * spatial_scale;
 
             // Force too small ROIs to be 1x1
             T roi_height = max(roi_end_h - roi_start_h, 0.1);
