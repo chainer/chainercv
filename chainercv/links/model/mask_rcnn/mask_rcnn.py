@@ -44,9 +44,9 @@ class MaskRCNN(chainer.Chain):
 
     """
 
-    _min_size = 800
-    _max_size = 1333
-    _stride = 32
+    min_size = 800
+    max_size = 1333
+    stride = 32
 
     def __init__(self, extractor, rpn, head, mask_head):
         super(MaskRCNN, self).__init__()
@@ -179,9 +179,9 @@ class MaskRCNN(chainer.Chain):
         resized_sizes = []
         for img in imgs:
             _, H, W = img.shape
-            scale = self._min_size / min(H, W)
-            if scale * max(H, W) > self._max_size:
-                scale = self._max_size / max(H, W)
+            scale = self.min_size / min(H, W)
+            if scale * max(H, W) > self.max_size:
+                scale = self.max_size / max(H, W)
             scales.append(scale)
             H, W = int(H * scale), int(W * scale)
             img = transforms.resize(img, (H, W))
@@ -191,7 +191,7 @@ class MaskRCNN(chainer.Chain):
         pad_size = np.array(
             [im.shape[1:] for im in resized_imgs]).max(axis=0)
         pad_size = (
-            np.ceil(pad_size / self._stride) * self._stride).astype(int)
+            np.ceil(pad_size / self.stride) * self.stride).astype(int)
         x = np.zeros(
             (len(imgs), 3, pad_size[0], pad_size[1]), dtype=np.float32)
         for i, im in enumerate(resized_imgs):
