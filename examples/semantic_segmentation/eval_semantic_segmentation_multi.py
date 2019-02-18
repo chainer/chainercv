@@ -15,10 +15,10 @@ from eval_semantic_segmentation import get_dataset_and_model
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--dataset', choices=('cityscapes', 'ade20k', 'camvid'))
+        '--dataset', choices=('cityscapes', 'ade20k', 'camvid', 'voc'))
     parser.add_argument(
         '--model', choices=(
-            'pspnet_resnet101', 'segnet'))
+            'pspnet_resnet101', 'segnet', 'deeplab_v3plus_xception65'))
     parser.add_argument('--pretrained-model')
     parser.add_argument('--input-size', type=int, default=None)
     args = parser.parse_args()
