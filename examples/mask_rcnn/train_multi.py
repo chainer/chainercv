@@ -27,11 +27,11 @@ from chainercv.links.model.mask_rcnn import mask_loss_post
 from chainercv.links.model.mask_rcnn import mask_loss_pre
 
 # https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
-# try:
-#     import cv2
-#     cv2.setNumThreads(0)
-# except ImportError:
-#     pass
+try:
+    import cv2
+    cv2.setNumThreads(0)
+except ImportError:
+    pass
 
 
 class TrainChain(chainer.Chain):
@@ -167,10 +167,7 @@ def main():
     parser.add_argument('--out', default='result')
     parser.add_argument('--resume')
     parser.add_argument('--communicator', default='hierarchical')
-    parser.add_argument('--cprofile', action='store_true', help='cprofile')
     args = parser.parse_args()
-    # chainer.global_config.cv_resize_backend = 'PIL'
-    # chainer.global_config.cv_read_image_backend = 'PIL'
 
     # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
     if hasattr(multiprocessing, 'set_start_method'):
@@ -214,7 +211,8 @@ def main():
 
     train_iter = chainer.iterators.MultiprocessIterator(
         train, args.batchsize // comm.size,
-        n_processes=args.batchsize // comm.size, shared_mem=100 * 1000 * 1000 * 4)
+        n_processes=args.batchsize // comm.size,
+        shared_mem=100 * 1000 * 1000 * 4)
 
     optimizer = chainermn.create_multi_node_optimizer(
         chainer.optimizers.MomentumSGD(), comm)
@@ -275,24 +273,7 @@ def main():
     if args.resume:
         serializers.load_npz(args.resume, trainer, strict=False)
 
-    if args.cprofile:
-        import cProfile
-        import io
-        import pstats
-        print('cprofiling')
-        pr = cProfile.Profile()
-        pr.enable()
     trainer.run()
-    if args.cprofile:
-        pr.disable()
-        s = io.StringIO()
-        sort_by = 'tottime'
-        ps = pstats.Stats(pr, stream=s).sort_stats(sort_by)
-        ps.print_stats()
-        if comm.rank == 0:
-            print(s.getvalue())
-
-        pr.dump_stats('{0}/rank_{1}.cprofile'.format(args.out, comm.rank))
 
 
 if __name__ == '__main__':
