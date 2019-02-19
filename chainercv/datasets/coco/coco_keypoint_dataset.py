@@ -10,11 +10,12 @@ from chainercv.datasets.coco.coco_utils import get_coco
 from chainercv import utils
 
 
-class COCOPointDataset(GetterDataset):
+class COCOKeypointDataset(GetterDataset):
 
     def __init__(self, data_dir='auto', split='train', year='2017',
-                 use_crowded=False, return_area=False, return_crowded=False):
-        super(COCOPointDataset, self).__init__()
+                 use_crowded=False,
+                 return_area=False, return_crowded=False):
+        super(COCOKeypointDataset, self).__init__()
         self.use_crowded = use_crowded
         if data_dir == 'auto':
             data_dir = get_coco(split, split, year, 'instances')
@@ -41,9 +42,9 @@ class COCOPointDataset(GetterDataset):
 
         self.add_getter('img', self._get_image)
         self.add_getter(
-            ['point', 'bbox', 'label', 'area', 'crowded'],
+            ['point', 'valid', 'bbox', 'label', 'area', 'crowded'],
             self._get_annotations)
-        keys = ('img', 'point', 'bbox', 'label')
+        keys = ('img', 'point', 'valid', 'bbox', 'label')
         if return_area:
             keys += ('area',)
         if return_crowded:
@@ -90,9 +91,11 @@ class COCOPointDataset(GetterDataset):
             # 0: not labeled; 1: labeled, not inside mask;
             # 2: labeled and inside mask
             v = point[:, 2::3]
-            point = np.stack((y, x, v), axis=2)
+            valid = v > 0
+            point = np.stack((y, x), axis=2)
         else:
-            point = np.array((0, 0, 3), dtype=np.float32)
+            point = np.empty((0, 0, 2), dtype=np.float32)
+            valid = np.empty((0, 0), dtype=np.bool)
 
         # Remove invalid boxes
         bbox_area = np.prod(bbox[:, 2:] - bbox[:, :2], axis=1)
@@ -104,8 +107,9 @@ class COCOPointDataset(GetterDataset):
             keep_mask = np.logical_and(keep_mask, np.logical_not(crowded))
 
         point = point[keep_mask]
+        valid = valid[keep_mask]
         bbox = bbox[keep_mask]
         label = label[keep_mask]
         area = area[keep_mask]
         crowded = crowded[keep_mask]
-        return point, bbox, label, area, crowded
+        return point, valid, bbox, label, area, crowded
