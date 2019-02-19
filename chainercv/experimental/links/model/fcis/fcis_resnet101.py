@@ -82,40 +82,80 @@ class FCISResNet101(FCIS):
 
     _models = {
         'sbd': {
-            'param': {'n_fg_class': 20},
+            'param': {
+                'n_fg_class': 20,
+                'anchor_scales': (8, 16, 32),
+                'proposal_creator_params': {
+                    'nms_thresh': 0.7,
+                    'n_train_pre_nms': 6000,
+                    'n_train_post_nms': 300,
+                    'n_test_pre_nms': 6000,
+                    'n_test_post_nms': 300,
+                    'force_cpu_nms': False,
+                    'min_size': 16,
+                },
+
+            },
             'url': 'https://chainercv-models.preferred.jp/'
             'fcis_resnet101_sbd_trained_2018_06_22.npz',
             'cv2': True
         },
         'sbd_converted': {
-            'param': {'n_fg_class': 20},
+            'param': {
+                'n_fg_class': 20,
+                'anchor_scales': (8, 16, 32),
+                'proposal_creator_params': {
+                    'nms_thresh': 0.7,
+                    'n_train_pre_nms': 6000,
+                    'n_train_post_nms': 300,
+                    'n_test_pre_nms': 6000,
+                    'n_test_post_nms': 300,
+                    'force_cpu_nms': False,
+                    'min_size': 16,
+                },
+            },
             'url': 'https://chainercv-models.preferred.jp/'
             'fcis_resnet101_sbd_converted_2018_07_02.npz',
             'cv2': True
         },
         'coco': {
-            'param': {'n_fg_class': 80},
+            'param': {
+                'n_fg_class': 80,
+                'anchor_scales': (4, 8, 16, 32),
+                'proposal_creator_params': {
+                    'nms_thresh': 0.7,
+                    'n_train_pre_nms': 6000,
+                    'n_train_post_nms': 300,
+                    'n_test_pre_nms': 6000,
+                    'n_test_post_nms': 300,
+                    'force_cpu_nms': False,
+                    'min_size': 2,
+                },
+            },
             'url': 'https://chainercv-models.preferred.jp/'
             'fcis_resnet101_coco_trained_2019_01_30.npz',
             'cv2': True
         },
         'coco_converted': {
-            'param': {'n_fg_class': 80},
+            'param': {
+                'n_fg_class': 80,
+                'anchor_scales': (4, 8, 16, 32),
+                'proposal_creator_params': {
+                    'nms_thresh': 0.7,
+                    'n_train_pre_nms': 6000,
+                    'n_train_post_nms': 300,
+                    'n_test_pre_nms': 6000,
+                    'n_test_post_nms': 300,
+                    'force_cpu_nms': False,
+                    'min_size': 2,
+                },
+            },
             'url': 'https://chainercv-models.preferred.jp/'
             'fcis_resnet101_coco_converted_2019_01_30.npz',
             'cv2': True
         }
     }
     feat_stride = 16
-    proposal_creator_params = {
-        'nms_thresh': 0.7,
-        'n_train_pre_nms': 6000,
-        'n_train_post_nms': 300,
-        'n_test_pre_nms': 6000,
-        'n_test_post_nms': 300,
-        'force_cpu_nms': False,
-        'min_size': 16
-    }
 
     def __init__(
             self,
@@ -123,31 +163,31 @@ class FCISResNet101(FCIS):
             pretrained_model=None,
             min_size=600, max_size=1000,
             roi_size=21, group_size=7,
-            ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
+            ratios=[0.5, 1, 2], anchor_scales=None,
             loc_normalize_mean=(0.0, 0.0, 0.0, 0.0),
             loc_normalize_std=(0.2, 0.2, 0.5, 0.5),
             iter2=True,
             resnet_initialW=None, rpn_initialW=None, head_initialW=None,
             proposal_creator_params=None):
         param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
+            {'n_fg_class': n_fg_class, 'anchor_scales': anchor_scales,
+             'proposal_creator_params': proposal_creator_params},
+            pretrained_model, self._models)
 
         if rpn_initialW is None:
             rpn_initialW = chainer.initializers.Normal(0.01)
         if resnet_initialW is None and pretrained_model:
             resnet_initialW = chainer.initializers.constant.Zero()
-        if proposal_creator_params is not None:
-            self.proposal_creator_params = proposal_creator_params
 
         extractor = ResNet101Extractor(
             initialW=resnet_initialW)
         rpn = RegionProposalNetwork(
             1024, 512,
             ratios=ratios,
-            anchor_scales=anchor_scales,
+            anchor_scales=param['anchor_scales'],
             feat_stride=self.feat_stride,
             initialW=rpn_initialW,
-            proposal_creator_params=self.proposal_creator_params)
+            proposal_creator_params=param['proposal_creator_params'])
         head = FCISResNet101Head(
             param['n_fg_class'] + 1,
             roi_size=roi_size, group_size=group_size,
