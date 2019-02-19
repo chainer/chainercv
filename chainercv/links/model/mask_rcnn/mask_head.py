@@ -13,7 +13,6 @@ import chainer.links as L
 
 from chainercv.transforms.image.resize import resize
 from chainercv.utils.bbox.bbox_iou import bbox_iou
-from chainercv.utils.mask.mask_to_bbox import mask_to_bbox
 
 
 class MaskHead(chainer.Chain):
@@ -198,8 +197,8 @@ def _expand_boxes(bbox, scale):
     return expanded_bbox
 
 
-def mask_loss_pre(rois, roi_indices, gt_masks, gt_head_labels,
-                  mask_size):
+def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
+                  gt_head_labels, mask_size):
     """Loss function for Mask Head (pre).
 
     This function processes RoIs for :func:`mask_loss_post` by
@@ -255,14 +254,14 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_head_labels,
     gt_segms = xp.empty((len(mask_rois), mask_size, mask_size), dtype=np.bool)
     for i in np.unique(cuda.to_cpu(mask_roi_indices)):
         gt_mask = gt_masks[i]
-        gt_bbox = mask_to_bbox(gt_mask)
+        gt_bbox = gt_bboxes[i]
 
         index = (mask_roi_indices == i).nonzero()[0]
         mask_roi = mask_rois[index]
         iou = bbox_iou(mask_roi, gt_bbox)
-        gt_index = iou.argmax(axis=1)
+        gt_index = chainer.backends.cuda.to_cpu(iou.argmax(axis=1))
         gt_segms[index] = _segm_wrt_bbox(
-            gt_mask[gt_index], mask_roi, (mask_size, mask_size))
+            gt_mask[gt_index], mask_roi, (mask_size, mask_size), xp)
 
     flag_masks = [mask_roi_levels == l for l in range(n_level)]
     mask_rois = [mask_rois[m] for m in flag_masks]
@@ -310,18 +309,16 @@ def mask_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels,
     return mask_loss
 
 
-def _segm_wrt_bbox(mask, bbox, size):
-    xp = chainer.backends.cuda.get_array_module(mask)
-
-    bbox = bbox.astype(np.int32)
+def _segm_wrt_bbox(mask, bbox, size, xp):
+    bbox = chainer.backends.cuda.to_cpu(bbox.astype(np.int32))
 
     segm = []
     for m, bb in zip(mask, bbox):
-        if bb[2] - bb[0] == 0 or bb[3] - bb[1] == 0:
-            segm.append(xp.zeros(size, dtype=np.bool))
-            continue
         cropped_m = m[bb[0]:bb[2], bb[1]:bb[3]]
         cropped_m = chainer.backends.cuda.to_cpu(cropped_m)
+        if cropped_m.shape[0] == 0 or cropped_m.shape[1] == 0:
+            segm.append(np.zeros(size, dtype=np.bool))
+            continue
 
         segm.append(resize(
             cropped_m[None].astype(np.float32),

@@ -54,13 +54,14 @@ class TrainChain(chainer.Chain):
             x[i, :, :H, :W] = img
         x = self.xp.array(x)
 
+        # For reducing unnecessary CPU/GPU copy, `masks` is kept in CPU.
         pad_masks = [
-            self.xp.zeros(
+            np.zeros(
                 (mask.shape[0], pad_size[0], pad_size[1]), dtype=np.bool)
             for mask in masks]
         for i, mask in enumerate(masks):
             _, H, W = mask.shape
-            pad_masks[i][:, :H, :W] = self.xp.array(mask)
+            pad_masks[i][:, :H, :W] = mask
         masks = pad_masks
 
         bboxes = [self.xp.array(bbox) for bbox in bboxes]
@@ -91,8 +92,8 @@ class TrainChain(chainer.Chain):
             roi_indices, head_gt_locs, head_gt_labels, B)
 
         mask_rois, mask_roi_indices, gt_segms, gt_mask_labels = mask_loss_pre(
-            rois, roi_indices, masks, head_gt_labels,
-            self.model.mask_head.mask_size)
+            rois, roi_indices, masks, bboxes,
+            head_gt_labels, self.model.mask_head.mask_size)
         n_roi = sum([len(roi) for roi in mask_rois])
         if n_roi > 0:
             segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
@@ -122,8 +123,6 @@ class Transform(object):
         self.max_size = max_size
 
     def __call__(self, in_data):
-        import time
-        start = time.time()
         img, mask, label, bbox = in_data
         original = mask.shape
         # Flipping
