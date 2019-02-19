@@ -441,22 +441,24 @@ coco_semantic_segmentation_label_colors = (
 coco_instance_segmentation_label_names = coco_bbox_label_names
 
 
-coco_point_names = [
-    'nose',
-    'left_eye',
-    'right_eye',
-    'left_ear',
-    'right_ear',
-    'left_shoulder',
-    'right_shoulder',
-    'left_elbow',
-    'right_elbow',
-    'left_wrist',
-    'right_wrist',
-    'left_hip',
-    'right_hip',
-    'left_knee',
-    'right_knee',
-    'left_ankle',
-    'right_ankle'
-]
+coco_keypoint_names = {
+    0: [
+        'nose',
+        'left_eye',
+        'right_eye',
+        'left_ear',
+        'right_ear',
+        'left_shoulder',
+        'right_shoulder',
+        'left_elbow',
+        'right_elbow',
+        'left_wrist',
+        'right_wrist',
+        'left_hip',
+        'right_hip',
+        'left_knee',
+        'right_knee',
+        'left_ankle',
+        'right_ankle'
+    ]
+}

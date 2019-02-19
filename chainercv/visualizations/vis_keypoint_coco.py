@@ -1,43 +1,44 @@
 from __future__ import division
 
-import matplotlib.pyplot as plt
 import numpy as np
 
-from chainercv.datasets import coco_point_names
+from chainercv.datasets import coco_keypoint_names
 from chainercv.visualizations.vis_image import vis_image
 
 
+human_id = 0
+
 coco_point_skeleton = [
-    [coco_point_names.index('left_eye'),
-     coco_point_names.index('right_eye')],
-    [coco_point_names.index('left_eye'),
-     coco_point_names.index('nose')],
-    [coco_point_names.index('right_eye'),
-     coco_point_names.index('nose')],
-    [coco_point_names.index('right_eye'),
-     coco_point_names.index('right_ear')],
-    [coco_point_names.index('left_eye'),
-     coco_point_names.index('left_ear')],
-    [coco_point_names.index('right_shoulder'),
-     coco_point_names.index('right_elbow')],
-    [coco_point_names.index('right_elbow'),
-     coco_point_names.index('right_wrist')],
-    [coco_point_names.index('left_shoulder'),
-     coco_point_names.index('left_elbow')],
-    [coco_point_names.index('left_elbow'),
-     coco_point_names.index('left_wrist')],
-    [coco_point_names.index('right_hip'),
-     coco_point_names.index('right_knee')],
-    [coco_point_names.index('right_knee'),
-     coco_point_names.index('right_ankle')],
-    [coco_point_names.index('left_hip'),
-     coco_point_names.index('left_knee')],
-    [coco_point_names.index('left_knee'),
-     coco_point_names.index('left_ankle')],
-    [coco_point_names.index('right_shoulder'),
-     coco_point_names.index('left_shoulder')],
-    [coco_point_names.index('right_hip'),
-     coco_point_names.index('left_hip')]
+    [coco_keypoint_names[human_id].index('left_eye'),
+     coco_keypoint_names[human_id].index('right_eye')],
+    [coco_keypoint_names[human_id].index('left_eye'),
+     coco_keypoint_names[human_id].index('nose')],
+    [coco_keypoint_names[human_id].index('right_eye'),
+     coco_keypoint_names[human_id].index('nose')],
+    [coco_keypoint_names[human_id].index('right_eye'),
+     coco_keypoint_names[human_id].index('right_ear')],
+    [coco_keypoint_names[human_id].index('left_eye'),
+     coco_keypoint_names[human_id].index('left_ear')],
+    [coco_keypoint_names[human_id].index('right_shoulder'),
+     coco_keypoint_names[human_id].index('right_elbow')],
+    [coco_keypoint_names[human_id].index('right_elbow'),
+     coco_keypoint_names[human_id].index('right_wrist')],
+    [coco_keypoint_names[human_id].index('left_shoulder'),
+     coco_keypoint_names[human_id].index('left_elbow')],
+    [coco_keypoint_names[human_id].index('left_elbow'),
+     coco_keypoint_names[human_id].index('left_wrist')],
+    [coco_keypoint_names[human_id].index('right_hip'),
+     coco_keypoint_names[human_id].index('right_knee')],
+    [coco_keypoint_names[human_id].index('right_knee'),
+     coco_keypoint_names[human_id].index('right_ankle')],
+    [coco_keypoint_names[human_id].index('left_hip'),
+     coco_keypoint_names[human_id].index('left_knee')],
+    [coco_keypoint_names[human_id].index('left_knee'),
+     coco_keypoint_names[human_id].index('left_ankle')],
+    [coco_keypoint_names[human_id].index('right_shoulder'),
+     coco_keypoint_names[human_id].index('left_shoulder')],
+    [coco_keypoint_names[human_id].index('right_hip'),
+     coco_keypoint_names[human_id].index('left_hip')]
 ]
 
 
@@ -45,6 +46,9 @@ def vis_keypoint_coco(
         img, point, valid=None,
         point_score=None, thresh=2,
         markersize=3, linewidth=1, ax=None):
+    """Visualize bounding boxes inside image.
+
+    """
     if valid.dtype != np.bool:
         raise ValueError('The dtype of `valid` should be np.bool')
 
@@ -88,22 +92,24 @@ def vis_keypoint_coco(
 
         # for better visualization, add mid shoulder / mid hip
         mid_shoulder = (
-            pnt[coco_point_names.index('right_shoulder'), :2] +
-            pnt[coco_point_names.index('left_shoulder'), :2]) / 2
+            pnt[coco_keypoint_names[human_id].index('right_shoulder'), :2] +
+            pnt[coco_keypoint_names[human_id].index('left_shoulder'), :2]) / 2
         mid_shoulder_sc = np.minimum(
-            pnt_sc[coco_point_names.index('right_shoulder')],
-            pnt_sc[coco_point_names.index('left_shoulder')])
+            pnt_sc[coco_keypoint_names[human_id].index('right_shoulder')],
+            pnt_sc[coco_keypoint_names[human_id].index('left_shoulder')])
 
         mid_hip = (
-            pnt[coco_point_names.index('right_hip'), :2] +
-            pnt[coco_point_names.index('left_hip'), :2]) / 2
+            pnt[coco_keypoint_names[human_id].index('right_hip'), :2] +
+            pnt[coco_keypoint_names[human_id].index('left_hip'), :2]) / 2
         mid_hip_sc = np.minimum(
-            pnt_sc[coco_point_names.index('right_hip')],
-            pnt_sc[coco_point_names.index('left_hip')])
+            pnt_sc[coco_keypoint_names[human_id].index('right_hip')],
+            pnt_sc[coco_keypoint_names[human_id].index('left_hip')])
         if (mid_shoulder_sc > thresh and
-                pnt_sc[coco_point_names.index('nose')] > thresh):
-            y = [mid_shoulder[0], pnt[coco_point_names.index('nose'), 0]]
-            x = [mid_shoulder[1], pnt[coco_point_names.index('nose'), 1]]
+                pnt_sc[coco_keypoint_names[human_id].index('nose')] > thresh):
+            y = [mid_shoulder[0],
+                 pnt[coco_keypoint_names[human_id].index('nose'), 0]]
+            x = [mid_shoulder[1],
+                 pnt[coco_keypoint_names[human_id].index('nose'), 1]]
             line = ax.plot(x, y)
             plt.setp(
                 line, color=colors[len(coco_point_skeleton)],
