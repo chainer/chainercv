@@ -157,6 +157,7 @@ class FasterRCNN(chainer.Chain):
                 scale = self._max_size / max(H, W)
             scales.append(scale)
             H, W = int(H * scale), int(W * scale)
+            img = img.astype(np.float32)
             img = transforms.resize(img, (H, W))
             img -= self.extractor.mean
             resized_imgs.append(img)

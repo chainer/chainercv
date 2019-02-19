@@ -120,10 +120,12 @@ class TestFasterRCNN(unittest.TestCase):
     def test_prepare(self):
         imgs = [
             np.random.randint(0, 255, size=(3, 480, 640)).astype(np.float32),
+            np.random.randint(0, 255, size=(3, 480, 640)).astype(np.uint8),
             np.random.randint(0, 255, size=(3, 320, 320)).astype(np.float32),
+            np.random.randint(0, 255, size=(3, 320, 320)).astype(np.uint8),
         ]
         x, scales = self.link.prepare(imgs)
-        self.assertEqual(x.shape, (2, 3, 800, 1088))
+        self.assertEqual(x.shape, (len(imgs), 3, 800, 1088))
 
 
 testing.run_module(__name__, __file__)
