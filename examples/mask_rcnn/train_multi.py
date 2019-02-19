@@ -41,28 +41,32 @@ class TrainChain(chainer.Chain):
         with self.init_scope():
             self.model = model
 
-    def prepare_mask(self, masks, resized_sizes, pad_size):
-        resized_masks = []
-        for size, mask in zip(resized_sizes, masks):
-            resized_masks.append(transforms.resize(
-                mask.astype(np.float32),
-                size, interpolation=PIL.Image.NEAREST).astype(np.bool))
-        pad_masks = []
-        for mask in resized_masks:
-            n_class, H, W = mask.shape
-            pad_mask = self.xp.zeros(
-                (n_class, pad_size[0], pad_size[1]), dtype=np.bool)
-            pad_mask[:, :H, :W] = self.xp.array(mask)
-            pad_masks.append(pad_mask)
-        return pad_masks
-
     def __call__(self, imgs, masks, labels, bboxes):
-        x, scales, resized_sizes = self.model.prepare(imgs)
-        B, _, pad_H, pad_W = x.shape
-        masks = self.prepare_mask(masks, resized_sizes, (pad_H, pad_W))
-        bboxes = [self.xp.array(bbox) * scale
-                  for bbox, scale in zip(bboxes, scales)]
+        B = len(imgs)
+        pad_size = np.array(
+            [im.shape[1:] for im in imgs]).max(axis=0)
+        pad_size = (
+            np.ceil(pad_size / self.model.stride) * self.model.stride).astype(int)
+        x = np.zeros(
+            (len(imgs), 3, pad_size[0], pad_size[1]), dtype=np.float32)
+        for i, img in enumerate(imgs):
+            _, H, W = img.shape
+            x[i, :, :H, :W] = img
+        x = self.xp.array(x)
+
+        # For reducing unnecessary CPU/GPU copy, `masks` is kept in CPU.
+        pad_masks = [
+            np.zeros(
+                (mask.shape[0], pad_size[0], pad_size[1]), dtype=np.bool)
+            for mask in masks]
+        for i, mask in enumerate(masks):
+            _, H, W = mask.shape
+            pad_masks[i][:, :H, :W] = mask
+        masks = pad_masks
+
+        bboxes = [self.xp.array(bbox) for bbox in bboxes]
         labels = [self.xp.array(label) for label in labels]
+        sizes = [img.shape[1:] for img in imgs]
 
         with chainer.using_config('train', False):
             hs = self.model.extractor(x)
@@ -70,10 +74,7 @@ class TrainChain(chainer.Chain):
         rpn_locs, rpn_confs = self.model.rpn(hs)
         anchors = self.model.rpn.anchors(h.shape[2:] for h in hs)
         rpn_loc_loss, rpn_conf_loss = rpn_loss(
-            rpn_locs, rpn_confs, anchors,
-            [(int(img.shape[1] * scale), int(img.shape[2] * scale))
-             for img, scale in zip(imgs, scales)],
-            bboxes)
+            rpn_locs, rpn_confs, anchors, sizes, bboxes)
 
         rois, roi_indices = self.model.rpn.decode(
             rpn_locs, rpn_confs, anchors, x.shape)
@@ -91,8 +92,8 @@ class TrainChain(chainer.Chain):
             roi_indices, head_gt_locs, head_gt_labels, B)
 
         mask_rois, mask_roi_indices, gt_segms, gt_mask_labels = mask_loss_pre(
-            rois, roi_indices, masks, head_gt_labels,
-            self.model.mask_head.mask_size)
+            rois, roi_indices, masks, bboxes,
+            head_gt_labels, self.model.mask_head.mask_size)
         n_roi = sum([len(roi) for roi in mask_rois])
         if n_roi > 0:
             segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
@@ -110,19 +111,32 @@ class TrainChain(chainer.Chain):
             # ChainerMN hangs when a subset of nodes has a different
             # computational graph from the rest.
             loss = chainer.Variable(self.xp.array(0, dtype=np.float32))
+            self.zerograds()
         return loss
 
 
-def transform(in_data):
-    img, mask, label, bbox = in_data
+class Transform(object):
 
-    img, params = transforms.random_flip(
-        img, x_random=True, return_param=True)
-    mask = transforms.flip(mask, x_flip=params['x_flip'])
-    bbox = transforms.flip_bbox(
-        bbox, img.shape[1:], x_flip=params['x_flip'])
+    def __init__(self, prepare_img):
+        self.prepare_img = prepare_img
 
-    return img, mask, label, bbox
+    def __call__(self, in_data):
+        img, mask, label, bbox = in_data
+        original = mask.shape
+        # Flipping
+        img, params = transforms.random_flip(
+            img, x_random=True, return_param=True)
+        mask = transforms.flip(mask, x_flip=params['x_flip'])
+        bbox = transforms.flip_bbox(
+            bbox, img.shape[1:], x_flip=params['x_flip'])
+
+        # Scaling and mean subtraction
+        img, scale = self.prepare_img(img)
+        mask = transforms.resize(
+            mask.astype(np.float32),
+            (H, W), interpolation=PIL.Image.NEAREST).astype(np.bool)
+        bbox = bbox * scale
+        return img, mask, label, bbox, scale
 
 
 def converter(batch, device=None):
@@ -153,6 +167,8 @@ def main():
 
     comm = chainermn.create_communicator(args.communicator)
     device = comm.intra_rank
+    global rank
+    rank = comm.rank
 
     if args.model == 'mask_rcnn_fpn_resnet50':
         model = MaskRCNNFPNResNet50(
@@ -170,8 +186,10 @@ def main():
 
     train = TransformDataset(
         COCOInstanceSegmentationDataset(
+            data_dir='/home/yuyu2172/coco',
             split='train', return_bbox=True),
-        ('img', 'mask', 'label', 'bbox'), transform)
+        ('img', 'mask', 'label', 'bbox'),
+        Transform(model.prepare_img))
 
     if comm.rank == 0:
         indices = np.arange(len(train))
@@ -180,8 +198,10 @@ def main():
     indices = chainermn.scatter_dataset(indices, comm, shuffle=True)
     train = train.slice[indices]
 
-    train_iter = chainer.iterators.MultithreadIterator(
-        train, args.batchsize // comm.size)
+    train_iter = chainer.iterators.MultiprocessIterator(
+        train, args.batchsize // comm.size,
+        n_processes=args.batchsize // comm.size,
+        shared_mem=100 * 1000 * 1000 * 4)
 
     optimizer = chainermn.create_multi_node_optimizer(
         chainer.optimizers.MomentumSGD(), comm)
