@@ -117,10 +117,8 @@ class TrainChain(chainer.Chain):
 
 class Transform(object):
 
-    def __init__(self, mean, min_size, max_size):
-        self.mean = mean
-        self.min_size = min_size
-        self.max_size = max_size
+    def __init__(self, prepare_img):
+        self.prepare_img = prepare_img
 
     def __call__(self, in_data):
         img, mask, label, bbox = in_data
@@ -132,21 +130,12 @@ class Transform(object):
         bbox = transforms.flip_bbox(
             bbox, img.shape[1:], x_flip=params['x_flip'])
 
-        # TODO: make this part reusable
-        # Scaling
-        _, H, W = img.shape
-        scale = self.min_size / min(H, W)
-        if scale * max(H, W) > self.max_size:
-            scale = self.max_size / max(H, W)
-        H, W = int(H * scale), int(W * scale)
-        img = transforms.resize(img, (H, W))
+        # Scaling and mean subtraction
+        img, scale = self.prepare_img(img)
         mask = transforms.resize(
             mask.astype(np.float32),
             (H, W), interpolation=PIL.Image.NEAREST).astype(np.bool)
         bbox = bbox * scale
-
-        # Subtract mean
-        img -= self.mean
         return img, mask, label, bbox, scale
 
 
@@ -200,7 +189,7 @@ def main():
             data_dir='/home/yuyu2172/coco',
             split='train', return_bbox=True),
         ('img', 'mask', 'label', 'bbox'),
-        Transform(model.extractor.mean, model.min_size, model.max_size))
+        Transform(model.prepare_img))
 
     if comm.rank == 0:
         indices = np.arange(len(train))

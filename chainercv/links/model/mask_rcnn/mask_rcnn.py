@@ -44,8 +44,8 @@ class MaskRCNN(chainer.Chain):
 
     """
 
-    min_size = 800
-    max_size = 1333
+    _min_size = 800
+    _max_size = 1333
     stride = 32
 
     def __init__(self, extractor, rpn, head, mask_head):
@@ -123,7 +123,7 @@ class MaskRCNN(chainer.Chain):
         """
 
         sizes = [img.shape[1:] for img in imgs]
-        x, scales, _ = self.prepare(imgs)
+        x, scales = self.prepare(imgs)
 
         with chainer.using_config('train', False), chainer.no_backprop_mode():
             hs, rois, roi_indices = self(x)
@@ -160,7 +160,7 @@ class MaskRCNN(chainer.Chain):
         scores = [cuda.to_cpu(score) for score in scores]
         return masks, labels, scores
 
-    def prepare(self, imgs, masks=None):
+    def prepare(self, imgs):
         """Preprocess images.
 
         Args:
@@ -169,25 +169,16 @@ class MaskRCNN(chainer.Chain):
                 and the range of their value is :math:`[0, 255]`.
 
         Returns:
-            Three arrays: preprocessed images, \
-            scales that were caluclated in prepocessing and
-            the size of the images after resizing.
+            Two arrays: preprocessed images and \
+            scales that were caluclated in prepocessing.
 
         """
         scales = []
         resized_imgs = []
-        resized_sizes = []
         for img in imgs:
-            _, H, W = img.shape
-            scale = self.min_size / min(H, W)
-            if scale * max(H, W) > self.max_size:
-                scale = self.max_size / max(H, W)
+            img, scale = self.prepare_img(img)
             scales.append(scale)
-            H, W = int(H * scale), int(W * scale)
-            img = transforms.resize(img, (H, W))
-            img -= self.extractor.mean
             resized_imgs.append(img)
-            resized_sizes.append((H, W))
         pad_size = np.array(
             [im.shape[1:] for im in resized_imgs]).max(axis=0)
         pad_size = (
@@ -199,7 +190,18 @@ class MaskRCNN(chainer.Chain):
             x[i, :, :H, :W] = im
         x = self.xp.array(x)
 
-        return x, scales, resized_sizes
+        return x, scales
+
+    def prepare_img(self, img):
+        """Process image."""
+        _, H, W = img.shape
+        scale = self._min_size / min(H, W)
+        if scale * max(H, W) > self._max_size:
+            scale = self._max_size / max(H, W)
+        H, W = int(H * scale), int(W * scale)
+        img = transforms.resize(img, (H, W))
+        img -= self.extractor.mean
+        return img, scale
 
 
 def _list_to_flat(array_list):
