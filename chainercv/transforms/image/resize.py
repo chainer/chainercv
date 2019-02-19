@@ -63,7 +63,7 @@ def resize(img, size, interpolation=PIL.Image.BILINEAR):
     """
     if len(img) == 0:
         assert len(size) == 2
-        return np.empty((-1,) + size, dtype=img.dtype)
+        return np.empty((0,) + size, dtype=img.dtype)
 
     if chainer.config.cv_resize_backend == 'cv2':
         if _cv2_available:
