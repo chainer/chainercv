@@ -173,8 +173,6 @@ def main():
 
     comm = chainermn.create_communicator(args.communicator)
     device = comm.intra_rank
-    global rank
-    rank = comm.rank
 
     if args.model == 'mask_rcnn_fpn_resnet50':
         model = MaskRCNNFPNResNet50(
