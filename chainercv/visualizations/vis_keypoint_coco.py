@@ -41,7 +41,13 @@ coco_point_skeleton = [
 ]
 
 
-def vis_coco_point(img, point, point_score, thresh=2, ax=None):
+def vis_keypoint_coco(
+        img, point, valid=None,
+        point_score=None, thresh=2,
+        markersize=3, linewidth=1, ax=None):
+    if valid.dtype != np.bool:
+        raise ValueError('The dtype of `valid` should be np.bool')
+
     from matplotlib import pyplot as plt
 
     # Returns newly instantiated matplotlib.axes.Axes object if ax is None
@@ -50,7 +56,13 @@ def vis_coco_point(img, point, point_score, thresh=2, ax=None):
     cmap = plt.get_cmap('rainbow')
     colors = [cmap(i) for i in np.linspace(0, 1, len(coco_point_skeleton) + 2)]
 
-    # plt.autoscale(False)
+    if point_score is None:
+        point_score = np.inf * np.ones(point.shape[:2], dtype=np.float32)
+
+    if valid is not None:
+        for i, vld in enumerate(valid):
+            point_score[i, np.logical_not(vld)] = -np.inf
+
     for pnt, pnt_sc in zip(point, point_score):
         for l in range(len(coco_point_skeleton)):
             i0 = coco_point_skeleton[l][0]
@@ -63,15 +75,16 @@ def vis_coco_point(img, point, point_score, thresh=2, ax=None):
             x1 = pnt[i1, 1]
             if s0 > thresh and s1 > thresh:
                 line = ax.plot([x0, x1], [y0, y1])
-                plt.setp(line, color=colors[l], linewidth=1.0, alpha=0.7)
+                plt.setp(line, color=colors[l],
+                         linewidth=linewidth, alpha=0.7)
             if s0 > thresh:
                 ax.plot(
                     x0, y0, '.', color=colors[l],
-                    markersize=3.0, alpha=0.7)
+                    markersize=markersize, alpha=0.7)
             if s1 > thresh:
                 ax.plot(
                     x1, y1, '.', color=colors[l],
-                    markersize=3.0, alpha=0.7)
+                    markersize=markersize, alpha=0.7)
 
         # for better visualization, add mid shoulder / mid hip
         mid_shoulder = (
@@ -94,23 +107,13 @@ def vis_coco_point(img, point, point_score, thresh=2, ax=None):
             line = ax.plot(x, y)
             plt.setp(
                 line, color=colors[len(coco_point_skeleton)],
-                linewidth=1.0, alpha=0.7)
+                linewidth=linewidth, alpha=0.7)
         if (mid_shoulder_sc > thresh and mid_hip_sc > thresh):
             y = [mid_shoulder[0], mid_hip[0]]
             x = [mid_shoulder[1], mid_hip[1]]
             line = ax.plot(x, y)
             plt.setp(
                 line, color=colors[len(coco_point_skeleton) + 1],
-                linewidth=1.0, alpha=0.7)
+                linewidth=linewidth, alpha=0.7)
 
     return ax
-
-
-if __name__ == '__main__':
-    data = np.load('vis_point.npz')
-    img = data['img']
-    point = data['point']
-    point_score = data['point_score']
-    # plt.imshow(img)
-    vis_coco_point(img, point, point_score)
-    plt.show()
