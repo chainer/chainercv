@@ -18,6 +18,7 @@ from chainercv.datasets import coco_instance_segmentation_label_names
 from chainercv.datasets import COCOInstanceSegmentationDataset
 from chainercv.links import MaskRCNNFPNResNet101
 from chainercv.links import MaskRCNNFPNResNet50
+from chainercv.links.model.mask_rcnn.misc import scale_img
 from chainercv import transforms
 
 from chainercv.links.model.fpn import head_loss_post
@@ -117,8 +118,10 @@ class TrainChain(chainer.Chain):
 
 class Transform(object):
 
-    def __init__(self, prepare_img):
-        self.prepare_img = prepare_img
+    def __init__(self, min_size, max_size, mean):
+        self.min_size = min_size
+        self.max_size = max_size
+        self.mean = mean
 
     def __call__(self, in_data):
         img, mask, label, bbox = in_data
@@ -131,10 +134,13 @@ class Transform(object):
             bbox, img.shape[1:], x_flip=params['x_flip'])
 
         # Scaling and mean subtraction
-        img, scale = self.prepare_img(img)
+        img, scale = scale_img(
+            img, self.min_size, self.max_size)
+        img -= self.mean
         mask = transforms.resize(
             mask.astype(np.float32),
-            (H, W), interpolation=PIL.Image.NEAREST).astype(np.bool)
+            img.shape[1:],
+            interpolation=PIL.Image.NEAREST).astype(np.bool)
         bbox = bbox * scale
         return img, mask, label, bbox, scale
 
@@ -189,7 +195,7 @@ def main():
             data_dir='/home/yuyu2172/coco',
             split='train', return_bbox=True),
         ('img', 'mask', 'label', 'bbox'),
-        Transform(model.prepare_img))
+        Transform(model.min_size, model.max_size, model.extractor.mean))
 
     if comm.rank == 0:
         indices = np.arange(len(train))

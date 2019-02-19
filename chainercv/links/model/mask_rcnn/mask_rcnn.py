@@ -6,7 +6,7 @@ import chainer
 from chainer.backends import cuda
 import chainer.functions as F
 
-from chainercv import transforms
+from chainercv.links.model.mask_rcnn.misc import scale_img
 
 
 class MaskRCNN(chainer.Chain):
@@ -44,8 +44,8 @@ class MaskRCNN(chainer.Chain):
 
     """
 
-    _min_size = 800
-    _max_size = 1333
+    min_size = 800
+    max_size = 1333
     stride = 32
 
     def __init__(self, extractor, rpn, head, mask_head):
@@ -176,7 +176,9 @@ class MaskRCNN(chainer.Chain):
         scales = []
         resized_imgs = []
         for img in imgs:
-            img, scale = self.prepare_img(img)
+            img, scale = scale_img(
+                img, self.min_size, self.max_size)
+            img -= self.extractor.mean
             scales.append(scale)
             resized_imgs.append(img)
         pad_size = np.array(
@@ -191,17 +193,6 @@ class MaskRCNN(chainer.Chain):
         x = self.xp.array(x)
 
         return x, scales
-
-    def prepare_img(self, img):
-        """Process image."""
-        _, H, W = img.shape
-        scale = self._min_size / min(H, W)
-        if scale * max(H, W) > self._max_size:
-            scale = self._max_size / max(H, W)
-        H, W = int(H * scale), int(W * scale)
-        img = transforms.resize(img, (H, W))
-        img -= self.extractor.mean
-        return img, scale
 
 
 def _list_to_flat(array_list):
