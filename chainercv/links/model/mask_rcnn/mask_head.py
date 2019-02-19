@@ -259,9 +259,9 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
         index = (mask_roi_indices == i).nonzero()[0]
         mask_roi = mask_rois[index]
         iou = bbox_iou(mask_roi, gt_bbox)
-        gt_index = chainer.backends.cuda.to_cpu(iou.argmax(axis=1))
+        gt_index = iou.argmax(axis=1)
         gt_segms[index] = _segm_wrt_bbox(
-            gt_mask[gt_index], mask_roi, (mask_size, mask_size), xp)
+            gt_mask, gt_index, mask_roi, (mask_size, mask_size), xp)
 
     flag_masks = [mask_roi_levels == l for l in range(n_level)]
     mask_rois = [mask_rois[m] for m in flag_masks]
@@ -293,7 +293,7 @@ def mask_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels,
     xp = cuda.get_array_module(segms.array)
 
     mask_roi_indices = xp.hstack(mask_roi_indices).astype(np.int32)
-    gt_segms = xp.vstack(gt_segms).astype(np.float32)
+    gt_segms = xp.vstack(gt_segms).astype(np.float32, copy=False)
     gt_mask_labels = xp.hstack(gt_mask_labels).astype(np.int32)
 
     mask_loss = 0
@@ -309,8 +309,9 @@ def mask_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels,
     return mask_loss
 
 
-def _segm_wrt_bbox(mask, bbox, size, xp):
+def _segm_wrt_bbox(mask, gt_index, bbox, size, xp):
     bbox = chainer.backends.cuda.to_cpu(bbox.astype(np.int32))
+    mask = mask[chainer.backends.cuda.to_cpu(gt_index)]
 
     segm = []
     for m, bb in zip(mask, bbox):
@@ -322,5 +323,5 @@ def _segm_wrt_bbox(mask, bbox, size, xp):
 
         segm.append(resize(
             cropped_m[None].astype(np.float32),
-            size, interpolation=PIL.Image.NEAREST)[0].astype(np.bool))
-    return xp.array(segm, dtype=np.bool)
+            size, interpolation=PIL.Image.NEAREST)[0])
+    return xp.array(segm, dtype=np.float32)
