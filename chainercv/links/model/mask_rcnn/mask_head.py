@@ -311,11 +311,10 @@ def mask_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels,
 
 def _segm_wrt_bbox(mask, gt_index, bbox, size, xp):
     bbox = chainer.backends.cuda.to_cpu(bbox.astype(np.int32))
-    mask = mask[chainer.backends.cuda.to_cpu(gt_index)]
 
     segm = []
-    for m, bb in zip(mask, bbox):
-        cropped_m = m[bb[0]:bb[2], bb[1]:bb[3]]
+    for i, bb in zip(chainer.backends.cuda.to_cpu(gt_index), bbox):
+        cropped_m = mask[i, bb[0]:bb[2], bb[1]:bb[3]]
         cropped_m = chainer.backends.cuda.to_cpu(cropped_m)
         if cropped_m.shape[0] == 0 or cropped_m.shape[1] == 0:
             segm.append(np.zeros(size, dtype=np.bool))
