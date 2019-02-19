@@ -33,13 +33,9 @@ def main():
         if args.pretrained_model is None:
             args.pretrained_model = 'coco'
         label_names = coco_instance_segmentation_label_names
-        proposal_creator_params = FCISResNet101.proposal_creator_params
-        proposal_creator_params['min_size'] = 2
         model = FCISResNet101(
             n_fg_class=len(label_names),
-            anchor_scales=(4, 8, 16, 32),
-            pretrained_model=args.pretrained_model,
-            proposal_creator_params=proposal_creator_params)
+            pretrained_model=args.pretrained_model)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
