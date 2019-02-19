@@ -42,9 +42,9 @@ def main():
                         help='Output directory')
     parser.add_argument('--seed', '-s', type=int, default=0)
     parser.add_argument(
-        '--lr', '-l', type=float, default=0.0005,
-        help='Default value is for 1 GPU.\n'
-             'The learning rate should be multiplied by the number of gpu')
+        '--lr', '-l', type=float, default=None,
+        help='Learning rate for multi GPUs')
+    parser.add_argument('--batch-size', type=int, default=8)
     parser.add_argument('--epoch', '-e', type=int, default=18)
     parser.add_argument('--cooldown-epoch', '-ce', type=int, default=12)
     args = parser.parse_args()
@@ -107,7 +107,8 @@ def main():
         indices = None
     indices = chainermn.scatter_dataset(indices, comm, shuffle=True)
     train_dataset = train_dataset.slice[indices]
-    train_iter = chainer.iterators.SerialIterator(train_dataset, batch_size=1)
+    train_iter = chainer.iterators.SerialIterator(
+        train_dataset, batch_size=args.batch_size // comm.size)
 
     # test dataset
     if comm.rank == 0:
@@ -145,7 +146,10 @@ def main():
     # lr scheduler
     @make_shift('lr')
     def lr_scheduler(trainer):
-        base_lr = args.lr
+        if args.lr is None:
+            base_lr = 0.0005 * args.batch_size
+        else:
+            base_lr = args.lr
 
         iteration = trainer.updater.iteration
         epoch = trainer.updater.epoch

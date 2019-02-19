@@ -105,6 +105,12 @@ class TestFeaturePredictor(unittest.TestCase):
 
         self.assertEqual(out.shape, self.expected_shape)
 
+    def test_prepare_original_unaffected(self):
+        original = np.random.uniform(size=(self.in_channels, 286, 286))
+        input_ = original.copy()
+        self.link._prepare(input_)
+        np.testing.assert_equal(original, input_)
+
     def test_mean(self):
         if self.mean is None:
             np.testing.assert_equal(self.link.mean, self.link.extractor.mean)

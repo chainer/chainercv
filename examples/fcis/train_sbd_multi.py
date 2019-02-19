@@ -11,6 +11,7 @@ import chainermn
 
 from chainercv.chainer_experimental.datasets.sliceable \
     import TransformDataset
+from chainercv.chainer_experimental.training.extensions import make_shift
 from chainercv.datasets import sbd_instance_segmentation_label_names
 from chainercv.datasets import SBDInstanceSegmentationDataset
 from chainercv.experimental.links import FCISResNet101
@@ -36,11 +37,9 @@ def main():
                         help='Output directory')
     parser.add_argument('--seed', '-s', type=int, default=0)
     parser.add_argument(
-        '--lr', '-l', type=float, default=0.0005,
-        help='Default value is for 1 GPU.\n'
-             'The learning rate should be multiplied by the number of gpu')
-    parser.add_argument(
-        '--lr-cooldown-factor', '-lcf', type=float, default=0.1)
+        '--lr', '-l', type=float, default=None,
+        help='Learning rate for multi GPUs')
+    parser.add_argument('--batch-size', type=int, default=8)
     parser.add_argument('--epoch', '-e', type=int, default=42)
     parser.add_argument('--cooldown-epoch', '-ce', type=int, default=28)
     args = parser.parse_args()
@@ -78,7 +77,8 @@ def main():
         indices = None
     indices = chainermn.scatter_dataset(indices, comm, shuffle=True)
     train_dataset = train_dataset.slice[indices]
-    train_iter = chainer.iterators.SerialIterator(train_dataset, batch_size=1)
+    train_iter = chainer.iterators.SerialIterator(
+        train_dataset, batch_size=args.batch_size // comm.size)
 
     if comm.rank == 0:
         test_dataset = SBDInstanceSegmentationDataset(split='val')
@@ -108,11 +108,21 @@ def main():
     trainer = chainer.training.Trainer(
         updater, (args.epoch, 'epoch'), out=args.out)
 
-    # lr scheduler
-    trainer.extend(
-        chainer.training.extensions.ExponentialShift(
-            'lr', args.lr_cooldown_factor, init=args.lr),
-        trigger=(args.cooldown_epoch, 'epoch'))
+    @make_shift('lr')
+    def lr_scheduler(trainer):
+        if args.lr is None:
+            base_lr = 0.0005 * args.batch_size
+        else:
+            base_lr = args.lr
+
+        epoch = trainer.updater.epoch
+        if epoch < args.cooldown_epoch:
+            rate = 1
+        else:
+            rate = 0.1
+        return rate * base_lr
+
+    trainer.extend(lr_scheduler)
 
     if comm.rank == 0:
         # interval
