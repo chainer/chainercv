@@ -11,6 +11,7 @@ import chainer.functions as F
 from chainer.initializers import HeNormal
 import chainer.links as L
 
+from chainercv.links import Conv2DActiv
 from chainercv.transforms.image.resize import resize
 from chainercv.utils.bbox.bbox_iou import bbox_iou
 
@@ -36,10 +37,10 @@ class MaskHead(chainer.Chain):
 
         initialW = HeNormal(1, fan_option='fan_out')
         with self.init_scope():
-            self.conv1 = L.Convolution2D(256, 3, pad=1, initialW=initialW)
-            self.conv2 = L.Convolution2D(256, 3, pad=1, initialW=initialW)
-            self.conv3 = L.Convolution2D(256, 3, pad=1, initialW=initialW)
-            self.conv4 = L.Convolution2D(256, 3, pad=1, initialW=initialW)
+            self.conv1 = Conv2DActiv(256, 3, pad=1, initialW=initialW)
+            self.conv2 = Conv2DActiv(256, 3, pad=1, initialW=initialW)
+            self.conv3 = Conv2DActiv(256, 3, pad=1, initialW=initialW)
+            self.conv4 = Conv2DActiv(256, 3, pad=1, initialW=initialW)
             self.conv5 = L.Deconvolution2D(
                 256, 2, pad=0, stride=2, initialW=initialW)
             self.seg = L.Convolution2D(n_class, 1, pad=0, initialW=initialW)
@@ -66,10 +67,10 @@ class MaskHead(chainer.Chain):
             return segs
 
         h = F.concat(pooled_hs, axis=0)
-        h = F.relu(self.conv1(h))
-        h = F.relu(self.conv2(h))
-        h = F.relu(self.conv3(h))
-        h = F.relu(self.conv4(h))
+        h = self.conv1(h)
+        h = self.conv2(h)
+        h = self.conv3(h)
+        h = self.conv4(h)
         h = F.relu(self.conv5(h))
         return self.seg(h)
 
