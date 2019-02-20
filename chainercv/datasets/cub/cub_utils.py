@@ -82,14 +82,14 @@ class CUBDatasetBase(GetterDataset):
             os.path.join(self.prob_map_dir, os.path.splitext(path)[0] + '.png')
             for path in self.paths]
 
-        self.add_getter('bb', self._get_bb)
+        self.add_getter('bbox', self._get_bbox)
         self.add_getter('prob_map', self._get_prob_map)
 
     def __len__(self):
         return len(self.paths)
 
-    def _get_bb(self, i):
-        return self.bbs[i]
+    def _get_bbox(self, i):
+        return self.bbs[i][None]
 
     def _get_prob_map(self, i):
         prob_map = utils.read_label(self.prob_map_paths[i], dtype=np.uint8)
