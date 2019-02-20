@@ -90,9 +90,6 @@ def vis_keypoint_coco(
         Returns the Axes object with the plot for further tweaking.
 
     """
-    if valid.dtype != np.bool:
-        raise ValueError('The dtype of `valid` should be np.bool')
-
     from matplotlib import pyplot as plt
 
     # Returns newly instantiated matplotlib.axes.Axes object if ax is None
@@ -103,8 +100,16 @@ def vis_keypoint_coco(
 
     if point_score is None:
         point_score = np.inf * np.ones(point.shape[:2], dtype=np.float32)
+    if point_score.shape != point.shape[:2]:
+        raise ValueError('Mismatch in the number of instances or joints.')
+    if point.shape[1:] != (len(coco_keypoint_names[human_id]), 2):
+        raise ValueError('point has invalid shape')
 
     if valid is not None:
+        if valid.dtype != np.bool:
+            raise ValueError('The dtype of `valid` should be np.bool')
+        if valid.shape != point.shape[:2]:
+            raise ValueError('Mismatch in the number of instances or joints.')
         for i, vld in enumerate(valid):
             point_score[i, np.logical_not(vld)] = -np.inf
 
