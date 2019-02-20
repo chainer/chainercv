@@ -87,6 +87,10 @@ mask_to_bbox
 ~~~~~~~~~~~~
 .. autofunction:: mask_to_bbox
 
+scale_mask
+~~~~~~~~~~
+.. autofunction:: scale_mask
+
 
 Testing Utilities
 -----------------
