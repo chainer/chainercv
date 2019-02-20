@@ -14,9 +14,10 @@ except ImportError:
     _available = False
 
 
-def eval_point_coco(pred_points, pred_labels, pred_scores,
-                    gt_points, gt_is_valids, gt_bboxes, gt_labels,
-                    gt_areas, gt_crowdeds=None):
+def eval_keypoint_detection_coco(
+        pred_points, pred_labels, pred_scores,
+        gt_points, gt_valids, gt_bboxes=None, gt_labels=None,
+        gt_areas=None, gt_crowdeds=None):
     if not _available:
         raise ValueError(
             'Please install pycocotools \n'
@@ -30,10 +31,10 @@ def eval_point_coco(pred_points, pred_labels, pred_scores,
     pred_labels = iter(pred_labels)
     pred_scores = iter(pred_scores)
     gt_points = iter(gt_points)
-    gt_is_valids = iter(gt_is_valids)
-    gt_bboxes = iter(gt_bboxes)
+    gt_valids = iter(gt_valids)
+    gt_bboxes = (iter(gt_bboxes) if gt_bboxes is not None
+                 else itertools.repeat(None))
     gt_labels = iter(gt_labels)
-
     if gt_areas is None:
         compute_area_dependent_metrics = False
         gt_areas = itertools.repeat(None)
@@ -51,8 +52,10 @@ def eval_point_coco(pred_points, pred_labels, pred_scores,
             gt_bbox, gt_label,
             gt_area, gt_crowded) in enumerate(six.moves.zip(
                 pred_points, pred_labels, pred_scores,
-                gt_points, gt_is_valids, gt_bboxes, gt_labels,
+                gt_points, gt_valids, gt_bboxes, gt_labels,
                 gt_areas, gt_crowdeds)):
+        if gt_bbox is None:
+            gt_bbox = itertools.repeat(None)
         if gt_area is None:
             gt_area = itertools.repeat(None)
         if gt_crowded is None:

@@ -5,7 +5,7 @@ from chainercv.evaluations.eval_detection_voc import eval_detection_voc  # NOQA
 from chainercv.evaluations.eval_instance_segmentation_coco import eval_instance_segmentation_coco  # NOQA
 from chainercv.evaluations.eval_instance_segmentation_voc import calc_instance_segmentation_voc_prec_rec  # NOQA
 from chainercv.evaluations.eval_instance_segmentation_voc import eval_instance_segmentation_voc  # NOQA
-from chainercv.evaluations.eval_point_coco import eval_point_coco  # NOQA
+from chainercv.evaluations.eval_keypoint_detection_coco import eval_keypoint_detection_coco  # NOQA
 from chainercv.evaluations.eval_semantic_segmentation import calc_semantic_segmentation_confusion  # NOQA
 from chainercv.evaluations.eval_semantic_segmentation import calc_semantic_segmentation_iou  # NOQA
 from chainercv.evaluations.eval_semantic_segmentation import eval_semantic_segmentation  # NOQA
