@@ -21,32 +21,28 @@ def eval_instance_segmentation_voc(
     .. _`FCIS`: https://arxiv.org/abs/1611.07709
 
     Args:
-        pred_masks (iterable of numpy.ndarray): An iterable of :math:`N`
-            sets of masks. Its index corresponds to an index for the base
-            dataset. Each element of :obj:`pred_masks` is an object mask
-            and is an array whose shape is :math:`(R, H, W)`,
-            where :math:`R` corresponds
-            to the number of masks, which may vary among images.
-        pred_labels (iterable of numpy.ndarray): An iterable of labels.
-            Similar to :obj:`pred_masks`, its index corresponds to an
-            index for the base dataset. Its length is :math:`N`.
-        pred_scores (iterable of numpy.ndarray): An iterable of confidence
-            scores for predicted masks. Similar to :obj:`pred_masks`,
-            its index corresponds to an index for the base dataset.
-            Its length is :math:`N`.
-        gt_masks (iterable of numpy.ndarray): An iterable of ground truth
-            masks whose length is :math:`N`. An element of :obj:`gt_masks` is
-            an object mask whose shape is :math:`(R, H, W)`. Note that the
-            number of masks :math:`R` in each image does not need to be
-            same as the number of corresponding predicted masks.
-        gt_labels (iterable of numpy.ndarray): An iterable of ground truth
-            labels which are organized similarly to :obj:`gt_masks`. Its
-            length is :math:`N`.
+        pred_masks (iterable of numpy.ndarray): See the table below.
+        pred_labels (iterable of numpy.ndarray): See the table below.
+        pred_scores (iterable of numpy.ndarray): See the table below.
+        gt_masks (iterable of numpy.ndarray): See the table below.
+        gt_labels (iterable of numpy.ndarray): See the table below.
         iou_thresh (float): A prediction is correct if its Intersection over
             Union with the ground truth is above this value.
         use_07_metric (bool): Whether to use PASCAL VOC 2007 evaluation metric
             for calculating average precision. The default value is
             :obj:`False`.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`pred_masks`, ":math:`[(R, H, W)]`", :obj:`bool`, --
+        :obj:`pred_labels`, ":math:`[(R,)]`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
+        :obj:`pred_scores`, ":math:`[(R,)]`", :obj:`float32`, \
+        --
+        :obj:`gt_masks`, ":math:`[(R, H, W)]`", :obj:`bool`, --
+        :obj:`gt_labels`, ":math:`[(R,)]`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
 
     Returns:
         dict:
