@@ -46,7 +46,48 @@ def vis_keypoint_coco(
         img, point, valid=None,
         point_score=None, thresh=2,
         markersize=3, linewidth=1, ax=None):
-    """Visualize bounding boxes inside image.
+    """Visualize keypoints organized as in COCO.
+
+    Example:
+
+        >>> from chainercv.datasets import COCOKeypointDataset
+        >>> from chainercv.visualizations import vis_keypoint_coco
+        >>> import matplotlib.pyplot as plt
+        >>> data = COCOKeypointDataset(split='val')
+        >>> img, point, valid = data[10][:3]
+        >>> vis_keypoint_coco(img, point, valid)
+        >>> plt.show()
+
+    Args:
+        img (~numpy.ndarray): See the table below.
+            If this is :obj:`None`, no image is displayed.
+        point (~numpy.ndarray): See the table below.
+        valid (~numpy.ndarray): See the table below. If this is
+            :obj:`None`, all points are assumed to be visible.
+        point_score (~numpy.ndarray): See the table below. If this
+            is :obj:`None`, the confidence of all points is infinitely
+            large.
+        thresh (float): Points with confidence below :obj:`thresh` are
+            not visualized.
+        markersize (float): The size of vertices.
+        linewidth (float): The thickness of edges.
+        ax (matplotlib.axes.Axis): The visualization is displayed on this
+            axis. If this is :obj:`None` (default), a new axis is created.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`point`, ":math:`(R, K, 2)`", :obj:`float32`, \
+        ":math:`(y, x)`"
+        :obj:`valid`, ":math:`(R, K)`", :obj:`bool`, \
+        "true when a keypoint is visible."
+        :obj:`point_score`, ":math:`(R, K)`", :obj:`float32`, --
+
+    Returns:
+        ~matploblib.axes.Axes:
+        Returns the Axes object with the plot for further tweaking.
 
     """
     if valid.dtype != np.bool:

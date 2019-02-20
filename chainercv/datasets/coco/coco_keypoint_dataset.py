@@ -12,9 +12,62 @@ from chainercv import utils
 
 class COCOKeypointDataset(GetterDataset):
 
+    """Keypoint dataset for `MS COCO`_.
+
+    This only returns annotation for objects categorized to the "person"
+    category.
+
+    .. _`MS COCO`: http://cocodataset.org/#home
+
+    Args:
+        data_dir (string): Path to the root of the training data. If this is
+            :obj:`auto`, this class will automatically download data for you
+            under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/coco`.
+        split ({'train', 'val'}): Select a split of the dataset.
+        year ({'2014', '2017'}): Use a dataset released in :obj:`year`.
+        use_crowded (bool): If true, use bounding boxes that are labeled as
+            crowded in the original annotation. The default value is
+            :obj:`False`.
+        return_area (bool): If true, this dataset returns areas of masks
+            around objects. The default value is :obj:`False`.
+        return_crowded (bool): If true, this dataset returns a boolean array
+            that indicates whether bounding boxes are labeled as crowded
+            or not. The default value is :obj:`False`.
+
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`point` [#coco_point_1]_, ":math:`(R, K, 2)`", :obj:`float32`, \
+        ":math:`(y, x)`"
+        :obj:`valid` [#coco_point_1]_, ":math:`(R, K)`", :obj:`bool`, \
+        "true when a keypoint is visible."
+        :obj:`bbox` [#coco_point_1]_, ":math:`(R, 4)`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+        :obj:`label` [#coco_point_1]_, ":math:`(R,)`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
+        :obj:`area` [#coco_point_1]_ [#coco_point_2]_, ":math:`(R,)`", \
+        :obj:`float32`, --
+        :obj:`crowded` [#coco_point_3]_, ":math:`(R,)`", :obj:`bool`, --
+
+    .. [#coco_point_1] If :obj:`use_crowded = True`, :obj:`point`, \
+        :obj:`valid`, :obj:`bbox`, \
+        :obj:`label` and :obj:`area` contain crowded instances.
+    .. [#coco_point_2] :obj:`area` is available \
+        if :obj:`return_area = True`.
+    .. [#coco_point_3] :obj:`crowded` is available \
+        if :obj:`return_crowded = True`.
+
+    """
+
     def __init__(self, data_dir='auto', split='train', year='2017',
                  use_crowded=False,
                  return_area=False, return_crowded=False):
+        if split not in ['train', 'val']:
+            raise ValueError('Unsupported split is given.')
         super(COCOKeypointDataset, self).__init__()
         self.use_crowded = use_crowded
         if data_dir == 'auto':
