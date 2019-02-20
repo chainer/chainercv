@@ -18,6 +18,122 @@ def eval_keypoint_detection_coco(
         pred_points, pred_labels, pred_scores,
         gt_points, gt_valids, gt_bboxes=None, gt_labels=None,
         gt_areas=None, gt_crowdeds=None):
+    """Evaluate keypoint detection based on evaluation code of MS COCO.
+
+    This function evaluates predicted keypints obtained by using average
+    precision for each class.
+    The code is based on the evaluation code used in MS COCO.
+
+    Args:
+        pred_points (iterable of numpy.ndarray): See the table below.
+        pred_labels (iterable of numpy.ndarray): See the table below.
+        pred_scores (iterable of numpy.ndarray): See the table below.
+            This is used to rank instances. Note that this is not
+            the confidene for each keypoint.
+        gt_points (iterable of numpy.ndarray): See the table below.
+        gt_valids (iterable of numpy.ndarray): See the table below.
+        gt_bboxes (iterable of numpy.ndarray): See the table below.
+            This is optional. If this is :obj:`None`, the ground truth
+            bounding boxes are esitmated from the ground truth
+            keypoints.
+        gt_labels (iterable of numpy.ndarray): See the table below.
+        gt_areas (iterable of numpy.ndarray): See the table below. If
+            :obj:`None`, some scores are not returned.
+        gt_crowdeds (iterable of numpy.ndarray): See the table below.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`pred_points`, ":math:`[(R, K, 2)]`", :obj:`float32`, \
+        ":math:`(y, x)`"
+        :obj:`pred_labels`, ":math:`[(R,)]`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
+        :obj:`pred_scores`, ":math:`[(R,)]`", :obj:`float32`, \
+        --
+        :obj:`gt_points`, ":math:`[(R, K, 2)]`", :obj:`float32`, \
+        ":math:`(y, x)`"
+        :obj:`gt_valids`, ":math:`[(R, K)]`", :obj:`bool`, --
+        :obj:`gt_bboxes`, ":math:`[(R, 4)]`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+        :obj:`gt_labels`, ":math:`[(R,)]`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
+        :obj:`gt_areas`, ":math:`[(R,)]`", \
+        :obj:`float32`, --
+        :obj:`gt_crowdeds`, ":math:`[(R,)]`", :obj:`bool`, --
+
+
+    Returns:
+        dict:
+
+        The keys, value-types and the description of the values are listed
+        below. The APs and ARs calculated with different iou
+        thresholds, sizes of objects, and numbers of detections
+        per image. For more details on the 12 patterns of evaluation metrics,
+        please refer to COCO's official `evaluation page`_.
+
+        .. csv-table::
+            :header: key, type, description
+
+            ap/iou=0.50:0.95/area=all/max_dets=20, *numpy.ndarray*, \
+                [#coco_kp_eval_1]_
+            ap/iou=0.50/area=all/max_dets=20, *numpy.ndarray*, \
+                [#coco_kp_eval_1]_
+            ap/iou=0.75/area=all/max_dets=20, *numpy.ndarray*, \
+                [#coco_kp_eval_1]_
+            ap/iou=0.50:0.95/area=medium/max_dets=20, *numpy.ndarray*, \
+                [#coco_kp_eval_1]_ [#coco_kp_eval_5]_
+            ap/iou=0.50:0.95/area=large/max_dets=20, *numpy.ndarray*, \
+                [#coco_kp_eval_1]_ [#coco_kp_eval_5]_
+            ar/iou=0.50:0.95/area=all/max_dets=20, *numpy.ndarray*, \
+                [#coco_kp_eval_2]_
+            ar/iou=0.50/area=all/max_dets=20, *numpy.ndarray*, \
+                [#coco_kp_eval_2]_
+            ar/iou=0.75/area=all/max_dets=20, *numpy.ndarray*, \
+                [#coco_kp_eval_2]_
+            ar/iou=0.50:0.95/area=medium/max_dets=20, *numpy.ndarray*, \
+                [#coco_kp_eval_2]_ [#coco_kp_eval_5]_
+            ar/iou=0.50:0.95/area=large/max_dets=20, *numpy.ndarray*, \
+                [#coco_kp_eval_2]_ [#coco_kp_eval_5]_
+            map/iou=0.50:0.95/area=all/max_dets=20, *float*, \
+                [#coco_kp_eval_3]_
+            map/iou=0.50/area=all/max_dets=20, *float*, \
+                [#coco_kp_eval_3]_
+            map/iou=0.75/area=all/max_dets=20, *float*, \
+                [#coco_kp_eval_3]_
+            map/iou=0.50:0.95/area=medium/max_dets=20, *float*, \
+                [#coco_kp_eval_3]_ [#coco_kp_eval_5]_
+            map/iou=0.50:0.95/area=large/max_dets=20, *float*, \
+                [#coco_kp_eval_3]_ [#coco_kp_eval_5]_
+            mar/iou=0.50:0.95/area=all/max_dets=20, *float*, \
+                [#coco_kp_eval_4]_
+            mar/iou=0.50/area=all/max_dets=20, *float*, \
+                [#coco_kp_eval_4]_
+            mar/iou=0.75/area=all/max_dets=20, *float*, \
+                [#coco_kp_eval_4]_
+            mar/iou=0.50:0.95/area=medium/max_dets=20, *float*, \
+                [#coco_kp_eval_4]_ [#coco_kp_eval_5]_
+            mar/iou=0.50:0.95/area=large/max_dets=20, *float*, \
+                [#coco_kp_eval_4]_ [#coco_kp_eval_5]_
+            coco_eval, *pycocotools.cocoeval.COCOeval*, \
+                result from :obj:`pycocotools`
+            existent_labels, *numpy.ndarray*, \
+                used labels \
+
+    .. [#coco_kp_eval_1] An array of average precisions. \
+        The :math:`l`-th value corresponds to the average precision \
+        for class :math:`l`. If class :math:`l` does not exist in \
+        either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding \
+        value is set to :obj:`numpy.nan`.
+    .. [#coco_kp_eval_2] An array of average recalls. \
+        The :math:`l`-th value corresponds to the average precision \
+        for class :math:`l`. If class :math:`l` does not exist in \
+        either :obj:`pred_labels` or :obj:`gt_labels`, the corresponding \
+        value is set to :obj:`numpy.nan`.
+    .. [#coco_kp_eval_3] The average of average precisions over classes.
+    .. [#coco_kp_eval_4] The average of average recalls over classes.
+    .. [#coco_kp_eval_5] Skip if :obj:`gt_areas` is :obj:`None`.
+
+    """
     if not _available:
         raise ValueError(
             'Please install pycocotools \n'
