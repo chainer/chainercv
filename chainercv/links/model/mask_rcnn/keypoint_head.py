@@ -42,7 +42,7 @@ class KeypointHead(chainer.Chain):
                 n_point, 4, pad=1, stride=2, initialW=initialW)
 
         self._scales = scales
-        self._n_point = n_point
+        self.n_point = n_point
 
     def __call__(self, hs, rois, roi_indices):
         pooled_hs = []
@@ -56,10 +56,10 @@ class KeypointHead(chainer.Chain):
                 self._scales[l], self._roi_sample_ratio))
 
         if len(pooled_hs) == 0:
-            out_size = self.map_size
-            point = chainer.Variable(
-               self.xp.empty((0, self._n_class, out_size, out_size), dtype=np.float32))
-            return segs
+            return chainer.Variable(
+               self.xp.empty(
+                   (0, self.n_point, self.map_size, self.map_size),
+                   dtype=np.float32))
 
         h = F.concat(pooled_hs, axis=0)
         h = self.conv1(h)
@@ -93,8 +93,8 @@ class KeypointHead(chainer.Chain):
         points = []
         point_scores = []
         for bbox, point_map in zip(bboxes, point_maps):
-            point = np.zeros((len(bbox), self._n_point, 2), dtype=np.float32)
-            point_score = np.zeros((len(bbox), self._n_point), dtype=np.float32)
+            point = np.zeros((len(bbox), self.n_point, 2), dtype=np.float32)
+            point_score = np.zeros((len(bbox), self.n_point), dtype=np.float32)
 
             hs = bbox[:, 2] - bbox[:, 0]
             ws = bbox[:, 3] - bbox[:, 1]
@@ -109,7 +109,7 @@ class KeypointHead(chainer.Chain):
                     interpolation=cv2.INTER_CUBIC).transpose(
                         (2, 0, 1))
                 _, H, W = point_m.shape
-                for k in range(self._n_point):
+                for k in range(self.n_point):
                     pos = point_m[k].argmax()
                     x_int = pos % W
                     y_int = (pos - x_int) // W
