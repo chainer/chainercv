@@ -21,21 +21,19 @@ def mask_to_bbox(mask):
         The dtype should be :obj:`numpy.float32`.
 
     """
-    _, H, W = mask.shape
+    R, H, W = mask.shape
     xp = cuda.get_array_module(mask)
 
-    # CuPy does not support argwhere yet
-    mask = cuda.to_cpu(mask)
-
-    bbox = []
-    for msk in mask:
-        where = np.argwhere(msk)
-        if len(where) > 0:
-            y_min, x_min = where.min(0)
-            y_max, x_max = where.max(0) + 1
-        else:
-            y_min, x_min, y_max, x_max = 0, 0, 0, 0
-        bbox.append((y_min, x_min, y_max, x_max))
-    if len(bbox) == 0:
-        return xp.empty((0, 4), dtype=np.float32)
-    return xp.array(bbox, dtype=np.float32)
+    instance_index, ys, xs = xp.nonzero(mask)
+    bbox = xp.zeros((R, 4), dtype=np.float32)
+    for i in range(R):
+        ys_i = ys[instance_index == i]
+        xs_i = xs[instance_index == i]
+        if len(ys_i) == 0:
+            continue
+        y_min = ys_i.min()
+        x_min = xs_i.min()
+        y_max = ys_i.max() + 1
+        x_max = xs_i.max() + 1
+        bbox[i] = xp.array([y_min, x_min, y_max, x_max], dtype=np.float32)
+    return bbox

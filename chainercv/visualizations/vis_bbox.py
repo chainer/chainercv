@@ -4,7 +4,8 @@ from chainercv.visualizations.vis_image import vis_image
 
 
 def vis_bbox(img, bbox, label=None, score=None, label_names=None,
-             instance_colors=None, alpha=1., linewidth=3., ax=None):
+             instance_colors=None, alpha=1., linewidth=3.,
+             sort_by_score=True, ax=None):
     """Visualize bounding boxes inside image.
 
     Example:
@@ -60,6 +61,8 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
         alpha (float): The value which determines transparency of the
             bounding boxes. The range of this value is :math:`[0, 1]`.
         linewidth (float): The thickness of the edges of the bounding boxes.
+        sort_by_score (bool): When :obj:`True`, instances with high scores
+            are always visualized in front of instances with low scores.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
 
@@ -74,6 +77,13 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
         raise ValueError('The length of label must be same as that of bbox')
     if score is not None and not len(bbox) == len(score):
         raise ValueError('The length of score must be same as that of bbox')
+
+    if sort_by_score and score is not None:
+        order = np.argsort(score)
+        bbox = bbox[order]
+        score = score[order]
+        if label is not None:
+            label = label[order]
 
     # Returns newly instantiated matplotlib.axes.Axes object if ax is None
     ax = vis_image(img, ax=ax)

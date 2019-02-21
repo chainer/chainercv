@@ -88,7 +88,7 @@ class FCIS(chainer.Chain):
         # Total number of classes including the background.
         return self.head.n_class
 
-    def __call__(self, x, scale=1.):
+    def __call__(self, x, scales=None):
         """Forward FCIS.
 
         Scaling paramter :obj:`scale` is used by RPN to determine the
@@ -112,8 +112,8 @@ class FCIS(chainer.Chain):
 
         Args:
             x (~chainer.Variable): 4D image variable.
-            scale (float): Amount of scaling applied to the raw image
-                during preprocessing.
+            scales (tuple of floats): Amount of scaling applied to each input
+                image during preprocessing.
 
         Returns:
             Variable, Variable, Variable, array, array:
@@ -136,7 +136,7 @@ class FCIS(chainer.Chain):
         # Feature Extractor
         rpn_features, roi_features = self.extractor(x)
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.rpn(
-            rpn_features, img_size, scale)
+            rpn_features, img_size, scales)
         roi_ag_seg_scores, roi_ag_locs, roi_cls_scores, rois, roi_indices = \
             self.head(roi_features, rois, roi_indices, img_size)
         return roi_ag_seg_scores, roi_ag_locs, roi_cls_scores, \
@@ -266,7 +266,7 @@ class FCIS(chainer.Chain):
                 img_var = chainer.Variable(self.xp.array(img[None]))
                 scale = img_var.shape[3] / size[1]
                 roi_ag_seg_scores, _, roi_cls_scores, bboxes, _ = \
-                    self.__call__(img_var, scale)
+                    self.__call__(img_var, scales=[scale])
 
             # We are assuming that batch size is 1.
             roi_ag_seg_score = chainer.cuda.to_cpu(roi_ag_seg_scores.array)
