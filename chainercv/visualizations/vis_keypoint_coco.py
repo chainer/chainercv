@@ -43,7 +43,7 @@ coco_point_skeleton = [
 
 
 def vis_keypoint_coco(
-        img, point, valid=None,
+        img, point, visible=None,
         point_score=None, thresh=2,
         markersize=3, linewidth=1, ax=None):
     """Visualize keypoints organized as in COCO.
@@ -54,15 +54,15 @@ def vis_keypoint_coco(
         >>> from chainercv.visualizations import vis_keypoint_coco
         >>> import matplotlib.pyplot as plt
         >>> data = COCOKeypointDataset(split='val')
-        >>> img, point, valid = data[10][:3]
-        >>> vis_keypoint_coco(img, point, valid)
+        >>> img, point, visible = data[10][:3]
+        >>> vis_keypoint_coco(img, point, visible)
         >>> plt.show()
 
     Args:
         img (~numpy.ndarray): See the table below.
             If this is :obj:`None`, no image is displayed.
         point (~numpy.ndarray): See the table below.
-        valid (~numpy.ndarray): See the table below. If this is
+        visible (~numpy.ndarray): See the table below. If this is
             :obj:`None`, all points are assumed to be visible.
         point_score (~numpy.ndarray): See the table below. If this
             is :obj:`None`, the confidence of all points is infinitely
@@ -81,7 +81,7 @@ def vis_keypoint_coco(
         "RGB, :math:`[0, 255]`"
         :obj:`point`, ":math:`(R, K, 2)`", :obj:`float32`, \
         ":math:`(y, x)`"
-        :obj:`valid`, ":math:`(R, K)`", :obj:`bool`, \
+        :obj:`visible`, ":math:`(R, K)`", :obj:`bool`, \
         "true when a keypoint is visible."
         :obj:`point_score`, ":math:`(R, K)`", :obj:`float32`, --
 
@@ -103,14 +103,14 @@ def vis_keypoint_coco(
     if point_score.shape != point.shape[:2]:
         raise ValueError('Mismatch in the number of instances or joints.')
     if point.shape[1:] != (len(coco_keypoint_names[human_id]), 2):
-        raise ValueError('point has invalid shape')
+        raise ValueError('point has invisible shape')
 
-    if valid is not None:
-        if valid.dtype != np.bool:
-            raise ValueError('The dtype of `valid` should be np.bool')
-        if valid.shape != point.shape[:2]:
+    if visible is not None:
+        if visible.dtype != np.bool:
+            raise ValueError('The dtype of `visible` should be np.bool')
+        if visible.shape != point.shape[:2]:
             raise ValueError('Mismatch in the number of instances or joints.')
-        for i, vld in enumerate(valid):
+        for i, vld in enumerate(visible):
             point_score[i, np.logical_not(vld)] = -np.inf
 
     for pnt, pnt_sc in zip(point, point_score):

@@ -4,6 +4,10 @@ language: python
 python:
   - "2.7"
   - "3.6"
+cache:
+  directories:
+    - $HOME/download
+    - $HOME/miniconda
 env:
   - CHAINER_VERSION=">=5.0" OPTIONAL_MODULES=0
   - CHAINER_VERSION=">=5.0" OPTIONAL_MODULES=1
@@ -12,15 +16,25 @@ env:
 notifications:
   email: false
 
-install:
+before_cache:
+  - rm -rf $HOME/miniconda/locks $HOME/miniconda/pkgs $HOME/miniconda/var
+  - rm -rf $HOME/miniconda/conda-bld $HOME/miniconda/conda-meda/history
+
+before_install:
   # We use the older version of conda because there is a bug in version 4.3.27.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-4.3.21-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-4.3.21-Linux-x86_64.sh -O miniconda.sh;
+  - if [[ ! -d "$HOME/miniconda/bin" ]]; then
+      rm -rf $HOME/miniconda;
+      mkdir -p $HOME/download;
+      if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+        wget https://repo.continuum.io/miniconda/Miniconda2-4.3.21-Linux-x86_64.sh -O $HOME/download/miniconda.sh;
+      else
+        wget https://repo.continuum.io/miniconda/Miniconda3-4.3.21-Linux-x86_64.sh -O $HOME/download/miniconda.sh;
+      fi;
+      bash $HOME/download/miniconda.sh -b -p $HOME/miniconda;
     fi
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
+
+install:
+  - source $HOME/miniconda/bin/activate
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   # - conda update -q conda
