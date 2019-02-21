@@ -1,22 +1,20 @@
 def flip_bbox(bbox, size, y_flip=False, x_flip=False):
     """Flip bounding boxes accordingly.
 
-    The bounding boxes are expected to be packed into a two dimensional
-    tensor of shape :math:`(R, 4)`, where :math:`R` is the number of
-    bounding boxes in the image. The second axis represents attributes of
-    the bounding box. They are :math:`(y_{min}, x_{min}, y_{max}, x_{max})`,
-    where the four attributes are coordinates of the top left and the
-    bottom right vertices.
-
     Args:
-        bbox (~numpy.ndarray): An array whose shape is :math:`(R, 4)`.
-            :math:`R` is the number of bounding boxes.
+        bbox (~numpy.ndarray): See the table below.
         size (tuple): A tuple of length 2. The height and the width
             of the image before resized.
         y_flip (bool): Flip bounding box according to a vertical flip of
             an image.
         x_flip (bool): Flip bounding box according to a horizontal flip of
             an image.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`bbox`, ":math:`(R, 4)`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
 
     Returns:
         ~numpy.ndarray:
