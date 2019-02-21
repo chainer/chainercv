@@ -39,7 +39,7 @@ class TestEvalPointCOCOSingleClass(unittest.TestCase):
         self.pred_labels = []
         self.pred_scores = []
         self.gt_points = []
-        self.gt_valids = []
+        self.gt_visibles = []
         self.gt_bboxes = []
         self.gt_labels = []
         for i in range(2):
@@ -49,7 +49,7 @@ class TestEvalPointCOCOSingleClass(unittest.TestCase):
             self.pred_scores.append(np.random.uniform(
                 0.5, 1, size=(self.n_inst,)).astype(np.float32))
             self.gt_points.append(point)
-            self.gt_valids.append(valid)
+            self.gt_visibles.append(valid)
             bbox = np.zeros((self.n_inst, 4), dtype=np.float32)
             for i, pnt in enumerate(point):
                 y_min = np.min(pnt[:, 0])
@@ -71,13 +71,13 @@ class TestEvalPointCOCOSingleClass(unittest.TestCase):
     def test_gt_bboxes_not_supplied(self):
         result = eval_keypoint_detection_coco(
             self.pred_points, self.pred_labels, self.pred_scores,
-            self.gt_points, self.gt_valids, None, self.gt_labels)
+            self.gt_points, self.gt_visibles, None, self.gt_labels)
         self._check(result)
 
     def test_area_not_supplied(self):
         result = eval_keypoint_detection_coco(
             self.pred_points, self.pred_labels, self.pred_scores,
-            self.gt_points, self.gt_valids, self.gt_bboxes, self.gt_labels)
+            self.gt_points, self.gt_visibles, self.gt_bboxes, self.gt_labels)
         self._check(result)
 
         self.assertFalse(
@@ -93,7 +93,7 @@ class TestEvalPointCOCOSingleClass(unittest.TestCase):
         gt_areas = [[100] * self.n_inst for _ in range(2)]
         result = eval_keypoint_detection_coco(
             self.pred_points, self.pred_labels, self.pred_scores,
-            self.gt_points, self.gt_valids, self.gt_bboxes, self.gt_labels,
+            self.gt_points, self.gt_visibles, self.gt_bboxes, self.gt_labels,
             gt_areas=gt_areas,
         )
         self._check(result)
@@ -110,7 +110,7 @@ class TestEvalPointCOCOSingleClass(unittest.TestCase):
         gt_crowdeds = [[True] * self.n_inst for _ in range(2)]
         result = eval_keypoint_detection_coco(
             self.pred_points, self.pred_labels, self.pred_scores,
-            self.gt_points, self.gt_valids, self.gt_bboxes, self.gt_labels,
+            self.gt_points, self.gt_visibles, self.gt_bboxes, self.gt_labels,
             gt_crowdeds=gt_crowdeds,
         )
         # When the only ground truth is crowded, nothing is evaluated.
@@ -128,7 +128,7 @@ class TestEvalKeypointDetectionCOCO(unittest.TestCase):
 
         cls.dataset = np.load(request.urlretrieve(os.path.join(
             base_url,
-            'eval_keypoint_detection_coco_dataset_2019_02_20.npz'))[0])
+            'eval_keypoint_detection_coco_dataset_2019_02_21.npz'))[0])
         cls.result = np.load(request.urlretrieve(os.path.join(
             base_url,
             'eval_keypoint_detection_coco_result_2019_02_20.npz'))[0])
@@ -139,7 +139,7 @@ class TestEvalKeypointDetectionCOCO(unittest.TestCase):
         pred_scores = self.result['scores']
 
         gt_points = self.dataset['points']
-        gt_valids = self.dataset['valids']
+        gt_visibles = self.dataset['visibles']
         gt_bboxes = self.dataset['bboxes']
         gt_labels = self.dataset['labels']
         gt_areas = self.dataset['areas']
@@ -147,7 +147,7 @@ class TestEvalKeypointDetectionCOCO(unittest.TestCase):
 
         result = eval_keypoint_detection_coco(
             pred_points, pred_labels, pred_scores,
-            gt_points, gt_valids, gt_bboxes,
+            gt_points, gt_visibles, gt_bboxes,
             gt_labels, gt_areas, gt_crowdeds)
 
         expected = {

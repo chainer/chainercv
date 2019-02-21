@@ -16,7 +16,7 @@ except ImportError:
 
 def eval_keypoint_detection_coco(
         pred_points, pred_labels, pred_scores,
-        gt_points, gt_valids, gt_bboxes=None, gt_labels=None,
+        gt_points, gt_visibles, gt_bboxes=None, gt_labels=None,
         gt_areas=None, gt_crowdeds=None):
     """Evaluate keypoint detection based on evaluation code of MS COCO.
 
@@ -31,7 +31,7 @@ def eval_keypoint_detection_coco(
             This is used to rank instances. Note that this is not
             the confidene for each keypoint.
         gt_points (iterable of numpy.ndarray): See the table below.
-        gt_valids (iterable of numpy.ndarray): See the table below.
+        gt_visibles (iterable of numpy.ndarray): See the table below.
         gt_bboxes (iterable of numpy.ndarray): See the table below.
             This is optional. If this is :obj:`None`, the ground truth
             bounding boxes are esitmated from the ground truth
@@ -52,7 +52,7 @@ def eval_keypoint_detection_coco(
         --
         :obj:`gt_points`, ":math:`[(R, K, 2)]`", :obj:`float32`, \
         ":math:`(y, x)`"
-        :obj:`gt_valids`, ":math:`[(R, K)]`", :obj:`bool`, --
+        :obj:`gt_visibles`, ":math:`[(R, K)]`", :obj:`bool`, --
         :obj:`gt_bboxes`, ":math:`[(R, 4)]`", :obj:`float32`, \
         ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
         :obj:`gt_labels`, ":math:`[(R,)]`", :obj:`int32`, \
@@ -147,7 +147,7 @@ def eval_keypoint_detection_coco(
     pred_labels = iter(pred_labels)
     pred_scores = iter(pred_scores)
     gt_points = iter(gt_points)
-    gt_valids = iter(gt_valids)
+    gt_visibles = iter(gt_visibles)
     gt_bboxes = (iter(gt_bboxes) if gt_bboxes is not None
                  else itertools.repeat(None))
     gt_labels = iter(gt_labels)
@@ -164,11 +164,11 @@ def eval_keypoint_detection_coco(
     pred_annos = []
     gt_annos = []
     existent_labels = {}
-    for i, (pred_point, pred_label, pred_score, gt_point, gt_is_valid,
+    for i, (pred_point, pred_label, pred_score, gt_point, gt_visible,
             gt_bbox, gt_label,
             gt_area, gt_crowded) in enumerate(six.moves.zip(
                 pred_points, pred_labels, pred_scores,
-                gt_points, gt_valids, gt_bboxes, gt_labels,
+                gt_points, gt_visibles, gt_bboxes, gt_labels,
                 gt_areas, gt_crowdeds)):
         if gt_bbox is None:
             gt_bbox = itertools.repeat(None)
@@ -183,18 +183,18 @@ def eval_keypoint_detection_coco(
                                               pred_score):
             # http://cocodataset.org/#format-results
             # Visibility flag is currently not used for evaluation
-            is_v = np.ones(len(pred_pnt))
+            v = np.ones(len(pred_pnt))
             pred_annos.append(
-                _create_anno(pred_pnt, is_v, None,
+                _create_anno(pred_pnt, v, None,
                              pred_lb, pred_sc,
                              img_id=img_id, anno_id=len(pred_annos) + 1,
                              ar=None, crw=0))
             existent_labels[pred_lb] = True
 
-        for gt_pnt, gt_is_v, gt_bb, gt_lb, gt_ar, gt_crw in zip(
-                gt_point, gt_is_valid, gt_bbox, gt_label, gt_area, gt_crowded):
+        for gt_pnt, gt_v, gt_bb, gt_lb, gt_ar, gt_crw in zip(
+                gt_point, gt_visible, gt_bbox, gt_label, gt_area, gt_crowded):
             gt_annos.append(
-                _create_anno(gt_pnt, gt_is_v, gt_bb, gt_lb, None,
+                _create_anno(gt_pnt, gt_v, gt_bb, gt_lb, None,
                              img_id=img_id, anno_id=len(gt_annos) + 1,
                              ar=gt_ar, crw=gt_crw))
         ids.append({'id': img_id})
@@ -276,7 +276,7 @@ def eval_keypoint_detection_coco(
     return results
 
 
-def _create_anno(pnt, is_v, bb, lb, sc, img_id, anno_id, ar=None, crw=None):
+def _create_anno(pnt, v, bb, lb, sc, img_id, anno_id, ar=None, crw=None):
     # https://github.com/cocodataset/cocoapi/blob/master/PythonAPI/pycocotools/coco.py#L342
     y_min = np.min(pnt[:, 0])
     x_min = np.min(pnt[:, 1])
@@ -293,7 +293,7 @@ def _create_anno(pnt, is_v, bb, lb, sc, img_id, anno_id, ar=None, crw=None):
         bb_xywh = [x_min, y_min, x_max - x_min, y_max - y_min]
     else:
         bb_xywh = [bb[1], bb[0], bb[3] - bb[1], bb[2] - bb[0]]
-    pnt = np.concatenate((pnt[:, [1, 0]], is_v[:, None]), axis=1)
+    pnt = np.concatenate((pnt[:, [1, 0]], v[:, None]), axis=1)
     anno = {
         'image_id': img_id, 'category_id': lb,
         'keypoints': pnt.reshape((-1)).tolist(),
