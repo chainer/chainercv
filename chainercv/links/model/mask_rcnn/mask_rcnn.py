@@ -48,13 +48,18 @@ class MaskRCNN(chainer.Chain):
     max_size = 1333
     stride = 32
 
-    def __init__(self, extractor, rpn, head, mask_head):
+    def __init__(self, extractor, rpn, head, mask_head,
+                 keypoint_head, mode='mask'):
         super(MaskRCNN, self).__init__()
         with self.init_scope():
             self.extractor = extractor
             self.rpn = rpn
             self.head = head
-            self.mask_head = mask_head
+            if mode == 'mask':
+                self.mask_head = mask_head
+            elif mode =='keypoint':
+                self.keypoint_head = keypoint_head
+        self.mode = mode
 
         self.use_preset('visualize')
 
@@ -133,32 +138,64 @@ class MaskRCNN(chainer.Chain):
             scales, sizes, self.nms_thresh, self.score_thresh)
 
         rescaled_bboxes = [bbox * scale for scale, bbox in zip(scales, bboxes)]
-        # Change bboxes to RoI and RoI indices format
-        mask_rois_before_reordering, mask_roi_indices_before_reordering =\
-            _list_to_flat(rescaled_bboxes)
-        mask_rois, mask_roi_indices, order = self.mask_head.distribute(
-            mask_rois_before_reordering, mask_roi_indices_before_reordering)
-        with chainer.using_config('train', False), chainer.no_backprop_mode():
-            segms = F.sigmoid(
-                self.mask_head(hs, mask_rois, mask_roi_indices)).data
-        # Put the order of proposals back to the one used by bbox head.
-        segms = segms[order]
-        segms = _flat_to_list(
-            segms, mask_roi_indices_before_reordering, len(imgs))
-        segms = [segm if segm is not None else
-                 self.xp.zeros(
-                     (0, self.mask_head.mask_size, self.mask_head.mask_size),
-                     dtype=np.float32)
-                 for segm in segms]
+        if self.mode == 'mask':
+            # Change bboxes to RoI and RoI indices format
+            mask_rois_before_reordering, mask_roi_indices_before_reordering =\
+                _list_to_flat(rescaled_bboxes)
+            mask_rois, mask_roi_indices, order = self.mask_head.distribute(
+                mask_rois_before_reordering, mask_roi_indices_before_reordering)
+            with chainer.using_config('train', False), chainer.no_backprop_mode():
+                segms = F.sigmoid(
+                    self.mask_head(hs, mask_rois, mask_roi_indices)).data
+            # Put the order of proposals back to the one used by bbox head.
+            segms = segms[order]
+            segms = _flat_to_list(
+                segms, mask_roi_indices_before_reordering, len(imgs))
+            segms = [segm if segm is not None else
+                    self.xp.zeros(
+                        (0, self.mask_head.mask_size, self.mask_head.mask_size),
+                        dtype=np.float32)
+                    for segm in segms]
 
-        segms = [chainer.backends.cuda.to_cpu(segm) for segm in segms]
-        bboxes = [chainer.backends.cuda.to_cpu(bbox / scale)
-                  for bbox, scale in zip(rescaled_bboxes, scales)]
-        labels = [chainer.backends.cuda.to_cpu(label) for label in labels]
-        # Currently MaskHead only supports numpy inputs
-        masks = self.mask_head.decode(segms, bboxes, labels, sizes)
-        scores = [cuda.to_cpu(score) for score in scores]
-        return masks, labels, scores
+            segms = [chainer.backends.cuda.to_cpu(segm) for segm in segms]
+            bboxes = [chainer.backends.cuda.to_cpu(bbox / scale)
+                    for bbox, scale in zip(rescaled_bboxes, scales)]
+            labels = [chainer.backends.cuda.to_cpu(label) for label in labels]
+            # Currently MaskHead only supports numpy inputs
+            masks = self.mask_head.decode(segms, bboxes, labels, sizes)
+            scores = [cuda.to_cpu(score) for score in scores]
+            return masks, labels, scores
+        elif self.mode == 'keypoint':
+            (point_rois_before_reordering,
+             point_roi_indices_before_reordering) = _list_to_flat(
+                 rescaled_bboxes)
+            point_rois, point_roi_indices, order =\
+                self.keypoint_head.distribute(
+                    point_rois_before_reordering,
+                    point_roi_indices_before_reordering)
+            with chainer.using_config('train', False), chainer.no_backprop_mode():
+                point_maps = self.keypoint_head(
+                    hs, point_rois, point_roi_indices).data
+            point_maps = point_maps[order]
+            point_maps = _flat_to_list(
+                point_maps, point_roi_indices_before_reordering, len(imgs))
+            point_maps = [point_map if point_map is not None else
+                          self.xp.zeros(
+                              (0, self.keypoint_head.n_point,
+                               self.keypoint_head.map_size,
+                               self.keypoint_head.map_size),
+                              dtype=np.float32)
+                          for point_map in point_maps]
+            point_maps = [
+                chainer.backends.cuda.to_cpu(point_map)
+                for point_map in point_maps]
+            bboxes = [chainer.cuda.to_cpu(bbox / scale)
+                      for bbox, scale in zip(rescaled_bboxes, scales)]
+            points, point_scores = self.keypoint_head.decode(
+                point_maps, bboxes)
+            labels = [cuda.to_cpu(label) for label in labels]
+            scores = [cuda.to_cpu(score) for score in scores]
+            return points, point_scores, bboxes, labels, scores
 
     def prepare(self, imgs):
         """Preprocess images.

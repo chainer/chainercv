@@ -6,6 +6,7 @@ import chainer.functions as F
 from chainercv.links.model.fpn import FPN
 from chainercv.links.model.fpn import Head
 from chainercv.links.model.fpn import RPN
+from chainercv.links.model.mask_rcnn.keypoint_head import KeypointHead
 from chainercv.links.model.mask_rcnn.mask_head import MaskHead
 from chainercv.links.model.mask_rcnn.mask_rcnn import MaskRCNN
 from chainercv.links.model.resnet import ResNet101
@@ -22,7 +23,8 @@ class MaskRCNNFPNResNet(MaskRCNN):
     A subclass of this class should have :obj:`_base` and :obj:`_models`.
     """
 
-    def __init__(self, n_fg_class=None, pretrained_model=None):
+    def __init__(self, n_fg_class=None, pretrained_model=None,
+                 n_point=17, mode='mask'):
         param, path = utils.prepare_pretrained_model(
             {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
@@ -39,7 +41,9 @@ class MaskRCNNFPNResNet(MaskRCNN):
             extractor=extractor,
             rpn=RPN(extractor.scales),
             head=Head(n_class, extractor.scales),
-            mask_head=MaskHead(n_class, extractor.scales)
+            mask_head=MaskHead(n_class, extractor.scales),
+            keypoint_head=KeypointHead(n_point, extractor.scales),
+            mode=mode,
         )
         if path == 'imagenet':
             _copyparams(
