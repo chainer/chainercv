@@ -2,6 +2,7 @@ from __future__ import division
 
 import argparse
 import functools
+import multiprocessing
 import numpy as np
 import random
 import six
@@ -25,6 +26,14 @@ from chainercv.links.model.light_head_rcnn import LightHeadRCNNTrainChain
 from chainercv.links.model.ssd import GradientScaling
 from chainercv import transforms
 import chainermn
+
+
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+try:
+    import cv2
+    cv2.setNumThreads(0)
+except ImportError:
+    pass
 
 
 def concat_examples(batch, device=None, padding=None,
@@ -88,6 +97,13 @@ def main():
     parser.add_argument('--seed', '-s', type=int, default=1234)
     parser.add_argument('--batch-size', '-b', type=int, default=8)
     args = parser.parse_args()
+
+    # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
+    if hasattr(multiprocessing, 'set_start_method'):
+        multiprocessing.set_start_method('forkserver')
+        p = multiprocessing.Process()
+        p.start()
+        p.join()
 
     # chainermn
     comm = chainermn.create_communicator('pure_nccl')
