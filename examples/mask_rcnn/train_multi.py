@@ -112,7 +112,6 @@ class TrainChain(chainer.Chain):
             # ChainerMN hangs when a subset of nodes has a different
             # computational graph from the rest.
             loss = chainer.Variable(self.xp.array(0, dtype=np.float32))
-            self.zerograds()
         return loss
 
 
