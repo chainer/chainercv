@@ -19,9 +19,8 @@ def main():
         choices=('mask_rcnn_fpn_resnet50', 'mask_rcnn_fpn_resnet101'),
         default='mask_rcnn_fpn_resnet50'
     )
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--pretrained-model')
-    group.add_argument('--snapshot')
+    parser.add_argument('--gpu', type=int, default=-1)
+    parser.add_argument('--pretrained-model', default='coco')
     parser.add_argument('image')
     args = parser.parse_args()
 
