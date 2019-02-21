@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def translate_point(point, y_offset=0, x_offset=0):
     """Translate points.
 
@@ -6,13 +9,15 @@ def translate_point(point, y_offset=0, x_offset=0):
     to the coordinate :math:`(y, x) = (y_{offset}, x_{offset})`.
 
     Args:
-        point (~numpy.ndarray): Points in the image.
-            The shape of this array is :math:`(P, 2)`. :math:`P` is the number
-            of points in the image.
-            The last dimension is composed of :math:`y` and :math:`x`
-            coordinates of the points.
+        point (~numpy.ndarray or list of arrays): See the table below.
         y_offset (int or float): The offset along y axis.
         x_offset (int or float): The offset along x axis.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`point`, ":math:`[(K, 2)]` or :math:`(R, K, 2)`", \
+        :obj:`float32`, ":math:`(y, x)`"
 
     Returns:
         ~numpy.ndarray:
@@ -20,9 +25,16 @@ def translate_point(point, y_offset=0, x_offset=0):
 
     """
 
-    out_point = point.copy()
+    if isinstance(point, np.ndarray):
+        out_point = point.copy()
 
-    out_point[:, 0] += y_offset
-    out_point[:, 1] += x_offset
-
+        out_point[:, :, 0] += y_offset
+        out_point[:, :, 1] += x_offset
+    else:
+        out_point = []
+        for pnt in point:
+            out_pnt = pnt.copy()
+            out_pnt[:, 0] += y_offset
+            out_pnt[:, 1] += x_offset
+            out_point.append(out_pnt)
     return out_point

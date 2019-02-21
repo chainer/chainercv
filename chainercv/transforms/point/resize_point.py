@@ -1,25 +1,38 @@
+import numpy as np
+
+
 def resize_point(point, in_size, out_size):
     """Adapt point coordinates to the rescaled image space.
 
     Args:
-        point (~numpy.ndarray): Points in the image.
-            The shape of this array is :math:`(P, 2)`. :math:`P` is the number
-            of points in the image.
-            The last dimension is composed of :math:`y` and :math:`x`
-            coordinates of the points.
+        point (~numpy.ndarray or list of arrays): See the table below.
         in_size (tuple): A tuple of length 2. The height and the width
             of the image before resized.
         out_size (tuple): A tuple of length 2. The height and the width
             of the image after resized.
 
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`point`, ":math:`[(K, 2)]` or :math:`(R, K, 2)`", \
+        :obj:`float32`, ":math:`(y, x)`"
+
     Returns:
-        ~numpy.ndarray:
+        ~numpy.ndarray or list of arrays:
         Points rescaled according to the given image shapes.
 
     """
-    point = point.copy()
     y_scale = float(out_size[0]) / in_size[0]
     x_scale = float(out_size[1]) / in_size[1]
-    point[:, 0] = y_scale * point[:, 0]
-    point[:, 1] = x_scale * point[:, 1]
-    return point
+    if isinstance(point, np.ndarray):
+        out_point = point.copy()
+        out_point[:, :, 0] = y_scale * point[:, :, 0]
+        out_point[:, :, 1] = x_scale * point[:, :, 1]
+    else:
+        out_point = []
+        for pnt in point:
+            out_pnt = pnt.copy()
+            out_pnt[:, 0] = y_scale * pnt[:, 0]
+            out_pnt[:, 1] = x_scale * pnt[:, 1]
+            out_point.append(out_pnt)
+    return out_point
