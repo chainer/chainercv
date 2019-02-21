@@ -43,7 +43,7 @@ class COCOKeypointDataset(GetterDataset):
         "RGB, :math:`[0, 255]`"
         :obj:`point` [#coco_point_1]_, ":math:`(R, K, 2)`", :obj:`float32`, \
         ":math:`(y, x)`"
-        :obj:`valid` [#coco_point_1]_, ":math:`(R, K)`", :obj:`bool`, \
+        :obj:`visible` [#coco_point_1]_, ":math:`(R, K)`", :obj:`bool`, \
         "true when a keypoint is visible."
         :obj:`bbox` [#coco_point_1]_, ":math:`(R, 4)`", :obj:`float32`, \
         ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
@@ -54,7 +54,7 @@ class COCOKeypointDataset(GetterDataset):
         :obj:`crowded` [#coco_point_3]_, ":math:`(R,)`", :obj:`bool`, --
 
     .. [#coco_point_1] If :obj:`use_crowded = True`, :obj:`point`, \
-        :obj:`valid`, :obj:`bbox`, \
+        :obj:`visible`, :obj:`bbox`, \
         :obj:`label` and :obj:`area` contain crowded instances.
     .. [#coco_point_2] :obj:`area` is available \
         if :obj:`return_area = True`.
@@ -95,9 +95,9 @@ class COCOKeypointDataset(GetterDataset):
 
         self.add_getter('img', self._get_image)
         self.add_getter(
-            ['point', 'valid', 'bbox', 'label', 'area', 'crowded'],
+            ['point', 'visible', 'bbox', 'label', 'area', 'crowded'],
             self._get_annotations)
-        keys = ('img', 'point', 'valid', 'bbox', 'label')
+        keys = ('img', 'point', 'visible', 'bbox', 'label')
         if return_area:
             keys += ('area',)
         if return_crowded:
@@ -144,13 +144,13 @@ class COCOKeypointDataset(GetterDataset):
             # 0: not labeled; 1: labeled, not inside mask;
             # 2: labeled and inside mask
             v = point[:, 2::3]
-            valid = v > 0
+            visible = v > 0
             point = np.stack((y, x), axis=2)
         else:
             point = np.empty((0, 0, 2), dtype=np.float32)
-            valid = np.empty((0, 0), dtype=np.bool)
+            visible = np.empty((0, 0), dtype=np.bool)
 
-        # Remove invalid boxes
+        # Remove invisible boxes
         bbox_area = np.prod(bbox[:, 2:] - bbox[:, :2], axis=1)
         keep_mask = np.logical_and(bbox[:, 0] <= bbox[:, 2],
                                    bbox[:, 1] <= bbox[:, 3])
@@ -160,9 +160,9 @@ class COCOKeypointDataset(GetterDataset):
             keep_mask = np.logical_and(keep_mask, np.logical_not(crowded))
 
         point = point[keep_mask]
-        valid = valid[keep_mask]
+        visible = visible[keep_mask]
         bbox = bbox[keep_mask]
         label = label[keep_mask]
         area = area[keep_mask]
         crowded = crowded[keep_mask]
-        return point, valid, bbox, label, area, crowded
+        return point, visible, bbox, label, area, crowded

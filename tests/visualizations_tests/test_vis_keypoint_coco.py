@@ -24,17 +24,17 @@ def _generate_point(n_inst, size):
     xs = np.random.uniform(0, W, size=(n_inst, n_joint))
     point = np.stack((ys, xs), axis=2).astype(np.float32)
 
-    valid = np.random.randint(0, 2, size=(n_inst, n_joint)).astype(np.bool)
+    visible = np.random.randint(0, 2, size=(n_inst, n_joint)).astype(np.bool)
 
     point_score = np.random.uniform(
         0, 6, size=(n_inst, n_joint)).astype(np.float32)
-    return point, valid, point_score
+    return point, visible, point_score
 
 
 @testing.parameterize(*testing.product({
     'n_inst': [3, 0],
     'use_img': [False, True],
-    'use_valid': [False, True],
+    'use_visible': [False, True],
     'use_point_score': [False, True]
 }))
 @unittest.skipUnless(_available, 'matplotlib is not installed')
@@ -42,56 +42,56 @@ class TestVisKeypointCOCO(unittest.TestCase):
 
     def setUp(self):
         size = (32, 48)
-        self.point, valid, point_score = _generate_point(self.n_inst, size)
+        self.point, visible, point_score = _generate_point(self.n_inst, size)
         self.img = (np.random.randint(
             0, 255, size=(3,) + size).astype(np.float32)
             if self.use_img else None)
-        self.valid = valid if self.use_valid else None
+        self.visible = visible if self.use_visible else None
         self.point_score = point_score if self.use_point_score else None
 
     def test_vis_keypoint_coco(self):
         ax = vis_keypoint_coco(
-            self.img, self.point, self.valid,
+            self.img, self.point, self.visible,
             self.point_score)
 
         self.assertIsInstance(ax, matplotlib.axes.Axes)
 
 
 @unittest.skipUnless(_available, 'matplotlib is not installed')
-class TestVisKeypointCOCOInvalidInputs(unittest.TestCase):
+class TestVisKeypointCOCOInvisibleInputs(unittest.TestCase):
 
     def setUp(self):
         size = (32, 48)
         n_inst = 10
-        self.point, self.valid, self.point_score = _generate_point(
+        self.point, self.visible, self.point_score = _generate_point(
             n_inst, size)
         self.img = np.random.randint(
             0, 255, size=(3,) + size).astype(np.float32)
 
-    def _check(self, img, point, valid, point_score):
+    def _check(self, img, point, visible, point_score):
         with self.assertRaises(ValueError):
-            vis_keypoint_coco(img, point, valid, point_score)
+            vis_keypoint_coco(img, point, visible, point_score)
 
-    def test_invalid_n_inst_point(self):
-        self._check(self.img, self.point[:5], self.valid, self.point_score)
+    def test_invisible_n_inst_point(self):
+        self._check(self.img, self.point[:5], self.visible, self.point_score)
 
-    def test_invalid_n_inst_valid(self):
-        self._check(self.img, self.point, self.valid[:5], self.point_score)
+    def test_invisible_n_inst_visible(self):
+        self._check(self.img, self.point, self.visible[:5], self.point_score)
 
-    def test_invalid_n_inst_point_score(self):
-        self._check(self.img, self.point, self.valid, self.point_score[:5])
+    def test_invisible_n_inst_point_score(self):
+        self._check(self.img, self.point, self.visible, self.point_score[:5])
 
-    def test_invalid_n_joint_point(self):
-        self._check(self.img, self.point[:, :15], self.valid, self.point_score)
+    def test_invisible_n_joint_point(self):
+        self._check(self.img, self.point[:, :15], self.visible, self.point_score)
 
-    def test_invalid_n_joint_valid(self):
-        self._check(self.img, self.point, self.valid[:, :15], self.point_score)
+    def test_invisible_n_joint_visible(self):
+        self._check(self.img, self.point, self.visible[:, :15], self.point_score)
 
-    def test_invalid_n_joint_point_score(self):
-        self._check(self.img, self.point, self.valid, self.point_score[:, :15])
+    def test_invisible_n_joint_point_score(self):
+        self._check(self.img, self.point, self.visible, self.point_score[:, :15])
 
-    def test_invalid_valid_dtype(self):
-        self._check(self.img, self.point, self.valid.astype(np.int32),
+    def test_invisible_visible_dtype(self):
+        self._check(self.img, self.point, self.visible.astype(np.int32),
                     self.point_score)
 
 testing.run_module(__name__, __file__)
