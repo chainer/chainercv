@@ -30,7 +30,7 @@ def _generate_point(n_inst, size):
 
 
 @unittest.skipUnless(_available, 'pycocotools is not installed')
-class TestEvalPointCOCOSingleClass(unittest.TestCase):
+class TestEvalKeypointDetectionCOCOSimple(unittest.TestCase):
 
     n_inst = 3
 
