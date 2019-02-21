@@ -4,8 +4,6 @@ import numpy as np
 import os
 
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
-from chainercv.datasets.coco.coco_instances_base_dataset import \
-    COCOInstancesBaseDataset
 from chainercv.datasets.coco.coco_utils import get_coco
 from chainercv import utils
 

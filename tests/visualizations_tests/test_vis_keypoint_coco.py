@@ -82,13 +82,16 @@ class TestVisKeypointCOCOInvisibleInputs(unittest.TestCase):
         self._check(self.img, self.point, self.visible, self.point_score[:5])
 
     def test_invisible_n_joint_point(self):
-        self._check(self.img, self.point[:, :15], self.visible, self.point_score)
+        self._check(
+            self.img, self.point[:, :15], self.visible, self.point_score)
 
     def test_invisible_n_joint_visible(self):
-        self._check(self.img, self.point, self.visible[:, :15], self.point_score)
+        self._check(
+            self.img, self.point, self.visible[:, :15], self.point_score)
 
     def test_invisible_n_joint_point_score(self):
-        self._check(self.img, self.point, self.visible, self.point_score[:, :15])
+        self._check(
+            self.img, self.point, self.visible, self.point_score[:, :15])
 
     def test_invisible_visible_dtype(self):
         self._check(self.img, self.point, self.visible.astype(np.int32),
