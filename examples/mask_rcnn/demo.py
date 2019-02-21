@@ -13,7 +13,6 @@ from chainercv.links import MaskRCNNFPNResNet50
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument(
         '--model',
         choices=('mask_rcnn_fpn_resnet50', 'mask_rcnn_fpn_resnet101'),
