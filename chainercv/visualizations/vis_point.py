@@ -19,7 +19,7 @@ def vis_point(img, point, visible=None, ax=None):
         >>> plt.show()
 
     Args:
-        img (~numpy.ndarray): See the table below. 
+        img (~numpy.ndarray): See the table below.
             If this is :obj:`None`, no image is displayed.
         point (~numpy.ndarray): See the table below.
         visible (~numpy.ndarray): See the table below.
