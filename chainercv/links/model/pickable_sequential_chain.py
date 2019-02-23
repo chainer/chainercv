@@ -100,8 +100,12 @@ class PickableSequentialChain(chainer.Chain):
         else:
             return_tuple = False
             pick = (pick,)
-        if any(name not in self.layer_names for name in pick):
-            raise ValueError('Invalid layer name')
+        try:
+            invalid_name = next(iter(filter(
+                lambda n: n not in self.layer_names, pick)))
+            raise ValueError('Invalid layer name ({:s})'.format(invalid_name))
+        except StopIteration:
+            pass
 
         self._return_tuple = return_tuple
         self._pick = tuple(pick)

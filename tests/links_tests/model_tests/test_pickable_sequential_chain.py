@@ -40,6 +40,21 @@ class PickableSequentialChainTestBase(object):
     def test_pick(self):
         self.assertEqual(self.link.pick, self.pick)
 
+    def test_pick_setter(self):
+        invalid_name = 'nonexistent'
+        self.assertNotIn(invalid_name, self.link.layer_names)
+        expected_message_pattern = str.format(
+            '^Invalid layer name .{:s}.$', invalid_name)
+        with self.assertRaisesRegex(ValueError, expected_message_pattern):
+            self.link.pick = invalid_name
+        invalid_names = 'nonexistent', 'nonexistent2'
+        for n in invalid_names:
+            self.assertNotIn(n, self.link.layer_names)
+        expected_message_pattern = str.format(
+            '^Invalid layer name .{:s}.$', invalid_names[0])
+        with self.assertRaisesRegex(ValueError, expected_message_pattern):
+            self.link.pick = invalid_names
+
     def test_layer_names(self):
         self.assertEqual(self.link.layer_names, ['l1', 'f1', 'f2', 'l2'])
 
