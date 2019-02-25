@@ -60,6 +60,7 @@ class PickableSequentialChainTestBase(object):
         for out, layer_name in zip(outs, pick):
             self.assertIsInstance(out, chainer.Variable)
             self.assertIsInstance(out.array, self.link.xp.ndarray)
+            self.assertEqual(out.name, layer_name)
 
             out = to_cpu(out.array)
             np.testing.assert_equal(out, to_cpu(expects[layer_name].array))
