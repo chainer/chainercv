@@ -48,7 +48,8 @@ class TrainChain(chainer.Chain):
         pad_size = np.array(
             [im.shape[1:] for im in imgs]).max(axis=0)
         pad_size = (
-            np.ceil(pad_size / self.model.stride) * self.model.stride).astype(int)
+            np.ceil(
+                pad_size / self.model.stride) * self.model.stride).astype(int)
         x = np.zeros(
             (len(imgs), 3, pad_size[0], pad_size[1]), dtype=np.float32)
         for i, img in enumerate(imgs):
@@ -131,7 +132,6 @@ class Transform(object):
 
     def __call__(self, in_data):
         img, mask, label, bbox = in_data
-        original = mask.shape
         # Flipping
         img, params = transforms.random_flip(
             img, x_random=True, return_param=True)
