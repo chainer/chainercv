@@ -98,19 +98,15 @@ class TrainChain(chainer.Chain):
             rois, roi_indices, masks, bboxes,
             head_gt_labels, self.model.mask_head.mask_size)
         n_roi = sum([len(roi) for roi in mask_rois])
-        if n_roi == 0:
-            H, W = sizes[0]
-            mask_rois = [np.array([[
-                H // 4,
-                W // 4,
-                3 * H // 4,
-                3 * W // 4]], dtype=np.float32)]
-            mask_roi_indices = [np.array([0], dtype=np.int32)]
-        segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
         if n_roi > 0:
+            segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
             mask_loss = mask_loss_post(
                 segms, mask_roi_indices, gt_segms, gt_mask_labels, B)
         else:
+            # Compute dummy variables to complete the computational graph
+            mask_rois[0] = self.xp.array([[0, 0, 1, 1]], dtype=np.float32)
+            mask_roi_indices[0] = self.xp.array([0], dtype=np.int32)
+            segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
             mask_loss = 0 * F.sum(segms)
         loss = (rpn_loc_loss + rpn_conf_loss +
                 head_loc_loss + head_conf_loss + mask_loss)
