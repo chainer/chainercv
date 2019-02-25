@@ -13,7 +13,7 @@ Scores are measured by mean Intersection over Union (mIoU).
 So we evaluated the pretrained graph using `eval_semantic_segmentation` in ChainerCV.
 
 ## Demo
-This demo downloads Citåyscapes pretrained model automatically if a pretrained model path is not given.
+This demo downloads Cityscapes pretrained model automatically if a pretrained model path is not given.
 ```
 $ python demo.py [--gpu <gpu>] [--pretrained-model <model_path>] [--input-size <size>] <image>.jpg
 ```
