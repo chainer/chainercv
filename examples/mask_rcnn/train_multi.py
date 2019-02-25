@@ -4,6 +4,7 @@ import numpy as np
 import PIL
 
 import chainer
+import chainer.functions as F
 import chainer.links as L
 from chainer.optimizer_hooks import WeightDecay
 from chainer import serializers
@@ -96,22 +97,28 @@ class TrainChain(chainer.Chain):
             rois, roi_indices, masks, bboxes,
             head_gt_labels, self.model.mask_head.mask_size)
         n_roi = sum([len(roi) for roi in mask_rois])
+        if n_roi == 0:
+            H, W = sizes[0]
+            mask_rois = [np.array([[
+                H // 4,
+                W // 4,
+                3 * H // 4,
+                3 * W // 4]], dtype=np.float32)]
+            mask_roi_indices = [np.array([0], dtype=np.int32)]
+        segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
         if n_roi > 0:
-            segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
             mask_loss = mask_loss_post(
                 segms, mask_roi_indices, gt_segms, gt_mask_labels, B)
-            loss = (rpn_loc_loss + rpn_conf_loss + 
-                head_loc_loss + head_conf_loss + mask_loss)
-            chainer.reporter.report({
-                'loss': loss,
-                'loss/rpn/loc': rpn_loc_loss, 'loss/rpn/conf': rpn_conf_loss,
-                'loss/head/loc': head_loc_loss, 'loss/head/conf': head_conf_loss,
-                'loss/mask': mask_loss},
-                self)
         else:
-            # ChainerMN hangs when a subset of nodes has a different
-            # computational graph from the rest.
-            loss = chainer.Variable(self.xp.array(0, dtype=np.float32))
+            mask_loss = 0 * F.sum(segms)
+        loss = (rpn_loc_loss + rpn_conf_loss +
+                head_loc_loss + head_conf_loss + mask_loss)
+        chainer.reporter.report({
+            'loss': loss,
+            'loss/rpn/loc': rpn_loc_loss, 'loss/rpn/conf': rpn_conf_loss,
+            'loss/head/loc': head_loc_loss, 'loss/head/conf': head_conf_loss,
+            'loss/mask': mask_loss},
+            self)
         return loss
 
 
