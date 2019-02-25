@@ -1,3 +1,5 @@
+from __future__ import division
+
 import chainer
 import chainer.functions as F
 import chainer.links as L
@@ -11,7 +13,7 @@ class GlobalContextModule(chainer.Chain):
     ):
         super(GlobalContextModule, self).__init__()
         with self.init_scope():
-            padsize = int((ksize - 1) / 2)
+            padsize = (ksize - 1) // 2
             self.col_max = L.Convolution2D(
                 in_channels, mid_channels, (ksize, 1), 1, (padsize, 1),
                 initialW=initialW)

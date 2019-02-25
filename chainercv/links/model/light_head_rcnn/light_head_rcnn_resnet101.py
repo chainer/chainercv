@@ -42,7 +42,7 @@ class LightHeadRCNNResNet101(LightHeadRCNN):
 
     :class:`~light_head_rcnn.links.model.light_head_rcnn_base.LightHeadRCNN`
     supports finer control on random initializations of weights by arguments
-    :obj:`vgg_initialW`, :obj:`rpn_initialW`, :obj:`loc_initialW` and
+    :obj:`resnet_initialW`, :obj:`rpn_initialW`, :obj:`loc_initialW` and
     :obj:`score_initialW`.
     It accepts a callable that takes an array and edits its values.
     If :obj:`None` is passed as an initializer, the default initializer is
@@ -66,8 +66,8 @@ class LightHeadRCNNResNet101(LightHeadRCNN):
             Those areas will be the product of the square of an element in
             :obj:`anchor_scales` and the original area of the reference
             window.
-        vgg_initialW (callable): Initializer for the layers corresponding to
-            the VGG-16 layers.
+        resnet_initialW (callable): Initializer for the layers corresponding to
+            the ResNet101 layers.
         rpn_initialW (callable): Initializer for Region Proposal Network
             layers.
         loc_initialW (callable): Initializer for the localization head.
@@ -194,7 +194,6 @@ class ResNet101Extractor(chainer.Chain):
 
     This class is used as an extractor for LightHeadRCNNResNet101.
     This outputs feature maps.
-    Dilated convolution is used in the C5 stage.
 
     Args:
         initialW: Initializer for ResNet101 extractor.
@@ -207,7 +206,7 @@ class ResNet101Extractor(chainer.Chain):
             initialW = chainer.initializers.HeNormal()
         kwargs = {
             'initialW': initialW,
-            'bn_kwargs': {'eps': 1e-5},
+            'bn_kwargs': {'eps': 1e-5, 'decay': 0.997},
             'stride_first': True
         }
 
@@ -215,7 +214,8 @@ class ResNet101Extractor(chainer.Chain):
             # ResNet
             self.conv1 = Conv2DBNActiv(
                 3, 64, 7, 2, 3, nobias=True, initialW=initialW)
-            self.pool1 = lambda x: F.max_pooling_2d(x, ksize=3, stride=2)
+            self.pool1 = lambda x: F.max_pooling_2d(
+                x, ksize=3, stride=2, pad=1, cover_all=False)
             self.res2 = ResBlock(3, 64, 64, 256, 1, **kwargs)
             self.res3 = ResBlock(4, 256, 128, 512, 2, **kwargs)
             self.res4 = ResBlock(23, 512, 256, 1024, 2, **kwargs)
