@@ -14,8 +14,6 @@ from chainer.training import extensions
 from chainer.training.triggers import ManualScheduleTrigger
 
 from chainercv.chainer_experimental.datasets.sliceable \
-    import ConcatenatedDataset
-from chainercv.chainer_experimental.datasets.sliceable \
     import TransformDataset
 from chainercv.chainer_experimental.training.extensions import make_shift
 from chainercv.datasets import coco_bbox_label_names
@@ -123,9 +121,7 @@ def main():
 
     # train dataset
     train_dataset = COCOBboxDataset(
-        year='2014', split='train')
-    vmml_dataset = COCOBboxDataset(
-        year='2014', split='valminusminival')
+        year='2017', split='train')
 
     # filter non-annotated data
     train_indices = np.array(
@@ -133,16 +129,10 @@ def main():
          if len(label[0]) > 0],
         dtype=np.int32)
     train_dataset = train_dataset.slice[train_indices]
-    vmml_indices = np.array(
-        [i for i, label in enumerate(vmml_dataset.slice[:, ['label']])
-         if len(label[0]) > 0],
-        dtype=np.int32)
-    vmml_dataset = vmml_dataset.slice[vmml_indices]
-
     train_dataset = TransformDataset(
-        ConcatenatedDataset(train_dataset, vmml_dataset),
-        ('img', 'bbox', 'label', 'scale'),
+        train_dataset, ('img', 'bbox', 'label', 'scale'),
         Transform(model.light_head_rcnn))
+
     if comm.rank == 0:
         indices = np.arange(len(train_dataset))
     else:
@@ -154,7 +144,7 @@ def main():
 
     if comm.rank == 0:
         test_dataset = COCOBboxDataset(
-            year='2014', split='minival', use_crowded=True,
+            year='2017', split='val', use_crowded=True,
             return_crowded=True, return_area=True)
         test_iter = chainer.iterators.SerialIterator(
             test_dataset, batch_size=1, repeat=False, shuffle=False)
