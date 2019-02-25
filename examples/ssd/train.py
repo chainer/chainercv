@@ -191,7 +191,7 @@ def main():
         trigger=(args.iteration, 'iteration'))
 
     if args.resume:
-        serializers.load_npz(args.resume, trainer)
+        serializers.load_npz(args.resume, model)
 
     trainer.run()
 
