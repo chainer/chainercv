@@ -22,7 +22,7 @@ class ProgressHook(object):
     def __call__(self, in_values, out_values, rest_values):
         self.n_processed += len(in_values[0])
         fps = self.n_processed / (time.time() - self.start)
-        if self.n_total is not None:
+        if self.n_total is not None and fps > 0:
             eta = int((self.n_total - self.n_processed) / fps)
             sys.stdout.write(
                 '\r{:d} of {:d} samples, {:.2f} samples/sec,'
