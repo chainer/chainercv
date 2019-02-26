@@ -83,7 +83,7 @@ class SeparableConv2DBNActiv(chainer.Chain):
 
             if 'comm' in bn_kwargs:
                 self.dw_bn = MultiNodeBatchNormalization(
-                    out_channels, **bn_kwargs)
+                    in_channels, **bn_kwargs)
                 self.pw_bn = MultiNodeBatchNormalization(
                     out_channels, **bn_kwargs)
             else:
