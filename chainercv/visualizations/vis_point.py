@@ -52,14 +52,14 @@ def vis_point(img, point, visible=None, ax=None):
         pnt = point[i]
         n_point = len(pnt)
         if visible is not None:
-            vsble = visible[i]
+            vsbl = visible[i]
         else:
-            vsble = np.ones((n_point,), dtype=np.bool)
+            vsbl = np.ones((n_point,), dtype=np.bool)
 
         colors = [cm(k / n_point) for k in six.moves.range(n_point)]
 
         for k in range(n_point):
-            if vsble[k]:
+            if vsbl[k]:
                 ax.scatter(pnt[k][1], pnt[k][0], c=colors[k], s=100)
 
     ax.set_xlim(left=0, right=W)
