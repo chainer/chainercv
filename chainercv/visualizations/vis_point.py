@@ -21,8 +21,8 @@ def vis_point(img, point, visible=None, ax=None):
     Args:
         img (~numpy.ndarray): See the table below.
             If this is :obj:`None`, no image is displayed.
-        point (~numpy.ndarray): See the table below.
-        visible (~numpy.ndarray): See the table below.
+        point (~numpy.ndarray or list): See the table below.
+        visible (~numpy.ndarray or list): See the table below.
         ax (matplotlib.axes.Axes): If provided, plot on this axis.
 
     .. csv-table::
