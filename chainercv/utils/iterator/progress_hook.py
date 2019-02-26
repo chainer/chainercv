@@ -26,7 +26,7 @@ class ProgressHook(object):
             eta = int((self.n_total - self.n_processed) / fps)
             sys.stdout.write(
                 '\r{:d} of {:d} samples, {:.2f} samples/sec,'
-                ' {:4d}:{:02d}:{:02d}'.format(
+                ' ETA {:4d}:{:02d}:{:02d}'.format(
                     self.n_processed, self.n_total, fps,
                     eta // 60 // 60, (eta // 60) % 60, eta % 60))
         else:
