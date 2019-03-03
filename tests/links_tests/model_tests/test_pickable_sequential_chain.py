@@ -37,6 +37,9 @@ class PickableSequentialChainTestBase(object):
 
         self.x = np.random.uniform(size=(1, 3, 24, 24))
 
+        if not hasattr(self, 'assertRaisesRegex'):
+            self.assertRaisesRegex = self.assertRaisesRegexp
+
     def test_pick(self):
         self.assertEqual(self.link.pick, self.pick)
 
