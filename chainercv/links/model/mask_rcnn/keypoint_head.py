@@ -18,6 +18,19 @@ from chainercv.utils.bbox.bbox_iou import bbox_iou
 from chainercv.utils.mask.mask_to_bbox import mask_to_bbox
 
 
+# make a bilinear interpolation kernel
+# credit @longjon
+def _upsample_filt(size):
+    factor = (size + 1) // 2
+    if size % 2 == 1:
+        center = factor - 1
+    else:
+        center = factor - 0.5
+    og = np.ogrid[:size, :size]
+    return (1 - abs(og[0] - center) / factor) * \
+        (1 - abs(og[1] - center) / factor)
+
+
 class KeypointHead(chainer.Chain):
 
     _canonical_scale = 224
@@ -40,6 +53,11 @@ class KeypointHead(chainer.Chain):
             self.conv8 = Conv2DActiv(512, 3, pad=1, initialW=initialW)
             self.point = L.Deconvolution2D(
                 n_point, 4, pad=1, stride=2, initialW=initialW)
+            # Do not update the weight of this link
+            self.upsample = L.Deconvolution2D(
+                n_point, n_point, 4, pad=1, stride=2, nobias=True)
+        self.upsample.W.data[:] = 0
+        self.upsample.W.data[np.arange(n_point), np.arange(n_point)] = _upsample_filt(4)
 
         self._scales = scales
         self.n_point = n_point
@@ -71,7 +89,7 @@ class KeypointHead(chainer.Chain):
         h = self.conv7(h)
         h = self.conv8(h)
         h = self.point(h)
-        return F.resize_images(h, (self.map_size, self.map_size))
+        return self.upsample(h)
 
     def distribute(self, rois, roi_indices):
         # Compleetely same as MaskHead.distribute
