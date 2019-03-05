@@ -96,7 +96,7 @@ class TrainChain(chainer.Chain):
 
         mask_rois, mask_roi_indices, gt_segms, gt_mask_labels = mask_loss_pre(
             rois, roi_indices, masks, bboxes,
-            head_gt_labels, self.model.mask_head.mask_size)
+            head_gt_labels, self.model.mask_head.segm_size)
         n_roi = sum([len(roi) for roi in mask_rois])
         if n_roi > 0:
             segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)

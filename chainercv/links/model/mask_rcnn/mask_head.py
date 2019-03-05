@@ -33,7 +33,7 @@ class MaskHead(chainer.Chain):
     _canonical_scale = 224
     _roi_size = 14
     _roi_sample_ratio = 2
-    mask_size = _roi_size * 2
+    segm_size = _roi_size * 2
 
     def __init__(self, n_class, scales):
         super(MaskHead, self).__init__()
@@ -63,7 +63,7 @@ class MaskHead(chainer.Chain):
                 self._scales[l], self._roi_sample_ratio))
 
         if len(pooled_hs) == 0:
-            out_size = self.mask_size
+            out_size = self.segm_size
             segs = chainer.Variable(
                 self.xp.empty((0, self._n_class, out_size, out_size),
                               dtype=np.float32))
@@ -153,7 +153,7 @@ class MaskHead(chainer.Chain):
 
 
 def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
-                  gt_head_labels, mask_size):
+                  gt_head_labels, segm_size):
     """Loss function for Mask Head (pre).
 
     This function processes RoIs for :func:`mask_loss_post` by
@@ -173,7 +173,7 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
             shape :math:`(R_l,)`. This is a collection of ground-truth
             labels assigned to :obj:`rois` during bounding box localization
             stage. The range of value is :math:`(0, n\_class - 1)`.
-        mask_size (int): Size of the ground truth network output.
+        segm_size (int): Size of the ground truth network output.
 
     Returns:
         tuple of four lists:
@@ -185,7 +185,7 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
             feature map.
         * **roi_indices**: A list of arrays of shape :math:`(R'_l,)`.
         * **gt_segms**: A list of arrays of shape :math:`(R'_l, M, M). \
-            :math:`M` is the argument :obj:`mask_size`.
+            :math:`M` is the argument :obj:`segm_size`.
         * **gt_mask_labels**: A list of arrays of shape :math:`(R'_l,)` \
             indicating the classes of ground truth.
     """
@@ -206,7 +206,7 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
     mask_roi_indices = roi_indices[index]
     gt_mask_labels = gt_head_labels[index]
 
-    gt_segms = xp.empty((len(mask_rois), mask_size, mask_size), dtype=np.bool)
+    gt_segms = xp.empty((len(mask_rois), segm_size, segm_size), dtype=np.bool)
     for i in np.unique(cuda.to_cpu(mask_roi_indices)):
         gt_mask = gt_masks[i]
         gt_bbox = gt_bboxes[i]
@@ -216,7 +216,7 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
         iou = bbox_iou(mask_roi, gt_bbox)
         gt_index = iou.argmax(axis=1)
         gt_segms[index] = xp.array(
-            mask_to_segm(gt_mask, mask_roi, mask_size, gt_index))
+            mask_to_segm(gt_mask, mask_roi, segm_size, gt_index))
 
     flag_masks = [mask_roi_levels == l for l in range(n_level)]
     mask_rois = [mask_rois[m] for m in flag_masks]
