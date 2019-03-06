@@ -32,6 +32,9 @@ MaskHead
    :members:
    :special-members: __call__
 
+segm_to_mask
+~~~~~~~~~~~~
+.. autofunction:: segm_to_mask
 
 Train-only Utility
 ------------------
@@ -43,3 +46,7 @@ mask_loss_pre
 mask_loss_post
 ~~~~~~~~~~~~~~
 .. autofunction:: mask_loss_post
+
+mask_to_segm
+~~~~~~~~~~~~
+.. autofunction:: mask_to_segm

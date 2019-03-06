@@ -20,6 +20,30 @@ def scale_img(img, min_size, max_size):
 
 
 def mask_to_segm(mask, bbox, segm_size, index=None, pad=1):
+    """Crop and resize mask.
+
+    Args:
+        mask (~numpy.ndarray): See below.
+        bbox (~numpy.ndarray): See below.
+        segm_size (int): The size of segm :math:`S`.
+        index (~numpy.ndarray): See below. :math:`R = N` when
+            :obj:`index` is :obj:`None`.
+        pad (int): The amount of padding used for bbox.
+
+    Returns:
+        ~numpy.ndarray: See below.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`mask`, ":math:`(N, H, W)`", :obj:`bool`, --
+        :obj:`bbox`, ":math:`(R, 4)`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+        :obj:`index` (optional), ":math:`(R,)`", :obj:`int32`, --
+        :obj:`segms` (output), ":math:`(R, S, S)`", :obj:`float32`, \
+        ":math:`[0, 1]`"
+
+    """
     _, H, W = mask.shape
     bbox = chainer.backends.cuda.to_cpu(bbox)
     padded_segm_size = segm_size + pad * 2
@@ -48,12 +72,29 @@ def mask_to_segm(mask, bbox, segm_size, index=None, pad=1):
             (padded_segm_size, padded_segm_size))[0]
         segm.append(sgm[pad:-pad, pad:-pad])
 
-    return np.array(segm, dtype=np.int32)
+    return np.array(segm, dtype=np.float32)
 
 
 def segm_to_mask(segm, bbox, size, pad=1):
-    """
-    segm: (R, H, W) float32
+    """Recover mask from cropped and resized mask.
+
+    Args:
+        segm (~numpy.ndarray): See below.
+        bbox (~numpy.ndarray): See below.
+        size (tuple): This is a tuple of length 2. Its elements are
+            ordered as (height, width).
+        pad (int): The amount of padding used for bbox.
+
+    Returns:
+        ~numpy.ndarray: See below.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`segm`, ":math:`(R, S, S)`", :obj:`float32`, --
+        :obj:`bbox`, ":math:`(R, 4)`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+        :obj:`mask` (output), ":math:`(R, H, W)`", :obj:`bool`, --
 
     """
     H, W = size
