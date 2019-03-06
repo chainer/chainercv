@@ -3,7 +3,7 @@ configs {
   value {
     requirement {
       cpu: 4
-      memory: 64
+      memory: 16
       gpu: 2
     }
     command: "sh .chainerci/tests.sh"
@@ -23,7 +23,7 @@ configs {
   value {
     requirement {
       cpu: 4
-      memory: 64
+      memory: 16
       gpu: 2
     }
     command: "sh .chainerci/tests.sh"
@@ -43,7 +43,7 @@ configs {
   value {
     requirement {
       cpu: 4
-      memory: 64
+      memory: 16
       gpu: 2
     }
     command: "sh .chainerci/tests.sh"
@@ -63,7 +63,7 @@ configs {
   value {
     requirement {
       cpu: 4
-      memory: 64
+      memory: 16
       gpu: 2
     }
     command: "sh .chainerci/tests.sh"
