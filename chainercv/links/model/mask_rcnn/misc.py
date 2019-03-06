@@ -28,7 +28,7 @@ def mask_to_segm(mask, bbox, segm_size, index=None, pad=1):
 
     segm = []
     if index is None:
-        index = np.arange(len(index))
+        index = np.arange(len(bbox))
     else:
         index = chainer.backends.cuda.to_cpu(index)
 
