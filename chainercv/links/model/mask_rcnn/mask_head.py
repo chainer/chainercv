@@ -1,9 +1,6 @@
 from __future__ import division
 
 import numpy as np
-import PIL
-
-import cv2
 
 import chainer
 from chainer.backends import cuda
@@ -12,11 +9,10 @@ from chainer.initializers import HeNormal
 import chainer.links as L
 
 from chainercv.links import Conv2DActiv
-from chainercv.transforms.image.resize import resize
 from chainercv.utils.bbox.bbox_iou import bbox_iou
 
-from chainercv.links.model.mask_rcnn.misc import segm_to_mask
 from chainercv.links.model.mask_rcnn.misc import mask_to_segm
+from chainercv.links.model.mask_rcnn.misc import segm_to_mask
 
 
 class MaskHead(chainer.Chain):
@@ -146,9 +142,12 @@ class MaskHead(chainer.Chain):
         masks = []
         for bbox, segm, label, size in zip(
                 bboxes, segms, labels, sizes):
-            masks.append(
-                segm_to_mask(segm[np.arange(len(label)), label + 1],
-                             bbox, size))
+            if len(segm) > 0:
+                masks.append(
+                    segm_to_mask(segm[np.arange(len(label)), label + 1],
+                                 bbox, size))
+            else:
+                masks.append(np.zeros((0,) + size, dtype=np.bool))
         return masks
 
 
@@ -255,20 +254,3 @@ def mask_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels,
         segms[np.arange(len(gt_mask_labels)), gt_mask_labels],
         gt_segms.astype(np.int32))
     return mask_loss
-
-
-def _segm_wrt_bbox(mask, gt_index, bbox, size, xp):
-    bbox = chainer.backends.cuda.to_cpu(bbox.astype(np.int32))
-
-    segm = []
-    for i, bb in zip(chainer.backends.cuda.to_cpu(gt_index), bbox):
-        cropped_m = mask[i, bb[0]:bb[2], bb[1]:bb[3]]
-        cropped_m = chainer.backends.cuda.to_cpu(cropped_m)
-        if cropped_m.shape[0] == 0 or cropped_m.shape[1] == 0:
-            segm.append(np.zeros(size, dtype=np.bool))
-            continue
-
-        segm.append(resize(
-            cropped_m[None].astype(np.float32),
-            size, interpolation=PIL.Image.NEAREST)[0])
-    return xp.array(segm, dtype=np.float32)
