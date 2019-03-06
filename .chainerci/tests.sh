@@ -1,7 +1,12 @@
 #! /usr/bin/env sh
 set -eu
 
-docker run --runtime=nvidia --rm --volume $(realpath .):/mnt \
+docker run --runtime=nvidia -i --rm \
+       --volume $(realpath .):/mnt --workdir /mnt \
        --env MPLBACKEND=agg \
        hakuyume/chainercv:chainer${CHAINER}-devel \
-       sh -ec "pip${PYTHON} install --user -e /mnt; mpiexec -n 2 --allow-run-as-root python${PYTHON} -m pytest -m 'not slow' /mnt/tests"
+       sh -ec << EOD
+pip${PYTHON} install --user -e .
+mpiexec -n 2 --allow-run-as-root \
+        python${PYTHON} -m pytest --color=no -m 'not slow' tests
+EOD
