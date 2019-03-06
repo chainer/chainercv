@@ -1,7 +1,7 @@
 #! /usr/bin/env sh
 set -eu
 
-docker run --runtime=nvidia -i --rm \
+docker run --runtime=nvidia --interactive --rm \
        --volume $(git rev-parse --show-toplevel):/mnt --workdir /mnt \
        --env MPLBACKEND=agg \
        hakuyume/chainercv:chainer${CHAINER}-devel \
