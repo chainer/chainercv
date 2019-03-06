@@ -10,6 +10,7 @@ import six
 import chainer
 from chainer.dataset.convert import _concat_arrays
 from chainer.dataset.convert import to_device
+import chainer.links as L
 from chainer.training import extensions
 from chainer.training.triggers import ManualScheduleTrigger
 
@@ -164,11 +165,11 @@ def main():
     global_context_module.row.b.update_rule.add_hook(GradientScaling(3.0))
     optimizer.add_hook(chainer.optimizer.WeightDecay(rate=0.0001))
 
-    for param in model.params():
-        if param.name in ['beta', 'gamma']:
-            param.update_rule.enabled = False
     model.light_head_rcnn.extractor.conv1.disable_update()
     model.light_head_rcnn.extractor.res2.disable_update()
+    for link in model.links():
+        if isinstance(link, L.BatchNormalization):
+            link.disable_update()
 
     converter = functools.partial(
         concat_examples, padding=0,
