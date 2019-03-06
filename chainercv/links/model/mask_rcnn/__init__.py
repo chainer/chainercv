@@ -1,4 +1,6 @@
 from chainercv.links.model.mask_rcnn.keypoint_head import KeypointHead  # NOQA
+from chainercv.links.model.mask_rcnn.keypoint_head import keypoint_loss_post  # NOQA
+from chainercv.links.model.mask_rcnn.keypoint_head import keypoint_loss_pre  # NOQA
 from chainercv.links.model.mask_rcnn.mask_head import mask_loss_post  # NOQA
 from chainercv.links.model.mask_rcnn.mask_head import mask_loss_pre  # NOQA
 from chainercv.links.model.mask_rcnn.mask_head import MaskHead  # NOQA

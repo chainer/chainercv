@@ -194,7 +194,7 @@ class TestMaskHeadLoss(unittest.TestCase):
         import cupy
         self._check_mask_loss_pre(cupy)
 
-    def _check_head_loss_post(self, xp):
+    def _check_mask_loss_post(self, xp):
         B = 2
         segms = chainer.Variable(_random_array(xp, (20, 81, 28, 28)))
         mask_roi_indices = [
@@ -220,13 +220,13 @@ class TestMaskHeadLoss(unittest.TestCase):
         self.assertIsInstance(mask_loss.array, xp.ndarray)
         self.assertEqual(mask_loss.shape, ())
 
-    def test_head_loss_post_cpu(self):
-        self._check_head_loss_post(np)
+    def test_mask_loss_post_cpu(self):
+        self._check_mask_loss_post(np)
 
     @attr.gpu
-    def test_head_loss_post_gpu(self):
+    def test_mask_loss_post_gpu(self):
         import cupy
-        self._check_head_loss_post(cupy)
+        self._check_mask_loss_post(cupy)
 
 
 testing.run_module(__name__, __file__)

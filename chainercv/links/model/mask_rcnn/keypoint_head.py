@@ -10,12 +10,12 @@ import chainer.links as L
 import chainer.functions as F
 from chainer.backends import cuda
 from chainer.initializers import HeNormal
-from chainer.initializers import Normal
 
 from chainercv.links import Conv2DActiv
 from chainercv.transforms.image.resize import resize
 from chainercv.utils.bbox.bbox_iou import bbox_iou
-from chainercv.utils.mask.mask_to_bbox import mask_to_bbox
+
+from chainercv.links.model.mask_rcnn.misc import point_to_roi_points
 
 
 # make a bilinear interpolation kernel
@@ -140,3 +140,69 @@ class KeypointHead(chainer.Chain):
             points.append(point)
             point_scores.append(point_score)
         return points, point_scores
+
+
+def keypoint_loss_pre(rois, roi_indices, gt_points, gt_visibles,
+                      gt_bboxes, gt_head_labels, point_map_size):
+    _, n_point, _ = gt_points[0].shape
+
+    xp = cuda.get_array_module(*rois)
+
+    n_level = len(rois)
+
+    roi_levels = xp.hstack(
+        xp.array((l,) * len(rois[l])) for l in range(n_level)).astype(np.int32)
+    rois = xp.vstack(rois).astype(np.float32)
+    roi_indices = xp.hstack(roi_indices).astype(np.int32)
+    gt_head_labels = xp.hstack(gt_head_labels)
+
+    index = (gt_head_labels > 0).nonzero()[0]
+    point_roi_levels = roi_levels[index]
+    point_rois = rois[index]
+    point_roi_indices = roi_indices[index]
+
+    gt_roi_points = xp.empty(
+        (len(point_rois), n_point, 2), dtype=np.float32)
+    gt_roi_visibles = xp.empty(
+        (len(point_rois), n_point), dtype=np.bool)
+    for i in np.unique(cuda.to_cpu(point_roi_indices)):
+        gt_point = gt_points[i]
+        gt_visible = gt_visibles[i]
+        gt_bbox = gt_bboxes[i]
+
+        index = (point_roi_indices == i).nonzero()[0]
+        point_roi = point_rois[index]
+        iou = bbox_iou(point_roi, gt_bbox)
+        gt_index = iou.argmax(axis=1)
+        gt_roi_point, gt_roi_visible = point_to_roi_points(
+                gt_point[gt_index], gt_visible[gt_index],
+                point_roi, point_map_size)
+        gt_roi_points[index] = xp.array(gt_roi_point)
+        gt_roi_visibles[index] = xp.array(gt_roi_visible)
+
+    flag_masks = [point_roi_levels == l for l in range(n_level)]
+    point_rois = [point_rois[m] for m in flag_masks]
+    point_roi_indices = [point_roi_indices[m] for m in flag_masks]
+    gt_roi_points = [gt_roi_points[m] for m in flag_masks]
+    gt_roi_visibles = [gt_roi_visibles[m] for m in flag_masks]
+    return point_rois, point_roi_indices, gt_roi_points, gt_roi_visibles
+
+
+def keypoint_loss_post(
+        point_maps, point_roi_indices, gt_roi_points,
+        gt_roi_visibles, batchsize):
+    xp = cuda.get_array_module(point_maps.array)
+
+    point_roi_indices = xp.hstack(point_roi_indices).astype(np.int32)
+    gt_roi_points = xp.vstack(gt_roi_points).astype(np.int32)
+    gt_roi_visibles = xp.vstack(gt_roi_visibles).astype(np.bool)
+
+    B, K, H, W = point_maps.shape
+    point_maps = point_maps.reshape((B * K, H * W))
+    spatial_labels = gt_roi_points[:, :, 0] * W + gt_roi_points[:, :, 1]
+    spatial_labels = spatial_labels.reshape((B * K,))
+    spatial_labels[xp.logical_not(gt_roi_visibles.reshape((B * K,)))] = -1
+    # Remember that the loss is normalized by the total number of
+    # visible keypoints.
+    keypoint_loss = F.softmax_cross_entropy(point_maps, spatial_labels)
+    return keypoint_loss
