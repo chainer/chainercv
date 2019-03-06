@@ -5,6 +5,7 @@ configs {
       cpu: 8
       memory: 48
       gpu: 2
+      disk: 8
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
@@ -25,6 +26,7 @@ configs {
       cpu: 8
       memory: 48
       gpu: 2
+      disk: 8
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
@@ -45,6 +47,7 @@ configs {
       cpu: 8
       memory: 48
       gpu: 2
+      disk: 8
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
@@ -65,6 +68,7 @@ configs {
       cpu: 8
       memory: 48
       gpu: 2
+      disk: 8
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
