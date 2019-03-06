@@ -153,7 +153,7 @@ class MaskRCNN(chainer.Chain):
                 segms, mask_roi_indices_before_reordering, len(imgs))
             segms = [segm if segm is not None else
                     self.xp.zeros(
-                        (0, self.mask_head.mask_size, self.mask_head.mask_size),
+                        (0, self.mask_head.segm_size, self.mask_head.segm_size),
                         dtype=np.float32)
                     for segm in segms]
 

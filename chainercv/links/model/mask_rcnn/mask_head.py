@@ -1,9 +1,6 @@
 from __future__ import division
 
 import numpy as np
-import PIL
-
-import cv2
 
 import chainer
 from chainer.backends import cuda
@@ -12,8 +9,10 @@ from chainer.initializers import HeNormal
 import chainer.links as L
 
 from chainercv.links import Conv2DActiv
-from chainercv.transforms.image.resize import resize
 from chainercv.utils.bbox.bbox_iou import bbox_iou
+
+from chainercv.links.model.mask_rcnn.misc import mask_to_segm
+from chainercv.links.model.mask_rcnn.misc import segm_to_mask
 
 
 class MaskHead(chainer.Chain):
@@ -30,7 +29,7 @@ class MaskHead(chainer.Chain):
     _canonical_scale = 224
     _roi_size = 14
     _roi_sample_ratio = 2
-    mask_size = _roi_size * 2
+    segm_size = _roi_size * 2
 
     def __init__(self, n_class, scales):
         super(MaskHead, self).__init__()
@@ -60,7 +59,7 @@ class MaskHead(chainer.Chain):
                 self._scales[l], self._roi_sample_ratio))
 
         if len(pooled_hs) == 0:
-            out_size = self.mask_size
+            out_size = self.segm_size
             segs = chainer.Variable(
                 self.xp.empty((0, self._n_class, out_size, out_size),
                               dtype=np.float32))
@@ -141,65 +140,19 @@ class MaskHead(chainer.Chain):
             raise ValueError(
                 'MaskHead.decode only supports numpy inputs for now.')
         masks = []
-        # To work around an issue with cv2.resize (it seems to automatically
-        # pad with repeated border values), we manually zero-pad the masks by 1
-        # pixel prior to resizing back to the original image resolution.
-        # This prevents "top hat" artifacts. We therefore need to expand
-        # the reference boxes by an appropriate factor.
-        cv2_expand_scale = (self.mask_size + 2) / self.mask_size
-        padded_mask = np.zeros((self.mask_size + 2, self.mask_size + 2),
-                               dtype=np.float32)
         for bbox, segm, label, size in zip(
                 bboxes, segms, labels, sizes):
-            img_H, img_W = size
-            mask = np.zeros((len(bbox), img_H, img_W), dtype=np.bool)
-
-            bbox = _expand_boxes(bbox, cv2_expand_scale)
-            for i, (bb, sgm, lbl) in enumerate(zip(bbox, segm, label)):
-                bb = bb.astype(np.int32)
-                padded_mask[1:-1, 1:-1] = sgm[lbl + 1]
-
-                # TODO(yuyu2172): Ignore +1 later
-                bb_height = np.maximum(bb[2] - bb[0] + 1, 1)
-                bb_width = np.maximum(bb[3] - bb[1] + 1, 1)
-
-                crop_mask = cv2.resize(padded_mask, (bb_width, bb_height))
-                crop_mask = crop_mask > 0.5
-
-                y_min = max(bb[0], 0)
-                x_min = max(bb[1], 0)
-                y_max = min(bb[2] + 1, img_H)
-                x_max = min(bb[3] + 1, img_W)
-                mask[i, y_min:y_max, x_min:x_max] = crop_mask[
-                    (y_min - bb[0]):(y_max - bb[0]),
-                    (x_min - bb[1]):(x_max - bb[1])]
-            masks.append(mask)
+            if len(segm) > 0:
+                masks.append(
+                    segm_to_mask(segm[np.arange(len(label)), label + 1],
+                                 bbox, size))
+            else:
+                masks.append(np.zeros((0,) + size, dtype=np.bool))
         return masks
 
 
-def _expand_boxes(bbox, scale):
-    """Expand an array of boxes by a given scale."""
-    xp = chainer.backends.cuda.get_array_module(bbox)
-
-    h_half = (bbox[:, 2] - bbox[:, 0]) * .5
-    w_half = (bbox[:, 3] - bbox[:, 1]) * .5
-    y_c = (bbox[:, 2] + bbox[:, 0]) * .5
-    x_c = (bbox[:, 3] + bbox[:, 1]) * .5
-
-    h_half *= scale
-    w_half *= scale
-
-    expanded_bbox = xp.zeros(bbox.shape)
-    expanded_bbox[:, 0] = y_c - h_half
-    expanded_bbox[:, 1] = x_c - w_half
-    expanded_bbox[:, 2] = y_c + h_half
-    expanded_bbox[:, 3] = x_c + w_half
-
-    return expanded_bbox
-
-
 def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
-                  gt_head_labels, mask_size):
+                  gt_head_labels, segm_size):
     """Loss function for Mask Head (pre).
 
     This function processes RoIs for :func:`mask_loss_post` by
@@ -219,7 +172,7 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
             shape :math:`(R_l,)`. This is a collection of ground-truth
             labels assigned to :obj:`rois` during bounding box localization
             stage. The range of value is :math:`(0, n\_class - 1)`.
-        mask_size (int): Size of the ground truth network output.
+        segm_size (int): Size of the ground truth network output.
 
     Returns:
         tuple of four lists:
@@ -231,7 +184,7 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
             feature map.
         * **roi_indices**: A list of arrays of shape :math:`(R'_l,)`.
         * **gt_segms**: A list of arrays of shape :math:`(R'_l, M, M). \
-            :math:`M` is the argument :obj:`mask_size`.
+            :math:`M` is the argument :obj:`segm_size`.
         * **gt_mask_labels**: A list of arrays of shape :math:`(R'_l,)` \
             indicating the classes of ground truth.
     """
@@ -252,7 +205,7 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
     mask_roi_indices = roi_indices[index]
     gt_mask_labels = gt_head_labels[index]
 
-    gt_segms = xp.empty((len(mask_rois), mask_size, mask_size), dtype=np.bool)
+    gt_segms = xp.empty((len(mask_rois), segm_size, segm_size), dtype=np.bool)
     for i in np.unique(cuda.to_cpu(mask_roi_indices)):
         gt_mask = gt_masks[i]
         gt_bbox = gt_bboxes[i]
@@ -261,8 +214,8 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
         mask_roi = mask_rois[index]
         iou = bbox_iou(mask_roi, gt_bbox)
         gt_index = iou.argmax(axis=1)
-        gt_segms[index] = _segm_wrt_bbox(
-            gt_mask, gt_index, mask_roi, (mask_size, mask_size), xp)
+        gt_segms[index] = xp.array(
+            mask_to_segm(gt_mask, mask_roi, segm_size, gt_index))
 
     flag_masks = [mask_roi_levels == l for l in range(n_level)]
     mask_rois = [mask_rois[m] for m in flag_masks]
@@ -297,31 +250,7 @@ def mask_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels,
     gt_segms = xp.vstack(gt_segms).astype(np.float32, copy=False)
     gt_mask_labels = xp.hstack(gt_mask_labels).astype(np.int32)
 
-    mask_loss = 0
-    for i in np.unique(cuda.to_cpu(mask_roi_indices)):
-        index = (mask_roi_indices == i).nonzero()[0]
-        gt_segm = gt_segms[index]
-        gt_mask_label = gt_mask_labels[index]
-
-        mask_loss += F.sigmoid_cross_entropy(
-            segms[index, gt_mask_label], gt_segm.astype(np.int32))
-
-    mask_loss /= batchsize
+    mask_loss = F.sigmoid_cross_entropy(
+        segms[np.arange(len(gt_mask_labels)), gt_mask_labels],
+        gt_segms.astype(np.int32))
     return mask_loss
-
-
-def _segm_wrt_bbox(mask, gt_index, bbox, size, xp):
-    bbox = chainer.backends.cuda.to_cpu(bbox.astype(np.int32))
-
-    segm = []
-    for i, bb in zip(chainer.backends.cuda.to_cpu(gt_index), bbox):
-        cropped_m = mask[i, bb[0]:bb[2], bb[1]:bb[3]]
-        cropped_m = chainer.backends.cuda.to_cpu(cropped_m)
-        if cropped_m.shape[0] == 0 or cropped_m.shape[1] == 0:
-            segm.append(np.zeros(size, dtype=np.bool))
-            continue
-
-        segm.append(resize(
-            cropped_m[None].astype(np.float32),
-            size, interpolation=PIL.Image.NEAREST)[0])
-    return xp.array(segm, dtype=np.float32)

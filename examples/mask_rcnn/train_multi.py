@@ -4,6 +4,7 @@ import numpy as np
 import PIL
 
 import chainer
+import chainer.functions as F
 import chainer.links as L
 from chainer.optimizer_hooks import WeightDecay
 from chainer import serializers
@@ -47,7 +48,8 @@ class TrainChain(chainer.Chain):
         pad_size = np.array(
             [im.shape[1:] for im in imgs]).max(axis=0)
         pad_size = (
-            np.ceil(pad_size / self.model.stride) * self.model.stride).astype(int)
+            np.ceil(
+                pad_size / self.model.stride) * self.model.stride).astype(int)
         x = np.zeros(
             (len(imgs), 3, pad_size[0], pad_size[1]), dtype=np.float32)
         for i, img in enumerate(imgs):
@@ -94,25 +96,26 @@ class TrainChain(chainer.Chain):
 
         mask_rois, mask_roi_indices, gt_segms, gt_mask_labels = mask_loss_pre(
             rois, roi_indices, masks, bboxes,
-            head_gt_labels, self.model.mask_head.mask_size)
+            head_gt_labels, self.model.mask_head.segm_size)
         n_roi = sum([len(roi) for roi in mask_rois])
         if n_roi > 0:
             segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
             mask_loss = mask_loss_post(
                 segms, mask_roi_indices, gt_segms, gt_mask_labels, B)
-            loss = (rpn_loc_loss + rpn_conf_loss + 
-                head_loc_loss + head_conf_loss + mask_loss)
-            chainer.reporter.report({
-                'loss': loss,
-                'loss/rpn/loc': rpn_loc_loss, 'loss/rpn/conf': rpn_conf_loss,
-                'loss/head/loc': head_loc_loss, 'loss/head/conf': head_conf_loss,
-                'loss/mask': mask_loss},
-                self)
         else:
-            # ChainerMN hangs when a subset of nodes has a different
-            # computational graph from the rest.
-            loss = chainer.Variable(self.xp.array(0, dtype=np.float32))
-            self.zerograds()
+            # Compute dummy variables to complete the computational graph
+            mask_rois[0] = self.xp.array([[0, 0, 1, 1]], dtype=np.float32)
+            mask_roi_indices[0] = self.xp.array([0], dtype=np.int32)
+            segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
+            mask_loss = 0 * F.sum(segms)
+        loss = (rpn_loc_loss + rpn_conf_loss +
+                head_loc_loss + head_conf_loss + mask_loss)
+        chainer.reporter.report({
+            'loss': loss,
+            'loss/rpn/loc': rpn_loc_loss, 'loss/rpn/conf': rpn_conf_loss,
+            'loss/head/loc': head_loc_loss, 'loss/head/conf': head_conf_loss,
+            'loss/mask': mask_loss},
+            self)
         return loss
 
 
@@ -125,7 +128,6 @@ class Transform(object):
 
     def __call__(self, in_data):
         img, mask, label, bbox = in_data
-        original = mask.shape
         # Flipping
         img, params = transforms.random_flip(
             img, x_random=True, return_param=True)
