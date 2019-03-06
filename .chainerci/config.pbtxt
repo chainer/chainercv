@@ -1,0 +1,13 @@
+configs {
+  key: "chainercv"
+  value {
+    requirement {
+      cpu: 4
+      memory: 16
+      gpu: 2
+    }
+    command:
+        "docker run --runtime=nvidia --rm --volume $(realpath .):/mnt hakuyume/chainercv:chainer5.2.0-devel "
+        "sh -ec \"pip3 install --user -e /mnt; mpiexec -n 2 --allow-run-as-root python3 -m pytest -m 'not slow' /mnt/tests\""
+  }
+}
