@@ -2,8 +2,8 @@ configs {
   key: "chainercv.py2.chainer-stable"
   value {
     requirement {
-      cpu: 4
-      memory: 16
+      cpu: 8
+      memory: 48
       gpu: 2
     }
     command: "sh .chainerci/tests.sh"
@@ -22,8 +22,8 @@ configs {
   key: "chainercv.py3.chainer-stable"
   value {
     requirement {
-      cpu: 4
-      memory: 16
+      cpu: 8
+      memory: 48
       gpu: 2
     }
     command: "sh .chainerci/tests.sh"
@@ -42,8 +42,8 @@ configs {
   key: "chainercv.py2.chainer-latest"
   value {
     requirement {
-      cpu: 4
-      memory: 16
+      cpu: 8
+      memory: 48
       gpu: 2
     }
     command: "sh .chainerci/tests.sh"
@@ -62,8 +62,8 @@ configs {
   key: "chainercv.py3.chainer-latest"
   value {
     requirement {
-      cpu: 4
-      memory: 16
+      cpu: 8
+      memory: 48
       gpu: 2
     }
     command: "sh .chainerci/tests.sh"
