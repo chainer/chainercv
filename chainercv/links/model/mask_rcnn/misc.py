@@ -35,20 +35,28 @@ def mask_to_segm(mask, bbox, segm_size, index=None, pad=1):
     for i, bb in zip(index, bbox):
         y_min = max(bb[0], 0)
         x_min = max(bb[1], 0)
-        y_max = min(bb[2], H)
-        x_max = min(bb[3], W)
-        cropped_m = mask[i, y_min:y_max, x_min:x_max]
-        cropped_m = chainer.backends.cuda.to_cpu(cropped_m)
-        if cropped_m.shape[0] == 0 or cropped_m.shape[1] == 0:
+        y_max = max(min(bb[2], H), 0)
+        x_max = max(min(bb[3], W), 0)
+        if y_max - y_min == 0 or x_max - x_min == 0:
             segm.append(np.zeros((segm_size, segm_size), dtype=np.float32))
             continue
 
+        bb_height = bb[2] - bb[0]
+        bb_width = bb[3] - bb[1]
+        cropped_m = np.zeros((bb_height, bb_width), dtype=np.bool)
+
+        y_offset = y_min - bb[0]
+        x_offset = x_min - bb[1]
+        cropped_m[y_offset:y_offset + y_max - y_min,
+                  x_offset:x_offset + x_max - x_min] =\
+            chainer.backends.cuda.to_cpu(mask[i, y_min:y_max, x_min:x_max])
+
         sgm = transforms.resize(
             cropped_m[None].astype(np.float32),
-            (padded_segm_size, padded_segm_size))[0]
+            (padded_segm_size, padded_segm_size))[0].astype(np.int32)
         segm.append(sgm[pad:-pad, pad:-pad])
 
-    return np.array(segm, dtype=np.int32)
+    return np.array(segm, dtype=np.float32)
 
 
 def segm_to_mask(segm, bbox, size, pad=1):
@@ -74,19 +82,23 @@ def segm_to_mask(segm, bbox, size, pad=1):
     for i, (bb, sgm) in enumerate(zip(bbox, segm)):
         padded_mask[1:-1, 1:-1] = sgm
 
-        bb_height = np.maximum(bb[2] - bb[0], 1)
-        bb_width = np.maximum(bb[3] - bb[1], 1)
+        bb_height = bb[2] - bb[0]
+        bb_width = bb[3] - bb[1]
+        if bb_height == 0 or bb_width == 0:
+            continue
 
-        crop_mask = cv2.resize(padded_mask, (bb_width, bb_height))
+        crop_mask = transforms.resize(padded_mask[None], (bb_width, bb_height))[0]
         crop_mask = crop_mask > 0.5
 
         y_min = max(bb[0], 0)
         x_min = max(bb[1], 0)
-        y_max = min(bb[2], H)
-        x_max = min(bb[3], W)
+        y_max = max(min(bb[2], H), 0)
+        x_max = max(min(bb[3], W), 0)
+        y_offset = y_min - bb[0]
+        x_offset = x_min - bb[1]
         mask[i, y_min:y_max, x_min:x_max] = crop_mask[
-            (y_min - bb[0]):(y_max - bb[0]),
-            (x_min - bb[1]):(x_max - bb[1])]
+            y_offset:y_offset + y_max - y_min,
+            x_offset:x_offset + x_max - x_min]
     return mask
 
 
