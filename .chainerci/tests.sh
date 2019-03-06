@@ -2,7 +2,7 @@
 set -eu
 
 docker run --runtime=nvidia -i --rm \
-       --volume $(realpath .):/mnt --workdir /mnt \
+       --volume $(git rev-parse --show-toplevel):/mnt --workdir /mnt \
        --env MPLBACKEND=agg \
        hakuyume/chainercv:chainer${CHAINER}-devel \
        sh -e << EOD
