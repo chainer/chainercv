@@ -205,7 +205,8 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
     mask_roi_indices = roi_indices[index]
     gt_mask_labels = gt_head_labels[index]
 
-    gt_segms = xp.empty((len(mask_rois), segm_size, segm_size), dtype=np.bool)
+    gt_segms = xp.empty(
+        (len(mask_rois), segm_size, segm_size), dtype=np.float32)
     for i in np.unique(cuda.to_cpu(mask_roi_indices)):
         gt_mask = gt_masks[i]
         gt_bbox = gt_bboxes[i]
@@ -247,7 +248,7 @@ def mask_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels,
     xp = cuda.get_array_module(segms.array)
 
     mask_roi_indices = xp.hstack(mask_roi_indices).astype(np.int32)
-    gt_segms = xp.vstack(gt_segms).astype(np.float32, copy=False)
+    gt_segms = xp.vstack(gt_segms)
     gt_mask_labels = xp.hstack(gt_mask_labels).astype(np.int32)
 
     mask_loss = F.sigmoid_cross_entropy(
