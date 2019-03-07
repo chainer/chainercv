@@ -53,19 +53,17 @@ class TestKeypointHeadLoss(unittest.TestCase):
         ]
         points = [
             xp.zeros((1, n_point, 2), dtype=np.float32),
-            xp.zeros((2, n_point, 2), dtype=np.float32),
-            xp.zeros((1, n_point, 2), dtype=np.float32),
+            xp.zeros((3, n_point, 2), dtype=np.float32),
         ]
         visibles = [
             xp.ones((1, n_point), dtype=np.bool),
-            xp.ones((2, n_point), dtype=np.bool),
-            xp.ones((1, n_point), dtype=np.bool)
+            xp.ones((3, n_point), dtype=np.bool),
         ]
         bboxes = [_point_to_bbox(point, visible)
                   for point, visible in zip(points, visibles)]
         labels = [
-            xp.array((1, 1), dtype=np.int32),
             xp.array((1,), dtype=np.int32),
+            xp.array((1, 1), dtype=np.int32),
             xp.array((1,), dtype=np.int32),
         ]
         rois, roi_indices, gt_roi_points, gt_roi_visibles = keypoint_loss_pre(
