@@ -36,7 +36,7 @@ class KeypointHead(chainer.Chain):
     _canonical_scale = 224
     _roi_size = 14
     _roi_sample_ratio = 2
-    map_size = 56
+    point_map_size = 56
 
     def __init__(self, n_point, scales):
         super(KeypointHead, self).__init__()
@@ -76,7 +76,7 @@ class KeypointHead(chainer.Chain):
         if len(pooled_hs) == 0:
             return chainer.Variable(
                self.xp.empty(
-                   (0, self.n_point, self.map_size, self.map_size),
+                   (0, self.n_point, self.point_map_size, self.point_map_size),
                    dtype=np.float32))
 
         h = F.concat(pooled_hs, axis=0)
