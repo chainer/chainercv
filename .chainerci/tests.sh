@@ -1,13 +1,15 @@
 #! /usr/bin/env sh
-set -eu
+set -eux
 
 if [ "$(nvidia-smi --query-gpu=count --format=csv,noheader)" -gt 0 ]; then
+    RUNTIME='--runtime=nvidia'
     MARKS='gpu and not slow'
 else
+    RUNTIME=
     MARKS='not gpu and not slow'
 fi
 
-docker run --runtime=nvidia --interactive --rm \
+docker run ${RUNTIME} --interactive --rm \
        --volume $(realpath .):/mnt --workdir /mnt \
        --env MPLBACKEND=agg \
        hakuyume/chainercv:chainer${CHAINER}-devel \
