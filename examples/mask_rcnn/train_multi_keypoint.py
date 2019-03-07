@@ -59,7 +59,7 @@ class TrainChain(chainer.Chain):
         visibles = [self.xp.array(visible) for visible in visibles]
 
         bboxes = [self.xp.array(bbox) for bbox in bboxes]
-        assert all([np.all(label == 1) for label in labels])
+        assert all([np.all(label == 0) for label in labels])
         labels = [self.xp.array(label) for label in labels]
         sizes = [img.shape[1:] for img in imgs]
 
