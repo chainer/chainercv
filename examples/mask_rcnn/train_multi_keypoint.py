@@ -145,6 +145,14 @@ def converter(batch, device=None):
     return tuple(list(v) for v in zip(*batch))
 
 
+def valid_annotation(visible):
+    if len(visible) == 0:
+        return False
+    min_keypoint_per_image = 10
+    n_visible = visible.sum()
+    return n_visible >= min_keypoint_per_image
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -187,10 +195,12 @@ def main():
     chainer.cuda.get_device_from_id(device).use()
     train_chain.to_gpu()
 
+    train = COCOKeypointDataset(split='train')
+    indices = [i for i, visible in enumerate(train.slice[:, 'visible'])
+               if valid_annotation(visible)]
+    train = train.slice[indices]
     train = TransformDataset(
-        COCOKeypointDataset(
-            split='train'),
-        ('img', 'point', 'visible', 'label', 'bbox'),
+        train, ('img', 'point', 'visible', 'label', 'bbox'),
         Transform(model.min_size, model.max_size, model.extractor.mean))
 
     if comm.rank == 0:
