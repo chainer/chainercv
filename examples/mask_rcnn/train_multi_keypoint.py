@@ -189,9 +189,8 @@ def main():
 
     train = TransformDataset(
         COCOKeypointDataset(
-            data_dir='/home/yuyu2172/coco',
             split='train'),
-        ('img', 'point', 'visible', 'bbox'),
+        ('img', 'point', 'visible', 'label', 'bbox'),
         Transform(model.min_size, model.max_size, model.extractor.mean))
 
     if comm.rank == 0:
