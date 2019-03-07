@@ -58,7 +58,7 @@ class TestReadImage(unittest.TestCase):
         chainer.config.cv_read_image_backend = self.backend
 
         if self.file_obj:
-            self.f = tempfile.NamedTemporaryFile(delete=False)
+            self.f = tempfile.TemporaryFile()
             self.file = self.f
             format = self.format
         else:
@@ -119,7 +119,7 @@ class TestReadImageDifferentBackends(unittest.TestCase):
 
     def setUp(self):
         if self.file_obj:
-            self.f = tempfile.NamedTemporaryFile(delete=False)
+            self.f = tempfile.TemporaryFile()
             self.file = self.f
             format = self.format
         else:

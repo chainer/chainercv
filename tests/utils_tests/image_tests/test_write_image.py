@@ -19,7 +19,7 @@ class TestWriteImage(unittest.TestCase):
 
     def setUp(self):
         if self.file_obj:
-            self.f = tempfile.NamedTemporaryFile(delete=False)
+            self.f = tempfile.TemporaryFile()
             self.file = self.f
         else:
             if self.format == 'jpeg':
