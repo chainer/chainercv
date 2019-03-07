@@ -47,8 +47,8 @@ def _read_image_cv2(file, dtype, color, alpha):
     if isinstance(file, str):
         img = cv2.imread(file, color_option)
     else:
-        b = np.array(file.read())
-        img = cv2.imdecode(cv2.UMat(b), color_option)
+        b = np.array(bytearray(file.read()))
+        img = cv2.imdecode(b, color_option)
 
     if img.ndim == 2:
         # reshape (H, W) -> (1, H, W)
