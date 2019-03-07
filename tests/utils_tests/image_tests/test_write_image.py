@@ -39,6 +39,7 @@ class TestWriteImage(unittest.TestCase):
     def test_write_image(self):
         if self.file_obj:
             write_image(self.img, self.file, format=self.format)
+            self.file.seek(0)
         else:
             write_image(self.img, self.file)
         img = Image.open(self.file)
