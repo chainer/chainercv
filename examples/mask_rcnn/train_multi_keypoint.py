@@ -1,7 +1,6 @@
 import argparse
 import multiprocessing
 import numpy as np
-import PIL
 
 import chainer
 import chainer.functions as F
@@ -15,7 +14,6 @@ import chainermn
 
 from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
 from chainercv.chainer_experimental.training.extensions import make_shift
-from chainercv.datasets import coco_keypoint_names
 from chainercv.datasets import COCOKeypointDataset
 from chainercv.links import MaskRCNNFPNResNet101
 from chainercv.links import MaskRCNNFPNResNet50
@@ -43,7 +41,7 @@ class TrainChain(chainer.Chain):
         with self.init_scope():
             self.model = model
 
-    def __call__(self, imgs, points, visibles, bboxes):
+    def __call__(self, imgs, points, visibles, labels, bboxes):
         B = len(imgs)
         pad_size = np.array(
             [im.shape[1:] for im in imgs]).max(axis=0)
@@ -57,17 +55,11 @@ class TrainChain(chainer.Chain):
             x[i, :, :H, :W] = img
         x = self.xp.array(x)
 
-        # For reducing unnecessary CPU/GPU copy, `masks` is kept in CPU.
-        pad_masks = [
-            np.zeros(
-                (mask.shape[0], pad_size[0], pad_size[1]), dtype=np.bool)
-            for mask in masks]
-        for i, mask in enumerate(masks):
-            _, H, W = mask.shape
-            pad_masks[i][:, :H, :W] = mask
-        masks = pad_masks
+        points = [self.xp.array(point) for point in points]
+        visibles = [self.xp.array(visible) for visible in visibles]
 
         bboxes = [self.xp.array(bbox) for bbox in bboxes]
+        assert all([np.all(label == 1) for label in labels])
         labels = [self.xp.array(label) for label in labels]
         sizes = [img.shape[1:] for img in imgs]
 
@@ -96,26 +88,28 @@ class TrainChain(chainer.Chain):
         losses = [
             rpn_loc_loss + rpn_conf_loss + head_loc_loss + head_conf_loss]
 
-        # mask_rois, mask_roi_indices, gt_segms, gt_mask_labels = mask_loss_pre(
-        #     rois, roi_indices, masks, bboxes,
-        #     head_gt_labels, self.model.mask_head.segm_size)
-        # n_roi = sum([len(roi) for roi in mask_rois])
-        # if n_roi > 0:
-        #     segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
-        #     mask_loss = mask_loss_post(
-        #         segms, mask_roi_indices, gt_segms, gt_mask_labels, B)
-        # else:
-        #     # Compute dummy variables to complete the computational graph
-        #     mask_rois[0] = self.xp.array([[0, 0, 1, 1]], dtype=np.float32)
-        #     mask_roi_indices[0] = self.xp.array([0], dtype=np.int32)
-        #     segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
-        #     mask_loss = 0 * F.sum(segms)
+        point_rois, point_roi_indices, gt_points, gt_visibles = keypoint_loss_pre(
+            rois, roi_indices, points, visibles, bboxes, head_gt_labels,
+            self.model.keypoint_head.point_map_size)
+        n_roi = sum([len(roi) for roi in point_rois])
+        if n_roi > 0:
+            point_maps = self.model.keypoint_head(hs, point_rois, point_roi_indices)
+            point_loss = keypoint_loss_post(
+                point_maps, point_roi_indices,
+                gt_points, gt_visibles, B)
+        else:
+            # Compute dummy variables to complete the computational graph
+            point_rois[0] = self.xp.array([[0, 0, 1, 1]], dtype=np.float32)
+            point_roi_indices[0] = self.xp.array([0], dtype=np.int32)
+            point_maps = self.model.keypoint_head(hs, point_rois, point_roi_indices)
+            point_loss = 0 * F.sum(point_maps)
+        losses.append(point_loss)
         loss = sum(losses)
         chainer.reporter.report({
             'loss': loss,
             'loss/rpn/loc': rpn_loc_loss, 'loss/rpn/conf': rpn_conf_loss,
             'loss/head/loc': head_loc_loss, 'loss/head/conf': head_conf_loss,
-            'loss/keypoint': keypoint_loss},
+            'loss/point': point_loss},
             self)
         return loss
 
@@ -128,7 +122,7 @@ class Transform(object):
         self.mean = mean
 
     def __call__(self, in_data):
-        img, point, visible, _, bbox = in_data
+        img, point, visible, label, bbox = in_data
         # Flipping
         size = img.shape[1:]
         img, params = transforms.random_flip(
@@ -143,7 +137,7 @@ class Transform(object):
         img -= self.mean
         point = transforms.resize_point(point, size, img.shape[1:])
         bbox = bbox * scale
-        return img, point, visible, bbox
+        return img, point, visible, label, bbox
 
 
 def converter(batch, device=None):
