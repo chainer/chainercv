@@ -105,7 +105,7 @@ configs {
     requirement {
       cpu: 4
       memory: 16
-      gpu: 2
+      gpu: 1
       disk: 20
     }
     command: "sh .chainerci/tests.sh"
@@ -126,7 +126,7 @@ configs {
     requirement {
       cpu: 4
       memory: 16
-      gpu: 2
+      gpu: 1
       disk: 20
     }
     command: "sh .chainerci/tests.sh"
@@ -147,7 +147,7 @@ configs {
     requirement {
       cpu: 4
       memory: 16
-      gpu: 2
+      gpu: 1
       disk: 20
     }
     command: "sh .chainerci/tests.sh"
