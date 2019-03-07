@@ -28,6 +28,7 @@ def _write_rgba_image(rgba, path):
 
 def _create_parameters():
     params = testing.product({
+        'file_obj': [False, True],
         'size': [(48, 32)],
         'dtype': [np.float32, np.uint8, bool]})
     no_color_params = testing.product({
@@ -56,9 +57,12 @@ class TestReadImage(unittest.TestCase):
     def setUp(self):
         chainer.config.cv_read_image_backend = self.backend
 
-        self.file = tempfile.NamedTemporaryFile(
+        self.f = tempfile.NamedTemporaryFile(
             suffix='.' + self.suffix, delete=False)
-        self.path = self.file.name
+        if self.file_obj:
+            self.file = self.f
+        else:
+            self.file = self.f.name
 
         if self.alpha is None:
             if self.color:
@@ -67,14 +71,14 @@ class TestReadImage(unittest.TestCase):
             else:
                 self.img = np.random.randint(
                     0, 255, size=(1,) + self.size, dtype=np.uint8)
-            write_image(self.img, self.path)
+            write_image(self.img, self.f.name)
         else:
             self.img = np.random.randint(
                 0, 255, size=(4,) + self.size, dtype=np.uint8)
-            _write_rgba_image(self.img, self.path)
+            _write_rgba_image(self.img, self.f.name)
 
     def test_read_image_as_color(self):
-        img = read_image(self.path, dtype=self.dtype, alpha=self.alpha)
+        img = read_image(self.file, dtype=self.dtype, alpha=self.alpha)
 
         self.assertEqual(img.shape, (3,) + self.size)
         self.assertEqual(img.dtype, self.dtype)
@@ -86,7 +90,7 @@ class TestReadImage(unittest.TestCase):
 
     def test_read_image_as_grayscale(self):
         img = read_image(
-            self.path, dtype=self.dtype, color=False, alpha=self.alpha)
+            self.file, dtype=self.dtype, color=False, alpha=self.alpha)
 
         self.assertEqual(img.shape, (1,) + self.size)
         self.assertEqual(img.dtype, self.dtype)
@@ -96,7 +100,7 @@ class TestReadImage(unittest.TestCase):
             np.testing.assert_equal(img, self.img.astype(self.dtype))
 
     def test_read_image_mutable(self):
-        img = read_image(self.path, dtype=self.dtype, alpha=self.alpha)
+        img = read_image(self.file, dtype=self.dtype, alpha=self.alpha)
         img[:] = 0
         np.testing.assert_equal(img, 0)
 
@@ -105,9 +109,12 @@ class TestReadImage(unittest.TestCase):
 class TestReadImageDifferentBackends(unittest.TestCase):
 
     def setUp(self):
-        self.file = tempfile.NamedTemporaryFile(
+        self.f = tempfile.NamedTemporaryFile(
             suffix='.' + self.suffix, delete=False)
-        self.path = self.file.name
+        if self.file_obj:
+            self.file = self.f
+        else:
+            self.file = self.f.name
 
         if self.alpha is None:
             if self.color:
@@ -116,21 +123,21 @@ class TestReadImageDifferentBackends(unittest.TestCase):
             else:
                 self.img = np.random.randint(
                     0, 255, size=(1,) + self.size, dtype=np.uint8)
-            write_image(self.img, self.path)
+            write_image(self.img, self.f.name)
         else:
             self.img = np.random.randint(
                 0, 255, size=(4,) + self.size, dtype=np.uint8)
-            _write_rgba_image(self.img, self.path)
+            _write_rgba_image(self.img, self.f.name)
 
     @unittest.skipUnless(_cv2_available, 'cv2 is not installed')
     def test_read_image_different_backends_as_color(self):
         chainer.config.cv_read_image_backend = 'cv2'
         cv2_img = read_image(
-            self.path, dtype=self.dtype, color=self.color, alpha=self.alpha)
+            self.file, dtype=self.dtype, color=self.color, alpha=self.alpha)
 
         chainer.config.cv_read_image_backend = 'PIL'
         pil_img = read_image(
-            self.path, dtype=self.dtype, color=self.color, alpha=self.alpha)
+            self.file, dtype=self.dtype, color=self.color, alpha=self.alpha)
 
         if self.suffix != 'jpg':
             if self.dtype == np.float32 and self.alpha is not None:
