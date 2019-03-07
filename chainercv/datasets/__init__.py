@@ -19,8 +19,8 @@ from chainercv.datasets.coco.coco_utils import coco_instance_segmentation_label_
 from chainercv.datasets.coco.coco_utils import coco_keypoint_names  # NOQA
 from chainercv.datasets.coco.coco_utils import coco_semantic_segmentation_label_colors  # NOQA
 from chainercv.datasets.coco.coco_utils import coco_semantic_segmentation_label_names  # NOQA
-from chainercv.datasets.cub.cub_label_dataset import CUBLabelDataset  # NOQA
 from chainercv.datasets.cub.cub_keypoint_dataset import CUBKeypointDataset  # NOQA
+from chainercv.datasets.cub.cub_label_dataset import CUBLabelDataset  # NOQA
 from chainercv.datasets.cub.cub_utils import cub_label_names  # NOQA
 from chainercv.datasets.directory_parsing_label_dataset import directory_parsing_label_names  # NOQA
 from chainercv.datasets.directory_parsing_label_dataset import DirectoryParsingLabelDataset  # NOQA

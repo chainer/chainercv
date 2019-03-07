@@ -43,10 +43,10 @@ class COCOKeypointDataset(GetterDataset):
         ":math:`(y, x)`"
         :obj:`visible` [#coco_point_1]_, ":math:`(R, K)`", :obj:`bool`, \
         "true when a keypoint is visible."
-        :obj:`bbox` [#coco_point_1]_, ":math:`(R, 4)`", :obj:`float32`, \
-        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
         :obj:`label` [#coco_point_1]_, ":math:`(R,)`", :obj:`int32`, \
         ":math:`[0, \#fg\_class - 1]`"
+        :obj:`bbox` [#coco_point_1]_, ":math:`(R, 4)`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
         :obj:`area` [#coco_point_1]_ [#coco_point_2]_, ":math:`(R,)`", \
         :obj:`float32`, --
         :obj:`crowded` [#coco_point_3]_, ":math:`(R,)`", :obj:`bool`, --
@@ -95,7 +95,7 @@ class COCOKeypointDataset(GetterDataset):
         self.add_getter(
             ['point', 'visible', 'bbox', 'label', 'area', 'crowded'],
             self._get_annotations)
-        keys = ('img', 'point', 'visible', 'bbox', 'label')
+        keys = ('img', 'point', 'visible', 'label', 'bbox')
         if return_area:
             keys += ('area',)
         if return_crowded:
