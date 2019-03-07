@@ -33,6 +33,8 @@ class TestReadLabel(unittest.TestCase):
         self.img = np.random.randint(
             0, 255, size=self.size, dtype=np.uint8)
         write_image(self.img[None], self.file, format=format)
+        if self.file_obj:
+            self.file.seek(0)
 
     def test_read_label(self):
         if self.dtype == np.int32:

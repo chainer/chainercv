@@ -17,13 +17,13 @@ except ImportError:
     _cv2_available = False
 
 
-def _write_rgba_image(rgba, path):
+def _write_rgba_image(rgba, file, format):
     rgba = rgba.transpose((1, 2, 0))
     rgba = Image.fromarray(rgba, 'RGBA')
     canvas = Image.new('RGBA', rgba.size, (255, 255, 255, 255))
     # Paste the image onto the canvas, using it's alpha channel as mask
     canvas.paste(rgba, mask=rgba)
-    canvas.save(path)
+    canvas.save(file, format)
 
 
 def _create_parameters():
@@ -32,18 +32,18 @@ def _create_parameters():
         'size': [(48, 32)],
         'dtype': [np.float32, np.uint8, bool]})
     no_color_params = testing.product({
+        'format': ['bmp', 'jpeg', 'png'],
         'color': [False],
-        'alpha': [None],
-        'suffix': ['bmp', 'jpg', 'png']})
+        'alpha': [None]})
     no_alpha_params = testing.product({
+        'format': ['bmp', 'jpeg', 'png'],
         'color': [True],
-        'alpha': [None],
-        'suffix': ['bmp', 'jpg', 'png']})
+        'alpha': [None]})
     alpha_params = testing.product({
+        # writing alpha image with jpeg encoding didn't work
+        'format': ['png'],
         'color': [True],
-        'alpha': ['ignore', 'blend_with_white', 'blend_with_black'],
-        'suffix': ['png']  # writing alpha image with jpg encoding didn't work
-    })
+        'alpha': ['ignore', 'blend_with_white', 'blend_with_black']})
     params = testing.product_dict(
         params,
         no_color_params + no_alpha_params + alpha_params)
@@ -57,12 +57,18 @@ class TestReadImage(unittest.TestCase):
     def setUp(self):
         chainer.config.cv_read_image_backend = self.backend
 
-        self.f = tempfile.NamedTemporaryFile(
-            suffix='.' + self.suffix, delete=False)
         if self.file_obj:
+            self.f = tempfile.NamedTemporaryFile(delete=False)
             self.file = self.f
+            format = self.format
         else:
+            if self.format == 'jpeg':
+                suffix = '.jpg'
+            else:
+                suffix = '.' + self.format
+            self.f = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
             self.file = self.f.name
+            format = None
 
         if self.alpha is None:
             if self.color:
@@ -71,11 +77,14 @@ class TestReadImage(unittest.TestCase):
             else:
                 self.img = np.random.randint(
                     0, 255, size=(1,) + self.size, dtype=np.uint8)
-            write_image(self.img, self.f.name)
+            write_image(self.img, self.file, format=format)
         else:
             self.img = np.random.randint(
                 0, 255, size=(4,) + self.size, dtype=np.uint8)
-            _write_rgba_image(self.img, self.f.name)
+            _write_rgba_image(self.img, self.file, format=format)
+
+        if self.file_obj:
+            self.file.seek(0)
 
     def test_read_image_as_color(self):
         img = read_image(self.file, dtype=self.dtype, alpha=self.alpha)
@@ -83,7 +92,7 @@ class TestReadImage(unittest.TestCase):
         self.assertEqual(img.shape, (3,) + self.size)
         self.assertEqual(img.dtype, self.dtype)
 
-        if self.suffix in {'bmp', 'png'} and self.alpha is None:
+        if self.format in {'bmp', 'png'} and self.alpha is None:
             np.testing.assert_equal(
                 img,
                 np.broadcast_to(self.img, (3,) + self.size).astype(self.dtype))
@@ -95,7 +104,7 @@ class TestReadImage(unittest.TestCase):
         self.assertEqual(img.shape, (1,) + self.size)
         self.assertEqual(img.dtype, self.dtype)
 
-        if (self.suffix in {'bmp', 'png'}
+        if (self.format in {'bmp', 'png'}
                 and not self.color and self.alpha is None):
             np.testing.assert_equal(img, self.img.astype(self.dtype))
 
@@ -109,12 +118,18 @@ class TestReadImage(unittest.TestCase):
 class TestReadImageDifferentBackends(unittest.TestCase):
 
     def setUp(self):
-        self.f = tempfile.NamedTemporaryFile(
-            suffix='.' + self.suffix, delete=False)
         if self.file_obj:
+            self.f = tempfile.NamedTemporaryFile(delete=False)
             self.file = self.f
+            format = self.format
         else:
+            if self.format == 'jpeg':
+                suffix = '.jpg'
+            else:
+                suffix = '.' + self.format
+            self.f = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
             self.file = self.f.name
+            format = None
 
         if self.alpha is None:
             if self.color:
@@ -123,11 +138,14 @@ class TestReadImageDifferentBackends(unittest.TestCase):
             else:
                 self.img = np.random.randint(
                     0, 255, size=(1,) + self.size, dtype=np.uint8)
-            write_image(self.img, self.f.name)
+            write_image(self.img, self.file, format=format)
         else:
             self.img = np.random.randint(
                 0, 255, size=(4,) + self.size, dtype=np.uint8)
-            _write_rgba_image(self.img, self.f.name)
+            _write_rgba_image(self.img, self.file, format=format)
+
+        if self.file_obj:
+            self.file.seek(0)
 
     @unittest.skipUnless(_cv2_available, 'cv2 is not installed')
     def test_read_image_different_backends_as_color(self):
@@ -139,13 +157,13 @@ class TestReadImageDifferentBackends(unittest.TestCase):
         pil_img = read_image(
             self.file, dtype=self.dtype, color=self.color, alpha=self.alpha)
 
-        if self.suffix != 'jpg':
+        if self.format != 'jpeg':
             if self.dtype == np.float32 and self.alpha is not None:
                 np.testing.assert_almost_equal(cv2_img, pil_img, decimal=4)
             else:
                 np.testing.assert_equal(cv2_img, pil_img)
         else:
-            # jpg decoders are differnet, so they produce different results
+            # jpeg decoders are differnet, so they produce different results
             assert np.mean(cv2_img == pil_img) > 0.99
 
 
