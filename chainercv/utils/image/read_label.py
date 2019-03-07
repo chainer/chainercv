@@ -10,7 +10,7 @@ def read_label(file, dtype=np.int32):
     a parameter :obj:`color=True`.
 
     Args:
-        file (string or file-like object): A path of image file or \
+        file (string or file-like object): A path of image file or
             a file-like object of image.
         dtype: The type of array. The default value is :obj:`~numpy.int32`.
         color (bool): This option determines the number of channels.

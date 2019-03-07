@@ -100,7 +100,7 @@ def read_image(file, dtype=np.float32, color=True, alpha=None):
     Two backends are supported: "cv2" and "PIL".
 
     Args:
-        file (string or file-like object): A path of image file or \
+        file (string or file-like object): A path of image file or
             a file-like object of image.
         dtype: The type of array. The default value is :obj:`~numpy.float32`.
         color (bool): This option determines the number of channels.
