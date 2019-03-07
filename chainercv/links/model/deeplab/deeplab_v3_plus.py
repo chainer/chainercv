@@ -115,6 +115,8 @@ class DeepLabV3plus(chainer.Chain):
 
         """
 
+        xp = chainer.cuda.get_array_module(image)
+
         _, H, W = image.shape
 
         # Pad image and label to have dimensions >= min_input_size
@@ -123,7 +125,7 @@ class DeepLabV3plus(chainer.Chain):
 
         # Pad image with mean pixel value.
         mean = self.feature_extractor.mean
-        bg = np.zeros((3, h, w), dtype=np.float32) + mean
+        bg = xp.zeros((3, h, w), dtype=xp.float32) + xp.asarray(mean)
         bg[:, :H, :W] = image
         image = bg
 
@@ -151,7 +153,7 @@ class DeepLabV3plus(chainer.Chain):
 
         img = self.prepare(img)
 
-        x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
+        x = chainer.Variable(self.xp.asarray(img[None]))
         x = self.__call__(x)
         x = F.softmax(x, axis=1)
         score = F.resize_images(x, img.shape[1:])[0, :, :h, :w].array
