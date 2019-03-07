@@ -16,6 +16,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--dataset', choices=('cityscapes', 'ade20k', 'camvid', 'voc'))
+    parser.add_argument('--data-dir', default='auto')
     parser.add_argument(
         '--model', choices=(
             'pspnet_resnet101', 'segnet', 'deeplab_v3plus_xception65'))
@@ -33,7 +34,7 @@ def main():
 
     dataset, label_names, model = get_dataset_and_model(
         args.dataset, args.model, args.pretrained_model,
-        input_size)
+        input_size, args.data_dir)
 
     chainer.cuda.get_device_from_id(device).use()
     model.to_gpu()

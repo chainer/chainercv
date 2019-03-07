@@ -22,19 +22,19 @@ from chainercv.utils import ProgressHook
 
 
 def get_dataset_and_model(dataset_name, model_name, pretrained_model,
-                          input_size):
+                          input_size, data_dir):
     if dataset_name == 'cityscapes':
         dataset = CityscapesSemanticSegmentationDataset(
-            split='val', label_resolution='fine')
+            data_dir=data_dir, split='val', label_resolution='fine')
         label_names = cityscapes_semantic_segmentation_label_names
     elif dataset_name == 'ade20k':
-        dataset = ADE20KSemanticSegmentationDataset(split='val')
+        dataset = ADE20KSemanticSegmentationDataset(data_dir=data_dir, split='val')
         label_names = ade20k_semantic_segmentation_label_names
     elif dataset_name == 'camvid':
-        dataset = CamVidDataset(split='test')
+        dataset = CamVidDataset(data_dir=data_dir, split='test')
         label_names = camvid_label_names
     elif dataset_name == 'voc':
-        dataset = VOCSemanticSegmentationDataset(split='val')
+        dataset = VOCSemanticSegmentationDataset(data_dir=data_dir, split='val')
         label_names = voc_semantic_segmentation_label_names
 
     n_class = len(label_names)
@@ -71,6 +71,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--dataset', choices=('cityscapes', 'ade20k', 'camvid', 'voc'))
+    parser.add_argument('--data-dir', default='auto')
     parser.add_argument(
         '--model', choices=(
             'pspnet_resnet101', 'segnet', 'deeplab_v3plus_xception65'))
