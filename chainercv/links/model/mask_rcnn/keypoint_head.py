@@ -17,6 +17,8 @@ from chainercv.utils.bbox.bbox_iou import bbox_iou
 
 from chainercv.links.model.mask_rcnn.misc import point_to_roi_points
 
+from chainercv.links.model.fpn.misc import balanced_sampling
+
 
 # make a bilinear interpolation kernel
 # credit @longjon
@@ -144,6 +146,9 @@ class KeypointHead(chainer.Chain):
 
 def keypoint_loss_pre(rois, roi_indices, gt_points, gt_visibles,
                       gt_bboxes, gt_head_labels, point_map_size):
+    batchsize_per_image = 512
+    fg_ratio = 0.25
+
     _, n_point, _ = gt_points[0].shape
 
     xp = cuda.get_array_module(*rois)
@@ -156,52 +161,58 @@ def keypoint_loss_pre(rois, roi_indices, gt_points, gt_visibles,
     roi_indices = xp.hstack(roi_indices).astype(np.int32)
     gt_head_labels = xp.hstack(gt_head_labels)
 
-    index = (gt_head_labels > 0).nonzero()[0]
-    point_roi_levels = roi_levels[index]
-    point_rois = rois[index]
-    point_roi_indices = roi_indices[index]
-
-    gt_roi_points = xp.empty(
-        (len(point_rois), n_point, 2), dtype=np.float32)
-    gt_roi_visibles = xp.empty(
-        (len(point_rois), n_point), dtype=np.bool)
-    for i in np.unique(cuda.to_cpu(point_roi_indices)):
+    gt_head_points = xp.empty(
+        (len(rois), n_point, 2), dtype=np.float32)
+    gt_head_visibles = xp.empty(
+        (len(rois), n_point), dtype=np.bool)
+    for i in np.unique(cuda.to_cpu(roi_indices)):
         gt_point = gt_points[i]
         gt_visible = gt_visibles[i]
         gt_bbox = gt_bboxes[i]
 
-        index = (point_roi_indices == i).nonzero()[0]
-        point_roi = point_rois[index]
-        iou = bbox_iou(point_roi, gt_bbox)
-        gt_index = iou.argmax(axis=1)
-        gt_roi_point, gt_roi_visible = point_to_roi_points(
-                gt_point[gt_index], gt_visible[gt_index],
-                point_roi, point_map_size)
-        gt_roi_points[index] = xp.array(gt_roi_point)
-        gt_roi_visibles[index] = xp.array(gt_roi_visible)
+        index = (roi_indices == i).nonzero()[0]
+        roi = rois[index]
 
-    flag_masks = [point_roi_levels == l for l in range(n_level)]
-    point_rois = [point_rois[m] for m in flag_masks]
-    point_roi_indices = [point_roi_indices[m] for m in flag_masks]
-    gt_roi_points = [gt_roi_points[m] for m in flag_masks]
-    gt_roi_visibles = [gt_roi_visibles[m] for m in flag_masks]
-    return point_rois, point_roi_indices, gt_roi_points, gt_roi_visibles
+        iou = bbox_iou(roi, gt_bbox)
+        gt_index = iou.argmax(axis=1)
+        gt_head_point, gt_head_visible = point_to_roi_points(
+            gt_point[gt_index], gt_visible[gt_index],
+            roi, point_map_size)
+        gt_head_points[index] = xp.array(gt_head_point)
+        gt_head_visibles[index] = xp.array(gt_head_visible)
+
+        gt_head_labels[index] = balanced_sampling(
+            gt_head_labels[index], batchsize_per_image, fg_ratio)
+
+    is_sampled = gt_head_labels >= 0
+    rois = rois[is_sampled]
+    roi_indices = roi_indices[is_sampled]
+    roi_levels = roi_levels[is_sampled]
+    gt_head_points = gt_head_points[is_sampled]
+    gt_head_visibles = gt_head_visibles[is_sampled]
+
+    flag_masks = [roi_levels == l for l in range(n_level)]
+    rois = [rois[m] for m in flag_masks]
+    roi_indices = [roi_indices[m] for m in flag_masks]
+    gt_head_points = [gt_head_points[m] for m in flag_masks]
+    gt_head_visibles = [gt_head_visibles[m] for m in flag_masks]
+    return rois, roi_indices, gt_head_points, gt_head_visibles
 
 
 def keypoint_loss_post(
-        point_maps, point_roi_indices, gt_roi_points,
-        gt_roi_visibles, batchsize):
+        point_maps, point_roi_indices, gt_head_points,
+        gt_head_visibles, batchsize):
     xp = cuda.get_array_module(point_maps.array)
 
     point_roi_indices = xp.hstack(point_roi_indices).astype(np.int32)
-    gt_roi_points = xp.vstack(gt_roi_points).astype(np.int32)
-    gt_roi_visibles = xp.vstack(gt_roi_visibles).astype(np.bool)
+    gt_head_points = xp.vstack(gt_head_points).astype(np.int32)
+    gt_head_visibles = xp.vstack(gt_head_visibles).astype(np.bool)
 
     B, K, H, W = point_maps.shape
     point_maps = point_maps.reshape((B * K, H * W))
-    spatial_labels = gt_roi_points[:, :, 0] * W + gt_roi_points[:, :, 1]
+    spatial_labels = gt_head_points[:, :, 0] * W + gt_head_points[:, :, 1]
     spatial_labels = spatial_labels.reshape((B * K,))
-    spatial_labels[xp.logical_not(gt_roi_visibles.reshape((B * K,)))] = -1
+    spatial_labels[xp.logical_not(gt_head_visibles.reshape((B * K,)))] = -1
     # Remember that the loss is normalized by the total number of
     # visible keypoints.
     keypoint_loss = F.softmax_cross_entropy(point_maps, spatial_labels)

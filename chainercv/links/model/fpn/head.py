@@ -7,7 +7,7 @@ from chainer import initializers
 import chainer.links as L
 
 from chainercv.links.model.fpn.misc import argsort
-from chainercv.links.model.fpn.misc import choice
+from chainercv.links.model.fpn.misc import balanced_sampling
 from chainercv.links.model.fpn.misc import exp_clip
 from chainercv.links.model.fpn.misc import smooth_l1
 from chainercv import utils
@@ -285,25 +285,15 @@ def head_loss_pre(rois, roi_indices, std, bboxes, labels):
         else:
             gt_label = xp.zeros(int(mask.sum()), dtype=np.int32)
 
-        fg_index = xp.where(gt_label > 0)[0]
-        n_fg = int(batchsize_per_image * fg_ratio)
-        if len(fg_index) > n_fg:
-            gt_label[choice(fg_index, size=len(fg_index) - n_fg)] = -1
-
-        bg_index = xp.where(gt_label == 0)[0]
-        n_bg = batchsize_per_image - int((gt_label > 0).sum())
-        if len(bg_index) > n_bg:
-            gt_label[choice(bg_index, size=len(bg_index) - n_bg)] = -1
-
         gt_locs[mask] = gt_loc
-        gt_labels[mask] = gt_label
+        gt_labels[mask] = balanced_sampling(gt_label)
 
-    mask = gt_labels >= 0
-    rois = rois[mask]
-    roi_indices = roi_indices[mask]
-    roi_levels = roi_levels[mask]
-    gt_locs = gt_locs[mask]
-    gt_labels = gt_labels[mask]
+    is_sampled = gt_labels >= 0
+    rois = rois[is_sampled]
+    roi_indices = roi_indices[is_sampled]
+    roi_levels = roi_levels[is_sampled]
+    gt_locs = gt_locs[is_sampled]
+    gt_labels = gt_labels[is_sampled]
 
     masks = [roi_levels == l for l in range(n_level)]
     rois = [rois[m] for m in masks]

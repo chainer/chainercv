@@ -88,7 +88,7 @@ class TrainChain(chainer.Chain):
         losses = [
             rpn_loc_loss + rpn_conf_loss + head_loc_loss + head_conf_loss]
 
-        point_rois, point_roi_indices, gt_points, gt_visibles = keypoint_loss_pre(
+        point_rois, point_roi_indices, gt_head_points, gt_head_visibles = keypoint_loss_pre(
             rois, roi_indices, points, visibles, bboxes, head_gt_labels,
             self.model.keypoint_head.point_map_size)
         n_roi = sum([len(roi) for roi in point_rois])
@@ -96,7 +96,7 @@ class TrainChain(chainer.Chain):
             point_maps = self.model.keypoint_head(hs, point_rois, point_roi_indices)
             point_loss = keypoint_loss_post(
                 point_maps, point_roi_indices,
-                gt_points, gt_visibles, B)
+                gt_head_points, gt_head_visibles, B)
         else:
             # Compute dummy variables to complete the computational graph
             point_rois[0] = self.xp.array([[0, 0, 1, 1]], dtype=np.float32)
