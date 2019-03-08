@@ -58,7 +58,7 @@ class ConstantStubLink(chainer.Link):
             tuple of :obj:`chainer.Variable`.
         """
 
-        # TODO: Remove this fix when 'to_device' APIs is refactored.
+        # TODO(Hakuyume): Remove this fix when 'to_device' APIs is refactored.
         # Fix for Chainer 6.x.
         # https://github.com/chainer/chainer/issues/6244
         for output in self._outputs:
