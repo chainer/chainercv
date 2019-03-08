@@ -13,7 +13,7 @@ docker run ${RUNTIME} --interactive --rm \
        --volume $(realpath .):/mnt --workdir /mnt \
        --env MPLBACKEND=agg \
        hakuyume/chainercv:chainer${CHAINER}-devel \
-       sh -e << EOD
+       sh -ex << EOD
 pip${PYTHON} install --user -e .
 mpiexec -n 2 --allow-run-as-root \
         python${PYTHON} -m pytest --color=no -m '${MARKS}' tests
