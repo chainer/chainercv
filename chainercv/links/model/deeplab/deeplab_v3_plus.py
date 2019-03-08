@@ -270,7 +270,11 @@ class DeepLabV3plusXception65(DeepLabV3plus):
              'extractor_kwargs': extractor_kwargs,
              'aspp_kwargs': aspp_kwargs, 'decoder_kwargs': decoder_kwargs},
             pretrained_model, self._models,
-            default={'min_input_size': (513, 513)})
+            default={
+                'min_input_size': (513, 513),
+                'scales': (1.0,), 'flip': False,
+                'extractor_kwargs': {},
+                'aspp_kwargs': {}, 'decoder_kwargs': {}})
 
         super(DeepLabV3plusXception65, self).__init__(
             Xception65(**param['extractor_kwargs']),
