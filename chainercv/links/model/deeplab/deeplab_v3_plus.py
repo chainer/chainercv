@@ -257,7 +257,7 @@ class DeepLabV3plusXception65(DeepLabV3plus):
             },
             'overwritable': ('scales', 'flip'),
             'url': 'https://chainercv-models.preferred.jp/'
-            'deeplabv3plus_xception65_ade20k_converted_2019_02_15.npz',
+            'deeplabv3plus_xception65_ade20k_converted_2019_03_08.npz',
         }
     }
 
