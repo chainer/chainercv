@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 
 
-def read_label(path, dtype=np.int32):
+def read_label(file, dtype=np.int32):
     """Read a label image from a file.
 
     This function reads an label image from given file. If reading label
@@ -10,7 +10,8 @@ def read_label(path, dtype=np.int32):
     a parameter :obj:`color=True`.
 
     Args:
-        path (string): A path of image file.
+        file (string or file-like object): A path of image file or
+            a file-like object of image.
         dtype: The type of array. The default value is :obj:`~numpy.int32`.
         color (bool): This option determines the number of channels.
             If :obj:`True`, the number of channels is three. In this case,
@@ -21,7 +22,7 @@ def read_label(path, dtype=np.int32):
         ~numpy.ndarray: An image.
     """
 
-    f = Image.open(path)
+    f = Image.open(file)
     try:
         img = f.convert('P')
         img = np.array(img, dtype=dtype)
