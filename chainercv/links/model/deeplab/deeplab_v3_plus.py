@@ -183,10 +183,10 @@ class DeepLabV3plus(chainer.Chain):
         with chainer.using_config('train', False), \
                 chainer.function.no_backprop_mode():
             labels = []
-            score = 0
             n_aug = len(self.scales) if self.flip else len(self.scales) * 2
 
             for img in imgs:
+                score = 0
                 for scale in self.scales:
                     score += self._get_proba(img, scale, False) / n_aug
                     if self.flip:
