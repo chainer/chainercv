@@ -15,6 +15,7 @@ docker run ${RUNTIME} --interactive --rm \
        hakuyume/chainercv:chainer${CHAINER}-devel \
        sh -ex << EOD
 pip${PYTHON} install --user -e .
+python${PYTHON} -m pytest --color=no -m '${MARKS} and not mpi' tests
 mpiexec -n 2 --allow-run-as-root \
-        python${PYTHON} -m pytest --color=no -m '${MARKS}' tests
+        python${PYTHON} -m pytest --color=no -m '${MARKS} and mpi' tests
 EOD
