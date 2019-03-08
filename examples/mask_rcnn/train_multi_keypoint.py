@@ -223,7 +223,8 @@ def main():
 
     train_iter = chainer.iterators.MultiprocessIterator(
         train, args.batchsize // comm.size,
-        n_processes=args.batchsize // comm.size)
+        n_processes=args.batchsize // comm.size,
+        shared_mem=10 * 1000 * 1000 * 3)
 
     optimizer = chainermn.create_multi_node_optimizer(
         chainer.optimizers.MomentumSGD(), comm)
