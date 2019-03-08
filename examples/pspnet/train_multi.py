@@ -171,7 +171,7 @@ def main():
     parser.add_argument('--model',
                         choices=('pspnet_resnet101', 'pspnet_resnet50'))
     parser.add_argument('--lr', default=1e-2)
-    parser.add_argument('--batch-size', default=2, type=int)
+    parser.add_argument('--batchsize', default=2, type=int)
     parser.add_argument('--out', default='result')
     parser.add_argument('--iteration', default=None, type=int)
     parser.add_argument('--communicator', default='hierarchical')
@@ -248,7 +248,7 @@ def main():
     train = train.slice[indices]
 
     train_iter = chainer.iterators.MultiprocessIterator(
-        train, batch_size=args.batch_size, n_processes=2)
+        train, batch_size=args.batchsize, n_processes=2)
 
     optimizer = chainermn.create_multi_node_optimizer(
         chainer.optimizers.MomentumSGD(args.lr, 0.9), comm)

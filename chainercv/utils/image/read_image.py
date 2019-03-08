@@ -33,7 +33,7 @@ def _handle_four_channel_image(img, alpha):
     return img
 
 
-def _read_image_cv2(path, dtype, color, alpha):
+def _read_image_cv2(file, dtype, color, alpha):
     if color:
         if alpha is None:
             color_option = cv2.IMREAD_COLOR
@@ -44,7 +44,11 @@ def _read_image_cv2(path, dtype, color, alpha):
     else:
         color_option = cv2.IMREAD_GRAYSCALE
 
-    img = cv2.imread(path, color_option)
+    if isinstance(file, str):
+        img = cv2.imread(file, color_option)
+    else:
+        b = np.array(bytearray(file.read()))
+        img = cv2.imdecode(b, color_option)
 
     if img.ndim == 2:
         # reshape (H, W) -> (1, H, W)
@@ -58,8 +62,8 @@ def _read_image_cv2(path, dtype, color, alpha):
     return img.astype(dtype)
 
 
-def _read_image_pil(path, dtype, color, alpha):
-    f = Image.open(path)
+def _read_image_pil(file, dtype, color, alpha):
+    f = Image.open(file)
     try:
         if color:
             if f.mode == 'RGBA':
@@ -84,7 +88,7 @@ def _read_image_pil(path, dtype, color, alpha):
         return img.transpose((2, 0, 1))
 
 
-def read_image(path, dtype=np.float32, color=True, alpha=None):
+def read_image(file, dtype=np.float32, color=True, alpha=None):
     """Read an image from a file.
 
     This function reads an image from given file. The image is CHW format and
@@ -96,7 +100,8 @@ def read_image(path, dtype=np.float32, color=True, alpha=None):
     Two backends are supported: "cv2" and "PIL".
 
     Args:
-        path (string): A path of image file.
+        file (string or file-like object): A path of image file or
+            a file-like object of image.
         dtype: The type of array. The default value is :obj:`~numpy.float32`.
         color (bool): This option determines the number of channels.
             If :obj:`True`, the number of channels is three. In this case,
@@ -117,7 +122,7 @@ def read_image(path, dtype=np.float32, color=True, alpha=None):
     """
     if chainer.config.cv_read_image_backend == 'cv2':
         if _cv2_available:
-            return _read_image_cv2(path, dtype, color, alpha)
+            return _read_image_cv2(file, dtype, color, alpha)
         else:
             warnings.warn(
                 'Although `chainer.config.cv_read_image_backend == "cv2"`, '
@@ -125,9 +130,9 @@ def read_image(path, dtype=np.float32, color=True, alpha=None):
                 'PIL. Either install cv2 or set '
                 '`chainer.global_config.cv_read_image_backend = "PIL"` '
                 'to suppress this warning.')
-            return _read_image_pil(path, dtype, color, alpha)
+            return _read_image_pil(file, dtype, color, alpha)
     elif chainer.config.cv_read_image_backend == 'PIL':
-        return _read_image_pil(path, dtype, color, alpha)
+        return _read_image_pil(file, dtype, color, alpha)
     else:
         raise ValueError('chainer.config.cv_read_image_backend should be '
                          'either "cv2" or "PIL".')
