@@ -18,8 +18,6 @@ from chainercv.utils.bbox.bbox_iou import bbox_iou
 from chainercv.links.model.mask_rcnn.misc import point_to_roi_points
 from chainercv.links.model.mask_rcnn.misc import within_bbox
 
-from chainercv.links.model.fpn.misc import balanced_sampling
-
 
 # make a bilinear interpolation kernel
 # credit @longjon
@@ -162,6 +160,13 @@ def keypoint_loss_pre(rois, roi_indices, gt_points, gt_visibles,
     roi_indices = xp.hstack(roi_indices).astype(np.int32)
     gt_head_labels = xp.hstack(gt_head_labels)
 
+    # Ignore all negative samples
+    index = (gt_head_labels > 0).nonzero()[0]
+    roi_levels = roi_levels[index]
+    rois = rois[index]
+    roi_indices = roi_indices[index]
+    gt_head_labels = gt_head_labels[index]
+
     gt_head_points = xp.empty(
         (len(rois), n_point, 2), dtype=np.float32)
     gt_head_visibles = xp.empty(
@@ -183,18 +188,16 @@ def keypoint_loss_pre(rois, roi_indices, gt_points, gt_visibles,
         gt_head_points[index] = xp.array(gt_head_point)
         gt_head_visibles[index] = xp.array(gt_head_visible)
 
-        # Ignore RoIs that are closest to a bounding box that does
-        # not contain any valid keypoints.
+        # Ignore RoIs whose closest bounding box does not contain
+        # any valid keypoints.
         valid_point = within_bbox(gt_point, gt_bbox)
         valid_point = xp.logical_and(valid_point, gt_visible)
         visible_roi = valid_point.sum(axis=1) > 0
         visible_roi = visible_roi[gt_index]
         gt_head_label[xp.logical_not(gt_index)] = -1
+        gt_head_labels[index] = gt_head_label
 
-        gt_head_labels[index] = balanced_sampling(
-            gt_head_labels[index], batchsize_per_image, fg_ratio)
-
-    is_sampled = gt_head_labels >= 0
+    is_sampled = (gt_head_labels > 0).nonzero()[0]
     rois = rois[is_sampled]
     roi_indices = roi_indices[is_sampled]
     roi_levels = roi_levels[is_sampled]
