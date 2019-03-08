@@ -3,7 +3,7 @@ set -eux
 
 if [ "$(nvidia-smi --query-gpu=count --format=csv,noheader)" -gt 0 ]; then
     RUNTIME='--runtime=nvidia'
-    MARKS='gpu and not slow'
+    MARKS='gpu'
 else
     RUNTIME=
     MARKS='not gpu and not slow'
