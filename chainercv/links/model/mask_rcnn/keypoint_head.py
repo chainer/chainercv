@@ -16,6 +16,7 @@ from chainercv.transforms.image.resize import resize
 from chainercv.utils.bbox.bbox_iou import bbox_iou
 
 from chainercv.links.model.mask_rcnn.misc import point_to_roi_points
+from chainercv.links.model.mask_rcnn.misc import within_bbox
 
 from chainercv.links.model.fpn.misc import balanced_sampling
 
@@ -171,6 +172,7 @@ def keypoint_loss_pre(rois, roi_indices, gt_points, gt_visibles,
         gt_bbox = gt_bboxes[i]
 
         index = (roi_indices == i).nonzero()[0]
+        gt_head_label = gt_head_labels[index]
         roi = rois[index]
 
         iou = bbox_iou(roi, gt_bbox)
@@ -180,6 +182,14 @@ def keypoint_loss_pre(rois, roi_indices, gt_points, gt_visibles,
             roi, point_map_size)
         gt_head_points[index] = xp.array(gt_head_point)
         gt_head_visibles[index] = xp.array(gt_head_visible)
+
+        # Ignore RoIs that are closest to a bounding box that does
+        # not contain any valid keypoints.
+        valid_point = within_bbox(gt_point, gt_bbox)
+        valid_point = xp.logical_and(valid_point, gt_visible)
+        visible_roi = valid_point.sum(axis=1) > 0
+        visible_roi = visible_roi[gt_index]
+        gt_head_label[xp.logical_not(gt_index)] = -1
 
         gt_head_labels[index] = balanced_sampling(
             gt_head_labels[index], batchsize_per_image, fg_ratio)

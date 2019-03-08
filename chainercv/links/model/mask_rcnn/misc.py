@@ -190,3 +190,11 @@ def point_to_roi_points(
         roi_point[:, k, 1] = xs
         roi_visible[:, k] = valid
     return roi_point, roi_visible
+
+
+def within_bbox(point, bbox):
+    y_within = (point[:, :, 0] >= bbox[:, 0][:, None]) & (
+        point[:, :, 0] <= bbox[:, 2][:, None])
+    x_within = (point[:, :, 1] >= bbox[:, 1][:, None]) & (
+        point[:, :, 1] <= bbox[:, 3][:, None])
+    return y_within & x_within
