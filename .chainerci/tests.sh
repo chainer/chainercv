@@ -1,7 +1,7 @@
 #! /usr/bin/env sh
 set -eux
 
-if [ "$(nvidia-smi --query-gpu=count --format=csv,noheader)" -gt 0 ]; then
+if nvidia-smi --query-gpu=count; then
     RUNTIME='--runtime=nvidia'
     MARKS='gpu'
 else
