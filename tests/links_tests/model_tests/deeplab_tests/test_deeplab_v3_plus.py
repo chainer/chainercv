@@ -78,4 +78,5 @@ class TestDeepLabV3plusXception65Pretrained(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.model(**kwargs)
 
+
 testing.run_module(__name__, __file__)
