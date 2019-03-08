@@ -118,7 +118,7 @@ class TrainChain(chainer.Chain):
 class Transform(object):
 
     def __init__(self, min_size, max_size, mean):
-        if isinstance(min_size, (tuple, list)):
+        if not isinstance(min_size, (tuple, list)):
             min_size = (min_size,)
         self.min_size = min_size
         self.max_size = max_size
@@ -171,6 +171,11 @@ def main():
     parser.add_argument('--communicator', default='hierarchical')
     args = parser.parse_args()
 
+    
+    # from chainer.configuration import global_config
+    # global_config.cv_resize_backend = 'PIL'
+    # global_config.cv_read_image_backend = 'PIL'
+
     # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
     if hasattr(multiprocessing, 'set_start_method'):
         multiprocessing.set_start_method('forkserver')
@@ -218,8 +223,7 @@ def main():
 
     train_iter = chainer.iterators.MultiprocessIterator(
         train, args.batchsize // comm.size,
-        n_processes=args.batchsize // comm.size,
-        shared_mem=3 * 1000 * 1000 * 4)
+        n_processes=args.batchsize // comm.size)
 
     optimizer = chainermn.create_multi_node_optimizer(
         chainer.optimizers.MomentumSGD(), comm)
