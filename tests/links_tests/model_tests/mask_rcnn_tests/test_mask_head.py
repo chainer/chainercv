@@ -11,6 +11,8 @@ from chainercv.links.model.mask_rcnn import MaskHead
 from chainercv.links.model.mask_rcnn import mask_loss_post
 from chainercv.links.model.mask_rcnn import mask_loss_pre
 
+from chainercv.utils import mask_to_bbox
+
 
 def _random_array(xp, shape):
     return xp.array(
@@ -52,7 +54,7 @@ class TestMaskHead(unittest.TestCase):
         self.assertIsInstance(segs.array, self.link.xp.ndarray)
         self.assertEqual(
             segs.shape,
-            (4, self.n_class, self.link.mask_size, self.link.mask_size))
+            (4, self.n_class, self.link.segm_size, self.link.segm_size))
 
     def test_call_cpu(self):
         self._check_call()
@@ -101,13 +103,13 @@ class TestMaskHead(unittest.TestCase):
         segms = [
             _random_array(
                 self.link.xp,
-                (1, self.n_class, self.link.mask_size, self.link.mask_size)),
+                (1, self.n_class, self.link.segm_size, self.link.segm_size)),
             _random_array(
                 self.link.xp,
-                (2, self.n_class, self.link.mask_size, self.link.mask_size)),
+                (2, self.n_class, self.link.segm_size, self.link.segm_size)),
             _random_array(
                 self.link.xp,
-                (1, self.n_class, self.link.mask_size, self.link.mask_size))
+                (1, self.n_class, self.link.segm_size, self.link.segm_size))
         ]
         bboxes = [
             self.link.xp.array(((4, 1, 6, 3),), dtype=np.float32),
@@ -142,8 +144,8 @@ class TestMaskHead(unittest.TestCase):
 class TestMaskHeadLoss(unittest.TestCase):
 
     def _check_mask_loss_pre(self, xp):
-        n_class = 12
-        mask_size = 28
+        n_inst = 12
+        segm_size = 28
         rois = [
             xp.array(((4, 1, 6, 3),), dtype=np.float32),
             xp.array(
@@ -156,17 +158,17 @@ class TestMaskHeadLoss(unittest.TestCase):
             xp.array((1,), dtype=np.int32),
         ]
         masks = [
-            _random_array(xp, (n_class, 60, 70)),
-            _random_array(xp, (n_class, 60, 70)),
-            _random_array(xp, (n_class, 60, 70)),
+            _random_array(xp, (n_inst, 60, 70)),
+            _random_array(xp, (n_inst, 60, 70)),
         ]
+        bboxes = [mask_to_bbox(mask) for mask in masks]
         labels = [
-            xp.array((10, 4), dtype=np.int32),
             xp.array((1,), dtype=np.int32),
+            xp.array((10, 4), dtype=np.int32),
             xp.array((3,), dtype=np.int32),
         ]
         rois, roi_indices, gt_segms, gt_mask_labels = mask_loss_pre(
-            rois, roi_indices, masks, labels, mask_size)
+            rois, roi_indices, masks, bboxes, labels, segm_size)
 
         self.assertEqual(len(rois), 3)
         self.assertEqual(len(roi_indices), 3)
@@ -183,8 +185,10 @@ class TestMaskHeadLoss(unittest.TestCase):
             self.assertEqual(rois[l].shape[0], gt_mask_labels[l].shape[0])
             self.assertEqual(rois[l].shape[1:], (4,))
             self.assertEqual(roi_indices[l].shape[1:], ())
-            self.assertEqual(gt_segms[l].shape[1:], (mask_size, mask_size))
+            self.assertEqual(gt_segms[l].shape[1:], (segm_size, segm_size))
             self.assertEqual(gt_mask_labels[l].shape[1:], ())
+            self.assertEqual(gt_segms[l].dtype, np.float32)
+            self.assertEqual(gt_mask_labels[l].dtype, np.int32)
 
     def test_mask_loss_pre_cpu(self):
         self._check_mask_loss_pre(np)

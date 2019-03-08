@@ -48,28 +48,36 @@ def mask_to_segm(mask, bbox, segm_size, index=None, pad=1):
     bbox = chainer.backends.cuda.to_cpu(bbox)
     padded_segm_size = segm_size + pad * 2
     cv2_expand_scale = padded_segm_size / segm_size
-    bbox = _expand_boxes(bbox, cv2_expand_scale).astype(np.int32)
+    bbox = _integerize_bbox(_expand_boxes(bbox, cv2_expand_scale))
 
     segm = []
     if index is None:
-        index = np.arange(len(index))
+        index = np.arange(len(bbox))
     else:
         index = chainer.backends.cuda.to_cpu(index)
 
     for i, bb in zip(index, bbox):
         y_min = max(bb[0], 0)
         x_min = max(bb[1], 0)
-        y_max = min(bb[2] + 1, H)
-        x_max = min(bb[3] + 1, W)
-        cropped_m = mask[i, y_min:y_max, x_min:x_max]
-        cropped_m = chainer.backends.cuda.to_cpu(cropped_m)
-        if cropped_m.shape[0] <= 1 or cropped_m.shape[1] <= 1:
+        y_max = max(min(bb[2], H), 0)
+        x_max = max(min(bb[3], W), 0)
+        if y_max - y_min == 0 or x_max - x_min == 0:
             segm.append(np.zeros((segm_size, segm_size), dtype=np.float32))
             continue
 
+        bb_height = bb[2] - bb[0]
+        bb_width = bb[3] - bb[1]
+        cropped_m = np.zeros((bb_height, bb_width), dtype=np.bool)
+
+        y_offset = y_min - bb[0]
+        x_offset = x_min - bb[1]
+        cropped_m[y_offset:y_offset + y_max - y_min,
+                  x_offset:x_offset + x_max - x_min] =\
+            chainer.backends.cuda.to_cpu(mask[i, y_min:y_max, x_min:x_max])
+
         sgm = transforms.resize(
             cropped_m[None].astype(np.float32),
-            (padded_segm_size, padded_segm_size))[0]
+            (padded_segm_size, padded_segm_size))[0].astype(np.int32)
         segm.append(sgm[pad:-pad, pad:-pad])
 
     return np.array(segm, dtype=np.float32)
@@ -111,25 +119,32 @@ def segm_to_mask(segm, bbox, size, pad=1):
     padded_mask = np.zeros(
         (segm_size + pad * 2, segm_size + pad * 2), dtype=np.float32)
 
-    bbox = _expand_boxes(bbox, cv2_expand_scale)
+    bbox = _integerize_bbox(_expand_boxes(bbox, cv2_expand_scale))
     for i, (bb, sgm) in enumerate(zip(bbox, segm)):
-        bb = bb.astype(np.int32)
         padded_mask[1:-1, 1:-1] = sgm
 
-        bb_height = np.maximum(bb[2] - bb[0] + 1, 1)
-        bb_width = np.maximum(bb[3] - bb[1] + 1, 1)
+        bb_height = bb[2] - bb[0]
+        bb_width = bb[3] - bb[1]
+        if bb_height == 0 or bb_width == 0:
+            continue
 
-        crop_mask = cv2.resize(padded_mask, (bb_width, bb_height))
+        crop_mask = transforms.resize(padded_mask[None], (bb_width, bb_height))[0]
         crop_mask = crop_mask > 0.5
 
         y_min = max(bb[0], 0)
         x_min = max(bb[1], 0)
-        y_max = min(bb[2] + 1, H)
-        x_max = min(bb[3] + 1, W)
+        y_max = max(min(bb[2], H), 0)
+        x_max = max(min(bb[3], W), 0)
+        y_offset = y_min - bb[0]
+        x_offset = x_min - bb[1]
         mask[i, y_min:y_max, x_min:x_max] = crop_mask[
-            (y_min - bb[0]):(y_max - bb[0]),
-            (x_min - bb[1]):(x_max - bb[1])]
+            y_offset:y_offset + y_max - y_min,
+            x_offset:x_offset + x_max - x_min]
     return mask
+
+
+def _integerize_bbox(bbox):
+    return np.round(bbox).astype(np.int32)
 
 
 def _expand_boxes(bbox, scale):

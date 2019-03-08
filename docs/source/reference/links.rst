@@ -49,6 +49,7 @@ For more details, please read :func:`SegNetBasic.predict`.
 .. toctree::
 
    links/segnet
+   links/deeplab
 
 
 Instance Segmentation
