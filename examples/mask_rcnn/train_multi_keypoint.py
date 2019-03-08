@@ -1,6 +1,7 @@
 import argparse
 import multiprocessing
 import numpy as np
+import random
 
 import chainer
 import chainer.functions as F
@@ -117,6 +118,8 @@ class TrainChain(chainer.Chain):
 class Transform(object):
 
     def __init__(self, min_size, max_size, mean):
+        if isinstance(min_size, (tuple, list)):
+            min_size = (min_size,)
         self.min_size = min_size
         self.max_size = max_size
         self.mean = mean
@@ -133,7 +136,8 @@ class Transform(object):
             bbox, size, x_flip=params['x_flip'])
 
         # Scaling and mean subtraction
-        img, scale = scale_img(img, self.min_size, self.max_size)
+        min_size = random.choice(self.min_size)
+        img, scale = scale_img(img, min_size, self.max_size)
         img -= self.mean
         point = transforms.resize_point(point, size, img.shape[1:])
         bbox = bbox * scale
@@ -201,7 +205,9 @@ def main():
     train = train.slice[indices]
     train = TransformDataset(
         train, ('img', 'point', 'visible', 'label', 'bbox'),
-        Transform(model.min_size, model.max_size, model.extractor.mean))
+        Transform(
+            (640, 672, 704, 736, 768, 800), model.max_size,
+            model.extractor.mean))
 
     if comm.rank == 0:
         indices = np.arange(len(train))
