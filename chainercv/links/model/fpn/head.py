@@ -286,7 +286,8 @@ def head_loss_pre(rois, roi_indices, std, bboxes, labels):
             gt_label = xp.zeros(int(mask.sum()), dtype=np.int32)
 
         gt_locs[mask] = gt_loc
-        gt_labels[mask] = balanced_sampling(gt_label)
+        gt_labels[mask] = balanced_sampling(
+            gt_label, batchsize_per_image, fg_ratio)
 
     is_sampled = gt_labels >= 0
     rois = rois[is_sampled]
