@@ -10,7 +10,7 @@ else
 fi
 
 docker run ${RUNTIME} --interactive --rm \
-       --volume $(pwd):/mnt --workdir /mnt \
+       --volume $(pwd):/chainercv --workdir /chainercv \
        --env MPLBACKEND=agg \
        hakuyume/chainercv:chainer${CHAINER}-devel \
        sh -ex << EOD
