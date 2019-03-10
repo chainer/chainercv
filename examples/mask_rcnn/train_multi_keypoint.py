@@ -110,7 +110,7 @@ class TrainChain(chainer.Chain):
             'loss': loss,
             'loss/rpn/loc': rpn_loc_loss, 'loss/rpn/conf': rpn_conf_loss,
             'loss/head/loc': head_loc_loss, 'loss/head/conf': head_conf_loss,
-            'loss/point': point_loss},
+            'loss/keypoint': point_loss},
             self)
         return loss
 
