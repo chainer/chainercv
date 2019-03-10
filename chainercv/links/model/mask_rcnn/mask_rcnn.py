@@ -182,8 +182,8 @@ class MaskRCNN(chainer.Chain):
             point_maps = [point_map if point_map is not None else
                           self.xp.zeros(
                               (0, self.keypoint_head.n_point,
-                               self.keypoint_head.map_size,
-                               self.keypoint_head.map_size),
+                               self.keypoint_head.point_map_size,
+                               self.keypoint_head.point_map_size),
                               dtype=np.float32)
                           for point_map in point_maps]
             point_maps = [
