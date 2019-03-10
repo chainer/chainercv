@@ -190,10 +190,9 @@ def keypoint_loss_pre(rois, roi_indices, gt_points, gt_visibles,
 
         # Ignore RoIs whose closest bounding box does not contain
         # any valid keypoints.
-        valid_point = within_bbox(gt_point, gt_bbox)
-        valid_point = xp.logical_and(valid_point, gt_visible)
+        valid_point = within_bbox(gt_point[gt_index], roi)
+        valid_point = xp.logical_and(valid_point, gt_visible[gt_index])
         visible_roi = valid_point.sum(axis=1) > 0
-        visible_roi = visible_roi[gt_index]
         gt_head_label[xp.logical_not(gt_index)] = -1
         gt_head_labels[index] = gt_head_label
 
