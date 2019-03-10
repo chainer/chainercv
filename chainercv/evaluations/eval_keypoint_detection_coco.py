@@ -16,7 +16,7 @@ except ImportError:
 
 def eval_keypoint_detection_coco(
         pred_points, pred_labels, pred_scores,
-        gt_points, gt_visibles, gt_bboxes=None, gt_labels=None,
+        gt_points, gt_visibles, gt_labels=None, gt_bboxes=None,
         gt_areas=None, gt_crowdeds=None):
     """Evaluate keypoint detection based on evaluation code of MS COCO.
 
@@ -32,11 +32,11 @@ def eval_keypoint_detection_coco(
             the confidene for each keypoint.
         gt_points (iterable of numpy.ndarray): See the table below.
         gt_visibles (iterable of numpy.ndarray): See the table below.
+        gt_labels (iterable of numpy.ndarray): See the table below.
         gt_bboxes (iterable of numpy.ndarray): See the table below.
             This is optional. If this is :obj:`None`, the ground truth
             bounding boxes are esitmated from the ground truth
             keypoints.
-        gt_labels (iterable of numpy.ndarray): See the table below.
         gt_areas (iterable of numpy.ndarray): See the table below. If
             :obj:`None`, some scores are not returned.
         gt_crowdeds (iterable of numpy.ndarray): See the table below.
@@ -53,10 +53,10 @@ def eval_keypoint_detection_coco(
         :obj:`gt_points`, ":math:`[(R, K, 2)]`", :obj:`float32`, \
         ":math:`(y, x)`"
         :obj:`gt_visibles`, ":math:`[(R, K)]`", :obj:`bool`, --
-        :obj:`gt_bboxes`, ":math:`[(R, 4)]`", :obj:`float32`, \
-        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
         :obj:`gt_labels`, ":math:`[(R,)]`", :obj:`int32`, \
         ":math:`[0, \#fg\_class - 1]`"
+        :obj:`gt_bboxes`, ":math:`[(R, 4)]`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
         :obj:`gt_areas`, ":math:`[(R,)]`", \
         :obj:`float32`, --
         :obj:`gt_crowdeds`, ":math:`[(R,)]`", :obj:`bool`, --
@@ -148,9 +148,9 @@ def eval_keypoint_detection_coco(
     pred_scores = iter(pred_scores)
     gt_points = iter(gt_points)
     gt_visibles = iter(gt_visibles)
+    gt_labels = iter(gt_labels)
     gt_bboxes = (iter(gt_bboxes) if gt_bboxes is not None
                  else itertools.repeat(None))
-    gt_labels = iter(gt_labels)
     if gt_areas is None:
         compute_area_dependent_metrics = False
         gt_areas = itertools.repeat(None)
@@ -165,10 +165,10 @@ def eval_keypoint_detection_coco(
     gt_annos = []
     existent_labels = {}
     for i, (pred_point, pred_label, pred_score, gt_point, gt_visible,
-            gt_bbox, gt_label,
+            gt_label, gt_bbox,
             gt_area, gt_crowded) in enumerate(six.moves.zip(
                 pred_points, pred_labels, pred_scores,
-                gt_points, gt_visibles, gt_bboxes, gt_labels,
+                gt_points, gt_visibles, gt_labels, gt_bboxes,
                 gt_areas, gt_crowdeds)):
         if gt_bbox is None:
             gt_bbox = itertools.repeat(None)
@@ -185,16 +185,16 @@ def eval_keypoint_detection_coco(
             # Visibility flag is currently not used for evaluation
             v = np.ones(len(pred_pnt))
             pred_annos.append(
-                _create_anno(pred_pnt, v, None,
-                             pred_lb, pred_sc,
+                _create_anno(pred_pnt, v,
+                             pred_lb, pred_sc, None,
                              img_id=img_id, anno_id=len(pred_annos) + 1,
                              ar=None, crw=0))
             existent_labels[pred_lb] = True
 
-        for gt_pnt, gt_v, gt_bb, gt_lb, gt_ar, gt_crw in zip(
-                gt_point, gt_visible, gt_bbox, gt_label, gt_area, gt_crowded):
+        for gt_pnt, gt_v, gt_lb, gt_bb, gt_ar, gt_crw in zip(
+                gt_point, gt_visible, gt_label, gt_bbox, gt_area, gt_crowded):
             gt_annos.append(
-                _create_anno(gt_pnt, gt_v, gt_bb, gt_lb, None,
+                _create_anno(gt_pnt, gt_v, gt_lb, None, gt_bb,
                              img_id=img_id, anno_id=len(gt_annos) + 1,
                              ar=gt_ar, crw=gt_crw))
         ids.append({'id': img_id})
@@ -276,7 +276,7 @@ def eval_keypoint_detection_coco(
     return results
 
 
-def _create_anno(pnt, v, bb, lb, sc, img_id, anno_id, ar=None, crw=None):
+def _create_anno(pnt, v, lb, sc, bb, img_id, anno_id, ar=None, crw=None):
     # https://github.com/cocodataset/cocoapi/blob/master/PythonAPI/pycocotools/coco.py#L342
     y_min = np.min(pnt[:, 0])
     x_min = np.min(pnt[:, 1])
