@@ -236,6 +236,7 @@ def main():
     for link in model.links():
         if isinstance(link, L.BatchNormalization):
             link.disable_update()
+    model.keypoint_head.upsample.disable_update()
 
     n_iteration = args.iteration * 16 / args.batchsize
     updater = training.updaters.StandardUpdater(
