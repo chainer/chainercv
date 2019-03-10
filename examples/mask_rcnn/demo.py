@@ -59,12 +59,12 @@ def main():
             label_names=coco_instance_segmentation_label_names)
         plt.show()
     elif args.mode == 'keypoint':
-        points, point_scores, bboxes, labels, scores = model.predict([img])
+        points, labels, scores, point_scores, bboxes = model.predict([img])
         point = points[0]
-        point_score = point_scores[0]
-        bbox = bboxes[0]
         label = labels[0]
         score = scores[0]
+        point_score = point_scores[0]
+        bbox = bboxes[0]
         ax = chainercv.visualizations.vis_keypoint_coco(
             img, point, None, point_score)
         chainercv.visualizations.vis_bbox(None, bbox, score=score, ax=ax)

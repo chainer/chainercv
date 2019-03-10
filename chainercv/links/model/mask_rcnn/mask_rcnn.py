@@ -195,7 +195,7 @@ class MaskRCNN(chainer.Chain):
                 point_maps, bboxes)
             labels = [cuda.to_cpu(label) for label in labels]
             scores = [cuda.to_cpu(score) for score in scores]
-            return points, point_scores, labels, scores, bboxes
+            return points, labels, scores, point_scores, bboxes
 
     def prepare(self, imgs):
         """Preprocess images.
