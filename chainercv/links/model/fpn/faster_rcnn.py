@@ -26,6 +26,9 @@ class FasterRCNN(chainer.Chain):
         head (Link): A link that has the same interface as
             :class:`~chainercv.links.model.fpn.Head`.
             Please refer to the documentation found there.
+        min_size (int): A preprocessing paramter for :meth:`prepare`. Please
+            refer to a docstring found for :meth:`prepare`.
+        max_size (int): A preprocessing paramter for :meth:`prepare`.
 
     Parameters:
         nms_thresh (float): The threshold value
@@ -40,16 +43,18 @@ class FasterRCNN(chainer.Chain):
 
     """
 
-    _min_size = 800
-    _max_size = 1333
     _stride = 32
 
-    def __init__(self, extractor, rpn, head):
+    def __init__(self, extractor, rpn, head,
+                 min_size, max_size):
         super(FasterRCNN, self).__init__()
         with self.init_scope():
             self.extractor = extractor
             self.rpn = rpn
             self.head = head
+
+        self._min_size = min_size
+        self._max_size = max_size
 
         self.use_preset('visualize')
 
