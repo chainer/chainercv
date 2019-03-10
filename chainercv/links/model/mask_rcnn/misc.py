@@ -128,7 +128,8 @@ def segm_to_mask(segm, bbox, size, pad=1):
         if bb_height == 0 or bb_width == 0:
             continue
 
-        crop_mask = transforms.resize(padded_mask[None], (bb_width, bb_height))[0]
+        crop_mask = transforms.resize(
+            padded_mask[None], (bb_height, bb_width))[0]
         crop_mask = crop_mask > 0.5
 
         y_min = max(bb[0], 0)
