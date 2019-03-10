@@ -43,14 +43,14 @@ def setup(dataset, model_name, pretrained_model, batchsize):
         model.use_preset('evaluate')
 
         def eval_(out_values, rest_values):
-            (pred_points, pred_point_scores, pred_bboxes, pred_labels,
-             pred_scores) = out_values
-            (gt_points, gt_visibles, gt_bboxes, gt_labels,
+            (pred_points, pred_point_scores, pred_labels, pred_scores,
+             pred_bboxes) = out_values
+            (gt_points, gt_visibles, gt_labels, gt_bboxes,
              gt_areas, gt_crowdeds) = rest_values
 
             result = eval_keypoint_detection_coco(
                 pred_points, pred_labels, pred_scores,
-                gt_points, gt_visibles, gt_bboxes, gt_labels,
+                gt_points, gt_visibles, gt_labels, gt_bboxes,
                 gt_areas, gt_crowdeds)
 
             print()
