@@ -193,7 +193,7 @@ def keypoint_loss_pre(rois, roi_indices, gt_points, gt_visibles,
         valid_point = within_bbox(gt_point[gt_index], roi)
         valid_point = xp.logical_and(valid_point, gt_visible[gt_index])
         visible_roi = valid_point.sum(axis=1) > 0
-        gt_head_label[xp.logical_not(gt_index)] = -1
+        gt_head_label[xp.logical_not(visible_roi)] = -1
         gt_head_labels[index] = gt_head_label
 
     is_sampled = (gt_head_labels > 0).nonzero()[0]
