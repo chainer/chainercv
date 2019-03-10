@@ -13,7 +13,8 @@ def assert_is_point(point, visible=None, size=None, n_point=None):
             If this is :obj:`None`, all points are regarded as visible.
         size (tuple of ints): The size of an image.
             If this argument is specified,
-            the coordinates of visible points are checked to be within the image.
+            the coordinates of visible points are checked to be
+            within the image.
         n_point (int): If specified, the number of points in each object is
             expected to be :obj:`n_point`.
     """

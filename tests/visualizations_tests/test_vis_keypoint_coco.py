@@ -97,4 +97,5 @@ class TestVisKeypointCOCOInvisibleInputs(unittest.TestCase):
         self._check(self.img, self.point, self.visible.astype(np.int32),
                     self.point_score)
 
+
 testing.run_module(__name__, __file__)

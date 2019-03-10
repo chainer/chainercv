@@ -53,7 +53,7 @@ class TestCOCOKeypointDataset(unittest.TestCase):
 
         for _ in range(10):
             i = np.random.randint(0, len(self.dataset))
-            img, point, _, bbox, label = self.dataset[i][:5]
+            img, point, _, label, bbox = self.dataset[i][:5]
             assert_is_bbox(bbox, img.shape[1:])
             self.assertEqual(len(bbox), len(point))
 
