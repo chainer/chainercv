@@ -30,7 +30,7 @@ def _generate_point(n_inst, size):
 
 
 @unittest.skipUnless(_available, 'pycocotools is not installed')
-class TestEvalKeypointCOCOSingleClass(unittest.TestCase):
+class TestEvalKeypointDetectionCOCOSimple(unittest.TestCase):
 
     n_inst = 3
 
@@ -71,13 +71,13 @@ class TestEvalKeypointCOCOSingleClass(unittest.TestCase):
     def test_gt_bboxes_not_supplied(self):
         result = eval_keypoint_detection_coco(
             self.pred_points, self.pred_labels, self.pred_scores,
-            self.gt_points, self.gt_visibles, None, self.gt_labels)
+            self.gt_points, self.gt_visibles, self.gt_labels, None)
         self._check(result)
 
     def test_area_not_supplied(self):
         result = eval_keypoint_detection_coco(
             self.pred_points, self.pred_labels, self.pred_scores,
-            self.gt_points, self.gt_visibles, self.gt_bboxes, self.gt_labels)
+            self.gt_points, self.gt_visibles, self.gt_labels, self.gt_bboxes)
         self._check(result)
 
         self.assertFalse(
@@ -93,7 +93,7 @@ class TestEvalKeypointCOCOSingleClass(unittest.TestCase):
         gt_areas = [[100] * self.n_inst for _ in range(2)]
         result = eval_keypoint_detection_coco(
             self.pred_points, self.pred_labels, self.pred_scores,
-            self.gt_points, self.gt_visibles, self.gt_bboxes, self.gt_labels,
+            self.gt_points, self.gt_visibles, self.gt_labels, self.gt_bboxes,
             gt_areas=gt_areas,
         )
         self._check(result)
@@ -110,7 +110,7 @@ class TestEvalKeypointCOCOSingleClass(unittest.TestCase):
         gt_crowdeds = [[True] * self.n_inst for _ in range(2)]
         result = eval_keypoint_detection_coco(
             self.pred_points, self.pred_labels, self.pred_scores,
-            self.gt_points, self.gt_visibles, self.gt_bboxes, self.gt_labels,
+            self.gt_points, self.gt_visibles, self.gt_labels, self.gt_bboxes,
             gt_crowdeds=gt_crowdeds,
         )
         # When the only ground truth is crowded, nothing is evaluated.
@@ -140,15 +140,15 @@ class TestEvalKeypointDetectionCOCO(unittest.TestCase):
 
         gt_points = self.dataset['points']
         gt_visibles = self.dataset['visibles']
-        gt_bboxes = self.dataset['bboxes']
         gt_labels = self.dataset['labels']
+        gt_bboxes = self.dataset['bboxes']
         gt_areas = self.dataset['areas']
         gt_crowdeds = self.dataset['crowdeds']
 
         result = eval_keypoint_detection_coco(
             pred_points, pred_labels, pred_scores,
-            gt_points, gt_visibles, gt_bboxes,
-            gt_labels, gt_areas, gt_crowdeds)
+            gt_points, gt_visibles, gt_labels, gt_bboxes,
+            gt_areas, gt_crowdeds)
 
         expected = {
             'map/iou=0.50:0.95/area=all/max_dets=20': 0.37733572721481323,
