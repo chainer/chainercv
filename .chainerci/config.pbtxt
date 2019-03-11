@@ -94,7 +94,7 @@ configs {
       memory: 16
       gpu: 1
     }
-    command: "sh .chainerci/tests.sh"
+    command: "sh .chainerci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -114,7 +114,7 @@ configs {
       memory: 16
       gpu: 1
     }
-    command: "sh .chainerci/tests.sh"
+    command: "sh .chainerci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -134,7 +134,7 @@ configs {
       memory: 16
       gpu: 1
     }
-    command: "sh .chainerci/tests.sh"
+    command: "sh .chainerci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -154,7 +154,7 @@ configs {
       memory: 16
       gpu: 1
     }
-    command: "sh .chainerci/tests.sh"
+    command: "sh .chainerci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
