@@ -4,7 +4,6 @@ import multiprocessing
 import numpy as np
 
 import chainer
-from chainer.datasets import TransformDataset
 from chainer import iterators
 from chainer.links import Classifier
 from chainer.optimizer import WeightDecay
@@ -12,6 +11,7 @@ from chainer.optimizers import CorrectedMomentumSGD
 from chainer import training
 from chainer.training import extensions
 
+from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
 from chainercv.datasets import directory_parsing_label_names
 from chainercv.datasets import DirectoryParsingLabelDataset
 from chainercv.transforms import center_crop
@@ -126,8 +126,8 @@ def main():
     train_data = DirectoryParsingLabelDataset(args.train)
     val_data = DirectoryParsingLabelDataset(args.val)
     train_data = TransformDataset(
-        train_data, TrainTransform(extractor.mean))
-    val_data = TransformDataset(val_data, ValTransform(extractor.mean))
+        train_data, ('img', 'label'), TrainTransform(extractor.mean))
+    val_data = TransformDataset(val_data, ('img', 'label'), ValTransform(extractor.mean))
     print('finished loading dataset')
 
     if comm.rank == 0:
