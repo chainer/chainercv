@@ -24,7 +24,7 @@ else
     unzip -q ${TEMP}/datasets-tiny.zip -d ${TEMP}/
     rm ${TEMP}/datasets-tiny.zip
 
-    docker run --runtime=nvidia --interactive --rm \
+    docker run --interactive --rm \
        --volume $(pwd):/chainercv/ --workdir /chainercv/ \
        --volume ${TEMP}/.chainer/:/root/.chainer/ \
        --env MPLBACKEND=agg \
