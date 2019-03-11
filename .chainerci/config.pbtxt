@@ -6,7 +6,7 @@ configs {
       memory: 64
     }
     time_limit: {
-      seconds: 1800
+      seconds: 3600
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
@@ -28,7 +28,7 @@ configs {
       memory: 64
     }
     time_limit: {
-      seconds: 1800
+      seconds: 3600
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
@@ -50,7 +50,7 @@ configs {
       memory: 64
     }
     time_limit: {
-      seconds: 1800
+      seconds: 3600
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
@@ -72,7 +72,7 @@ configs {
       memory: 64
     }
     time_limit: {
-      seconds: 1800
+      seconds: 3600
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
