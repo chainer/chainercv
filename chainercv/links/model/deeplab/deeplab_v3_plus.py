@@ -241,7 +241,7 @@ class DeepLabV3plusXception65(DeepLabV3plus):
         },
         'ade20k': {
             'param': {
-                'n_class': 151,
+                'n_class': 150,
                 'min_input_size': (513, 513),
                 'scales': (1.0,),
                 'flip': False,
@@ -257,7 +257,7 @@ class DeepLabV3plusXception65(DeepLabV3plus):
             },
             'overwritable': ('scales', 'flip'),
             'url': 'https://chainercv-models.preferred.jp/'
-            'deeplabv3plus_xception65_ade20k_converted_2019_02_15.npz',
+            'deeplabv3plus_xception65_ade20k_converted_2019_03_08.npz',
         }
     }
 
