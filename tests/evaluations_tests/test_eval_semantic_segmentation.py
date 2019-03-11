@@ -12,8 +12,8 @@ from chainercv.evaluations import eval_semantic_segmentation
 
 
 @testing.parameterize(
-    {'pred_labels': iter(np.repeat([[[1, 1, 0], [0, 0, 1]]], 2, axis=0)),
-     'gt_labels': iter(np.repeat([[[1, 0, 0], [0, -1, 1]]], 2, axis=0)),
+    {'pred_labels': np.repeat([[[1, 1, 0], [0, 0, 1]]], 2, axis=0),
+     'gt_labels': np.repeat([[[1, 0, 0], [0, -1, 1]]], 2, axis=0),
      'iou': np.array([4 / 6, 4 / 6]),
      'pixel_accuracy': 4 / 5,
      'class_accuracy': np.array([2 / 3, 2 / 2]),
@@ -26,6 +26,10 @@ from chainercv.evaluations import eval_semantic_segmentation
      }
 )
 class TestEvalSemanticSegmentation(unittest.TestCase):
+
+    def setUp(self):
+        self.pred_labels = iter(self.pred_labels)
+        self.gt_labels = iter(self.gt_labels)
 
     def test_eval_semantic_segmentation(self):
         result = eval_semantic_segmentation(
