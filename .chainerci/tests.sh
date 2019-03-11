@@ -8,6 +8,7 @@ gsutil -q cp gs://chainercv-pfn-public-ci/datasets-tiny.zip ${TEMP}/
 unzip -q ${TEMP}/datasets-tiny.zip -d ${TEMP}/
 rm ${TEMP}/datasets-tiny.zip
 
+set +x
 # rename tests for pytest-xdist
 for TEST in $(find tests/ -name '*.py')
 do
@@ -31,6 +32,7 @@ def rename_tests(module_name):
 rename_tests(__name__)
 EOD
 done
+set -x
 
 docker run --interactive --rm \
        --volume $(pwd):/chainercv/ --workdir /chainercv/ \
