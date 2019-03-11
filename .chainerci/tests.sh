@@ -20,7 +20,7 @@ mpiexec -n 2 --allow-run-as-root \
 EOD
 else
     apt-get install -y --no-install-recommends unzip
-    gsutil cp gs://chainercv-pfn-public-ci/datasets-tiny.zip ${TEMP}/
+    gsutil -q cp gs://chainercv-pfn-public-ci/datasets-tiny.zip ${TEMP}/
     unzip -q ${TEMP}/datasets-tiny.zip -d ${TEMP}/
     rm ${TEMP}/datasets-tiny.zip
 
