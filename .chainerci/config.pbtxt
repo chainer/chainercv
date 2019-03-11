@@ -2,9 +2,11 @@ configs {
   key: "chainercv.py2.stable"
   value {
     requirement {
-      cpu: 4
-      memory: 16
-      disk: 20
+      cpu: 32
+      memory: 64
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
@@ -22,9 +24,11 @@ configs {
   key: "chainercv.py3.stable"
   value {
     requirement {
-      cpu: 4
-      memory: 16
-      disk: 20
+      cpu: 32
+      memory: 64
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
@@ -42,9 +46,11 @@ configs {
   key: "chainercv.py2.latest"
   value {
     requirement {
-      cpu: 4
-      memory: 16
-      disk: 20
+      cpu: 32
+      memory: 64
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
@@ -62,9 +68,11 @@ configs {
   key: "chainercv.py3.latest"
   value {
     requirement {
-      cpu: 4
-      memory: 16
-      disk: 20
+      cpu: 32
+      memory: 64
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
@@ -85,7 +93,6 @@ configs {
       cpu: 4
       memory: 16
       gpu: 1
-      disk: 20
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
@@ -106,7 +113,6 @@ configs {
       cpu: 4
       memory: 16
       gpu: 1
-      disk: 20
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
@@ -127,7 +133,6 @@ configs {
       cpu: 4
       memory: 16
       gpu: 1
-      disk: 20
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
@@ -148,7 +153,6 @@ configs {
       cpu: 4
       memory: 16
       gpu: 1
-      disk: 20
     }
     command: "sh .chainerci/tests.sh"
     environment_variables {
