@@ -11,7 +11,7 @@ rm ${TEMP}/datasets-tiny.zip
 # rename tests for pytest-xdist
 for TEST in $(find tests/ -name '*.py')
 do
-    cat - << EOD >> ${TEST}
+    cat - << 'EOD' >> ${TEST}
 def rename_tests(module_name):
     import inspect
     import re
