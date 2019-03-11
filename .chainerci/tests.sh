@@ -22,10 +22,10 @@ def rename_tests(module_name):
     for name, cls in inspect.getmembers(module, inspect.isclass):
         if not issubclass(cls, unittest.TestCase):
             continue
+        delattr(module, name)
         new_name = re.sub(r'(?s)_{.+}', '', name)
         new_cls = type(new_name, (cls,), {})
         setattr(module, new_name, new_cls)
-        delattr(module, name)
 
 
 rename_tests(__name__)
