@@ -71,7 +71,7 @@ class TestTransformDataset(unittest.TestCase):
             n_keys = len(self.keys)
             if n_keys == 1:
                 self.skipTest(
-                    'tuple of single element is invalid '
+                    'tuple of single element is not supported '
                     'when the number of keys is specified')
             expected_keys = (None,) * n_keys
         else:
