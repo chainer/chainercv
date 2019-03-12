@@ -41,20 +41,25 @@ class DummyFasterRCNN(FasterRCNN):
         )
 
 
-@testing.parameterize(
-    {'n_fg_class': 1, 'min_size': 200, 'max_size': 400, 
-     'in_shape': (3, 200, 50), 'expected_shape': (3, 400, 100)},
-    {'n_fg_class': 1, 'min_size': 800, 'max_size': 133, 
-     'in_shape': (3, 480, 640), 'expected_shape': (3, 800, 1088)},
-    {'n_fg_class': 5, 'min_size': 200, 'max_size': 400, 
-     'in_shape': (3, 200, 50), 'expected_shape': (3, 400, 100)},
-    {'n_fg_class': 5, 'min_size': 800, 'max_size': 133, 
-     'in_shape': (3, 480, 640), 'expected_shape': (3, 800, 1088)},
-    {'n_fg_class': 20, 'min_size': 200, 'max_size': 400, 
-     'in_shape': (3, 200, 50), 'expected_shape': (3, 400, 100)},
-    {'n_fg_class': 20, 'min_size': 800, 'max_size': 133, 
-     'in_shape': (3, 480, 640), 'expected_shape': (3, 800, 1088)},
-)
+@testing.parameterize(*testing.product_dict(
+    [
+        {'n_fg_class': 1},
+        {'n_fg_class': 5},
+        {'n_fg_class': 20},
+    ],
+    [
+        {
+            'in_sizes': [(480, 640), (320, 320)],
+            'min_size': 800, 'max_size': 1333,
+            'expected_shape': (800, 1088),
+        },
+        {
+            'in_sizes': [(200, 50), (400, 100)],
+            'min_size': 200, 'max_size': 400,
+            'expected_shape': (400, 100),
+        },
+    ],
+))
 class TestFasterRCNN(unittest.TestCase):
 
     def setUp(self):
@@ -128,19 +133,13 @@ class TestFasterRCNN(unittest.TestCase):
         self.link.to_gpu()
         assert_is_detection_link(self.link, self.n_fg_class)
 
-    def check_prepare(self):
-        x = _random_array(np, self.in_shape)
-        out, scales = self.link.prepare(x)
+    def test_prepare(self):
+        imgs = [_random_array(np, (3, s[0], s[1])) for s in self.in_sizes]
+        out, scales = self.link.prepare(imgs)
         self.assertIsInstance(out, np.ndarray)
-        self.assertEqual(out.shape, self.expected_shape)
-
-    def test_prepare_cpu(self):
-        self.check_prepare()
-
-    @attr.gpu
-    def test_prepare_gpu(self):
-        self.link.to_gpu()
-        self.check_prepare()
+        full_expected_shape = (len(self.in_sizes), 
+            3, self.expected_shape[0], self.expected_shape[1])
+        self.assertEqual(out.shape, full_expected_shape)
 
 
 testing.run_module(__name__, __file__)

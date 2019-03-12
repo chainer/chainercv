@@ -60,8 +60,8 @@ class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
     Args:
         n_fg_class (int): The number of classes excluding the background.
         pretrained_model (string): The weight file to be loaded.
-           This can take :obj:`'coco'`, `filepath` or :obj:`None`.
-           The default value is :obj:`None`.
+            This can take :obj:`'coco'`, `filepath` or :obj:`None`.
+            The default value is :obj:`None`.
 
             * :obj:`'coco'`: Load weights trained on train split of \
                 MS COCO 2017. \
