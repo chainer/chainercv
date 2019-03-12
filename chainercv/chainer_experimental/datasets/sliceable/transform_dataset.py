@@ -24,6 +24,8 @@ class TransformDataset(GetterDataset):
             This dataset should have :meth:`__len__` and :meth:`__getitem__`.
         keys (int or string or tuple of strings): The number or name(s) of
             data that the transform function returns.
+            If this parametr is omitted, :meth:`__init__` fetches a sample
+            from the underlying dataset to determine the number of data.
         transform (callable): A function that is called to transform values
             returned by the underlying dataset's :meth:`__getitem__`.
     """
