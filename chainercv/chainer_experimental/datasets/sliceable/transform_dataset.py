@@ -1,4 +1,6 @@
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
+from chainercv.chainer_experimental.datasets.sliceable.sliceable_dataset \
+    import _is_iterable
 
 
 class TransformDataset(GetterDataset):
@@ -26,16 +28,31 @@ class TransformDataset(GetterDataset):
             returned by the underlying dataset's :meth:`__getitem__`.
     """
 
-    def __init__(self, dataset, keys, transform):
+    def __init__(self, dataset, keys, transform=None):
+        if transform is None:
+            keys, transform = None, keys
+
         super(TransformDataset, self).__init__()
         self._dataset = dataset
         self._transform = transform
+
         if isinstance(keys, int):
             if keys == 1:
                 keys = None
             else:
                 keys = (None,) * keys
+        elif keys is None:
+            sample = self._get(0)
+            if isinstance(sample, tuple):
+                keys = (None,) * len(sample)
+            else:
+                keys = None
+
         self.add_getter(keys, self._get)
+        if _is_iterable(keys):
+            self.keys = tuple(range(len(keys)))
+        else:
+            self.keys = 0
 
     def __len__(self):
         return len(self._dataset)
