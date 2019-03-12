@@ -1,4 +1,5 @@
 from chainer.testing import product  # NOQA
+from chainer.testing import product_dict  # NOQA
 from chainer.testing import run_module  # NOQA
 
 from chainercv.utils.testing.assertions import assert_is_bbox  # NOQA
