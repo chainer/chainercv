@@ -51,9 +51,7 @@ class TransformDataset(GetterDataset):
                 keys = None
 
         self.add_getter(keys, self._get)
-        if _is_iterable(keys):
-            self.keys = tuple(range(len(keys)))
-        else:
+        if not _is_iterable(keys):
             self.keys = 0
 
     def __len__(self):
