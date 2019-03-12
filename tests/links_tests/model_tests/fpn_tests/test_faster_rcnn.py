@@ -55,8 +55,8 @@ class DummyFasterRCNN(FasterRCNN):
         },
         {
             'in_sizes': [(200, 50), (400, 100)],
-            'min_size': 200, 'max_size': 400,
-            'expected_shape': (400, 100),
+            'min_size': 200, 'max_size': 320,
+            'expected_shape': (320, 96),
         },
     ],
 ))
