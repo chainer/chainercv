@@ -3,8 +3,7 @@ import math
 import numpy as np
 import unittest
 
-from chainer import testing
-
+from chainercv.utils import testing
 from chainercv.utils import tile_images
 
 

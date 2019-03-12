@@ -8,11 +8,11 @@ import unittest
 import chainer
 from chainer.datasets import TupleDataset
 from chainer.iterators import SerialIterator
-from chainer import testing
 from chainer.testing import attr
 
 from chainercv.extensions import DetectionVisReport
 from chainercv.utils import generate_random_bbox
+from chainercv.utils import testing
 
 try:
     import matplotlib  # NOQA
