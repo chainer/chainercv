@@ -1,3 +1,3 @@
 cd examples/detection
 
-$PYTHON visualize_models.py
+$PFNCI_SKIP $PYTHON visualize_models.py
