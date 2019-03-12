@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-from chainercv.visualizations import vis_image
 from chainercv.utils import testing
+from chainercv.visualizations import vis_image
 
 try:
     import matplotlib  # NOQA
