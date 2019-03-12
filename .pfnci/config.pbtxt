@@ -165,3 +165,26 @@ configs {
     }
   }
 }
+
+configs {
+  key: "chainercv.py3.stable.examples"
+  value {
+    requirement {
+      cpu: 16
+      memory: 64
+      gpu: 2
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/tests_examples.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "3"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "5.2.0"
+    }
+  }
+}
