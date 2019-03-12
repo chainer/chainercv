@@ -8,14 +8,12 @@ def parameterize(*params):
         setUp_orig = cls.setUp
 
         def setUp(self):
-            param = self._chainercv_parameterize_params[
-                self._chainercv_parameterize_index]
+            param = params[self._chainercv_parameterize_index]
             print('params: {}'.format(param))
             for k, v in six.iteritems(param):
                 setattr(self, k, v)
             setUp_orig(self)
 
-        cls._chainercv_parameterize_params = params
         cls.setUp = setUp
 
         params_indices = [
