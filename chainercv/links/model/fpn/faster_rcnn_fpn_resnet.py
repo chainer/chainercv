@@ -36,6 +36,7 @@ class FasterRCNNFPNResNet(FasterRCNN):
             extractor=extractor,
             rpn=RPN(extractor.scales),
             head=Head(param['n_fg_class'] + 1, extractor.scales),
+            min_size=min_size, max_size=max_size
         )
 
         if path == 'imagenet':
@@ -75,8 +76,8 @@ class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
-        min_size (int): A preprocessing paramter for :meth:`prepare`. Please
-            refer to a docstring found for :meth:`prepare`.
+        min_size (int): A preprocessing paramter for :meth:`prepare`. Please \
+            refer to :meth:`prepare`.
         max_size (int): A preprocessing paramter for :meth:`prepare`.
 
     """
@@ -121,8 +122,8 @@ class FasterRCNNFPNResNet101(FasterRCNNFPNResNet):
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
-        min_size (int): A preprocessing paramter for :meth:`prepare`. Please
-            refer to a docstring found for :meth:`prepare`.
+        min_size (int): A preprocessing paramter for :meth:`prepare`. Please \
+            refer to :meth:`prepare`.
         max_size (int): A preprocessing paramter for :meth:`prepare`.
 
     """
