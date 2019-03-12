@@ -127,7 +127,8 @@ def main():
     val_data = DirectoryParsingLabelDataset(args.val)
     train_data = TransformDataset(
         train_data, ('img', 'label'), TrainTransform(extractor.mean))
-    val_data = TransformDataset(val_data, ('img', 'label'), ValTransform(extractor.mean))
+    val_data = TransformDataset(
+        val_data, ('img', 'label'), ValTransform(extractor.mean))
     print('finished loading dataset')
 
     if comm.rank == 0:
