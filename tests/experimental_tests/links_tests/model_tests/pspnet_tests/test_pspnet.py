@@ -6,8 +6,8 @@ from chainer import testing
 
 from chainercv.experimental.links import PSPNetResNet101
 from chainercv.experimental.links import PSPNetResNet50
-from chainercv.testing import attr
 from chainercv.utils import assert_is_semantic_segmentation_link
+from chainercv.utils.testing import attr
 
 
 @testing.parameterize(

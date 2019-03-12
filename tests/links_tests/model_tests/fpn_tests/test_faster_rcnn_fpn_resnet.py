@@ -6,7 +6,7 @@ from chainer import testing
 
 from chainercv.links import FasterRCNNFPNResNet101
 from chainercv.links import FasterRCNNFPNResNet50
-from chainercv.testing import attr
+from chainercv.utils.testing import attr
 
 
 @testing.parameterize(*testing.product({
