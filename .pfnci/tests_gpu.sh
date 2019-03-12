@@ -12,7 +12,9 @@ docker run --runtime=nvidia --interactive --rm \
        hakuyume/chainercv:chainer${CHAINER}-devel \
        sh -ex << EOD
 pip${PYTHON} install --user -e .
-python${PYTHON} -m pytest --color=no -m 'gpu and not mpi' tests/
+python${PYTHON} -m pytest --color=no \
+                -m 'not pfnci_skip and gpu and not mpi' tests/
 mpiexec -n 2 --allow-run-as-root \
-        python${PYTHON} -m pytest --color=no -m 'gpu and mpi' tests/
+        python${PYTHON} -m pytest --color=no \
+        -m 'not pfnci_skip and gpu and mpi' tests/
 EOD
