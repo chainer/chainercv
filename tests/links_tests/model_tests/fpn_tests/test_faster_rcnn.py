@@ -31,24 +31,35 @@ class DummyExtractor(chainer.Link):
 
 class DummyFasterRCNN(FasterRCNN):
 
-    def __init__(self, n_fg_class):
+    def __init__(self, n_fg_class, min_size, max_size):
         extractor = DummyExtractor()
         super(DummyFasterRCNN, self).__init__(
             extractor=extractor,
             rpn=RPN(extractor.scales),
             head=Head(n_fg_class + 1, extractor.scales),
+            min_size=min_size, max_size=max_size,
         )
 
 
 @testing.parameterize(
-    {'n_fg_class': 1},
-    {'n_fg_class': 5},
-    {'n_fg_class': 20},
+    {'n_fg_class': 1, 'min_size': 200, 'max_size': 400, 
+     'in_shape': (3, 200, 50), 'expected_shape': (3, 400, 100)},
+    {'n_fg_class': 1, 'min_size': 800, 'max_size': 133, 
+     'in_shape': (3, 480, 640), 'expected_shape': (3, 800, 1088)},
+    {'n_fg_class': 5, 'min_size': 200, 'max_size': 400, 
+     'in_shape': (3, 200, 50), 'expected_shape': (3, 400, 100)},
+    {'n_fg_class': 5, 'min_size': 800, 'max_size': 133, 
+     'in_shape': (3, 480, 640), 'expected_shape': (3, 800, 1088)},
+    {'n_fg_class': 20, 'min_size': 200, 'max_size': 400, 
+     'in_shape': (3, 200, 50), 'expected_shape': (3, 400, 100)},
+    {'n_fg_class': 20, 'min_size': 800, 'max_size': 133, 
+     'in_shape': (3, 480, 640), 'expected_shape': (3, 800, 1088)},
 )
 class TestFasterRCNN(unittest.TestCase):
 
     def setUp(self):
-        self.link = DummyFasterRCNN(n_fg_class=self.n_fg_class)
+        self.link = DummyFasterRCNN(n_fg_class=self.n_fg_class, 
+                        min_size=self.min_size, max_size=self.max_size)
 
     def test_use_preset(self):
         self.link.nms_thresh = 0
@@ -117,13 +128,19 @@ class TestFasterRCNN(unittest.TestCase):
         self.link.to_gpu()
         assert_is_detection_link(self.link, self.n_fg_class)
 
-    def test_prepare(self):
-        imgs = [
-            np.random.randint(0, 255, size=(3, 480, 640)).astype(np.float32),
-            np.random.randint(0, 255, size=(3, 320, 320)).astype(np.float32),
-        ]
-        x, scales = self.link.prepare(imgs)
-        self.assertEqual(x.shape, (2, 3, 800, 1088))
+    def check_prepare(self):
+        x = _random_array(np, self.in_shape)
+        out, scales = self.link.prepare(x)
+        self.assertIsInstance(out, np.ndarray)
+        self.assertEqual(out.shape, self.expected_shape)
+
+    def test_prepare_cpu(self):
+        self.check_prepare()
+
+    @attr.gpu
+    def test_prepare_gpu(self):
+        self.link.to_gpu()
+        self.check_prepare()
 
 
 testing.run_module(__name__, __file__)
