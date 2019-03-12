@@ -28,7 +28,9 @@ class FasterRCNN(chainer.Chain):
             Please refer to the documentation found there.
         min_size (int): A preprocessing paramter for :meth:`prepare`. Please
             refer to a docstring found for :meth:`prepare`.
-        max_size (int): A preprocessing paramter for :meth:`prepare`.
+        max_size (int): A preprocessing paramter for :meth:`prepare`. Note
+            that the result of :meth:`prepare` can exceed this size due to
+            alignment with stride.
 
     Parameters:
         nms_thresh (float): The threshold value
