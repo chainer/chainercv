@@ -5,6 +5,15 @@ from chainer.testing.attr import gpu  # NOQA
 from chainer.testing.attr import slow  # NOQA
 
 
+try:
+    import pytest
+    pfnci_skip = pytest.mark.pfnci_skip
+
+except ImportError:
+    from chainer.testing.attr import _dummy_callable
+    pfnci_skip = _dummy_callable
+
+
 def mpi(f):
     check_available()
     import pytest
