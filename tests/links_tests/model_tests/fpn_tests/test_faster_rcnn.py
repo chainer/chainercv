@@ -63,8 +63,9 @@ class DummyFasterRCNN(FasterRCNN):
 class TestFasterRCNN(unittest.TestCase):
 
     def setUp(self):
-        self.link = DummyFasterRCNN(n_fg_class=self.n_fg_class, 
-                        min_size=self.min_size, max_size=self.max_size)
+        self.link = DummyFasterRCNN(n_fg_class=self.n_fg_class,
+                                    min_size=self.min_size,
+                                    max_size=self.max_size)
 
     def test_use_preset(self):
         self.link.nms_thresh = 0
@@ -137,8 +138,9 @@ class TestFasterRCNN(unittest.TestCase):
         imgs = [_random_array(np, (3, s[0], s[1])) for s in self.in_sizes]
         out, scales = self.link.prepare(imgs)
         self.assertIsInstance(out, np.ndarray)
-        full_expected_shape = (len(self.in_sizes), 
-            3, self.expected_shape[0], self.expected_shape[1])
+        full_expected_shape = (len(self.in_sizes), 3,
+                               self.expected_shape[0],
+                               self.expected_shape[1])
         self.assertEqual(out.shape, full_expected_shape)
 
 
