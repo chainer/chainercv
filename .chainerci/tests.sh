@@ -43,7 +43,9 @@ docker run --interactive --rm \
 pip${PYTHON} install --user pytest-xdist
 pip${PYTHON} install --user -e .
 python${PYTHON} -m pytest \
-                --color=no -n $(nproc) -m 'not gpu and not mpi' tests/
+                --color=no -n $(nproc) -m 'not gpu and not mpi' \
+                -k 'not TestFasterRCNNFPNResNet and not TestPSPNetResNet' \
+                tests/
 mpiexec -n 2 --allow-run-as-root \
         python${PYTHON} -m pytest --color=no -m 'not gpu and mpi' tests/
 EOD
