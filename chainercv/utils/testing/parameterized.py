@@ -4,6 +4,14 @@ from chainer import testing
 
 
 def parameterize(*params):
+    """:func:`chainercv.testing.parameterize` for `pytest-xdist`.
+
+    :func:`chainercv.testing.parameterize` cannot work with `pytest-xdist`
+    when the params contain functions (lambdas), classes, and random values.
+    This wrapper replaces the params with their indices
+    and restore the original params in :meth:`setUp`.
+    """
+
     def deco(cls):
         setUp_orig = cls.setUp
 
