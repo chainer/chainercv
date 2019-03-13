@@ -1,9 +1,9 @@
 import numpy as np
 import unittest
 
-from chainer import testing
 
 from chainercv.utils import assert_is_point
+from chainercv.utils import testing
 
 
 def _random_mask_including_true(n):

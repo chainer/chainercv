@@ -8,18 +8,10 @@ import chainer
 from chainer.backends import cuda
 import chainer.functions as F
 from chainer import testing
-from chainer.testing import attr
-
-from chainercv.links.model.ssd import multibox_loss
-
 from chainermn import create_communicator
 
-
-try:
-    import mpi4py.MPI  # NOQA
-    _available = True
-except ImportError:
-    _available = False
+from chainercv.links.model.ssd import multibox_loss
+from chainercv.utils.testing import attr
 
 
 @testing.parameterize(*testing.product({
@@ -131,7 +123,7 @@ class TestMultiboxLoss(unittest.TestCase):
             self.k)
 
 
-@unittest.skipUnless(_available, 'mpi4py is not installed')
+@attr.mpi
 class TestMultiNodeMultiboxLoss(unittest.TestCase):
 
     k = 3

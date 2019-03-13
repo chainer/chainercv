@@ -19,7 +19,8 @@ class FasterRCNNFPNResNet(FasterRCNN):
     A subclass of this class should have :obj:`_base` and :obj:`_models`.
     """
 
-    def __init__(self, n_fg_class=None, pretrained_model=None):
+    def __init__(self, n_fg_class=None, pretrained_model=None,
+                 min_size=800, max_size=1333):
         param, path = utils.prepare_pretrained_model(
             {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
@@ -35,6 +36,7 @@ class FasterRCNNFPNResNet(FasterRCNN):
             extractor=extractor,
             rpn=RPN(extractor.scales),
             head=Head(param['n_fg_class'] + 1, extractor.scales),
+            min_size=min_size, max_size=max_size
         )
 
         if path == 'imagenet':
@@ -56,10 +58,10 @@ class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
        Feature Pyramid Networks for Object Detection. CVPR 2017
 
     Args:
-       n_fg_class (int): The number of classes excluding the background.
-       pretrained_model (string): The weight file to be loaded.
-           This can take :obj:`'coco'`, `filepath` or :obj:`None`.
-           The default value is :obj:`None`.
+        n_fg_class (int): The number of classes excluding the background.
+        pretrained_model (string): The weight file to be loaded.
+            This can take :obj:`'coco'`, `filepath` or :obj:`None`.
+            The default value is :obj:`None`.
 
             * :obj:`'coco'`: Load weights trained on train split of \
                 MS COCO 2017. \
@@ -74,6 +76,9 @@ class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
+        min_size (int): A preprocessing paramter for :meth:`prepare`. Please \
+            refer to :meth:`prepare`.
+        max_size (int): A preprocessing paramter for :meth:`prepare`.
 
     """
 
@@ -99,10 +104,10 @@ class FasterRCNNFPNResNet101(FasterRCNNFPNResNet):
        Feature Pyramid Networks for Object Detection. CVPR 2017
 
     Args:
-       n_fg_class (int): The number of classes excluding the background.
-       pretrained_model (string): The weight file to be loaded.
-           This can take :obj:`'coco'`, `filepath` or :obj:`None`.
-           The default value is :obj:`None`.
+        n_fg_class (int): The number of classes excluding the background.
+        pretrained_model (string): The weight file to be loaded.
+            This can take :obj:`'coco'`, `filepath` or :obj:`None`.
+            The default value is :obj:`None`.
 
             * :obj:`'coco'`: Load weights trained on train split of \
                 MS COCO 2017. \
@@ -117,6 +122,9 @@ class FasterRCNNFPNResNet101(FasterRCNNFPNResNet):
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
+        min_size (int): A preprocessing paramter for :meth:`prepare`. Please \
+            refer to :meth:`prepare`.
+        max_size (int): A preprocessing paramter for :meth:`prepare`.
 
     """
 

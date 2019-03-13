@@ -2,10 +2,10 @@ import numpy as np
 import unittest
 
 from chainer.dataset import DatasetMixin
-from chainer import testing
 
 from chainercv.utils import assert_is_bbox_dataset
 from chainercv.utils import generate_random_bbox
+from chainercv.utils import testing
 
 
 class BboxDataset(DatasetMixin):
