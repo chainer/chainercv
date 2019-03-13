@@ -16,7 +16,7 @@ def translate_point(point, y_offset=0, x_offset=0):
     .. csv-table::
         :header: name, shape, dtype, format
 
-        :obj:`point`, ":math:`[(K, 2)]` or :math:`(R, K, 2)`", \
+        :obj:`point`, ":math:`(R, K, 2)` or :math:`[(K, 2)]`", \
         :obj:`float32`, ":math:`(y, x)`"
 
     Returns:

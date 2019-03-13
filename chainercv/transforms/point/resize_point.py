@@ -14,7 +14,7 @@ def resize_point(point, in_size, out_size):
     .. csv-table::
         :header: name, shape, dtype, format
 
-        :obj:`point`, ":math:`[(K, 2)]` or :math:`(R, K, 2)`", \
+        :obj:`point`, ":math:`(R, K, 2)` or :math:`[(K, 2)]`", \
         :obj:`float32`, ":math:`(y, x)`"
 
     Returns:
