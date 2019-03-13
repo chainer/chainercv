@@ -138,7 +138,7 @@ def eval_semantic_segmentation(pred_labels, gt_labels):
         :header: name, shape, dtype, format
 
         :obj:`pred_labels`, ":math:`[(H, W)]`", :obj:`int32`, \
-        ":math:`[-1, \#class - 1]`"
+        ":math:`[0, \#class - 1]`"
         :obj:`gt_labels`, ":math:`[(H, W)]`", :obj:`int32`, \
         ":math:`[-1, \#class - 1]`"
 
