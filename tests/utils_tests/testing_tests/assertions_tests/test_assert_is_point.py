@@ -16,59 +16,59 @@ def _random_visible_including_true(n):
 @testing.parameterize(
     # no visible and size
     {'point': np.random.uniform(-1, 1, size=(1, 10, 2)).astype(np.float32),
-     'no_error': True},
+     'valid': True},
     {'point': [((1., 2.), (4., 8.))],
-     'no_error': False},
+     'valid': False},
     {'point': np.random.uniform(-1, 1, size=(1, 10, 2)).astype(np.int32),
-     'no_error': False},
+     'valid': False},
     {'point': np.random.uniform(-1, 1, size=(1, 10, 3)).astype(np.float32),
-     'no_error': False},
+     'valid': False},
     # use visible, no size
     {'point': np.random.uniform(-1, 1, size=(1, 10, 2)).astype(np.float32),
      'visible': np.random.randint(0, 2, size=(1, 10,)).astype(np.bool),
-     'no_error': True},
+     'valid': True},
     {'point': np.random.uniform(-1, 1, size=(1, 4, 2)).astype(np.float32),
      'visible': [(True, True, True, True)],
-     'no_error': False},
+     'valid': False},
     {'point': np.random.uniform(-1, 1, size=(1, 10, 2)).astype(np.float32),
      'visible': np.random.randint(0, 2, size=(1, 10,)).astype(np.int32),
-     'no_error': False},
+     'valid': False},
     {'point': np.random.uniform(-1, 1, size=(1, 10, 2)).astype(np.float32),
      'visible': np.random.randint(0, 2, size=(1, 10, 2)).astype(np.bool),
-     'no_error': False},
+     'valid': False},
     {'point': np.random.uniform(-1, 1, size=(1, 10, 2)).astype(np.float32),
      'visible': np.random.randint(0, 2, size=(1, 9,)).astype(np.bool),
-     'no_error': False},
+     'valid': False},
     # no visible, use size
     {'point': np.random.uniform(0, 32, size=(1, 10, 2)).astype(np.float32),
      'size': (32, 32),
-     'no_error': True},
+     'valid': True},
     {'point': np.random.uniform(32, 64, size=(1, 10, 2)).astype(np.float32),
      'size': (32, 32),
-     'no_error': False},
+     'valid': False},
     # use visible and size
     {'point': np.random.uniform(0, 32, size=(1, 10, 2)).astype(np.float32),
      'visible': np.random.randint(0, 2, size=(1, 10,)).astype(np.bool),
      'size': (32, 32),
-     'no_error': True},
+     'valid': True},
     {'point': np.random.uniform(32, 64, size=(1, 10, 2)).astype(np.float32),
      'visible': [_random_visible_including_true(10)],
      'size': (32, 32),
-     'no_error': False},
+     'valid': False},
     # check n_point
     {'point': np.random.uniform(-1, 1, size=(1, 10, 2)).astype(np.float32),
      'visible': np.random.randint(0, 2, size=(1, 10,)).astype(np.bool),
      'n_point': 10,
-     'no_error': True},
+     'valid': True},
     {'point': np.random.uniform(-1, 1, size=(1, 10, 2)).astype(np.float32),
      'visible': np.random.randint(0, 2, size=(1, 10,)).astype(np.bool),
      'n_point': 11,
-     'no_error': False,
+     'valid': False,
      },
     # check different instance size
     {'point': np.random.uniform(-1, 1, size=(1, 10, 2)).astype(np.float32),
      'visible': np.random.randint(0, 2, size=(2, 10,)).astype(np.bool),
-     'no_error': False},
+     'valid': False},
 )
 class TestAssertIsPoint(unittest.TestCase):
 
@@ -81,7 +81,7 @@ class TestAssertIsPoint(unittest.TestCase):
             self.n_point = None
 
     def test_assert_is_point(self):
-        if self.no_error:
+        if self.valid:
             assert_is_point(
                 self.point, self.visible, self.size, self.n_point)
         else:
