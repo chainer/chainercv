@@ -5,15 +5,18 @@ DeepLab V3+
 
 | Network backborn | Training | Evaluation | Eval scales | Reference | ChainerCV (weight conversion) |
 |:-:|:-:|:-:|:-:|:-:|:-:|
-| Xception65 | VOC2012 trainaug | VOC2012 val | (1.0,) |  82.36 % * |  82.36 % |
-| Xception65 | Cityscapes train fine | Cityscapes val fine | (1.0,) | 79.12 % * | 79.14 % |
+| Xception65 | VOC2012 trainaug | VOC2012 val | (1.0,) |  82.36 % \*1 |  82.36 % |
+| Xception65 | Cityscapes train fine | Cityscapes val fine | (1.0,) | 79.12 % \*1 | 79.14 % |
+| Xception65 | ADE20K train | ADE20K val | (1.0,) | \*2 | 42.52 % |
 
 Scores are measured by mean Intersection over Union (mIoU).  
-\*: Although the official repository reports a score of multi-scale prediciton, public pretrained graph is for single-scale prediction.
-So we evaluated the pretrained graph using `eval_semantic_segmentation` in ChainerCV.
+\*1: Although the official repository reports a score of multi-scale prediciton, public pretrained graph is for single-scale prediction.
+So we evaluated the pretrained graph using `eval_semantic_segmentation` in ChainerCV.  
+\*2: Public frozen graph trained on ADE20K in official repository doesn't accept images which sizes are bigger than 513x513, while biggest image in validation set is 1600x1600.
+Although we could generate a graph the biggest image can be input, it resulted 40.13% in official evaluation code.
 
 ## Demo
-This demo downloads Citåyscapes pretrained model automatically if a pretrained model path is not given.
+This demo downloads Cityscapes pretrained model automatically if a pretrained model path is not given.
 ```
 $ python demo.py [--gpu <gpu>] [--pretrained-model <model_path>] [--input-size <size>] <image>.jpg
 ```

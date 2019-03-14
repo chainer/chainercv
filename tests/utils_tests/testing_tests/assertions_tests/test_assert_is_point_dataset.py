@@ -2,9 +2,9 @@ import numpy as np
 import unittest
 
 from chainer.dataset import DatasetMixin
-from chainer import testing
 
 from chainercv.utils import assert_is_point_dataset
+from chainercv.utils import testing
 
 
 class PointDataset(DatasetMixin):
