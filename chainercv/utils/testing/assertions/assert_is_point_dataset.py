@@ -24,8 +24,8 @@ def assert_is_point_dataset(dataset, n_point=None, n_example=None,
             examples ramdomly and checks them. Otherwise,
             this function checks all examples.
         no_visible (bool): If :obj:`True`, we assume that
-            visibility mask is always not contained.
-            If :obj:`False`, point visible may or may not be contained.
+            :obj:`visible` is always not contained.
+            If :obj:`False`, :obj;`visible` may or may not be contained.
 
     """
 
