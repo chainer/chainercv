@@ -22,8 +22,8 @@ class TransformDataset(GetterDataset):
     Args:
         dataset: The underlying dataset.
             This dataset should have :meth:`__len__` and :meth:`__getitem__`.
-        keys (int or string or tuple of strings): The number or name(s) of
-            data that the transform function returns.
+        keys (string or tuple of strings): The name(s) of data
+            that the transform function returns.
             If this parametr is omitted, :meth:`__init__` fetches a sample
             from the underlying dataset to determine the number of data.
         transform (callable): A function that is called to transform values
@@ -38,12 +38,7 @@ class TransformDataset(GetterDataset):
         self._dataset = dataset
         self._transform = transform
 
-        if isinstance(keys, int):
-            if keys == 1:
-                keys = None
-            else:
-                keys = (None,) * keys
-        elif keys is None:
+        if keys is None:
             sample = self._get(0)
             if isinstance(sample, tuple):
                 keys = (None,) * len(sample)

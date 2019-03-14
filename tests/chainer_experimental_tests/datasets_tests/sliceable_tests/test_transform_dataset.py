@@ -66,20 +66,6 @@ class TestTransformDataset(unittest.TestCase):
         dataset = TransformDataset(self.dataset, keys, self.func)
         self._check(dataset, self.keys)
 
-    def test_transform_with_n_keys(self):
-        if isinstance(self.keys, tuple):
-            n_keys = len(self.keys)
-            if n_keys == 1:
-                self.skipTest(
-                    'tuple of single element is not supported '
-                    'when the number of keys is specified')
-            expected_keys = (None,) * n_keys
-        else:
-            n_keys = 1
-            expected_keys = None
-        dataset = TransformDataset(self.dataset, n_keys, self.func)
-        self._check(dataset, expected_keys)
-
     def test_transform_compat(self):
         if isinstance(self.keys, tuple):
             expected_keys = (None,) * len(self.keys)

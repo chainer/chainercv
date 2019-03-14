@@ -68,17 +68,12 @@ class GetterDataset(SliceableDataset):
         """Register a getter function
 
         Args:
-            keys (int or string or tuple of strings): The number or name(s) of
-                data that the getter function returns.
+            keys (string or tuple of strings): The name(s) of data
+                that the getter function returns.
             getter (callable): A getter function that takes an index and
                 returns data of the corresponding example.
         """
         self._getters.append(getter)
-        if isinstance(keys, int):
-            if keys == 1:
-                keys = None
-            else:
-                keys = (None,) * keys
         if _is_iterable(keys):
             for key_index, key in enumerate(keys):
                 self._keys.append((key, len(self._getters) - 1, key_index))
