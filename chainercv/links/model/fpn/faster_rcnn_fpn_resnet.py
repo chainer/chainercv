@@ -6,7 +6,7 @@ import chainer.links as L
 
 from chainercv.links.model.fpn.faster_rcnn import FasterRCNN
 from chainercv.links.model.fpn.fpn import FPN
-from chainercv.links.model.fpn.head import Head
+from chainercv.links.model.fpn.bbox_head import BboxHead
 from chainercv.links.model.fpn.rpn import RPN
 from chainercv.links.model.resnet import ResNet101
 from chainercv.links.model.resnet import ResNet50
@@ -35,7 +35,7 @@ class FasterRCNNFPNResNet(FasterRCNN):
         super(FasterRCNNFPNResNet, self).__init__(
             extractor=extractor,
             rpn=RPN(extractor.scales),
-            head=Head(param['n_fg_class'] + 1, extractor.scales),
+            bbox_head=BboxHead(param['n_fg_class'] + 1, extractor.scales),
             min_size=min_size, max_size=max_size
         )
 

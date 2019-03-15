@@ -23,8 +23,8 @@ class FasterRCNN(chainer.Chain):
         rpn (Link): A link that has the same interface as
             :class:`~chainercv.links.model.fpn.RPN`.
             Please refer to the documentation found there.
-        head (Link): A link that has the same interface as
-            :class:`~chainercv.links.model.fpn.Head`.
+        bbox_head (Link): A link that has the same interface as
+            :class:`~chainercv.links.model.fpn.BboxHead`.
             Please refer to the documentation found there.
         min_size (int): A preprocessing paramter for :meth:`prepare`. Please
             refer to a docstring found for :meth:`prepare`.
@@ -47,13 +47,13 @@ class FasterRCNN(chainer.Chain):
 
     _stride = 32
 
-    def __init__(self, extractor, rpn, head,
+    def __init__(self, extractor, rpn, bbox_head,
                  min_size=800, max_size=1333):
         super(FasterRCNN, self).__init__()
         with self.init_scope():
             self.extractor = extractor
             self.rpn = rpn
-            self.head = head
+            self.bbox_head = bbox_head
 
         self._min_size = min_size
         self._max_size = max_size
@@ -94,8 +94,8 @@ class FasterRCNN(chainer.Chain):
         anchors = self.rpn.anchors(h.shape[2:] for h in hs)
         rois, roi_indices = self.rpn.decode(
             rpn_locs, rpn_confs, anchors, x.shape)
-        rois, roi_indices = self.head.distribute(rois, roi_indices)
-        head_locs, head_confs = self.head(hs, rois, roi_indices)
+        rois, roi_indices = self.bbox_head.distribute(rois, roi_indices)
+        head_locs, head_confs = self.bbox_head(hs, rois, roi_indices)
         return rois, roi_indices, head_locs, head_confs
 
     def predict(self, imgs):
@@ -132,7 +132,7 @@ class FasterRCNN(chainer.Chain):
 
         with chainer.using_config('train', False), chainer.no_backprop_mode():
             rois, roi_indices, head_locs, head_confs = self(x)
-        bboxes, labels, scores = self.head.decode(
+        bboxes, labels, scores = self.bbox_head.decode(
             rois, roi_indices, head_locs, head_confs,
             scales, sizes, self.nms_thresh, self.score_thresh)
 

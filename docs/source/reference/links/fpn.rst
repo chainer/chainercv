@@ -31,9 +31,9 @@ FPN
 .. autoclass:: FPN
    :members:
 
-Head
-~~~~
-.. autoclass:: Head
+BboxHead
+~~~~~~~~
+.. autoclass:: BboxHead
    :members:
    :special-members:  __call__
 
@@ -46,13 +46,13 @@ RPN
 Train-only Utility
 ------------------
 
-head_loss_pre
-~~~~~~~~~~~~~
-.. autofunction:: head_loss_pre
+bbox_head_loss_pre
+~~~~~~~~~~~~~~~~~~
+.. autofunction:: bbox_head_loss_pre
 
-head_loss_post
-~~~~~~~~~~~~~~
-.. autofunction:: head_loss_post
+bbox_head_loss_post
+~~~~~~~~~~~~~~~~~~~
+.. autofunction:: bbox_head_loss_post
 
 rpn_loss
 ~~~~~~~~
