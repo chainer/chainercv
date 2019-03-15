@@ -33,7 +33,6 @@ For more details, please read :func:`FasterRCNN.predict`.
 .. toctree::
 
    links/faster_rcnn
-   links/fpn
    links/ssd
    links/yolo
 
@@ -52,15 +51,12 @@ For more details, please read :func:`SegNetBasic.predict`.
    links/deeplab
 
 
-Instance Segmentation
-~~~~~~~~~~~~~~~~~~~~~
-
-Instance segmentation links share a common method :meth:`predict` to detect masks that cover objects in an image.
-For more details, please read :func:`MaskRCNN.predict`.
+Links for Multiple Tasks
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. toctree::
 
-   links/mask_rcnn
+   links/fpn
 
 
 Classifiers

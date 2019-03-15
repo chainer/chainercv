@@ -228,7 +228,7 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
 
 def mask_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels,
                    batchsize):
-    """Loss function for Head (post).
+    """Loss function for Mask Head (post).
 
      Args:
          segms (array): An array whose shape is :math:`(R, n\_class, M, M)`,

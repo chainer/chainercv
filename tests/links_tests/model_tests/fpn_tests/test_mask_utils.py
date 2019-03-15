@@ -5,21 +5,22 @@ import unittest
 
 from chainer import testing
 
-from chainercv.links.model.fpn.mask_utils import segm_to_mask
 from chainercv.links.model.fpn.mask_utils import mask_to_segm
+from chainercv.links.model.fpn.mask_utils import segm_to_mask
 
 
 class TestSegmToMask(unittest.TestCase):
 
     def setUp(self):
         # When n_inst >= 3, the test fails.
-        # This is due to the fact that the transformed image of `transforms.resize`
-        # is misaligned to the corners.
+        # This is due to the fact that the transformed
+        # image of `transforms.resize` is misaligned to the corners.
         n_inst = 2
         self.segm_size = 3
         self.size = (36, 48)
 
-        self.segm = np.ones((n_inst, self.segm_size, self.segm_size), dtype=np.float32)
+        self.segm = np.ones(
+            (n_inst, self.segm_size, self.segm_size), dtype=np.float32)
         self.bbox = np.zeros((n_inst, 4), dtype=np.float32)
         for i in range(n_inst):
             self.bbox[i, 0] = 10 + i
