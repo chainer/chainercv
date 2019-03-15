@@ -1,22 +1,10 @@
 from __future__ import division
 
-import cv2
 import numpy as np
 
 import chainer
 
 from chainercv import transforms
-
-
-def scale_img(img, min_size, max_size):
-    """Process image."""
-    _, H, W = img.shape
-    scale = min_size / min(H, W)
-    if scale * max(H, W) > max_size:
-        scale = max_size / max(H, W)
-    H, W = int(H * scale), int(W * scale)
-    img = transforms.resize(img, (H, W))
-    return img, scale
 
 
 def mask_to_segm(mask, bbox, segm_size, index=None, pad=1):
@@ -47,8 +35,8 @@ def mask_to_segm(mask, bbox, segm_size, index=None, pad=1):
     _, H, W = mask.shape
     bbox = chainer.backends.cuda.to_cpu(bbox)
     padded_segm_size = segm_size + pad * 2
-    cv2_expand_scale = padded_segm_size / segm_size
-    bbox = _integerize_bbox(_expand_boxes(bbox, cv2_expand_scale))
+    expand_scale = padded_segm_size / segm_size
+    bbox = _integerize_bbox(_expand_boxes(bbox, expand_scale))
 
     segm = []
     if index is None:
@@ -115,11 +103,11 @@ def segm_to_mask(segm, bbox, size, pad=1):
     # pixel prior to resizing back to the original image resolution.
     # This prevents "top hat" artifacts. We therefore need to expand
     # the reference boxes by an appropriate factor.
-    cv2_expand_scale = (segm_size + pad * 2) / segm_size
+    expand_scale = (segm_size + pad * 2) / segm_size
     padded_mask = np.zeros(
         (segm_size + pad * 2, segm_size + pad * 2), dtype=np.float32)
 
-    bbox = _integerize_bbox(_expand_boxes(bbox, cv2_expand_scale))
+    bbox = _integerize_bbox(_expand_boxes(bbox, expand_scale))
     for i, (bb, sgm) in enumerate(zip(bbox, segm)):
         padded_mask[1:-1, 1:-1] = sgm
 
@@ -128,7 +116,8 @@ def segm_to_mask(segm, bbox, size, pad=1):
         if bb_height == 0 or bb_width == 0:
             continue
 
-        crop_mask = transforms.resize(padded_mask[None], (bb_width, bb_height))[0]
+        crop_mask = transforms.resize(
+            padded_mask[None], (bb_height, bb_width))[0]
         crop_mask = crop_mask > 0.5
 
         y_min = max(bb[0], 0)

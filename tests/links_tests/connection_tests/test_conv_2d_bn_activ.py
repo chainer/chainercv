@@ -6,22 +6,14 @@ import chainer
 from chainer.backends import cuda
 from chainer.functions import relu
 from chainer import testing
-from chainer.testing import attr
+from chainermn import create_communicator
 
 from chainercv.links import Conv2DBNActiv
-
-from chainermn import create_communicator
+from chainercv.utils.testing import attr
 
 
 def _add_one(x):
     return x + 1
-
-
-try:
-    import mpi4py.MPI  # NOQA
-    _available = True
-except ImportError:
-    _available = False
 
 
 @testing.parameterize(*testing.product({
@@ -128,7 +120,7 @@ class TestConv2DBNActiv(unittest.TestCase):
         self.check_backward(cuda.to_gpu(self.x), cuda.to_gpu(self.gy))
 
 
-@unittest.skipUnless(_available, 'mpi4py is not installed')
+@attr.mpi
 class TestConv2DMultiNodeBNActiv(unittest.TestCase):
 
     in_channels = 1

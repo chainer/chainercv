@@ -12,15 +12,10 @@ def calc_semantic_segmentation_confusion(pred_labels, gt_labels):
     the maximum class id of the inputs added by one.
 
     Args:
-        pred_labels (iterable of numpy.ndarray): A collection of predicted
-            labels. The shape of a label array
-            is :math:`(H, W)`. :math:`H` and :math:`W`
-            are height and width of the label.
-        gt_labels (iterable of numpy.ndarray): A collection of ground
-            truth labels. The shape of a ground truth label array is
-            :math:`(H, W)`, and its corresponding prediction label should
-            have the same shape.
-            A pixel with value :obj:`-1` will be ignored during evaluation.
+        pred_labels (iterable of numpy.ndarray): See the table in
+            :func:`chainercv.evaluations.eval_semantic_segmentation`.
+        gt_labels (iterable of numpy.ndarray): See the table in
+            :func:`chainercv.evaluations.eval_semantic_segmentation`.
 
     Returns:
         numpy.ndarray:
@@ -136,18 +131,16 @@ def eval_semantic_segmentation(pred_labels, gt_labels):
     <https://arxiv.org/abs/1704.06857>`_. arXiv 2017.
 
     Args:
-        pred_labels (iterable of numpy.ndarray): A collection of predicted
-            labels. The shape of a label array
-            is :math:`(H, W)`. :math:`H` and :math:`W`
-            are height and width of the label.
-            For example, this is a list of labels
-            :obj:`[label_0, label_1, ...]`, where
-            :obj:`label_i.shape = (H_i, W_i)`.
-        gt_labels (iterable of numpy.ndarray): A collection of ground
-            truth labels. The shape of a ground truth label array is
-            :math:`(H, W)`, and its corresponding prediction label should
-            have the same shape.
-            A pixel with value :obj:`-1` will be ignored during evaluation.
+        pred_labels (iterable of numpy.ndarray): See the table below.
+        gt_labels (iterable of numpy.ndarray): See the table below.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`pred_labels`, ":math:`[(H, W)]`", :obj:`int32`, \
+        ":math:`[0, \#class - 1]`"
+        :obj:`gt_labels`, ":math:`[(H, W)]`", :obj:`int32`, \
+        ":math:`[-1, \#class - 1]`"
 
     Returns:
         dict:

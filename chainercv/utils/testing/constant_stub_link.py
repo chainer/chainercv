@@ -58,6 +58,15 @@ class ConstantStubLink(chainer.Link):
             tuple of :obj:`chainer.Variable`.
         """
 
+        # TODO(Hakuyume): Remove this fix when 'to_device' APIs is refactored.
+        # Fix for Chainer 6.x.
+        # https://github.com/chainer/chainer/issues/6244
+        for output in self._outputs:
+            if self.xp is np:
+                output.to_cpu()
+            else:
+                output.to_gpu()
+
         if self._tuple:
             return self._outputs
         else:

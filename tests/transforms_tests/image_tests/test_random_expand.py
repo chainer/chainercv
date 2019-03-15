@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-from chainer import testing
 from chainercv.transforms import random_expand
+from chainercv.utils import testing
 
 
 @testing.parameterize(

@@ -2,13 +2,13 @@ import unittest
 
 import numpy as np
 
-from chainer import testing
 from chainer.testing import attr
 from chainer import Variable
 
 from chainercv.links import ResNet101
 from chainercv.links import ResNet152
 from chainercv.links import ResNet50
+from chainercv.utils import testing
 
 
 @testing.parameterize(*(

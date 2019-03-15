@@ -3,10 +3,10 @@ import unittest
 
 import chainer
 from chainer import testing
-from chainer.testing import attr
 
 from chainercv.links import FasterRCNNFPNResNet101
 from chainercv.links import FasterRCNNFPNResNet50
+from chainercv.utils.testing import attr
 
 
 @testing.parameterize(*testing.product({
@@ -28,6 +28,7 @@ class TestFasterRCNNFPNResNet(unittest.TestCase):
             self.link(self.link.xp.array(x))
 
     @attr.slow
+    @attr.pfnci_skip
     def test_call_cpu(self):
         self._check_call()
 
