@@ -3,8 +3,8 @@ from __future__ import division
 import numpy as np
 
 import chainer
-import chainer.functions as F
 from chainer.backends import cuda
+import chainer.functions as F
 
 from chainercv.links.model.fpn.misc import scale_img
 
@@ -64,7 +64,8 @@ class FasterRCNN(chainer.Chain):
 
         self._store_rpn_outputs = 'rois' in self._return_values
         self._run_bbox = any([key in self._return_values
-                        for key in ['bboxes', 'labels', 'scores', 'masks']])
+                              for key in
+                              ['bboxes', 'labels', 'scores', 'masks']])
         self._run_mask = 'masks' in self._return_values
         super(FasterRCNN, self).__init__()
 
@@ -168,9 +169,10 @@ class FasterRCNN(chainer.Chain):
             bboxes, labels, scores = self.bbox_head.decode(
                 bbox_rois, bbox_roi_indices, head_locs, head_confs,
                 scales, sizes, self.nms_thresh, self.score_thresh)
-            bboxes_cpu = [chainer.backends.cuda.to_cpu(bbox)
-                    for bbox in bboxes]
-            labels_cpu = [chainer.backends.cuda.to_cpu(label) for label in labels]
+            bboxes_cpu = [
+                chainer.backends.cuda.to_cpu(bbox) for bbox in bboxes]
+            labels_cpu = [
+                chainer.backends.cuda.to_cpu(label) for label in labels]
             scores_cpu = [cuda.to_cpu(score) for score in scores]
             output.update({'bboxes': bboxes_cpu, 'labels': labels_cpu,
                            'scores': scores_cpu})
@@ -182,7 +184,8 @@ class FasterRCNN(chainer.Chain):
             mask_rois_before_reordering, mask_roi_indices_before_reordering =\
                 _list_to_flat(rescaled_bboxes)
             mask_rois, mask_roi_indices, order = self.mask_head.distribute(
-                mask_rois_before_reordering, mask_roi_indices_before_reordering)
+                mask_rois_before_reordering,
+                mask_roi_indices_before_reordering)
             with chainer.using_config(
                     'train', False), chainer.no_backprop_mode():
                 segms = F.sigmoid(
@@ -192,13 +195,14 @@ class FasterRCNN(chainer.Chain):
             segms = _flat_to_list(
                 segms, mask_roi_indices_before_reordering, len(imgs))
             segms = [segm if segm is not None else
-                    self.xp.zeros(
-                        (0, self.mask_head.segm_size, self.mask_head.segm_size),
-                        dtype=np.float32)
-                    for segm in segms]
+                     self.xp.zeros(
+                         (0, self.mask_head.segm_size,
+                          self.mask_head.segm_size), dtype=np.float32)
+                     for segm in segms]
             segms = [chainer.backends.cuda.to_cpu(segm) for segm in segms]
             # Currently MaskHead only supports numpy inputs
-            masks_cpu = self.mask_head.decode(segms, bboxes_cpu, labels_cpu, sizes)
+            masks_cpu = self.mask_head.decode(
+                segms, bboxes_cpu, labels_cpu, sizes)
             output.update({'masks': masks_cpu})
         return tuple([output[key] for key in self._return_values])
 

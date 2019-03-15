@@ -4,9 +4,9 @@ import chainer
 import chainer.functions as F
 import chainer.links as L
 
+from chainercv.links.model.fpn.bbox_head import BboxHead
 from chainercv.links.model.fpn.faster_rcnn import FasterRCNN
 from chainercv.links.model.fpn.fpn import FPN
-from chainercv.links.model.fpn.bbox_head import BboxHead
 from chainercv.links.model.fpn.mask_head import MaskHead
 from chainercv.links.model.fpn.rpn import RPN
 from chainercv.links.model.resnet import ResNet101
@@ -187,7 +187,6 @@ class MaskRCNNFPNResNet101(MaskRCNNFPNResNet):
             'cv2': True
         },
     }
-
 
 
 def _copyparams(dst, src):
