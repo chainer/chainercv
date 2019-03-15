@@ -82,10 +82,10 @@ class TrainChain(chainer.Chain):
             [roi_indices]
             + [self.xp.array((i,) * len(bbox))
                for i, bbox in enumerate(bboxes)])
-        rois, roi_indices = self.model.head.distribute(rois, roi_indices)
+        rois, roi_indices = self.model.bbox_head.distribute(rois, roi_indices)
         rois, roi_indices, head_gt_locs, head_gt_labels = bbox_loss_pre(
-            rois, roi_indices, self.model.head.std, bboxes, labels)
-        head_locs, head_confs = self.model.head(hs, rois, roi_indices)
+            rois, roi_indices, self.model.bbox_head.std, bboxes, labels)
+        head_locs, head_confs = self.model.bbox_head(hs, rois, roi_indices)
         head_loc_loss, head_conf_loss = bbox_loss_post(
             head_locs, head_confs,
             roi_indices, head_gt_locs, head_gt_labels, B)
@@ -137,7 +137,10 @@ class Transform(object):
         self.mean = mean
 
     def __call__(self, in_data):
-        img, bbox, label = in_data[:3]
+        if len(in_data) == 4:
+            img, mask, label, bbox = in_data
+        else:
+            img, bbox, label = in_data
         # Flipping
         img, params = transforms.random_flip(
             img, x_random=True, return_param=True)
@@ -152,7 +155,6 @@ class Transform(object):
         bbox = bbox * scale
 
         if len(in_data) == 4:
-            mask = in_data[3]
             mask = transforms.flip(mask, x_flip=x_flip)
             mask = transforms.resize(
                 mask.astype(np.float32),
