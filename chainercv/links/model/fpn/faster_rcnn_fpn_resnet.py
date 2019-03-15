@@ -51,7 +51,7 @@ class FasterRCNNFPNResNet(FasterRCNN):
                  min_size=800, max_size=1333):
         param, path = utils.prepare_pretrained_model(
             {'n_fg_class': n_fg_class, 'n_point': n_point},
-            pretrained_model, self._models)
+            pretrained_model, self._models, {'n_point': None})
 
         base = self._base(n_class=1, arch='he')
         base.pick = ('res2', 'res3', 'res4', 'res5')
