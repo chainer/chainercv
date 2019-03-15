@@ -40,6 +40,12 @@ FasterRCNN
 .. autoclass:: FasterRCNN
    :members:
 
+FasterRCNNFPNResNet
+~~~~~~~~~~~~~~~~~~~
+.. autoclass:: FasterRCNNFPNResNet
+   :members:
+
+
 FPN
 ~~~
 .. autoclass:: FPN

@@ -15,7 +15,7 @@ from chainercv import utils
 
 
 class FasterRCNNFPNResNet(FasterRCNN):
-    """Base class for FasterRCNNFPNResNet50 and FasterRCNNFPNResNet101.
+    """Base class for Faster R-CNN with a ResNet backbone and FPN.
 
     A subclass of this class should have :obj:`_base` and :obj:`_models`.
 
@@ -38,6 +38,8 @@ class FasterRCNNFPNResNet(FasterRCNN):
             * `filepath`: A path of npz file. In this case, :obj:`n_fg_class` \
                 must be specified properly.
             * :obj:`None`: Do not load weights.
+        return_values (list of strings): Determines the values
+            returned by :meth:`predict`.
         min_size (int): A preprocessing paramter for :meth:`prepare`. Please \
             refer to :meth:`prepare`.
         max_size (int): A preprocessing paramter for :meth:`prepare`.
@@ -76,35 +78,24 @@ class FasterRCNNFPNResNet(FasterRCNN):
 
 
 class MaskRCNNFPNResNet(FasterRCNNFPNResNet):
-    """Feature Pyramid Networks with ResNet-50.
+    """Mask R-CNN with a ResNet backbone and FPN.
 
-    This is a model of Feature Pyramid Networks [#]_.
-    This model uses :class:`~chainercv.links.ResNet50` as
-    its base feature extractor.
-
-    .. [#] Tsung-Yi Lin et al.
-       Feature Pyramid Networks for Object Detection. CVPR 2017
-
+    Please refer to :class:`~chainercv.links.model.fpn.FasterRCNNFPNResNet`.
 
     """
 
     def __init__(self, n_fg_class=None, pretrained_model=None,
+                 return_values=['masks', 'labels', 'scores'],
                  min_size=800, max_size=1333):
         super(MaskRCNNFPNResNet, self).__init__(
-            n_fg_class, pretrained_model, ['masks', 'labels', 'scores'],
+            n_fg_class, pretrained_model, return_values,
             min_size, max_size)
 
 
 class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
-    """Feature Pyramid Networks with ResNet-50.
+    """Faster R-CNN with ResNet-50 and FPN.
 
-    This is a model of Feature Pyramid Networks [#]_.
-    This model uses :class:`~chainercv.links.ResNet50` as
-    its base feature extractor.
-
-    .. [#] Tsung-Yi Lin et al.
-       Feature Pyramid Networks for Object Detection. CVPR 2017
-
+    Please refer to :class:`~chainercv.links.model.fpn.FasterRCNNFPNResNet`.
 
     """
 
@@ -120,14 +111,9 @@ class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
 
 
 class FasterRCNNFPNResNet101(FasterRCNNFPNResNet):
-    """Feature Pyramid Networks with ResNet-101.
+    """Faster R-CNN with ResNet-101 and FPN.
 
-    This is a model of Feature Pyramid Networks [#]_.
-    This model uses :class:`~chainercv.links.ResNet101` as
-    its base feature extractor.
-
-    .. [#] Tsung-Yi Lin et al.
-       Feature Pyramid Networks for Object Detection. CVPR 2017
+    Please refer to :class:`~chainercv.links.model.fpn.FasterRCNNFPNResNet`.
 
     """
 
@@ -143,15 +129,9 @@ class FasterRCNNFPNResNet101(FasterRCNNFPNResNet):
 
 
 class MaskRCNNFPNResNet50(MaskRCNNFPNResNet):
-    """Feature Pyramid Networks with ResNet-50.
+    """Mask R-CNN with ResNet-50 and FPN.
 
-    This is a model of Feature Pyramid Networks [#]_.
-    This model uses :class:`~chainercv.links.ResNet50` as
-    its base feature extractor.
-
-    .. [#] Tsung-Yi Lin et al.
-       Feature Pyramid Networks for Object Detection. CVPR 2017
-
+    Please refer to :class:`~chainercv.links.model.fpn.FasterRCNNFPNResNet`.
 
     """
 
@@ -167,15 +147,9 @@ class MaskRCNNFPNResNet50(MaskRCNNFPNResNet):
 
 
 class MaskRCNNFPNResNet101(MaskRCNNFPNResNet):
-    """Feature Pyramid Networks with ResNet-50.
+    """Mask R-CNN with ResNet-101 and FPN.
 
-    This is a model of Feature Pyramid Networks [#]_.
-    This model uses :class:`~chainercv.links.ResNet50` as
-    its base feature extractor.
-
-    .. [#] Tsung-Yi Lin et al.
-       Feature Pyramid Networks for Object Detection. CVPR 2017
-
+    Please refer to :class:`~chainercv.links.model.fpn.FasterRCNNFPNResNet`.
 
     """
 

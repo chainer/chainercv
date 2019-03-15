@@ -10,12 +10,9 @@ from chainercv.links.model.fpn.misc import scale_img
 
 
 class FasterRCNN(chainer.Chain):
-    """Base class of Feature Pyramid Networks.
+    """Base class of Faster R-CNN with FPN.
 
-    This is a base class of Feature Pyramid Networks [#]_.
-
-    .. [#] Tsung-Yi Lin et al.
-       Feature Pyramid Networks for Object Detection. CVPR 2017
+    This is a base class of Faster R-CNN with FPN.
 
     Args:
         extractor (Link): A link that extracts feature maps.
@@ -28,8 +25,10 @@ class FasterRCNN(chainer.Chain):
             :class:`~chainercv.links.model.fpn.BboxHead`.
             Please refer to the documentation found there.
         mask_head (Link): A link that has the same interface as
-            :class:`~chainercv.links.model.mask_rcnn.MaskRCNN`.
+            :class:`~chainercv.links.model.fpn.MaskHead`.
             Please refer to the documentation found there.
+        return_values (list of strings): Determines the values
+            returned by :meth:`predict`.
         min_size (int): A preprocessing paramter for :meth:`prepare`. Please
             refer to a docstring found for :meth:`prepare`.
         max_size (int): A preprocessing paramter for :meth:`prepare`. Note
@@ -119,29 +118,40 @@ class FasterRCNN(chainer.Chain):
         return hs, rois, roi_indices
 
     def predict(self, imgs):
-        """Segment object instances from images.
+        """Conduct inference on the given images.
 
-        This method predicts instance-aware object regions for each image.
+        The value returned by this method is decided based on
+        the argument :obj:`return_values` of :meth:`__init__`.
+
+        Examples:
+
+            >>> from chainercv.links import FasterRCNNFPNResNet50
+            >>> model = FasterRCNNFPNResNet50(
+            ...     pretrained_model='coco',
+            ...     return_values=['rois', 'bboxes', 'labels', 'scores'])
+            >>> rois, bboxes, labels, scores = model.predict(imgs)
 
         Args:
-            imgs (iterable of numpy.ndarray): Arrays holding images of shape
-                :math:`(B, C, H, W)`.  All images are in CHW and RGB format
-                and the range of their value is :math:`[0, 255]`.
+            imgs (iterable of numpy.ndarray): Inputs.
 
         Returns:
-           tuple of lists:
-           This method returns a tuple of three lists,
-           :obj:`(masks, labels, scores)`.
+            tuple of lists:
+            The table below shows the input and possible outputs.
 
-           * **masks**: A list of boolean arrays of shape :math:`(R, H, W)`, \
-               where :math:`R` is the number of masks in a image. \
-               Each pixel holds value if it is inside the object inside or not.
-           * **labels** : A list of integer arrays of shape :math:`(R,)`. \
-               Each value indicates the class of the masks. \
-               Values are in range :math:`[0, L - 1]`, where :math:`L` is the \
-               number of the foreground classes.
-           * **scores** : A list of float arrays of shape :math:`(R,)`. \
-               Each value indicates how confident the prediction is.
+        .. csv-table::
+            :header: name, shape, dtype, format
+
+            :obj:`imgs`, ":math:`[(3, H, W)]`", :obj:`float32`, \
+            "RGB, :math:`[0, 255]`"
+            :obj:`rois`, ":math:`[(R', 4)]`", :obj:`float32`, \
+            ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+            :obj:`bboxes`, ":math:`[(R, 4)]`", :obj:`float32`, \
+            ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+            :obj:`scores`, ":math:`[(R,)]`", :obj:`float32`, \
+            --
+            :obj:`labels`, ":math:`[(R,)]`", :obj:`int32`, \
+            ":math:`[0, \#fg\_class - 1]`"
+            :obj:`masks`, ":math:`[(R, H, W)]`", :obj:`bool`, --
 
         """
         output = {}
