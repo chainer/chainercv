@@ -177,7 +177,7 @@ def main():
         '--model',
         choices=('mask_rcnn_fpn_resnet50', 'mask_rcnn_fpn_resnet101',
                  'faster_rcnn_fpn_resnet50', 'faster_rcnn_fpn_resnet101'),
-        default='faster__rcnn_fpn_resnet50')
+        default='faster_rcnn_fpn_resnet50')
     parser.add_argument('--batchsize', type=int, default=16)
     parser.add_argument('--iteration', type=int, default=90000)
     parser.add_argument('--step', type=int, nargs='*', default=[60000, 80000])
