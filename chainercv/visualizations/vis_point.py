@@ -30,7 +30,7 @@ def vis_point(img, point, visible=None, ax=None):
 
         :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
         "RGB, :math:`[0, 255]`"
-        :obj:`point`, ":math:`[(K, 2)]` or :math:`(R, K, 2)`", \
+        :obj:`point`, ":math:`(R, K, 2)` or :math:`[(K, 2)]`", \
         :obj:`float32`, ":math:`(y, x)`"
         :obj:`visible`, ":math:`[(K,)]` or :math:`(R, K)`", :obj:`bool`, --
 
