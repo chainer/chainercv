@@ -1,6 +1,7 @@
 import argparse
 import multiprocessing
 import numpy as np
+import random
 import PIL
 
 import chainer
@@ -51,10 +52,11 @@ except ImportError:
 
 class TrainChain(chainer.Chain):
 
-    def __init__(self, model):
+    def __init__(self, model, mode):
         super(TrainChain, self).__init__()
         with self.init_scope():
             self.model = model
+        self.mode = mode
 
     def __call__(self, imgs, bboxes, labels, masks=None,
                  points=None, visibles=None):
@@ -99,7 +101,7 @@ class TrainChain(chainer.Chain):
             roi_indices, head_gt_locs, head_gt_labels, B)
 
         mask_loss = 0
-        if masks is not None:
+        if self.mode == 'instance_segmentation':
             # For reducing unnecessary CPU/GPU copy, `masks` is kept in CPU.
             pad_masks = [
                 np.zeros(
@@ -127,7 +129,7 @@ class TrainChain(chainer.Chain):
                 mask_loss = 0 * F.sum(segms)
 
         point_loss = 0
-        if points is not None:
+        if self.mode == 'keypoint':
             points = [self.xp.array(point) for point in points]
             visibles = [self.xp.array(visible) for visible in visibles]
 
@@ -190,8 +192,9 @@ class Transform(object):
             bbox, img.shape[1:], x_flip=x_flip)
 
         # Scaling and mean subtraction
+        min_size = random.choice(self.min_size)
         img, scale = scale_img(
-            img, self.min_size, self.max_size)
+            img, min_size, self.max_size)
         img -= self.mean
         bbox = bbox * scale
 
@@ -284,7 +287,7 @@ def main():
             n_point=len(coco_keypoint_names[0]))
 
     model.use_preset('evaluate')
-    train_chain = TrainChain(model)
+    train_chain = TrainChain(model, mode)
     chainer.cuda.get_device_from_id(device).use()
     train_chain.to_gpu()
 
