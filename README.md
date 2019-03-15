@@ -16,7 +16,7 @@ Supported tasks:
 + Image Classification ([ResNet](examples/resnet), [SENet](examples/senet), [VGG](examples/vgg))
 + Object Detection ([tutorial](http://chainercv.readthedocs.io/en/latest/tutorial/detection.html), [Faster R-CNN](examples/faster_rcnn), [FPN](examples/fpn), [SSD](examples/ssd), [YOLO](examples/yolo))
 + Semantic Segmentation ([SegNet](examples/segnet), [PSPNet](examples/pspnet))
-+ Instance Segmentation ([FCIS](examples/fcis),)
++ Instance Segmentation ([FCIS](examples/fcis), [Mask R-CNN](examples/fpn))
 
 # Guiding Principles
 ChainerCV is developed under the following three guiding principles.

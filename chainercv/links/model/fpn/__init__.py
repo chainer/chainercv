@@ -10,5 +10,7 @@ from chainercv.links.model.fpn.bbox_head import bbox_loss_pre  # NOQA
 from chainercv.links.model.fpn.mask_head import MaskHead  # NOQA
 from chainercv.links.model.fpn.mask_head import mask_loss_post  # NOQA
 from chainercv.links.model.fpn.mask_head import mask_loss_pre  # NOQA
+from chainercv.links.model.fpn.mask_utils import mask_to_segm  # NOQA
+from chainercv.links.model.fpn.mask_utils import segm_to_mask  # NOQA
 from chainercv.links.model.fpn.rpn import RPN  # NOQA
 from chainercv.links.model.fpn.rpn import rpn_loss  # NOQA
