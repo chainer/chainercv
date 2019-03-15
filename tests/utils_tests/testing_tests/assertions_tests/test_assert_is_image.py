@@ -1,9 +1,8 @@
 import numpy as np
 import unittest
 
-from chainer import testing
-
 from chainercv.utils import assert_is_image
+from chainercv.utils import testing
 
 
 @testing.parameterize(

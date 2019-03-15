@@ -2,9 +2,9 @@ import numpy as np
 import unittest
 
 import chainer
-from chainer import testing
 
 from chainercv.utils import assert_is_semantic_segmentation_link
+from chainercv.utils import testing
 
 
 class SemanticSegmentationLink(chainer.Link):

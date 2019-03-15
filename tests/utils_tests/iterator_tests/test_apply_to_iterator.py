@@ -8,12 +8,7 @@ from chainer import testing
 from chainermn import create_communicator
 
 from chainercv.utils import apply_to_iterator
-
-try:
-    import mpi4py.MPI  # NOQA
-    _available = True
-except ImportError:
-    _available = False
+from chainercv.utils.testing import attr
 
 
 @testing.parameterize(*testing.product({
@@ -129,7 +124,7 @@ class TestApplyToIterator(unittest.TestCase):
     def test_apply_to_iterator(self):
         self._check_apply_to_iterator()
 
-    @unittest.skipUnless(_available, 'mpi4py is not installed')
+    @attr.mpi
     def test_apply_to_iterator_with_comm(self):
         comm = create_communicator('naive')
         self._check_apply_to_iterator(comm)
