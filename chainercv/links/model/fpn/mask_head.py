@@ -11,8 +11,8 @@ import chainer.links as L
 from chainercv.links import Conv2DActiv
 from chainercv.utils.bbox.bbox_iou import bbox_iou
 
-from chainercv.links.model.mask_rcnn.misc import mask_to_segm
-from chainercv.links.model.mask_rcnn.misc import segm_to_mask
+from chainercv.links.model.fpn.mask_utils import mask_to_segm
+from chainercv.links.model.fpn.mask_utils import segm_to_mask
 
 
 class MaskHead(chainer.Chain):
