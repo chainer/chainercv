@@ -18,8 +18,10 @@ class TestResizePoint(unittest.TestCase):
         np.testing.assert_equal(out, point)
 
     def test_resize_point_list(self):
-        point = [np.random.uniform(
-            low=0., high=32., size=(12, 2))]
+        point = [
+            np.random.uniform(low=0., high=32., size=(12, 2)),
+            np.random.uniform(low=0., high=32., size=(12, 2))
+        ]
 
         out = resize_point(point, in_size=(16, 32), out_size=(8, 64))
         for i, pnt in enumerate(point):

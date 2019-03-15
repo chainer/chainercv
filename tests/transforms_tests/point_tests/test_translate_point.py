@@ -19,8 +19,10 @@ class TestTranslatePoint(unittest.TestCase):
         np.testing.assert_equal(out, expected)
 
     def test_translate_point_list(self):
-        point = [np.random.uniform(
-            low=0., high=32., size=(10, 2))]
+        point = [
+            np.random.uniform(low=0., high=32., size=(10, 2)),
+            np.random.uniform(low=0., high=32., size=(10, 2))
+        ]
 
         out = translate_point(point, y_offset=3, x_offset=5)
         for i, pnt in enumerate(point):

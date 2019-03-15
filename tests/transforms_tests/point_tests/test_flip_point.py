@@ -23,8 +23,10 @@ class TestFlipPoint(unittest.TestCase):
         np.testing.assert_equal(out, point_expected)
 
     def test_flip_point_list(self):
-        point = [np.random.uniform(
-            low=0., high=32., size=(12, 2))]
+        point = [
+            np.random.uniform(low=0., high=32., size=(12, 2)),
+            np.random.uniform(low=0., high=32., size=(12, 2)),
+        ]
 
         out = flip_point(point, size=(34, 32), y_flip=True)
         for i, pnt in enumerate(point):
