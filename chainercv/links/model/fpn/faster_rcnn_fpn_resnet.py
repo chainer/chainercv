@@ -75,6 +75,26 @@ class FasterRCNNFPNResNet(FasterRCNN):
             chainer.serializers.load_npz(path, self)
 
 
+class MaskRCNNFPNResNet(FasterRCNNFPNResNet):
+    """Feature Pyramid Networks with ResNet-50.
+
+    This is a model of Feature Pyramid Networks [#]_.
+    This model uses :class:`~chainercv.links.ResNet50` as
+    its base feature extractor.
+
+    .. [#] Tsung-Yi Lin et al.
+       Feature Pyramid Networks for Object Detection. CVPR 2017
+
+
+    """
+
+    def __init__(self, n_fg_class=None, pretrained_model=None,
+                 min_size=800, max_size=1333):
+        super(MaskRCNNFPNResNet, self).__init__(
+            n_fg_class, pretrained_model, ['masks', 'labels', 'scores'],
+            min_size, max_size)
+
+
 class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
     """Feature Pyramid Networks with ResNet-50.
 
@@ -93,7 +113,7 @@ class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
         'coco': {
             'param': {'n_fg_class': 80},
             'url': 'https://chainercv-models.preferred.jp/'
-            'faster_rcnn_fpn_resnet50_coco_trained_2018_12_13.npz',
+            'faster_rcnn_fpn_resnet50_coco_trained_2019_03_15.npz',
             'cv2': True
         },
     }
@@ -116,30 +136,10 @@ class FasterRCNNFPNResNet101(FasterRCNNFPNResNet):
         'coco': {
             'param': {'n_fg_class': 80},
             'url': 'https://chainercv-models.preferred.jp/'
-            'faster_rcnn_fpn_resnet101_coco_trained_2018_12_13.npz',
+            'faster_rcnn_fpn_resnet101_coco_trained_2019_03_15.npz',
             'cv2': True
         },
     }
-
-
-class MaskRCNNFPNResNet(FasterRCNNFPNResNet):
-    """Feature Pyramid Networks with ResNet-50.
-
-    This is a model of Feature Pyramid Networks [#]_.
-    This model uses :class:`~chainercv.links.ResNet50` as
-    its base feature extractor.
-
-    .. [#] Tsung-Yi Lin et al.
-       Feature Pyramid Networks for Object Detection. CVPR 2017
-
-
-    """
-
-    def __init__(self, n_fg_class=None, pretrained_model=None,
-                 min_size=800, max_size=1333):
-        super(MaskRCNNFPNResNet, self).__init__(
-            n_fg_class, pretrained_model, ['masks', 'labels', 'scores'],
-            min_size, max_size)
 
 
 class MaskRCNNFPNResNet50(MaskRCNNFPNResNet):
@@ -159,7 +159,8 @@ class MaskRCNNFPNResNet50(MaskRCNNFPNResNet):
     _models = {
         'coco': {
             'param': {'n_fg_class': 80},
-            'url': '',
+            'url': 'https://chainercv-models.preferred.jp/'
+            'faster_rcnn_fpn_resnet50_mask_coco_trained_2019_03_15.npz',
             'cv2': True
         },
     }
