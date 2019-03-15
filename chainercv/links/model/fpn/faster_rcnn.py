@@ -50,10 +50,11 @@ class FasterRCNN(chainer.Chain):
     """
 
     stride = 32
-    _accepted_return_values = ('rois', 'bboxes', 'labels', 'scores', 'masks')
+    _accepted_return_values = ('rois', 'bboxes', 'labels', 'scores',
+                               'masks', 'points', 'point_scores')
 
     def __init__(self, extractor, rpn, bbox_head,
-                 mask_head, return_values,
+                 mask_head, keypoint_head, return_values,
                  min_size=800, max_size=1333):
         for value_name in return_values:
             if value_name not in self._accepted_return_values:
@@ -64,8 +65,10 @@ class FasterRCNN(chainer.Chain):
 
         self._store_rpn_outputs = 'rois' in self._return_values
         self._run_bbox = any([key in self._return_values
-                        for key in ['bboxes', 'labels', 'scores', 'masks']])
+                        for key in ['bboxes', 'labels', 'scores',
+                                    'masks', 'points', 'point_scores']])
         self._run_mask = 'masks' in self._return_values
+        self._run_keypoint = 'points' in self._return_values
         super(FasterRCNN, self).__init__()
 
         with self.init_scope():
@@ -75,6 +78,8 @@ class FasterRCNN(chainer.Chain):
                 self.bbox_head = bbox_head
             if self._run_mask:
                 self.mask_head = mask_head
+            if self._run_keypoint:
+                self.keypoint_head = keypoint_head
 
         self.min_size = min_size
         self.max_size = max_size
@@ -174,10 +179,9 @@ class FasterRCNN(chainer.Chain):
             scores_cpu = [cuda.to_cpu(score) for score in scores]
             output.update({'bboxes': bboxes_cpu, 'labels': labels_cpu,
                            'scores': scores_cpu})
-
-        if self._run_mask:
             rescaled_bboxes = [bbox * scale
-                               for scale, bbox in zip(scales, bboxes)]
+                                for scale, bbox in zip(scales, bboxes)]
+        if self._run_mask:
             # Change bboxes to RoI and RoI indices format
             mask_rois_before_reordering, mask_roi_indices_before_reordering =\
                 _list_to_flat(rescaled_bboxes)
@@ -200,6 +204,36 @@ class FasterRCNN(chainer.Chain):
             # Currently MaskHead only supports numpy inputs
             masks_cpu = self.mask_head.decode(segms, bboxes_cpu, labels_cpu, sizes)
             output.update({'masks': masks_cpu})
+
+        if self._run_keypoint:
+            (point_rois_before_reordering,
+             point_roi_indices_before_reordering) = _list_to_flat(
+                 rescaled_bboxes)
+            point_rois, point_roi_indices, order =\
+                self.keypoint_head.distribute(
+                    point_rois_before_reordering,
+                    point_roi_indices_before_reordering)
+            with chainer.using_config(
+                    'train', False), chainer.no_backprop_mode():
+                point_maps = self.keypoint_head(
+                    hs, point_rois, point_roi_indices).data
+            point_maps = point_maps[order]
+            point_maps = _flat_to_list(
+                point_maps, point_roi_indices_before_reordering, len(imgs))
+            point_maps = [point_map if point_map is not None else
+                          self.xp.zeros(
+                              (0, self.keypoint_head.n_point,
+                               self.keypoint_head.point_map_size,
+                               self.keypoint_head.point_map_size),
+                              dtype=np.float32)
+                          for point_map in point_maps]
+            point_maps = [
+                chainer.backends.cuda.to_cpu(point_map)
+                for point_map in point_maps]
+            points_cpu, point_scores_cpu = self.keypoint_head.decode(
+                point_maps, bboxes_cpu)
+            output.update(
+                {'points': points_cpu, 'point_scores': point_scores_cpu})
         return tuple([output[key] for key in self._return_values])
 
     def prepare(self, imgs):

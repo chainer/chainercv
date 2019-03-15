@@ -1,6 +1,8 @@
 from chainercv.links.model.fpn.faster_rcnn import FasterRCNN  # NOQA
 from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import FasterRCNNFPNResNet101  # NOQA
 from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import FasterRCNNFPNResNet50  # NOQA
+from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import KeypointRCNNFPNResNet101  # NOQA
+from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import KeypointRCNNFPNResNet50  # NOQA
 from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import MaskRCNNFPNResNet101  # NOQA
 from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import MaskRCNNFPNResNet50  # NOQA
 from chainercv.links.model.fpn.fpn import FPN  # NOQA

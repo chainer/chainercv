@@ -5,17 +5,15 @@ from chainer import iterators
 
 from chainercv.datasets import COCOKeypointDataset
 from chainercv.evaluations import eval_keypoint_detection_coco
-from chainercv.links import MaskRCNNFPNResNet101
-from chainercv.links import MaskRCNNFPNResNet50
+from chainercv.links import KeypointRCNNFPNResNet101
+from chainercv.links import KeypointRCNNFPNResNet50
 from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
 
 models = {
     # model: (class, dataset -> pretrained_model, default batchsize)
-    'mask_rcnn_fpn_resnet50': (MaskRCNNFPNResNet50,
-                               {}, 1),
-    'mask_rcnn_fpn_resnet101': (MaskRCNNFPNResNet101,
-                                {}, 1),
+    'keypoint_rcnn_fpn_resnet50': (KeypointRCNNFPNResNet50, {}, 1),
+    'keypoint_rcnn_fpn_resnet101': (KeypointRCNNFPNResNet101, {}, 1),
 }
 
 

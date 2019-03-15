@@ -7,6 +7,7 @@ import chainer.links as L
 from chainercv.links.model.fpn.faster_rcnn import FasterRCNN
 from chainercv.links.model.fpn.fpn import FPN
 from chainercv.links.model.fpn.bbox_head import BboxHead
+from chainercv.links.model.fpn.keypoint_head import KeypointHead
 from chainercv.links.model.fpn.mask_head import MaskHead
 from chainercv.links.model.fpn.rpn import RPN
 from chainercv.links.model.resnet import ResNet101
@@ -45,10 +46,12 @@ class FasterRCNNFPNResNet(FasterRCNN):
     """
 
     def __init__(self, n_fg_class=None, pretrained_model=None,
+                 n_point=None,
                  return_values=['bboxes', 'labels', 'scores'],
                  min_size=800, max_size=1333):
         param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
+            {'n_fg_class': n_fg_class, 'n_point': n_point},
+            pretrained_model, self._models)
 
         base = self._base(n_class=1, arch='he')
         base.pick = ('res2', 'res3', 'res4', 'res5')
@@ -58,11 +61,16 @@ class FasterRCNNFPNResNet(FasterRCNN):
         extractor = FPN(
             base, len(base.pick), (1 / 4, 1 / 8, 1 / 16, 1 / 32, 1 / 64))
 
+        if param['n_point'] is not None:
+            keypoint_head = KeypointHead(param['n_point'], extractor.scales)
+        else:
+            keypoint_head = None
         super(FasterRCNNFPNResNet, self).__init__(
             extractor=extractor,
             rpn=RPN(extractor.scales),
             bbox_head=BboxHead(param['n_fg_class'] + 1, extractor.scales),
             mask_head=MaskHead(param['n_fg_class'] + 1, extractor.scales),
+            keypoint_head=keypoint_head,
             return_values=return_values,
             min_size=min_size, max_size=max_size
         )
@@ -72,7 +80,7 @@ class FasterRCNNFPNResNet(FasterRCNN):
                 self.extractor.base,
                 self._base(pretrained_model='imagenet', arch='he'))
         elif path:
-            chainer.serializers.load_npz(path, self)
+            chainer.serializers.load_npz(path, self, strict=False)
 
 
 class MaskRCNNFPNResNet(FasterRCNNFPNResNet):
@@ -91,7 +99,30 @@ class MaskRCNNFPNResNet(FasterRCNNFPNResNet):
     def __init__(self, n_fg_class=None, pretrained_model=None,
                  min_size=800, max_size=1333):
         super(MaskRCNNFPNResNet, self).__init__(
-            n_fg_class, pretrained_model, ['masks', 'labels', 'scores'],
+            n_fg_class, pretrained_model, None,
+            ['masks', 'labels', 'scores'],
+            min_size, max_size)
+
+
+class KeypointRCNNFPNResNet(FasterRCNNFPNResNet):
+    """Feature Pyramid Networks with ResNet-50.
+
+    This is a model of Feature Pyramid Networks [#]_.
+    This model uses :class:`~chainercv.links.ResNet50` as
+    its base feature extractor.
+
+    .. [#] Tsung-Yi Lin et al.
+       Feature Pyramid Networks for Object Detection. CVPR 2017
+
+
+    """
+
+    def __init__(self, n_fg_class=None, pretrained_model=None,
+                 n_point=None,
+                 min_size=800, max_size=1333):
+        super(KeypointRCNNFPNResNet, self).__init__(
+            n_fg_class, pretrained_model, n_point,
+            ['points', 'labels', 'scores', 'point_scores', 'bboxes'],
             min_size, max_size)
 
 
@@ -188,6 +219,52 @@ class MaskRCNNFPNResNet101(MaskRCNNFPNResNet):
         },
     }
 
+
+class KeypointRCNNFPNResNet50(KeypointRCNNFPNResNet):
+    """Feature Pyramid Networks with ResNet-50.
+
+    This is a model of Feature Pyramid Networks [#]_.
+    This model uses :class:`~chainercv.links.ResNet50` as
+    its base feature extractor.
+
+    .. [#] Tsung-Yi Lin et al.
+       Feature Pyramid Networks for Object Detection. CVPR 2017
+
+
+    """
+
+    _base = ResNet50
+    _models = {
+        'coco': {
+            'param': {'n_fg_class': 1, 'n_point': 17},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'faster_rcnn_fpn_resnet50_keypoint_coco_converted_2019_03_15.npz',
+            'cv2': True
+        },
+    }
+
+
+class KeypointRCNNFPNResNet101(KeypointRCNNFPNResNet):
+    """Feature Pyramid Networks with ResNet-50.
+
+    This is a model of Feature Pyramid Networks [#]_.
+    This model uses :class:`~chainercv.links.ResNet50` as
+    its base feature extractor.
+
+    .. [#] Tsung-Yi Lin et al.
+       Feature Pyramid Networks for Object Detection. CVPR 2017
+
+
+    """
+
+    _base = ResNet50
+    _models = {
+        'coco': {
+            'param': {'n_fg_class': 80},
+            'url': '',
+            'cv2': True
+        },
+    }
 
 
 def _copyparams(dst, src):

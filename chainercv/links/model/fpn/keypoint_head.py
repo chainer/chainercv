@@ -15,8 +15,8 @@ from chainercv.links import Conv2DActiv
 from chainercv.transforms.image.resize import resize
 from chainercv.utils.bbox.bbox_iou import bbox_iou
 
-from chainercv.links.model.mask_rcnn.misc import point_to_roi_points
-from chainercv.links.model.mask_rcnn.misc import within_bbox
+from chainercv.links.model.fpn.keypoint_utils import point_to_roi_points
+from chainercv.links.model.fpn.keypoint_utils import within_bbox
 
 
 # make a bilinear interpolation kernel
