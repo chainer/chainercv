@@ -15,18 +15,24 @@ import chainermn
 
 from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
 from chainercv.chainer_experimental.training.extensions import make_shift
-from chainercv.datasets import coco_instance_segmentation_label_names
-from chainercv.datasets import COCOInstanceSegmentationDataset
-# from chainercv.links import MaskRCNNFPNResNet101
-# from chainercv.links import MaskRCNNFPNResNet50
-from chainercv.links.model.mask_rcnn.misc import scale_img
+from chainercv.links.model.fpn.misc import scale_img
 from chainercv import transforms
 
-from chainercv.links.model.fpn import head_loss_post
-from chainercv.links.model.fpn import head_loss_pre
+from chainercv.datasets import coco_instance_segmentation_label_names
+from chainercv.datasets import COCOInstanceSegmentationDataset
+from chainercv.links import MaskRCNNFPNResNet101
+from chainercv.links import MaskRCNNFPNResNet50
+
+from chainercv.datasets import coco_bbox_label_names
+from chainercv.datasets import COCOBboxDataset
+from chainercv.links import FasterRCNNFPNResNet101
+from chainercv.links import FasterRCNNFPNResNet50
+
+from chainercv.links.model.fpn import bbox_head_loss_post
+from chainercv.links.model.fpn import bbox_head_loss_pre
+from chainercv.links.model.fpn import mask_loss_post
+from chainercv.links.model.fpn import mask_loss_pre
 from chainercv.links.model.fpn import rpn_loss
-from chainercv.links.model.mask_rcnn import mask_loss_post
-from chainercv.links.model.mask_rcnn import mask_loss_pre
 
 # https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
 try:
@@ -43,7 +49,7 @@ class TrainChain(chainer.Chain):
         with self.init_scope():
             self.model = model
 
-    def __call__(self, imgs, masks, labels, bboxes):
+    def __call__(self, imgs, bboxes, labels, masks=None):
         B = len(imgs)
         pad_size = np.array(
             [im.shape[1:] for im in imgs]).max(axis=0)
@@ -56,16 +62,6 @@ class TrainChain(chainer.Chain):
             _, H, W = img.shape
             x[i, :, :H, :W] = img
         x = self.xp.array(x)
-
-        # For reducing unnecessary CPU/GPU copy, `masks` is kept in CPU.
-        pad_masks = [
-            np.zeros(
-                (mask.shape[0], pad_size[0], pad_size[1]), dtype=np.bool)
-            for mask in masks]
-        for i, mask in enumerate(masks):
-            _, H, W = mask.shape
-            pad_masks[i][:, :H, :W] = mask
-        masks = pad_masks
 
         bboxes = [self.xp.array(bbox) for bbox in bboxes]
         labels = [self.xp.array(label) for label in labels]
@@ -87,34 +83,48 @@ class TrainChain(chainer.Chain):
             + [self.xp.array((i,) * len(bbox))
                for i, bbox in enumerate(bboxes)])
         rois, roi_indices = self.model.head.distribute(rois, roi_indices)
-        rois, roi_indices, head_gt_locs, head_gt_labels = head_loss_pre(
+        rois, roi_indices, head_gt_locs, head_gt_labels = bbox_head_loss_pre(
             rois, roi_indices, self.model.head.std, bboxes, labels)
         head_locs, head_confs = self.model.head(hs, rois, roi_indices)
-        head_loc_loss, head_conf_loss = head_loss_post(
+        head_loc_loss, head_conf_loss = bbox_head_loss_post(
             head_locs, head_confs,
             roi_indices, head_gt_locs, head_gt_labels, B)
 
-        mask_rois, mask_roi_indices, gt_segms, gt_mask_labels = mask_loss_pre(
-            rois, roi_indices, masks, bboxes,
-            head_gt_labels, self.model.mask_head.segm_size)
-        n_roi = sum([len(roi) for roi in mask_rois])
-        if n_roi > 0:
-            segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
-            mask_loss = mask_loss_post(
-                segms, mask_roi_indices, gt_segms, gt_mask_labels, B)
-        else:
-            # Compute dummy variables to complete the computational graph
-            mask_rois[0] = self.xp.array([[0, 0, 1, 1]], dtype=np.float32)
-            mask_roi_indices[0] = self.xp.array([0], dtype=np.int32)
-            segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
-            mask_loss = 0 * F.sum(segms)
+        mask_loss = 0
+        if masks is not None:
+            # For reducing unnecessary CPU/GPU copy, `masks` is kept in CPU.
+            pad_masks = [
+                np.zeros(
+                    (mask.shape[0], pad_size[0], pad_size[1]), dtype=np.bool)
+                for mask in masks]
+            for i, mask in enumerate(masks):
+                _, H, W = mask.shape
+                pad_masks[i][:, :H, :W] = mask
+            masks = pad_masks
+
+            mask_rois, mask_roi_indices, gt_segms, gt_mask_labels =\
+                mask_loss_pre(
+                    rois, roi_indices, masks, bboxes,
+                    head_gt_labels, self.model.mask_head.segm_size)
+            n_roi = sum([len(roi) for roi in mask_rois])
+            if n_roi > 0:
+                segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
+                mask_loss = mask_loss_post(
+                    segms, mask_roi_indices, gt_segms, gt_mask_labels, B)
+            else:
+                # Compute dummy variables to complete the computational graph
+                mask_rois[0] = self.xp.array([[0, 0, 1, 1]], dtype=np.float32)
+                mask_roi_indices[0] = self.xp.array([0], dtype=np.int32)
+                segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
+                mask_loss = 0 * F.sum(segms)
         loss = (rpn_loc_loss + rpn_conf_loss +
                 head_loc_loss + head_conf_loss + mask_loss)
         chainer.reporter.report({
             'loss': loss,
             'loss/rpn/loc': rpn_loc_loss, 'loss/rpn/conf': rpn_conf_loss,
-            'loss/head/loc': head_loc_loss, 'loss/head/conf': head_conf_loss,
-            'loss/mask': mask_loss},
+            'loss/bbox_head/loc': head_loc_loss,
+            'loss/bbox_head/conf': head_conf_loss,
+            'loss/mask_head': mask_loss},
             self)
         return loss
 
@@ -127,24 +137,30 @@ class Transform(object):
         self.mean = mean
 
     def __call__(self, in_data):
-        img, mask, label, bbox = in_data
+        img, bbox, label = in_data[:3]
         # Flipping
         img, params = transforms.random_flip(
             img, x_random=True, return_param=True)
-        mask = transforms.flip(mask, x_flip=params['x_flip'])
+        x_flip = params['x_flip']
         bbox = transforms.flip_bbox(
-            bbox, img.shape[1:], x_flip=params['x_flip'])
+            bbox, img.shape[1:], x_flip=x_flip)
 
         # Scaling and mean subtraction
         img, scale = scale_img(
             img, self.min_size, self.max_size)
         img -= self.mean
-        mask = transforms.resize(
-            mask.astype(np.float32),
-            img.shape[1:],
-            interpolation=PIL.Image.NEAREST).astype(np.bool)
         bbox = bbox * scale
-        return img, mask, label, bbox, scale
+
+        if len(in_data) == 4:
+            mask = in_data[3]
+            mask = transforms.flip(mask, x_flip=x_flip)
+            mask = transforms.resize(
+                mask.astype(np.float32),
+                img.shape[1:],
+                interpolation=PIL.Image.NEAREST).astype(np.bool)
+            return img, bbox, label, mask
+        else:
+            return img, bbox, label
 
 
 def converter(batch, device=None):
@@ -156,7 +172,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--model',
-        choices=('mask_rcnn_fpn_resnet50', 'mask_rcnn_fpn_resnet101'),
+        choices=('mask_rcnn_fpn_resnet50', 'mask_rcnn_fpn_resnet101',
+                 'faster_rcnn_fpn_resnet50', 'faster_rcnn_fpn_resnet101'),
         default='mask_rcnn_fpn_resnet50')
     parser.add_argument('--batchsize', type=int, default=16)
     parser.add_argument('--iteration', type=int, default=90000)
@@ -176,11 +193,23 @@ def main():
     comm = chainermn.create_communicator(args.communicator)
     device = comm.intra_rank
 
-    if args.model == 'mask_rcnn_fpn_resnet50':
+    if args.model == 'faster_rcnn_fpn_resnet50':
+        mode = 'bbox'
+        model = FasterRCNNFPNResNet50(
+            n_fg_class=len(coco_bbox_label_names),
+            pretrained_model='imagenet')
+    elif args.model == 'faster_rcnn_fpn_resnet101':
+        mode = 'bbox'
+        model = FasterRCNNFPNResNet101(
+            n_fg_class=len(coco_bbox_label_names),
+            pretrained_model='imagenet')
+    elif args.model == 'mask_rcnn_fpn_resnet50':
+        mode = 'instance_segmentation'
         model = MaskRCNNFPNResNet50(
             n_fg_class=len(coco_instance_segmentation_label_names),
             pretrained_model='imagenet')
     elif args.model == 'mask_rcnn_fpn_resnet101':
+        mode = 'instance_segmentation'
         model = MaskRCNNFPNResNet101(
             n_fg_class=len(coco_instance_segmentation_label_names),
             pretrained_model='imagenet')
@@ -190,12 +219,16 @@ def main():
     chainer.cuda.get_device_from_id(device).use()
     train_chain.to_gpu()
 
-    train = TransformDataset(
-        COCOInstanceSegmentationDataset(
-            data_dir='/home/yuyu2172/coco',
-            split='train', return_bbox=True),
-        ('img', 'mask', 'label', 'bbox'),
-        Transform(model.min_size, model.max_size, model.extractor.mean))
+    if mode == 'bbox':
+        train = TransformDataset(
+            COCOBboxDataset(year='2017', split='train'),
+            ('img', 'bbox', 'label'),
+            Transform(model.min_size, model.max_size, model.extractor.mean))
+    elif mode == 'instance_segmentation':
+        train = TransformDataset(
+            COCOInstanceSegmentationDataset(split='train', return_bbox=True),
+            ('img', 'bbox', 'label', 'mask'),
+            Transform(model.min_size, model.max_size, model.extractor.mean))
 
     if comm.rank == 0:
         indices = np.arange(len(train))
@@ -253,8 +286,8 @@ def main():
         trainer.extend(extensions.PrintReport(
             ['epoch', 'iteration', 'lr', 'main/loss',
              'main/loss/rpn/loc', 'main/loss/rpn/conf',
-             'main/loss/head/loc', 'main/loss/head/conf',
-             'main/loss/mask'
+             'main/loss/bbox_head/loc', 'main/loss/bbox_head/conf',
+             'main/loss/mask_head'
              ]),
             trigger=log_interval)
         trainer.extend(extensions.ProgressBar(update_interval=10))
