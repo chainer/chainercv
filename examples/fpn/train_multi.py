@@ -28,8 +28,15 @@ from chainercv.datasets import COCOBboxDataset
 from chainercv.links import FasterRCNNFPNResNet101
 from chainercv.links import FasterRCNNFPNResNet50
 
+from chainercv.datasets import coco_keypoint_names
+from chainercv.datasets import COCOKeypointDataset
+from chainercv.links import KeypointRCNNFPNResNet101
+from chainercv.links import KeypointRCNNFPNResNet50
+
 from chainercv.links.model.fpn import bbox_loss_post
 from chainercv.links.model.fpn import bbox_loss_pre
+from chainercv.links.model.fpn import keypoint_loss_post
+from chainercv.links.model.fpn import keypoint_loss_pre
 from chainercv.links.model.fpn import mask_loss_post
 from chainercv.links.model.fpn import mask_loss_pre
 from chainercv.links.model.fpn import rpn_loss
@@ -49,7 +56,8 @@ class TrainChain(chainer.Chain):
         with self.init_scope():
             self.model = model
 
-    def __call__(self, imgs, bboxes, labels, masks=None):
+    def __call__(self, imgs, bboxes, labels, masks=None,
+                 points=None, visibles=None):
         B = len(imgs)
         pad_size = np.array(
             [im.shape[1:] for im in imgs]).max(axis=0)
@@ -117,30 +125,63 @@ class TrainChain(chainer.Chain):
                 mask_roi_indices[0] = self.xp.array([0], dtype=np.int32)
                 segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
                 mask_loss = 0 * F.sum(segms)
+
+        point_loss = 0
+        if points is not None:
+            points = [self.xp.array(point) for point in points]
+            visibles = [self.xp.array(visible) for visible in visibles]
+
+            point_rois, point_roi_indices, gt_head_points, gt_head_visibles =\
+                keypoint_loss_pre(
+                    rois, roi_indices, points, visibles, bboxes,
+                    head_gt_labels, self.model.keypoint_head.point_map_size)
+            n_roi = sum([len(roi) for roi in point_rois])
+            if n_roi > 0:
+                point_maps = self.model.keypoint_head(
+                    hs, point_rois, point_roi_indices)
+                point_loss = keypoint_loss_post(
+                    point_maps, point_roi_indices,
+                    gt_head_points, gt_head_visibles, B)
+            else:
+                # Compute dummy variables to complete the computational graph
+                point_rois[0] = self.xp.array([[0, 0, 1, 1]], dtype=np.float32)
+                point_roi_indices[0] = self.xp.array([0], dtype=np.int32)
+                point_maps = self.model.keypoint_head(
+                    hs, point_rois, point_roi_indices)
+                point_loss = 0 * F.sum(point_maps)
+
         loss = (rpn_loc_loss + rpn_conf_loss +
-                head_loc_loss + head_conf_loss + mask_loss)
+                head_loc_loss + head_conf_loss + mask_loss + point_loss)
         chainer.reporter.report({
             'loss': loss,
             'loss/rpn/loc': rpn_loc_loss, 'loss/rpn/conf': rpn_conf_loss,
             'loss/bbox_head/loc': head_loc_loss,
             'loss/bbox_head/conf': head_conf_loss,
-            'loss/mask_head': mask_loss},
+            'loss/mask_head': mask_loss,
+            'loss/keypoint_head': point_loss},
             self)
         return loss
 
 
 class Transform(object):
 
-    def __init__(self, min_size, max_size, mean):
+    def __init__(self, min_size, max_size, mean, mode):
+        if not isinstance(min_size, (tuple, list)):
+            min_size = (min_size,)
         self.min_size = min_size
         self.max_size = max_size
         self.mean = mean
+        self.mode = mode
 
     def __call__(self, in_data):
-        if len(in_data) == 4:
-            img, mask, label, bbox = in_data
-        else:
+        if self.mode == 'bbox':
             img, bbox, label = in_data
+        elif self.mode == 'instance_segmentation':
+            img, mask, label, bbox = in_data
+        elif self.mode == 'keypoint':
+            img, point, visible, label, bbox = in_data
+
+        original_size = img.shape[1:]
         # Flipping
         img, params = transforms.random_flip(
             img, x_random=True, return_param=True)
@@ -154,20 +195,34 @@ class Transform(object):
         img -= self.mean
         bbox = bbox * scale
 
-        if len(in_data) == 4:
+        if self.mode == 'bbox':
+            return img, bbox, label
+        elif self.mode == 'instance_segmentation':
             mask = transforms.flip(mask, x_flip=x_flip)
             mask = transforms.resize(
                 mask.astype(np.float32),
                 img.shape[1:],
                 interpolation=PIL.Image.NEAREST).astype(np.bool)
             return img, bbox, label, mask
-        else:
-            return img, bbox, label
+        elif self.mode == 'keypoint':
+            point = transforms.flip_point(
+                point, original_size, x_flip=x_flip)
+            point = transforms.resize_point(
+                point, original_size, img.shape[1:])
+            return img, bbox, label, None, point, visible
 
 
 def converter(batch, device=None):
     # do not send data to gpu (device is ignored)
     return tuple(list(v) for v in zip(*batch))
+
+
+def valid_point_annotation(visible):
+    if len(visible) == 0:
+        return False
+    min_keypoint_per_image = 10
+    n_visible = visible.sum()
+    return n_visible >= min_keypoint_per_image
 
 
 def main():
@@ -176,7 +231,8 @@ def main():
     parser.add_argument(
         '--model',
         choices=('mask_rcnn_fpn_resnet50', 'mask_rcnn_fpn_resnet101',
-                 'faster_rcnn_fpn_resnet50', 'faster_rcnn_fpn_resnet101'),
+                 'faster_rcnn_fpn_resnet50', 'faster_rcnn_fpn_resnet101',
+                 'keypoint_rcnn_fpn_resnet50', 'keypoint_rcnn_fpn_resnet101'),
         default='faster_rcnn_fpn_resnet50')
     parser.add_argument('--batchsize', type=int, default=16)
     parser.add_argument('--iteration', type=int, default=90000)
@@ -216,6 +272,16 @@ def main():
         model = MaskRCNNFPNResNet101(
             n_fg_class=len(coco_instance_segmentation_label_names),
             pretrained_model='imagenet')
+    elif args.model == 'keypoint_rcnn_fpn_resnet50':
+        mode = 'keypoint'
+        model = KeypointRCNNFPNResNet50(
+            n_fg_class=1, pretrained_model='imagenet',
+            n_point=len(coco_keypoint_names[0]))
+    elif args.model == 'keypoint_rcnn_fpn_resnet101':
+        mode = 'keypoint'
+        model = KeypointRCNNFPNResNet101(
+            n_fg_class=1, pretrained_model='imagenet',
+            n_point=len(coco_keypoint_names[0]))
 
     model.use_preset('evaluate')
     train_chain = TrainChain(model)
@@ -223,17 +289,30 @@ def main():
     train_chain.to_gpu()
 
     if mode == 'bbox':
+        transform = Transform(
+            model.min_size, model.max_size, model.extractor.mean, mode)
         train = TransformDataset(
             COCOBboxDataset(
                 data_dir=args.data_dir, year='2017', split='train'),
-            ('img', 'bbox', 'label'),
-            Transform(model.min_size, model.max_size, model.extractor.mean))
+            ('img', 'bbox', 'label'), transform)
     elif mode == 'instance_segmentation':
+        transform = Transform(
+            model.min_size, model.max_size, model.extractor.mean, mode)
         train = TransformDataset(
             COCOInstanceSegmentationDataset(
                 data_dir=args.data_dir, split='train', return_bbox=True),
-            ('img', 'bbox', 'label', 'mask'),
-            Transform(model.min_size, model.max_size, model.extractor.mean))
+            ('img', 'bbox', 'label', 'mask'), transform)
+    elif mode == 'keypoint':
+        train = COCOKeypointDataset(data_dir=args.data_dir, split='train')
+        indices = [i for i, visible in enumerate(train.slice[:, 'visible'])
+                   if valid_point_annotation(visible)]
+        train = train.slice[indices]
+        transform = Transform(
+            (640, 672, 704, 736, 768, 800),
+            model.max_size, model.extractor.mean, mode)
+        train = TransformDataset(
+            train,
+            ('img', 'bbox', 'label', 'mask', 'point', 'visible'), transform)
 
     if comm.rank == 0:
         indices = np.arange(len(train))
@@ -257,6 +336,8 @@ def main():
     for link in model.links():
         if isinstance(link, L.BatchNormalization):
             link.disable_update()
+    if mode == 'keypoint':
+        model.keypoint_head.upsample.disable_update()
 
     n_iteration = args.iteration * 16 / args.batchsize
     updater = training.updaters.StandardUpdater(
@@ -292,7 +373,7 @@ def main():
             ['epoch', 'iteration', 'lr', 'main/loss',
              'main/loss/rpn/loc', 'main/loss/rpn/conf',
              'main/loss/bbox_head/loc', 'main/loss/bbox_head/conf',
-             'main/loss/mask_head'
+             'main/loss/mask_head', 'main/loss/keypoint_head'
              ]),
             trigger=log_interval)
         trainer.extend(extensions.ProgressBar(update_interval=10))
