@@ -36,7 +36,6 @@ def setup(dataset, model_name, pretrained_model, batchsize):
             n_fg_class=n_fg_class,
             pretrained_model=pretrained_model,
             n_point=n_point,
-            mode='keypoint'
         )
         model.use_preset('evaluate')
 
