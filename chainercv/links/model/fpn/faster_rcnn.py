@@ -152,8 +152,10 @@ class FasterRCNN(chainer.Chain):
             hs, rpn_rois, rpn_roi_indices = self(x)
             if self._store_rpn_outputs:
                 rpn_rois_cpu = [
-                    chainer.backends.cuda.to_cpu(rpn_roi) for rpn_roi in
-                    _flat_to_list(rpn_rois, rpn_roi_indices, len(imgs))]
+                    chainer.backends.cuda.to_cpu(rpn_roi) / scale
+                    for rpn_roi, scale in
+                    zip(_flat_to_list(rpn_rois, rpn_roi_indices, len(imgs)),
+                        scales)]
                 output.update({'rois': rpn_rois_cpu})
 
         if self._run_bbox:
@@ -198,7 +200,7 @@ class FasterRCNN(chainer.Chain):
             # Currently MaskHead only supports numpy inputs
             masks_cpu = self.mask_head.decode(segms, bboxes_cpu, labels_cpu, sizes)
             output.update({'masks': masks_cpu})
-        return (output[key] for key in self._return_values)
+        return tuple([output[key] for key in self._return_values])
 
     def prepare(self, imgs):
         """Preprocess images.

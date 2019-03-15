@@ -7,9 +7,9 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links.model.mask_rcnn import MaskHead
-from chainercv.links.model.mask_rcnn import mask_loss_post
-from chainercv.links.model.mask_rcnn import mask_loss_pre
+from chainercv.links.model.fpn import MaskHead
+from chainercv.links.model.fpn import mask_loss_post
+from chainercv.links.model.fpn import mask_loss_pre
 
 from chainercv.utils import mask_to_bbox
 
