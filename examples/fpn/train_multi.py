@@ -28,8 +28,8 @@ from chainercv.datasets import COCOBboxDataset
 from chainercv.links import FasterRCNNFPNResNet101
 from chainercv.links import FasterRCNNFPNResNet50
 
-from chainercv.links.model.fpn import bbox_head_loss_post
-from chainercv.links.model.fpn import bbox_head_loss_pre
+from chainercv.links.model.fpn import bbox_loss_post
+from chainercv.links.model.fpn import bbox_loss_pre
 from chainercv.links.model.fpn import mask_loss_post
 from chainercv.links.model.fpn import mask_loss_pre
 from chainercv.links.model.fpn import rpn_loss
@@ -83,10 +83,10 @@ class TrainChain(chainer.Chain):
             + [self.xp.array((i,) * len(bbox))
                for i, bbox in enumerate(bboxes)])
         rois, roi_indices = self.model.head.distribute(rois, roi_indices)
-        rois, roi_indices, head_gt_locs, head_gt_labels = bbox_head_loss_pre(
+        rois, roi_indices, head_gt_locs, head_gt_labels = bbox_loss_pre(
             rois, roi_indices, self.model.head.std, bboxes, labels)
         head_locs, head_confs = self.model.head(hs, rois, roi_indices)
-        head_loc_loss, head_conf_loss = bbox_head_loss_post(
+        head_loc_loss, head_conf_loss = bbox_loss_post(
             head_locs, head_confs,
             roi_indices, head_gt_locs, head_gt_labels, B)
 
@@ -170,11 +170,12 @@ def converter(batch, device=None):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--data-dir', default='auto')
     parser.add_argument(
         '--model',
         choices=('mask_rcnn_fpn_resnet50', 'mask_rcnn_fpn_resnet101',
                  'faster_rcnn_fpn_resnet50', 'faster_rcnn_fpn_resnet101'),
-        default='mask_rcnn_fpn_resnet50')
+        default='faster__rcnn_fpn_resnet50')
     parser.add_argument('--batchsize', type=int, default=16)
     parser.add_argument('--iteration', type=int, default=90000)
     parser.add_argument('--step', type=int, nargs='*', default=[60000, 80000])
@@ -221,12 +222,14 @@ def main():
 
     if mode == 'bbox':
         train = TransformDataset(
-            COCOBboxDataset(year='2017', split='train'),
+            COCOBboxDataset(
+                data_dir=args.data_dir, year='2017', split='train'),
             ('img', 'bbox', 'label'),
             Transform(model.min_size, model.max_size, model.extractor.mean))
     elif mode == 'instance_segmentation':
         train = TransformDataset(
-            COCOInstanceSegmentationDataset(split='train', return_bbox=True),
+            COCOInstanceSegmentationDataset(
+                data_dir=args.data_dir, split='train', return_bbox=True),
             ('img', 'bbox', 'label', 'mask'),
             Transform(model.min_size, model.max_size, model.extractor.mean))
 
