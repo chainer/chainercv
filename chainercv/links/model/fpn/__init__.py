@@ -10,6 +10,9 @@ from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import KeypointRCNNFPNResN
 from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import MaskRCNNFPNResNet101  # NOQA
 from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import MaskRCNNFPNResNet50  # NOQA
 from chainercv.links.model.fpn.fpn import FPN  # NOQA
+from chainercv.links.model.fpn.keypoint_head import keypoint_loss_post  # NOQA
+from chainercv.links.model.fpn.keypoint_head import keypoint_loss_pre  # NOQA
+from chainercv.links.model.fpn.keypoint_head import KeypointHead  # NOQA
 from chainercv.links.model.fpn.mask_head import mask_loss_post  # NOQA
 from chainercv.links.model.fpn.mask_head import mask_loss_pre  # NOQA
 from chainercv.links.model.fpn.mask_head import MaskHead  # NOQA

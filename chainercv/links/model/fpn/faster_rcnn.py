@@ -191,7 +191,7 @@ class FasterRCNN(chainer.Chain):
             output.update({'bboxes': bboxes_cpu, 'labels': labels_cpu,
                            'scores': scores_cpu})
             rescaled_bboxes = [bbox * scale
-                                for scale, bbox in zip(scales, bboxes)]
+                               for scale, bbox in zip(scales, bboxes)]
         if self._run_mask:
             # Change bboxes to RoI and RoI indices format
             mask_rois_before_reordering, mask_roi_indices_before_reordering =\
