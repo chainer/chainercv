@@ -48,12 +48,12 @@ class FasterRCNN(chainer.Chain):
     Each stage is carried out by one of the callable
     :class:`chainer.Chain` objects :obj:`feature`, :obj:`rpn` and :obj:`head`.
 
-    There are two functions :meth:`predict` and :meth:`__call__` to conduct
+    There are two functions :meth:`predict` and :meth:`forward` to conduct
     object detection.
     :meth:`predict` takes images and returns bounding boxes that are converted
     to image coordinates. This will be useful for a scenario when
     Faster R-CNN is treated as a black box function, for instance.
-    :meth:`__call__` is provided for a scnerario when intermediate outputs
+    :meth:`forward` is provided for a scnerario when intermediate outputs
     are needed, for instance, for training and debugging.
 
     Links that support obejct detection API have method :meth:`predict` with
@@ -112,7 +112,7 @@ class FasterRCNN(chainer.Chain):
         # Total number of classes including the background.
         return self.head.n_class
 
-    def __call__(self, x, scales=None):
+    def forward(self, x, scales=None):
         """Forward Faster R-CNN.
 
         Scaling paramter :obj:`scales` is used by RPN to determine the
@@ -285,7 +285,7 @@ class FasterRCNN(chainer.Chain):
                     chainer.function.no_backprop_mode():
                 img_var = chainer.Variable(self.xp.asarray(img[None]))
                 scale = img_var.shape[3] / size[1]
-                roi_cls_locs, roi_scores, rois, _ = self.__call__(
+                roi_cls_locs, roi_scores, rois, _ = self.forward(
                     img_var, scales=[scale])
             # We are assuming that batch size is 1.
             roi_cls_loc = roi_cls_locs.array
