@@ -46,19 +46,19 @@ class TestMixupSoftLabelDataset(unittest.TestCase):
 
     def _check_example(self, example):
         assert_is_image(example[0])
-        self.assertEqual(example[0].shape, self.img_shape)
-        self.assertEqual(example[1].dtype, np.float32)
-        self.assertEqual(example[1].ndim, 1)
-        self.assertEqual(example[1].shape[0], self.n_class)
-        self.assertAlmostEqual(example[1].sum(), 1.0)
-        self.assertGreaterEqual(np.min(example[1]), 0.0)
+        assert example[0].shape == self.img_shape
+        assert example[1].dtype == np.float32
+        assert example[1].ndim == 1
+        assert len(example[1]) == self.n_class
+        np.testing.assert_almost_equal(example[1].sum(), 1.0)
+        assert (example[1] >= 0.0).all()
 
     def test_mixup(self):
         dataset = MixUpSoftLabelDataset(self.siamese_dataset, self.n_class)
         for i in range(10):
             example = dataset[i]
             self._check_example(example)
-        self.assertEqual(len(dataset), N)
+        assert len(dataset) == N
 
 
 testing.run_module(__name__, __file__)
