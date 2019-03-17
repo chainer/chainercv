@@ -41,9 +41,9 @@ class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
         n_class (int): The number of classes in the base dataset.
         alpha (float): A hyperparameter of Beta distribution.
             ``mix_ratio`` is sampled from :math:`B(\\alpha,\\alpha)`.
-            The default value is 1.0 meaning that the distribution is
-            equivalent to Uniform distribution with lower boundary of
-            :math:`0` and upper boundary of :math:`1`.
+            The default value is :math:`1.0` meaning that the distribution is
+            the same as Uniform distribution with lower boundary of
+            :math:`0.0` and upper boundary of :math:`1.0`.
 
     .. [#] Hongyi Zhang, Moustapha Cisse, Yann N. Dauphin, David Lopez-Paz.
         `mixup: Beyond Empirical Risk Minimization\
