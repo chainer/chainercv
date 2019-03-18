@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+import pytest
 
 from chainer import testing
 
@@ -18,16 +19,20 @@ N = 15
     {'labels_0': np.arange(N, dtype=np.int32) % 3,
      'labels_1': np.arange(N, dtype=np.int32) % 3,
      'pos_exist': True, 'neg_exist': True,
+     'alpha': 1.0,
      },
     # No positive
     {'labels_0': np.zeros(N, dtype=np.int32),
      'labels_1': np.ones(N, dtype=np.int32),
-     'pos_exist': False, 'neg_exist': True
+     'pos_exist': False, 'neg_exist': True,
+     'alpha': 2.0,
      },
     # No negative
     {'labels_0': np.ones(N, dtype=np.int32),
      'labels_1': np.ones(N, dtype=np.int32),
-     'pos_exist': True, 'neg_exist': False},
+     'pos_exist': True, 'neg_exist': False,
+     'alpha': 5.0,
+     },
 )
 class TestMixupSoftLabelDataset(unittest.TestCase):
 
@@ -54,11 +59,18 @@ class TestMixupSoftLabelDataset(unittest.TestCase):
         assert (example[1] >= 0.0).all()
 
     def test_mixup(self):
-        dataset = MixUpSoftLabelDataset(self.siamese_dataset, self.n_class)
+        dataset = MixUpSoftLabelDataset(
+            self.siamese_dataset, self.n_class, alpha=self.alpha)
         for i in range(10):
             example = dataset[i]
             self._check_example(example)
         assert len(dataset) == N
+
+
+    def test_invalid_alpha(self):
+        with pytest.raises(ValueError):
+            MixUpSoftLabelDataset(
+                self.siamese_dataset, self.n_class, alpha=-self.alpha)
 
 
 testing.run_module(__name__, __file__)
