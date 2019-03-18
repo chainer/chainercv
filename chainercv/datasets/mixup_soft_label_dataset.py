@@ -61,10 +61,10 @@ class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
     """
 
     def __init__(self, dataset, n_class, alpha=1.0):
-        if alpha < 0.0:
+        if alpha <= 0.0:
             raise ValueError(
                 'Invalid value for a shape parameter ``alpha``.'
-                ' It must be greater than 0.')
+                ' It must be positive.')
         self._dataset = dataset
         self._n_class = n_class
         self._alpha = alpha

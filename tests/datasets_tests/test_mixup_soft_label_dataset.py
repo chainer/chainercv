@@ -66,11 +66,10 @@ class TestMixupSoftLabelDataset(unittest.TestCase):
             self._check_example(example)
         assert len(dataset) == N
 
-
     def test_invalid_alpha(self):
         with pytest.raises(ValueError):
             MixUpSoftLabelDataset(
-                self.siamese_dataset, self.n_class, alpha=-self.alpha)
+                self.siamese_dataset, self.n_class, alpha=self.alpha - 5.0)
 
 
 testing.run_module(__name__, __file__)
