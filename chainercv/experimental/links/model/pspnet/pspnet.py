@@ -39,7 +39,7 @@ class PyramidPoolingModule(chainer.ChainList):
         kw = feat_size[1] // np.array(pyramids)
         self.ksizes = list(zip(kh, kw))
 
-    def __call__(self, x):
+    def forward(self, x):
         ys = [x]
         H, W = x.shape[2:]
         for f, ksize in zip(self, self.ksizes):
@@ -197,7 +197,7 @@ class PSPNet(chainer.Chain):
     def n_class(self):
         return self.head_conv2.out_channels
 
-    def __call__(self, x):
+    def forward(self, x):
         _, res5 = self.extractor(x)
 
         h = self.ppm(res5)
