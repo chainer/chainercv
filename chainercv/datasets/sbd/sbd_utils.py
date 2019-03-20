@@ -30,9 +30,10 @@ def _generate_voc2012_txt(base_path):
 
 
 def get_sbd():
-    data_root = download.get_dataset_directory(root)
     # To support ChainerMN, the target directory should be locked.
-    with filelock.FileLock(os.path.join(data_root, 'lock')):
+    with filelock.FileLock(os.path.join(
+            download.get_dataset_directory('.lock'), 'sbd.lock')):
+        data_root = download.get_dataset_directory(root)
         base_path = os.path.join(data_root, 'benchmark_RELEASE/dataset')
 
         train_voc2012_file = os.path.join(base_path, 'train_voc2012.txt')

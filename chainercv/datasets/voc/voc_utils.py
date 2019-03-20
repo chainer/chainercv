@@ -26,9 +26,10 @@ def get_voc(year, split):
     if split == 'test' and year == '2007':
         key = '2007_test'
 
-    data_root = download.get_dataset_directory(root)
     # To support ChainerMN, the target directory should be locked.
-    with filelock.FileLock(os.path.join(data_root, 'lock')):
+    with filelock.FileLock(os.path.join(
+            download.get_dataset_directory('.lock'), 'voc.lock')):
+        data_root = download.get_dataset_directory(root)
         base_path = os.path.join(data_root, 'VOCdevkit/VOC{}'.format(year))
         split_file = os.path.join(
             base_path, 'ImageSets/Main/{}.txt'.format(split))

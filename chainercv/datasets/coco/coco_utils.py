@@ -42,9 +42,10 @@ panoptic_anno_url = 'http://images.cocodataset.org/annotations/' +\
 
 
 def get_coco(split, img_split, year, mode):
-    data_dir = download.get_dataset_directory(root)
     # To support ChainerMN, the target directory should be locked.
-    with filelock.FileLock(os.path.join(data_dir, 'lock')):
+    with filelock.FileLock(os.path.join(
+            download.get_dataset_directory('.lock'), 'coco.lock')):
+        data_dir = download.get_dataset_directory(root)
         annos_root = os.path.join(data_dir, 'annotations')
         img_root = os.path.join(data_dir, 'images')
         created_img_root = os.path.join(
