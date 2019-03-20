@@ -10,8 +10,8 @@ from chainercv import utils
 
 def get_ade20k(root, url):
     # To support ChainerMN, the target directory should be locked.
-    with filelock.FileLock(os.path.join(
-            download.get_dataset_directory('.lock'), 'ade20k.lock')):
+    with filelock.FileLock(os.path.join(download.get_dataset_directory(
+            'pfnet/chainercv/.lock'), 'ade20k.lock')):
         data_root = download.get_dataset_directory(root)
         if os.path.exists(os.path.join(data_root, 'ADEChallengeData2016')):
             return data_root

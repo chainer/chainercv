@@ -50,8 +50,8 @@ camvid_ignore_label_color = (0, 0, 0)
 
 def get_camvid():
     # To support ChainerMN, the target directory should be locked.
-    with filelock.FileLock(os.path.join(
-            download.get_dataset_directory('.lock'), 'camvid.lock')):
+    with filelock.FileLock(os.path.join(download.get_dataset_directory(
+            'pfnet/chainercv/.lock'), 'camvid.lock')):
         data_root = download.get_dataset_directory(root)
         download_file_path = utils.cached_download(url)
         if len(glob.glob(os.path.join(data_root, '*'))) != 10:

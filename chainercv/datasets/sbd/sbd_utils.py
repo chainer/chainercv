@@ -31,8 +31,8 @@ def _generate_voc2012_txt(base_path):
 
 def get_sbd():
     # To support ChainerMN, the target directory should be locked.
-    with filelock.FileLock(os.path.join(
-            download.get_dataset_directory('.lock'), 'sbd.lock')):
+    with filelock.FileLock(os.path.join(download.get_dataset_directory(
+            'pfnet/chainercv/.lock'), 'sbd.lock')):
         data_root = download.get_dataset_directory(root)
         base_path = os.path.join(data_root, 'benchmark_RELEASE/dataset')
 

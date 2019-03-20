@@ -29,8 +29,8 @@ online_products_super_label_names = (
 
 def _get_online_products():
     # To support ChainerMN, the target directory should be locked.
-    with filelock.FileLock(os.path.join(
-            download.get_dataset_directory('.lock'), 'online_products.lock')):
+    with filelock.FileLock(os.path.join(download.get_dataset_directory(
+            'pfnet/chainercv/.lock'), 'online_products.lock')):
         data_root = download.get_dataset_directory(root)
         base_path = os.path.join(data_root, 'Stanford_Online_Products')
         if os.path.exists(base_path):
