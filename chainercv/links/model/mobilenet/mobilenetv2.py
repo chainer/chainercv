@@ -128,7 +128,8 @@ class MobileNetV2(PickableSequentialChain):
                  initial_bias=None,
                  arch='tf',
                  depth_multiplier=1.,
-                 bn_kwargs=_bn_tf_default_params):
+                 bn_kwargs=_bn_tf_default_params,
+                 thousand_categories_mode=False):
         if depth_multiplier < 0:
             raise ValueError('depth_multiplier must be greater than 0')
 
@@ -144,6 +145,7 @@ class MobileNetV2(PickableSequentialChain):
             })
         self.mean = param['mean']
         self.scale = param['scale']
+        self.n_class = param['n_class']
 
         super(MobileNetV2, self).__init__()
         relu6 = lambda x: clipped_relu(x, 6.)
@@ -202,7 +204,7 @@ class MobileNetV2(PickableSequentialChain):
             self.global_average_pool = lambda x: average_pooling_2d(x, ksize=x.shape[2:4], stride=1)
             self.logits_conv = TFConvolution2D(
                 in_channels=conv1_out_channels,
-                out_channels=n_class,
+                out_channels=self.n_class,
                 ksize=1,
                 nobias=False,  # bias is needed
                 initialW=initialW,
@@ -213,3 +215,7 @@ class MobileNetV2(PickableSequentialChain):
 
         if path:
             chainer.serializers.load_npz(path, self)
+
+        if thousand_categories_mode and 1000 < n_class:
+            self.logits_conv.W.data = np.delete(self.logits_conv.W.data, 0, 0)
+            self.logits_conv.b.data = np.delete(self.logits_conv.b.data, 0)
