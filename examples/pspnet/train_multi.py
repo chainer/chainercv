@@ -144,7 +144,7 @@ class TrainChain(chainer.Chain):
             self.aux_conv2 = L.Convolution2D(
                 None, model.n_class, 3, 1, 1, False, initialW=initialW)
 
-    def __call__(self, imgs, labels):
+    def forward(self, imgs, labels):
         h_aux, h_main = self.model.extractor(imgs)
         h_aux = F.dropout(self.aux_conv1(h_aux), ratio=0.1)
         h_aux = self.aux_conv2(h_aux)

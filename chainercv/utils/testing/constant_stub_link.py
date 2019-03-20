@@ -44,7 +44,7 @@ class ConstantStubLink(chainer.Link):
         for output in self._outputs:
             output.to_gpu()
 
-    def __call__(self, *_):
+    def forward(self, *_):
         """Returns value(s).
 
         Args:
