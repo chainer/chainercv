@@ -54,7 +54,7 @@ def get_camvid():
             'pfnet/chainercv/.lock'), 'camvid.lock')):
         data_root = download.get_dataset_directory(root)
         download_file_path = utils.cached_download(url)
-        if len(glob.glob(os.path.join(data_root, '*'))) != 10:
+        if len(glob.glob(os.path.join(data_root, '*'))) != 9:
             utils.extractall(
                 download_file_path, data_root, os.path.splitext(url)[1])
         data_dir = os.path.join(data_root, 'SegNet-Tutorial-master/CamVid')
