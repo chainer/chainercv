@@ -7,12 +7,12 @@ class ConstantStubLink(chainer.Link):
     """A chainer.Link that returns constant value(s).
 
     This is a :obj:`chainer.Link` that returns constant
-    :obj:`chainer.Variable` (s) when :meth:`__call__` method is called.
+    :obj:`chainer.Variable` (s) when :meth:`forward` method is called.
 
     Args:
         outputs (~numpy.ndarray or tuple or ~numpy.ndarray):
-            The value(s) of variable(s) returned by :meth:`__call__`.
-            If an array is specified, :meth:`__call__` returns
+            The value(s) of variable(s) returned by :meth:`forward`.
+            If an array is specified, :meth:`forward` returns
             a :obj:`chainer.Variable`. Otherwise, it returns a tuple of
             :obj:`chainer.Variable`.
     """
