@@ -157,7 +157,8 @@ class MaskRCNNFPNResNet101(MaskRCNNFPNResNet):
     _models = {
         'coco': {
             'param': {'n_fg_class': 80},
-            'url': '',
+            'url': 'https://chainercv-models.preferred.jp/'
+            'faster_rcnn_fpn_resnet101_mask_coco_trained_2019_03_15.npz',
             'cv2': True
         },
     }
