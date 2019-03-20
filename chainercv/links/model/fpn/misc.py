@@ -5,12 +5,31 @@ import numpy as np
 from chainer.backends import cuda
 import chainer.functions as F
 
+from chainercv import transforms
+
 
 exp_clip = np.log(1000 / 16)
 
 
 def smooth_l1(x, t, beta):
     return F.huber_loss(x, t, beta, reduce='no') / beta
+
+
+def balanced_sampling(label, n_sample, fg_ratio):
+    label = label.copy()
+
+    xp = cuda.get_array_module(label)
+
+    fg_index = xp.where(label > 0)[0]
+    n_fg = int(n_sample * fg_ratio)
+    if len(fg_index) > n_fg:
+        label[choice(fg_index, size=len(fg_index) - n_fg)] = -1
+
+    bg_index = xp.where(label == 0)[0]
+    n_bg = n_sample - int((label > 0).sum())
+    if len(bg_index) > n_bg:
+        label[choice(bg_index, size=len(bg_index) - n_bg)] = -1
+    return label
 
 
 # to avoid out of memory
@@ -31,3 +50,14 @@ def choice(x, size):
         return y
     else:
         return cuda.to_gpu(y)
+
+
+def scale_img(img, min_size, max_size):
+    """Process image."""
+    _, H, W = img.shape
+    scale = min_size / min(H, W)
+    if scale * max(H, W) > max_size:
+        scale = max_size / max(H, W)
+    H, W = int(H * scale), int(W * scale)
+    img = transforms.resize(img, (H, W))
+    return img, scale

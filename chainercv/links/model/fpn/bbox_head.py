@@ -7,14 +7,14 @@ from chainer import initializers
 import chainer.links as L
 
 from chainercv.links.model.fpn.misc import argsort
-from chainercv.links.model.fpn.misc import choice
+from chainercv.links.model.fpn.misc import balanced_sampling
 from chainercv.links.model.fpn.misc import exp_clip
 from chainercv.links.model.fpn.misc import smooth_l1
 from chainercv import utils
 
 
-class Head(chainer.Chain):
-    """Head network of Feature Pyramid Networks.
+class BboxHead(chainer.Chain):
+    """Bounding box head network of Feature Pyramid Networks.
 
     Args:
         n_class (int): The number of classes including background.
@@ -28,7 +28,7 @@ class Head(chainer.Chain):
     std = (0.1, 0.2)
 
     def __init__(self, n_class, scales):
-        super(Head, self).__init__()
+        super(BboxHead, self).__init__()
 
         fc_init = {
             'initialW': Caffe2FCUniform(),
@@ -210,10 +210,10 @@ class Head(chainer.Chain):
         return bboxes, labels, scores
 
 
-def head_loss_pre(rois, roi_indices, std, bboxes, labels):
+def bbox_loss_pre(rois, roi_indices, std, bboxes, labels):
     """Loss function for Head (pre).
 
-    This function processes RoIs for :func:`head_loss_post`.
+    This function processes RoIs for :func:`bbox_head_loss_post`.
 
     Args:
         rois (iterable of arrays): An iterable of arrays of
@@ -285,25 +285,16 @@ def head_loss_pre(rois, roi_indices, std, bboxes, labels):
         else:
             gt_label = xp.zeros(int(mask.sum()), dtype=np.int32)
 
-        fg_index = xp.where(gt_label > 0)[0]
-        n_fg = int(batchsize_per_image * fg_ratio)
-        if len(fg_index) > n_fg:
-            gt_label[choice(fg_index, size=len(fg_index) - n_fg)] = -1
-
-        bg_index = xp.where(gt_label == 0)[0]
-        n_bg = batchsize_per_image - int((gt_label > 0).sum())
-        if len(bg_index) > n_bg:
-            gt_label[choice(bg_index, size=len(bg_index) - n_bg)] = -1
-
         gt_locs[mask] = gt_loc
-        gt_labels[mask] = gt_label
+        gt_labels[mask] = balanced_sampling(
+            gt_label, batchsize_per_image, fg_ratio)
 
-    mask = gt_labels >= 0
-    rois = rois[mask]
-    roi_indices = roi_indices[mask]
-    roi_levels = roi_levels[mask]
-    gt_locs = gt_locs[mask]
-    gt_labels = gt_labels[mask]
+    is_sampled = gt_labels >= 0
+    rois = rois[is_sampled]
+    roi_indices = roi_indices[is_sampled]
+    roi_levels = roi_levels[is_sampled]
+    gt_locs = gt_locs[is_sampled]
+    gt_labels = gt_labels[is_sampled]
 
     masks = [roi_levels == l for l in range(n_level)]
     rois = [rois[m] for m in masks]
@@ -314,7 +305,7 @@ def head_loss_pre(rois, roi_indices, std, bboxes, labels):
     return rois, roi_indices, gt_locs, gt_labels
 
 
-def head_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
+def bbox_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
     """Loss function for Head (post).
 
      Args:
@@ -323,11 +314,11 @@ def head_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
          confs (array): An iterable of arrays whose shape is
              :math:`(R, n\_class)`.
          roi_indices (list of arrays): A list of arrays returned by
-             :func:`head_locs_pre`.
+             :func:`bbox_head_locs_pre`.
          gt_locs (list of arrays): A list of arrays returned by
-             :func:`head_locs_pre`.
+             :func:`bbox_head_locs_pre`.
          gt_labels (list of arrays): A list of arrays returned by
-             :func:`head_locs_pre`.
+             :func:`bbox_head_locs_pre`.
          batchsize (int): The size of batch.
 
      Returns:

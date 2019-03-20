@@ -45,6 +45,10 @@ calc_instance_segmentation_voc_prec_rec
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: calc_instance_segmentation_voc_prec_rec
 
+Keypoint Detection COCO
+-----------------------
+.. autofunction:: eval_keypoint_detection_coco
+
 Semantic Segmentation IoU
 -------------------------
 
