@@ -7,9 +7,9 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links.model.fpn import BboxHead
 from chainercv.links.model.fpn import bbox_loss_post
 from chainercv.links.model.fpn import bbox_loss_pre
+from chainercv.links.model.fpn import BboxHead
 
 
 def _random_array(xp, shape):
