@@ -85,16 +85,12 @@ class PSROIAveragePooling2D(function.Function):
             (n_roi, self.out_c, self.out_h, self.out_w), dtype=np.float32)
 
         spatial_scale = self.spatial_scale
-        pooled_dim = self.out_c
         pooled_height = self.out_h
         pooled_width = self.out_w
         group_size = self.group_size
 
         for i in six.moves.range(top_data.size):
-            pw = i % pooled_width
-            ph = int(i / pooled_width) % pooled_height
-            ctop = int(i / pooled_width / pooled_height) % pooled_dim
-            n = int(i / pooled_width / pooled_height / pooled_dim)
+            n, ctop, ph, pw = np.unravel_index(i, top_data.shape)
 
             roi_batch_ind = bottom_roi_indices[n]
             roi_start_h = bottom_rois[n, 0] * spatial_scale
@@ -132,7 +128,8 @@ class PSROIAveragePooling2D(function.Function):
                 for x in six.moves.range(wstart, wend):
                     output_val += bottom_data[roi_batch_ind, c, y, x]
             output_val /= count
-            top_data[n, ctop, ph, pw] = output_val
+            top_data[n, ctop, ph, pw] = np.mean(
+                bottom_data[roi_batch_ind, c, hstart:hend, wstart:wend])
 
         return top_data,
 
@@ -227,16 +224,12 @@ class PSROIAveragePooling2D(function.Function):
         bottom_diff = np.zeros(self._bottom_data_shape, np.float32)
 
         spatial_scale = self.spatial_scale
-        pooled_dim = self.out_c
         pooled_height = self.out_h
         pooled_width = self.out_w
         group_size = self.group_size
 
         for i in six.moves.range(top_diff.size):
-            pw = i % pooled_width
-            ph = int(i / pooled_width) % pooled_height
-            ctop = int(i / pooled_width / pooled_height) % pooled_dim
-            n = int(i / pooled_width / pooled_height / pooled_dim)
+            n, ctop, ph, pw = np.unravel_index(i, top_diff.shape)
 
             roi_batch_ind = int(bottom_roi_indices[n])
             roi_start_h = bottom_rois[n, 0] * spatial_scale
@@ -269,9 +262,7 @@ class PSROIAveragePooling2D(function.Function):
 
             count = (hend - hstart) * (wend - wstart)
             diff_val = top_diff[n, ctop, ph, pw] / count
-            for y in six.moves.range(hstart, hend):
-                for x in six.moves.range(wstart, wend):
-                    bottom_diff[roi_batch_ind, c, y, x] += diff_val
+            bottom_diff[roi_batch_ind, c, hstart:hend, wstart:wend] += diff_val
 
         return bottom_diff, None, None
 
