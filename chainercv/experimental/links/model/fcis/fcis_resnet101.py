@@ -367,7 +367,7 @@ class FCISResNet101Head(chainer.Chain):
         # shape: (n_roi, n_class, 2, roi_size, roi_size)
         roi_cls_ag_seg_scores = ps_roi_average_pooling_2d(
             h_cls_seg, rois, roi_indices,
-            self.n_class * 2, self.roi_size, self.roi_size,
+            (self.n_class * 2, self.roi_size, self.roi_size),
             self.spatial_scale, self.group_size)
         roi_cls_ag_seg_scores = F.reshape(
             roi_cls_ag_seg_scores,
@@ -376,7 +376,7 @@ class FCISResNet101Head(chainer.Chain):
         # shape: (n_roi, 2*4, roi_size, roi_size)
         roi_ag_loc_scores = ps_roi_average_pooling_2d(
             h_ag_loc, rois, roi_indices,
-            2 * 4, self.roi_size, self.roi_size,
+            (2 * 4, self.roi_size, self.roi_size),
             self.spatial_scale, self.group_size)
 
         # shape: (n_roi, n_class)
