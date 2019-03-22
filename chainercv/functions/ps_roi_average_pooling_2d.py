@@ -122,12 +122,6 @@ class PSROIAveragePooling2D(function.Function):
                 top_data[n, ctop, ph, pw] = 0
                 continue
 
-            output_val = 0.
-            count = (hend - hstart) * (wend - wstart)
-            for y in six.moves.range(hstart, hend):
-                for x in six.moves.range(wstart, wend):
-                    output_val += bottom_data[roi_batch_ind, c, y, x]
-            output_val /= count
             top_data[n, ctop, ph, pw] = np.mean(
                 bottom_data[roi_batch_ind, c, hstart:hend, wstart:wend])
 
