@@ -16,7 +16,7 @@ class CUBLabelDataset(CUBDatasetBase):
         data_dir (string): Path to the root of the training data. If this is
             :obj:`auto`, this class will automatically download data for you
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/cub`.
-        return_bb (bool): If :obj:`True`, this returns a bounding box
+        return_bbox (bool): If :obj:`True`, this returns a bounding box
             around a bird. The default value is :obj:`False`.
         prob_map_dir (string): Path to the root of the probability maps.
             If this is :obj:`auto`, this class will automatically download data
@@ -33,19 +33,19 @@ class CUBLabelDataset(CUBDatasetBase):
         :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
         "RGB, :math:`[0, 255]`"
         :obj:`label`, scalar, :obj:`int32`, ":math:`[0, \#class - 1]`"
-        :obj:`bb` [#cub_label_1]_, ":math:`(4,)`", :obj:`float32`, \
+        :obj:`bbox` [#cub_label_1]_, ":math:`(1, 4)`", :obj:`float32`, \
             ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
         :obj:`prob_map` [#cub_label_2]_, ":math:`(H, W)`", :obj:`float32`, \
             ":math:`[0, 1]`"
 
     .. [#cub_label_1] :obj:`bb` indicates the location of a bird. \
-        It is available if :obj:`return_bb = True`.
+        It is available if :obj:`return_bbox = True`.
     .. [#cub_label_2] :obj:`prob_map` indicates how likey a bird is located \
         at each the pixel. \
         It is available if :obj:`return_prob_map = True`.
     """
 
-    def __init__(self, data_dir='auto', return_bb=False,
+    def __init__(self, data_dir='auto', return_bbox=False,
                  prob_map_dir='auto', return_prob_map=False):
         super(CUBLabelDataset, self).__init__(data_dir, prob_map_dir)
 
@@ -59,8 +59,8 @@ class CUBLabelDataset(CUBDatasetBase):
         self.add_getter('label', self._get_label)
 
         keys = ('img', 'label')
-        if return_bb:
-            keys += ('bb',)
+        if return_bbox:
+            keys += ('bbox',)
         if return_prob_map:
             keys += ('prob_map',)
         self.keys = keys

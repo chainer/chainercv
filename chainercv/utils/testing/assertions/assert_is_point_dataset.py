@@ -6,7 +6,7 @@ from chainercv.utils.testing.assertions.assert_is_point import assert_is_point
 
 
 def assert_is_point_dataset(dataset, n_point=None, n_example=None,
-                            no_mask=False):
+                            no_visible=False):
     """Checks if a dataset satisfies the point dataset API.
 
     This function checks if a given dataset satisfies the point dataset
@@ -23,9 +23,9 @@ def assert_is_point_dataset(dataset, n_point=None, n_example=None,
             If this argument is specified, this function picks
             examples ramdomly and checks them. Otherwise,
             this function checks all examples.
-        no_mask (bool): If :obj:`True`, we assume that
-            point mask is always not contained.
-            If :obj:`False`, point mask may or may not be contained.
+        no_visible (bool): If :obj:`True`, we assume that
+            :obj:`visible` is always not contained.
+            If :obj:`False`, :obj;`visible` may or may not be contained.
 
     """
 
@@ -34,26 +34,22 @@ def assert_is_point_dataset(dataset, n_point=None, n_example=None,
     if n_example:
         for _ in six.moves.range(n_example):
             i = np.random.randint(0, len(dataset))
-            _check_example(dataset[i], n_point, no_mask)
+            _check_example(dataset[i], n_point, no_visible)
     else:
         for i in six.moves.range(len(dataset)):
-            _check_example(dataset[i], n_point, no_mask)
+            _check_example(dataset[i], n_point, no_visible)
 
 
-def _check_example(example, n_point=None, no_mask=False):
+def _check_example(example, n_point=None, no_visible=False):
     assert len(example) >= 2, \
         'Each example must have at least two elements:' \
-        'img, point (mask is optional).'
+        'img, point (visible is optional).'
 
-    if len(example) == 2 or no_mask:
+    if len(example) == 2 or no_visible:
         img, point = example[:2]
-        mask = None
+        visible = None
     elif len(example) >= 3:
-        img, point, mask = example[:3]
+        img, point, visible = example[:3]
 
     assert_is_image(img, color=True)
-    assert_is_point(point, mask, img.shape[1:])
-
-    if n_point is not None:
-        assert point.shape[0] == n_point, \
-            'The number of points is different from the expected number.'
+    assert_is_point(point, visible, img.shape[1:], n_point)

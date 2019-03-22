@@ -5,20 +5,20 @@ import numpy as np
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.datasets import CUBPointDataset
+from chainercv.datasets import CUBKeypointDataset
 from chainercv.utils import assert_is_bbox
 from chainercv.utils import assert_is_point_dataset
 
 
 @testing.parameterize(*testing.product({
-    'return_bb': [True, False],
+    'return_bbox': [True, False],
     'return_prob_map': [True, False]}
 ))
-class TestCUBPointDataset(unittest.TestCase):
+class TestCUBKeypointDataset(unittest.TestCase):
 
     def setUp(self):
-        self.dataset = CUBPointDataset(return_bb=self.return_bb,
-                                       return_prob_map=self.return_prob_map)
+        self.dataset = CUBKeypointDataset(return_bbox=self.return_bbox,
+                                          return_prob_map=self.return_prob_map)
 
     @attr.slow
     def test_cub_point_dataset(self):
@@ -26,12 +26,12 @@ class TestCUBPointDataset(unittest.TestCase):
             self.dataset, n_point=15, n_example=10)
 
         idx = np.random.choice(np.arange(10))
-        if self.return_bb:
+        if self.return_bbox:
             if self.return_prob_map:
-                bb = self.dataset[idx][-2]
+                bbox = self.dataset[idx][-2]
             else:
-                bb = self.dataset[idx][-1]
-            assert_is_bbox(bb[np.newaxis])
+                bbox = self.dataset[idx][-1]
+            assert_is_bbox(bbox)
         if self.return_prob_map:
             img = self.dataset[idx][0]
             prob_map = self.dataset[idx][-1]

@@ -4,11 +4,11 @@ import numpy as np
 
 import chainer
 from chainer.initializers import Zero
-from chainer import testing
 from chainer.testing import attr
 from chainer import Variable
 
 from chainercv.links import VGG16
+from chainercv.utils import testing
 
 
 @testing.parameterize(

@@ -183,10 +183,10 @@ class DeepLabV3plus(chainer.Chain):
         with chainer.using_config('train', False), \
                 chainer.function.no_backprop_mode():
             labels = []
-            score = 0
             n_aug = len(self.scales) if self.flip else len(self.scales) * 2
 
             for img in imgs:
+                score = 0
                 for scale in self.scales:
                     score += self._get_proba(img, scale, False) / n_aug
                     if self.flip:
@@ -241,7 +241,7 @@ class DeepLabV3plusXception65(DeepLabV3plus):
         },
         'ade20k': {
             'param': {
-                'n_class': 151,
+                'n_class': 150,
                 'min_input_size': (513, 513),
                 'scales': (1.0,),
                 'flip': False,
@@ -257,7 +257,7 @@ class DeepLabV3plusXception65(DeepLabV3plus):
             },
             'overwritable': ('scales', 'flip'),
             'url': 'https://chainercv-models.preferred.jp/'
-            'deeplabv3plus_xception65_ade20k_converted_2019_02_15.npz',
+            'deeplabv3plus_xception65_ade20k_converted_2019_03_08.npz',
         }
     }
 
@@ -270,7 +270,11 @@ class DeepLabV3plusXception65(DeepLabV3plus):
              'extractor_kwargs': extractor_kwargs,
              'aspp_kwargs': aspp_kwargs, 'decoder_kwargs': decoder_kwargs},
             pretrained_model, self._models,
-            default={'min_input_size': (513, 513)})
+            default={
+                'min_input_size': (513, 513),
+                'scales': (1.0,), 'flip': False,
+                'extractor_kwargs': {},
+                'aspp_kwargs': {}, 'decoder_kwargs': {}})
 
         super(DeepLabV3plusXception65, self).__init__(
             Xception65(**param['extractor_kwargs']),

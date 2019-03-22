@@ -2,12 +2,12 @@ import unittest
 
 import numpy as np
 
-from chainer import testing
 from chainer.testing import attr
 from chainer import Variable
 
 from chainercv.links import SEResNeXt101
 from chainercv.links import SEResNeXt50
+from chainercv.utils import testing
 
 
 @testing.parameterize(*(
