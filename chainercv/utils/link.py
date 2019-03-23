@@ -11,50 +11,22 @@ except ImportError:
     _cv2_available = False
 
 
-def prepare_pretrained_model(param, pretrained_model, models, default={}):
+def prepare_pretrained_model(pretrained_model, models):
     """Select parameters based on the existence of pretrained model.
 
     Args:
-        param (dict): Map from the name of the parameter to values.
         pretrained_model (string): Name of the pretrained weight,
             path to the pretrained weight or :obj:`None`.
         models (dict): Map from the name of the pretrained weight
             to :obj:`model`, which is a dictionary containing the
             configuration used by the selected weight.
 
-            :obj:`model` has four keys: :obj:`param`, :obj:`overwritable`,
-            :obj:`url` and :obj:`cv2`.
-
-            * **param** (*dict*): Parameters assigned to the pretrained \
-                weight.
-            * **overwritable** (*set*): Names of parameters that are \
-                overwritable (i.e., :obj:`param[key] != model['param'][key]` \
-                is accepted).
-            * **url** (*string*): Location of the pretrained weight.
-            * **cv2** (*bool*): If :obj:`True`, a warning is raised \
-                if :obj:`cv2` is not installed.
-
     """
     if pretrained_model in models:
         model = models[pretrained_model]
-        model_param = model.get('param', {})
-        overwritable = model.get('overwritable', set())
-
-        for key in param.keys():
-            if key not in model_param:
-                continue
-
-            if param[key] is None:
-                param[key] = model_param[key]
-            else:
-                if key not in overwritable \
-                   and not param[key] == model_param[key]:
-                    raise ValueError(
-                        '{} must be {}'.format(key, model_param[key]))
-
         path = download_model(model['url'])
-
-        if model.get('cv2', False):
+        preset_param = model.get('preset_param', None)
+        if model.get(model['cv2'], False):
             if not _cv2_available:
                 warnings.warn(
                     'cv2 is not installed on your environment. '
@@ -72,14 +44,33 @@ def prepare_pretrained_model(param, pretrained_model, models, default={}):
                     RuntimeWarning)
     elif pretrained_model:
         path = pretrained_model
+        preset_param = None
     else:
         path = None
+        preset_param = None
 
-    for key in param.keys():
-        if param[key] is None:
-            if key in default:
-                param[key] = default[key]
+    return path, preset_param
+
+
+def prepare_param(param, preset_param):
+    """Select parameters based on the existence of pretrained model.
+
+    Args:
+        param (dict): Map from the name of the parameter to values.
+        preset_param (dict or None): Default map from the name of the parameter
+            to values.
+    """
+
+    if preset_param is not None:
+        for key in param.keys():
+            if key not in preset_param:
+                continue
+
+            if param[key] is None:
+                param[key] = preset_param[key]
             else:
-                raise ValueError('{} must be specified'.format(key))
+                if not param[key] == preset_param[key]:
+                    raise ValueError(
+                        '{} must be {}'.format(key, preset_param[key]))
 
-    return param, path
+    return param
