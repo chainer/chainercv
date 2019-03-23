@@ -97,7 +97,7 @@ class PSROIAveragePooling2D(function.Function):
                     'input channel must be divided by group_size * group_size:'
                     '{} % {} != 0'
                     .format(channel, self.group_size * self.group_size))
-            out_c = int(channel / (self.group_size * self.group_size))
+            out_c = channel // (self.group_size * self.group_size)
         else:
             if channel != self.out_c * self.group_size * self.group_size:
                 raise ValueError(
@@ -165,7 +165,7 @@ class PSROIAveragePooling2D(function.Function):
                     'input channel must be divided by group_size * group_size:'
                     '{} % {} != 0'
                     .format(channel, self.group_size * self.group_size))
-            out_c = int(channel / (self.group_size * self.group_size))
+            out_c = channel // (self.group_size * self.group_size)
         else:
             if channel != self.out_c * self.group_size * self.group_size:
                 raise ValueError(
