@@ -87,21 +87,10 @@ def main():
     test_dataset = SBDInstanceSegmentationDataset(split='val')
 
     # model
-    proposal_creator_params = {
-        'nms_thresh': 0.7,
-        'n_train_pre_nms': 6000,
-        'n_train_post_nms': 300,
-        'n_test_pre_nms': 6000,
-        'n_test_post_nms': 300,
-        'force_cpu_nms': False,
-        'min_size': 16,
-    }
-    fcis = FCISResNet101(
-        n_fg_class=len(sbd_instance_segmentation_label_names),
-        pretrained_model='imagenet',
-        anchor_scales=(8, 16, 32),
-        iter2=False,
-        proposal_creator_params=proposal_creator_params)
+    param = FCISResNet101.preset_param('sbd')
+    param['pretrained_model'] = 'imagenet'
+    param['iter2'] = False
+    fcis = FCISResNet101(**param)
     fcis.use_preset('evaluate')
     model = FCISTrainChain(fcis)
 
