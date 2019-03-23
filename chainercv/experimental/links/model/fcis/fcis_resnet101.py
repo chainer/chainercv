@@ -82,132 +82,141 @@ class FCISResNet101(FCIS):
 
     _models = {
         'sbd': {
-            'param': {
-                'n_fg_class': 20,
-                'anchor_scales': (8, 16, 32),
-                'proposal_creator_params': {
-                    'nms_thresh': 0.7,
-                    'n_train_pre_nms': 6000,
-                    'n_train_post_nms': 300,
-                    'n_test_pre_nms': 6000,
-                    'n_test_post_nms': 300,
-                    'force_cpu_nms': False,
-                    'min_size': 16,
-                },
-
-            },
             'url': 'https://chainercv-models.preferred.jp/'
-            'fcis_resnet101_sbd_trained_2018_06_22.npz',
-            'cv2': True
+                   'fcis_resnet101_sbd_trained_2018_06_22.npz',
+            'preset_param': 'sbd',
+            'cv2': True,
         },
         'sbd_converted': {
-            'param': {
-                'n_fg_class': 20,
-                'anchor_scales': (8, 16, 32),
-                'proposal_creator_params': {
-                    'nms_thresh': 0.7,
-                    'n_train_pre_nms': 6000,
-                    'n_train_post_nms': 300,
-                    'n_test_pre_nms': 6000,
-                    'n_test_post_nms': 300,
-                    'force_cpu_nms': False,
-                    'min_size': 16,
-                },
-            },
             'url': 'https://chainercv-models.preferred.jp/'
-            'fcis_resnet101_sbd_converted_2018_07_02.npz',
-            'cv2': True
+                   'fcis_resnet101_sbd_converted_2018_07_02.npz',
+            'preset_param': 'sbd',
+            'cv2': True,
         },
         'coco': {
-            'param': {
-                'n_fg_class': 80,
-                'anchor_scales': (4, 8, 16, 32),
-                'proposal_creator_params': {
-                    'nms_thresh': 0.7,
-                    'n_train_pre_nms': 6000,
-                    'n_train_post_nms': 300,
-                    'n_test_pre_nms': 6000,
-                    'n_test_post_nms': 300,
-                    'force_cpu_nms': False,
-                    'min_size': 2,
-                },
-            },
             'url': 'https://chainercv-models.preferred.jp/'
-            'fcis_resnet101_coco_trained_2019_01_30.npz',
-            'cv2': True
+                   'fcis_resnet101_coco_trained_2019_01_30.npz',
+            'preset_param': 'coco',
+            'cv2': True,
         },
         'coco_converted': {
-            'param': {
-                'n_fg_class': 80,
-                'anchor_scales': (4, 8, 16, 32),
-                'proposal_creator_params': {
-                    'nms_thresh': 0.7,
-                    'n_train_pre_nms': 6000,
-                    'n_train_post_nms': 300,
-                    'n_test_pre_nms': 6000,
-                    'n_test_post_nms': 300,
-                    'force_cpu_nms': False,
-                    'min_size': 2,
-                },
-            },
             'url': 'https://chainercv-models.preferred.jp/'
-            'fcis_resnet101_coco_converted_2019_01_30.npz',
-            'cv2': True
-        }
+                   'fcis_resnet101_coco_converted_2019_01_30.npz',
+            'preset_param': 'coco',
+            'cv2': True,
+        },
     }
-    feat_stride = 16
+    _params = {
+        'sbd': {
+            'n_fg_class': 20,
+            'anchor_scales': (8, 16, 32),
+            'proposal_creator_params': {
+                'nms_thresh': 0.7,
+                'n_train_pre_nms': 6000,
+                'n_train_post_nms': 300,
+                'n_test_pre_nms': 6000,
+                'n_test_post_nms': 300,
+                'force_cpu_nms': False,
+                'min_size': 16,
+            },
+        },
+        'coco': {
+            'n_fg_class': 80,
+            'anchor_scales': (4, 8, 16, 32),
+            'proposal_creator_params': {
+                'nms_thresh': 0.7,
+                'n_train_pre_nms': 6000,
+                'n_train_post_nms': 300,
+                'n_test_pre_nms': 6000,
+                'n_test_post_nms': 300,
+                'force_cpu_nms': False,
+                'min_size': 2,
+            },
+        },
+    }
+    _default_param = {
+        'feat_stride': 16,
+        'min_size': 600,
+        'max_size': 1000,
+        'roi_size': 21,
+        'group_size': 7,
+        'ratios': [0.5, 1, 2],
+        'loc_normalize_mean': (0.0, 0.0, 0.0, 0.0),
+        'loc_normalize_std': (0.2, 0.2, 0.5, 0.5),
+        'iter2': True,
+    }
 
     def __init__(
             self,
             n_fg_class=None,
             pretrained_model=None,
-            min_size=600, max_size=1000,
-            roi_size=21, group_size=7,
-            ratios=[0.5, 1, 2], anchor_scales=None,
-            loc_normalize_mean=(0.0, 0.0, 0.0, 0.0),
-            loc_normalize_std=(0.2, 0.2, 0.5, 0.5),
-            iter2=True,
-            resnet_initialW=None, rpn_initialW=None, head_initialW=None,
-            proposal_creator_params=None):
-        param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class, 'anchor_scales': anchor_scales,
-             'proposal_creator_params': proposal_creator_params},
+            feat_stride=None,
+            min_size=None, max_size=None,
+            roi_size=None, group_size=None,
+            ratios=None, anchor_scales=None,
+            loc_normalize_mean=None, loc_normalize_std=None,
+            iter2=None, proposal_creator_params=None,
+    ):
+
+        path, preset_param = utils.prepare_pretrained_model(
             pretrained_model, self._models)
+        param = utils.prepare_param(
+            {
+                'n_fg_class': n_fg_class,
+                'feat_stride': feat_stride,
+                'min_size': min_size,
+                'max_size': max_size,
+                'roi_size': roi_size,
+                'group_size': group_size,
+                'ratios': ratios,
+                'anchor_scales': anchor_scales,
+                'loc_normalize_mean': loc_normalize_mean,
+                'loc_normalize_std': loc_normalize_std,
+                'iter2': iter2,
+                'proposal_creator_params': proposal_creator_params
+            },
+            self.preset_param(preset_param))
 
-        if rpn_initialW is None:
-            rpn_initialW = chainer.initializers.Normal(0.01)
-        if resnet_initialW is None and pretrained_model:
-            resnet_initialW = chainer.initializers.constant.Zero()
+        rpn_initialW = chainer.initializers.Normal(0.01)
+        resnet_initialW = chainer.initializers.constant.Zero()
+        head_initialW = chainer.initializers.Normal(0.01)
 
-        extractor = ResNet101Extractor(
-            initialW=resnet_initialW)
+        extractor = ResNet101Extractor(initialW=resnet_initialW)
         rpn = RegionProposalNetwork(
             1024, 512,
-            ratios=ratios,
+            ratios=param['ratios'],
             anchor_scales=param['anchor_scales'],
-            feat_stride=self.feat_stride,
+            feat_stride=param['feat_stride'],
             initialW=rpn_initialW,
             proposal_creator_params=param['proposal_creator_params'])
         head = FCISResNet101Head(
             param['n_fg_class'] + 1,
-            roi_size=roi_size, group_size=group_size,
-            spatial_scale=1. / self.feat_stride,
-            loc_normalize_mean=loc_normalize_mean,
-            loc_normalize_std=loc_normalize_std,
-            iter2=iter2, initialW=head_initialW)
+            roi_size=param['roi_size'], group_size=param['group_size'],
+            spatial_scale=1. / param['feat_stride'],
+            loc_normalize_mean=param['loc_normalize_mean'],
+            loc_normalize_std=param['loc_normalize_std'],
+            iter2=param['iter2'], initialW=head_initialW)
 
-        mean = np.array([123.15, 115.90, 103.06],
-                        dtype=np.float32)[:, None, None]
+        mean = np.array(
+            [123.15, 115.90, 103.06], dtype=np.float32)[:, None, None]
 
         super(FCISResNet101, self).__init__(
             extractor, rpn, head,
-            mean, min_size, max_size,
-            loc_normalize_mean, loc_normalize_std)
+            mean, param['min_size'], param['max_size'],
+            param['loc_normalize_mean'], param['loc_normalize_std'])
 
         if path == 'imagenet':
             self._copy_imagenet_pretrained_resnet()
         elif path:
             chainer.serializers.load_npz(path, self)
+
+    @classmethod
+    def preset_param(cls, preset_param):
+        if preset_param is None:
+            return None
+        param = cls._params[preset_param].copy()
+        param = dict(param, **cls._default_param)
+        return param
 
     def _copy_imagenet_pretrained_resnet(self):
         def _copy_conv2dbn(src, dst):
