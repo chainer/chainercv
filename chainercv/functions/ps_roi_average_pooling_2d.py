@@ -35,7 +35,7 @@ from chainer import function
 from chainer.utils import type_check
 
 
-def _pair(x):
+def _outsize(x):
     if isinstance(x, chainer.utils.collections_abc.Iterable):
         if len(x) == 2:
             return (None, ) + x
@@ -47,7 +47,7 @@ def _pair(x):
 class PSROIAveragePooling2D(function.Function):
 
     def __init__(self, outsize, spatial_scale, group_size):
-        out_c, out_h, out_w = _pair(outsize)
+        out_c, out_h, out_w = _outsize(outsize)
         if out_c is not None and not (isinstance(out_c, int) and out_c > 0):
             raise TypeError(
                 'outsize[0] must be positive integer: {}, {}'
