@@ -1,4 +1,5 @@
 import numpy as np
+
 import chainer
 from chainer.links import Convolution2D
 from chainer.functions import pad

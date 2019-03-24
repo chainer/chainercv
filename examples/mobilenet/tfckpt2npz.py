@@ -1,9 +1,7 @@
 import argparse
-
 import numpy as np
 
 import chainer
-
 import tensorflow as tf
 
 from chainercv.links import MobileNetV2
@@ -157,8 +155,8 @@ def main():
     parser.add_argument(
         'model_name', choices=('mobilenetv2', ), default='mobilenetv2')
     parser.add_argument('pretrained_model')
-    parser.add_argument('--n_class', type=int, default=1001)
-    parser.add_argument('--depth_multiplier', type=float, default=1.0)
+    parser.add_argument('--n-class', type=int, default=1001)
+    parser.add_argument('--depth-multiplier', type=float, default=1.0)
     parser.add_argument('output', nargs='?', default=None)
     args = parser.parse_args()
 
@@ -166,7 +164,8 @@ def main():
     load_mobilenetv2_from_tensorflow_checkpoint(model, args.pretrained_model)
 
     if args.output is None:
-        output = '{}_{}_imagenet_convert.npz'.format(args.model_name, args.depth_multiplier)
+        output = '{}_{}_imagenet_convert.npz'.format(args.model_name,
+                                                     args.depth_multiplier)
     else:
         output = args.output
     chainer.serializers.save_npz(output, model)
