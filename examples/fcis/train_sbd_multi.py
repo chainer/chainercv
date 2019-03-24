@@ -59,7 +59,6 @@ def main():
 
     # model
     param = FCISResNet101.preset_param('sbd')
-    param['iter2'] = False
     fcis = FCISResNet101(
         pretrained_model='imagenet', **param)
     fcis.use_preset('evaluate')
