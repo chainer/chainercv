@@ -26,7 +26,7 @@ def prepare_pretrained_model(pretrained_model, models):
         model = models[pretrained_model]
         path = download_model(model['url'])
         preset_param = model.get('preset_param', None)
-        if model.get(model['cv2'], False):
+        if model.get('cv2', False):
             if not _cv2_available:
                 warnings.warn(
                     'cv2 is not installed on your environment. '
