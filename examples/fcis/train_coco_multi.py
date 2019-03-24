@@ -64,9 +64,9 @@ def main():
 
     # model
     param = FCISResNet101.preset_param('coco')
-    param['pretrained_model'] = 'imagenet'
     param['iter2'] = False
-    fcis = FCISResNet101(**param)
+    fcis = FCISResNet101(
+        pretrained_model='imagenet', **param)
     fcis.use_preset('coco_evaluate')
     proposal_target_creator = ProposalTargetCreator()
     proposal_target_creator.neg_iou_thresh_lo = 0.0
