@@ -139,6 +139,9 @@ class FCISResNet101(FCIS):
         'ratios': [0.5, 1, 2],
         'loc_normalize_mean': (0.0, 0.0, 0.0, 0.0),
         'loc_normalize_std': (0.2, 0.2, 0.5, 0.5),
+        'rpn_initialW': chainer.initializers.Normal(0.01),
+        'resnet_initialW': chainer.initializers.constant.Zero(),
+        'head_initialW': chainer.initializers.Normal(0.01),
     }
 
     def __init__(
@@ -150,6 +153,7 @@ class FCISResNet101(FCIS):
             roi_size=None, group_size=None,
             ratios=None, anchor_scales=None,
             loc_normalize_mean=None, loc_normalize_std=None,
+            rpn_initialW=None, resnet_initialW=None, head_initialW=None,
             proposal_creator_params=None,
     ):
 
@@ -167,22 +171,20 @@ class FCISResNet101(FCIS):
                 'anchor_scales': anchor_scales,
                 'loc_normalize_mean': loc_normalize_mean,
                 'loc_normalize_std': loc_normalize_std,
-                'iter2': iter2,
-                'proposal_creator_params': proposal_creator_params
+                'rpn_initialW': rpn_initialW,
+                'resnet_initialW': resnet_initialW,
+                'head_initialW': head_initialW,
+                'proposal_creator_params': proposal_creator_params,
             },
             self.preset_param(preset_param))
 
-        rpn_initialW = chainer.initializers.Normal(0.01)
-        resnet_initialW = chainer.initializers.constant.Zero()
-        head_initialW = chainer.initializers.Normal(0.01)
-
-        extractor = ResNet101Extractor(initialW=resnet_initialW)
+        extractor = ResNet101Extractor(initialW=param['resnet_initialW'])
         rpn = RegionProposalNetwork(
             1024, 512,
             ratios=param['ratios'],
             anchor_scales=param['anchor_scales'],
             feat_stride=param['feat_stride'],
-            initialW=rpn_initialW,
+            initialW=param['rpn_initialW'],
             proposal_creator_params=param['proposal_creator_params'])
         head = FCISResNet101Head(
             param['n_fg_class'] + 1,
@@ -190,7 +192,7 @@ class FCISResNet101(FCIS):
             spatial_scale=1. / param['feat_stride'],
             loc_normalize_mean=param['loc_normalize_mean'],
             loc_normalize_std=param['loc_normalize_std'],
-            initialW=head_initialW)
+            initialW=param['head_initialW'])
 
         mean = np.array(
             [123.15, 115.90, 103.06], dtype=np.float32)[:, None, None]
