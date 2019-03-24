@@ -88,9 +88,9 @@ def main():
 
     # model
     param = FCISResNet101.preset_param('sbd')
-    param['pretrained_model'] = 'imagenet'
     param['iter2'] = False
-    fcis = FCISResNet101(**param)
+    fcis = FCISResNet101(
+        pretrained_model='imagenet', **param)
     fcis.use_preset('evaluate')
     model = FCISTrainChain(fcis)
 

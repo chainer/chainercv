@@ -32,8 +32,7 @@ def setup(dataset, model_name, pretrained_model, batchsize):
         label_names = sbd_instance_segmentation_label_names
 
         param = cls.preset_param(dataset_name)
-        param['pretrained_model'] = pretrained_model
-        model = cls(**param)
+        model = cls(pretrained_model=pretrained_model, **param)
         model.use_preset('evaluate')
 
         def eval_(out_values, rest_values):
