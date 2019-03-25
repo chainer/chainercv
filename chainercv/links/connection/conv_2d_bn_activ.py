@@ -99,7 +99,7 @@ class Conv2DBNActiv(chainer.Chain):
             else:
                 self.bn = BatchNormalization(out_channels, **bn_kwargs)
 
-    def __call__(self, x):
+    def forward(self, x):
         h = self.conv(x)
         h = self.bn(h)
         if self.activ is None:

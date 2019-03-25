@@ -12,8 +12,8 @@ class FPN(chainer.Chain):
 
     Args:
         base (Link): A base feature extractor.
-            It should have :meth:`__call__` and :obj:`mean`.
-            :meth:`__call__` should take a batch of images and return
+            It should have :meth:`forward` and :obj:`mean`.
+            :meth:`forward` should take a batch of images and return
             feature maps of them. The size of the :math:`k+1`-th feature map
             should be the half as that of the :math:`k`-th feature map.
         n_base_output (int): The number of feature maps
@@ -40,7 +40,7 @@ class FPN(chainer.Chain):
     def mean(self):
         return self.base.mean
 
-    def __call__(self, x):
+    def forward(self, x):
         hs = list(self.base(x))
 
         for i in reversed(range(len(hs))):

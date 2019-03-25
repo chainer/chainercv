@@ -40,7 +40,7 @@ class TrainChain(chainer.Chain):
         with self.init_scope():
             self.model = model
 
-    def __call__(self, imgs, bboxes, labels):
+    def forward(self, imgs, bboxes, labels):
         x, scales = self.model.prepare(imgs)
         bboxes = [self.xp.array(bbox) * scale
                   for bbox, scale in zip(bboxes, scales)]

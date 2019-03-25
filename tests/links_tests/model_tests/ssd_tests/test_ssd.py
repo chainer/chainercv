@@ -19,7 +19,7 @@ class DummyExtractor(chainer.Link):
     insize = 32
     grids = (10, 4, 1)
 
-    def __call__(self, x):
+    def forward(self, x):
         n_sample = x.shape[0]
         n_dims = (32, 16, 8)
         return [

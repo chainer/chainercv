@@ -47,7 +47,7 @@ class Decoder(chainer.Chain):
             self.conv_logits = L.Convolution2D(
                 depth_channels, out_channels, 1, 1, 0)
 
-    def __call__(self, x, pool):
+    def forward(self, x, pool):
         x = self.feature_proj(x)
         pool = F.resize_images(pool, x.shape[2:])
         h = F.concat((pool, x), axis=1)
@@ -132,7 +132,7 @@ class DeepLabV3plus(chainer.Chain):
 
         return image
 
-    def __call__(self, x):
+    def forward(self, x):
         lowlevel, highlevel = self.feature_extractor(x)
         highlevel = self.aspp(highlevel)
         h = self.decoder(lowlevel, highlevel)
@@ -152,7 +152,7 @@ class DeepLabV3plus(chainer.Chain):
         img = self.prepare(img)
 
         x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
-        x = self.__call__(x)
+        x = self.forward(x)
         x = F.softmax(x, axis=1)
         score = F.resize_images(x, img.shape[1:])[0, :, :h, :w].array
         score = chainer.backends.cuda.to_cpu(score)

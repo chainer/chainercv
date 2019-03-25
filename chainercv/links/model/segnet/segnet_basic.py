@@ -105,7 +105,7 @@ class SegNetBasic(chainer.Chain):
         outsize = (x.shape[2] * 2, x.shape[3] * 2)
         return F.upsampling_2d(x, indices, ksize=2, stride=2, outsize=outsize)
 
-    def __call__(self, x):
+    def forward(self, x):
         """Compute an image-wise score from a batch of images
 
         Args:
@@ -157,7 +157,7 @@ class SegNetBasic(chainer.Chain):
             with chainer.using_config('train', False), \
                     chainer.function.no_backprop_mode():
                 x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
-                score = self.__call__(x)[0].data
+                score = self.forward(x)[0].array
             score = chainer.backends.cuda.to_cpu(score)
             if score.shape != (C, H, W):
                 dtype = score.dtype
