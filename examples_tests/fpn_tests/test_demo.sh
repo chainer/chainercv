@@ -6,3 +6,8 @@ $PYTHON demo.py --model faster_rcnn_fpn_resnet50 sample.jpg
 $PYTHON demo.py --model faster_rcnn_fpn_resnet50 --gpu 0 sample.jpg
 $PYTHON demo.py --model faster_rcnn_fpn_resnet101 sample.jpg
 $PYTHON demo.py --model faster_rcnn_fpn_resnet101 --gpu 0 sample.jpg
+
+$PYTHON demo.py --model mask_rcnn_fpn_resnet50 sample.jpg
+$PYTHON demo.py --model mask_rcnn_fpn_resnet50 --gpu 0 sample.jpg
+$PYTHON demo.py --model mask_rcnn_fpn_resnet101 sample.jpg
+$PYTHON demo.py --model mask_rcnn_fpn_resnet101 --gpu 0 sample.jpg
