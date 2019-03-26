@@ -30,9 +30,9 @@ def main():
         if args.pretrained_model is None:
             args.pretrained_model = 'coco'
         label_names = coco_instance_segmentation_label_names
-    param = FCISResNet101.preset_param(args.dataset)
     model = FCISResNet101(
-        pretrained_model=args.pretrained_model, **param)
+        pretrained_model=args.pretrained_model,
+        **FCISResNet101.preset_params[args.dataset])
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()

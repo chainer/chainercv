@@ -63,9 +63,8 @@ def main():
     np.random.seed(args.seed)
 
     # model
-    param = FCISResNet101.preset_param('coco')
     fcis = FCISResNet101(
-        pretrained_model='imagenet', **param)
+        pretrained_model='imagenet', **FCISResNet101.preset_params['coco'])
     fcis.use_preset('coco_evaluate')
     proposal_target_creator = ProposalTargetCreator()
     proposal_target_creator.neg_iou_thresh_lo = 0.0

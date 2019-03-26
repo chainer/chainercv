@@ -58,9 +58,8 @@ def main():
     np.random.seed(args.seed)
 
     # model
-    param = FCISResNet101.preset_param('sbd')
     fcis = FCISResNet101(
-        pretrained_model='imagenet', **param)
+        pretrained_model='imagenet', **FCISResNet101.preset_params['sbd'])
     fcis.use_preset('evaluate')
     model = FCISTrainChain(fcis)
     chainer.cuda.get_device_from_id(device).use()
