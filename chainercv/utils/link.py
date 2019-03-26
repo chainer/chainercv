@@ -68,9 +68,5 @@ def prepare_param(param, preset_param):
 
             if param[key] is None:
                 param[key] = preset_param[key]
-            else:
-                if not param[key] == preset_param[key]:
-                    raise ValueError(
-                        '{} must be {}'.format(key, preset_param[key]))
 
     return param
