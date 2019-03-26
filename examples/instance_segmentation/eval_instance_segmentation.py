@@ -57,9 +57,8 @@ def setup(dataset, model_name, pretrained_model, batchsize):
             use_crowded=True, return_crowded=True, return_area=True)
         label_names = coco_instance_segmentation_label_names
 
-        param = cls.preset_param(dataset_name)
-        param['pretrained_model'] = pretrained_model
-        model = cls(**param)
+        model = cls(pretrained_model=pretrained_model,
+                    **cls.preset_params[dataset_name])
         if model_name == 'fcis_resnet101':
             model.use_preset('coco_evaluate')
         else:
