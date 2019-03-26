@@ -26,7 +26,7 @@ def prepare_model_param(param, models):
         model = models[pretrained_model]
         path = download_model(model['url'])
         if 'param' in model:
-            param = {k: v if v is not None else model['param'][k]
+            param = {k: v if v is not None else model['param'].get(k, None)
                      for k, v in param.items()}
 
         if model.get('cv2', False):
