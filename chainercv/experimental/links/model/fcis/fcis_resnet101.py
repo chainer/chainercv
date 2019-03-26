@@ -75,34 +75,20 @@ class FCISResNet101(FCIS):
             :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
 
     """
-
-    _models = {
-        'sbd': {
-            'url': 'https://chainercv-models.preferred.jp/'
-                   'fcis_resnet101_sbd_trained_2018_06_22.npz',
-            'preset_param': 'sbd',
-            'cv2': True,
-        },
-        'sbd_converted': {
-            'url': 'https://chainercv-models.preferred.jp/'
-                   'fcis_resnet101_sbd_converted_2018_07_02.npz',
-            'preset_param': 'sbd',
-            'cv2': True,
-        },
-        'coco': {
-            'url': 'https://chainercv-models.preferred.jp/'
-                   'fcis_resnet101_coco_trained_2019_01_30.npz',
-            'preset_param': 'coco',
-            'cv2': True,
-        },
-        'coco_converted': {
-            'url': 'https://chainercv-models.preferred.jp/'
-                   'fcis_resnet101_coco_converted_2019_01_30.npz',
-            'preset_param': 'coco',
-            'cv2': True,
-        },
+    _common_param = {
+        'feat_stride': 16,
+        'min_size': 600,
+        'max_size': 1000,
+        'roi_size': 21,
+        'group_size': 7,
+        'ratios': [0.5, 1, 2],
+        'loc_normalize_mean': (0.0, 0.0, 0.0, 0.0),
+        'loc_normalize_std': (0.2, 0.2, 0.5, 0.5),
+        'rpn_initialW': chainer.initializers.Normal(0.01),
+        'resnet_initialW': chainer.initializers.constant.Zero(),
+        'head_initialW': chainer.initializers.Normal(0.01),
     }
-    _params = {
+    preset_params = {
         'sbd': {
             'n_fg_class': 20,
             'anchor_scales': (8, 16, 32),
@@ -115,6 +101,7 @@ class FCISResNet101(FCIS):
                 'force_cpu_nms': False,
                 'min_size': 16,
             },
+            **_common_param,
         },
         'coco': {
             'n_fg_class': 80,
@@ -128,20 +115,35 @@ class FCISResNet101(FCIS):
                 'force_cpu_nms': False,
                 'min_size': 2,
             },
+            **_common_param,
         },
     }
-    _default_param = {
-        'feat_stride': 16,
-        'min_size': 600,
-        'max_size': 1000,
-        'roi_size': 21,
-        'group_size': 7,
-        'ratios': [0.5, 1, 2],
-        'loc_normalize_mean': (0.0, 0.0, 0.0, 0.0),
-        'loc_normalize_std': (0.2, 0.2, 0.5, 0.5),
-        'rpn_initialW': chainer.initializers.Normal(0.01),
-        'resnet_initialW': chainer.initializers.constant.Zero(),
-        'head_initialW': chainer.initializers.Normal(0.01),
+
+    _models = {
+        'sbd': {
+            'param': preset_params['sbd'],
+            'url': 'https://chainercv-models.preferred.jp/'
+                   'fcis_resnet101_sbd_trained_2018_06_22.npz',
+            'cv2': True,
+        },
+        'sbd_converted': {
+            'param': preset_params['sbd'],
+            'url': 'https://chainercv-models.preferred.jp/'
+                   'fcis_resnet101_sbd_converted_2018_07_02.npz',
+            'cv2': True,
+        },
+        'coco': {
+            'param': preset_params['coco'],
+            'url': 'https://chainercv-models.preferred.jp/'
+                   'fcis_resnet101_coco_trained_2019_01_30.npz',
+            'cv2': True,
+        },
+        'coco_converted': {
+            'param': preset_params['coco'],
+            'url': 'https://chainercv-models.preferred.jp/'
+                   'fcis_resnet101_coco_converted_2019_01_30.npz',
+            'cv2': True,
+        },
     }
 
     def __init__(
@@ -156,27 +158,7 @@ class FCISResNet101(FCIS):
             rpn_initialW=None, resnet_initialW=None, head_initialW=None,
             proposal_creator_params=None,
     ):
-
-        path, preset_param = utils.prepare_pretrained_model(
-            pretrained_model, self._models)
-        param = utils.prepare_param(
-            {
-                'n_fg_class': n_fg_class,
-                'feat_stride': feat_stride,
-                'min_size': min_size,
-                'max_size': max_size,
-                'roi_size': roi_size,
-                'group_size': group_size,
-                'ratios': ratios,
-                'anchor_scales': anchor_scales,
-                'loc_normalize_mean': loc_normalize_mean,
-                'loc_normalize_std': loc_normalize_std,
-                'rpn_initialW': rpn_initialW,
-                'resnet_initialW': resnet_initialW,
-                'head_initialW': head_initialW,
-                'proposal_creator_params': proposal_creator_params,
-            },
-            self.preset_param(preset_param))
+        param, path = utils.prepare_model_param(locals(), self._models)
 
         extractor = ResNet101Extractor(initialW=param['resnet_initialW'])
         rpn = RegionProposalNetwork(
@@ -206,14 +188,6 @@ class FCISResNet101(FCIS):
             self._copy_imagenet_pretrained_resnet()
         elif path:
             chainer.serializers.load_npz(path, self)
-
-    @classmethod
-    def preset_param(cls, preset_param):
-        if preset_param is None:
-            return None
-        param = cls._params[preset_param].copy()
-        param = dict(param, **cls._default_param)
-        return param
 
     def _copy_imagenet_pretrained_resnet(self):
         def _copy_conv2dbn(src, dst):
