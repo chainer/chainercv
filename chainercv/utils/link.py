@@ -11,21 +11,24 @@ except ImportError:
     _cv2_available = False
 
 
-def prepare_pretrained_model(pretrained_model, models):
-    """Select parameters based on the existence of pretrained model.
+def prepare_model_param(param, models):
+    """Select parameters and weights of model.
 
     Args:
-        pretrained_model (string): Name of the pretrained weight,
-            path to the pretrained weight or :obj:`None`.
+        param (dict): A dict that contains all arguments.
         models (dict): Map from the name of the pretrained weight
             to :obj:`model`, which is a dictionary containing the
             configuration used by the selected weight.
 
     """
+    pretrained_model = param.pop('pretrained_model', None)
     if pretrained_model in models:
         model = models[pretrained_model]
         path = download_model(model['url'])
-        preset_param = model.get('preset_param', None)
+        if 'param' in model:
+            param = {k: v if v is not None else model['param'][k]
+                     for k, v in param.items()}
+
         if model.get('cv2', False):
             if not _cv2_available:
                 warnings.warn(
@@ -42,27 +45,7 @@ def prepare_pretrained_model(pretrained_model, models):
                     'different backends. To suppress this warning, set '
                     '`chainer.config.cv_resize_backend = "cv2".',
                     RuntimeWarning)
-    elif pretrained_model:
+    else:
         path = pretrained_model
-        preset_param = None
-    else:
-        path = None
-        preset_param = None
 
-    return path, preset_param
-
-
-def prepare_param(param, preset_param):
-    """Select parameters based on the existence of pretrained model.
-
-    Args:
-        param (dict): Map from the name of the parameter to values.
-        preset_param (dict or None): Default map from the name of the parameter
-            to values.
-    """
-
-    if preset_param is None:
-        return param.copy()
-    else:
-        return {k: v if v is not None else preset_param[k]
-                for k, v in param.items()}
+    return param, path
