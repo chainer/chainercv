@@ -58,11 +58,11 @@ class DummyFasterRCNN(FasterRCNN):
         {'n_fg_class': 20},
     ],
     [
-        # {
-        #     'in_sizes': [(480, 640), (320, 320)],
-        #     'min_size': 800, 'max_size': 1333,
-        #     'expected_shape': (800, 1088),
-        # },
+        {
+            'in_sizes': [(480, 640), (320, 320)],
+            'min_size': 800, 'max_size': 1333,
+            'expected_shape': (800, 1088),
+        },
         {
             'in_sizes': [(200, 50), (400, 100)],
             'min_size': 200, 'max_size': 320,
@@ -120,6 +120,7 @@ class TestFasterRCNN(unittest.TestCase):
 
         self.assertEqual(rois.shape[0], roi_indices.shape[0])
 
+    @attr.slow
     def test_call_cpu(self):
         self._check_call()
 
@@ -147,7 +148,7 @@ class TestFasterRCNN(unittest.TestCase):
                     0, 256, size=(3, 480, 320)).astype(np.float32)]
             result = self.link.predict(imgs)
             assert len(result) == 1
-            assert len(result[0]) == 1
+            assert len(result[0]) == len(imgs)
             for i in range(len(result[0])):
                 roi = result[0][i]
                 assert_is_bbox(roi)
