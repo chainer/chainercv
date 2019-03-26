@@ -61,12 +61,8 @@ def prepare_param(param, preset_param):
             to values.
     """
 
-    if preset_param is not None:
-        for key in param.keys():
-            if key not in preset_param:
-                continue
-
-            if param[key] is None:
-                param[key] = preset_param[key]
-
-    return param
+    if preset_param is None:
+        return param.copy()
+    else:
+        return {k: v if v is not None else preset_param[k]
+                for k, v in param.items()}
