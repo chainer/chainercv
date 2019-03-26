@@ -87,9 +87,8 @@ def main():
     test_dataset = SBDInstanceSegmentationDataset(split='val')
 
     # model
-    param = FCISResNet101.preset_param('sbd')
     fcis = FCISResNet101(
-        pretrained_model='imagenet', **param)
+        pretrained_model='imagenet', **FCISResNet101.preset_params['sbd'])
     fcis.use_preset('evaluate')
     model = FCISTrainChain(fcis)
 
