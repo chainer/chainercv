@@ -7,8 +7,8 @@ MS COCO 2017 Val
 |:-:|:-:|:-:|:-:|:-:|:-:|
 | FPN w/ ResNet50 | bbox | 36.7 % [3] | 37.1 % | | |
 | FPN w/ ResNet101 | bbox | 39.4 % [3] | 39.5 % | | |
-| FPN w/ ResNet50 | bbox + mask | 37.3 % [3] |  % | 33.7% [3] | |
-| FPN w/ ResNet101 | bbox + mask | 39.4 % [3] |  % | 35.6% [3] | |
+| FPN w/ ResNet50 | bbox + mask | 37.3 % [3] | 38.0 % | 33.7% [3] | 34.2 %|
+| FPN w/ ResNet101 | bbox + mask | 39.4 % [3] | 40.4% | 35.6% [3] | 36.0% |
 
 Scores are the mean of mean Average Precision (mmAP).
 
