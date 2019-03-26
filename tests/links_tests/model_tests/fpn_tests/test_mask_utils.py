@@ -3,12 +3,15 @@ from __future__ import division
 import numpy as np
 import unittest
 
+import chainer
 from chainer import testing
 
 from chainercv.links.model.fpn.mask_utils import mask_to_segm
 from chainercv.links.model.fpn.mask_utils import segm_to_mask
 
 
+@testing.parameterize(
+    {'backend': 'cv2'}, {'backend': 'PIL'})
 class TestSegmToMask(unittest.TestCase):
 
     def setUp(self):
@@ -32,6 +35,8 @@ class TestSegmToMask(unittest.TestCase):
         for i, bb in enumerate(self.bbox):
             bb = bb.astype(np.int32)
             self.mask[i, bb[0]:bb[2], bb[1]:bb[3]] = 1
+
+        chainer.config.cv_resize_backend = self.backend
 
     def test_segm_to_mask(self):
         mask = segm_to_mask(self.segm, self.bbox, self.size)
