@@ -49,7 +49,7 @@ class TrainChain(chainer.Chain):
         with self.init_scope():
             self.model = model
 
-    def __call__(self, imgs, bboxes, labels, masks=None):
+    def forward(self, imgs, bboxes, labels, masks=None):
         B = len(imgs)
         pad_size = np.array(
             [im.shape[1:] for im in imgs]).max(axis=0)

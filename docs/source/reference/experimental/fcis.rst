@@ -17,7 +17,6 @@ FCIS
 ~~~~
 .. autoclass:: FCIS
    :members:
-   :special-members:  __call__
 
 FCISResNet101Head
 ~~~~~~~~~~~~~~~~~
@@ -38,7 +37,6 @@ FCISTrainChain
 ~~~~~~~~~~~~~~
 .. autoclass:: FCISTrainChain
    :members:
-   :special-members:  __call__
 
 ProposalTargetCreator
 ~~~~~~~~~~~~~~~~~~~~~

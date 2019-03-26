@@ -25,7 +25,7 @@ class DummyExtractor(chainer.Link):
     scales = (1 / 2, 1 / 4, 1 / 8)
     mean = _random_array(np, (3, 1, 1))
 
-    def __call__(self, x):
+    def forward(self, x):
         n, _, h, w = x.shape
         return [chainer.Variable(_random_array(
                 self.xp, (n, 16, int(h * scale), int(w * scale))))

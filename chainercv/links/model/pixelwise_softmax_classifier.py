@@ -44,7 +44,7 @@ class PixelwiseSoftmaxClassifier(chainer.Chain):
         if self.class_weight is not None:
             self.class_weight = cuda.to_gpu(self.class_weight, device)
 
-    def __call__(self, x, t):
+    def forward(self, x, t):
         """Computes the loss value for an image and label pair.
 
         Args:

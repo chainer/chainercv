@@ -90,7 +90,7 @@ class SeparableConv2DBNActiv(chainer.Chain):
                 self.dw_bn = BatchNormalization(in_channels, **bn_kwargs)
                 self.pw_bn = BatchNormalization(out_channels, **bn_kwargs)
 
-    def __call__(self, x):
+    def forward(self, x):
         h = self.depthwise(x)
         h = self.dw_bn(h)
         h = self.dw_activ(h)

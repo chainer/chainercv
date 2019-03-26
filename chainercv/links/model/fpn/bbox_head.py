@@ -44,7 +44,7 @@ class BboxHead(chainer.Chain):
         self._n_class = n_class
         self._scales = scales
 
-    def __call__(self, hs, rois, roi_indices):
+    def forward(self, hs, rois, roi_indices):
         """Calculates RoIs.
 
         Args:

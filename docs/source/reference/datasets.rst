@@ -58,9 +58,9 @@ CUBLabelDataset
 ~~~~~~~~~~~~~~~
 .. autoclass:: CUBLabelDataset
 
-CUBPointDataset
-~~~~~~~~~~~~~~~
-.. autoclass:: CUBPointDataset
+CUBKeypointDataset
+~~~~~~~~~~~~~~~~~~
+.. autoclass:: CUBKeypointDataset
 
 MS COCO
 -------
