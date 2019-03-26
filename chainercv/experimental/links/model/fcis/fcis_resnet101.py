@@ -89,7 +89,7 @@ class FCISResNet101(FCIS):
         'head_initialW': chainer.initializers.Normal(0.01),
     }
     preset_params = {
-        'sbd': {
+        'sbd': dict({
             'n_fg_class': 20,
             'anchor_scales': (8, 16, 32),
             'proposal_creator_params': {
@@ -100,10 +100,9 @@ class FCISResNet101(FCIS):
                 'n_test_post_nms': 300,
                 'force_cpu_nms': False,
                 'min_size': 16,
-            },
-            **_common_param,
-        },
-        'coco': {
+            }},
+            **_common_param),
+        'coco': dict({
             'n_fg_class': 80,
             'anchor_scales': (4, 8, 16, 32),
             'proposal_creator_params': {
@@ -114,9 +113,8 @@ class FCISResNet101(FCIS):
                 'n_test_post_nms': 300,
                 'force_cpu_nms': False,
                 'min_size': 2,
-            },
-            **_common_param,
-        },
+            }},
+            **_common_param),
     }
 
     _models = {
