@@ -23,7 +23,6 @@ FasterRCNN
 ~~~~~~~~~~
 .. autoclass:: FasterRCNN
    :members:
-   :special-members:  __call__
 
 generate_anchor_base
 ~~~~~~~~~~~~~~~~~~~~
@@ -43,7 +42,6 @@ RegionProposalNetwork
 ~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: RegionProposalNetwork
    :members:
-   :special-members:  __call__
 
 VGG16RoIHead
 ~~~~~~~~~~~~
@@ -63,7 +61,6 @@ FasterRCNNTrainChain
 ~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: FasterRCNNTrainChain
    :members:
-   :special-members:  __call__
 
 ProposalTargetCreator
 ~~~~~~~~~~~~~~~~~~~~~

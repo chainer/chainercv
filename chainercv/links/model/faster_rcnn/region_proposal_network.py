@@ -67,7 +67,7 @@ class RegionProposalNetwork(chainer.Chain):
             self.loc = L.Convolution2D(
                 mid_channels, n_anchor * 4, 1, 1, 0, initialW=initialW)
 
-    def __call__(self, x, img_size, scales=None):
+    def forward(self, x, img_size, scales=None):
         """Forward Region Proposal Network.
 
         Here are notations.

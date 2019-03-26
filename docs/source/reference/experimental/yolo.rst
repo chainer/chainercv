@@ -17,4 +17,3 @@ DarknetExtractor
 ~~~~~~~~~~~~~~~~
 .. autoclass:: DarknetExtractor
    :members:
-   :special-members:  __call__

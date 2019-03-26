@@ -39,7 +39,7 @@ class MultiboxTrainChain(chainer.Chain):
         self.k = k
         self.comm = comm
 
-    def __call__(self, imgs, gt_mb_locs, gt_mb_labels):
+    def forward(self, imgs, gt_mb_locs, gt_mb_labels):
         mb_locs, mb_confs = self.model(imgs)
         loc_loss, conf_loss = multibox_loss(
             mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, self.k, self.comm)

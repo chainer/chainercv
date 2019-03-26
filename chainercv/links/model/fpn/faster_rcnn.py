@@ -19,7 +19,7 @@ class FasterRCNN(chainer.Chain):
     Args:
         extractor (Link): A link that extracts feature maps.
             This link must have :obj:`scales`, :obj:`mean` and
-            :meth:`__call__`.
+            :meth:`forward`.
         rpn (Link): A link that has the same interface as
             :class:`~chainercv.links.model.fpn.RPN`.
             Please refer to the documentation found there.
@@ -87,7 +87,7 @@ class FasterRCNN(chainer.Chain):
         else:
             raise ValueError('preset must be visualize or evaluate')
 
-    def __call__(self, x):
+    def forward(self, x):
         assert(not chainer.config.train)
         hs = self.extractor(x)
         rpn_locs, rpn_confs = self.rpn(hs)
@@ -131,7 +131,7 @@ class FasterRCNN(chainer.Chain):
         x, scales = self.prepare(imgs)
 
         with chainer.using_config('train', False), chainer.no_backprop_mode():
-            rois, roi_indices, head_locs, head_confs = self(x)
+            rois, roi_indices, head_locs, head_confs = self.forward(x)
         bboxes, labels, scores = self.head.decode(
             rois, roi_indices, head_locs, head_confs,
             scales, sizes, self.nms_thresh, self.score_thresh)

@@ -116,7 +116,7 @@ class Bottleneck(chainer.Chain):
                     nobias=True, initialW=initialW,
                     activ=None, bn_kwargs=bn_kwargs)
 
-    def __call__(self, x):
+    def forward(self, x):
         h = self.conv1(x)
         h = self.conv2(h)
         h = self.conv3(h)
