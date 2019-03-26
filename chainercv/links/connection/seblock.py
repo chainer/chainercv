@@ -31,7 +31,7 @@ class SEBlock(chainer.Chain):
             self.down = L.Linear(n_channel, reduction_size)
             self.up = L.Linear(reduction_size, n_channel)
 
-    def __call__(self, u):
+    def forward(self, u):
         B, C, H, W = u.shape
 
         z = F.average(u, axis=(2, 3))

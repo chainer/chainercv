@@ -16,9 +16,10 @@ prob_map_url = 'http://www.vision.caltech.edu/visipedia-data/'\
 
 
 def get_cub():
-    data_root = download.get_dataset_directory(root)
     # To support ChainerMN, the target directory should be locked.
-    with filelock.FileLock(os.path.join(data_root, 'lock')):
+    with filelock.FileLock(os.path.join(download.get_dataset_directory(
+            'pfnet/chainercv/.lock'), 'cub.lock')):
+        data_root = download.get_dataset_directory(root)
         base_path = os.path.join(data_root, 'CUB_200_2011')
         if os.path.exists(base_path):
             # skip downloading
@@ -31,9 +32,10 @@ def get_cub():
 
 
 def get_cub_prob_map():
-    data_root = download.get_dataset_directory(root)
     # To support ChainerMN, the target directory should be locked.
-    with filelock.FileLock(os.path.join(data_root, 'lock')):
+    with filelock.FileLock(os.path.join(download.get_dataset_directory(
+            'pfnet/chainercv/.lock'), 'cub.lock')):
+        data_root = download.get_dataset_directory(root)
         base_path = os.path.join(data_root, 'segmentations')
         if os.path.exists(base_path):
             # skip downloading
@@ -82,14 +84,14 @@ class CUBDatasetBase(GetterDataset):
             os.path.join(self.prob_map_dir, os.path.splitext(path)[0] + '.png')
             for path in self.paths]
 
-        self.add_getter('bb', self._get_bb)
+        self.add_getter('bbox', self._get_bbox)
         self.add_getter('prob_map', self._get_prob_map)
 
     def __len__(self):
         return len(self.paths)
 
-    def _get_bb(self, i):
-        return self.bbs[i]
+    def _get_bbox(self, i):
+        return self.bbs[i][None]
 
     def _get_prob_map(self, i):
         prob_map = utils.read_label(self.prob_map_paths[i], dtype=np.uint8)

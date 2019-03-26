@@ -250,7 +250,7 @@ class ResNet101Extractor(chainer.Chain):
             self.res4 = ResBlock(23, 512, 256, 1024, 2, **kwargs)
             self.res5 = ResBlock(3, 1024, 512, 2048, 1, 2, **kwargs)
 
-    def __call__(self, x):
+    def forward(self, x):
         """Forward the chain.
 
         Args:
@@ -320,8 +320,8 @@ class FCISResNet101Head(chainer.Chain):
                 1024, group_size * group_size * 2 * 4,
                 1, 1, 0, initialW=initialW)
 
-    def __call__(self, x, rois, roi_indices, img_size,
-                 gt_roi_labels=None, iter2=True):
+    def forward(self, x, rois, roi_indices, img_size,
+                gt_roi_labels=None, iter2=True):
         """Forward the chain.
 
         We assume that there are :math:`N` batches.

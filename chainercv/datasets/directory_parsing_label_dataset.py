@@ -93,7 +93,7 @@ class DirectoryParsingLabelDataset(GetterDataset):
 
         >>> from chainercv.datasets import DirectoryParsingLabelDataset
         >>> dataset = DirectoryParsingLabelDataset('root')
-        >>> dataset.paths
+        >>> dataset.img_paths
         ['root/class_0/img_0.png', 'root/class_0/img_1.png',
         'root_class_1/img_0.png']
         >>> dataset.labels

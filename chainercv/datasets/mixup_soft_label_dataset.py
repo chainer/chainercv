@@ -39,6 +39,11 @@ class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
 
             The shapes of images and labels should be constant.
         n_class (int): The number of classes in the base dataset.
+        alpha (float): A hyperparameter of Beta distribution.
+            ``mix_ratio`` is sampled from :math:`B(\\alpha,\\alpha)`.
+            The default value is :math:`1.0` meaning that the distribution is
+            the same as Uniform distribution with lower boundary of
+            :math:`0.0` and upper boundary of :math:`1.0`.
 
     .. [#] Hongyi Zhang, Moustapha Cisse, Yann N. Dauphin, David Lopez-Paz.
         `mixup: Beyond Empirical Risk Minimization\
@@ -55,16 +60,21 @@ class MixUpSoftLabelDataset(dataset_mixin.DatasetMixin):
     .. [#mixup_1] Same as :obj:`dataset`.
     """
 
-    def __init__(self, dataset, n_class):
+    def __init__(self, dataset, n_class, alpha=1.0):
+        if alpha <= 0.0:
+            raise ValueError(
+                'Invalid value for a shape parameter ``alpha``.'
+                ' It must be positive.')
         self._dataset = dataset
         self._n_class = n_class
+        self._alpha = alpha
 
     def __len__(self):
         return len(self._dataset)
 
     def get_example(self, i):
         img_0, label_0, img_1, label_1 = self._dataset[i]
-        mix_ratio = np.random.random()
+        mix_ratio = np.random.beta(self._alpha, self._alpha)
 
         image = mix_ratio * img_0 + (1-mix_ratio) * img_1
         label = np.zeros(self._n_class, dtype=np.float32)

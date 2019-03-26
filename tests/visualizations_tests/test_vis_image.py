@@ -2,8 +2,7 @@ import unittest
 
 import numpy as np
 
-from chainer import testing
-
+from chainercv.utils import testing
 from chainercv.visualizations import vis_image
 
 try:

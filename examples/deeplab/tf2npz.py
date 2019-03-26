@@ -19,6 +19,14 @@ _model_class = {
     'xception65': DeepLabV3plusXception65,
 }
 
+_last_layer = ('decoder', 'conv_logits')
+
+_eliminated_channels = {
+    'voc': [],
+    'cityscapes': [],
+    'ade20k': [0],
+}
+
 
 def load_param(param, weight, transpose=None):
     if isinstance(param, chainer.Variable):
@@ -32,8 +40,9 @@ def load_param(param, weight, transpose=None):
 
 def get_model(name, task):
     n_class = _n_class[task]
-    model = _model_class[name](n_class, crop=(513, 513), scales=(1.0,),
-                               flip=False, extractor_kwargs={},
+    model = _model_class[name](n_class, min_input_size=(513, 513),
+                               scales=(1.0,), flip=False,
+                               extractor_kwargs={},
                                aspp_kwargs={}, decoder_kwargs={})
     return model
 
@@ -148,7 +157,7 @@ def resolve(weightmap):
     return weightmap
 
 
-def transfer(model, sess, weightmap):
+def transfer(model, sess, weightmap, task):
     for key, (layer, op) in weightmap.items():
         link = model
 
@@ -184,6 +193,14 @@ def transfer(model, sess, weightmap):
         weights = sess.run(input_dict)
 
         for k in input_dict:
+            # eliminate some channels
+            if key == _last_layer:
+                mask = [i not in _eliminated_channels[task]
+                        for i in range(weights[k].shape[-1])]
+                if k == 'W':
+                    weights[k] = weights[k][:, :, :, mask]
+                elif k == 'b':
+                    weights[k] = weights[k][mask]
             load_param(getattr(link, k), weights[k], transpose.get(k))
 
 
@@ -203,7 +220,7 @@ def main():
     weightmap = get_weightmap(model_name)
     weightmap = resolve(weightmap)
 
-    transfer(model, sess, weightmap)
+    transfer(model, sess, weightmap, args.task)
     chainer.serializers.save_npz(args.output, model)
 
     sess.close()
