@@ -47,7 +47,7 @@ class MaskHead(chainer.Chain):
         self._n_class = n_class
         self._scales = scales
 
-    def __call__(self, hs, rois, roi_indices):
+    def forward(self, hs, rois, roi_indices):
         pooled_hs = []
         for l, h in enumerate(hs):
             if len(rois[l]) == 0:

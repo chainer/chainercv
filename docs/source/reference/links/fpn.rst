@@ -65,7 +65,6 @@ MaskHead
 ~~~~~~~~
 .. autoclass:: MaskHead
    :members:
-   :special-members: __call__
 
 segm_to_mask
 ~~~~~~~~~~~~
