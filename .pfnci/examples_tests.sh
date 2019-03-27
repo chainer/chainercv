@@ -12,15 +12,14 @@ docker run --runtime=nvidia --interactive --rm \
        --volume $(pwd):/chainercv/ --workdir /chainercv/ \
        --volume ${TEMP}/.chainer/:/root/.chainer/ \
        --env PYTHON=python${PYTHON} \
-       --env PIP=pip${PYTHON} \
        --env MPIEXEC='mpiexec -n 2 --allow-run-as-root' \
        --env MPLBACKEND=agg \
        --env PFNCI_SKIP='echo SKIP:' \
        hakuyume/chainercv:chainer${CHAINER}-devel \
-       sh -ex << 'EOD'
-${PIP} install --user -e .
-for SCRIPT in $(find examples_tests -name '*.sh')
+       sh -ex << EOD
+pip${PYTHON} install --user -e .
+for SCRIPT in \$(find examples_tests/ -type f -name '*.sh')
 do
-    sh -ex ${SCRIPT}
+    sh -ex \${SCRIPT}
 done
 EOD
