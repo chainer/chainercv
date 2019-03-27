@@ -154,7 +154,7 @@ class FasterRCNN(chainer.Chain):
             :obj:`masks`, ":math:`[(R, H, W)]`", :obj:`bool`, --
 
         """
-        output = {}
+        outputs = {}
 
         sizes = [img.shape[1:] for img in imgs]
         x, scales = self.prepare(imgs)
@@ -167,7 +167,7 @@ class FasterRCNN(chainer.Chain):
                     for rpn_roi, scale in
                     zip(_flat_to_list(rpn_rois, rpn_roi_indices, len(imgs)),
                         scales)]
-                output.update({'rois': rpn_rois_cpu})
+                outputs.update({'rois': rpn_rois_cpu})
 
         if self._run_bbox:
             bbox_rois, bbox_roi_indices = self.bbox_head.distribute(
@@ -184,8 +184,8 @@ class FasterRCNN(chainer.Chain):
             labels_cpu = [
                 chainer.backends.cuda.to_cpu(label) for label in labels]
             scores_cpu = [cuda.to_cpu(score) for score in scores]
-            output.update({'bboxes': bboxes_cpu, 'labels': labels_cpu,
-                           'scores': scores_cpu})
+            outputs.update({'bboxes': bboxes_cpu, 'labels': labels_cpu,
+                            'scores': scores_cpu})
 
         if self._run_mask:
             rescaled_bboxes = [bbox * scale
@@ -213,8 +213,8 @@ class FasterRCNN(chainer.Chain):
             # Currently MaskHead only supports numpy inputs
             masks_cpu = self.mask_head.decode(
                 segms, bboxes_cpu, labels_cpu, sizes)
-            output.update({'masks': masks_cpu})
-        return tuple([output[key] for key in self._return_values])
+            outputs.update({'masks': masks_cpu})
+        return tuple([outputs[key] for key in self._return_values])
 
     def prepare(self, imgs):
         """Preprocess images.
