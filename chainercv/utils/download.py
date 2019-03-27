@@ -79,7 +79,7 @@ def cached_download(url):
     temp_root = tempfile.mkdtemp(dir=cache_root)
     try:
         temp_path = os.path.join(temp_root, 'dl')
-        if strtobool(os.getenv('CHAINERCV_DOWNLOAD_REPORT', 'true')):
+        if strtobool(os.getenv('CHAINERCV_DOWNLOAD_REPORT', 'ON')):
             print('Downloading ...')
             print('From: {:s}'.format(url))
             print('To: {:s}'.format(cache_path))
