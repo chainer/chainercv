@@ -14,7 +14,7 @@ docker run --runtime=nvidia --interactive --rm \
        --env PYTHON=python${PYTHON} \
        --env MPIEXEC='mpiexec -n 2 --allow-run-as-root' \
        --env MPLBACKEND=agg \
-       --env CHAINERCV_DISABLE_DOWNLOAD_REPORT=1 \
+       --env CHAINERCV_DOWNLOAD_REPORT=OFF \
        --env PFNCI_SKIP='echo SKIP:' \
        hakuyume/chainercv:chainer${CHAINER}-devel \
        sh -ex << EOD
