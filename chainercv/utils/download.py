@@ -78,10 +78,13 @@ def cached_download(url):
     temp_root = tempfile.mkdtemp(dir=cache_root)
     try:
         temp_path = os.path.join(temp_root, 'dl')
-        print('Downloading ...')
-        print('From: {:s}'.format(url))
-        print('To: {:s}'.format(cache_path))
-        request.urlretrieve(url, temp_path, _reporthook)
+        if os.getenv('CHAINERCV_DISABLE_DOWNLOAD_REPORT', False):
+            request.urlretrieve(url, temp_path)
+        else:
+            print('Downloading ...')
+            print('From: {:s}'.format(url))
+            print('To: {:s}'.format(cache_path))
+            request.urlretrieve(url, temp_path, _reporthook)
         with filelock.FileLock(lock_path):
             shutil.move(temp_path, cache_path)
     finally:
