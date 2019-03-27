@@ -29,35 +29,36 @@ from __future__ import division
 import numpy as np
 import six
 
+import chainer
 from chainer.backends import cuda
 from chainer import function
 from chainer.utils import type_check
 
 
-def _roi_pooling_slice(size, stride, max_size, roi_offset):
-    start = int(np.floor(size * stride))
-    end = int(np.ceil((size + 1) * stride))
-
-    start = min(max(start + roi_offset, 0), max_size)
-    end = min(max(end + roi_offset, 0), max_size)
-
-    return slice(start, end), end - start
+def _outsize(x):
+    if isinstance(x, chainer.utils.collections_abc.Iterable):
+        if len(x) == 2:
+            return (None, ) + x
+        else:
+            return x
+    return None, x, x
 
 
 class PSROIAveragePooling2D(function.Function):
 
-    def __init__(self, out_c, out_h, out_w, spatial_scale, group_size):
-        if not (isinstance(out_c, int) and out_c > 0):
+    def __init__(self, outsize, spatial_scale, group_size):
+        out_c, out_h, out_w = _outsize(outsize)
+        if out_c is not None and not (isinstance(out_c, int) and out_c > 0):
             raise TypeError(
-                'out_c must be positive integer: {}, {}'
+                'outsize[0] must be positive integer: {}, {}'
                 .format(type(out_c), out_c))
         if not (isinstance(out_h, int) and out_h > 0):
             raise TypeError(
-                'out_h must be positive integer: {}, {}'
+                'outsize[1] must be positive integer: {}, {}'
                 .format(type(out_h), out_h))
         if not (isinstance(out_w, int) and out_w > 0):
             raise TypeError(
-                'out_w must be positive integer: {}, {}'
+                'outsize[2] must be positive integer: {}, {}'
                 .format(type(out_w), out_w))
         if isinstance(spatial_scale, int):
             spatial_scale = float(spatial_scale)
@@ -89,22 +90,33 @@ class PSROIAveragePooling2D(function.Function):
         self._bottom_data_shape = inputs[0].shape
 
         bottom_data, bottom_rois, bottom_roi_indices = inputs
-        height, width = bottom_data.shape[2:]
+        channel, height, width = bottom_data.shape[1:]
+        if self.out_c is None:
+            if channel % (self.group_size * self.group_size) != 0:
+                raise ValueError(
+                    'input channel must be divided by group_size * group_size:'
+                    '{} % {} != 0'
+                    .format(channel, self.group_size * self.group_size))
+            out_c = channel // (self.group_size * self.group_size)
+        else:
+            if channel != self.out_c * self.group_size * self.group_size:
+                raise ValueError(
+                    'input channel must be equal to'
+                    'outsize[0] * group_size * group_size: {} != {}'
+                    .format(channel,
+                            self.out_c * self.group_size * self.group_size))
+            out_c = self.out_c
         n_roi = bottom_rois.shape[0]
         top_data = np.empty(
-            (n_roi, self.out_c, self.out_h, self.out_w), dtype=np.float32)
+            (n_roi, out_c, self.out_h, self.out_w), dtype=np.float32)
 
         spatial_scale = self.spatial_scale
-        pooled_dim = self.out_c
         pooled_height = self.out_h
         pooled_width = self.out_w
         group_size = self.group_size
 
         for i in six.moves.range(top_data.size):
-            pw = i % pooled_width
-            ph = int(i / pooled_width) % pooled_height
-            ctop = int(i / pooled_width / pooled_height) % pooled_dim
-            n = int(i / pooled_width / pooled_height / pooled_dim)
+            n, ctop, ph, pw = np.unravel_index(i, top_data.shape)
 
             roi_batch_ind = bottom_roi_indices[n]
             roi_start_h = bottom_rois[n, 0] * spatial_scale
@@ -136,13 +148,8 @@ class PSROIAveragePooling2D(function.Function):
                 top_data[n, ctop, ph, pw] = 0
                 continue
 
-            output_val = 0.
-            count = (hend - hstart) * (wend - wstart)
-            for y in six.moves.range(hstart, hend):
-                for x in six.moves.range(wstart, wend):
-                    output_val += bottom_data[roi_batch_ind, c, y, x]
-            output_val /= count
-            top_data[n, ctop, ph, pw] = output_val
+            top_data[n, ctop, ph, pw] = np.mean(
+                bottom_data[roi_batch_ind, c, hstart:hend, wstart:wend])
 
         return top_data,
 
@@ -151,15 +158,30 @@ class PSROIAveragePooling2D(function.Function):
         self._bottom_data_shape = inputs[0].shape
 
         bottom_data, bottom_rois, bottom_roi_indices = inputs
-        channels, height, width = bottom_data.shape[1:]
+        channel, height, width = bottom_data.shape[1:]
+        if self.out_c is None:
+            if channel % (self.group_size * self.group_size) != 0:
+                raise ValueError(
+                    'input channel must be divided by group_size * group_size:'
+                    '{} % {} != 0'
+                    .format(channel, self.group_size * self.group_size))
+            out_c = channel // (self.group_size * self.group_size)
+        else:
+            if channel != self.out_c * self.group_size * self.group_size:
+                raise ValueError(
+                    'input channel must be equal to'
+                    'outsize[0] * group_size * group_size: {} != {}'
+                    .format(channel,
+                            self.out_c * self.group_size * self.group_size))
+            out_c = self.out_c
         n_roi = bottom_rois.shape[0]
         top_data = cuda.cupy.empty(
-            (n_roi, self.out_c, self.out_h, self.out_w), dtype=np.float32)
+            (n_roi, out_c, self.out_h, self.out_w), dtype=np.float32)
         cuda.elementwise(
             '''
             raw T bottom_data, raw T bottom_rois,
             raw int32 bottom_roi_indices,
-            T spatial_scale, int32 channels,
+            T spatial_scale, int32 channel,
             int32 height, int32 width,
             int32 pooled_dim, int32 pooled_height, int32 pooled_width,
             int32 group_size
@@ -211,7 +233,7 @@ class PSROIAveragePooling2D(function.Function):
             gw = min(max(gw, 0), group_size - 1);
             int c = (ctop * group_size + gh) * group_size + gw;
 
-            int data_offset = (roi_batch_ind * channels + c) * height * width;
+            int data_offset = (roi_batch_ind * channel + c) * height * width;
             T out_sum = 0;
             for (int h = hstart; h < hend; ++h){
               for (int w = wstart; w < wend; ++w){
@@ -224,8 +246,8 @@ class PSROIAveragePooling2D(function.Function):
             top_data = is_empty? (T) 0. : out_sum / bin_area;
             ''', 'ps_roi_average_pooling_2d_fwd'
         )(bottom_data, bottom_rois, bottom_roi_indices,
-          self.spatial_scale, channels, height, width,
-          self.out_c, self.out_h, self.out_w, self.group_size,
+          self.spatial_scale, channel, height, width,
+          out_c, self.out_h, self.out_w, self.group_size,
           top_data)
 
         return top_data,
@@ -237,16 +259,12 @@ class PSROIAveragePooling2D(function.Function):
         bottom_diff = np.zeros(self._bottom_data_shape, np.float32)
 
         spatial_scale = self.spatial_scale
-        pooled_dim = self.out_c
         pooled_height = self.out_h
         pooled_width = self.out_w
         group_size = self.group_size
 
         for i in six.moves.range(top_diff.size):
-            pw = i % pooled_width
-            ph = int(i / pooled_width) % pooled_height
-            ctop = int(i / pooled_width / pooled_height) % pooled_dim
-            n = int(i / pooled_width / pooled_height / pooled_dim)
+            n, ctop, ph, pw = np.unravel_index(i, top_diff.shape)
 
             roi_batch_ind = int(bottom_roi_indices[n])
             roi_start_h = bottom_rois[n, 0] * spatial_scale
@@ -279,15 +297,14 @@ class PSROIAveragePooling2D(function.Function):
 
             count = (hend - hstart) * (wend - wstart)
             diff_val = top_diff[n, ctop, ph, pw] / count
-            for y in six.moves.range(hstart, hend):
-                for x in six.moves.range(wstart, wend):
-                    bottom_diff[roi_batch_ind, c, y, x] += diff_val
+            bottom_diff[roi_batch_ind, c, hstart:hend, wstart:wend] += diff_val
 
         return bottom_diff, None, None
 
     def backward_gpu(self, inputs, gy):
         _, bottom_rois, bottom_roi_indices = inputs
         channels, height, width = self._bottom_data_shape[1:]
+        out_c, out_h, out_w = gy[0].shape[1:]
         bottom_diff = cuda.cupy.zeros(self._bottom_data_shape, np.float32)
         cuda.elementwise(
             '''
@@ -362,14 +379,14 @@ class PSROIAveragePooling2D(function.Function):
             ''', 'ps_roi_average_pooling_2d_bwd'
         )(gy[0], bottom_rois, bottom_roi_indices,
           self.spatial_scale, channels, height, width,
-          self.out_c, self.out_h, self.out_w,
-          self.group_size, bottom_diff, size=gy[0].size)
+          out_c, out_h, out_w, self.group_size, bottom_diff,
+          size=gy[0].size)
 
         return bottom_diff, None, None
 
 
 def ps_roi_average_pooling_2d(
-        x, rois, roi_indices, out_c, out_h, out_w,
+        x, rois, roi_indices, outsize,
         spatial_scale, group_size
 ):
     """Position Sensitive Region of Interest (ROI) Average pooling function.
@@ -387,9 +404,10 @@ def ps_roi_average_pooling_2d(
             (y_min, x_min, y_max, x_max). The dtype is :obj:`numpy.float32`.
         roi_indices (array): Input roi indices. The shape is expected to
             be :math:`(R, )`. The dtype is :obj:`numpy.int32`.
-        out_c (int): Channels of output image after pooled.
-        out_h (int): Height of output image after pooled.
-        out_w (int): Width of output image after pooled.
+        outsize ((int, int, int) or (int, int) or int): Expected output size
+            after pooled: (channel, height, width) or (height, width)
+            or outsize. ``outsize=o`` and ``outsize=(o, o)`` are equivalent.
+            Channel parameter is used to assert the input shape.
         spatial_scale (float): Scale of the roi is resized.
         group_size (int): Position sensitive group size.
 
@@ -400,5 +418,5 @@ def ps_roi_average_pooling_2d(
     `R-FCN <https://arxiv.org/abs/1605.06409>`_.
 
     """
-    return PSROIAveragePooling2D(out_c, out_h, out_w, spatial_scale,
+    return PSROIAveragePooling2D(outsize, spatial_scale,
                                  group_size)(x, rois, roi_indices)

@@ -64,7 +64,7 @@ class VGG16(chainer.Chain):
             self.conv6 = L.DilatedConvolution2D(1024, 3, pad=6, dilate=6)
             self.conv7 = L.Convolution2D(1024, 1)
 
-    def __call__(self, x):
+    def forward(self, x):
         ys = []
 
         h = F.relu(self.conv1_1(x))
@@ -127,7 +127,7 @@ class VGG16Extractor300(VGG16):
             self.conv11_1 = L.Convolution2D(128, 1, **init)
             self.conv11_2 = L.Convolution2D(256, 3, **init)
 
-    def __call__(self, x):
+    def forward(self, x):
         """Compute feature maps from a batch of images.
 
         This method extracts feature maps from
@@ -143,7 +143,7 @@ class VGG16Extractor300(VGG16):
             Each variable contains a feature map.
         """
 
-        ys = super(VGG16Extractor300, self).__call__(x)
+        ys = super(VGG16Extractor300, self).forward(x)
         for i in range(8, 11 + 1):
             h = ys[-1]
             h = F.relu(self['conv{:d}_1'.format(i)](h))
@@ -184,7 +184,7 @@ class VGG16Extractor512(VGG16):
             self.conv12_1 = L.Convolution2D(128, 1, **init)
             self.conv12_2 = L.Convolution2D(256, 4, pad=1, **init)
 
-    def __call__(self, x):
+    def forward(self, x):
         """Compute feature maps from a batch of images.
 
         This method extracts feature maps from
@@ -200,7 +200,7 @@ class VGG16Extractor512(VGG16):
             Each variable contains a feature map.
         """
 
-        ys = super(VGG16Extractor512, self).__call__(x)
+        ys = super(VGG16Extractor512, self).forward(x)
         for i in range(8, 12 + 1):
             h = ys[-1]
             h = F.relu(self['conv{:d}_1'.format(i)](h))

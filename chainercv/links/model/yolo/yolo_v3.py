@@ -28,7 +28,7 @@ class ResidualBlock(chainer.ChainList):
     def __init__(self, *links):
         super(ResidualBlock, self).__init__(*links)
 
-    def __call__(self, x):
+    def forward(self, x):
         h = x
         for link in self:
             h = link(h)
@@ -68,7 +68,7 @@ class Darknet53Extractor(chainer.ChainList):
             self.append(Conv2DBNActiv(n * 2, 3, pad=1, activ=_leaky_relu))
             self.append(Conv2DBNActiv(n, 1, activ=_leaky_relu))
 
-    def __call__(self, x):
+    def forward(self, x):
         """Compute feature maps from a batch of images.
 
         This method extracts feature maps from 3 layers.
@@ -181,7 +181,7 @@ class YOLOv3(YOLOBase):
         self._default_bbox = cuda.to_gpu(self._default_bbox, device)
         self._step = cuda.to_gpu(self._step, device)
 
-    def __call__(self, x):
+    def forward(self, x):
         """Compute localization, objectness, and classification from a batch of images.
 
         This method computes three variables, :obj:`locs`, :obj:`objs`,

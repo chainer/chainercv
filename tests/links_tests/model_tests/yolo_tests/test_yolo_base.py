@@ -24,7 +24,7 @@ class DummyYOLO(YOLOBase):
         self.extractor = mock.Mock()
         self.extractor.insize = self._insize
 
-    def __call__(self, x):
+    def forward(self, x):
         assert(x.shape[1:] == (3, self._insize, self._insize))
         self._locs = self.xp.random.uniform(
             size=(x.shape[0], self._n_anchor, 4)) \

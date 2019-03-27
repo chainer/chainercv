@@ -22,7 +22,7 @@ class DummyExtractor(chainer.Link):
     scales = (1 / 2, 1 / 4, 1 / 8)
     mean = _random_array(np, (3, 1, 1))
 
-    def __call__(self, x):
+    def forward(self, x):
         n, _, h, w = x.shape
         return [chainer.Variable(_random_array(
                 self.xp, (n, 16, int(h * scale), int(w * scale))))
@@ -31,24 +31,41 @@ class DummyExtractor(chainer.Link):
 
 class DummyFasterRCNN(FasterRCNN):
 
-    def __init__(self, n_fg_class):
+    def __init__(self, n_fg_class, min_size, max_size):
         extractor = DummyExtractor()
         super(DummyFasterRCNN, self).__init__(
             extractor=extractor,
             rpn=RPN(extractor.scales),
             head=Head(n_fg_class + 1, extractor.scales),
+            min_size=min_size, max_size=max_size,
         )
 
 
-@testing.parameterize(
-    {'n_fg_class': 1},
-    {'n_fg_class': 5},
-    {'n_fg_class': 20},
-)
+@testing.parameterize(*testing.product_dict(
+    [
+        {'n_fg_class': 1},
+        {'n_fg_class': 5},
+        {'n_fg_class': 20},
+    ],
+    [
+        {
+            'in_sizes': [(480, 640), (320, 320)],
+            'min_size': 800, 'max_size': 1333,
+            'expected_shape': (800, 1088),
+        },
+        {
+            'in_sizes': [(200, 50), (400, 100)],
+            'min_size': 200, 'max_size': 320,
+            'expected_shape': (320, 96),
+        },
+    ],
+))
 class TestFasterRCNN(unittest.TestCase):
 
     def setUp(self):
-        self.link = DummyFasterRCNN(n_fg_class=self.n_fg_class)
+        self.link = DummyFasterRCNN(n_fg_class=self.n_fg_class,
+                                    min_size=self.min_size,
+                                    max_size=self.max_size)
 
     def test_use_preset(self):
         self.link.nms_thresh = 0
@@ -118,12 +135,13 @@ class TestFasterRCNN(unittest.TestCase):
         assert_is_detection_link(self.link, self.n_fg_class)
 
     def test_prepare(self):
-        imgs = [
-            np.random.randint(0, 255, size=(3, 480, 640)).astype(np.float32),
-            np.random.randint(0, 255, size=(3, 320, 320)).astype(np.float32),
-        ]
-        x, scales = self.link.prepare(imgs)
-        self.assertEqual(x.shape, (2, 3, 800, 1088))
+        imgs = [_random_array(np, (3, s[0], s[1])) for s in self.in_sizes]
+        out, scales = self.link.prepare(imgs)
+        self.assertIsInstance(out, np.ndarray)
+        full_expected_shape = (len(self.in_sizes), 3,
+                               self.expected_shape[0],
+                               self.expected_shape[1])
+        self.assertEqual(out.shape, full_expected_shape)
 
 
 testing.run_module(__name__, __file__)

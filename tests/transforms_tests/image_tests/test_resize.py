@@ -27,5 +27,11 @@ class TestResize(unittest.TestCase):
         out = resize(img, size=(32, 64), interpolation=self.interpolation)
         self.assertEqual(out.shape, (1, 32, 64))
 
+    def test_zero_length_img(self):
+        img = np.random.uniform(size=(0, 24, 32))
+        chainer.config.cv_resize_backend = self.backend
+        out = resize(img, size=(32, 64), interpolation=self.interpolation)
+        self.assertEqual(out.shape, (0, 32, 64))
+
 
 testing.run_module(__name__, __file__)

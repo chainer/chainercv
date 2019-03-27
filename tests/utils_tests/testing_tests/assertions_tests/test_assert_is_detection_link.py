@@ -2,10 +2,10 @@ import numpy as np
 import unittest
 
 import chainer
-from chainer import testing
 
 from chainercv.utils import assert_is_detection_link
 from chainercv.utils import generate_random_bbox
+from chainercv.utils import testing
 
 
 class DetectionLink(chainer.Link):

@@ -60,7 +60,7 @@ class FasterRCNNTrainChain(chainer.Chain):
         self.loc_normalize_mean = faster_rcnn.loc_normalize_mean
         self.loc_normalize_std = faster_rcnn.loc_normalize_std
 
-    def __call__(self, imgs, bboxes, labels, scales):
+    def forward(self, imgs, bboxes, labels, scales):
         """Forward Faster R-CNN and calculate losses.
 
         Here are notations used.
