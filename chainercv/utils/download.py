@@ -46,7 +46,8 @@ def cached_download(url):
 
     This is different from the original
     :func:`~chainer.dataset.cached_download` in that the download
-    progress is reported.
+    progress is reported. Note that this progress report can be disabled
+    by setting the environment variable `CHAINERCV_DOWNLOAD_REPORT` to `'OFF'`.
 
     It downloads a file from the URL if there is no corresponding cache. After
     the download, this function stores a cache to the directory under the
