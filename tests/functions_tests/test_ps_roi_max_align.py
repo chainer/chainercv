@@ -10,17 +10,22 @@ import unittest
 
 from chainercv import functions
 
+from tests.functions_tests.test_ps_roi_average_pooling_2d import _outsize
+
 
 @testing.parameterize(*testing.product({
     'sampling_ratio': [None, 1, 2, (None, 3), (1, 2)],
     'spatial_scale': [0.6, 1.0, 2.0],
+    'outsize': [(2, 4, 4), (4, 4), 4],
 }))
 class TestPSROIMaxAlign2D(unittest.TestCase):
 
     def setUp(self):
         self.N = 3
         self.group_size = 2
-        self.out_c = 2
+        self.out_c, self.out_h, self.out_w = _outsize(self.outsize)
+        if self.out_c is None:
+            self.out_c = 2
         self.n_channels = self.group_size * self.group_size * self.out_c
         self.x = np.arange(
             self.N * self.n_channels * 10 * 12,
@@ -48,7 +53,7 @@ class TestPSROIMaxAlign2D(unittest.TestCase):
         rois = chainer.Variable(roi_data)
         roi_indices = chainer.Variable(roi_index_data)
         y = functions.ps_roi_max_align_2d(
-            x, rois, roi_indices, self.out_c, self.out_h, self.out_w,
+            x, rois, roi_indices, self.outsize,
             self.spatial_scale, self.group_size,
             sampling_ratio=self.sampling_ratio)
         self.assertEqual(y.data.dtype, np.float32)
@@ -70,7 +75,7 @@ class TestPSROIMaxAlign2D(unittest.TestCase):
     def check_backward(self, x_data, roi_data, roi_index_data, y_grad_data):
         def f(x, rois, roi_indices):
             y = functions.ps_roi_max_align_2d(
-                x, rois, roi_indices, self.out_c, self.out_h, self.out_w,
+                x, rois, roi_indices, self.outsize,
                 self.spatial_scale, self.group_size,
                 sampling_ratio=self.sampling_ratio)
             xp = cuda.get_array_module(y)
@@ -98,7 +103,7 @@ class TestPSROIMaxAlign2D(unittest.TestCase):
         rois = chainer.Variable(roi_data)
         roi_indices = chainer.Variable(roi_index_data)
         y = functions.ps_roi_max_align_2d(
-            x, rois, roi_indices, self.out_c, self.out_h, self.out_w,
+            x, rois, roi_indices, self.outsize,
             self.spatial_scale, self.group_size,
             sampling_ratio=self.sampling_ratio)
         x.cleargrad()
@@ -116,6 +121,59 @@ class TestPSROIMaxAlign2D(unittest.TestCase):
             cuda.to_gpu(self.roi_indices), cuda.to_gpu(self.gy))
         testing.assert_allclose(y_cpu.data, y_gpu.data)
         testing.assert_allclose(x_cpu.grad, x_gpu.grad)
+
+
+@testing.parameterize(*testing.product({
+    'outsize': [(2, 4, 4), (4, 4), 4]
+}))
+class TestPSROIMaxAlign2DFailure(unittest.TestCase):
+
+    def setUp(self):
+        self.N = 3
+        self.group_size = 2
+        self.spatial_scale = 0.6
+        out_c, _, _ = _outsize(self.outsize)
+        if out_c is None:
+            self.n_channels = self.group_size * self.group_size * 2 - 1
+        else:
+            self.n_channels = self.group_size * self.group_size * (out_c + 1)
+
+        self.x = np.arange(
+            self.N * self.n_channels * 10 * 12,
+            dtype=np.float32).reshape((self.N, self.n_channels, 10, 12))
+        np.random.shuffle(self.x)
+        self.x = 2 * self.x / self.x.size - 1
+        self.x = self.x.astype(np.float32)
+        self.rois = np.array(
+            [[0, 0, 7, 7],
+             [1, 0, 5, 12],
+             [0, 1, 10, 5],
+             [3, 3, 4, 4]],
+            dtype=np.float32
+        )
+        self.roi_indices = np.array([0, 2, 1, 0], dtype=np.int32)
+        self.n_roi = self.rois.shape[0]
+
+    def check_forward(self, x_data, roi_data, roi_index_data):
+        x = chainer.Variable(x_data)
+        rois = chainer.Variable(roi_data)
+        roi_indices = chainer.Variable(roi_index_data)
+        functions.ps_roi_max_align_2d(
+            x, rois, roi_indices, self.outsize,
+            self.spatial_scale, self.group_size)
+
+    @condition.retry(3)
+    def test_invalid_outsize_cpu(self):
+        with self.assertRaises(ValueError):
+            self.check_forward(self.x, self.rois, self.roi_indices)
+
+    @attr.gpu
+    @condition.retry(3)
+    def test_invalid_outsize_gpu(self):
+        with self.assertRaises(ValueError):
+            self.check_forward(
+                cuda.to_gpu(self.x), cuda.to_gpu(self.rois),
+                cuda.to_gpu(self.roi_indices))
 
 
 testing.run_module(__name__, __file__)
