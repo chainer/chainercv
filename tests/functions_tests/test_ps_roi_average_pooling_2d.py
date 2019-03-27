@@ -20,8 +20,8 @@ def _outsize(x):
 
 
 @testing.parameterize(*testing.product({
-    'spatial_scale': [0.6, 1.0, 2.0],
-    'outsize': [(2, 4, 4), (4, 4), 4],
+    'spatial_scale': [np.float(0.6), np.int(1), 0.6, 1.0, 2.0],
+    'outsize': [(np.int(2), np.int(4), np.int(4)), (2, 4, 4), (4, 4), 4],
 }))
 class TestPSROIAveragePooling2D(unittest.TestCase):
 
