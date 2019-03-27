@@ -10,7 +10,7 @@ import unittest
 from chainercv import functions
 
 
-def _pair(x):
+def _outsize(x):
     if isinstance(x, chainer.utils.collections_abc.Iterable):
         if len(x) == 2:
             return (None, ) + x
@@ -21,14 +21,14 @@ def _pair(x):
 
 @testing.parameterize(*testing.product({
     'spatial_scale': [0.6, 1.0, 2.0],
-    'outsize': [(2, 4, 4), (4, 4), 4]
+    'outsize': [(2, 4, 4), (4, 4), 4],
 }))
 class TestPSROIAveragePooling2D(unittest.TestCase):
 
     def setUp(self):
         self.N = 3
         self.group_size = 2
-        self.out_c, self.out_h, self.out_w = _pair(self.outsize)
+        self.out_c, self.out_h, self.out_w = _outsize(self.outsize)
         if self.out_c is None:
             self.out_c = 2
         self.n_channels = self.group_size * self.group_size * self.out_c
@@ -128,7 +128,7 @@ class TestPSROIAveragePooling2DFailure(unittest.TestCase):
         self.N = 3
         self.group_size = 2
         self.spatial_scale = 0.6
-        out_c, _, _ = _pair(self.outsize)
+        out_c, _, _ = _outsize(self.outsize)
         if out_c is None:
             self.n_channels = self.group_size * self.group_size * 2 - 1
         else:
