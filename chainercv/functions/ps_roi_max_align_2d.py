@@ -169,14 +169,30 @@ class PSROIMaxAlign2D(function.Function):
                     w1, w2, w3, w4 = _get_bilinear_interp_params(
                         y, x, y_low, x_low, y_high, x_high)
 
-                    v1 = bottom_data[roi_batch_ind, c, y_low, x_low]
-                    v2 = bottom_data[roi_batch_ind, c, y_low, x_high]
-                    v3 = bottom_data[roi_batch_ind, c, y_high, x_low]
-                    v4 = bottom_data[roi_batch_ind, c, y_high, x_high]
-
-                    tmpval = w1 * v1 + w2 * v2 + w3 * v3 + w4 * v4
+                    tmpval = 0.0
+                    isvalid = False
                     bottom_index = iy * roi_bin_grid_w + ix
-                    if (tmpval > maxval):
+                    if w1 > 0 and y_low >= 0 and x_low >= 0:
+                        v1 = bottom_data[roi_batch_ind, c, y_low, x_low]
+                        tmpval += w1 * v1
+                        isvalid = True
+
+                    if w2 > 0 and y_low >= 0 and x_high <= width - 1:
+                        v2 = bottom_data[roi_batch_ind, c, y_low, x_high]
+                        tmpval += w2 * v2
+                        isvalid = True
+
+                    if w3 > 0 and y_high <= height - 1 and x_low >= 0:
+                        v3 = bottom_data[roi_batch_ind, c, y_high, x_low]
+                        tmpval += w3 * v3
+                        isvalid = True
+
+                    if w4 > 0 and y_high <= height - 1 and x_high <= width - 1:
+                        v4 = bottom_data[roi_batch_ind, c, y_high, x_high]
+                        tmpval += w4 * v4
+                        isvalid = True
+
+                    if isvalid and tmpval > maxval:
                         maxval = tmpval
                         maxidx = bottom_index
 
@@ -295,20 +311,38 @@ class PSROIMaxAlign2D(function.Function):
                     get_bilinear_interp_params(
                         y, x, y_low, x_low, y_high, x_high, w1, w2, w3, w4);
 
-                    T v1 = bottom_data[bottom_data_offset +
-                                           y_low * width + x_low];
-                    T v2 = bottom_data[bottom_data_offset +
-                                           y_low * width + x_high];
-                    T v3 = bottom_data[bottom_data_offset +
-                                           y_high * width + x_low];
-                    T v4 = bottom_data[bottom_data_offset +
-                                           y_high * width + x_high];
+                    T tmpval = 0.;
+                    bool isvalid = false;
+                    int bottom_index = iy * roi_bin_grid_w + ix;
+                    if (w1 > 0 && y_low >= 0 && x_low >= 0) {
+                        T v1 = bottom_data[
+                            bottom_data_offset + y_low * width + x_low];
+                        tmpval += w1 * v1;
+                        isvalid = true;
+                    }
+                    if (w2 > 0 && y_low >= 0 && x_high <= width - 1) {
+                        T v2 = bottom_data[
+                            bottom_data_offset + y_low * width + x_high];
+                        tmpval += w2 * v2;
+                        isvalid = true;
+                    }
+                    if (w3 > 0 && y_high <= height - 1 && x_low >= 0) {
+                        T v3 = bottom_data[
+                            bottom_data_offset + y_high * width + x_low];
+                        tmpval += w3 * v3;
+                        isvalid = true;
+                    }
+                    if (w4 > 0 && y_high <= height - 1 &&
+                            x_high <= width - 1) {
+                        T v4 = bottom_data[
+                            bottom_data_offset + y_high * width + x_high];
+                        tmpval += w4 * v4;
+                        isvalid = true;
+                    }
 
                     // }}
 
-                    T tmpval = w1 * v1 + w2 * v2 + w3 * v3 + w4 * v4;
-                    int bottom_index = iy * roi_bin_grid_w + ix;
-                    if (tmpval > maxval) {
+                    if (isvalid && tmpval > maxval) {
                         maxval = tmpval;
                         maxidx =  bottom_index;
                     }
@@ -390,17 +424,22 @@ class PSROIMaxAlign2D(function.Function):
                 w1, w2, w3, w4 = _get_bilinear_interp_params(
                     y, x, y_low, x_low, y_high, x_high)
 
-                g1 = top_diff_this_bin * w1
-                g2 = top_diff_this_bin * w2
-                g3 = top_diff_this_bin * w3
-                g4 = top_diff_this_bin * w4
-
-                if (x_low >= 0 and x_high >= 0 and
-                        y_low >= 0 and y_high >= 0):
+                if w1 > 0 and y_low >= 0 and x_low >= 0:
+                    g1 = top_diff_this_bin * w1
                     bottom_diff[roi_batch_ind, c, y_low, x_low] += g1
+
+                if w2 > 0 and y_low >= 0 and x_high <= width - 1:
+                    g2 = top_diff_this_bin * w2
                     bottom_diff[roi_batch_ind, c, y_low, x_high] += g2
+
+                if w3 > 0 and y_high <= height - 1 and x_low >= 0:
+                    g3 = top_diff_this_bin * w3
                     bottom_diff[roi_batch_ind, c, y_high, x_low] += g3
+
+                if w4 > 0 and y_high <= height - 1 and x_high <= width - 1:
+                    g4 = top_diff_this_bin * w4
                     bottom_diff[roi_batch_ind, c, y_high, x_high] += g4
+
                 # }}
 
         return bottom_diff, None, None
@@ -499,22 +538,27 @@ class PSROIMaxAlign2D(function.Function):
                 get_bilinear_interp_params(
                     y, x, y_low, x_low, y_high, x_high, w1, w2, w3, w4);
 
-                T g1 = top_diff_this_bin * w1;
-                T g2 = top_diff_this_bin * w2;
-                T g3 = top_diff_this_bin * w3;
-                T g4 = top_diff_this_bin * w4;
-
-                if (x_low >= 0 && x_high >= 0 &&
-                        y_low >= 0 && y_high >= 0) {
-                    atomicAdd(&bottom_diff[bottom_diff_offset +
-                                           y_low * width + x_low], g1);
-                    atomicAdd(&bottom_diff[bottom_diff_offset +
-                                           y_low * width + x_high], g2);
-                    atomicAdd(&bottom_diff[bottom_diff_offset +
-                                           y_high * width + x_low], g3);
-                    atomicAdd(&bottom_diff[bottom_diff_offset +
-                                           y_high * width + x_high], g4);
+                if (w1 > 0 && y_low >= 0 && x_low >= 0) {
+                    T g1 = top_diff_this_bin * w1;
+                    atomicAdd(&bottom_diff[
+                        bottom_diff_offset + y_low * width + x_low], g1);
                 }
+                if (w2 > 0 && y_low >= 0 && x_high <= width - 1) {
+                    T g2 = top_diff_this_bin * w2;
+                    atomicAdd(&bottom_diff[
+                        bottom_diff_offset + y_low * width + x_high], g2);
+                }
+                if (w3 > 0 && y_high <= height - 1 && x_low >= 0) {
+                    T g3 = top_diff_this_bin * w3;
+                    atomicAdd(&bottom_diff[
+                        bottom_diff_offset + y_high * width + x_low], g3);
+                }
+                if (w4 > 0 && y_high <= height - 1 && x_high <= width - 1) {
+                    T g4 = top_diff_this_bin * w4;
+                    atomicAdd(&bottom_diff[
+                        bottom_diff_offset + y_high * width + x_high], g4);
+                }
+
                 // }}
             }
             ''',
