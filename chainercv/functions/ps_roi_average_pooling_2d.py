@@ -303,14 +303,14 @@ class PSROIAveragePooling2D(function.Function):
 
     def backward_gpu(self, inputs, gy):
         _, bottom_rois, bottom_roi_indices = inputs
-        channels, height, width = self._bottom_data_shape[1:]
+        channel, height, width = self._bottom_data_shape[1:]
         out_c, out_h, out_w = gy[0].shape[1:]
         bottom_diff = cuda.cupy.zeros(self._bottom_data_shape, np.float32)
         cuda.elementwise(
             '''
             raw T top_diff, raw T bottom_rois,
             raw int32 bottom_roi_indices,
-            T spatial_scale, int32 channels, int32 height, int32 width,
+            T spatial_scale, int32 channel, int32 height, int32 width,
             int32 pooled_dim, int32 pooled_height, int32 pooled_width,
             int32 group_size
             ''',
@@ -361,7 +361,7 @@ class PSROIAveragePooling2D(function.Function):
             gw = min(max(gw, 0), group_size - 1);
             int c = (ctop * group_size + gh) * group_size + gw;
 
-            int bottom_diff_offset = (roi_batch_ind * channels + c);
+            int bottom_diff_offset = (roi_batch_ind * channel + c);
             bottom_diff_offset = bottom_diff_offset * height * width;
             int top_offset =
                 (n * pooled_dim + ctop) * pooled_height * pooled_width;
@@ -378,7 +378,7 @@ class PSROIAveragePooling2D(function.Function):
             }
             ''', 'ps_roi_average_pooling_2d_bwd'
         )(gy[0], bottom_rois, bottom_roi_indices,
-          self.spatial_scale, channels, height, width,
+          self.spatial_scale, channel, height, width,
           out_c, out_h, out_w, self.group_size, bottom_diff,
           size=gy[0].size)
 
