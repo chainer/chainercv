@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+import pytest
 
 from chainer import testing
 
@@ -18,16 +19,20 @@ N = 15
     {'labels_0': np.arange(N, dtype=np.int32) % 3,
      'labels_1': np.arange(N, dtype=np.int32) % 3,
      'pos_exist': True, 'neg_exist': True,
+     'alpha': 1.0,
      },
     # No positive
     {'labels_0': np.zeros(N, dtype=np.int32),
      'labels_1': np.ones(N, dtype=np.int32),
-     'pos_exist': False, 'neg_exist': True
+     'pos_exist': False, 'neg_exist': True,
+     'alpha': 2.0,
      },
     # No negative
     {'labels_0': np.ones(N, dtype=np.int32),
      'labels_1': np.ones(N, dtype=np.int32),
-     'pos_exist': True, 'neg_exist': False},
+     'pos_exist': True, 'neg_exist': False,
+     'alpha': 5.0,
+     },
 )
 class TestMixupSoftLabelDataset(unittest.TestCase):
 
@@ -46,19 +51,25 @@ class TestMixupSoftLabelDataset(unittest.TestCase):
 
     def _check_example(self, example):
         assert_is_image(example[0])
-        self.assertEqual(example[0].shape, self.img_shape)
-        self.assertEqual(example[1].dtype, np.float32)
-        self.assertEqual(example[1].ndim, 1)
-        self.assertEqual(example[1].shape[0], self.n_class)
-        self.assertAlmostEqual(example[1].sum(), 1.0)
-        self.assertGreaterEqual(np.min(example[1]), 0.0)
+        assert example[0].shape == self.img_shape
+        assert example[1].dtype == np.float32
+        assert example[1].ndim == 1
+        assert len(example[1]) == self.n_class
+        np.testing.assert_almost_equal(example[1].sum(), 1.0)
+        assert (example[1] >= 0.0).all()
 
     def test_mixup(self):
-        dataset = MixUpSoftLabelDataset(self.siamese_dataset, self.n_class)
+        dataset = MixUpSoftLabelDataset(
+            self.siamese_dataset, self.n_class, alpha=self.alpha)
         for i in range(10):
             example = dataset[i]
             self._check_example(example)
-        self.assertEqual(len(dataset), N)
+        assert len(dataset) == N
+
+    def test_invalid_alpha(self):
+        with pytest.raises(ValueError):
+            MixUpSoftLabelDataset(
+                self.siamese_dataset, self.n_class, alpha=self.alpha - 5.0)
 
 
 testing.run_module(__name__, __file__)

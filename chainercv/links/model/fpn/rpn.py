@@ -42,7 +42,7 @@ class RPN(chainer.Chain):
 
         self._scales = scales
 
-    def __call__(self, hs):
+    def forward(self, hs):
         """Calculates RoIs.
 
         Args:

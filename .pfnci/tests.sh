@@ -19,6 +19,6 @@ pip${PYTHON} install --user -e .
 python${PYTHON} -m pytest --color=no -n $(nproc) \
                 -m 'not pfnci_skip and not gpu and not mpi' tests/
 mpiexec -n 2 --allow-run-as-root \
-        python${PYTHON} -m pytest --color=no -m \
-        'not pfnci_skip and not gpu and mpi' tests/
+        python${PYTHON} -m pytest --color=no \
+        -m 'not pfnci_skip and not gpu and mpi' tests/
 EOD

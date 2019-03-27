@@ -4,6 +4,7 @@ configs {
     requirement {
       cpu: 32
       memory: 64
+      disk: 20
     }
     time_limit: {
       seconds: 900
@@ -26,6 +27,7 @@ configs {
     requirement {
       cpu: 32
       memory: 64
+      disk: 20
     }
     time_limit: {
       seconds: 900
@@ -48,6 +50,7 @@ configs {
     requirement {
       cpu: 32
       memory: 64
+      disk: 20
     }
     time_limit: {
       seconds: 900
@@ -70,6 +73,7 @@ configs {
     requirement {
       cpu: 32
       memory: 64
+      disk: 20
     }
     time_limit: {
       seconds: 900
@@ -92,6 +96,7 @@ configs {
     requirement {
       cpu: 4
       memory: 16
+      disk: 20
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
@@ -112,6 +117,7 @@ configs {
     requirement {
       cpu: 4
       memory: 16
+      disk: 20
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
@@ -132,6 +138,7 @@ configs {
     requirement {
       cpu: 4
       memory: 16
+      disk: 20
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
@@ -152,6 +159,7 @@ configs {
     requirement {
       cpu: 4
       memory: 16
+      disk: 20
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"

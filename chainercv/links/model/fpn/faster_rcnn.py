@@ -19,13 +19,18 @@ class FasterRCNN(chainer.Chain):
     Args:
         extractor (Link): A link that extracts feature maps.
             This link must have :obj:`scales`, :obj:`mean` and
-            :meth:`__call__`.
+            :meth:`forward`.
         rpn (Link): A link that has the same interface as
             :class:`~chainercv.links.model.fpn.RPN`.
             Please refer to the documentation found there.
         head (Link): A link that has the same interface as
             :class:`~chainercv.links.model.fpn.Head`.
             Please refer to the documentation found there.
+        min_size (int): A preprocessing paramter for :meth:`prepare`. Please
+            refer to a docstring found for :meth:`prepare`.
+        max_size (int): A preprocessing paramter for :meth:`prepare`. Note
+            that the result of :meth:`prepare` can exceed this size due to
+            alignment with stride.
 
     Parameters:
         nms_thresh (float): The threshold value
@@ -40,16 +45,18 @@ class FasterRCNN(chainer.Chain):
 
     """
 
-    _min_size = 800
-    _max_size = 1333
     _stride = 32
 
-    def __init__(self, extractor, rpn, head):
+    def __init__(self, extractor, rpn, head,
+                 min_size=800, max_size=1333):
         super(FasterRCNN, self).__init__()
         with self.init_scope():
             self.extractor = extractor
             self.rpn = rpn
             self.head = head
+
+        self._min_size = min_size
+        self._max_size = max_size
 
         self.use_preset('visualize')
 
@@ -80,7 +87,7 @@ class FasterRCNN(chainer.Chain):
         else:
             raise ValueError('preset must be visualize or evaluate')
 
-    def __call__(self, x):
+    def forward(self, x):
         assert(not chainer.config.train)
         hs = self.extractor(x)
         rpn_locs, rpn_confs = self.rpn(hs)
@@ -124,7 +131,7 @@ class FasterRCNN(chainer.Chain):
         x, scales = self.prepare(imgs)
 
         with chainer.using_config('train', False), chainer.no_backprop_mode():
-            rois, roi_indices, head_locs, head_confs = self(x)
+            rois, roi_indices, head_locs, head_confs = self.forward(x)
         bboxes, labels, scores = self.head.decode(
             rois, roi_indices, head_locs, head_confs,
             scales, sizes, self.nms_thresh, self.score_thresh)
