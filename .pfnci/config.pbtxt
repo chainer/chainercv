@@ -186,7 +186,7 @@ configs {
     time_limit: {
       seconds: 1800
     }
-    command: "sh .pfnci/tests_examples.sh"
+    command: "sh .pfnci/examples_tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
