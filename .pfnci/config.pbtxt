@@ -180,6 +180,7 @@ configs {
     requirement {
       cpu: 16
       memory: 64
+      disk: 20
       gpu: 2
     }
     time_limit: {
