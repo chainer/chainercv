@@ -14,9 +14,9 @@ from tests.functions_tests.test_ps_roi_average_pooling_2d import _outsize
 
 
 @testing.parameterize(*testing.product({
-    'sampling_ratio': [None, 1, 2, (None, 3), (1, 2)],
-    'spatial_scale': [0.6, 1.0, 2.0],
-    'outsize': [(2, 4, 4), (4, 4), 4],
+    'sampling_ratio': [(np.int(1), np.int(2)), None, 1, 2, (None, 3), (1, 2)],
+    'spatial_scale': [np.float(0.6), np.int(1), 0.6, 1.0, 2.0],
+    'outsize': [(np.int(2), np.int(4), np.int(4)), (2, 4, 4), (4, 4), 4],
 }))
 class TestPSROIMaxAlign2D(unittest.TestCase):
 
