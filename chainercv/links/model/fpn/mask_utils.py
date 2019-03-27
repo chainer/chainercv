@@ -6,6 +6,8 @@ import chainer
 
 from chainercv import transforms
 
+from chainercv.transforms.image.resize import resize_backend
+
 
 def mask_to_segm(mask, bbox, segm_size, index=None):
     """Crop and resize mask.
@@ -41,7 +43,8 @@ def mask_to_segm(mask, bbox, segm_size, index=None):
     # pixel prior to resizing back to the original image resolution.
     # This prevents "top hat" artifacts. We therefore need to expand
     # the reference boxes by an appropriate factor.
-    if chainer.config.cv_resize_backend == 'cv2':
+    backend = resize_backend()
+    if backend == 'cv2':
         padded_segm_size = segm_size + pad * 2
         expand_scale = padded_segm_size / segm_size
         bbox = _expand_bbox(bbox, expand_scale)
@@ -116,7 +119,8 @@ def segm_to_mask(segm, bbox, size):
     # pixel prior to resizing back to the original image resolution.
     # This prevents "top hat" artifacts. We therefore need to expand
     # the reference boxes by an appropriate factor.
-    if chainer.config.cv_resize_backend == 'cv2':
+    backend = resize_backend()
+    if backend == 'cv2':
         padded_segm_size = segm_size + pad * 2
         expand_scale = padded_segm_size / segm_size
         bbox = _expand_bbox(bbox, expand_scale)
