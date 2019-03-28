@@ -1,8 +1,7 @@
 #! /usr/bin/env sh
 set -eux
 
-TEMP=$(mktemp -d)
-mount -t tmpfs tmpfs ${TEMP}/ -o size=100%
+. .pfnci/common.sh
 
 apt-get install -y --no-install-recommends unzip
 gsutil -q cp gs://chainercv-pfn-public-ci/datasets-tiny.zip ${TEMP}/
@@ -22,7 +21,7 @@ docker run --runtime=nvidia --interactive --rm \
        --env CHAINERCV_DOWNLOAD_REPORT=OFF \
        --env PFNCI_SKIP='echo SKIP:' \
        --env SAMPLE_IMAGE=/sample.jpg \
-       hakuyume/chainercv:chainer${CHAINER}-devel \
+       ${DOCKER_IMAGE}
        sh -ex << EOD
 pip${PYTHON} install --user -e .
 for SCRIPT in \$(find examples_tests/ -type f -name '*.sh')
