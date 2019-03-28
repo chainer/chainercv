@@ -84,6 +84,8 @@ class FeaturePredictor(chainer.Chain):
         if scale is None:
             if hasattr(self.extractor, "scale"):
                 self.scale = self.extractor.scale
+            else:
+                self.scale = None
         else:
             self.scale = scale
 
