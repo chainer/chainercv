@@ -14,7 +14,9 @@ docker run --runtime=nvidia --interactive --rm \
 pip${PYTHON} install --user -e .
 python${PYTHON} -m pytest --color=no \
                 -m 'not pfnci_skip and gpu and not mpi' tests/
-mpiexec -n 2 --allow-run-as-root \
-        python${PYTHON} -m pytest --color=no \
-        -m 'not pfnci_skip and gpu and mpi' tests/
+if which mpiexec; then
+    mpiexec -n 2 --allow-run-as-root \
+            python${PYTHON} -m pytest --color=no \
+            -m 'not pfnci_skip and gpu and mpi' tests/
+fi
 EOD

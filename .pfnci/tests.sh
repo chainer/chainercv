@@ -18,7 +18,9 @@ pip${PYTHON} install --user pytest-xdist
 pip${PYTHON} install --user -e .
 python${PYTHON} -m pytest --color=no -n $(nproc) \
                 -m 'not pfnci_skip and not gpu and not mpi' tests/
-mpiexec -n 2 --allow-run-as-root \
-        python${PYTHON} -m pytest --color=no \
-        -m 'not pfnci_skip and not gpu and mpi' tests/
+if which mpiexec; then
+    mpiexec -n 2 --allow-run-as-root \
+            python${PYTHON} -m pytest --color=no \
+            -m 'not pfnci_skip and not gpu and mpi' tests/
+fi
 EOD
