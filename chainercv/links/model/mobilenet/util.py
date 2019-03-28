@@ -10,4 +10,4 @@ def _make_divisible(v, divisor, min_value=None):
 
 
 def expand_input_by_factor(n, divisible_by=8):
-    return lambda num_inputs, **_: _make_divisible(num_inputs * n, divisible_by)
+    return lambda num_inputs: _make_divisible(num_inputs * n, divisible_by)

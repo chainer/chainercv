@@ -1,24 +1,26 @@
-"""
-This MobileNetV2 implementation is based on @alexisVallet's one.
-@okdshin modified it for ChainerCV.
-"""
-"""
-Implementation of Mobilenet V2, converting the weights from the pretrained
-Tensorflow model from https://github.com/tensorflow/models/tree/master/research/slim/nets/mobilenet
-"""
 import numpy as np
 
 import chainer
-from chainer.functions import clipped_relu, average_pooling_2d, squeeze, softmax
-from chainer.utils import conv
+from chainer.functions import (clipped_relu, average_pooling_2d,
+                               squeeze, softmax)
 
 from chainercv.links.model.mobilenet.tf_convolution_2d import TFConvolution2D
 from chainercv.links.model.mobilenet.tf_conv_2d_bn_activ import TFConv2DBNActiv
 from chainercv.links.model.mobilenet.expanded_conv_2d import ExpandedConv2D
-from chainercv.links.model.mobilenet.util import _make_divisible, expand_input_by_factor
+from chainercv.links.model.mobilenet.util import (_make_divisible,
+                                                  expand_input_by_factor)
 from chainercv.links.model.pickable_sequential_chain import \
     PickableSequentialChain
 from chainercv import utils
+
+
+"""
+Implementation of Mobilenet V2, converting the weights from the pretrained
+Tensorflow model from
+https://github.com/tensorflow/models/tree/master/research/slim/nets/mobilenet
+This MobileNetV2 implementation is based on @alexisVallet's one.
+@okdshin modified it for ChainerCV.
+"""
 
 
 def _depth_multiplied_output_channels(base_out_channels,
@@ -70,7 +72,7 @@ class MobileNetV2(PickableSequentialChain):
     * :obj:`imagenet`: Loads weights trained with ImageNet. \
         When :obj:`arch=='tf'`, the weights distributed \
         at tensorflow/models
-        `<https://github.com/tensorflow/models/tree/master/research/slim/nets/mobilenet>`_ \
+        `<https://github.com/tensorflow/models/tree/master/research/slim/nets/mobilenet>`_ \ # NOQA
         are used.
 
     Args:
@@ -110,12 +112,12 @@ class MobileNetV2(PickableSequentialChain):
         'tf': {
             'param': {
                 'n_class':
-                1001,  # background + 1000 categories, first element is background
+                1001,  # first element is background
                 'mean': _zero_mean,
                 'scale': _tf_mobilenetv2_scale,
             },
             'overwritable': None,
-            'url': '',  #TODO
+            'url': '',  # TODO
         }
     }
 
@@ -148,7 +150,9 @@ class MobileNetV2(PickableSequentialChain):
         self.n_class = param['n_class']
 
         super(MobileNetV2, self).__init__()
-        relu6 = lambda x: clipped_relu(x, 6.)
+
+        def relu6(x):
+            return clipped_relu(x, 6.)
         with self.init_scope():
             conv_out_channels = _depth_multiplied_output_channels(
                 32, depth_multiplier)
@@ -201,7 +205,8 @@ class MobileNetV2(PickableSequentialChain):
                 initialW=initialW,
                 activ=relu6,
                 bn_kwargs=bn_kwargs)
-            self.global_average_pool = lambda x: average_pooling_2d(x, ksize=x.shape[2:4], stride=1)
+            self.global_average_pool = \
+                lambda x: average_pooling_2d(x, ksize=x.shape[2:4], stride=1)
             self.logits_conv = TFConvolution2D(
                 in_channels=conv1_out_channels,
                 out_channels=self.n_class,

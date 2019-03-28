@@ -2,7 +2,7 @@ import chainer
 from chainer.functions import relu
 from chainer.links import BatchNormalization
 
-from chainercv.links.model.mobilenet import TFConvolution2D
+from chainercv.links.model.mobilenet.tf_convolution_2d import TFConvolution2D
 
 try:
     from chainermn.links import MultiNodeBatchNormalization
@@ -55,8 +55,8 @@ class TFConv2DBNActiv(chainer.Chain):
             :obj:`ksize=k` and :obj:`ksize=(k, k)` are equivalent.
         stride (int or tuple of ints): Stride of filter applications.
             :obj:`stride=s` and :obj:`stride=(s, s)` are equivalent.
-        pad (int, tuple of ints, 'SAME' or 'VALID'): Spatial padding width for input arrays.
-            :obj:`pad=p` and :obj:`pad=(p, p)` are equivalent.
+        pad (int, tuple of ints, 'SAME' or 'VALID'): Spatial padding width for
+            input arrays. :obj:`pad=p` and :obj:`pad=(p, p)` are equivalent.
         dilate (int or tuple of ints): Dilation factor of filter applications.
             :obj:`dilate=d` and :obj:`dilate=(d, d)` are equivalent.
         groups (int): The number of groups to use grouped convolution. The

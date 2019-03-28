@@ -44,7 +44,8 @@ class TFConvolution2D(chainer.Chain):
     The arguments are the same as that of
     :class:`chainer.links.Convolution2D` except for `pad`.
     :obj:`pad` can be set TF's "SAME" or "VALID" in addition to integer value.
-    If integer value is set, this chain is equal to :class:`chainer.links.Convolution2D`.
+    If integer value is set,
+    this chain is equal to :class:`chainer.links.Convolution2D`.
     """
 
     def __init__(self,
@@ -58,8 +59,10 @@ class TFConvolution2D(chainer.Chain):
                  initial_bias=None,
                  **kwargs):
         super(TFConvolution2D, self).__init__()
-        if pad in ('SAME', 'VALID'): # TF compatible pad
-            self.padding = lambda x: _tf_padding(x, _pair(self.conv.ksize), _pair(self.conv.stride), pad)
+
+        if pad in ('SAME', 'VALID'):  # TF compatible pad
+            self.padding = lambda x: _tf_padding(x, _pair(self.conv.ksize),
+                                                 _pair(self.conv.stride), pad)
         else:
             self.padding = None
 

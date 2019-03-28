@@ -1,24 +1,29 @@
 import chainer
 from chainer.functions import clipped_relu
-from chainer.links import BatchNormalization
 
-from chainercv.links.model.mobilenet import TFConv2DBNActiv
+from chainercv.links.model.mobilenet.tf_conv_2d_bn_activ import TFConv2DBNActiv
 from chainercv.links.model.mobilenet.util import expand_input_by_factor
 
 
 class ExpandedConv2D(chainer.Chain):
     """An expanded convolution 2d layer
 
-    in --> expand conv (pointwise conv) --> depthwise conv --> project conv (pointwise conv) --> out
+    in --> expand conv (pointwise conv) --> depthwise conv -->
+        project conv (pointwise conv) --> out
 
     Args:
         in_channels (int): The number of channels of the input array.
         out_channels (int): The number of channels of the output array.
-        expand_pad (int, tuple of ints, 'SAME' or 'VALID'): Pad of expand conv filter application.
-        depthwise_stride (int or tuple of ints): Stride of depthwise conv filter application.
-        depthwise_ksize (int or tuple of ints): Kernel size of depthwise conv filter application.
-        depthwise_pad (int, tuple of ints, 'SAME' or 'VALID'): Pad of depthwise conv filter application.
-        project_pad (int, tuple of ints, 'SAME' or 'VALID'): Pad of project conv filter application.
+        expand_pad (int, tuple of ints, 'SAME' or 'VALID'):
+            Pad of expand conv filter application.
+        depthwise_stride (int or tuple of ints):
+            Stride of depthwise conv filter application.
+        depthwise_ksize (int or tuple of ints):
+            Kernel size of depthwise conv filter application.
+        depthwise_pad (int, tuple of ints, 'SAME' or 'VALID'):
+            Pad of depthwise conv filter application.
+        project_pad (int, tuple of ints, 'SAME' or 'VALID'):
+            Pad of project conv filter application.
         initialW (callable): Initial weight value used in
             the convolutional layers.
         bn_kwargs (dict): Keyword arguments passed to initialize
@@ -41,7 +46,9 @@ class ExpandedConv2D(chainer.Chain):
                 self.inner_size = expansion_size(num_inputs=in_channels)
             else:
                 self.inner_size = expansion_size
-            relu_six = lambda x: clipped_relu(x, 6.)
+
+            def relu6(x):
+                return clipped_relu(x, 6.)
             if self.inner_size > in_channels:
                 self.expand = TFConv2DBNActiv(
                     in_channels,
@@ -51,7 +58,7 @@ class ExpandedConv2D(chainer.Chain):
                     nobias=True,
                     initialW=initialW,
                     bn_kwargs=bn_kwargs,
-                    activ=relu_six)
+                    activ=relu6)
                 depthwise_in_channels = self.inner_size
             else:
                 depthwise_in_channels = in_channels
@@ -65,7 +72,7 @@ class ExpandedConv2D(chainer.Chain):
                 initialW=initialW,
                 groups=depthwise_in_channels,
                 bn_kwargs=bn_kwargs,
-                activ=relu_six)
+                activ=relu6)
             self.project = TFConv2DBNActiv(
                 self.inner_size,
                 out_channels,
