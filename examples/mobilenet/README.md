@@ -6,7 +6,7 @@ For evaluation, please go to [`examples/classification`](https://github.com/chai
 Convert TensorFlow's `*.ckpt` to `*.npz`.
 
 ```
-$ pythontfckpt2npz.py mobilenetv2 <source>.ckpt <target>.npz
+$ python tfckpt2npz.py mobilenetv2 <source>.ckpt <target>.npz
 ```
 
 The pretrained `.ckpt` for mobilenet can be downloaded from here.
