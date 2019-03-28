@@ -21,7 +21,7 @@ docker run --runtime=nvidia --interactive --rm \
        --env CHAINERCV_DOWNLOAD_REPORT=OFF \
        --env PFNCI_SKIP='echo SKIP:' \
        --env SAMPLE_IMAGE=/sample.jpg \
-       ${DOCKER_IMAGE}
+       ${DOCKER_IMAGE} \
        sh -ex << EOD
 pip${PYTHON} install --user -e .
 for SCRIPT in \$(find examples_tests/ -type f -name '*.sh')

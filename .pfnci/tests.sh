@@ -12,7 +12,7 @@ docker run --interactive --rm \
        --volume $(pwd):/chainercv/ --workdir /chainercv/ \
        --volume ${TEMP}/.chainer/:/root/.chainer/ \
        --env MPLBACKEND=agg \
-       ${DOCKER_IMAGE}
+       ${DOCKER_IMAGE} \
        sh -ex << EOD
 pip${PYTHON} install --user pytest-xdist
 pip${PYTHON} install --user -e .
