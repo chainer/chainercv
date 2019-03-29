@@ -1,14 +1,16 @@
 import numpy as np
 
 import chainer
-from chainer.functions import (clipped_relu, average_pooling_2d,
-                               squeeze, softmax)
+from chainer.functions import average_pooling_2d
+from chainer.functions import clipped_relu
+from chainer.functions import softmax
+from chainer.functions import squeeze
 
-from chainercv.links.model.mobilenet.tf_convolution_2d import TFConvolution2D
-from chainercv.links.model.mobilenet.tf_conv_2d_bn_activ import TFConv2DBNActiv
 from chainercv.links.model.mobilenet.expanded_conv_2d import ExpandedConv2D
-from chainercv.links.model.mobilenet.util import (_make_divisible,
-                                                  expand_input_by_factor)
+from chainercv.links.model.mobilenet.tf_conv_2d_bn_activ import TFConv2DBNActiv
+from chainercv.links.model.mobilenet.tf_convolution_2d import TFConvolution2D
+from chainercv.links.model.mobilenet.util import _make_divisible
+from chainercv.links.model.mobilenet.util import expand_input_by_factor
 from chainercv.links.model.pickable_sequential_chain import \
     PickableSequentialChain
 from chainercv import utils
@@ -117,7 +119,7 @@ class MobileNetV2(PickableSequentialChain):
                 'scale': _tf_mobilenetv2_scale,
             },
             'overwritable': None,
-            'url': '',  # TODO
+            'url': '',  # TODO(okada)
         }
     }
 
