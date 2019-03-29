@@ -2,7 +2,7 @@ configs {
   key: "chainercv.py2.stable"
   value {
     requirement {
-      cpu: 8
+      cpu: 4
       memory: 24
       google_nvme_disk: 1
     }
@@ -55,7 +55,7 @@ configs {
   key: "chainercv.py2.stable.mini"
   value {
     requirement {
-      cpu: 8
+      cpu: 4
       memory: 24
       google_nvme_disk: 1
     }
@@ -135,7 +135,7 @@ configs {
   key: "chainercv.py2.latest"
   value {
     requirement {
-      cpu: 8
+      cpu: 4
       memory: 24
       google_nvme_disk: 1
     }
@@ -188,7 +188,7 @@ configs {
   key: "chainercv.py2.latest.mini"
   value {
     requirement {
-      cpu: 8
+      cpu: 4
       memory: 24
       google_nvme_disk: 1
     }
@@ -268,7 +268,7 @@ configs {
   key: "chainercv.py3.stable"
   value {
     requirement {
-      cpu: 8
+      cpu: 4
       memory: 24
       google_nvme_disk: 1
     }
@@ -321,7 +321,7 @@ configs {
   key: "chainercv.py3.stable.mini"
   value {
     requirement {
-      cpu: 8
+      cpu: 4
       memory: 24
       google_nvme_disk: 1
     }
@@ -401,7 +401,7 @@ configs {
   key: "chainercv.py3.latest"
   value {
     requirement {
-      cpu: 8
+      cpu: 4
       memory: 24
       google_nvme_disk: 1
     }
@@ -454,7 +454,7 @@ configs {
   key: "chainercv.py3.latest.mini"
   value {
     requirement {
-      cpu: 8
+      cpu: 4
       memory: 24
       google_nvme_disk: 1
     }
