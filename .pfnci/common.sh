@@ -13,7 +13,7 @@ else
     DOCKER_IMAGE=hakuyume/chainercv:chainer${CHAINER}-devel-minimal
 fi
 
-dd if=/dev/zero of=/swap bs=1G count=24
+fallocate -l 24G /swap
 chmod 600 /swap
 mkswap /swap
 swapon -p 5 /swap
