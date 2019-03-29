@@ -4,6 +4,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
     }
     time_limit: {
       seconds: 1800
@@ -29,6 +30,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
       gpu: 1
     }
     time_limit: {
@@ -55,6 +57,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
     }
     time_limit: {
       seconds: 1800
@@ -80,6 +83,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
       gpu: 1
     }
     time_limit: {
@@ -106,6 +110,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
       gpu: 2
     }
     time_limit: {
@@ -132,6 +137,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
     }
     time_limit: {
       seconds: 1800
@@ -157,6 +163,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
       gpu: 1
     }
     time_limit: {
@@ -183,6 +190,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
     }
     time_limit: {
       seconds: 1800
@@ -208,6 +216,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
       gpu: 1
     }
     time_limit: {
@@ -234,6 +243,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
       gpu: 2
     }
     time_limit: {
@@ -260,6 +270,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
     }
     time_limit: {
       seconds: 1800
@@ -285,6 +296,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
       gpu: 1
     }
     time_limit: {
@@ -311,6 +323,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
     }
     time_limit: {
       seconds: 1800
@@ -336,6 +349,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
       gpu: 1
     }
     time_limit: {
@@ -362,6 +376,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
       gpu: 2
     }
     time_limit: {
@@ -388,6 +403,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
     }
     time_limit: {
       seconds: 1800
@@ -413,6 +429,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
       gpu: 1
     }
     time_limit: {
@@ -439,6 +456,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
     }
     time_limit: {
       seconds: 1800
@@ -464,6 +482,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
       gpu: 1
     }
     time_limit: {
@@ -490,6 +509,7 @@ configs {
     requirement {
       cpu: 4
       memory: 24
+      disk: 24
       gpu: 2
     }
     time_limit: {

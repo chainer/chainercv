@@ -13,6 +13,11 @@ else
     DOCKER_IMAGE=hakuyume/chainercv:chainer${CHAINER}-devel-minimal
 fi
 
+truncate -s 24g /swap
+chmod 600 /swap
+mkswap /swap
+swapon -p 5 /swap
+
 systemctl stop docker.service
 mount -t tmpfs tmpfs /var/lib/docker/ -o size=75%
 systemctl start docker.service
