@@ -2,12 +2,12 @@ configs {
   key: "chainercv.py2.stable"
   value {
     requirement {
-      cpu: 32
-      memory: 64
+      cpu: 8
+      memory: 24
       disk: 5
     }
     time_limit: {
-      seconds: 900
+      seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
@@ -28,10 +28,13 @@ configs {
   key: "chainercv.py2.stable.gpu"
   value {
     requirement {
-      cpu: 4
-      memory: 16
+      cpu: 2
+      memory: 12
       disk: 5
       gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -52,12 +55,12 @@ configs {
   key: "chainercv.py2.stable.mini"
   value {
     requirement {
-      cpu: 32
-      memory: 64
+      cpu: 8
+      memory: 24
       disk: 5
     }
     time_limit: {
-      seconds: 900
+      seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
@@ -78,10 +81,13 @@ configs {
   key: "chainercv.py2.stable.mini.gpu"
   value {
     requirement {
-      cpu: 4
-      memory: 16
+      cpu: 2
+      memory: 12
       disk: 5
       gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -102,8 +108,8 @@ configs {
   key: "chainercv.py2.stable.examples"
   value {
     requirement {
-      cpu: 16
-      memory: 64
+      cpu: 2
+      memory: 12
       disk: 5
       gpu: 2
     }
@@ -129,12 +135,12 @@ configs {
   key: "chainercv.py2.latest"
   value {
     requirement {
-      cpu: 32
-      memory: 64
+      cpu: 8
+      memory: 24
       disk: 5
     }
     time_limit: {
-      seconds: 900
+      seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
@@ -155,10 +161,13 @@ configs {
   key: "chainercv.py2.latest.gpu"
   value {
     requirement {
-      cpu: 4
-      memory: 16
+      cpu: 2
+      memory: 12
       disk: 5
       gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -179,12 +188,12 @@ configs {
   key: "chainercv.py2.latest.mini"
   value {
     requirement {
-      cpu: 32
-      memory: 64
+      cpu: 8
+      memory: 24
       disk: 5
     }
     time_limit: {
-      seconds: 900
+      seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
@@ -205,10 +214,13 @@ configs {
   key: "chainercv.py2.latest.mini.gpu"
   value {
     requirement {
-      cpu: 4
-      memory: 16
+      cpu: 2
+      memory: 12
       disk: 5
       gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -229,8 +241,8 @@ configs {
   key: "chainercv.py2.latest.examples"
   value {
     requirement {
-      cpu: 16
-      memory: 64
+      cpu: 2
+      memory: 12
       disk: 5
       gpu: 2
     }
@@ -256,12 +268,12 @@ configs {
   key: "chainercv.py3.stable"
   value {
     requirement {
-      cpu: 32
-      memory: 64
+      cpu: 8
+      memory: 24
       disk: 5
     }
     time_limit: {
-      seconds: 900
+      seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
@@ -282,10 +294,13 @@ configs {
   key: "chainercv.py3.stable.gpu"
   value {
     requirement {
-      cpu: 4
-      memory: 16
+      cpu: 2
+      memory: 12
       disk: 5
       gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -306,12 +321,12 @@ configs {
   key: "chainercv.py3.stable.mini"
   value {
     requirement {
-      cpu: 32
-      memory: 64
+      cpu: 8
+      memory: 24
       disk: 5
     }
     time_limit: {
-      seconds: 900
+      seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
@@ -332,10 +347,13 @@ configs {
   key: "chainercv.py3.stable.mini.gpu"
   value {
     requirement {
-      cpu: 4
-      memory: 16
+      cpu: 2
+      memory: 12
       disk: 5
       gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -356,8 +374,8 @@ configs {
   key: "chainercv.py3.stable.examples"
   value {
     requirement {
-      cpu: 16
-      memory: 64
+      cpu: 2
+      memory: 12
       disk: 5
       gpu: 2
     }
@@ -383,12 +401,12 @@ configs {
   key: "chainercv.py3.latest"
   value {
     requirement {
-      cpu: 32
-      memory: 64
+      cpu: 8
+      memory: 24
       disk: 5
     }
     time_limit: {
-      seconds: 900
+      seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
@@ -409,10 +427,13 @@ configs {
   key: "chainercv.py3.latest.gpu"
   value {
     requirement {
-      cpu: 4
-      memory: 16
+      cpu: 2
+      memory: 12
       disk: 5
       gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -433,12 +454,12 @@ configs {
   key: "chainercv.py3.latest.mini"
   value {
     requirement {
-      cpu: 32
-      memory: 64
+      cpu: 8
+      memory: 24
       disk: 5
     }
     time_limit: {
-      seconds: 900
+      seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
@@ -459,10 +480,13 @@ configs {
   key: "chainercv.py3.latest.mini.gpu"
   value {
     requirement {
-      cpu: 4
-      memory: 16
+      cpu: 2
+      memory: 12
       disk: 5
       gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -483,8 +507,8 @@ configs {
   key: "chainercv.py3.latest.examples"
   value {
     requirement {
-      cpu: 16
-      memory: 64
+      cpu: 2
+      memory: 12
       disk: 5
       gpu: 2
     }
