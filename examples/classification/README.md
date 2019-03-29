@@ -8,6 +8,7 @@ Single crop error rates of the models with the weights converted from Caffe weig
 
 | Model | Top 1 | Original Top 1 |
 |:-:|:-:|:-:|
+| MobileNetV2 | 29.9 % | 28.0 % [6] |
 | VGG16 | 29.0 % | 28.5 % [1] |
 | ResNet50 (`arch=he`) | 24.8 % | 24.7 % [2] |
 | ResNet101 (`arch=he`) | 23.6 % | 23.6 % [2] |
@@ -22,6 +23,7 @@ Ten crop error rate.
 
 | Model | Top 1 | Original Top 1 |
 |:-:|:-:|:-:|
+| MobileNetV2 | 27.4 % |  |
 | VGG16 | 27.1 % |   |
 | ResNet50 (`arch=he`) | 23.0 % | 22.9 % [2] |
 | ResNet101 (`arch=he`) | 21.8 % | 21.8 % [2] |
@@ -37,7 +39,7 @@ The results can be reproduced by the following command.
 These scores are obtained using OpenCV backend. If Pillow is used, scores would differ.
 
 ```
-$ python eval_imagenet.py <path_to_val_dataset> [--model vgg16|resnet50|resnet101|resnet152|se-resnet50|se-resnet101|se-resnet152] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>] [--crop center|10]
+$ python eval_imagenet.py <path_to_val_dataset> [--model mobilenetv2|vgg16|resnet50|resnet101|resnet152|se-resnet50|se-resnet101|se-resnet152] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>] [--crop center|10]
 ```
 
 ### Trained model
@@ -104,3 +106,4 @@ The ImageNet Large Scale Visual Recognition Challenge (ILSVRC) dataset has 1000 
 3. Jie Hu, Li Shen, Gang Sun. "Squeeze-and-Excitation Networks" CVPR 2018
 4. https://github.com/hujie-frank/SENet
 5. Priya Goyal, Piotr Dollár, Ross Girshick, Pieter Noordhuis, Lukasz Wesolowski, Aapo Kyrola, Andrew Tulloch, Yangqing Jia, Kaiming He. "Accurate, Large Minibatch SGD: Training ImageNet in 1 Hour" https://arxiv.org/abs/1706.02677
+6. Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, Liang-Chieh Chen. "MobileNetV2: Inverted Residuals and Linear Bottlenecks" https://arxiv.org/abs/1801.04381
