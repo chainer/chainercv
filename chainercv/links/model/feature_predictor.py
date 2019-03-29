@@ -122,9 +122,9 @@ class FeaturePredictor(chainer.Chain):
         elif self.crop == 'center':
             imgs = center_crop(img, self.crop_size)[np.newaxis]
 
+        imgs -= self.mean[np.newaxis]
         if self.scale is not None:
             imgs *= self.scale[np.newaxis]
-        imgs -= self.mean[np.newaxis]
 
         return imgs
 
