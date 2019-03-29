@@ -15,7 +15,7 @@ pip${PYTHON} install --user -e .
 python${PYTHON} -m pytest --color=no \
                 -m 'not pfnci_skip and gpu and not mpi' tests/
 if which mpiexec; then
-    mpiexec -n 2 --allow-run-as-root \
+    mpiexec -n 2 --allow-run-as-root --bind-to none \
             python${PYTHON} -m pytest --color=no \
             -m 'not pfnci_skip and gpu and mpi' tests/
 fi

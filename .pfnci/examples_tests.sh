@@ -16,7 +16,7 @@ docker run --runtime=nvidia --interactive --rm \
        --volume ${TEMP}/.chainer/:/root/.chainer/ \
        --volume ${TEMP}/sample.jpg:/sample.jpg \
        --env PYTHON=python${PYTHON} \
-       --env MPIEXEC='mpiexec -n 2 --allow-run-as-root' \
+       --env MPIEXEC='mpiexec -n 2 --allow-run-as-root --bind-to none' \
        --env MPLBACKEND=agg \
        --env CHAINERCV_DOWNLOAD_REPORT=OFF \
        --env PFNCI_SKIP='echo SKIP:' \
