@@ -39,7 +39,7 @@ The results can be reproduced by the following command.
 These scores are obtained using OpenCV backend. If Pillow is used, scores would differ.
 
 ```
-$ python eval_imagenet.py <path_to_val_dataset> [--model mobilenetv2|vgg16|resnet50|resnet101|resnet152|se-resnet50|se-resnet101|se-resnet152] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>] [--crop center|10]
+$ python eval_imagenet.py <path_to_val_dataset> [--model mobilenet_v2|vgg16|resnet50|resnet101|resnet152|se-resnet50|se-resnet101|se-resnet152] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>] [--crop center|10]
 ```
 
 ### Trained model
