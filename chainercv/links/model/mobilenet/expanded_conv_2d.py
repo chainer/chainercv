@@ -29,6 +29,7 @@ class ExpandedConv2D(chainer.Chain):
         bn_kwargs (dict): Keyword arguments passed to initialize
             :class:`chainer.links.BatchNormalization`.
     """
+
     def __init__(self,
                  out_channels,
                  in_channels,
