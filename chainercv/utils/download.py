@@ -112,14 +112,18 @@ def download_model(url):
         string: Path to the downloaded file.
 
     """
-    root = get_dataset_directory(
-        os.path.join('pfnet', 'chainercv', 'models'))
-    basename = os.path.basename(url)
-    path = os.path.join(root, basename)
-    if not os.path.exists(path):
-        cache_path = cached_download(url)
-        os.rename(cache_path, path)
-    return path
+    # To support ChainerMN, the target directory should be locked.
+    with filelock.FileLock(os.path.join(
+            get_dataset_directory(os.path.join('pfnet', 'chainercv', '.lock')),
+            'models.lock')):
+        root = get_dataset_directory(
+            os.path.join('pfnet', 'chainercv', 'models'))
+        basename = os.path.basename(url)
+        path = os.path.join(root, basename)
+        if not os.path.exists(path):
+            cache_path = cached_download(url)
+            os.rename(cache_path, path)
+        return path
 
 
 def extractall(file_path, destination, ext):
