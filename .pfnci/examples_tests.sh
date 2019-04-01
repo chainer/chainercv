@@ -14,13 +14,12 @@ curl -L https://cloud.githubusercontent.com/assets/2062128/26187667/9cb236da-3bd
 docker run --runtime=nvidia --interactive --rm \
        --volume $(pwd):/chainercv/ --workdir /chainercv/ \
        --volume ${TEMP}/.chainer/:/root/.chainer/ \
-       --volume ${TEMP}/sample.jpg:/sample.jpg \
+       --volume ${TEMP}/sample.jpg:/sample.jpg --env SAMPLE_IMAGE=/sample.jpg \
        --env PYTHON=python${PYTHON} \
        --env MPIEXEC='mpiexec -n 2 --allow-run-as-root' \
        --env MPLBACKEND=agg \
        --env CHAINERCV_DOWNLOAD_REPORT=OFF \
        --env PFNCI_SKIP='echo SKIP:' \
-       --env SAMPLE_IMAGE=/sample.jpg \
        ${DOCKER_IMAGE} \
        sh -ex << EOD
 pip${PYTHON} install --user -e .
