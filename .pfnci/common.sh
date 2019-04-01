@@ -2,9 +2,9 @@
 set -eux
 
 if [ ${CHAINER} = stable ]; then
-    CHAINER=5.2.0
+    CHAINER=5.3.0
 elif [ ${CHAINER} = latest ]; then
-    CHAINER=6.0.0b2
+    CHAINER=6.0.0b3
 fi
 
 if [ ${OPTIONAL_MODULES} -gt 0 ]; then
