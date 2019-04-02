@@ -118,7 +118,8 @@ class MobileNetV2(PickableSequentialChain):
 
     _models = {
         'tf': {
-            'param': {
+            'imagenet': {
+                'param': {
                 'n_class':
                 1001,  # first element is background
                 'mean': _tf_mobilenetv2_mean,
@@ -126,6 +127,7 @@ class MobileNetV2(PickableSequentialChain):
             },
             'overwritable': (),
             'url': 'https://chainercv-models.preferred.jp/mobilenet_v2_depth_multiplier_1.0_imagenet_converted_2019_04_01.npz',  # NOQA
+            }
         }
     }
 
@@ -148,7 +150,7 @@ class MobileNetV2(PickableSequentialChain):
                 'n_class': n_class,
                 'mean': mean,
                 'scale': scale
-            }, pretrained_model, self._models, {
+            }, pretrained_model, self._models[arch], {
                 'n_class': 1000,
                 'mean': _imagenet_mean,
                 'scale': _imagenet_scale
