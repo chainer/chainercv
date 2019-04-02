@@ -140,7 +140,7 @@ class MobileNetV2(PickableSequentialChain):
                  depth_multiplier=1.,
                  bn_kwargs=_bn_tf_default_params,
                  thousand_categories_mode=False):
-        if depth_multiplier < 0:
+        if depth_multiplier <= 0:
             raise ValueError('depth_multiplier must be greater than 0')
 
         param, path = utils.prepare_pretrained_model(
