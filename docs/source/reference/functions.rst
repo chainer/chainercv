@@ -7,7 +7,7 @@ Functions
 Spatial Pooling
 ---------------
 
-psroi_pooling_2d
-~~~~~~~~~~~~~~~~
+ps_roi_average_pooling_2d
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: psroi_pooling_2d
+.. autofunction:: ps_roi_average_pooling_2d
