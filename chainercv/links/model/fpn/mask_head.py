@@ -151,11 +151,11 @@ class MaskHead(chainer.Chain):
         return masks
 
 
-def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
-                  gt_head_labels, segm_size):
+def mask_head_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
+                       gt_head_labels, segm_size):
     """Loss function for Mask Head (pre).
 
-    This function processes RoIs for :func:`mask_loss_post` by
+    This function processes RoIs for :func:`mask_head_loss_post` by
     selecting RoIs for mask loss calculation and
     preparing ground truth network output.
 
@@ -226,19 +226,19 @@ def mask_loss_pre(rois, roi_indices, gt_masks, gt_bboxes,
     return mask_rois, mask_roi_indices, gt_segms, gt_mask_labels
 
 
-def mask_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels,
-                   batchsize):
+def mask_head_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels,
+                        batchsize):
     """Loss function for Mask Head (post).
 
      Args:
          segms (array): An array whose shape is :math:`(R, n\_class, M, M)`,
              where :math:`R` is the total number of RoIs in the given batch.
          mask_roi_indices (array): A list of arrays returned by
-             :func:`mask_loss_pre`.
+             :func:`mask_head_loss_pre`.
          gt_segms (list of arrays): A list of arrays returned by
-             :func:`mask_loss_pre`.
+             :func:`mask_head_loss_pre`.
          gt_mask_labels (list of arrays): A list of arrays returned by
-             :func:`mask_loss_pre`.
+             :func:`mask_head_loss_pre`.
          batchsize (int): The size of batch.
 
      Returns:

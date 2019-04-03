@@ -74,25 +74,25 @@ segm_to_mask
 Train-only Utility
 ------------------
 
-bbox_loss_pre
-~~~~~~~~~~~~~
-.. autofunction:: bbox_loss_pre
+bbox_head_loss_pre
+~~~~~~~~~~~~~~~~~~
+.. autofunction:: bbox_head_loss_pre
 
-bbox_loss_post
-~~~~~~~~~~~~~~
-.. autofunction:: bbox_loss_post
+bbox_head_loss_post
+~~~~~~~~~~~~~~~~~~~
+.. autofunction:: bbox_head_loss_post
 
 rpn_loss
 ~~~~~~~~
 .. autofunction:: rpn_loss
 
-mask_loss_pre
-~~~~~~~~~~~~~
-.. autofunction:: mask_loss_pre
+mask_head_loss_pre
+~~~~~~~~~~~~~~~~~~
+.. autofunction:: mask_head_loss_pre
 
-mask_loss_post
-~~~~~~~~~~~~~~
-.. autofunction:: mask_loss_post
+mask_head_loss_post
+~~~~~~~~~~~~~~~~~~~
+.. autofunction:: mask_head_loss_post
 
 mask_to_segm
 ~~~~~~~~~~~~

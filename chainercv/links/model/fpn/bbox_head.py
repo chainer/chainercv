@@ -210,7 +210,7 @@ class BboxHead(chainer.Chain):
         return bboxes, labels, scores
 
 
-def bbox_loss_pre(rois, roi_indices, std, bboxes, labels):
+def bbox_head_loss_pre(rois, roi_indices, std, bboxes, labels):
     """Loss function for Head (pre).
 
     This function processes RoIs for :func:`bbox_head_loss_post`.
@@ -314,7 +314,8 @@ def bbox_loss_pre(rois, roi_indices, std, bboxes, labels):
     return rois, roi_indices, gt_locs, gt_labels
 
 
-def bbox_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
+def bbox_head_loss_post(
+        locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
     """Loss function for Head (post).
 
      Args:

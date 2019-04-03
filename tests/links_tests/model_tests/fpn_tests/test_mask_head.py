@@ -7,8 +7,8 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links.model.fpn import mask_loss_post
-from chainercv.links.model.fpn import mask_loss_pre
+from chainercv.links.model.fpn import mask_head_loss_post
+from chainercv.links.model.fpn import mask_head_loss_pre
 from chainercv.links.model.fpn import MaskHead
 
 from chainercv.utils import mask_to_bbox
@@ -143,7 +143,7 @@ class TestMaskHead(unittest.TestCase):
 
 class TestMaskHeadLoss(unittest.TestCase):
 
-    def _check_mask_loss_pre(self, xp):
+    def _check_mask_head_loss_pre(self, xp):
         n_inst = 12
         segm_size = 28
         rois = [
@@ -167,7 +167,7 @@ class TestMaskHeadLoss(unittest.TestCase):
             xp.array((10, 4), dtype=np.int32),
             xp.array((3,), dtype=np.int32),
         ]
-        rois, roi_indices, gt_segms, gt_mask_labels = mask_loss_pre(
+        rois, roi_indices, gt_segms, gt_mask_labels = mask_head_loss_pre(
             rois, roi_indices, masks, bboxes, labels, segm_size)
 
         self.assertEqual(len(rois), 3)
@@ -190,13 +190,13 @@ class TestMaskHeadLoss(unittest.TestCase):
             self.assertEqual(gt_segms[l].dtype, np.float32)
             self.assertEqual(gt_mask_labels[l].dtype, np.int32)
 
-    def test_mask_loss_pre_cpu(self):
-        self._check_mask_loss_pre(np)
+    def test_mask_head_loss_pre_cpu(self):
+        self._check_mask_head_loss_pre(np)
 
     @attr.gpu
-    def test_mask_loss_pre_gpu(self):
+    def test_mask_head_loss_pre_gpu(self):
         import cupy
-        self._check_mask_loss_pre(cupy)
+        self._check_mask_head_loss_pre(cupy)
 
     def _check_head_loss_post(self, xp):
         B = 2
@@ -217,12 +217,12 @@ class TestMaskHeadLoss(unittest.TestCase):
             xp.random.randint(0, 80, size=8).astype(np.int32),
         ]
 
-        mask_loss = mask_loss_post(
+        mask_head_loss = mask_head_loss_post(
             segms, mask_roi_indices, gt_segms, gt_mask_labels, B)
 
-        self.assertIsInstance(mask_loss, chainer.Variable)
-        self.assertIsInstance(mask_loss.array, xp.ndarray)
-        self.assertEqual(mask_loss.shape, ())
+        self.assertIsInstance(mask_head_loss, chainer.Variable)
+        self.assertIsInstance(mask_head_loss.array, xp.ndarray)
+        self.assertEqual(mask_head_loss.shape, ())
 
     def test_head_loss_post_cpu(self):
         self._check_head_loss_post(np)

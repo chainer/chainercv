@@ -7,8 +7,8 @@ import chainer
 from chainer import testing
 from chainer.testing import attr
 
-from chainercv.links.model.fpn import bbox_loss_post
-from chainercv.links.model.fpn import bbox_loss_pre
+from chainercv.links.model.fpn import bbox_head_loss_post
+from chainercv.links.model.fpn import bbox_head_loss_pre
 from chainercv.links.model.fpn import BboxHead
 
 
@@ -143,7 +143,7 @@ class TestBboxHead(unittest.TestCase):
 
 class TestBboxLoss(unittest.TestCase):
 
-    def _check_bbox_loss_pre(self, xp):
+    def _check_bbox_head_loss_pre(self, xp):
         rois = [
             xp.array(((4, 1, 6, 3),), dtype=np.float32),
             xp.array(
@@ -164,7 +164,7 @@ class TestBboxLoss(unittest.TestCase):
             xp.array((10, 4), dtype=np.float32),
             xp.array((1,), dtype=np.float32),
         ]
-        rois, roi_indices, gt_locs, gt_labels = bbox_loss_pre(
+        rois, roi_indices, gt_locs, gt_labels = bbox_head_loss_pre(
             rois, roi_indices,  (0.1, 0.2), bboxes, labels)
 
         self.assertEqual(len(rois), 3)
@@ -185,15 +185,15 @@ class TestBboxLoss(unittest.TestCase):
             self.assertEqual(gt_locs[l].shape[1:], (4,))
             self.assertEqual(gt_labels[l].shape[1:], ())
 
-    def test_bbox_loss_pre_cpu(self):
-        self._check_bbox_loss_pre(np)
+    def test_bbox_head_loss_pre_cpu(self):
+        self._check_bbox_head_loss_pre(np)
 
     @attr.gpu
-    def test_bbox_loss_pre_gpu(self):
+    def test_bbox_head_loss_pre_gpu(self):
         import cupy
-        self._check_bbox_loss_pre(cupy)
+        self._check_bbox_head_loss_pre(cupy)
 
-    def _check_bbox_loss_post(self, xp):
+    def _check_bbox_head_loss_post(self, xp):
         locs = chainer.Variable(_random_array(xp, (20, 81, 4)))
         confs = chainer.Variable(_random_array(xp, (20, 81)))
         roi_indices = [
@@ -212,7 +212,7 @@ class TestBboxLoss(unittest.TestCase):
             xp.random.randint(0, 80, size=8).astype(np.int32),
         ]
 
-        loc_loss, conf_loss = bbox_loss_post(
+        loc_loss, conf_loss = bbox_head_loss_post(
             locs, confs, roi_indices, gt_locs, gt_labels, 2)
 
         self.assertIsInstance(loc_loss, chainer.Variable)
@@ -223,13 +223,13 @@ class TestBboxLoss(unittest.TestCase):
         self.assertIsInstance(conf_loss.array, xp.ndarray)
         self.assertEqual(conf_loss.shape, ())
 
-    def test_bbox_loss_post_cpu(self):
-        self._check_bbox_loss_post(np)
+    def test_bbox_head_loss_post_cpu(self):
+        self._check_bbox_head_loss_post(np)
 
     @attr.gpu
-    def test_bbox_loss_post_gpu(self):
+    def test_bbox_head_loss_post_gpu(self):
         import cupy
-        self._check_bbox_loss_post(cupy)
+        self._check_bbox_head_loss_post(cupy)
 
 
 testing.run_module(__name__, __file__)

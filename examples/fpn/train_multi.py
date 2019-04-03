@@ -28,10 +28,10 @@ from chainercv.datasets import COCOBboxDataset
 from chainercv.links import FasterRCNNFPNResNet101
 from chainercv.links import FasterRCNNFPNResNet50
 
-from chainercv.links.model.fpn import bbox_loss_post
-from chainercv.links.model.fpn import bbox_loss_pre
-from chainercv.links.model.fpn import mask_loss_post
-from chainercv.links.model.fpn import mask_loss_pre
+from chainercv.links.model.fpn import bbox_head_loss_post
+from chainercv.links.model.fpn import bbox_head_loss_pre
+from chainercv.links.model.fpn import mask_head_loss_post
+from chainercv.links.model.fpn import mask_head_loss_pre
 from chainercv.links.model.fpn import rpn_loss
 
 # https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
@@ -83,10 +83,10 @@ class TrainChain(chainer.Chain):
             + [self.xp.array((i,) * len(bbox))
                for i, bbox in enumerate(bboxes)])
         rois, roi_indices = self.model.bbox_head.distribute(rois, roi_indices)
-        rois, roi_indices, head_gt_locs, head_gt_labels = bbox_loss_pre(
+        rois, roi_indices, head_gt_locs, head_gt_labels = bbox_head_loss_pre(
             rois, roi_indices, self.model.bbox_head.std, bboxes, labels)
         head_locs, head_confs = self.model.bbox_head(hs, rois, roi_indices)
-        head_loc_loss, head_conf_loss = bbox_loss_post(
+        head_loc_loss, head_conf_loss = bbox_head_loss_post(
             head_locs, head_confs,
             roi_indices, head_gt_locs, head_gt_labels, B)
 
@@ -103,13 +103,13 @@ class TrainChain(chainer.Chain):
             masks = pad_masks
 
             mask_rois, mask_roi_indices, gt_segms, gt_mask_labels =\
-                mask_loss_pre(
+                mask_head_loss_pre(
                     rois, roi_indices, masks, bboxes,
                     head_gt_labels, self.model.mask_head.segm_size)
             n_roi = sum([len(roi) for roi in mask_rois])
             if n_roi > 0:
                 segms = self.model.mask_head(hs, mask_rois, mask_roi_indices)
-                mask_loss = mask_loss_post(
+                mask_loss = mask_head_loss_post(
                     segms, mask_roi_indices, gt_segms, gt_mask_labels, B)
             else:
                 # Compute dummy variables to complete the computational graph
