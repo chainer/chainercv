@@ -1,3 +1,5 @@
+from __future__ import division
+
 import argparse
 import multiprocessing
 import numpy as np
