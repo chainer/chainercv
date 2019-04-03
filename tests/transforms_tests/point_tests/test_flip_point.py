@@ -25,7 +25,7 @@ class TestFlipPoint(unittest.TestCase):
     def test_flip_point_list(self):
         point = [
             np.random.uniform(low=0., high=32., size=(12, 2)),
-            np.random.uniform(low=0., high=32., size=(12, 2)),
+            np.random.uniform(low=0., high=32., size=(10, 2)),
         ]
 
         out = flip_point(point, size=(34, 32), y_flip=True)

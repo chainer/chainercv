@@ -20,7 +20,7 @@ class TestTranslatePoint(unittest.TestCase):
 
     def test_translate_point_list(self):
         point = [
-            np.random.uniform(low=0., high=32., size=(10, 2)),
+            np.random.uniform(low=0., high=32., size=(12, 2)),
             np.random.uniform(low=0., high=32., size=(10, 2))
         ]
 
