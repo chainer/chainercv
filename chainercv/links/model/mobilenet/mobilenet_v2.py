@@ -118,15 +118,29 @@ class MobileNetV2(PickableSequentialChain):
 
     _models = {
         'tf': {
-            'imagenet': {
-                'param': {
-                'n_class':
-                1001,  # first element is background
-                'mean': _tf_mobilenetv2_mean,
-                'scale': _tf_mobilenetv2_scale,
+            1.0: {
+                'imagenet': {
+                    'param': {
+                        'n_class': 1001,  # first element is background
+                        'mean': _tf_mobilenetv2_mean,
+                        'scale': _tf_mobilenetv2_scale,
+                    },
+                    'overwritable': (),
+                    'url':
+                    'https://chainercv-models.preferred.jp/mobilenet_v2_depth_multiplier_1.0_imagenet_converted_2019_04_01.npz',  # NOQA
+                }
             },
-            'overwritable': (),
-            'url': 'https://chainercv-models.preferred.jp/mobilenet_v2_depth_multiplier_1.0_imagenet_converted_2019_04_01.npz',  # NOQA
+            1.4: {
+                'imagenet': {
+                    'param': {
+                        'n_class': 1001,  # first element is background
+                        'mean': _tf_mobilenetv2_mean,
+                        'scale': _tf_mobilenetv2_scale,
+                    },
+                    'overwritable': (),
+                    'url':
+                    'https://chainercv-models.preferred.jp/mobilenet_v2_depth_multiplier_1.4_imagenet_converted_2019_04_01.npz',  # NOQA
+                }
             }
         }
     }
@@ -145,16 +159,15 @@ class MobileNetV2(PickableSequentialChain):
         if depth_multiplier <= 0:
             raise ValueError('depth_multiplier must be greater than 0')
 
-        param, path = utils.prepare_pretrained_model(
-            {
-                'n_class': n_class,
-                'mean': mean,
-                'scale': scale
-            }, pretrained_model, self._models[arch], {
-                'n_class': 1000,
-                'mean': _imagenet_mean,
-                'scale': _imagenet_scale
-            })
+        param, path = utils.prepare_pretrained_model({
+            'n_class': n_class,
+            'mean': mean,
+            'scale': scale
+        }, pretrained_model, self._models[arch][depth_multiplier], {
+            'n_class': 1000,
+            'mean': _imagenet_mean,
+            'scale': _imagenet_scale
+        })
         self.mean = param['mean']
         self.scale = param['scale']
         self.n_class = param['n_class']
