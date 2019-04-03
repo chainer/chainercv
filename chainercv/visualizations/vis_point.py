@@ -6,33 +6,33 @@ import six
 from chainercv.visualizations.vis_image import vis_image
 
 
-def vis_point(img, point, mask=None, ax=None):
+def vis_point(img, point, visible=None, ax=None):
     """Visualize points in an image.
 
     Example:
 
         >>> import chainercv
         >>> import matplotlib.pyplot as plt
-        >>> dataset = chainercv.datasets.CUBPointDataset()
-        >>> img, point, mask = dataset[0]
-        >>> chainercv.visualizations.vis_point(img, point, mask)
+        >>> dataset = chainercv.datasets.CUBKeypointDataset()
+        >>> img, point, visible = dataset[0]
+        >>> chainercv.visualizations.vis_point(img, point, visible)
         >>> plt.show()
 
     Args:
-        img (~numpy.ndarray): An image of shape :math:`(3, height, width)`.
-            This is in RGB format and the range of its value is
-            :math:`[0, 255]`. This should be visualizable using
-            :obj:`matplotlib.pyplot.imshow(img)`
-        point (~numpy.ndarray): An array of point coordinates whose shape is
-            :math:`(P, 2)`, where :math:`P` is
-            the number of points.
-            The second axis corresponds to :math:`y` and :math:`x` coordinates
-            of the points.
-        mask (~numpy.ndarray): A boolean array whose shape is
-            :math:`(P,)`. If :math:`i` th element is :obj:`True`, the
-            :math:`i` th point is not displayed. If not specified,
-            all points in :obj:`point` will be displayed.
+        img (~numpy.ndarray): See the table below.
+            If this is :obj:`None`, no image is displayed.
+        point (~numpy.ndarray or list of arrays): See the table below.
+        visible (~numpy.ndarray or list of arrays): See the table below.
         ax (matplotlib.axes.Axes): If provided, plot on this axis.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`point`, ":math:`(R, K, 2)` or :math:`[(K, 2)]`", \
+        :obj:`float32`, ":math:`(y, x)`"
+        :obj:`visible`, ":math:`(R, K)` or :math:`[(K,)]`", :obj:`bool`, --
 
     Returns:
         ~matploblib.axes.Axes:
@@ -44,18 +44,23 @@ def vis_point(img, point, mask=None, ax=None):
     ax = vis_image(img, ax=ax)
 
     _, H, W = img.shape
-    n_point = len(point)
-
-    if mask is None:
-        mask = np.ones((n_point,), dtype=np.bool)
+    n_inst = len(point)
 
     cm = plt.get_cmap('gist_rainbow')
 
-    colors = [cm(i / n_point) for i in six.moves.range(n_point)]
+    for i in range(n_inst):
+        pnt = point[i]
+        n_point = len(pnt)
+        if visible is not None:
+            vsbl = visible[i]
+        else:
+            vsbl = np.ones((n_point,), dtype=np.bool)
 
-    for i in range(n_point):
-        if mask[i]:
-            ax.scatter(point[i][1], point[i][0], c=colors[i], s=100)
+        colors = [cm(k / n_point) for k in six.moves.range(n_point)]
+
+        for k in range(n_point):
+            if vsbl[k]:
+                ax.scatter(pnt[k][1], pnt[k][0], c=colors[k], s=100)
 
     ax.set_xlim(left=0, right=W)
     ax.set_ylim(bottom=H - 1, top=0)
