@@ -15,8 +15,8 @@ from tests.experimental_tests.links_tests.model_tests.fcis_tests.test_fcis \
 
 
 @testing.parameterize(
-    {'train': False, 'iter2': True},
-    {'train': True, 'iter2': False}
+    {'train': False},
+    {'train': True}
 )
 class TestFCISResNet101(unittest.TestCase):
 
@@ -28,14 +28,12 @@ class TestFCISResNet101(unittest.TestCase):
     n_test_post_nms = 8
 
     def setUp(self):
-        proposal_creator_params = {
-            'n_train_post_nms': self.n_train_post_nms,
-            'n_test_post_nms': self.n_test_post_nms,
-        }
-        self.link = FCISResNet101(
-            self.n_fg_class, pretrained_model=None,
-            iter2=self.iter2,
-            proposal_creator_params=proposal_creator_params)
+        params = FCISResNet101.preset_params['sbd']
+        params['n_fg_class'] = self.n_fg_class
+        proposal_creator_params = params['proposal_creator_params']
+        proposal_creator_params['n_train_post_nms'] = self.n_train_post_nms
+        proposal_creator_params['n_test_post_nms'] = self.n_test_post_nms
+        self.link = FCISResNet101(pretrained_model=None, **params)
 
     def check_call(self):
         xp = self.link.xp
@@ -96,14 +94,13 @@ class TestFCISResNet101Loss(unittest.TestCase):
     n_test_post_nms = 8
 
     def setUp(self):
-        proposal_creator_params = {
-            'n_train_post_nms': self.n_train_post_nms,
-            'n_test_post_nms': self.n_test_post_nms,
-        }
+        params = FCISResNet101.preset_params['sbd']
+        params['n_fg_class'] = self.n_fg_class
+        proposal_creator_params = params['proposal_creator_params']
+        proposal_creator_params['n_train_post_nms'] = self.n_train_post_nms
+        proposal_creator_params['n_test_post_nms'] = self.n_test_post_nms
         self.model = FCISTrainChain(
-            FCISResNet101(
-                self.n_fg_class, pretrained_model=None, iter2=False,
-                proposal_creator_params=proposal_creator_params))
+            FCISResNet101(pretrained_model=None, **params))
 
         self.masks = np.random.randint(
             0, 2, size=(1, self.n_bbox, 600, 800)).astype(np.bool)
