@@ -2,11 +2,12 @@ configs {
   key: "chainercv.py2.stable"
   value {
     requirement {
-      cpu: 32
-      memory: 64
+      cpu: 4
+      memory: 24
+      disk: 24
     }
     time_limit: {
-      seconds: 900
+      seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
@@ -15,84 +16,25 @@ configs {
     }
     environment_variables {
       key: "CHAINER"
-      value: "5.2.0"
+      value: "stable"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "1"
     }
   }
 }
-
-configs {
-  key: "chainercv.py3.stable"
-  value {
-    requirement {
-      cpu: 32
-      memory: 64
-    }
-    time_limit: {
-      seconds: 900
-    }
-    command: "sh .pfnci/tests.sh"
-    environment_variables {
-      key: "PYTHON"
-      value: "3"
-    }
-    environment_variables {
-      key: "CHAINER"
-      value: "5.2.0"
-    }
-  }
-}
-
-configs {
-  key: "chainercv.py2.latest"
-  value {
-    requirement {
-      cpu: 32
-      memory: 64
-    }
-    time_limit: {
-      seconds: 900
-    }
-    command: "sh .pfnci/tests.sh"
-    environment_variables {
-      key: "PYTHON"
-      value: "2"
-    }
-    environment_variables {
-      key: "CHAINER"
-      value: "6.0.0b2"
-    }
-  }
-}
-
-configs {
-  key: "chainercv.py3.latest"
-  value {
-    requirement {
-      cpu: 32
-      memory: 64
-    }
-    time_limit: {
-      seconds: 900
-    }
-    command: "sh .pfnci/tests.sh"
-    environment_variables {
-      key: "PYTHON"
-      value: "3"
-    }
-    environment_variables {
-      key: "CHAINER"
-      value: "6.0.0b2"
-    }
-  }
-}
-
 configs {
   key: "chainercv.py2.stable.gpu"
   value {
     requirement {
       cpu: 4
-      memory: 16
+      memory: 24
+      disk: 24
       gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -101,38 +43,131 @@ configs {
     }
     environment_variables {
       key: "CHAINER"
-      value: "5.2.0"
+      value: "stable"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "1"
     }
   }
 }
-
 configs {
-  key: "chainercv.py3.stable.gpu"
+  key: "chainercv.py2.stable.mini"
   value {
     requirement {
       cpu: 4
-      memory: 16
+      memory: 24
+      disk: 24
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/tests.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "2"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "stable"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "0"
+    }
+  }
+}
+configs {
+  key: "chainercv.py2.stable.mini.gpu"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
       gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
-      value: "3"
+      value: "2"
     }
     environment_variables {
       key: "CHAINER"
-      value: "5.2.0"
+      value: "stable"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "0"
     }
   }
 }
-
+configs {
+  key: "chainercv.py2.stable.examples"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
+      gpu: 2
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/examples_tests.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "2"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "stable"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "1"
+    }
+  }
+}
+configs {
+  key: "chainercv.py2.latest"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/tests.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "2"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "latest"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "1"
+    }
+  }
+}
 configs {
   key: "chainercv.py2.latest.gpu"
   value {
     requirement {
       cpu: 4
-      memory: 16
+      memory: 24
+      disk: 24
       gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -141,18 +176,131 @@ configs {
     }
     environment_variables {
       key: "CHAINER"
-      value: "6.0.0b2"
+      value: "latest"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "1"
     }
   }
 }
-
 configs {
-  key: "chainercv.py3.latest.gpu"
+  key: "chainercv.py2.latest.mini"
   value {
     requirement {
       cpu: 4
-      memory: 16
+      memory: 24
+      disk: 24
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/tests.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "2"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "latest"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "0"
+    }
+  }
+}
+configs {
+  key: "chainercv.py2.latest.mini.gpu"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
       gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/tests_gpu.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "2"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "latest"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "0"
+    }
+  }
+}
+configs {
+  key: "chainercv.py2.latest.examples"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
+      gpu: 2
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/examples_tests.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "2"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "latest"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "1"
+    }
+  }
+}
+configs {
+  key: "chainercv.py3.stable"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/tests.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "3"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "stable"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "1"
+    }
+  }
+}
+configs {
+  key: "chainercv.py3.stable.gpu"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
+      gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -161,7 +309,224 @@ configs {
     }
     environment_variables {
       key: "CHAINER"
-      value: "6.0.0b2"
+      value: "stable"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "1"
+    }
+  }
+}
+configs {
+  key: "chainercv.py3.stable.mini"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/tests.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "3"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "stable"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "0"
+    }
+  }
+}
+configs {
+  key: "chainercv.py3.stable.mini.gpu"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
+      gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/tests_gpu.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "3"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "stable"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "0"
+    }
+  }
+}
+configs {
+  key: "chainercv.py3.stable.examples"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
+      gpu: 2
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/examples_tests.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "3"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "stable"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "1"
+    }
+  }
+}
+configs {
+  key: "chainercv.py3.latest"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/tests.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "3"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "latest"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "1"
+    }
+  }
+}
+configs {
+  key: "chainercv.py3.latest.gpu"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
+      gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/tests_gpu.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "3"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "latest"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "1"
+    }
+  }
+}
+configs {
+  key: "chainercv.py3.latest.mini"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/tests.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "3"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "latest"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "0"
+    }
+  }
+}
+configs {
+  key: "chainercv.py3.latest.mini.gpu"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
+      gpu: 1
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/tests_gpu.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "3"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "latest"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "0"
+    }
+  }
+}
+configs {
+  key: "chainercv.py3.latest.examples"
+  value {
+    requirement {
+      cpu: 4
+      memory: 24
+      disk: 24
+      gpu: 2
+    }
+    time_limit: {
+      seconds: 1800
+    }
+    command: "sh .pfnci/examples_tests.sh"
+    environment_variables {
+      key: "PYTHON"
+      value: "3"
+    }
+    environment_variables {
+      key: "CHAINER"
+      value: "latest"
+    }
+    environment_variables {
+      key: "OPTIONAL_MODULES"
+      value: "1"
     }
   }
 }
