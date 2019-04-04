@@ -12,7 +12,7 @@ from chainercv.links.model.fpn.mask_utils import segm_to_mask
 
 @testing.parameterize(
     {'backend': 'cv2'}, {'backend': 'PIL'})
-class TestSegmToMask(unittest.TestCase):
+class TestMaskUtils(unittest.TestCase):
 
     def setUp(self):
         # When n_inst >= 3, the test fails.
