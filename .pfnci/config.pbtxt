@@ -114,7 +114,7 @@ configs {
       gpu: 2
     }
     time_limit: {
-      seconds: 1800
+      seconds: 3600
     }
     command: "sh .pfnci/examples_tests.sh"
     environment_variables {
@@ -247,7 +247,7 @@ configs {
       gpu: 2
     }
     time_limit: {
-      seconds: 1800
+      seconds: 3600
     }
     command: "sh .pfnci/examples_tests.sh"
     environment_variables {
@@ -380,7 +380,7 @@ configs {
       gpu: 2
     }
     time_limit: {
-      seconds: 1800
+      seconds: 3600
     }
     command: "sh .pfnci/examples_tests.sh"
     environment_variables {
@@ -513,7 +513,7 @@ configs {
       gpu: 2
     }
     time_limit: {
-      seconds: 1800
+      seconds: 3600
     }
     command: "sh .pfnci/examples_tests.sh"
     environment_variables {
