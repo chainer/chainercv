@@ -61,7 +61,6 @@ The training procedure carefully follows the "ResNet in 1 hour" paper [5].
 
 #### Performance tip
 When training over multiple nodes, set the communicator to `pure_nccl` (requires NCCL2).
-The default communicator (`hierarchical`) uses MPI to communicate between nodes, which is slower than the pure NCCL communicator.
 Also, cuDNN convolution functions can be optimized with extra commands (see https://docs.chainer.org/en/stable/performance.html#optimize-cudnn-convolution).
 
 #### Detailed training results
