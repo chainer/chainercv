@@ -33,9 +33,6 @@ configs {
       disk: 24
       gpu: 1
     }
-    time_limit {
-      seconds: 1800
-    }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
@@ -85,9 +82,6 @@ configs {
       memory: 24
       disk: 24
       gpu: 1
-    }
-    time_limit {
-      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -166,9 +160,6 @@ configs {
       disk: 24
       gpu: 1
     }
-    time_limit {
-      seconds: 1800
-    }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
@@ -218,9 +209,6 @@ configs {
       memory: 24
       disk: 24
       gpu: 1
-    }
-    time_limit {
-      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -299,9 +287,6 @@ configs {
       disk: 24
       gpu: 1
     }
-    time_limit {
-      seconds: 1800
-    }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
@@ -351,9 +336,6 @@ configs {
       memory: 24
       disk: 24
       gpu: 1
-    }
-    time_limit {
-      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -432,9 +414,6 @@ configs {
       disk: 24
       gpu: 1
     }
-    time_limit {
-      seconds: 1800
-    }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
@@ -484,9 +463,6 @@ configs {
       memory: 24
       disk: 24
       gpu: 1
-    }
-    time_limit {
-      seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
