@@ -6,7 +6,7 @@ configs {
       memory: 24
       disk: 24
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
@@ -33,7 +33,7 @@ configs {
       disk: 24
       gpu: 1
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
@@ -59,7 +59,7 @@ configs {
       memory: 24
       disk: 24
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
@@ -86,7 +86,7 @@ configs {
       disk: 24
       gpu: 1
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
@@ -113,7 +113,7 @@ configs {
       disk: 24
       gpu: 2
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/examples_tests.sh"
@@ -139,7 +139,7 @@ configs {
       memory: 24
       disk: 24
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
@@ -166,7 +166,7 @@ configs {
       disk: 24
       gpu: 1
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
@@ -192,7 +192,7 @@ configs {
       memory: 24
       disk: 24
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
@@ -219,7 +219,7 @@ configs {
       disk: 24
       gpu: 1
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
@@ -246,7 +246,7 @@ configs {
       disk: 24
       gpu: 2
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/examples_tests.sh"
@@ -272,7 +272,7 @@ configs {
       memory: 24
       disk: 24
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
@@ -299,7 +299,7 @@ configs {
       disk: 24
       gpu: 1
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
@@ -325,7 +325,7 @@ configs {
       memory: 24
       disk: 24
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
@@ -352,7 +352,7 @@ configs {
       disk: 24
       gpu: 1
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
@@ -379,7 +379,7 @@ configs {
       disk: 24
       gpu: 2
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/examples_tests.sh"
@@ -405,7 +405,7 @@ configs {
       memory: 24
       disk: 24
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
@@ -432,7 +432,7 @@ configs {
       disk: 24
       gpu: 1
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
@@ -458,7 +458,7 @@ configs {
       memory: 24
       disk: 24
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests.sh"
@@ -485,7 +485,7 @@ configs {
       disk: 24
       gpu: 1
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/tests_gpu.sh"
@@ -512,7 +512,7 @@ configs {
       disk: 24
       gpu: 2
     }
-    time_limit: {
+    time_limit {
       seconds: 1800
     }
     command: "sh .pfnci/examples_tests.sh"
