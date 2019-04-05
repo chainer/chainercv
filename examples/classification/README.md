@@ -60,8 +60,7 @@ $ mpiexec -n N python train_imagenet_multi.py <path_to_train_dataset> <path_to_v
 The training procedure carefully follows the "ResNet in 1 hour" paper [5].
 
 #### Performance tip
-When training over multiple nodes, set the communicator to `pure_nccl` (requires NCCL2).
-Also, cuDNN convolution functions can be optimized with extra commands (see https://docs.chainer.org/en/stable/performance.html#optimize-cudnn-convolution).
+cuDNN convolution functions can be optimized with extra commands (see https://docs.chainer.org/en/stable/performance.html#optimize-cudnn-convolution).
 
 #### Detailed training results
 
