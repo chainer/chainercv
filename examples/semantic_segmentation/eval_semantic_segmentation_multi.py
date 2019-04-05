@@ -23,7 +23,7 @@ def main():
     parser.add_argument('--input-size', type=int, default=None)
     args = parser.parse_args()
 
-    comm = chainermn.create_communicator()
+    comm = chainermn.create_communicator('pure_nccl')
     device = comm.intra_rank
 
     if args.input_size is None:
