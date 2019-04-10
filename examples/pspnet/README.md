@@ -18,7 +18,7 @@ The converted weight can be downloaded from [here](https://chainercv-models.pref
 The performance on the Cityscapes dataset is as follows with single scale inference.
 Scores are measured by mean Intersection over Union (mIoU).
 
-| Model | Reference | ChainerCV (weight conversion) |
+| Model | Original | Ours (weight conversion) |
 |:-:|:-:|:-:|
 | Cityscapes (single scale) | 79.70 % [1] | 79.03 % |
 
@@ -30,7 +30,7 @@ The model can be trained with a script `train_mutli.py`.
 
 The following table shows the performance of the models trained with our scripts.
 
-| Base model | Training Data |  Reference | ChainerCV |
+| Base model | Training Data |  Original | Ours |
 |:-:|:-:|:-:|:-:|
 | Dilated ResNet50 | fine only (3K) | 76.9 % [2] |  73.99 % |
 | Dilated ResNet101 | fine only (3K) |  77.9 % [2] | 76.01 % |
@@ -46,7 +46,7 @@ $ mpiexec -n 8 python3 train_multi.py --dataset cityscapes --model pspnet_resnet
 
 The following table shows the performance of the models trained with our scripts.
 
-| Base model |  Reference | ChainerCV |
+| Base model |  Original | Ours |
 |:-:|:-:|:-:|
 | Dilated ResNet50 | 41.68 % [1] |  34.97 % |
 | Dilated ResNet101 |  | 36.55 % |
