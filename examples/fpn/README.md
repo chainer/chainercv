@@ -3,7 +3,7 @@
 ## Performance
 MS COCO 2017 Val
 
-| Backbone | Supervision | Detectron (Bbox) | Ours (Bbox) | Detectron (Mask) | Ours (Mask)| 
+| Backbone | Supervision | Original (Bbox) | Ours (Bbox) | Original (Mask) | Ours (Mask)| 
 |:-:|:-:|:-:|:-:|:-:|:-:|
 | FPN w/ ResNet50 | bbox | 36.7 % [3] | 37.1 % | | |
 | FPN w/ ResNet101 | bbox | 39.4 % [3] | 39.5 % | | |
