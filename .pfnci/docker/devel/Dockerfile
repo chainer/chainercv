@@ -75,13 +75,13 @@ RUN echo /usr/local/lib/ > /etc/ld.so.conf.d/local.conf && ldconfig
 
 RUN pip2 install --no-cache-dir \
     cython \
-    matplotlib==2 \
+    matplotlib==2.1 \
     mock \
     mpi4py \
     'git+https://github.com/cocodataset/coco.git#egg=pycocotools&subdirectory=PythonAPI' \
     pytest \
-    scipy
-RUN pip3 install --no-cache-dir \
+    scipy \
+    && pip3 install --no-cache-dir \
     cython \
     matplotlib \
     mock \
