@@ -6,10 +6,16 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     curl \
     g++ \
     git \
+    libopenexr-dev \
+    libpng-dev \
+    libtiff-dev \
+    libturbojpeg0-dev \
+    libwebp-dev \
     make \
     openssh-client \
     python-dev \
     python3-dev \
+    zlib1g-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -29,9 +35,27 @@ RUN cd $(mktemp -d) \
     && cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
     -DWITH_CUDA=OFF \
+    -DWITH_IPP=OFF \
+    -DWITH_OPENCL=OFF \
+    -DWITH_PROTOBUF=OFF \
     -DBUILD_WITH_DEBUG_INFO=OFF \
     -DBUILD_TESTS=OFF \
     -DBUILD_PERF_TESTS=OFF \
+    -DBUILD_opencv_apps=OFF \
+    -DBUILD_opencv_calib3d=OFF \
+    -DBUILD_opencv_dnn=OFF \
+    -DBUILD_opencv_features2d=OFF \
+    -DBUILD_opencv_flann=OFF \
+    -DBUILD_opencv_java_bindings_generator=OFF \
+    -DBUILD_opencv_ml=OFF \
+    -DBUILD_opencv_objdetect=OFF \
+    -DBUILD_opencv_photo=OFF \
+    -DBUILD_opencv_shape=OFF \
+    -DBUILD_opencv_stitching=OFF \
+    -DBUILD_opencv_superres=OFF \
+    -DBUILD_opencv_video=OFF \
+    -DBUILD_opencv_videoio=OFF \
+    -DBUILD_opencv_videostab=OFF \
     && make -j $(nproc) \
     && make install \
     && cd - \
