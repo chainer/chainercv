@@ -67,9 +67,10 @@ RUN pip3 install --no-cache-dir \
     scipy
 
 ARG CHAINER
-RUN [ -z ${CHAINER} ] || pip2 install --no-cache-dir \
-    chainer==${CHAINER} \
-    cupy-cuda92==${CHAINER}
-RUN [ -z ${CHAINER} ] || pip3 install --no-cache-dir \
-    chainer==${CHAINER} \
-    cupy-cuda92==${CHAINER}
+ARG CUPY
+RUN pip2 install --no-cache-dir \
+    "git+https://github.com/chainer/chainer.git@${CHAINER}#egg=chainer" \
+    "git+https://github.com/cupy/cupy.git@${CUPY}#egg=cupy" \
+    && pip3 install --no-cache-dir \
+    "git+https://github.com/chainer/chainer.git@${CHAINER}#egg=chainer" \
+    "git+https://github.com/cupy/cupy.git@${CUPY}#egg=cupy"
