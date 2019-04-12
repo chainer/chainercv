@@ -8,11 +8,12 @@ gsutil -q cp gs://chainercv-pfn-public-ci/datasets-tiny.zip ${TEMP}/
 unzip -q ${TEMP}/datasets-tiny.zip -d ${TEMP}/
 rm ${TEMP}/datasets-tiny.zip
 
+docker_build -t devel
 docker run --interactive --rm \
        --volume $(pwd):/chainercv/ --workdir /chainercv/ \
        --volume ${TEMP}/.chainer/:/root/.chainer/ \
        --env MPLBACKEND=agg \
-       ${DOCKER_IMAGE} \
+       devel \
        sh -ex << EOD
 pip${PYTHON} install --user pytest-xdist
 pip${PYTHON} install --user -e .

@@ -11,6 +11,7 @@ rm ${TEMP}/datasets-tiny.zip
 curl -L https://cloud.githubusercontent.com/assets/2062128/26187667/9cb236da-3bd5-11e7-8bcf-7dbd4302e2dc.jpg \
      -o ${TEMP}/sample.jpg
 
+docker_build -t devel
 docker run --runtime=nvidia --interactive --rm \
        --volume $(pwd):/chainercv/ --workdir /chainercv/ \
        --volume ${TEMP}/.chainer/:/root/.chainer/ \
@@ -20,7 +21,7 @@ docker run --runtime=nvidia --interactive --rm \
        --env MPLBACKEND=agg \
        --env CHAINERCV_DOWNLOAD_REPORT=OFF \
        --env PFNCI_SKIP='echo SKIP:' \
-       ${DOCKER_IMAGE} \
+       devel \
        sh -ex << EOD
 pip${PYTHON} install --user -e .
 for SCRIPT in \$(find examples_tests/ -type f -name '*.sh')
