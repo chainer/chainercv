@@ -8,15 +8,14 @@ gsutil -q cp gs://chainercv-pfn-public-ci/datasets-tiny.zip ${TEMP}/
 unzip -q ${TEMP}/datasets-tiny.zip -d ${TEMP}/
 rm ${TEMP}/datasets-tiny.zip
 
-docker_build -t devel
 docker run --interactive --rm \
        --volume $(pwd):/chainercv/ --workdir /chainercv/ \
        --volume ${TEMP}/.chainer/:/root/.chainer/ \
        --env MPLBACKEND=agg \
-       devel \
+       ${DOCKER_IMAGE} \
        sh -ex << EOD
+. install.sh
 pip${PYTHON} install --user pytest-xdist
-pip${PYTHON} install --user -e .
 python${PYTHON} -m pytest --color=no -n $(nproc) \
                 -m 'not pfnci_skip and not gpu and not mpi' tests/
 if which mpiexec; then

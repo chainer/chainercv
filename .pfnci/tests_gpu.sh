@@ -5,13 +5,13 @@ set -eux
 
 mkdir -p ${TEMP}/.chainer
 
-docker_build -t devel
 docker run --runtime=nvidia --interactive --rm \
        --volume $(pwd):/chainercv/ --workdir /chainercv/ \
        --volume ${TEMP}/.chainer/:/root/.chainer/ \
        --env MPLBACKEND=agg \
-       devel \
+       ${DOCKER_IMAGE} \
        sh -ex << EOD
+. install.sh
 pip${PYTHON} install --user -e .
 python${PYTHON} -m pytest --color=no \
                 -m 'not pfnci_skip and gpu and not mpi' tests/

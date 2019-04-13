@@ -4,7 +4,6 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ca-certificates \
     cmake \
     curl \
-    g++ \
     git \
     libopenexr-dev \
     libpng-dev \
@@ -89,12 +88,3 @@ RUN pip2 install --no-cache-dir \
     'git+https://github.com/cocodataset/coco.git#egg=pycocotools&subdirectory=PythonAPI' \
     pytest \
     scipy
-
-ARG CHAINER
-ARG CUPY
-RUN pip2 install --no-cache-dir \
-    "git+https://github.com/chainer/chainer.git@${CHAINER}#egg=chainer" \
-    "git+https://github.com/cupy/cupy.git@${CUPY}#egg=cupy" \
-    && pip3 install --no-cache-dir \
-    "git+https://github.com/chainer/chainer.git@${CHAINER}#egg=chainer" \
-    "git+https://github.com/cupy/cupy.git@${CUPY}#egg=cupy"
