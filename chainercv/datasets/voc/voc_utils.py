@@ -1,3 +1,5 @@
+import filelock
+import numpy as np
 import os
 
 from chainer.dataset import download
@@ -24,17 +26,39 @@ def get_voc(year, split):
     if split == 'test' and year == '2007':
         key = '2007_test'
 
-    data_root = download.get_dataset_directory(root)
-    base_path = os.path.join(data_root, 'VOCdevkit/VOC{}'.format(year))
-    split_file = os.path.join(base_path, 'ImageSets/Main/{}.txt'.format(split))
-    if os.path.exists(split_file):
-        # skip downloading
-        return base_path
+    # To support ChainerMN, the target directory should be locked.
+    with filelock.FileLock(os.path.join(download.get_dataset_directory(
+            'pfnet/chainercv/.lock'), 'voc.lock')):
+        data_root = download.get_dataset_directory(root)
+        base_path = os.path.join(data_root, 'VOCdevkit/VOC{}'.format(year))
+        split_file = os.path.join(
+            base_path, 'ImageSets/Main/{}.txt'.format(split))
+        if os.path.exists(split_file):
+            # skip downloading
+            return base_path
 
-    download_file_path = utils.cached_download(urls[key])
-    ext = os.path.splitext(urls[key])[1]
-    utils.extractall(download_file_path, data_root, ext)
+        download_file_path = utils.cached_download(urls[key])
+        ext = os.path.splitext(urls[key])[1]
+        utils.extractall(download_file_path, data_root, ext)
     return base_path
+
+
+def image_wise_to_instance_wise(label_img, inst_img):
+    mask = []
+    label = []
+    inst_ids = np.unique(inst_img)
+    for inst_id in inst_ids[inst_ids != -1]:
+        msk = inst_img == inst_id
+        lbl = np.unique(label_img[msk])[0] - 1
+
+        assert inst_id != -1
+        assert lbl != -1
+
+        mask.append(msk)
+        label.append(lbl)
+    mask = np.array(mask).astype(np.bool)
+    label = np.array(label).astype(np.int32)
+    return mask, label
 
 
 voc_bbox_label_names = (
@@ -61,6 +85,8 @@ voc_bbox_label_names = (
 
 voc_semantic_segmentation_label_names = (('background',) +
                                          voc_bbox_label_names)
+
+voc_instance_segmentation_label_names = voc_bbox_label_names
 
 # these colors are used in the original MATLAB tools
 voc_semantic_segmentation_label_colors = (

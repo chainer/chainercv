@@ -35,6 +35,10 @@ random_rotate
 ~~~~~~~~~~~~~
 .. autofunction:: random_rotate
 
+random_sized_crop
+~~~~~~~~~~~~~~~~~
+.. autofunction:: random_sized_crop
+
 resize
 ~~~~~~
 .. autofunction:: resize
@@ -42,6 +46,10 @@ resize
 resize_contain
 ~~~~~~~~~~~~~~
 .. autofunction:: resize_contain
+
+rotate
+~~~~~~
+.. autofunction:: rotate
 
 scale
 ~~~~~
@@ -67,21 +75,25 @@ resize_bbox
 ~~~~~~~~~~~
 .. autofunction:: resize_bbox
 
+rotate_bbox
+~~~~~~~~~~~
+.. autofunction:: rotate_bbox
+
 translate_bbox
 ~~~~~~~~~~~~~~
 .. autofunction:: translate_bbox
 
-Keypoint
---------
+Point
+-----
 
-flip_keypoint
-~~~~~~~~~~~~~
-.. autofunction:: flip_keypoint
+flip_point
+~~~~~~~~~~
+.. autofunction:: flip_point
 
-resize_keypoint
+resize_point
+~~~~~~~~~~~~
+.. autofunction:: resize_point
+
+translate_point
 ~~~~~~~~~~~~~~~
-.. autofunction:: resize_keypoint
-
-translate_keypoint
-~~~~~~~~~~~~~~~~~~
-.. autofunction:: translate_keypoint
+.. autofunction:: translate_point

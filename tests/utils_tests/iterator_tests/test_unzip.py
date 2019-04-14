@@ -25,7 +25,7 @@ class TestUnzip(unittest.TestCase):
     def test_parallel(self):
         i_iter, s_iter = unzip(self.iterable)
 
-        ints, strs = list(), list()
+        ints, strs = [], []
         for i, s in zip(i_iter, s_iter):
             ints.append(i)
             strs.append(s)
@@ -36,7 +36,7 @@ class TestUnzip(unittest.TestCase):
     def test_random(self):
         i_iter, s_iter = unzip(self.iterable)
 
-        ints, strs = list(), list()
+        ints, strs = [], []
         while True:
             try:
                 if random.randrange(2):

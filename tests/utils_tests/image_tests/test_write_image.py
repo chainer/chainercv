@@ -9,17 +9,25 @@ from chainercv.utils import write_image
 
 
 @testing.parameterize(*testing.product({
+    'file_obj': [False, True],
+    'format': ['bmp', 'jpeg', 'png'],
     'size': [(48, 32)],
     'color': [True, False],
-    'suffix': ['bmp', 'jpg', 'png'],
     'dtype': [np.float32, np.uint8, bool],
 }))
 class TestWriteImage(unittest.TestCase):
 
     def setUp(self):
-        self.file = tempfile.NamedTemporaryFile(
-            suffix='.' + self.suffix, delete=False)
-        self.path = self.file.name
+        if self.file_obj:
+            self.f = tempfile.TemporaryFile()
+            self.file = self.f
+        else:
+            if self.format == 'jpeg':
+                suffix = '.jpg'
+            else:
+                suffix = '.' + self.format
+            self.f = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
+            self.file = self.f.name
 
         if self.color:
             shape = (3,) + self.size
@@ -29,9 +37,12 @@ class TestWriteImage(unittest.TestCase):
         self.img = np.random.randint(0, 255, size=shape).astype(self.dtype)
 
     def test_write_image(self):
-        write_image(self.img, self.path)
-
-        img = Image.open(self.path)
+        if self.file_obj:
+            write_image(self.img, self.file, format=self.format)
+            self.file.seek(0)
+        else:
+            write_image(self.img, self.file)
+        img = Image.open(self.file)
 
         W, H = img.size
         self.assertEqual((H, W), self.size)
@@ -41,7 +52,7 @@ class TestWriteImage(unittest.TestCase):
         else:
             self.assertEqual(len(img.getbands()), 1)
 
-        if self.suffix in {'bmp', 'png'}:
+        if self.format in {'bmp', 'png'}:
             img = np.asarray(img)
 
             if img.ndim == 2:

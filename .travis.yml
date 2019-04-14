@@ -4,23 +4,37 @@ language: python
 python:
   - "2.7"
   - "3.6"
+cache:
+  directories:
+    - $HOME/download
+    - $HOME/miniconda
 env:
-  - CHAINER_VERSION=">=3.0" OPTIONAL_MODULES=0
-  - CHAINER_VERSION=">=3.0" OPTIONAL_MODULES=1
-  - CHAINER_VERSION="==4.0.0b1" OPTIONAL_MODULES=0
-  - CHAINER_VERSION="==4.0.0b1" OPTIONAL_MODULES=1
+  - CHAINER_VERSION=">=5.0" OPTIONAL_MODULES=0
+  - CHAINER_VERSION=">=5.0" OPTIONAL_MODULES=1
+  - CHAINER_VERSION="==6.0.0a1" OPTIONAL_MODULES=0
+  - CHAINER_VERSION="==6.0.0a1" OPTIONAL_MODULES=1
 notifications:
   email: false
 
-install:
+before_cache:
+  - rm -rf $HOME/miniconda/locks $HOME/miniconda/pkgs $HOME/miniconda/var
+  - rm -rf $HOME/miniconda/conda-bld $HOME/miniconda/conda-meda/history
+
+before_install:
   # We use the older version of conda because there is a bug in version 4.3.27.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-4.3.21-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-4.3.21-Linux-x86_64.sh -O miniconda.sh;
+  - if [[ ! -d "$HOME/miniconda/bin" ]]; then
+      rm -rf $HOME/miniconda;
+      mkdir -p $HOME/download;
+      if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+        wget https://repo.continuum.io/miniconda/Miniconda2-4.3.21-Linux-x86_64.sh -O $HOME/download/miniconda.sh;
+      else
+        wget https://repo.continuum.io/miniconda/Miniconda3-4.3.21-Linux-x86_64.sh -O $HOME/download/miniconda.sh;
+      fi;
+      bash $HOME/download/miniconda.sh -b -p $HOME/miniconda;
     fi
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
+
+install:
+  - source $HOME/miniconda/bin/activate
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   # - conda update -q conda
@@ -28,8 +42,11 @@ install:
   - conda info -a
 
   - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
+      export LIBRARY_PATH="$HOME/miniconda/lib:$LIBRARY_PATH";
+      export LD_LIBRARY_PATH="$HOME/miniconda/envs/chainercv/lib:$LD_LIBRARY_PATH";
       conda env create -f environment.yml;
       source activate chainercv;
+      (cd ..; pip install cython==0.28 'git+https://github.com/cocodataset/coco.git#egg=pycocotools&subdirectory=PythonAPI')
     else
       conda env create -f environment_minimum.yml;
       source activate chainercv_minimum;
@@ -40,13 +57,16 @@ install:
 script:
   - pwd
   - pip install flake8
-  - pip install hacking
+  - pip install hacking==1.0.0
   - pip install autopep8
   - pip install mock
-  - pip install nose
   - pip install pytest
   - flake8 .
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
-  - python style_checker.py .
-  - MPLBACKEND="agg" nosetests -a '!gpu,!slow' tests
+  - python style_checker.py --exclude caffe_pb2.py -- .
+  - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
+      MPLBACKEND="agg" mpiexec -n 2 pytest -m 'not gpu and not slow' tests;
+    else
+      MPLBACKEND="agg" pytest -m 'not gpu and not slow' tests;
+    fi

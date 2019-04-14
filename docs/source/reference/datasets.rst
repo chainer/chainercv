@@ -14,6 +14,14 @@ directory_parsing_label_names
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: directory_parsing_label_names
 
+MixUpSoftLabelDataset
+~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: MixUpSoftLabelDataset
+
+SiameseDataset
+~~~~~~~~~~~~~~
+.. autoclass:: SiameseDataset
+
 ADE20K
 ------
 
@@ -51,7 +59,7 @@ CUBLabelDataset
 .. autoclass:: CUBLabelDataset
 
 CUBKeypointDataset
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 .. autoclass:: CUBKeypointDataset
 
 FLIC
@@ -61,13 +69,27 @@ FLICKeypointDataset
 ~~~~~~~~~~~~~~~~~~~
 .. autoclass:: FLICKeypointDataset
 
+MS COCO
+-------
+
+COCOBboxDataset
+~~~~~~~~~~~~~~~
+.. autoclass:: COCOBboxDataset
+
+COCOInstanceSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: COCOInstanceSegmentationDataset
+
+COCOSemanticSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: COCOSemanticSegmentationDataset
+
 OnlineProducts
 --------------
 
 OnlineProductsDataset
 ~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: OnlineProductsDataset
-
 
 PASCAL VOC
 ----------
@@ -76,6 +98,18 @@ VOCBboxDataset
 ~~~~~~~~~~~~~~
 .. autoclass:: VOCBboxDataset
 
+VOCInstanceSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: VOCInstanceSegmentationDataset
+
 VOCSemanticSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: VOCSemanticSegmentationDataset
+
+
+Semantic Boundaries Dataset
+---------------------------
+
+SBDInstanceSegmentationDataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: SBDInstanceSegmentationDataset

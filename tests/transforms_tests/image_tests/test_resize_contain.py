@@ -1,9 +1,10 @@
 import unittest
 
 import numpy as np
+import PIL
 
-from chainer import testing
 from chainercv.transforms import resize_contain
+from chainercv.utils import testing
 
 
 @testing.parameterize(*testing.product_dict(
@@ -21,16 +22,24 @@ from chainercv.transforms import resize_contain
         {'fill': 128},
         {'fill': (104, 117, 123)},
         {'fill': np.random.uniform(255, size=(3, 1, 1))},
+    ],
+    [
+        {'interpolation': PIL.Image.NEAREST},
+        {'interpolation': PIL.Image.BILINEAR},
+        {'interpolation': PIL.Image.BICUBIC},
+        {'interpolation': PIL.Image.LANCZOS},
     ]
 ))
 class TestResizeContain(unittest.TestCase):
 
     def test_resize_contain(self):
         H, W = 32, 64
-        img = np.random.uniform(255, size=(3, H, W))
+        img = np.random.uniform(255, size=(3, H, W))\
 
         out, param = resize_contain(
-            img, self.size, fill=self.fill, return_param=True)
+            img, self.size, fill=self.fill,
+            interpolation=self.interpolation,
+            return_param=True)
 
         self.assertEqual(param['scaled_size'], self.scaled_size)
         self.assertEqual(param['y_offset'], self.y_offset)

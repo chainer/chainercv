@@ -49,7 +49,7 @@ class MultiboxCoder(object):
             Each integer indicates the size of a feature map.
         aspect_ratios (iterable of tuples of ints):
             An iterable of tuples of integers
-            used to compute the default bouding boxes.
+            used to compute the default bounding boxes.
             Each tuple indicates the aspect ratios of
             the default bounding boxes at each feature maps.
             The length of this iterable should be :obj:`len(grids)`.
@@ -73,7 +73,7 @@ class MultiboxCoder(object):
         if not len(sizes) == len(grids) + 1:
             raise ValueError('The length of sizes is wrong.')
 
-        default_bbox = list()
+        default_bbox = []
 
         for k, grid in enumerate(grids):
             for v, u in itertools.product(range(grid), repeat=2):
@@ -99,13 +99,13 @@ class MultiboxCoder(object):
 
     @property
     def xp(self):
-        return chainer.cuda.get_array_module(self._default_bbox)
+        return chainer.backends.cuda.get_array_module(self._default_bbox)
 
     def to_cpu(self):
-        self._default_bbox = chainer.cuda.to_cpu(self._default_bbox)
+        self._default_bbox = chainer.backends.cuda.to_cpu(self._default_bbox)
 
     def to_gpu(self, device=None):
-        self._default_bbox = chainer.cuda.to_gpu(
+        self._default_bbox = chainer.backends.cuda.to_gpu(
             self._default_bbox, device=device)
 
     def encode(self, bbox, label, iou_thresh=0.5):
@@ -117,7 +117,7 @@ class MultiboxCoder(object):
         Args:
             bbox (array): A float array of shape :math:`(R, 4)`,
                 where :math:`R` is the number of bounding boxes in an image.
-                Each bouding box is organized by
+                Each bounding box is organized by
                 :math:`(y_{min}, x_{min}, y_{max}, x_{max})`
                 in the second axis.
             label (array) : An integer array of shape :math:`(R,)`.
@@ -155,7 +155,7 @@ class MultiboxCoder(object):
 
         masked_iou = iou.copy()
         while True:
-            i, j = _unravel_index(masked_iou.argmax(), masked_iou.shape)
+            i, j = xp.unravel_index(masked_iou.argmax(), masked_iou.shape)
             if masked_iou[i, j] <= 1e-6:
                 break
             index[i] = j
@@ -211,7 +211,7 @@ class MultiboxCoder(object):
 
             * **bbox**: A float array of shape :math:`(R, 4)`, \
                 where :math:`R` is the number of bounding boxes in a image. \
-                Each bouding box is organized by \
+                Each bounding box is organized by \
                 :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
                 in the second axis.
             * **label** : An integer array of shape :math:`(R,)`. \
@@ -237,9 +237,9 @@ class MultiboxCoder(object):
         mb_score = xp.exp(mb_conf)
         mb_score /= mb_score.sum(axis=1, keepdims=True)
 
-        bbox = list()
-        label = list()
-        score = list()
+        bbox = []
+        label = []
+        score = []
         for l in range(mb_conf.shape[1] - 1):
             bbox_l = mb_bbox
             # the l-th class corresponds for the (l + 1)-th column.
@@ -264,15 +264,3 @@ class MultiboxCoder(object):
         score = xp.hstack(score).astype(np.float32)
 
         return bbox, label, score
-
-
-def _unravel_index(index, shape):
-    if isinstance(index, np.int64):
-        return np.unravel_index(index, shape)
-
-    indices = list()
-    for s in shape[::-1]:
-        indices.append(index % s)
-        index //= s
-
-    return tuple(indices[::-1])

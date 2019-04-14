@@ -1,7 +1,7 @@
 import numpy as np
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 import chainer.functions as F
 
 from chainercv.links.model.faster_rcnn.utils.anchor_target_creator import\
@@ -40,7 +40,7 @@ class FasterRCNNTrainChain(chainer.Chain):
             in [#FRCNN]_.
         anchor_target_creator: An instantiation of
             :class:`~chainercv.links.model.faster_rcnn.AnchorTargetCreator`.
-        proposal_target_creator_params: An instantiation of
+        proposal_target_creator: An instantiation of
             :class:`~chainercv.links.model.faster_rcnn.ProposalTargetCreator`.
 
     """
@@ -60,7 +60,7 @@ class FasterRCNNTrainChain(chainer.Chain):
         self.loc_normalize_mean = faster_rcnn.loc_normalize_mean
         self.loc_normalize_std = faster_rcnn.loc_normalize_std
 
-    def __call__(self, imgs, bboxes, labels, scale):
+    def forward(self, imgs, bboxes, labels, scales):
         """Forward Faster R-CNN and calculate losses.
 
         Here are notations used.
@@ -79,8 +79,8 @@ class FasterRCNNTrainChain(chainer.Chain):
                 the definition, which means that the range of the value
                 is :math:`[0, L - 1]`. :math:`L` is the number of foreground
                 classes.
-            scale (float or ~chainer.Variable): Amount of scaling applied to
-                the raw image during preprocessing.
+            scales (~chainer.Variable): Amount of scaling applied to
+                each input image during preprocessing.
 
         Returns:
             chainer.Variable:
@@ -93,19 +93,20 @@ class FasterRCNNTrainChain(chainer.Chain):
             bboxes = bboxes.array
         if isinstance(labels, chainer.Variable):
             labels = labels.array
-        if isinstance(scale, chainer.Variable):
-            scale = scale.array
-        scale = np.asscalar(cuda.to_cpu(scale))
+        if isinstance(scales, chainer.Variable):
+            scales = scales.array
+
         n = bboxes.shape[0]
         if n != 1:
             raise ValueError('Currently only batch size 1 is supported.')
+        scales = cuda.to_cpu(scales).tolist()
 
         _, _, H, W = imgs.shape
         img_size = (H, W)
 
         features = self.faster_rcnn.extractor(imgs)
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.faster_rcnn.rpn(
-            features, img_size, scale)
+            features, img_size, scales)
 
         # Since batch size is one, convert variables to singular form
         bbox = bboxes[0]
@@ -160,7 +161,7 @@ def _smooth_l1_loss(x, t, in_weight, sigma):
 
 
 def _fast_rcnn_loc_loss(pred_loc, gt_loc, gt_label, sigma):
-    xp = chainer.cuda.get_array_module(pred_loc)
+    xp = chainer.backends.cuda.get_array_module(pred_loc)
 
     in_weight = xp.zeros_like(gt_loc)
     # Localization loss is calculated only for positive rois.

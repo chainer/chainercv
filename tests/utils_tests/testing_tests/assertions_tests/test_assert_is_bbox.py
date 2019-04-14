@@ -1,9 +1,8 @@
 import numpy as np
 import unittest
 
-from chainer import testing
-
 from chainercv.utils import assert_is_bbox
+from chainercv.utils import testing
 
 
 @testing.parameterize(
@@ -14,6 +13,10 @@ from chainercv.utils import assert_is_bbox
     {
         'tl': np.random.uniform(0, 32, size=(10, 2)).astype(np.float32),
         'hw': np.random.uniform(0.1, 16, size=(10, 2)).astype(np.float32),
+        'size': (48, 64),
+        'valid': True},
+    {
+        'bbox': np.zeros((0, 4), dtype=np.float32),
         'size': (48, 64),
         'valid': True},
     {
@@ -37,6 +40,10 @@ from chainercv.utils import assert_is_bbox
         'valid': False},
     {
         'bbox': ((0, 1, 2, 3), (1, 2, 3, 4)),
+        'valid': False},
+    {
+        'bbox': np.zeros((0, 3), dtype=np.float32),
+        'size': (48, 64),
         'valid': False},
 )
 class TestAssertIsBbox(unittest.TestCase):

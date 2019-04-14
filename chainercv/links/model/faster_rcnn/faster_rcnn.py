@@ -22,7 +22,7 @@ from __future__ import division
 import numpy as np
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 import chainer.functions as F
 from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
 from chainercv.utils import non_maximum_suppression
@@ -48,12 +48,12 @@ class FasterRCNN(chainer.Chain):
     Each stage is carried out by one of the callable
     :class:`chainer.Chain` objects :obj:`feature`, :obj:`rpn` and :obj:`head`.
 
-    There are two functions :meth:`predict` and :meth:`__call__` to conduct
+    There are two functions :meth:`predict` and :meth:`forward` to conduct
     object detection.
     :meth:`predict` takes images and returns bounding boxes that are converted
     to image coordinates. This will be useful for a scenario when
     Faster R-CNN is treated as a black box function, for instance.
-    :meth:`__call__` is provided for a scnerario when intermediate outputs
+    :meth:`forward` is provided for a scnerario when intermediate outputs
     are needed, for instance, for training and debugging.
 
     Links that support obejct detection API have method :meth:`predict` with
@@ -112,10 +112,10 @@ class FasterRCNN(chainer.Chain):
         # Total number of classes including the background.
         return self.head.n_class
 
-    def __call__(self, x, scale=1.):
+    def forward(self, x, scales=None):
         """Forward Faster R-CNN.
 
-        Scaling paramter :obj:`scale` is used by RPN to determine the
+        Scaling paramter :obj:`scales` is used by RPN to determine the
         threshold to select small objects, which are going to be
         rejected irrespective of their confidence scores.
 
@@ -132,8 +132,8 @@ class FasterRCNN(chainer.Chain):
 
         Args:
             x (~chainer.Variable): 4D image variable.
-            scale (float): Amount of scaling applied to the raw image
-                during preprocessing.
+            scales (tuple of floats): Amount of scaling applied to each input
+                image during preprocessing.
 
         Returns:
             Variable, Variable, array, array:
@@ -153,7 +153,7 @@ class FasterRCNN(chainer.Chain):
 
         h = self.extractor(x)
         rpn_locs, rpn_scores, rois, roi_indices, anchor =\
-            self.rpn(h, img_size, scale)
+            self.rpn(h, img_size, scales)
         roi_cls_locs, roi_scores = self.head(
             h, rois, roi_indices)
         return roi_cls_locs, roi_scores, rois, roi_indices
@@ -220,9 +220,9 @@ class FasterRCNN(chainer.Chain):
         return img
 
     def _suppress(self, raw_cls_bbox, raw_prob):
-        bbox = list()
-        label = list()
-        score = list()
+        bbox = []
+        label = []
+        prob = []
         # skip cls_id = 0 because it is the background class
         for l in range(1, self.n_class):
             cls_bbox_l = raw_cls_bbox.reshape((-1, self.n_class, 4))[:, l, :]
@@ -235,11 +235,11 @@ class FasterRCNN(chainer.Chain):
             bbox.append(cls_bbox_l[keep])
             # The labels are in [0, self.n_class - 2].
             label.append((l - 1) * np.ones((len(keep),)))
-            score.append(prob_l[keep])
+            prob.append(prob_l[keep])
         bbox = np.concatenate(bbox, axis=0).astype(np.float32)
         label = np.concatenate(label, axis=0).astype(np.int32)
-        score = np.concatenate(score, axis=0).astype(np.float32)
-        return bbox, label, score
+        prob = np.concatenate(prob, axis=0).astype(np.float32)
+        return bbox, label, prob
 
     def predict(self, imgs):
         """Detect objects from images.
@@ -258,7 +258,7 @@ class FasterRCNN(chainer.Chain):
 
            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
                where :math:`R` is the number of bounding boxes in a image. \
-               Each bouding box is organized by \
+               Each bounding box is organized by \
                :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
@@ -269,24 +269,24 @@ class FasterRCNN(chainer.Chain):
                Each value indicates how confident the prediction is.
 
         """
-        prepared_imgs = list()
-        sizes = list()
+        prepared_imgs = []
+        sizes = []
         for img in imgs:
             size = img.shape[1:]
             img = self.prepare(img.astype(np.float32))
             prepared_imgs.append(img)
             sizes.append(size)
 
-        bboxes = list()
-        labels = list()
-        scores = list()
+        bboxes = []
+        labels = []
+        scores = []
         for img, size in zip(prepared_imgs, sizes):
             with chainer.using_config('train', False), \
                     chainer.function.no_backprop_mode():
                 img_var = chainer.Variable(self.xp.asarray(img[None]))
                 scale = img_var.shape[3] / size[1]
-                roi_cls_locs, roi_scores, rois, _ = self.__call__(
-                    img_var, scale=scale)
+                roi_cls_locs, roi_scores, rois, _ = self.forward(
+                    img_var, scales=[scale])
             # We are assuming that batch size is 1.
             roi_cls_loc = roi_cls_locs.array
             roi_score = roi_scores.array
@@ -313,9 +313,9 @@ class FasterRCNN(chainer.Chain):
             raw_cls_bbox = cuda.to_cpu(cls_bbox)
             raw_prob = cuda.to_cpu(prob)
 
-            bbox, label, score = self._suppress(raw_cls_bbox, raw_prob)
+            bbox, label, prob = self._suppress(raw_cls_bbox, raw_prob)
             bboxes.append(bbox)
             labels.append(label)
-            scores.append(score)
+            scores.append(prob)
 
         return bboxes, labels, scores

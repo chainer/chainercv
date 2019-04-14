@@ -8,25 +8,25 @@ import unittest
 import chainer
 from chainer.datasets import TupleDataset
 from chainer.iterators import SerialIterator
-from chainer import testing
 from chainer.testing import attr
 
 from chainercv.extensions import DetectionVisReport
 from chainercv.utils import generate_random_bbox
+from chainercv.utils import testing
 
 try:
     import matplotlib  # NOQA
-    optional_modules = True
+    _available = True
 except ImportError:
-    optional_modules = False
+    _available = False
 
 
 class _RandomDetectionStubLink(chainer.Link):
 
     def predict(self, imgs):
-        bboxes = list()
-        labels = list()
-        scores = list()
+        bboxes = []
+        labels = []
+        scores = []
 
         for _ in imgs:
             n_bbox = np.random.randint(0, 10)
@@ -72,7 +72,7 @@ class TestDetectionVisReport(unittest.TestCase):
 
     def test_available(self):
         self.extension = DetectionVisReport(self.dataset, self.link)
-        self.assertEqual(self.extension.available(), optional_modules)
+        self.assertEqual(self.extension.available(), _available)
 
     def _check(self):
         if self.filename is None:
@@ -81,7 +81,7 @@ class TestDetectionVisReport(unittest.TestCase):
             extension = DetectionVisReport(
                 self.iterator, self.link, filename=self.filename)
 
-        if not optional_modules:
+        if not _available:
             return
 
         for iter_ in range(3):

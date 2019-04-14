@@ -33,7 +33,7 @@ class Normalize(chainer.Link):
             self.scale = variable.Parameter(initializer)
             self.scale.initialize((n_channel),)
 
-    def __call__(self, x):
+    def forward(self, x):
         """Normalize input and scale it.
 
         Args:

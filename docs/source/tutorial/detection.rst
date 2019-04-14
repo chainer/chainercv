@@ -63,7 +63,7 @@ Here is an example with a simple toy data.
     # We call a variable/array of bounding boxes as `bbox` throughout the library
     bbox = np.array([[10, 10, 20, 40], [150, 150, 200, 200]], dtype=np.float32)
 
-    chainercv.visualizations.vis_bbox(img, bbox)
+    vis_bbox(img, bbox)
     plt.show()
 
 .. figure:: ../../image/detection_tutorial_simple_bbox.png 
@@ -77,7 +77,7 @@ bounding boxes and an image together.
 
 Bounding Box Dataset
 --------------------
-ChainerCV supports dataset loaders, which can be used to easily index examples with list-like interface.
+ChainerCV supports dataset loaders, which can be used to easily index examples with list-like interfaces.
 Dataset classes whose names end with :obj:`BboxDataset` contain annotations of where objects locate in an image and which categories they are assigned to.
 These datasets can be indexed to return a tuple of an image, bounding boxes and labels.
 The labels are stored in an :obj:`np.int32` array of shape :math:`(R,)`. Each element corresponds to a label of an object in the corresponding bounding box.
@@ -146,14 +146,15 @@ Inference on these models runs smoothly by downloading necessary pre-trained wei
     :scale: 60%
     :align: center
 
-The above example puts together functinality of detection link.
+The above example puts together functionality of detection link.
 It instantiates SSD300 model with weights trained on VOC 2007 and VOC 2012 datasets.
 The model runs prediction using :meth:`~chainercv.links.model.ssd.SSD.predict`, and the outputs are visualized using
 :func:`~chainercv.visualizations.vis_bbox`.
 Note that in this case, confidence scores are visualized together with other data.
 
 Many detection algorithms post-process bounding box proposals calculated from the output of neural networks by removing unnecessary ones.
-In the case of Faster R-CNN and SSD, bounding boxes with low confidence are suppressed and overlapping boxes are removed using non-maximum suppression.
+Faster R-CNN and SSD use non-maximum suppression to remove overlapping bounding boxes.
+Also, they remove bounding boxes with low confidence scores.
 These two models have attributes :obj:`nms_thresh` and :obj:`score_thresh`, which configure the post-processing.
 In the following example, the algorithm runs with a very low :obj:`score_thresh` so that bounding boxes with low scores are kept.
 It is known that lower :obj:`score_thresh` produces higher mAP.

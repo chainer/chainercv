@@ -10,6 +10,7 @@ which have released under BSD 3-clause "New" or "Revised" License.
 from distutils.core import setup
 import os
 import pkg_resources
+from setuptools.command import sdist
 from setuptools import find_packages
 
 from distutils.extension import Extension
@@ -22,16 +23,38 @@ Collection of Deep Learning Computer Vision Algorithms implemented in Chainer
 
 setup_requires = ['numpy']
 install_requires = [
-    'chainer>=2.0',
+    'chainer>=5.0',
     'Pillow'
 ]
 
+ext_data = {
+    'utils.bbox._nms_gpu_post': {'pyxfile': 'utils/bbox/_nms_gpu_post'}
+}
+
 try:
     from Cython.Distutils import build_ext as _build_ext
-    suffix = '.pyx'
+    use_cython = True
 except ImportError:
     from distutils.command.build_ext import build_ext as _build_ext
-    suffix = '.c'
+    use_cython = False
+
+for name, data in ext_data.items():
+    src = os.path.join('chainercv', data['pyxfile'] + '.pyx')
+    if not os.path.exists(src):
+        use_cython = False
+        break
+
+suffix = '.pyx' if use_cython else '.c'
+
+
+extensions = []
+for name, data in ext_data.items():
+    sources = [os.path.join('chainercv', data['pyxfile'] + suffix)]
+
+    extensions.append(
+        Extension('chainercv.{}'.format(name),
+                  sources=sources)
+    )
 
 
 class CheckingBuildExt(_build_ext):
@@ -59,29 +82,32 @@ class CheckingBuildExt(_build_ext):
         _build_ext.build_extensions(self)
 
 
-cmdclass = {'build_ext': CheckingBuildExt}
+class Sdist(sdist.sdist):
+
+    def __init__(self, *args, **kwargs):
+        assert use_cython
+
+        from Cython.Build import cythonize
+
+        for e in extensions:
+            for src in e.sources:
+                cythonize(src)
+
+        super(sdist.sdist, self).__init__(*args, **kwargs)
 
 
-ext_data = {
-    'utils.bbox._nms_gpu_post': {'pyxfile': 'utils/bbox/_nms_gpu_post'}
+cmdclass = {
+    'build_ext': CheckingBuildExt,
+    'sdist': Sdist,
 }
-
-extensions = list()
-for name, data in ext_data.items():
-    sources = [os.path.join('chainercv', data['pyxfile'] + suffix)]
-
-    extensions.append(
-        Extension('chainercv.{}'.format(name),
-                  sources=sources)
-    )
 
 
 setup(
     name='chainercv',
-    version='0.7.0',
+    version='0.12.0',
     packages=find_packages(),
-    author='Yusuke Niitani',
-    author_email='yuyuniitani@gmail.com',
+    author='Yusuke Niitani, Toru Ogawa',
+    author_email='niitani@preferred.jp, ogawa@preferred.jp',
     license='MIT',
     description=description,
     setup_requires=setup_requires,

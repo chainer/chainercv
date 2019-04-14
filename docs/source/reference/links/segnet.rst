@@ -11,4 +11,3 @@ SegNetBasic
 ~~~~~~~~~~~
 .. autoclass:: SegNetBasic
    :members:
-   :special-members:  __call__

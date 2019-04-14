@@ -50,4 +50,27 @@ class TestSegNetBasic(unittest.TestCase):
         assert_is_semantic_segmentation_link(self.link, self.n_class)
 
 
+@testing.parameterize(*testing.product({
+    'n_class': [None, 5, 11],
+    'pretrained_model': ['camvid'],
+}))
+class TestSegNetPretrained(unittest.TestCase):
+
+    @attr.slow
+    def test_pretrained(self):
+        kwargs = {
+            'n_class': self.n_class,
+            'pretrained_model': self.pretrained_model,
+        }
+
+        if self.pretrained_model == 'camvid':
+            valid = self.n_class in {None, 11}
+
+        if valid:
+            SegNetBasic(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                SegNetBasic(**kwargs)
+
+
 testing.run_module(__name__, __file__)

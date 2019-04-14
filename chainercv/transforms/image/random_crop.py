@@ -1,5 +1,4 @@
 import random
-import six
 
 
 def random_crop(img, size, return_param=False, copy=False):
@@ -41,18 +40,14 @@ def random_crop(img, size, return_param=False, copy=False):
     """
     H, W = size
 
-    if img.shape[1] == H:
-        y_offset = 0
-    elif img.shape[1] > H:
-        y_offset = random.choice(six.moves.range(img.shape[1] - H))
+    if img.shape[1] >= H:
+        y_offset = random.randint(0, img.shape[1] - H)
     else:
         raise ValueError('shape of image needs to be larger than output shape')
     y_slice = slice(y_offset, y_offset + H)
 
-    if img.shape[2] == W:
-        x_offset = 0
-    elif img.shape[2] > W:
-        x_offset = random.choice(six.moves.range(img.shape[2] - W))
+    if img.shape[2] >= W:
+        x_offset = random.randint(0, img.shape[2] - W)
     else:
         raise ValueError('shape of image needs to be larger than output shape')
     x_slice = slice(x_offset, x_offset + W)

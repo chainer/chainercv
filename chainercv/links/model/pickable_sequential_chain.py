@@ -1,3 +1,5 @@
+import copy
+
 import chainer
 
 
@@ -8,12 +10,12 @@ class PickableSequentialChain(chainer.Chain):
     Callable objects, such as :class:`chainer.Link` and
     :class:`chainer.Function`, can be registered to this chain with
     :meth:`init_scope`.
-    This chain keeps the order of registrations and :meth:`__call__`
+    This chain keeps the order of registrations and :meth:`forward`
     executes callables in that order.
     A :class:`chainer.Link` object in the sequence will be added as
     a child link of this link.
 
-    :meth:`__call__` returns single or multiple layers that are picked up
+    :meth:`forward` returns single or multiple layers that are picked up
     through a stream of computation.
     These layers can be specified by :obj:`pick`, which contains
     the names of the layers that are collected.
@@ -54,7 +56,7 @@ class PickableSequentialChain(chainer.Chain):
 
     def __init__(self):
         super(PickableSequentialChain, self).__init__()
-        self.layer_names = list()
+        self.layer_names = []
         # Two attributes are initialized by the setter of pick.
         # self._pick -> None
         # self._return_tuple -> False
@@ -98,8 +100,9 @@ class PickableSequentialChain(chainer.Chain):
         else:
             return_tuple = False
             pick = (pick,)
-        if any(name not in self.layer_names for name in pick):
-            raise ValueError('Invalid layer name')
+        for name in pick:
+            if name not in self.layer_names:
+                raise ValueError('Invalid layer name ({:s})'.format(name))
 
         self._return_tuple = return_tuple
         self._pick = tuple(pick)
@@ -117,7 +120,7 @@ class PickableSequentialChain(chainer.Chain):
         for name in self.layer_names[last_index + 1:]:
             delattr(self, name)
 
-    def __call__(self, x):
+    def forward(self, x):
         """Forward this model.
 
         Args:
@@ -137,7 +140,7 @@ class PickableSequentialChain(chainer.Chain):
         # in pick.
         last_index = max(self.layer_names.index(name) for name in pick)
 
-        layers = dict()
+        layers = {}
         h = x
         for name in self.layer_names[:last_index + 1]:
             h = self[name](h)
@@ -149,3 +152,11 @@ class PickableSequentialChain(chainer.Chain):
         else:
             layers = list(layers.values())[0]
         return layers
+
+    def copy(self, *args, **kargs):
+        copied = super(PickableSequentialChain, self).copy(*args, **kargs)
+        copied.layer_names = copy.copy(self.layer_names)
+        copied._pick = copy.copy(self._pick)
+        copied._return_tuple = copy.copy(self._return_tuple)
+
+        return copied

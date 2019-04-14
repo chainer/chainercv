@@ -18,7 +18,7 @@ class TestMultibox(unittest.TestCase):
     def setUp(self):
         self.link = Multibox(self.n_class, self.aspect_ratios)
 
-        xs = list()
+        xs = []
         n_bbox = 0
         for ar in self.aspect_ratios:
             C, H, W = np.random.randint(1, 10, size=3)
@@ -50,7 +50,7 @@ class TestMultibox(unittest.TestCase):
     @attr.gpu
     def test_forward_gpu(self):
         self.link.to_gpu()
-        self._check_forward(list(map(chainer.cuda.to_gpu, self.xs)))
+        self._check_forward(list(map(chainer.backends.cuda.to_gpu, self.xs)))
 
 
 testing.run_module(__name__, __file__)

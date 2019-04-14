@@ -7,12 +7,12 @@ class ConstantStubLink(chainer.Link):
     """A chainer.Link that returns constant value(s).
 
     This is a :obj:`chainer.Link` that returns constant
-    :obj:`chainer.Variable` (s) when :meth:`__call__` method is called.
+    :obj:`chainer.Variable` (s) when :meth:`forward` method is called.
 
     Args:
         outputs (~numpy.ndarray or tuple or ~numpy.ndarray):
-            The value(s) of variable(s) returned by :meth:`__call__`.
-            If an array is specified, :meth:`__call__` returns
+            The value(s) of variable(s) returned by :meth:`forward`.
+            If an array is specified, :meth:`forward` returns
             a :obj:`chainer.Variable`. Otherwise, it returns a tuple of
             :obj:`chainer.Variable`.
     """
@@ -26,7 +26,7 @@ class ConstantStubLink(chainer.Link):
             self._tuple = False
             outputs = outputs,
 
-        self._outputs = list()
+        self._outputs = []
         for output in outputs:
             if not isinstance(output, np.ndarray):
                 raise ValueError(
@@ -44,7 +44,7 @@ class ConstantStubLink(chainer.Link):
         for output in self._outputs:
             output.to_gpu()
 
-    def __call__(self, *_):
+    def forward(self, *_):
         """Returns value(s).
 
         Args:
@@ -57,6 +57,15 @@ class ConstantStubLink(chainer.Link):
             a :obj:`chainer.Variable`. Otherwise, this returns a
             tuple of :obj:`chainer.Variable`.
         """
+
+        # TODO(Hakuyume): Remove this fix when 'to_device' APIs is refactored.
+        # Fix for Chainer 6.x.
+        # https://github.com/chainer/chainer/issues/6244
+        for output in self._outputs:
+            if self.xp is np:
+                output.to_cpu()
+            else:
+                output.to_gpu()
 
         if self._tuple:
             return self._outputs

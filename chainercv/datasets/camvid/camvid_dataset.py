@@ -1,13 +1,16 @@
+import filelock
 import glob
 import os
 import shutil
 
 import numpy as np
 
-import chainer
 from chainer.dataset import download
+
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv import utils
 from chainercv.utils import read_image
+from chainercv.utils import read_label
 
 
 root = 'pfnet/chainercv/camvid'
@@ -46,20 +49,23 @@ camvid_ignore_label_color = (0, 0, 0)
 
 
 def get_camvid():
-    data_root = download.get_dataset_directory(root)
-    download_file_path = utils.cached_download(url)
-    if len(glob.glob(os.path.join(data_root, '*'))) != 9:
-        utils.extractall(
-            download_file_path, data_root, os.path.splitext(url)[1])
-    data_dir = os.path.join(data_root, 'SegNet-Tutorial-master/CamVid')
-    if os.path.exists(data_dir):
-        for fn in glob.glob(os.path.join(data_dir, '*')):
-            shutil.move(fn, os.path.join(data_root, os.path.basename(fn)))
-        shutil.rmtree(os.path.dirname(data_dir))
+    # To support ChainerMN, the target directory should be locked.
+    with filelock.FileLock(os.path.join(download.get_dataset_directory(
+            'pfnet/chainercv/.lock'), 'camvid.lock')):
+        data_root = download.get_dataset_directory(root)
+        download_file_path = utils.cached_download(url)
+        if len(glob.glob(os.path.join(data_root, '*'))) != 9:
+            utils.extractall(
+                download_file_path, data_root, os.path.splitext(url)[1])
+        data_dir = os.path.join(data_root, 'SegNet-Tutorial-master/CamVid')
+        if os.path.exists(data_dir):
+            for fn in glob.glob(os.path.join(data_dir, '*')):
+                shutil.move(fn, os.path.join(data_root, os.path.basename(fn)))
+            shutil.rmtree(os.path.dirname(data_dir))
     return data_root
 
 
-class CamVidDataset(chainer.dataset.DatasetMixin):
+class CamVidDataset(GetterDataset):
 
     """Semantic segmentation dataset for `CamVid`_.
 
@@ -73,9 +79,21 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
         split ({'train', 'val', 'test'}): Select from dataset splits used
             in CamVid Dataset.
 
+
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`label`, ":math:`(H, W)`", :obj:`int32`, \
+        ":math:`[-1, \#class - 1]`"
     """
 
     def __init__(self, data_dir='auto', split='train'):
+        super(CamVidDataset, self).__init__()
+
         if split not in ['train', 'val', 'test']:
             raise ValueError(
                 'Please pick split from \'train\', \'val\', \'test\'')
@@ -88,30 +106,19 @@ class CamVidDataset(chainer.dataset.DatasetMixin):
             [os.path.join(data_dir, fn.replace('/SegNet/CamVid/', ''))
              for fn in line.split()] for line in open(img_list_path)]
 
+        self.add_getter('img', self._get_image)
+        self.add_getter('iabel', self._get_label)
+
     def __len__(self):
         return len(self.paths)
 
-    def get_example(self, i):
-        """Returns the i-th example.
+    def _get_image(self, i):
+        img_path, _ = self.paths[i]
+        return read_image(img_path, color=True)
 
-        Returns a color image and a label image. The color image is in CHW
-        format and the label image is in HW format.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            tuple of a color image and a label whose shapes are (3, H, W) and
-            (H, W) respectively. H and W are height and width of the image.
-            The dtype of the color image is :obj:`numpy.float32` and
-            the dtype of the label image is :obj:`numpy.int32`.
-
-        """
-        if i >= len(self):
-            raise IndexError('index is too large')
-        img_path, label_path = self.paths[i]
-        img = read_image(img_path, color=True)
-        label = read_image(label_path, dtype=np.int32, color=False)[0]
+    def _get_label(self, i):
+        _, label_path = self.paths[i]
+        label = read_label(label_path, dtype=np.int32)
         # Label id 11 is for unlabeled pixels.
         label[label == 11] = -1
-        return img, label
+        return label

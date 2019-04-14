@@ -13,7 +13,7 @@ class DummySemanticSegmentationModel(chainer.Chain):
         super(DummySemanticSegmentationModel, self).__init__()
         self.n_class = n_class
 
-    def __call__(self, x):
+    def forward(self, x):
         n, _, h, w = x.shape
         y = self.xp.random.rand(n, self.n_class, h, w).astype(np.float32)
         return chainer.Variable(y)
@@ -56,3 +56,6 @@ class TestPixelwiseSoftmaxClassifier(unittest.TestCase):
     def test_call_gpu(self):
         self.link.to_gpu()
         self._check_call()
+
+
+testing.run_module(__name__, __file__)

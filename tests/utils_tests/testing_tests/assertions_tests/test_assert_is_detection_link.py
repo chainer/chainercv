@@ -2,18 +2,18 @@ import numpy as np
 import unittest
 
 import chainer
-from chainer import testing
 
 from chainercv.utils import assert_is_detection_link
 from chainercv.utils import generate_random_bbox
+from chainercv.utils import testing
 
 
 class DetectionLink(chainer.Link):
 
     def predict(self, imgs):
-        bboxes = list()
-        labels = list()
-        scores = list()
+        bboxes = []
+        labels = []
+        scores = []
 
         for img in imgs:
             n_bbox = np.random.randint(1, 10)

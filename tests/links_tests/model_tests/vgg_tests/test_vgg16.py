@@ -2,12 +2,13 @@ import unittest
 
 import numpy as np
 
+import chainer
 from chainer.initializers import Zero
-from chainer import testing
 from chainer.testing import attr
 from chainer import Variable
 
 from chainercv.links import VGG16
+from chainercv.utils import testing
 
 
 @testing.parameterize(
@@ -29,7 +30,8 @@ class TestVGG16Call(unittest.TestCase):
 
         x1 = Variable(xp.asarray(np.random.uniform(
             -1, 1, (1, 3, 224, 224)).astype(np.float32)))
-        features = self.link(x1)
+        with chainer.no_backprop_mode():
+            features = self.link(x1)
         if isinstance(features, tuple):
             for activation, shape in zip(features, self.shapes):
                 self.assertEqual(activation.shape, shape)
@@ -46,6 +48,31 @@ class TestVGG16Call(unittest.TestCase):
     def test_call_gpu(self):
         self.link.to_gpu()
         self.check_call()
+
+
+@testing.parameterize(*testing.product({
+    'n_class': [None, 500, 1000],
+    'pretrained_model': ['imagenet'],
+    'mean': [None, np.random.uniform((3, 1, 1)).astype(np.float32)],
+}))
+class TestVGG16Pretrained(unittest.TestCase):
+
+    @attr.slow
+    def test_pretrained(self):
+        kwargs = {
+            'n_class': self.n_class,
+            'pretrained_model': self.pretrained_model,
+            'mean': self.mean,
+        }
+
+        if self.pretrained_model == 'imagenet':
+            valid = self.n_class in {None, 1000}
+
+        if valid:
+            VGG16(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                VGG16(**kwargs)
 
 
 testing.run_module(__name__, __file__)

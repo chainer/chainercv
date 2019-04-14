@@ -4,11 +4,10 @@ import unittest
 
 import numpy as np
 
-from chainer import testing
-
 from chainercv.evaluations import calc_semantic_segmentation_confusion
 from chainercv.evaluations import calc_semantic_segmentation_iou
 from chainercv.evaluations import eval_semantic_segmentation
+from chainercv.utils import testing
 
 
 @testing.parameterize(

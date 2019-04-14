@@ -2,22 +2,26 @@ import numpy as np
 import unittest
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 from chainer import testing
 from chainer.testing import attr
 
 from chainercv.links.model.faster_rcnn import RegionProposalNetwork
 
 
-@testing.parameterize(
-    {'train': True},
-    {'train': False},
-)
+@testing.parameterize(*(testing.product({
+    'B': [1],
+    'train': [True, False],
+    'scales': [None, 1.0, 2.0, [1.0]],
+}) + testing.product({
+    'B': [2],
+    'train': [True, False],
+    'scales': [None, 1.0, 2.0, [1.0, 2.0]],
+})))
 class TestRegionProposalNetwork(unittest.TestCase):
 
     def setUp(self):
         feat_stride = 4
-        self.B = 2
         C = 16
         H = 8
         W = 12
@@ -37,10 +41,10 @@ class TestRegionProposalNetwork(unittest.TestCase):
 
         chainer.config.train = self.train
 
-    def _check_call(self, x, img_size):
+    def _check_call(self, x, img_size, scales):
         _, _, H, W = x.shape
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.link(
-            chainer.Variable(x), img_size)
+            chainer.Variable(x), img_size, scales)
         self.assertIsInstance(rpn_locs, chainer.Variable)
         self.assertIsInstance(rpn_locs.array, type(x))
         self.assertIsInstance(rpn_scores, chainer.Variable)
@@ -74,13 +78,13 @@ class TestRegionProposalNetwork(unittest.TestCase):
         self.assertEqual(anchor.shape, (A * H * W, 4))
 
     def test_call_cpu(self):
-        self._check_call(self.x, self.img_size)
+        self._check_call(self.x, self.img_size, self.scales)
 
     @attr.gpu
     def test_call_gpu(self):
         self.link.to_gpu()
         self._check_call(
-            chainer.cuda.to_gpu(self.x), self.img_size)
+            chainer.backends.cuda.to_gpu(self.x), self.img_size, self.scales)
 
 
 testing.run_module(__name__, __file__)

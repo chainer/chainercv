@@ -69,7 +69,7 @@ class SSDCaffeFunction(caffe.CaffeFunction):
         super(SSDCaffeFunction, self).__setattr__(new_name, value)
 
     @caffe._layer('Normalize', None)
-    def _setup_normarize(self, layer):
+    def _setup_normalize(self, layer):
         blobs = layer.blobs
         func = Normalize(caffe._get_num(blobs[0]))
         func.scale.array[:] = np.array(blobs[0].data)

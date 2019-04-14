@@ -1,3 +1,4 @@
+import chainer
 import numpy as np
 import PIL
 import warnings
@@ -5,54 +6,46 @@ import warnings
 
 try:
     import cv2
-
-    def _resize(img, size, interpolation):
-        img = img.transpose((1, 2, 0))
-        if interpolation == PIL.Image.NEAREST:
-            cv_interpolation = cv2.INTER_NEAREST
-        elif interpolation == PIL.Image.BILINEAR:
-            cv_interpolation = cv2.INTER_LINEAR
-        elif interpolation == PIL.Image.BICUBIC:
-            cv_interpolation = cv2.INTER_CUBIC
-        elif interpolation == PIL.Image.LANCZOS:
-            cv_interpolation = cv2.INTER_LANCZOS4
-        H, W = size
-        img = cv2.resize(img, dsize=(W, H), interpolation=cv_interpolation)
-
-        # If input is a grayscale image, cv2 returns a two-dimentional array.
-        if len(img.shape) == 2:
-            img = img[:, :, np.newaxis]
-        return img.transpose((2, 0, 1))
-
+    _cv2_available = True
 except ImportError:
-    def _resize(img, size, interpolation):
-        warnings.warn(
-            'cv2 is not installed on your environment. '
-            'ChainerCV will fall back on Pillow. '
-            'Installation of cv2 is recommended for faster computation. ',
-            RuntimeWarning)
+    _cv2_available = False
 
-        C = img.shape[0]
-        H, W = size
-        out = np.empty((C, H, W), dtype=img.dtype)
-        for ch, out_ch in zip(img, out):
-            ch = PIL.Image.fromarray(ch, mode='F')
-            out_ch[:] = ch.resize((W, H), resample=interpolation)
-        return out
+
+def _resize_cv2(img, size, interpolation):
+    img = img.transpose((1, 2, 0))
+    if interpolation == PIL.Image.NEAREST:
+        cv_interpolation = cv2.INTER_NEAREST
+    elif interpolation == PIL.Image.BILINEAR:
+        cv_interpolation = cv2.INTER_LINEAR
+    elif interpolation == PIL.Image.BICUBIC:
+        cv_interpolation = cv2.INTER_CUBIC
+    elif interpolation == PIL.Image.LANCZOS:
+        cv_interpolation = cv2.INTER_LANCZOS4
+    H, W = size
+    img = cv2.resize(img, dsize=(W, H), interpolation=cv_interpolation)
+
+    # If input is a grayscale image, cv2 returns a two-dimentional array.
+    if len(img.shape) == 2:
+        img = img[:, :, np.newaxis]
+    return img.transpose((2, 0, 1))
+
+
+def _resize_pil(img, size, interpolation):
+    C = img.shape[0]
+    H, W = size
+    out = np.empty((C, H, W), dtype=img.dtype)
+    for ch, out_ch in zip(img, out):
+        ch = PIL.Image.fromarray(ch, mode='F')
+        out_ch[:] = ch.resize((W, H), resample=interpolation)
+    return out
 
 
 def resize(img, size, interpolation=PIL.Image.BILINEAR):
     """Resize image to match the given shape.
 
-    This method uses :mod:`cv2` or :mod:`PIL` for the backend.
-    If :mod:`cv2` is installed, this function uses the implementation in
-    :mod:`cv2`. This implementation is faster than the implementation in
-    :mod:`PIL`. Under Anaconda environment,
-    :mod:`cv2` can be installed by the following command.
-
-    .. code::
-
-        $ conda install -c menpo opencv3=3.2.0
+    The backend used by :func:`resize` is configured by
+    :obj:`chainer.global_config.cv_resize_backend`.
+    Two backends are supported: "cv2" and "PIL".
 
     Args:
         img (~numpy.ndarray): An array to be transformed.
@@ -68,5 +61,23 @@ def resize(img, size, interpolation=PIL.Image.BILINEAR):
         ~numpy.ndarray: A resize array in CHW format.
 
     """
-    img = _resize(img, size, interpolation)
-    return img
+    if len(img) == 0:
+        assert len(size) == 2
+        return np.empty((0,) + size, dtype=img.dtype)
+
+    if chainer.config.cv_resize_backend == 'cv2':
+        if _cv2_available:
+            return _resize_cv2(img, size, interpolation)
+        else:
+            warnings.warn(
+                'Although `chainer.config.cv_resize_backend == "cv2"`, '
+                'cv2 is not found. As a fallback option, resize uses '
+                'PIL. Either install cv2 or set '
+                '`chainer.global_config.cv_resize_backend = "PIL"` to '
+                'suppress this warning.')
+            return _resize_pil(img, size, interpolation)
+    elif chainer.config.cv_resize_backend == 'PIL':
+        return _resize_pil(img, size, interpolation)
+    else:
+        raise ValueError('chainer.config.cv_resize_backend should be '
+                         'either "cv2" or "PIL".')

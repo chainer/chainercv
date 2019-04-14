@@ -52,7 +52,7 @@ class Multibox(chainer.Chain):
             self.conf.add_link(L.Convolution2D(
                 n * self.n_class, 3, pad=1, **init))
 
-    def __call__(self, xs):
+    def forward(self, xs):
         """Compute loc and conf from feature maps
 
         This method computes :obj:`mb_locs` and :obj:`mb_confs`
@@ -77,8 +77,8 @@ class Multibox(chainer.Chain):
 
         """
 
-        mb_locs = list()
-        mb_confs = list()
+        mb_locs = []
+        mb_confs = []
         for i, x in enumerate(xs):
             mb_loc = self.loc[i](x)
             mb_loc = F.transpose(mb_loc, (0, 2, 3, 1))
