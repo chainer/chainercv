@@ -5,10 +5,10 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     cmake \
     curl \
     git \
+    libjpeg9-dev \
     libopenexr-dev \
     libpng-dev \
     libtiff-dev \
-    libturbojpeg0-dev \
     libwebp-dev \
     make \
     openssh-client \
