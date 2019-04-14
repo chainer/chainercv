@@ -22,7 +22,7 @@ docker run --runtime=nvidia --interactive --rm \
        --env PFNCI_SKIP='echo SKIP:' \
        ${DOCKER_IMAGE} \
        sh -ex << EOD
-. install.sh
+. ./install.sh
 for SCRIPT in \$(find examples_tests/ -type f -name '*.sh')
 do
     sh -ex \${SCRIPT}

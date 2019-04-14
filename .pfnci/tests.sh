@@ -14,7 +14,7 @@ docker run --interactive --rm \
        --env MPLBACKEND=agg \
        ${DOCKER_IMAGE} \
        sh -ex << EOD
-. install.sh
+. ./install.sh
 pip${PYTHON} install --user pytest-xdist
 python${PYTHON} -m pytest --color=no -n $(nproc) \
                 -m 'not pfnci_skip and not gpu and not mpi' tests/
