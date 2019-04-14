@@ -1,3 +1,6 @@
+# DO NOT MODIFY THIS FILE MANUALLY.
+# USE gen_config.py INSTEAD.
+
 configs {
   key: "chainercv.cache"
   value {

@@ -68,6 +68,10 @@ def main():
             configs.append(test_config(python, chainer, optional, 'gpu'))
         configs.append(test_config(python, chainer, True, 'examples'))
 
+    print('# DO NOT MODIFY THIS FILE MANUALLY.')
+    print('# USE gen_config.py INSTEAD.')
+    print()
+
     dump_pbtxt('configs', configs)
 
 
