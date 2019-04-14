@@ -27,14 +27,14 @@ docker build -t ${DOCKER_IMAGE} .pfnci/docker/${DOCKER_IMAGE}/
 if [ ${CHAINER} = stable ]; then
     cat - << EOD > install.sh
 pip${PYTHON} install \
-             chainer=${STABLE} \
-             cupy-cuda92=${STABLE}
+             chainer==${STABLE} \
+             cupy-cuda92==${STABLE}
 EOD
 elif [ ${CHAINER} = latest ]; then
     cat - << EOD > install.sh
 pip${PYTHON} install \
-             chainer=${LATEST} \
-             cupy-cuda92=${LATEST}
+             chainer==${LATEST} \
+             cupy-cuda92==${LATEST}
 EOD
 elif [ ${CHAINER} = master ]; then
     CHAINER_MASTER=$(git ls-remote https://github.com/chainer/chainer.git master | cut -f1)
