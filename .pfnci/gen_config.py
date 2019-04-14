@@ -17,7 +17,7 @@ def test_config(python, chainer, optional, target):
         ('requirement', OrderedDict((
             ('cpu', 4),
             ('memory', 24),
-            ('disk', 24),
+            ('disk', 10),
         ))),
         ('time_limit', None),
         ('command', None),
@@ -29,6 +29,8 @@ def test_config(python, chainer, optional, target):
     ))
 
     if target == 'cpu':
+        value['requirement']['cpu'] = 6
+        value['requirement']['memory'] = 36
         value['time_limit'] = {'seconds': 1800}
         value['command'] = 'sh .pfnci/tests.sh'
     elif target == 'gpu':

@@ -4,18 +4,13 @@ set -eux
 STABLE=5.3.0
 LATEST=6.0.0b3
 
-fallocate -l 12G /swap
-chmod 600 /swap
-mkswap /swap
-swapon -p 5 /swap
-
 systemctl stop docker.service
-mount -t tmpfs tmpfs /var/lib/docker/ -o size=75%
+mount -t tmpfs tmpfs /var/lib/docker/ -o size=100%
 gsutil -q cp gs://tmp-pfn-public-ci/chainercv/docker.tar - | tar -xf - -C /var/lib/docker/ || true
 systemctl start docker.service
 
 TEMP=$(mktemp -d)
-mount -t tmpfs tmpfs ${TEMP}/ -o size=75%
+mount -t tmpfs tmpfs ${TEMP}/ -o size=100%
 
 if [ ${OPTIONAL_MODULES} -gt 0 ]; then
     DOCKER_IMAGE=devel
