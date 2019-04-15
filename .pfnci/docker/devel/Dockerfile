@@ -5,7 +5,6 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     cmake \
     curl \
     git \
-    libjpeg8-dev \
     libopenexr-dev \
     libpng-dev \
     libtiff-dev \
@@ -32,14 +31,10 @@ RUN cd $(mktemp -d) \
     && mkdir opencv-${OPENCV_VERSION}/build \
     && cd opencv-${OPENCV_VERSION}/build \
     && cmake .. \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DWITH_CUDA=OFF \
-    -DWITH_IPP=OFF \
-    -DWITH_OPENCL=OFF \
-    -DWITH_PROTOBUF=OFF \
-    -DBUILD_WITH_DEBUG_INFO=OFF \
-    -DBUILD_TESTS=OFF \
+    -DBUILD_JPEG=ON \
     -DBUILD_PERF_TESTS=OFF \
+    -DBUILD_TESTS=OFF \
+    -DBUILD_WITH_DEBUG_INFO=OFF \
     -DBUILD_opencv_apps=OFF \
     -DBUILD_opencv_calib3d=OFF \
     -DBUILD_opencv_dnn=OFF \
@@ -55,6 +50,11 @@ RUN cd $(mktemp -d) \
     -DBUILD_opencv_video=OFF \
     -DBUILD_opencv_videoio=OFF \
     -DBUILD_opencv_videostab=OFF \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DWITH_CUDA=OFF \
+    -DWITH_IPP=OFF \
+    -DWITH_OPENCL=OFF \
+    -DWITH_PROTOBUF=OFF \
     && make -j $(nproc) \
     && make install \
     && cd - \
@@ -69,8 +69,6 @@ RUN cd $(mktemp -d) \
     && make install \
     && cd - \
     && rm -rf $(pwd)
-
-RUN echo /usr/local/lib/ > /etc/ld.so.conf.d/local.conf && ldconfig
 
 RUN pip2 install --no-cache-dir \
     cython \
