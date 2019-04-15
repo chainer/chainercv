@@ -70,6 +70,8 @@ RUN cd $(mktemp -d) \
     && cd - \
     && rm -rf $(pwd)
 
+RUN echo /usr/local/lib/ > /etc/ld.so.conf.d/local.conf && ldconfig
+
 RUN pip2 install --no-cache-dir \
     cython \
     matplotlib==2.1 \
