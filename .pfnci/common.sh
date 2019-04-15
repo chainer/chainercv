@@ -37,11 +37,11 @@ elif [ ${CHAINER} = master ]; then
     echo "Chainer: ${CHAINER_MASTER}"
     echo "CuPy: ${CUPY_MASTER}"
 
-    gsutil -q cp gs://tmp-pfn-public-ci/cupy/wheel/${CUPY_MASTER}/*.whl .
+    gsutil -q cp gs://tmp-pfn-public-ci/cupy/wheel/${CUPY_MASTER}/cuda92/*.whl .
     cat - << EOD > install.sh
 pip${PYTHON} install \
              git+https://github.com/chainer/chainer.git@${CHAINER_MASTER}#egg=chainer \
-             cupy-cuda92-py${PYTHON}*.whl
+             cupy-*-cp${PYTHON}*-cp${PYTHON}*-linux_x86_64.whl
 EOD
 fi
 
