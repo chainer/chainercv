@@ -17,8 +17,8 @@ RUN curl -LO https://bootstrap.pypa.io/get-pip.py \
 RUN pip2 install --no-cache-dir \
     cython \
     mock \
-    pytest
-RUN pip3 install --no-cache-dir \
+    pytest \
+    && pip3 install --no-cache-dir \
     cython \
     mock \
     pytest
