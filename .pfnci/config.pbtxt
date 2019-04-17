@@ -49,9 +49,6 @@ configs {
       disk: 10
       gpu: 1
     }
-    time_limit {
-      seconds: 900
-    }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
@@ -101,9 +98,6 @@ configs {
       memory: 24
       disk: 10
       gpu: 1
-    }
-    time_limit {
-      seconds: 900
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -182,9 +176,6 @@ configs {
       disk: 10
       gpu: 1
     }
-    time_limit {
-      seconds: 900
-    }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
@@ -234,9 +225,6 @@ configs {
       memory: 24
       disk: 10
       gpu: 1
-    }
-    time_limit {
-      seconds: 900
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -315,9 +303,6 @@ configs {
       disk: 10
       gpu: 1
     }
-    time_limit {
-      seconds: 900
-    }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
@@ -367,9 +352,6 @@ configs {
       memory: 24
       disk: 10
       gpu: 1
-    }
-    time_limit {
-      seconds: 900
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -448,9 +430,6 @@ configs {
       disk: 10
       gpu: 1
     }
-    time_limit {
-      seconds: 900
-    }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
@@ -500,9 +479,6 @@ configs {
       memory: 24
       disk: 10
       gpu: 1
-    }
-    time_limit {
-      seconds: 900
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -581,9 +557,6 @@ configs {
       disk: 10
       gpu: 1
     }
-    time_limit {
-      seconds: 900
-    }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
@@ -633,9 +606,6 @@ configs {
       memory: 24
       disk: 10
       gpu: 1
-    }
-    time_limit {
-      seconds: 900
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
@@ -714,9 +684,6 @@ configs {
       disk: 10
       gpu: 1
     }
-    time_limit {
-      seconds: 900
-    }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
@@ -766,9 +733,6 @@ configs {
       memory: 24
       disk: 10
       gpu: 1
-    }
-    time_limit {
-      seconds: 900
     }
     command: "sh .pfnci/tests_gpu.sh"
     environment_variables {

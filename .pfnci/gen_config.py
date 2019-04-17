@@ -36,7 +36,6 @@ def test_config(python, chainer, optional, target):
     elif target == 'gpu':
         key += '.gpu'
         value['requirement']['gpu'] = 1
-        value['time_limit'] = {'seconds': 900}
         value['command'] = 'sh .pfnci/tests_gpu.sh'
     elif target == 'examples':
         key += '.examples'
