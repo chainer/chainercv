@@ -51,6 +51,10 @@ class MultiboxTrainChain(chainer.Chain):
 
         return loss
 
+    # https://github.com/chainer/chainer/issues/6759
+    def cleargrads(self):
+        self.zerograds()
+
 
 def main():
     parser = argparse.ArgumentParser()
