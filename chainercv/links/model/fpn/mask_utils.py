@@ -114,11 +114,7 @@ def segm_to_mask(segm, bbox, size):
 
     mask = np.zeros((len(bbox), H, W), dtype=np.bool)
 
-    # To work around an issue with cv2.resize (it seems to automatically
-    # pad with repeated border values), we manually zero-pad the masks by 1
-    # pixel prior to resizing back to the original image resolution.
-    # This prevents "top hat" artifacts. We therefore need to expand
-    # the reference boxes by an appropriate factor.
+    # As commented in mask_to_segm, cv2.resize needs adjust.
     backend = resize_backend()
     if backend == 'cv2':
         padded_segm_size = segm_size + pad * 2

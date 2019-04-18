@@ -49,22 +49,21 @@ class FasterRCNN(chainer.Chain):
     """
 
     stride = 32
-    _accepted_return_values = ('rois', 'bboxes', 'labels', 'scores', 'masks')
+    _acceptable_return_values = ('rois', 'bboxes', 'labels', 'scores', 'masks')
 
     def __init__(self, extractor, rpn, bbox_head,
                  mask_head, return_values,
                  min_size=800, max_size=1333):
         for value_name in return_values:
-            if value_name not in self._accepted_return_values:
+            if value_name not in self._acceptable_return_values:
                 raise ValueError(
                     '{} is not included in accepted value names {}'.format(
-                        value_name, self._accepted_return_values))
+                        value_name, self._acceptable_return_values))
         self._return_values = return_values
 
         self._store_rpn_outputs = 'rois' in self._return_values
-        self._run_bbox = any([key in self._return_values
-                              for key in
-                              ['bboxes', 'labels', 'scores', 'masks']])
+        self._run_bbox = bool(
+            set(self._return_values) & {'bboxes', 'labels', 'scores', 'masks'})
         self._run_mask = 'masks' in self._return_values
         super(FasterRCNN, self).__init__()
 
@@ -139,10 +138,14 @@ class FasterRCNN(chainer.Chain):
             The table below shows the input and possible outputs.
 
         .. csv-table::
-            :header: name, shape, dtype, format
+            :header: Input name, shape, dtype, format
 
             :obj:`imgs`, ":math:`[(3, H, W)]`", :obj:`float32`, \
             "RGB, :math:`[0, 255]`"
+
+        .. csv-table::
+            :header: Output name, shape, dtype, format
+
             :obj:`rois`, ":math:`[(R', 4)]`", :obj:`float32`, \
             ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
             :obj:`bboxes`, ":math:`[(R, 4)]`", :obj:`float32`, \
