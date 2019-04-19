@@ -6,11 +6,11 @@ import chainer
 
 from chainercv import transforms
 
-from chainercv.transforms.image.resize import resize_backend
-
 
 def mask_to_segm(mask, bbox, segm_size, index=None):
     """Crop and resize mask.
+
+    This function requires cv2.
 
     Args:
         mask (~numpy.ndarray): See below.
@@ -43,16 +43,10 @@ def mask_to_segm(mask, bbox, segm_size, index=None):
     # pixel prior to resizing back to the original image resolution.
     # This prevents "top hat" artifacts. We therefore need to expand
     # the reference boxes by an appropriate factor.
-    backend = resize_backend()
-    if backend == 'cv2':
-        padded_segm_size = segm_size + pad * 2
-        expand_scale = padded_segm_size / segm_size
-        bbox = _expand_bbox(bbox, expand_scale)
-        resize_size = padded_segm_size
-        slice_ = slice(pad, -pad)
-    else:
-        resize_size = segm_size
-        slice_ = slice(0, segm_size)
+    padded_segm_size = segm_size + pad * 2
+    expand_scale = padded_segm_size / segm_size
+    bbox = _expand_bbox(bbox, expand_scale)
+    resize_size = padded_segm_size
     bbox = _integerize_bbox(bbox)
 
     segm = []
@@ -79,16 +73,20 @@ def mask_to_segm(mask, bbox, segm_size, index=None):
         cropped_m[y_offset:y_offset + y_max - y_min,
                   x_offset:x_offset + x_max - x_min] =\
             chainer.backends.cuda.to_cpu(mask[i, y_min:y_max, x_min:x_max])
-        sgm = transforms.resize(
-            cropped_m[None].astype(np.float32),
-            (resize_size, resize_size))[0].astype(np.int32)
-        segm.append(sgm[slice_, slice_])
+
+        with chainer.using_config('cv_resize_backend', 'cv2'):
+            sgm = transforms.resize(
+                cropped_m[None].astype(np.float32),
+                (resize_size, resize_size))[0].astype(np.int32)
+        segm.append(sgm[pad:-pad, pad:-pad])
 
     return np.array(segm, dtype=np.float32)
 
 
 def segm_to_mask(segm, bbox, size):
     """Recover mask from cropped and resized mask.
+
+    This function requires cv2.
 
     Args:
         segm (~numpy.ndarray): See below.
@@ -115,18 +113,11 @@ def segm_to_mask(segm, bbox, size):
     mask = np.zeros((len(bbox), H, W), dtype=np.bool)
 
     # As commented in mask_to_segm, cv2.resize needs adjust.
-    backend = resize_backend()
-    if backend == 'cv2':
-        padded_segm_size = segm_size + pad * 2
-        expand_scale = padded_segm_size / segm_size
-        bbox = _expand_bbox(bbox, expand_scale)
-        canvas_mask = np.zeros(
-            (padded_segm_size, padded_segm_size), dtype=np.float32)
-        slice_ = slice(pad, -pad)
-    else:
-        canvas_mask = np.zeros(
-            (segm_size, segm_size), dtype=np.float32)
-        slice_ = slice(0, segm_size)
+    padded_segm_size = segm_size + pad * 2
+    expand_scale = padded_segm_size / segm_size
+    bbox = _expand_bbox(bbox, expand_scale)
+    canvas_mask = np.zeros(
+        (padded_segm_size, padded_segm_size), dtype=np.float32)
     bbox = _integerize_bbox(bbox)
 
     for i, (bb, sgm) in enumerate(zip(bbox, segm)):
@@ -135,9 +126,11 @@ def segm_to_mask(segm, bbox, size):
         if bb_height == 0 or bb_width == 0:
             continue
 
-        canvas_mask[slice_, slice_] = sgm
-        crop_mask = transforms.resize(
-            canvas_mask[None], (bb_height, bb_width))[0]
+        canvas_mask[pad:-pad, pad:-pad] = sgm
+
+        with chainer.using_config('cv_resize_backend', 'cv2'):
+            crop_mask = transforms.resize(
+                canvas_mask[None], (bb_height, bb_width))[0]
         crop_mask = crop_mask > 0.5
 
         y_min = max(bb[0], 0)

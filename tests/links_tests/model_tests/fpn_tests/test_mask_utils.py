@@ -9,9 +9,14 @@ from chainer import testing
 from chainercv.links.model.fpn.mask_utils import mask_to_segm
 from chainercv.links.model.fpn.mask_utils import segm_to_mask
 
+try:
+    import cv2
+    _cv2_available = True
+except ImportError:
+    _cv2_available = False
 
-@testing.parameterize(
-    {'backend': 'cv2'}, {'backend': 'PIL'})
+
+@unittest.skipUnless(_cv2_available, 'cv2 is not installed')
 class TestMaskUtils(unittest.TestCase):
 
     def setUp(self):
@@ -35,8 +40,6 @@ class TestMaskUtils(unittest.TestCase):
         for i, bb in enumerate(self.bbox):
             bb = bb.astype(np.int32)
             self.mask[i, bb[0]:bb[2], bb[1]:bb[3]] = 1
-
-        chainer.config.cv_resize_backend = self.backend
 
     def test_segm_to_mask(self):
         mask = segm_to_mask(self.segm, self.bbox, self.size)

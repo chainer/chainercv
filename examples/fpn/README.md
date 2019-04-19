@@ -31,6 +31,8 @@ Note that this code requires `chainermn` module.
 $ mpiexec -n <#gpu> python train_multi.py [--model faster_rcnn_fpn_resnet50|faster_rcnn_fpn_resnet101|mask_rcnn_fpn_resnet50|mask_rcnn_fpn_resnet101] [--batchsize <batchsize>]
 ```
 
+Note that `cv2` is required for training Mask R-CNN.
+
 ## References
 1. Tsung-Yi Lin et al. "Feature Pyramid Networks for Object Detection" CVPR 2017
 2. Kaiming He et al. "Mask R-CNN" ICCV 2017

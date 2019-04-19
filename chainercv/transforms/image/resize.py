@@ -11,25 +11,6 @@ except ImportError:
     _cv2_available = False
 
 
-def resize_backend():
-    if chainer.config.cv_resize_backend == 'cv2':
-        if _cv2_available:
-            return 'cv2'
-        else:
-            warnings.warn(
-                'Although `chainer.config.cv_resize_backend == "cv2"`, '
-                'cv2 is not found. As a fallback option, resize uses '
-                'PIL. Either install cv2 or set '
-                '`chainer.global_config.cv_resize_backend = "PIL"` to '
-                'suppress this warning.')
-            return 'PIL'
-    elif chainer.config.cv_resize_backend == 'PIL':
-        return 'PIL'
-    else:
-        raise ValueError('chainer.config.cv_resize_backend should be '
-                         'either "cv2" or "PIL".')
-
-
 def _resize_cv2(img, size, interpolation):
     img = img.transpose((1, 2, 0))
     if interpolation == PIL.Image.NEAREST:
@@ -65,6 +46,8 @@ def resize(img, size, interpolation=PIL.Image.BILINEAR):
     The backend used by :func:`resize` is configured by
     :obj:`chainer.global_config.cv_resize_backend`.
     Two backends are supported: "cv2" and "PIL".
+    If this is :obj:`None`, "cv2" is used whenever "cv2" is installed,
+    and "PIL" is used when "cv2" is not installed.
 
     Args:
         img (~numpy.ndarray): An array to be transformed.
@@ -84,8 +67,15 @@ def resize(img, size, interpolation=PIL.Image.BILINEAR):
         assert len(size) == 2
         return np.empty((0,) + size, dtype=img.dtype)
 
-    backend = resize_backend()
-    if backend == 'cv2':
+    if chainer.config.cv_resize_backend is None:
+        if _cv2_available:
+            return _resize_cv2(img, size, interpolation)
+        else:
+            return _resize_pil(img, size, interpolation)
+    elif chainer.config.cv_resize_backend == 'cv2':
+        if not _cv2_available:
+            raise ValueError('cv2 is not installed even though '
+                             'chainer.config.cv_resize_backend == \'cv2\'')
         return _resize_cv2(img, size, interpolation)
-    elif backend == 'PIL':
+    elif chainer.config.cv_resize_backend == 'PIL':
         return _resize_pil(img, size, interpolation)
