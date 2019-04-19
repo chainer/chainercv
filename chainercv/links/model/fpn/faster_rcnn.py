@@ -75,8 +75,8 @@ class FasterRCNN(chainer.Chain):
             if self._run_mask:
                 self.mask_head = mask_head
 
-        self.min_size = min_size
-        self.max_size = max_size
+        self._min_size = min_size
+        self._max_size = max_size
 
         self.use_preset('visualize')
 

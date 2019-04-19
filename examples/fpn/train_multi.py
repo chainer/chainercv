@@ -229,13 +229,13 @@ def main():
             COCOBboxDataset(
                 data_dir=args.data_dir, year='2017', split='train'),
             ('img', 'bbox', 'label'),
-            Transform(model.min_size, model.max_size, model.extractor.mean))
+            Transform(800, 1333, model.extractor.mean))
     elif mode == 'instance_segmentation':
         train = TransformDataset(
             COCOInstanceSegmentationDataset(
                 data_dir=args.data_dir, split='train', return_bbox=True),
             ('img', 'bbox', 'label', 'mask'),
-            Transform(model.min_size, model.max_size, model.extractor.mean))
+            Transform(800, 1333, model.extractor.mean))
 
     if comm.rank == 0:
         indices = np.arange(len(train))
