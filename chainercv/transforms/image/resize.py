@@ -1,7 +1,6 @@
 import chainer
 import numpy as np
 import PIL
-import warnings
 
 
 try:
