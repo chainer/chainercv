@@ -1,7 +1,9 @@
 #! /usr/bin/env sh
 set -eux
 
-STABLE=5.3.0
+STABLE=5.4.0
+# 6.0.0rc1 does not work
+# https://github.com/chainer/chainer/issues/6825
 LATEST=6.0.0b3
 
 systemctl stop docker.service
