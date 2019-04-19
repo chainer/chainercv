@@ -75,7 +75,7 @@ def main():
         p.start()
         p.join()
 
-    comm = chainermn.create_communicator()
+    comm = chainermn.create_communicator('pure_nccl')
     device = comm.intra_rank
 
     if args.model == 'ssd300':

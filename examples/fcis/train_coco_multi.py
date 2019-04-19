@@ -57,7 +57,7 @@ def main():
         p.join()
 
     # chainermn
-    comm = chainermn.create_communicator()
+    comm = chainermn.create_communicator('pure_nccl')
     device = comm.intra_rank
 
     np.random.seed(args.seed)
