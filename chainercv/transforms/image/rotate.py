@@ -1,7 +1,6 @@
 from __future__ import division
 import numpy as np
 import PIL
-import warnings
 
 import chainer
 
