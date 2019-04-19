@@ -3,14 +3,13 @@ from __future__ import division
 import numpy as np
 import unittest
 
-import chainer
 from chainer import testing
 
 from chainercv.links.model.fpn.mask_utils import mask_to_segm
 from chainercv.links.model.fpn.mask_utils import segm_to_mask
 
 try:
-    import cv2
+    import cv2  # NOQA
     _cv2_available = True
 except ImportError:
     _cv2_available = False

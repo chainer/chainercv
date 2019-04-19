@@ -8,7 +8,7 @@ from chainer import testing
 from chainercv.transforms import resize
 
 try:
-    import cv2
+    import cv2  # NOQA
     _cv2_available = True
 except ImportError:
     _cv2_available = False
@@ -47,13 +47,13 @@ class TestResize(unittest.TestCase):
 
 
 @unittest.skipUnless(not _cv2_available, 'cv2 is installed')
-class TestRaiseError(unittest.TestCase):
+class TestResizeRaiseErrorWithCv2(unittest.TestCase):
 
-    def test_resize_raise_error(self):
+    def test_resize_raise_error_with_cv2(self):
         img = np.random.uniform(size=(3, 24, 32))
         chainer.config.cv_resize_backend = 'cv2'
         with self.assertRaises(ValueError):
-            resize(img, size=(32, 64), interpolation=self.interpolation)
+            resize(img, size=(32, 64))
 
 
 testing.run_module(__name__, __file__)
