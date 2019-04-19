@@ -174,7 +174,7 @@ def main():
     parser.add_argument('--batchsize', default=2, type=int)
     parser.add_argument('--out', default='result')
     parser.add_argument('--iteration', default=None, type=int)
-    parser.add_argument('--communicator', default='hierarchical')
+    parser.add_argument('--communicator', default='pure_nccl')
     args = parser.parse_args()
 
     dataset_cfgs = {

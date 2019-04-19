@@ -185,7 +185,6 @@ def main():
     parser.add_argument('--step', type=int, nargs='*', default=[60000, 80000])
     parser.add_argument('--out', default='result')
     parser.add_argument('--resume')
-    parser.add_argument('--communicator', default='hierarchical')
     args = parser.parse_args()
 
     # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
@@ -195,7 +194,7 @@ def main():
         p.start()
         p.join()
 
-    comm = chainermn.create_communicator(args.communicator)
+    comm = chainermn.create_communicator('pure_nccl')
     device = comm.intra_rank
 
     if args.model == 'faster_rcnn_fpn_resnet50':
