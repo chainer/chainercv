@@ -174,7 +174,6 @@ def converter(batch, device=None):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data-dir', default='auto')
     parser.add_argument(
         '--model',
         choices=('mask_rcnn_fpn_resnet50', 'mask_rcnn_fpn_resnet101',
@@ -225,14 +224,12 @@ def main():
 
     if mode == 'bbox':
         train = TransformDataset(
-            COCOBboxDataset(
-                data_dir=args.data_dir, year='2017', split='train'),
+            COCOBboxDataset(year='2017', split='train'),
             ('img', 'bbox', 'label'),
             Transform(800, 1333, model.extractor.mean))
     elif mode == 'instance_segmentation':
         train = TransformDataset(
-            COCOInstanceSegmentationDataset(
-                data_dir=args.data_dir, split='train', return_bbox=True),
+            COCOInstanceSegmentationDataset(split='train', return_bbox=True),
             ('img', 'bbox', 'label', 'mask'),
             Transform(800, 1333, model.extractor.mean))
 
