@@ -31,7 +31,7 @@ def test_config(python, chainer, optional, target):
     if target == 'cpu':
         value['requirement']['cpu'] = 6
         value['requirement']['memory'] = 36
-        value['time_limit'] = {'seconds': 1800}
+        value['time_limit'] = {'seconds': 3600}
         value['command'] = 'sh .pfnci/tests.sh'
     elif target == 'gpu':
         key += '.gpu'
