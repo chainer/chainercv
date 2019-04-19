@@ -34,8 +34,6 @@ EOD
 elif [ ${CHAINER} = master ]; then
     CHAINER_MASTER=$(git ls-remote https://github.com/chainer/chainer.git master | cut -f1)
     CUPY_MASTER=$(gsutil -q cp gs://tmp-pfn-public-ci/cupy/wheel/master -)
-    echo "Chainer: ${CHAINER_MASTER}"
-    echo "CuPy: ${CUPY_MASTER}"
 
     gsutil -q cp gs://tmp-pfn-public-ci/cupy/wheel/${CUPY_MASTER}/cuda9.2/*.whl .
     cat - << EOD > install.sh
