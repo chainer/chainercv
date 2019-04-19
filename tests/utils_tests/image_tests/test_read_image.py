@@ -51,7 +51,8 @@ def _create_parameters():
 
 
 @testing.parameterize(*testing.product_dict(
-    _create_parameters(), [{'backend': 'cv2'}, {'backend': 'PIL'}]))
+    _create_parameters(),
+    [{'backend': 'cv2'}, {'backend': 'PIL'}, {'backend': None}]))
 class TestReadImage(unittest.TestCase):
 
     def setUp(self):
@@ -87,6 +88,8 @@ class TestReadImage(unittest.TestCase):
             self.file.seek(0)
 
     def test_read_image_as_color(self):
+        if self.backend == 'cv2' and not _cv2_available:
+            return
         img = read_image(self.file, dtype=self.dtype, alpha=self.alpha)
 
         self.assertEqual(img.shape, (3,) + self.size)
@@ -98,6 +101,8 @@ class TestReadImage(unittest.TestCase):
                 np.broadcast_to(self.img, (3,) + self.size).astype(self.dtype))
 
     def test_read_image_as_grayscale(self):
+        if self.backend == 'cv2' and not _cv2_available:
+            return
         img = read_image(
             self.file, dtype=self.dtype, color=False, alpha=self.alpha)
 
@@ -109,9 +114,16 @@ class TestReadImage(unittest.TestCase):
             np.testing.assert_equal(img, self.img.astype(self.dtype))
 
     def test_read_image_mutable(self):
+        if self.backend == 'cv2' and not _cv2_available:
+            return
         img = read_image(self.file, dtype=self.dtype, alpha=self.alpha)
         img[:] = 0
         np.testing.assert_equal(img, 0)
+
+    @unittest.skipUnless(not _cv2_available, 'cv2 is installed')
+    def test_read_image_raise_error_with_cv2(self):
+        with self.assertRaises(ValueError):
+            read_image(self.file)
 
 
 @testing.parameterize(*_create_parameters())

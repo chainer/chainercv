@@ -98,6 +98,8 @@ def read_image(file, dtype=np.float32, color=True, alpha=None):
     The backend used by :func:`read_image` is configured by
     :obj:`chainer.global_config.cv_read_image_backend`.
     Two backends are supported: "cv2" and "PIL".
+    If this is :obj:`None`, "cv2" is used whenever "cv2" is installed,
+    and "PIL" is used when "cv2" is not installed.
 
     Args:
         file (string or file-like object): A path of image file or
@@ -120,17 +122,16 @@ def read_image(file, dtype=np.float32, color=True, alpha=None):
     Returns:
         ~numpy.ndarray: An image.
     """
-    if chainer.config.cv_read_image_backend == 'cv2':
+    if chainer.config.cv_read_image_backend is None:
         if _cv2_available:
             return _read_image_cv2(file, dtype, color, alpha)
         else:
-            warnings.warn(
-                'Although `chainer.config.cv_read_image_backend == "cv2"`, '
-                'cv2 is not found. As a fallback option, read_image uses '
-                'PIL. Either install cv2 or set '
-                '`chainer.global_config.cv_read_image_backend = "PIL"` '
-                'to suppress this warning.')
             return _read_image_pil(file, dtype, color, alpha)
+    elif chainer.config.cv_read_image_backend == 'cv2':
+        if not _cv2_available:
+            raise ValueError('cv2 is not installed even though '
+                             'chainer.config.cv_read_image_backend == \'cv2\'')
+        return _read_image_cv2(file, dtype, color, alpha)
     elif chainer.config.cv_read_image_backend == 'PIL':
         return _read_image_pil(file, dtype, color, alpha)
     else:
