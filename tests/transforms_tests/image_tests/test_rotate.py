@@ -73,9 +73,9 @@ class TestRotate(unittest.TestCase):
 class TestRotateRaiseErrorWithCv2(unittest.TestCase):
 
     def test_rotate_raise_error_with_cv2(self):
-        img = np.random.uniform(0, 256, size=self.size).astype(np.float32)
+        img = np.random.uniform(0, 256, size=(3, 32, 24)).astype(np.float32)
         angle = random.uniform(-180, 180)
-        chainer.config.cv_resize_backend = 'cv2'
+        chainer.config.cv_rotate_backend = 'cv2'
         with self.assertRaises(ValueError):
             rotate(img, angle)
 

@@ -120,10 +120,10 @@ class TestReadImage(unittest.TestCase):
         img[:] = 0
         np.testing.assert_equal(img, 0)
 
-    @unittest.skipUnless(not _cv2_available, 'cv2 is installed')
     def test_read_image_raise_error_with_cv2(self):
-        with self.assertRaises(ValueError):
-            read_image(self.file)
+        if self.backend == 'cv2' and not _cv2_available:
+            with self.assertRaises(ValueError):
+                read_image(self.file)
 
 
 @testing.parameterize(*_create_parameters())
