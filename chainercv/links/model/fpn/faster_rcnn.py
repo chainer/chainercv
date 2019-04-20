@@ -236,7 +236,7 @@ class FasterRCNN(chainer.Chain):
         resized_imgs = []
         for img in imgs:
             img, scale = scale_img(
-                img, self.min_size, self.max_size)
+                img, self._min_size, self._max_size)
             img -= self.extractor.mean
             scales.append(scale)
             resized_imgs.append(img)

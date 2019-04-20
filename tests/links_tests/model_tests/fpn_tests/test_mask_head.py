@@ -13,6 +13,12 @@ from chainercv.links.model.fpn import MaskHead
 
 from chainercv.utils import mask_to_bbox
 
+try:
+    import cv2  # NOQA
+    _cv2_available = True
+except ImportError:
+    _cv2_available = False
+
 
 def _random_array(xp, shape):
     return xp.array(
@@ -137,6 +143,7 @@ class TestMaskHead(unittest.TestCase):
             self.assertEqual(masks[n].shape[0], labels[n].shape[0])
             self.assertEqual(masks[n].shape[1:], sizes[n])
 
+    @unittest.skipUnless(_cv2_available, 'cv2 is not installed')
     def test_decode_cpu(self):
         self._check_decode()
 
@@ -190,10 +197,12 @@ class TestMaskHeadLoss(unittest.TestCase):
             self.assertEqual(gt_segms[l].dtype, np.float32)
             self.assertEqual(gt_mask_labels[l].dtype, np.int32)
 
+    @unittest.skipUnless(_cv2_available, 'cv2 is not installed')
     def test_mask_head_loss_pre_cpu(self):
         self._check_mask_head_loss_pre(np)
 
     @attr.gpu
+    @unittest.skipUnless(_cv2_available, 'cv2 is not installed')
     def test_mask_head_loss_pre_gpu(self):
         import cupy
         self._check_mask_head_loss_pre(cupy)
