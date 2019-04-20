@@ -51,6 +51,10 @@ class MultiboxTrainChain(chainer.Chain):
 
         return loss
 
+    # https://github.com/chainer/chainer/issues/6759
+    def cleargrads(self):
+        self.zerograds()
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -71,7 +75,7 @@ def main():
         p.start()
         p.join()
 
-    comm = chainermn.create_communicator()
+    comm = chainermn.create_communicator('pure_nccl')
     device = comm.intra_rank
 
     if args.model == 'ssd300':

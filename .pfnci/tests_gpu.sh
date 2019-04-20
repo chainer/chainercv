@@ -11,7 +11,7 @@ docker run --runtime=nvidia --interactive --rm \
        --env MPLBACKEND=agg \
        ${DOCKER_IMAGE} \
        sh -ex << EOD
-pip${PYTHON} install --user -e .
+. ./install.sh
 python${PYTHON} -m pytest --color=no \
                 -m 'not pfnci_skip and gpu and not mpi' tests/
 if which mpiexec; then

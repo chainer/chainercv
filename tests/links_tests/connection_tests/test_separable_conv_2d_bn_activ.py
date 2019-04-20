@@ -17,7 +17,6 @@ def _add_one(x):
 
 @testing.parameterize(*testing.product({
     'dilate': [1, 2],
-    'args_style': 'explicit',
     'activ': ['relu', 'add_one', None],
 }))
 class TestSeparableConv2DBNActiv(unittest.TestCase):
