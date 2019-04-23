@@ -219,9 +219,11 @@ class TestEvalDetectionVOCAP(unittest.TestCase):
         base_url = 'https://chainercv-models.preferred.jp/tests'
 
         cls.dataset = np.load(request.urlretrieve(os.path.join(
-            base_url, 'eval_detection_voc_dataset_2017_06_06.npz'))[0])
+            base_url, 'eval_detection_voc_dataset_2017_06_06.npz'))[0],
+            allow_pickle=True)
         cls.result = np.load(request.urlretrieve(os.path.join(
-            base_url, 'eval_detection_voc_result_2017_06_06.npz'))[0])
+            base_url, 'eval_detection_voc_result_2017_06_06.npz'))[0],
+            allow_pickle=True)
 
     def test_eval_detection_voc(self):
         pred_bboxes = self.result['bboxes']
