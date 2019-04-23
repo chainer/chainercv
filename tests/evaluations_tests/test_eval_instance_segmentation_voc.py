@@ -157,10 +157,12 @@ class TestEvalInstanceSegmentationVOCAP(unittest.TestCase):
         cls.dataset = np.load(request.urlretrieve(os.path.join(
             base_url,
             'eval_instance_segmentation_voc_dataset_2018_04_04.npz'))[0],
+            allow_pickle=True,
             encoding='latin1')
         cls.result = np.load(request.urlretrieve(os.path.join(
             base_url,
             'eval_instance_segmentation_voc_result_2018_04_04.npz'))[0],
+            allow_pickle=True,
             encoding='latin1')
 
     def test_eval_instance_segmentation_voc(self):

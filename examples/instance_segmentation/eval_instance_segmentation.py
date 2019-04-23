@@ -10,12 +10,18 @@ from chainercv.datasets import SBDInstanceSegmentationDataset
 from chainercv.evaluations import eval_instance_segmentation_coco
 from chainercv.evaluations import eval_instance_segmentation_voc
 from chainercv.experimental.links import FCISResNet101
+from chainercv.links import MaskRCNNFPNResNet101
+from chainercv.links import MaskRCNNFPNResNet50
 from chainercv.utils import apply_to_iterator
 from chainercv.utils import ProgressHook
 
 models = {
     # model: (class, dataset -> pretrained_model, default batchsize)
     'fcis_resnet101': (FCISResNet101, {'sbd': 'sbd', 'coco': 'coco'}, 1),
+    'mask_rcnn_fpn_resnet50': (MaskRCNNFPNResNet50,
+                               {}, 1),
+    'mask_rcnn_fpn_resnet101': (MaskRCNNFPNResNet101,
+                                {}, 1),
 }
 
 
