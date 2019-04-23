@@ -33,7 +33,6 @@ For more details, please read :func:`FasterRCNN.predict`.
 .. toctree::
 
    links/faster_rcnn
-   links/fpn
    links/ssd
    links/yolo
 
@@ -50,6 +49,14 @@ For more details, please read :func:`SegNetBasic.predict`.
 
    links/segnet
    links/deeplab
+
+
+Links for Multiple Tasks
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. toctree::
+
+   links/fpn
 
 
 Classifiers
