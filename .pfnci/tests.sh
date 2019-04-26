@@ -1,7 +1,7 @@
 #! /usr/bin/env sh
 set -eux
 
-. .pfnci/common.sh
+. $(dirname $0)/common.sh
 
 apt-get install -y --no-install-recommends unzip
 gsutil -q cp gs://chainercv-pfn-public-ci/datasets-tiny.zip .

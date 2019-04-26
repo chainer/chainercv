@@ -1,7 +1,7 @@
 #! /usr/bin/env sh
 set -eux
 
-. .pfnci/common.sh
+. $(dirname $0)/common.sh
 
 docker run --runtime=nvidia --interactive --rm \
        --volume $(pwd):/root/ --workdir /root/ \
