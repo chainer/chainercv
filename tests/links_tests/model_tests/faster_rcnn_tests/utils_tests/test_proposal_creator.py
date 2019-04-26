@@ -36,7 +36,7 @@ class TestProposalCreator(unittest.TestCase):
             n_test_post_nms=self.n_test_post_nms,
             min_size=0)
 
-        chainer.config.train = self.train
+        chainer.global_config.train = self.train
 
     def check_proposal_creator(
             self, proposal_creator,

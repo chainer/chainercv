@@ -33,7 +33,7 @@ class TestFasterRCNNVGG16(unittest.TestCase):
             self.n_fg_class, pretrained_model=None,
             proposal_creator_params=proposal_creator_params)
 
-        chainer.config.train = self.train
+        chainer.global_config.train = self.train
 
     def check_call(self):
         xp = self.link.xp
