@@ -48,5 +48,5 @@ EOD
 fi
 
 cat - << EOD >> install.sh
-pip${PYTHON} install -e .
+pip${PYTHON} install -e chainercv/
 EOD
