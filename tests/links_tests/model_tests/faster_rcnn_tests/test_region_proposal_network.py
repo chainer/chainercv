@@ -39,7 +39,7 @@ class TestRegionProposalNetwork(unittest.TestCase):
         self.x = np.random.uniform(size=(self.B, C, H, W)).astype(np.float32)
         self.img_size = (H * feat_stride, W * feat_stride)
 
-        chainer.config.train = self.train
+        chainer.global_config.train = self.train
 
     def _check_call(self, x, img_size, scales):
         _, _, H, W = x.shape

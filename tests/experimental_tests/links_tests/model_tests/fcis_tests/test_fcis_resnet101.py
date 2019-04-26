@@ -37,7 +37,7 @@ class TestFCISResNet101(unittest.TestCase):
             iter2=self.iter2,
             proposal_creator_params=proposal_creator_params)
 
-        chainer.config.train = self.train
+        chainer.global_config.train = self.train
 
     def check_call(self):
         xp = self.link.xp
