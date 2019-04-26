@@ -16,7 +16,9 @@ mount -t tmpfs tmpfs ${TEMP}/ -o size=100%
 
 if [ ${REPOSITORY} = chainer ]; then
     CHAINER=
+    CHAINERCV=
     cp -a . ${TEMP}/chainer
+    mv ${TEMP}/chainer/chainercv/ ${TEMP}/
 elif [ ${REPOSITORY} = chainercv ]; then
     CHAINERCV=
     cp -a . ${TEMP}/chainercv
@@ -45,11 +47,8 @@ else
     echo pip${PYTHON} install cupy-*-cp${PYTHON}*-cp${PYTHON}*-linux_x86_64.whl >> install.sh
 fi
 
-if [ ${CHAINERCV} = master ]; then
-    CHAINERCV_MASTER=$(git ls-remote https://github.com/chainer/chainercv.git master | cut -f1)
-    git clone https://github.com/chainer/chainercv.git --depth 1 --branch ${CHAINERCV_MASTER}
-fi
 echo pip${PYTHON} install -e chainercv/ >> install.sh
+
 if [ ${OPTIONAL_MODULES} -gt 0 ]; then
     DOCKER_IMAGE=devel
 else
