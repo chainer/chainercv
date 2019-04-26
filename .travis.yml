@@ -16,8 +16,8 @@ script:
     flake8
     hacking==1.0.0
     mock
-    pytest-xdist
+    pytest
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
   - python style_checker.py --exclude caffe_pb2.py -- .
-  - pytest -n $(nproc) -m 'not gpu and not slow' tests
+  - pytest -m 'not gpu and not slow' tests
