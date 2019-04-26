@@ -56,7 +56,7 @@ def _create_parameters():
 class TestReadImage(unittest.TestCase):
 
     def setUp(self):
-        chainer.config.cv_read_image_backend = self.backend
+        chainer.global_config.cv_read_image_backend = self.backend
 
         if self.file_obj:
             self.f = tempfile.TemporaryFile()
@@ -161,11 +161,11 @@ class TestReadImageDifferentBackends(unittest.TestCase):
 
     @unittest.skipUnless(_cv2_available, 'cv2 is not installed')
     def test_read_image_different_backends_as_color(self):
-        chainer.config.cv_read_image_backend = 'cv2'
+        chainer.global_config.cv_read_image_backend = 'cv2'
         cv2_img = read_image(
             self.file, dtype=self.dtype, color=self.color, alpha=self.alpha)
 
-        chainer.config.cv_read_image_backend = 'PIL'
+        chainer.global_config.cv_read_image_backend = 'PIL'
         pil_img = read_image(
             self.file, dtype=self.dtype, color=self.color, alpha=self.alpha)
 
