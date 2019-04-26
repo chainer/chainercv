@@ -14,7 +14,6 @@ systemctl start docker.service
 TEMP=$(mktemp -d)
 mount -t tmpfs tmpfs ${TEMP}/ -o size=100%
 
-REPOSITORY=${REPOSITORY:-chainercv}
 if [ ${REPOSITORY} = chainer ]; then
     cp -a . ${TEMP}/chainer
 elif [ ${REPOSITORY} = chainercv ]; then
