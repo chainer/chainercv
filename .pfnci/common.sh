@@ -15,12 +15,12 @@ TEMP=$(mktemp -d)
 mount -t tmpfs tmpfs ${TEMP}/ -o size=100%
 
 REPOSITORY=${REPOSITORY:-chainercv}
-if [ ${REPOSITORY} = chainer ]; then
-    CHAINER=
+if [ ${REPOSITORY} = chainercv ]; then
+    cp -a . ${TEMP}/chainercv
+elif [ ${REPOSITORY} = chainer ]; then
+    CHAINER=local
     cp -a . ${TEMP}/chainer
     mv ${TEMP}/chainer/chainercv/ ${TEMP}/
-else
-    cp -a . ${TEMP}/chainercv
 fi
 cd ${TEMP}/
 
@@ -40,7 +40,7 @@ elif [ ${CHAINER} = master ]; then
     CUPY_MASTER=$(gsutil -q cp gs://tmp-pfn-public-ci/cupy/wheel/master -)
     gsutil -q cp gs://tmp-pfn-public-ci/cupy/wheel/${CUPY_MASTER}/cuda9.2/*.whl .
     echo pip${PYTHON} install cupy-*-cp${PYTHON}*-cp${PYTHON}*-linux_x86_64.whl >> install.sh
-else
+elif [ ${CHAINER} = local ]; then
     echo pip${PYTHON} install -e chainer/ >> install.sh
 
     CUPY_MASTER=$(gsutil -q cp gs://tmp-pfn-public-ci/cupy/wheel/master -)
