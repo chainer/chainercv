@@ -48,8 +48,6 @@ else
     echo pip${PYTHON} install cupy-*-cp${PYTHON}*-cp${PYTHON}*-linux_x86_64.whl >> install.sh
 fi
 
-fi
-
 echo pip${PYTHON} install -e chainercv/ >> install.sh
 
 if [ ${OPTIONAL_MODULES} -gt 0 ]; then
