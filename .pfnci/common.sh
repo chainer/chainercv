@@ -13,13 +13,15 @@ systemctl start docker.service
 
 TEMP=$(mktemp -d)
 mount -t tmpfs tmpfs ${TEMP}/ -o size=100%
+cp -a . ${TEMP}/chainercv
+cd ${TEMP}/
 
 if [ ${OPTIONAL_MODULES} -gt 0 ]; then
     DOCKER_IMAGE=devel
 else
     DOCKER_IMAGE=devel-minimal
 fi
-docker build -t ${DOCKER_IMAGE} .pfnci/docker/${DOCKER_IMAGE}/
+docker build -t ${DOCKER_IMAGE} chainercv/.pfnci/docker/${DOCKER_IMAGE}/
 
 if [ ${CHAINER} = stable ]; then
     cat - << EOD > install.sh
