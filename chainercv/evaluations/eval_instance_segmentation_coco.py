@@ -140,8 +140,7 @@ def eval_instance_segmentation_coco(
     if not _available:
         raise ValueError(
             'Please install pycocotools \n'
-            'pip install -e \'git+https://github.com/cocodataset/coco.git'
-            '#egg=pycocotools&subdirectory=PythonAPI\'')
+            'pip install pycocotools')
 
     gt_coco = pycocotools.coco.COCO()
     pred_coco = pycocotools.coco.COCO()

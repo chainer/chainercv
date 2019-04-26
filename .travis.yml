@@ -46,7 +46,7 @@ install:
       export LD_LIBRARY_PATH="$HOME/miniconda/envs/chainercv/lib:$LD_LIBRARY_PATH";
       conda env create -f environment.yml;
       source activate chainercv;
-      (cd ..; pip install cython==0.28 'git+https://github.com/cocodataset/coco.git#egg=pycocotools&subdirectory=PythonAPI')
+      (cd ..; pip install cython==0.28 pycocotools)
     else
       conda env create -f environment_minimum.yml;
       source activate chainercv_minimum;

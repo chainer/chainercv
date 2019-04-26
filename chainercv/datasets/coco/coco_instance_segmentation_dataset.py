@@ -78,8 +78,7 @@ class COCOInstanceSegmentationDataset(COCOInstancesBaseDataset):
         if not _available:
             raise ValueError(
                 'Please install pycocotools \n'
-                'pip install -e \'git+https://github.com/cocodataset/coco.git'
-                '#egg=pycocotools&subdirectory=PythonAPI\'')
+                'pip install pycocotools')
         super(COCOInstanceSegmentationDataset, self).__init__(
             data_dir, split, year, use_crowded)
 

@@ -116,8 +116,7 @@ class InstanceSegmentationCOCOEvaluator(chainer.training.extensions.Evaluator):
         if not _available:
             raise ValueError(
                 'Please install pycocotools \n'
-                'pip install -e \'git+https://github.com/cocodataset/coco.git'
-                '#egg=pycocotools&subdirectory=PythonAPI\'')
+                'pip install pycocotools')
         super(InstanceSegmentationCOCOEvaluator, self).__init__(
             iterator, target)
         self.label_names = label_names

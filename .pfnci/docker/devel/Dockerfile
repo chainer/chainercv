@@ -77,7 +77,7 @@ RUN pip2 install --no-cache-dir \
     matplotlib==2.1 \
     mock \
     mpi4py \
-    'git+https://github.com/cocodataset/coco.git#egg=pycocotools&subdirectory=PythonAPI' \
+    pycocotools \
     pytest \
     scipy \
     && pip3 install --no-cache-dir \
@@ -85,6 +85,6 @@ RUN pip2 install --no-cache-dir \
     matplotlib \
     mock \
     mpi4py \
-    'git+https://github.com/cocodataset/coco.git#egg=pycocotools&subdirectory=PythonAPI' \
+    pycocotools \
     pytest \
     scipy
