@@ -15,8 +15,10 @@ TEMP=$(mktemp -d)
 mount -t tmpfs tmpfs ${TEMP}/ -o size=100%
 
 if [ ${REPOSITORY} = chainer ]; then
+    CHAINER=
     cp -a . ${TEMP}/chainer
 elif [ ${REPOSITORY} = chainercv ]; then
+    CHAINERCV=
     cp -a . ${TEMP}/chainercv
 fi
 cd ${TEMP}/
