@@ -10,7 +10,7 @@ install:
   - pip install -e .
 
 script:
-  - >
+  - >-
     pip install
         autopep8
         flake8
