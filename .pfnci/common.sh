@@ -14,13 +14,12 @@ systemctl start docker.service
 TEMP=$(mktemp -d)
 mount -t tmpfs tmpfs ${TEMP}/ -o size=100%
 
+REPOSITORY=${REPOSITORY:-chainercv}
 if [ ${REPOSITORY} = chainer ]; then
     CHAINER=
-    CHAINERCV=
     cp -a . ${TEMP}/chainer
     mv ${TEMP}/chainer/chainercv/ ${TEMP}/
-elif [ ${REPOSITORY} = chainercv ]; then
-    CHAINERCV=
+else
     cp -a . ${TEMP}/chainercv
 fi
 cd ${TEMP}/
@@ -33,18 +32,22 @@ elif [ ${CHAINER} = latest ]; then
     echo pip${PYTHON} install \
          chainer==${LATEST} \
          cupy-cuda92==${LATEST} >> install.sh
-else
-    if [ ${CHAINER} = master ]; then
-        CHAINER_MASTER=$(git ls-remote https://github.com/chainer/chainer.git master | cut -f1)
-        echo pip${PYTHON} install \
-             git+https://github.com/chainer/chainer.git@${CHAINER_MASTER}#egg=chainer >> install.sh
-    else
-        echo pip${PYTHON} install -e chainer/ >> install.sh
-    fi
+elif [ ${CHAINER} = master ]; then
+    CHAINER_MASTER=$(git ls-remote https://github.com/chainer/chainer.git master | cut -f1)
+    echo pip${PYTHON} install \
+         git+https://github.com/chainer/chainer.git@${CHAINER_MASTER}#egg=chainer >> install.sh
 
     CUPY_MASTER=$(gsutil -q cp gs://tmp-pfn-public-ci/cupy/wheel/master -)
     gsutil -q cp gs://tmp-pfn-public-ci/cupy/wheel/${CUPY_MASTER}/cuda9.2/*.whl .
     echo pip${PYTHON} install cupy-*-cp${PYTHON}*-cp${PYTHON}*-linux_x86_64.whl >> install.sh
+else
+    echo pip${PYTHON} install -e chainer/ >> install.sh
+
+    CUPY_MASTER=$(gsutil -q cp gs://tmp-pfn-public-ci/cupy/wheel/master -)
+    gsutil -q cp gs://tmp-pfn-public-ci/cupy/wheel/${CUPY_MASTER}/cuda9.2/*.whl .
+    echo pip${PYTHON} install cupy-*-cp${PYTHON}*-cp${PYTHON}*-linux_x86_64.whl >> install.sh
+fi
+
 fi
 
 echo pip${PYTHON} install -e chainercv/ >> install.sh

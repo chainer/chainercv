@@ -22,7 +22,6 @@ def test_config(python, chainer, optional, target):
         ('time_limit', None),
         ('command', None),
         ('environment_variables', [
-            ('REPOSITORY', 'chainercv'),
             ('PYTHON', str(python)),
             ('CHAINER', chainer),
             ('OPTIONAL_MODULES', '1' if optional else '0'),

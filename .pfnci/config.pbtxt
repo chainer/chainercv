@@ -27,10 +27,6 @@ configs {
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "2"
     }
@@ -54,10 +50,6 @@ configs {
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
-    environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -85,10 +77,6 @@ configs {
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "2"
     }
@@ -112,10 +100,6 @@ configs {
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
-    environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -144,10 +128,6 @@ configs {
     }
     command: "sh .pfnci/examples_tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "2"
     }
@@ -174,10 +154,6 @@ configs {
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "2"
     }
@@ -201,10 +177,6 @@ configs {
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
-    environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -232,10 +204,6 @@ configs {
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "2"
     }
@@ -259,10 +227,6 @@ configs {
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
-    environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -291,10 +255,6 @@ configs {
     }
     command: "sh .pfnci/examples_tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "2"
     }
@@ -321,10 +281,6 @@ configs {
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "2"
     }
@@ -348,10 +304,6 @@ configs {
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
-    environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -379,10 +331,6 @@ configs {
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "2"
     }
@@ -406,10 +354,6 @@ configs {
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
-    environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -438,10 +382,6 @@ configs {
     }
     command: "sh .pfnci/examples_tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "2"
     }
@@ -468,10 +408,6 @@ configs {
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "3"
     }
@@ -495,10 +431,6 @@ configs {
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
-    environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -526,10 +458,6 @@ configs {
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "3"
     }
@@ -553,10 +481,6 @@ configs {
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
-    environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -585,10 +509,6 @@ configs {
     }
     command: "sh .pfnci/examples_tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "3"
     }
@@ -615,10 +535,6 @@ configs {
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "3"
     }
@@ -642,10 +558,6 @@ configs {
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
-    environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -673,10 +585,6 @@ configs {
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "3"
     }
@@ -700,10 +608,6 @@ configs {
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
-    environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -732,10 +636,6 @@ configs {
     }
     command: "sh .pfnci/examples_tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "3"
     }
@@ -762,10 +662,6 @@ configs {
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "3"
     }
@@ -789,10 +685,6 @@ configs {
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
-    environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -820,10 +712,6 @@ configs {
     }
     command: "sh .pfnci/tests.sh"
     environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
-    environment_variables {
       key: "PYTHON"
       value: "3"
     }
@@ -847,10 +735,6 @@ configs {
       gpu: 1
     }
     command: "sh .pfnci/tests_gpu.sh"
-    environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -878,10 +762,6 @@ configs {
       seconds: 1800
     }
     command: "sh .pfnci/examples_tests.sh"
-    environment_variables {
-      key: "REPOSITORY"
-      value: "chainercv"
-    }
     environment_variables {
       key: "PYTHON"
       value: "3"
