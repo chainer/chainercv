@@ -1,9 +1,7 @@
-sudo: false
-dist: trusty
 language: python
 python:
-  - "2.7"
-  - "3.6"
+  - 2.7
+  - 3.6
 notifications:
   email: false
 
@@ -14,10 +12,10 @@ install:
 script:
   - |
     pip install \
-        autopep8
-        flake8
-        hacking==1.0.0
-        mock
+        autopep8 \
+        flake8 \
+        hacking==1.0.0 \
+        mock \
         pytest
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
