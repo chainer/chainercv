@@ -71,7 +71,7 @@ def mask_to_segm(mask, bbox, segm_size, index=None):
         y_offset = y_min - bb[0]
         x_offset = x_min - bb[1]
         cropped_m[y_offset:y_offset + y_max - y_min,
-                x_offset:x_offset + x_max - x_min] =\
+                  x_offset:x_offset + x_max - x_min] =\
             chainer.backends.cuda.to_cpu(mask[i, y_min:y_max, x_min:x_max])
 
         with chainer.using_config('cv_resize_backend', 'cv2'):
