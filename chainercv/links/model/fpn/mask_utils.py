@@ -60,7 +60,7 @@ def mask_to_segm(mask, bbox, segm_size, index=None):
         x_min = max(bb[1], 0)
         y_max = max(min(bb[2], H), 0)
         x_max = max(min(bb[3], W), 0)
-        if y_max - y_min == 0 or x_max - x_min == 0:
+        if y_max <= y_min or x_max <= x_min:
             segm.append(np.zeros((segm_size, segm_size), dtype=np.float32))
             continue
 
@@ -70,15 +70,9 @@ def mask_to_segm(mask, bbox, segm_size, index=None):
 
         y_offset = y_min - bb[0]
         x_offset = x_min - bb[1]
-        try:
-            cropped_m[y_offset:y_offset + y_max - y_min,
-                    x_offset:x_offset + x_max - x_min] =\
-                chainer.backends.cuda.to_cpu(mask[i, y_min:y_max, x_min:x_max])
-        except Exception as e:
-            print(str(type(e)), e)
-            print('ymin: {}, ymax: {}, xmin: {}, xmax: {}, y_offset: {}, x_offset: {}, bb: {}, mask: {}'.format(
-                y_min, y_max, x_min, x_max, y_offset, x_offset, bb, mask.shape))
-            raise e
+        cropped_m[y_offset:y_offset + y_max - y_min,
+                x_offset:x_offset + x_max - x_min] =\
+            chainer.backends.cuda.to_cpu(mask[i, y_min:y_max, x_min:x_max])
 
         with chainer.using_config('cv_resize_backend', 'cv2'):
             sgm = transforms.resize(
