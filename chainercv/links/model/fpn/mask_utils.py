@@ -76,13 +76,8 @@ def mask_to_segm(mask, bbox, segm_size, index=None):
                 chainer.backends.cuda.to_cpu(mask[i, y_min:y_max, x_min:x_max])
         except Exception as e:
             print(str(type(e)), e)
-            print('ymin:', y_min)
-            print('ymax:', y_max)
-            print('xmin:', x_min)
-            print('xmax:', x_max)
-            print('y_offset:', y_offset)
-            print('x_offset:', x_offset)
-            print('bb:', bb)
+            print('ymin: {}, ymax: {}, xmin: {}, xmax: {}, y_offset: {}, x_offset: {}, bb: {}, mask: {}'.format(
+                y_min, y_max, x_min, x_max, y_offset, x_offset, bb, mask.shape))
             raise e
 
         with chainer.using_config('cv_resize_backend', 'cv2'):
