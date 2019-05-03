@@ -39,10 +39,10 @@ class ConstantStubLink(chainer.Link):
         for output in self._outputs:
             output.to_cpu()
 
-    def to_gpu(self):
-        super(ConstantStubLink, self).to_gpu()
+    def to_gpu(self, device=None):
+        super(ConstantStubLink, self).to_gpu(device)
         for output in self._outputs:
-            output.to_gpu()
+            output.to_gpu(device)
 
     def forward(self, *_):
         """Returns value(s).

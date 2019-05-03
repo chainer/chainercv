@@ -10,12 +10,27 @@ import unittest
 from chainercv import functions
 
 
-class TestPSROIPolling2D(unittest.TestCase):
+def _pair(x):
+    if isinstance(x, chainer.utils.collections_abc.Iterable):
+        if len(x) == 2:
+            return (None, ) + x
+        else:
+            return x
+    return None, x, x
+
+
+@testing.parameterize(*testing.product({
+    'spatial_scale': [0.6, 1.0, 2.0],
+    'outsize': [(2, 4, 4), (4, 4), 4]
+}))
+class TestPSROIAveragePooling2D(unittest.TestCase):
 
     def setUp(self):
         self.N = 3
         self.group_size = 2
-        self.out_c = 2
+        self.out_c, self.out_h, self.out_w = _pair(self.outsize)
+        if self.out_c is None:
+            self.out_c = 2
         self.n_channels = self.group_size * self.group_size * self.out_c
         self.x = np.arange(
             self.N * self.n_channels * 10 * 12,
@@ -32,8 +47,6 @@ class TestPSROIPolling2D(unittest.TestCase):
         )
         self.roi_indices = np.array([0, 2, 1, 0], dtype=np.int32)
         self.n_roi = self.rois.shape[0]
-        self.out_h, self.out_w = 4, 4
-        self.spatial_scale = 1.0
         self.gy = np.random.uniform(
             -1, 1, (self.n_roi, self.out_c, self.out_h, self.out_w))
         self.gy = self.gy.astype(np.float32)
@@ -43,8 +56,8 @@ class TestPSROIPolling2D(unittest.TestCase):
         x = chainer.Variable(x_data)
         rois = chainer.Variable(roi_data)
         roi_indices = chainer.Variable(roi_index_data)
-        y = functions.psroi_pooling_2d(
-            x, rois, roi_indices, self.out_c, self.out_h, self.out_w,
+        y = functions.ps_roi_average_pooling_2d(
+            x, rois, roi_indices, self.outsize,
             self.spatial_scale, self.group_size)
         self.assertEqual(y.data.dtype, np.float32)
         y_data = cuda.to_cpu(y.data)
@@ -63,11 +76,12 @@ class TestPSROIPolling2D(unittest.TestCase):
             cuda.to_gpu(self.roi_indices))
 
     def check_backward(self, x_data, roi_data, roi_index_data, y_grad_data):
+        def f(x, rois, roi_indices):
+            return functions.ps_roi_average_pooling_2d(
+                x, rois, roi_indices, self.outsize,
+                self.spatial_scale, self.group_size)
         gradient_check.check_backward(
-            functions.PSROIPooling2D(
-                self.out_c, self.out_h, self.out_w,
-                self.spatial_scale, self.group_size),
-            (x_data, roi_data, roi_index_data), y_grad_data,
+            f, (x_data, roi_data, roi_index_data), y_grad_data,
             no_grads=[False, True, True], **self.check_backward_options)
 
     @condition.retry(3)
@@ -85,8 +99,8 @@ class TestPSROIPolling2D(unittest.TestCase):
         x = chainer.Variable(x_data)
         rois = chainer.Variable(roi_data)
         roi_indices = chainer.Variable(roi_index_data)
-        y = functions.psroi_pooling_2d(
-            x, rois, roi_indices, self.out_c, self.out_h, self.out_w,
+        y = functions.ps_roi_average_pooling_2d(
+            x, rois, roi_indices, self.outsize,
             self.spatial_scale, self.group_size)
         x.cleargrad()
         y.grad = y_grad_data
@@ -103,6 +117,59 @@ class TestPSROIPolling2D(unittest.TestCase):
             cuda.to_gpu(self.roi_indices), cuda.to_gpu(self.gy))
         testing.assert_allclose(y_cpu.data, y_gpu.data)
         testing.assert_allclose(x_cpu.grad, x_gpu.grad)
+
+
+@testing.parameterize(*testing.product({
+    'outsize': [(2, 4, 4), (4, 4), 4]
+}))
+class TestPSROIAveragePooling2DFailure(unittest.TestCase):
+
+    def setUp(self):
+        self.N = 3
+        self.group_size = 2
+        self.spatial_scale = 0.6
+        out_c, _, _ = _pair(self.outsize)
+        if out_c is None:
+            self.n_channels = self.group_size * self.group_size * 2 - 1
+        else:
+            self.n_channels = self.group_size * self.group_size * (out_c + 1)
+
+        self.x = np.arange(
+            self.N * self.n_channels * 10 * 12,
+            dtype=np.float32).reshape((self.N, self.n_channels, 10, 12))
+        np.random.shuffle(self.x)
+        self.x = 2 * self.x / self.x.size - 1
+        self.x = self.x.astype(np.float32)
+        self.rois = np.array(
+            [[0, 0, 7, 7],
+             [1, 0, 5, 12],
+             [0, 1, 10, 5],
+             [3, 3, 4, 4]],
+            dtype=np.float32
+        )
+        self.roi_indices = np.array([0, 2, 1, 0], dtype=np.int32)
+        self.n_roi = self.rois.shape[0]
+
+    def check_forward(self, x_data, roi_data, roi_index_data):
+        x = chainer.Variable(x_data)
+        rois = chainer.Variable(roi_data)
+        roi_indices = chainer.Variable(roi_index_data)
+        functions.ps_roi_average_pooling_2d(
+            x, rois, roi_indices, self.outsize,
+            self.spatial_scale, self.group_size)
+
+    @condition.retry(3)
+    def test_invalid_outsize_cpu(self):
+        with self.assertRaises(ValueError):
+            self.check_forward(self.x, self.rois, self.roi_indices)
+
+    @attr.gpu
+    @condition.retry(3)
+    def test_invalid_outsize_gpu(self):
+        with self.assertRaises(ValueError):
+            self.check_forward(
+                cuda.to_gpu(self.x), cuda.to_gpu(self.rois),
+                cuda.to_gpu(self.roi_indices))
 
 
 testing.run_module(__name__, __file__)

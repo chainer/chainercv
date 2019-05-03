@@ -1,6 +1,7 @@
 from __future__ import division
 from __future__ import print_function
 
+from distutils.util import strtobool
 import hashlib
 import os
 import shutil
@@ -45,7 +46,8 @@ def cached_download(url):
 
     This is different from the original
     :func:`~chainer.dataset.cached_download` in that the download
-    progress is reported.
+    progress is reported. Note that this progress report can be disabled
+    by setting the environment variable `CHAINERCV_DOWNLOAD_REPORT` to `'OFF'`.
 
     It downloads a file from the URL if there is no corresponding cache. After
     the download, this function stores a cache to the directory under the
@@ -78,10 +80,13 @@ def cached_download(url):
     temp_root = tempfile.mkdtemp(dir=cache_root)
     try:
         temp_path = os.path.join(temp_root, 'dl')
-        print('Downloading ...')
-        print('From: {:s}'.format(url))
-        print('To: {:s}'.format(cache_path))
-        request.urlretrieve(url, temp_path, _reporthook)
+        if strtobool(os.getenv('CHAINERCV_DOWNLOAD_REPORT', 'ON')):
+            print('Downloading ...')
+            print('From: {:s}'.format(url))
+            print('To: {:s}'.format(cache_path))
+            request.urlretrieve(url, temp_path, _reporthook)
+        else:
+            request.urlretrieve(url, temp_path)
         with filelock.FileLock(lock_path):
             shutil.move(temp_path, cache_path)
     finally:
@@ -107,14 +112,18 @@ def download_model(url):
         string: Path to the downloaded file.
 
     """
-    root = get_dataset_directory(
-        os.path.join('pfnet', 'chainercv', 'models'))
-    basename = os.path.basename(url)
-    path = os.path.join(root, basename)
-    if not os.path.exists(path):
-        cache_path = cached_download(url)
-        os.rename(cache_path, path)
-    return path
+    # To support ChainerMN, the target directory should be locked.
+    with filelock.FileLock(os.path.join(
+            get_dataset_directory(os.path.join('pfnet', 'chainercv', '.lock')),
+            'models.lock')):
+        root = get_dataset_directory(
+            os.path.join('pfnet', 'chainercv', 'models'))
+        basename = os.path.basename(url)
+        path = os.path.join(root, basename)
+        if not os.path.exists(path):
+            cache_path = cached_download(url)
+            os.rename(cache_path, path)
+        return path
 
 
 def extractall(file_path, destination, ext):
