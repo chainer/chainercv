@@ -69,60 +69,67 @@ class FasterRCNNVGG16(FasterRCNN):
 
     """
 
+    preset_params = {
+        'voc': {
+            'feat_stride': 16,
+            'min_size': 600,
+            'max_size': 1000,
+            'ratios': [0.5, 1, 2],
+            'anchor_scales': [8, 16, 32],
+            'n_fg_class': 20,
+            'vgg_initialW': chainer.initializers.constant.Zero(),
+            'rpn_initialW': chainer.initializers.Normal(0.01),
+            'loc_initialW': chainer.initializers.Normal(0.001),
+            'score_initialW': chainer.initializers.Normal(0.01),
+            'proposal_creator_params': {},
+        },
+    }
     _models = {
         'voc07': {
-            'param': {'n_fg_class': 20},
+            'param': preset_params['voc'],
             'url': 'https://chainercv-models.preferred.jp/'
             'faster_rcnn_vgg16_voc07_trained_2018_06_01.npz',
             'cv2': True
         },
         'voc0712': {
-            'param': {'n_fg_class': 20},
+            'param': preset_params['voc'],
             'url': 'https://chainercv-models.preferred.jp/'
             'faster_rcnn_vgg16_voc0712_trained_2017_07_21.npz',
             'cv2': True
         },
     }
-    feat_stride = 16
 
-    def __init__(self,
-                 n_fg_class=None,
-                 pretrained_model=None,
-                 min_size=600, max_size=1000,
-                 ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
-                 vgg_initialW=None, rpn_initialW=None,
-                 loc_initialW=None, score_initialW=None,
-                 proposal_creator_params={}):
-        param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
+    def __init__(
+            self,
+            n_fg_class=None,
+            pretrained_model=None,
+            feat_stride=None,
+            min_size=None, max_size=None,
+            ratios=None, anchor_scales=None,
+            vgg_initialW=None, rpn_initialW=None,
+            loc_initialW=None, score_initialW=None,
+            proposal_creator_params=None
+    ):
+        param, path = utils.prepare_model_param(locals(), self._models)
 
-        if loc_initialW is None:
-            loc_initialW = chainer.initializers.Normal(0.001)
-        if score_initialW is None:
-            score_initialW = chainer.initializers.Normal(0.01)
-        if rpn_initialW is None:
-            rpn_initialW = chainer.initializers.Normal(0.01)
-        if vgg_initialW is None and pretrained_model:
-            vgg_initialW = chainer.initializers.constant.Zero()
-
-        extractor = VGG16(initialW=vgg_initialW)
+        extractor = VGG16(initialW=param['vgg_initialW'])
         extractor.pick = 'conv5_3'
         # Delete all layers after conv5_3.
         extractor.remove_unused()
         rpn = RegionProposalNetwork(
             512, 512,
-            ratios=ratios,
-            anchor_scales=anchor_scales,
-            feat_stride=self.feat_stride,
-            initialW=rpn_initialW,
-            proposal_creator_params=proposal_creator_params,
+            ratios=param['ratios'],
+            anchor_scales=param['anchor_scales'],
+            feat_stride=param['feat_stride'],
+            initialW=param['rpn_initialW'],
+            proposal_creator_params=param['proposal_creator_params'],
         )
         head = VGG16RoIHead(
             param['n_fg_class'] + 1,
-            roi_size=7, spatial_scale=1. / self.feat_stride,
-            vgg_initialW=vgg_initialW,
-            loc_initialW=loc_initialW,
-            score_initialW=score_initialW
+            roi_size=7, spatial_scale=1. / param['feat_stride'],
+            vgg_initialW=param['vgg_initialW'],
+            loc_initialW=param['loc_initialW'],
+            score_initialW=param['score_initialW'],
         )
 
         super(FasterRCNNVGG16, self).__init__(
@@ -131,8 +138,8 @@ class FasterRCNNVGG16(FasterRCNN):
             head,
             mean=np.array([122.7717, 115.9465, 102.9801],
                           dtype=np.float32)[:, None, None],
-            min_size=min_size,
-            max_size=max_size
+            min_size=param['min_size'],
+            max_size=param['max_size']
         )
 
         if path == 'imagenet':
