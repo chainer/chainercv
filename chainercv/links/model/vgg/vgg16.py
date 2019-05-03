@@ -87,9 +87,15 @@ class VGG16(PickableSequentialChain):
 
     """
 
+    preset_params = {
+        'imagenet': {
+            'n_class': 1000,
+            'mean': _imagenet_mean
+        },
+    }
     _models = {
         'imagenet': {
-            'param': {'n_class': 1000, 'mean': _imagenet_mean},
+            'param': preset_params['imagenet'],
             'overwritable': ('mean',),
             'url': 'https://chainercv-models.preferred.jp/'
             'vgg16_imagenet_converted_2017_07_18.npz'
@@ -99,10 +105,7 @@ class VGG16(PickableSequentialChain):
     def __init__(self,
                  n_class=None, pretrained_model=None, mean=None,
                  initialW=None, initial_bias=None):
-        param, path = utils.prepare_pretrained_model(
-            {'n_class': n_class, 'mean': mean},
-            pretrained_model, self._models,
-            {'n_class': 1000, 'mean': _imagenet_mean})
+        param, path = utils.prepare_model_param(locals(), self._models)
         self.mean = param['mean']
 
         if initialW is None:
