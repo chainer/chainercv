@@ -17,8 +17,8 @@ def main():
     args = parser.parse_args()
 
     model = FasterRCNNVGG16(
-        n_fg_class=len(voc_bbox_label_names),
-        pretrained_model=args.pretrained_model)
+        pretrained_model=args.pretrained_model,
+        **FasterRCNNVGG16.preset_params['voc'])
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
