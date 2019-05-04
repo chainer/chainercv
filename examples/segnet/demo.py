@@ -21,8 +21,8 @@ def main():
     args = parser.parse_args()
 
     model = SegNetBasic(
-        n_class=len(camvid_label_names),
-        pretrained_model=args.pretrained_model)
+        pretrained_model=args.pretrained_model,
+        **SegNetBasic.preset_params['camvid'])
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
