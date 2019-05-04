@@ -48,21 +48,24 @@ class SegNetBasic(chainer.Chain):
 
     """
 
+    preset_params = {
+        'camvid': {
+            'n_class': 11,
+            'initialW': chainer.initializers.HeNormal(),
+        },
+    }
+
     _models = {
         'camvid': {
-            'param': {'n_class': 11},
+            'param': preset_params['camvid'],
             'url': 'https://chainercv-models.preferred.jp/'
             'segnet_camvid_trained_2018_12_05.npz'
         }
     }
 
     def __init__(self, n_class=None, pretrained_model=None, initialW=None):
-        param, path = utils.prepare_pretrained_model(
-            {'n_class': n_class}, pretrained_model, self._models)
+        param, path = utils.prepare_model_param(locals(), self._models)
         self.n_class = param['n_class']
-
-        if initialW is None:
-            initialW = chainer.initializers.HeNormal()
 
         super(SegNetBasic, self).__init__()
         with self.init_scope():
