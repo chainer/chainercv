@@ -121,12 +121,12 @@ def main():
 
     if args.model == 'ssd300':
         model = SSD300(
-            n_fg_class=len(voc_bbox_label_names),
-            pretrained_model='imagenet')
+            pretrained_model='imagenet',
+            **SSD300.preset_params['voc'])
     elif args.model == 'ssd512':
         model = SSD512(
-            n_fg_class=len(voc_bbox_label_names),
-            pretrained_model='imagenet')
+            pretrained_model='imagenet',
+            **SSD512.preset_params['voc'])
 
     model.use_preset('evaluate')
     train_chain = MultiboxTrainChain(model)

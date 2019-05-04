@@ -21,12 +21,12 @@ def main():
 
     if args.model == 'ssd300':
         model = SSD300(
-            n_fg_class=len(voc_bbox_label_names),
-            pretrained_model=args.pretrained_model)
+            pretrained_model=args.pretrained_model,
+            **SSD300.preset_params['voc'])
     elif args.model == 'ssd512':
         model = SSD512(
-            n_fg_class=len(voc_bbox_label_names),
-            pretrained_model=args.pretrained_model)
+            pretrained_model=args.pretrained_model,
+            **SSD512.preset_params['voc'])
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
