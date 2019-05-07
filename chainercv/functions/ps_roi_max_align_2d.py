@@ -17,6 +17,7 @@
 
 from __future__ import division
 
+import numbers
 import numpy as np
 import six
 
@@ -41,32 +42,32 @@ class PSROIMaxAlign2D(function.Function):
     ):
         out_c, out_h, out_w = _outsize(outsize)
         if out_c is not None and \
-                not (np.issubdtype(type(out_c), np.integer) and out_c > 0):
+                not (isinstance(out_c, numbers.Integral) and out_c > 0):
             raise TypeError(
                 'outsize[0] must be positive integer: {}, {}'
                 .format(type(out_c), out_c))
-        if not (np.issubdtype(type(out_h), np.integer) and out_h > 0):
+        if not (isinstance(out_h, numbers.Integral) and out_h > 0):
             raise TypeError(
                 'outsize[1] must be positive integer: {}, {}'
                 .format(type(out_h), out_h))
-        if not (np.issubdtype(type(out_w), np.integer) and out_w > 0):
+        if not (isinstance(out_w, numbers.Integral) and out_w > 0):
             raise TypeError(
                 'outsize[2] must be positive integer: {}, {}'
                 .format(type(out_w), out_w))
-        if np.issubdtype(type(spatial_scale), np.integer):
+        if isinstance(spatial_scale, numbers.Integral):
             spatial_scale = float(spatial_scale)
-        if not (np.issubdtype(type(spatial_scale), np.floating)
+        if not (isinstance(spatial_scale, numbers.Real)
                 and spatial_scale > 0):
             raise TypeError(
                 'spatial_scale must be a positive float number: {}, {}'
                 .format(type(spatial_scale), spatial_scale))
-        if not (np.issubdtype(type(group_size), np.integer)
+        if not (isinstance(group_size, numbers.Integral)
                 and group_size > 0):
             raise TypeError(
                 'group_size must be positive integer: {}, {}'
                 .format(type(group_size), group_size))
         sampling_ratio = _pair(sampling_ratio)
-        if not all((np.issubdtype(type(s), np.integer) and s >= 1) or s is None
+        if not all((isinstance(s, numbers.Integral) and s >= 1) or s is None
                    for s in sampling_ratio):
             raise TypeError(
                 'sampling_ratio must be integer >= 1 or a pair of it: {}'
