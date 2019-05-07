@@ -267,7 +267,7 @@ class LightHeadRCNNResNet101Head(chainer.Chain):
         # psroi max align
         pool = ps_roi_max_align_2d(
             h, rois, roi_indices,
-            10, self.roi_size, self.roi_size,
+            (10, self.roi_size, self.roi_size),
             self.spatial_scale, self.roi_size,
             sampling_ratio=2)
         # fc
