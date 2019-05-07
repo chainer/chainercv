@@ -39,12 +39,11 @@ class TestRegionProposalNetwork(unittest.TestCase):
         self.x = np.random.uniform(size=(self.B, C, H, W)).astype(np.float32)
         self.img_size = (H * feat_stride, W * feat_stride)
 
-        chainer.config.train = self.train
-
     def _check_call(self, x, img_size, scales):
         _, _, H, W = x.shape
-        rpn_locs, rpn_scores, rois, roi_indices, anchor = self.link(
-            chainer.Variable(x), img_size, scales)
+        with chainer.using_config('train', self.train):
+            rpn_locs, rpn_scores, rois, roi_indices, anchor = self.link(
+                chainer.Variable(x), img_size, scales)
         self.assertIsInstance(rpn_locs, chainer.Variable)
         self.assertIsInstance(rpn_locs.array, type(x))
         self.assertIsInstance(rpn_scores, chainer.Variable)
@@ -54,7 +53,7 @@ class TestRegionProposalNetwork(unittest.TestCase):
         self.assertEqual(rpn_locs.shape, (self.B, H * W * A, 4))
         self.assertEqual(rpn_scores.shape, (self.B, H * W * A, 2))
 
-        if chainer.config.train:
+        if self.train:
             roi_size = self.proposal_creator_params[
                 'n_train_post_nms']
         else:
