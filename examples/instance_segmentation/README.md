@@ -25,7 +25,7 @@ $ python eval_sbd.py [--model fcis_resnet101] [--pretrained-model <model_path>] 
 ### COCO Test
 
 | Model | FPS | mAP/iou@[0.5:0.95] | mAP/iou@[0.5:0.95] \(small) | mAP/iou@[0.5:0.95] \(medium) | mAP/iou@[0.5:0.95] \(large) |
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|:-:|:-:|:-:|:-:|:-:|:-:|
 | FCIS ResNet101 | | 24.3 % | 6.0 % | 24.9 % | 42.8% |
 | Mask R-CNN FPN w/ ResNet50 | | 34.2 % | 15.6 % | 36.9 % | 50.8% |
 | Mask R-CNN FPN w/ ResNet101 | | 36.0 % | 16.5 % | 39.2 % | 53.8% |
