@@ -43,7 +43,7 @@ class TestProposalCreator(unittest.TestCase):
         with chainer.using_config('train', self.train):
             roi = self.proposal_creator(bbox_d, score, anchor, img_size, scale)
 
-        if chainer.config.train:
+        if self.train:
             out_length = self.n_train_post_nms
         else:
             out_length = self.n_test_post_nms

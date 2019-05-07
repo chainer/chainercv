@@ -53,7 +53,7 @@ class TestRegionProposalNetwork(unittest.TestCase):
         self.assertEqual(rpn_locs.shape, (self.B, H * W * A, 4))
         self.assertEqual(rpn_scores.shape, (self.B, H * W * A, 2))
 
-        if chainer.config.train:
+        if self.train:
             roi_size = self.proposal_creator_params[
                 'n_train_post_nms']
         else:
