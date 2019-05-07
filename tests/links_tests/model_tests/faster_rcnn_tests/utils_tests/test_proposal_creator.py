@@ -40,7 +40,6 @@ class TestProposalCreator(unittest.TestCase):
             self, proposal_creator,
             bbox_d, score, anchor, img_size,
             scale=1.):
-
         with chainer.using_config('train', self.train):
             roi = self.proposal_creator(bbox_d, score, anchor, img_size, scale)
 
