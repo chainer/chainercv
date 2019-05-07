@@ -1,3 +1,5 @@
+from __future__ import division
+
 import numpy as np
 
 import chainer
@@ -13,8 +15,8 @@ from chainercv.links.model.fpn.misc import smooth_l1
 from chainercv import utils
 
 
-class Head(chainer.Chain):
-    """Head network of Feature Pyramid Networks.
+class BboxHead(chainer.Chain):
+    """Bounding box head network of Feature Pyramid Networks.
 
     Args:
         n_class (int): The number of classes including background.
@@ -28,7 +30,7 @@ class Head(chainer.Chain):
     std = (0.1, 0.2)
 
     def __init__(self, n_class, scales):
-        super(Head, self).__init__()
+        super(BboxHead, self).__init__()
 
         fc_init = {
             'initialW': Caffe2FCUniform(),
@@ -44,7 +46,7 @@ class Head(chainer.Chain):
         self._n_class = n_class
         self._scales = scales
 
-    def __call__(self, hs, rois, roi_indices):
+    def forward(self, hs, rois, roi_indices):
         """Calculates RoIs.
 
         Args:
@@ -210,10 +212,10 @@ class Head(chainer.Chain):
         return bboxes, labels, scores
 
 
-def head_loss_pre(rois, roi_indices, std, bboxes, labels):
+def bbox_head_loss_pre(rois, roi_indices, std, bboxes, labels):
     """Loss function for Head (pre).
 
-    This function processes RoIs for :func:`head_loss_post`.
+    This function processes RoIs for :func:`bbox_head_loss_post`.
 
     Args:
         rois (iterable of arrays): An iterable of arrays of
@@ -314,7 +316,8 @@ def head_loss_pre(rois, roi_indices, std, bboxes, labels):
     return rois, roi_indices, gt_locs, gt_labels
 
 
-def head_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
+def bbox_head_loss_post(
+        locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
     """Loss function for Head (post).
 
      Args:
@@ -323,11 +326,11 @@ def head_loss_post(locs, confs, roi_indices, gt_locs, gt_labels, batchsize):
          confs (array): An iterable of arrays whose shape is
              :math:`(R, n\_class)`.
          roi_indices (list of arrays): A list of arrays returned by
-             :func:`head_locs_pre`.
+             :func:`bbox_head_locs_pre`.
          gt_locs (list of arrays): A list of arrays returned by
-             :func:`head_locs_pre`.
+             :func:`bbox_head_locs_pre`.
          gt_labels (list of arrays): A list of arrays returned by
-             :func:`head_locs_pre`.
+             :func:`bbox_head_locs_pre`.
          batchsize (int): The size of batch.
 
      Returns:

@@ -19,7 +19,7 @@ def main():
     parser.add_argument('--batchsize', type=int)
     args = parser.parse_args()
 
-    comm = chainermn.create_communicator()
+    comm = chainermn.create_communicator('pure_nccl')
     device = comm.intra_rank
 
     dataset, label_names, eval_, model, batchsize = setup(

@@ -39,7 +39,7 @@ class MultiboxTrainChain(chainer.Chain):
         self.k = k
         self.comm = comm
 
-    def __call__(self, imgs, gt_mb_locs, gt_mb_labels):
+    def forward(self, imgs, gt_mb_locs, gt_mb_labels):
         mb_locs, mb_confs = self.model(imgs)
         loc_loss, conf_loss = multibox_loss(
             mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, self.k, self.comm)
@@ -50,6 +50,10 @@ class MultiboxTrainChain(chainer.Chain):
             self)
 
         return loss
+
+    # https://github.com/chainer/chainer/issues/6759
+    def cleargrads(self):
+        self.zerograds()
 
 
 def main():
@@ -71,7 +75,7 @@ def main():
         p.start()
         p.join()
 
-    comm = chainermn.create_communicator()
+    comm = chainermn.create_communicator('pure_nccl')
     device = comm.intra_rank
 
     if args.model == 'ssd300':

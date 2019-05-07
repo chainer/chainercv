@@ -19,34 +19,12 @@ def eval_detection_voc(
     The code is based on the evaluation code used in PASCAL VOC Challenge.
 
     Args:
-        pred_bboxes (iterable of numpy.ndarray): An iterable of :math:`N`
-            sets of bounding boxes.
-            Its index corresponds to an index for the base dataset.
-            Each element of :obj:`pred_bboxes` is a set of coordinates
-            of bounding boxes. This is an array whose shape is :math:`(R, 4)`,
-            where :math:`R` corresponds
-            to the number of bounding boxes, which may vary among boxes.
-            The second axis corresponds to
-            :math:`y_{min}, x_{min}, y_{max}, x_{max}` of a bounding box.
-        pred_labels (iterable of numpy.ndarray): An iterable of labels.
-            Similar to :obj:`pred_bboxes`, its index corresponds to an
-            index for the base dataset. Its length is :math:`N`.
-        pred_scores (iterable of numpy.ndarray): An iterable of confidence
-            scores for predicted bounding boxes. Similar to :obj:`pred_bboxes`,
-            its index corresponds to an index for the base dataset.
-            Its length is :math:`N`.
-        gt_bboxes (iterable of numpy.ndarray): An iterable of ground truth
-            bounding boxes
-            whose length is :math:`N`. An element of :obj:`gt_bboxes` is a
-            bounding box whose shape is :math:`(R, 4)`. Note that the number of
-            bounding boxes in each image does not need to be same as the number
-            of corresponding predicted boxes.
-        gt_labels (iterable of numpy.ndarray): An iterable of ground truth
-            labels which are organized similarly to :obj:`gt_bboxes`.
-        gt_difficults (iterable of numpy.ndarray): An iterable of boolean
-            arrays which is organized similarly to :obj:`gt_bboxes`.
-            This tells whether the
-            corresponding ground truth bounding box is difficult or not.
+        pred_bboxes (iterable of numpy.ndarray): See the table below.
+        pred_labels (iterable of numpy.ndarray): See the table below.
+        pred_scores (iterable of numpy.ndarray): See the table below.
+        gt_bboxes (iterable of numpy.ndarray): See the table below.
+        gt_labels (iterable of numpy.ndarray): See the table below.
+        gt_difficults (iterable of numpy.ndarray): See the table below.
             By default, this is :obj:`None`. In that case, this function
             considers all bounding boxes to be not difficult.
         iou_thresh (float): A prediction is correct if its Intersection over
@@ -54,6 +32,21 @@ def eval_detection_voc(
         use_07_metric (bool): Whether to use PASCAL VOC 2007 evaluation metric
             for calculating average precision. The default value is
             :obj:`False`.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`pred_bboxes`, ":math:`[(R, 4)]`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+        :obj:`pred_labels`, ":math:`[(R,)]`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
+        :obj:`pred_scores`, ":math:`[(R,)]`", :obj:`float32`, \
+        --
+        :obj:`gt_bboxes`, ":math:`[(R, 4)]`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+        :obj:`gt_labels`, ":math:`[(R,)]`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
+        :obj:`gt_difficults`, ":math:`[(R,)]`", :obj:`bool`, --
 
     Returns:
         dict:
@@ -92,34 +85,18 @@ def calc_detection_voc_prec_rec(
     The code is based on the evaluation code used in PASCAL VOC Challenge.
 
     Args:
-        pred_bboxes (iterable of numpy.ndarray): An iterable of :math:`N`
-            sets of bounding boxes.
-            Its index corresponds to an index for the base dataset.
-            Each element of :obj:`pred_bboxes` is a set of coordinates
-            of bounding boxes. This is an array whose shape is :math:`(R, 4)`,
-            where :math:`R` corresponds
-            to the number of bounding boxes, which may vary among boxes.
-            The second axis corresponds to
-            :math:`y_{min}, x_{min}, y_{max}, x_{max}` of a bounding box.
-        pred_labels (iterable of numpy.ndarray): An iterable of labels.
-            Similar to :obj:`pred_bboxes`, its index corresponds to an
-            index for the base dataset. Its length is :math:`N`.
-        pred_scores (iterable of numpy.ndarray): An iterable of confidence
-            scores for predicted bounding boxes. Similar to :obj:`pred_bboxes`,
-            its index corresponds to an index for the base dataset.
-            Its length is :math:`N`.
-        gt_bboxes (iterable of numpy.ndarray): An iterable of ground truth
-            bounding boxes
-            whose length is :math:`N`. An element of :obj:`gt_bboxes` is a
-            bounding box whose shape is :math:`(R, 4)`. Note that the number of
-            bounding boxes in each image does not need to be same as the number
-            of corresponding predicted boxes.
-        gt_labels (iterable of numpy.ndarray): An iterable of ground truth
-            labels which are organized similarly to :obj:`gt_bboxes`.
-        gt_difficults (iterable of numpy.ndarray): An iterable of boolean
-            arrays which is organized similarly to :obj:`gt_bboxes`.
-            This tells whether the
-            corresponding ground truth bounding box is difficult or not.
+        pred_bboxes (iterable of numpy.ndarray): See the table in
+            :func:`chainercv.evaluations.eval_detection_voc`.
+        pred_labels (iterable of numpy.ndarray): See the table in
+            :func:`chainercv.evaluations.eval_detection_voc`.
+        pred_scores (iterable of numpy.ndarray): See the table in
+            :func:`chainercv.evaluations.eval_detection_voc`.
+        gt_bboxes (iterable of numpy.ndarray): See the table in
+            :func:`chainercv.evaluations.eval_detection_voc`.
+        gt_labels (iterable of numpy.ndarray): See the table in
+            :func:`chainercv.evaluations.eval_detection_voc`.
+        gt_difficults (iterable of numpy.ndarray): See the table in
+            :func:`chainercv.evaluations.eval_detection_voc`.
             By default, this is :obj:`None`. In that case, this function
             considers all bounding boxes to be not difficult.
         iou_thresh (float): A prediction is correct if its Intersection over

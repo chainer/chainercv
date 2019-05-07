@@ -78,7 +78,7 @@ class Conv2DActiv(chainer.Chain):
                     in_channels, out_channels, ksize, stride, pad,
                     nobias, initialW, initial_bias)
 
-    def __call__(self, x):
+    def forward(self, x):
         h = self.conv(x)
         if self.activ is None:
             return h

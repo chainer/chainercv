@@ -27,11 +27,11 @@ class FCIS(chainer.Chain):
 
     Each stage is carried out by one of the callable
     :class:`chainer.Chain` objects :obj:`feature`, :obj:`rpn` and :obj:`head`.
-    There are two functions :meth:`predict` and :meth:`__call__` to conduct
+    There are two functions :meth:`predict` and :meth:`forward` to conduct
     instance segmentation.
     :meth:`predict` takes images and returns masks, object labels
     and their scores.
-    :meth:`__call__` is provided for a scnerario when intermediate outputs
+    :meth:`forward` is provided for a scnerario when intermediate outputs
     are needed, for instance, for training and debugging.
 
     Links that support instance segmentation API have method :meth:`predict`
@@ -88,7 +88,7 @@ class FCIS(chainer.Chain):
         # Total number of classes including the background.
         return self.head.n_class
 
-    def __call__(self, x, scales=None):
+    def forward(self, x, scales=None):
         """Forward FCIS.
 
         Scaling paramter :obj:`scale` is used by RPN to determine the
@@ -266,7 +266,7 @@ class FCIS(chainer.Chain):
                 img_var = chainer.Variable(self.xp.array(img[None]))
                 scale = img_var.shape[3] / size[1]
                 roi_ag_seg_scores, _, roi_cls_scores, bboxes, _ = \
-                    self.__call__(img_var, scales=[scale])
+                    self.forward(img_var, scales=[scale])
 
             # We are assuming that batch size is 1.
             roi_ag_seg_score = chainer.cuda.to_cpu(roi_ag_seg_scores.array)

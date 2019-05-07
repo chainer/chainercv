@@ -68,7 +68,7 @@ class FCISTrainChain(chainer.Chain):
         self.anchor_target_creator = anchor_target_creator
         self.proposal_target_creator = proposal_target_creator
 
-    def __call__(self, imgs, masks, labels, bboxes, scale):
+    def forward(self, imgs, masks, labels, bboxes, scale):
         """Forward FCIS and calculate losses.
 
         Here are notations used.
@@ -109,7 +109,7 @@ class FCISTrainChain(chainer.Chain):
             bboxes = bboxes.array
         if isinstance(scale, chainer.Variable):
             scale = scale.array
-        scale = np.asscalar(cuda.to_cpu(scale))
+        scale = scale.item()
 
         n = masks.shape[0]
         # batch size = 1

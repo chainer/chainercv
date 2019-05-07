@@ -5,12 +5,17 @@ def rotate_bbox(bbox, angle, size):
     """Rotate bounding boxes by degrees.
 
     Args:
-        bbox (~numpy.ndarray): An array whose shape is :math:`(R, 4)`.
-            :math:`R` is the number of bounding boxes.
+        bbox (~numpy.ndarray): See the table below.
         angle (float): Counter clock-wise rotation angle (degree).
             image is rotated by 90 degrees.
         size (tuple): A tuple of length 2. The height and the width
             of the image.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`bbox`, ":math:`(R, 4)`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
 
     Returns:
         ~numpy.ndarray:

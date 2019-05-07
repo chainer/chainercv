@@ -65,7 +65,7 @@ class XceptionBlock(chainer.Chain):
                     in_channels, depthlist[2], 1, activ=F.identity,
                     nobias=True, stride=stride, bn_kwargs=bn_kwargs)
 
-    def __call__(self, x):
+    def forward(self, x):
         if self.activ_first:
             h = F.relu(x)
         else:
@@ -144,7 +144,7 @@ class Xception65(chainer.Chain):
                 dw_activ_list=[F.relu, F.relu, F.relu],
                 pw_activ_list=[F.relu, F.relu, F.relu])
 
-    def __call__(self, x):
+    def forward(self, x):
         h = self.entryflow_conv1(x)
         h = self.entryflow_conv2(h)
         h, _ = self.entryflow_block1(h)

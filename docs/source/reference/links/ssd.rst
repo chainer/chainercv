@@ -25,7 +25,6 @@ Multibox
 ~~~~~~~~
 .. autoclass:: Multibox
    :members:
-   :special-members:  __call__
 
 MultiboxCoder
 ~~~~~~~~~~~~~
@@ -36,31 +35,26 @@ Normalize
 ~~~~~~~~~
 .. autoclass:: Normalize
    :members:
-   :special-members:  __call__
 
 SSD
 ~~~
 .. autoclass:: SSD
    :members:
-   :special-members:  __call__
 
 VGG16
 ~~~~~
 .. autoclass:: VGG16
    :members:
-   :special-members:  __call__
 
 VGG16Extractor300
 ~~~~~~~~~~~~~~~~~
 .. autoclass:: VGG16Extractor300
    :members:
-   :special-members:  __call__
 
 VGG16Extractor512
 ~~~~~~~~~~~~~~~~~
 .. autoclass:: VGG16Extractor512
    :members:
-   :special-members:  __call__
 
 
 Train-only Utility

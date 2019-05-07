@@ -42,7 +42,7 @@ class RPN(chainer.Chain):
 
         self._scales = scales
 
-    def __call__(self, hs):
+    def forward(self, hs):
         """Calculates RoIs.
 
         Args:
@@ -115,7 +115,7 @@ class RPN(chainer.Chain):
         Args:
             locs (list of arrays): A list of arrays whose shape is
                 :math:`(N, K_l, 4)`, where :math:`N` is the size of batch and
-                :math:`N_l` is the number of the anchor boxes
+                :math:`K_l` is the number of the anchor boxes
                 of the :math:`l`-th level.
             confs (list of arrays): A list of array whose shape is
                 :math:`(N, K_l)`.
