@@ -18,6 +18,6 @@ __version__ = pkg_resources.get_distribution('chainercv').version
 from chainer.configuration import global_config  # NOQA
 
 
-global_config.cv_read_image_backend = 'cv2'
+global_config.cv_read_image_backend = None
 global_config.cv_resize_backend = None
-global_config.cv_rotate_backend = 'cv2'
+global_config.cv_rotate_backend = None
