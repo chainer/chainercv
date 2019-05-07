@@ -78,6 +78,7 @@ class TestRotateRaiseErrorWithCv2(unittest.TestCase):
         chainer.global_config.cv_rotate_backend = 'cv2'
         with self.assertRaises(ValueError):
             rotate(img, angle)
+        chainer.global_config.cv_rotate_backend = None
 
 
 testing.run_module(__name__, __file__)
