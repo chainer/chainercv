@@ -36,16 +36,14 @@ class TestProposalCreator(unittest.TestCase):
             n_test_post_nms=self.n_test_post_nms,
             min_size=0)
 
-        chainer.global_config.train = self.train
-
     def check_proposal_creator(
             self, proposal_creator,
             bbox_d, score, anchor, img_size,
             scale=1.):
-        roi = self.proposal_creator(
-            bbox_d, score, anchor, img_size, scale)
+        with chainer.using_config('train', self.train):
+            roi = self.proposal_creator(bbox_d, score, anchor, img_size, scale)
 
-        if chainer.config.train:
+        if self.train:
             out_length = self.n_train_post_nms
         else:
             out_length = self.n_test_post_nms
