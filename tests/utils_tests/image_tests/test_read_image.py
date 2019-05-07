@@ -56,8 +56,6 @@ def _create_parameters():
 class TestReadImage(unittest.TestCase):
 
     def setUp(self):
-        chainer.global_config.cv_read_image_backend = self.backend
-
         if self.file_obj:
             self.f = tempfile.TemporaryFile()
             self.file = self.f
@@ -90,7 +88,8 @@ class TestReadImage(unittest.TestCase):
     def test_read_image_as_color(self):
         if self.backend == 'cv2' and not _cv2_available:
             return
-        img = read_image(self.file, dtype=self.dtype, alpha=self.alpha)
+        with chainer.using_config('cv_read_image_backend', self.backend):
+            img = read_image(self.file, dtype=self.dtype, alpha=self.alpha)
 
         self.assertEqual(img.shape, (3,) + self.size)
         self.assertEqual(img.dtype, self.dtype)
@@ -103,8 +102,10 @@ class TestReadImage(unittest.TestCase):
     def test_read_image_as_grayscale(self):
         if self.backend == 'cv2' and not _cv2_available:
             return
-        img = read_image(
-            self.file, dtype=self.dtype, color=False, alpha=self.alpha)
+
+        with chainer.using_config('cv_read_image_backend', self.backend):
+            img = read_image(
+                self.file, dtype=self.dtype, color=False, alpha=self.alpha)
 
         self.assertEqual(img.shape, (1,) + self.size)
         self.assertEqual(img.dtype, self.dtype)
@@ -116,14 +117,17 @@ class TestReadImage(unittest.TestCase):
     def test_read_image_mutable(self):
         if self.backend == 'cv2' and not _cv2_available:
             return
-        img = read_image(self.file, dtype=self.dtype, alpha=self.alpha)
+
+        with chainer.using_config('cv_read_image_backend', self.backend):
+            img = read_image(self.file, dtype=self.dtype, alpha=self.alpha)
         img[:] = 0
         np.testing.assert_equal(img, 0)
 
     def test_read_image_raise_error_with_cv2(self):
         if self.backend == 'cv2' and not _cv2_available:
-            with self.assertRaises(ValueError):
-                read_image(self.file)
+            with chainer.using_config('cv_read_image_backend', self.backend):
+                with self.assertRaises(ValueError):
+                    read_image(self.file)
 
 
 @testing.parameterize(*_create_parameters())
@@ -161,13 +165,13 @@ class TestReadImageDifferentBackends(unittest.TestCase):
 
     @unittest.skipUnless(_cv2_available, 'cv2 is not installed')
     def test_read_image_different_backends_as_color(self):
-        chainer.global_config.cv_read_image_backend = 'cv2'
-        cv2_img = read_image(
-            self.file, dtype=self.dtype, color=self.color, alpha=self.alpha)
+        with chainer.using_config('cv_read_image_backend', 'cv2'):
+            cv2_img = read_image(self.file, dtype=self.dtype,
+                                 color=self.color, alpha=self.alpha)
 
-        chainer.global_config.cv_read_image_backend = 'PIL'
-        pil_img = read_image(
-            self.file, dtype=self.dtype, color=self.color, alpha=self.alpha)
+        with chainer.using_config('cv_read_image_backend', 'PIL'):
+            pil_img = read_image(self.file, dtype=self.dtype,
+                                 color=self.color, alpha=self.alpha)
 
         if self.format != 'jpeg':
             if self.dtype == np.float32 and self.alpha is not None:
