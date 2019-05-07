@@ -54,6 +54,7 @@ class TestResizeRaiseErrorWithCv2(unittest.TestCase):
         chainer.global_config.cv_resize_backend = 'cv2'
         with self.assertRaises(ValueError):
             resize(img, size=(32, 64))
+        chainer.global_config.cv_resize_backend = None
 
 
 testing.run_module(__name__, __file__)
