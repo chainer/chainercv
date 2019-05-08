@@ -48,6 +48,17 @@ def init_bn_with_tf_params(bn, beta, gamma, moving_mean, moving_variance):
     bn.avg_var = moving_variance.flatten().astype(chainer.config.dtype)
 
 
+def get_tensor(ckpt_reader, name, ema_ratio=0.999):
+    if (name + '/ExponentialMovingAverage'
+        ) in ckpt_reader.get_variable_to_shape_map().keys():
+        base = ckpt_reader.get_tensor(name)
+        ema = ckpt_reader.get_tensor(name + '/ExponentialMovingAverage')
+
+        return (1.0 - ema_ratio) * base + ema_ratio * ema
+    else:
+        return ckpt_reader.get_tensor(name)
+
+
 def load_mobilenetv2_from_tensorflow_checkpoint(model, checkpoint_filename):
     ckpt_reader = tf.train.NewCheckpointReader(checkpoint_filename)
 
@@ -64,17 +75,17 @@ def load_mobilenetv2_from_tensorflow_checkpoint(model, checkpoint_filename):
         if hasattr(expanded_conv, 'expand'):
             expand_params = {
                 "weights":
-                ckpt_reader.get_tensor(tf_scope + '/expand/weights'),
+                get_tensor(ckpt_reader, tf_scope + '/expand/weights'),
                 "beta":
-                ckpt_reader.get_tensor(tf_scope + '/expand/BatchNorm/beta'),
+                get_tensor(ckpt_reader, tf_scope + '/expand/BatchNorm/beta'),
                 "gamma":
-                ckpt_reader.get_tensor(tf_scope + '/expand/BatchNorm/gamma'),
+                get_tensor(ckpt_reader, tf_scope + '/expand/BatchNorm/gamma'),
                 "moving_mean":
-                ckpt_reader.get_tensor(
-                    tf_scope + '/expand/BatchNorm/moving_mean'),
+                get_tensor(ckpt_reader,
+                           tf_scope + '/expand/BatchNorm/moving_mean'),
                 "moving_variance":
-                ckpt_reader.get_tensor(
-                    tf_scope + '/expand/BatchNorm/moving_variance')
+                get_tensor(ckpt_reader,
+                           tf_scope + '/expand/BatchNorm/moving_variance')
             }
         else:
             print("Skipping expanded convolution for {}".format(tf_scope))
@@ -82,33 +93,33 @@ def load_mobilenetv2_from_tensorflow_checkpoint(model, checkpoint_filename):
         # Depthwise convolution parameters
         depthwise_params = {
             "weights":
-            ckpt_reader.get_tensor(tf_scope + '/depthwise/depthwise_weights'),
+            get_tensor(ckpt_reader, tf_scope + '/depthwise/depthwise_weights'),
             "beta":
-            ckpt_reader.get_tensor(tf_scope + '/depthwise/BatchNorm/beta'),
+            get_tensor(ckpt_reader, tf_scope + '/depthwise/BatchNorm/beta'),
             "gamma":
-            ckpt_reader.get_tensor(tf_scope + '/depthwise/BatchNorm/gamma'),
+            get_tensor(ckpt_reader, tf_scope + '/depthwise/BatchNorm/gamma'),
             "moving_mean":
-            ckpt_reader.get_tensor(
-                tf_scope + '/depthwise/BatchNorm/moving_mean'),
+            get_tensor(ckpt_reader,
+                       tf_scope + '/depthwise/BatchNorm/moving_mean'),
             "moving_variance":
-            ckpt_reader.get_tensor(
-                tf_scope + '/depthwise/BatchNorm/moving_variance')
+            get_tensor(ckpt_reader,
+                       tf_scope + '/depthwise/BatchNorm/moving_variance')
         }
 
         # Project convolution parameters
         project_params = {
             "weights":
-            ckpt_reader.get_tensor(tf_scope + '/project/weights'),
+            get_tensor(ckpt_reader, tf_scope + '/project/weights'),
             "beta":
-            ckpt_reader.get_tensor(tf_scope + '/project/BatchNorm/beta'),
+            get_tensor(ckpt_reader, tf_scope + '/project/BatchNorm/beta'),
             "gamma":
-            ckpt_reader.get_tensor(tf_scope + '/project/BatchNorm/gamma'),
+            get_tensor(ckpt_reader, tf_scope + '/project/BatchNorm/gamma'),
             "moving_mean":
-            ckpt_reader.get_tensor(
-                tf_scope + '/project/BatchNorm/moving_mean'),
+            get_tensor(ckpt_reader,
+                       tf_scope + '/project/BatchNorm/moving_mean'),
             "moving_variance":
-            ckpt_reader.get_tensor(
-                tf_scope + '/project/BatchNorm/moving_variance'),
+            get_tensor(ckpt_reader,
+                       tf_scope + '/project/BatchNorm/moving_variance'),
         }
         load_expanded_conv(
             expanded_conv,
@@ -120,33 +131,34 @@ def load_mobilenetv2_from_tensorflow_checkpoint(model, checkpoint_filename):
     # Initial convolution
     init_conv_with_tf_weights(
         model.conv.conv,
-        weights=ckpt_reader.get_tensor('MobilenetV2/Conv/weights'))
+        weights=get_tensor(ckpt_reader, 'MobilenetV2/Conv/weights'))
     init_bn_with_tf_params(
         model.conv.bn,
-        beta=ckpt_reader.get_tensor('MobilenetV2/Conv/BatchNorm/beta'),
-        gamma=ckpt_reader.get_tensor('MobilenetV2/Conv/BatchNorm/gamma'),
-        moving_mean=ckpt_reader.get_tensor(
-            'MobilenetV2/Conv/BatchNorm/moving_mean'),
-        moving_variance=ckpt_reader.get_tensor(
-            'MobilenetV2/Conv/BatchNorm/moving_variance'))
+        beta=get_tensor(ckpt_reader, 'MobilenetV2/Conv/BatchNorm/beta'),
+        gamma=get_tensor(ckpt_reader, 'MobilenetV2/Conv/BatchNorm/gamma'),
+        moving_mean=get_tensor(ckpt_reader,
+                               'MobilenetV2/Conv/BatchNorm/moving_mean'),
+        moving_variance=get_tensor(
+            ckpt_reader, 'MobilenetV2/Conv/BatchNorm/moving_variance'))
     # Final convolution before dropout (conv1)
     init_conv_with_tf_weights(
         model.conv1.conv,
-        weights=ckpt_reader.get_tensor('MobilenetV2/Conv_1/weights'))
+        weights=get_tensor(ckpt_reader, 'MobilenetV2/Conv_1/weights'))
     init_bn_with_tf_params(
         model.conv1.bn,
-        beta=ckpt_reader.get_tensor('MobilenetV2/Conv_1/BatchNorm/beta'),
-        gamma=ckpt_reader.get_tensor('MobilenetV2/Conv_1/BatchNorm/gamma'),
-        moving_mean=ckpt_reader.get_tensor(
-            'MobilenetV2/Conv_1/BatchNorm/moving_mean'),
-        moving_variance=ckpt_reader.get_tensor(
-            'MobilenetV2/Conv_1/BatchNorm/moving_variance'))
+        beta=get_tensor(ckpt_reader, 'MobilenetV2/Conv_1/BatchNorm/beta'),
+        gamma=get_tensor(ckpt_reader, 'MobilenetV2/Conv_1/BatchNorm/gamma'),
+        moving_mean=get_tensor(ckpt_reader,
+                               'MobilenetV2/Conv_1/BatchNorm/moving_mean'),
+        moving_variance=get_tensor(
+            ckpt_reader, 'MobilenetV2/Conv_1/BatchNorm/moving_variance'))
     # Logits convolution
     init_conv_with_tf_weights(
         model.logits_conv,
-        weights=ckpt_reader.get_tensor(
-            'MobilenetV2/Logits/Conv2d_1c_1x1/weights'),
-        bias=ckpt_reader.get_tensor('MobilenetV2/Logits/Conv2d_1c_1x1/biases'))
+        weights=get_tensor(ckpt_reader,
+                           'MobilenetV2/Logits/Conv2d_1c_1x1/weights'),
+        bias=get_tensor(ckpt_reader,
+                        'MobilenetV2/Logits/Conv2d_1c_1x1/biases'))
 
 
 def main():
