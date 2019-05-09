@@ -8,7 +8,8 @@ Single crop error rates of the models with the weights converted from Caffe weig
 
 | Model | Top 1 | Original Top 1 |
 |:-:|:-:|:-:|
-| MobileNetV2 | 29.9 % | 28.0 % [6] |
+| MobileNetV2-1.0 | 28.3 % | 28.0 % [6] |
+| MobileNetV2-1.4 | 24.3 % | 25.3 % [6] |
 | VGG16 | 29.0 % | 28.5 % [1] |
 | ResNet50 (`arch=he`) | 24.8 % | 24.7 % [2] |
 | ResNet101 (`arch=he`) | 23.6 % | 23.6 % [2] |
@@ -23,7 +24,8 @@ Ten crop error rate.
 
 | Model | Top 1 | Original Top 1 |
 |:-:|:-:|:-:|
-| MobileNetV2 | 27.4 % |  |
+| MobileNetV2-1.0 | 25.6 % |  |
+| MobileNetV2-1.4 | 22.4 % |  |
 | VGG16 | 27.1 % |   |
 | ResNet50 (`arch=he`) | 23.0 % | 22.9 % [2] |
 | ResNet101 (`arch=he`) | 21.8 % | 21.8 % [2] |
