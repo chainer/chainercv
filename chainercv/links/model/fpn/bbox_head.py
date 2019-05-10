@@ -64,7 +64,7 @@ class BboxHead(chainer.Chain):
             * **locs**: An arrays whose shape is \
                 :math:`(R, n\_class, 4)`, where :math:`R` is the total number \
                 of RoIs in the batch.
-            " **confs**: A list of array whose shape is :math:`(R, n\_class)`.
+            * **confs**: A list of array whose shape is :math:`(R, n\_class)`.
         """
 
         hs_ = []
