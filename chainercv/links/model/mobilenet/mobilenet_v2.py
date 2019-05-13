@@ -127,7 +127,7 @@ class MobileNetV2(PickableSequentialChain):
                     },
                     'overwritable': (),
                     'url':
-                    'https://chainercv-models.preferred.jp/mobilenet_v2_depth_multiplier_1.0_imagenet_converted_2019_04_01.npz',  # NOQA
+                    'https://chainercv-models.preferred.jp/mobilenet_v2_depth_multiplier_1.0_imagenet_converted_2019_05_13.npz',  # NOQA
                 }
             },
             1.4: {
@@ -139,7 +139,7 @@ class MobileNetV2(PickableSequentialChain):
                     },
                     'overwritable': (),
                     'url':
-                    'https://chainercv-models.preferred.jp/mobilenet_v2_depth_multiplier_1.4_imagenet_converted_2019_04_01.npz',  # NOQA
+                    'https://chainercv-models.preferred.jp/mobilenet_v2_depth_multiplier_1.4_imagenet_converted_2019_05_13.npz',  # NOQA
                 }
             }
         }
