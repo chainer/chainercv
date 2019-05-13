@@ -31,8 +31,8 @@ class ExpandedConv2D(chainer.Chain):
     """
 
     def __init__(self,
-                 out_channels,
                  in_channels,
+                 out_channels,
                  expansion_size=expand_input_by_factor(6),
                  expand_pad='SAME',
                  depthwise_stride=1,
