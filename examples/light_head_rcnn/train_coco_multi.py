@@ -249,7 +249,7 @@ def main():
             DetectionCOCOEvaluator(
                 test_iter, model.light_head_rcnn,
                 label_names=coco_bbox_label_names),
-            trigger=ManualScheduleTrigger([20, 26], 'epoch'))
+            trigger=ManualScheduleTrigger([19, 25], 'epoch'))
         trainer.extend(extensions.dump_graph('main/loss'))
 
     trainer.run()
