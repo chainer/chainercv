@@ -87,7 +87,7 @@ def main():
                         help='Batch size for each worker')
     parser.add_argument('--lr', type=float)
     parser.add_argument('--momentum', type=float, default=0.9)
-    parser.add_argument('--weight_decay', type=float, default=0.0001)
+    parser.add_argument('--weight-decay', type=float, default=0.0001)
     parser.add_argument('--out', type=str, default='result')
     parser.add_argument('--epoch', type=int, default=90)
     args = parser.parse_args()
