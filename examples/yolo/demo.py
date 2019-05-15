@@ -17,22 +17,26 @@ def main():
         '--model', choices=('yolo_v2', 'yolo_v2_tiny', 'yolo_v3'),
         default='yolo_v2')
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--pretrained-model', default='voc0712')
+    parser.add_argument('--pretrained-model')
+    parser.add_argument(
+        '--dataset', choices=('voc'), default='voc')
     parser.add_argument('image')
     args = parser.parse_args()
 
     if args.model == 'yolo_v2':
-        model = YOLOv2(
-            pretrained_model=args.pretrained_model,
-            **YOLOv2.preset_params['voc'])
+        cls = YOLOv2
     elif args.model == 'yolo_v2_tiny':
-        model = YOLOv2Tiny(
-            pretrained_model=args.pretrained_model,
-            **YOLOv2Tiny.preset_params['voc'])
+        model = YOLOv2Tiny
     elif args.model == 'yolo_v3':
-        model = YOLOv3(
-            pretrained_model=args.pretrained_model,
-            **YOLOv3.preset_params['voc'])
+        model = YOLOv3
+
+    if args.dataset == 'voc':
+        if args.pretrained_model is None:
+            args.pretrained_model = 'voc0712'
+        label_names = voc_bbox_label_names
+
+    model = cls(pretrained_model=args.pretrained_model,
+                **cls.preset_params[args.dataset])
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
@@ -43,7 +47,7 @@ def main():
     bbox, label, score = bboxes[0], labels[0], scores[0]
 
     vis_bbox(
-        img, bbox, label, score, label_names=voc_bbox_label_names)
+        img, bbox, label, score, label_names=label_names)
     plt.show()
 
 
