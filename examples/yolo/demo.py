@@ -23,16 +23,16 @@ def main():
 
     if args.model == 'yolo_v2':
         model = YOLOv2(
-            n_fg_class=len(voc_bbox_label_names),
-            pretrained_model=args.pretrained_model)
+            pretrained_model=args.pretrained_model,
+            **YOLOv2.preset_params['voc'])
     elif args.model == 'yolo_v2_tiny':
         model = YOLOv2Tiny(
-            n_fg_class=len(voc_bbox_label_names),
-            pretrained_model=args.pretrained_model)
+            pretrained_model=args.pretrained_model,
+            **YOLOv2Tiny.preset_params['voc'])
     elif args.model == 'yolo_v3':
         model = YOLOv3(
-            n_fg_class=len(voc_bbox_label_names),
-            pretrained_model=args.pretrained_model)
+            pretrained_model=args.pretrained_model,
+            **YOLOv3.preset_params['voc'])
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
