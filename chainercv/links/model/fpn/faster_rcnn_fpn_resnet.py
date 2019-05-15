@@ -49,8 +49,7 @@ class FasterRCNNFPNResNet(FasterRCNN):
     def __init__(self, n_fg_class=None, pretrained_model=None,
                  return_values=['bboxes', 'labels', 'scores'],
                  min_size=800, max_size=1333):
-        param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
+        param, path = utils.prepare_model_param(locals(), self._models)
 
         base = self._base(n_class=1, arch='he')
         base.pick = ('res2', 'res3', 'res4', 'res5')
@@ -99,10 +98,13 @@ class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
 
     """
 
+    preset_params = {
+        'coco': {'n_fg_class': 80},
+    }
     _base = ResNet50
     _models = {
         'coco': {
-            'param': {'n_fg_class': 80},
+            'param': preset_params['coco'],
             'url': 'https://chainercv-models.preferred.jp/'
             'faster_rcnn_fpn_resnet50_coco_trained_2019_03_15.npz',
             'cv2': True
@@ -117,10 +119,13 @@ class FasterRCNNFPNResNet101(FasterRCNNFPNResNet):
 
     """
 
+    preset_params = {
+        'coco': {'n_fg_class': 80},
+    }
     _base = ResNet101
     _models = {
         'coco': {
-            'param': {'n_fg_class': 80},
+            'param': preset_params['coco'],
             'url': 'https://chainercv-models.preferred.jp/'
             'faster_rcnn_fpn_resnet101_coco_trained_2019_03_15.npz',
             'cv2': True
@@ -135,10 +140,13 @@ class MaskRCNNFPNResNet50(MaskRCNNFPNResNet):
 
     """
 
+    preset_params = {
+        'coco': {'n_fg_class': 80},
+    }
     _base = ResNet50
     _models = {
         'coco': {
-            'param': {'n_fg_class': 80},
+            'param': preset_params['coco'],
             'url': 'https://chainercv-models.preferred.jp/'
             'mask_rcnn_fpn_resnet50_coco_trained_2019_03_15.npz',
             'cv2': True
@@ -153,10 +161,13 @@ class MaskRCNNFPNResNet101(MaskRCNNFPNResNet):
 
     """
 
+    preset_params = {
+        'coco': {'n_fg_class': 80},
+    }
     _base = ResNet101
     _models = {
         'coco': {
-            'param': {'n_fg_class': 80},
+            'param': preset_params['coco'],
             'url': 'https://chainercv-models.preferred.jp/'
             'mask_rcnn_fpn_resnet101_coco_trained_2019_03_15.npz',
             'cv2': True
