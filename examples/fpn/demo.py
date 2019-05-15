@@ -22,30 +22,35 @@ def main():
                  'mask_rcnn_fpn_resnet50', 'mask_rcnn_fpn_resnet101'),
         default='faster_rcnn_fpn_resnet50')
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--pretrained-model', default='coco')
+    parser.add_argument('--pretrained-model')
+    parser.add_argument(
+        '--dataset', choices=('coco'), default='coco')
     parser.add_argument('image')
     args = parser.parse_args()
 
     if args.model == 'faster_rcnn_fpn_resnet50':
         mode = 'bbox'
-        model = FasterRCNNFPNResNet50(
-            pretrained_model=args.pretrained_model,
-            **FasterRCNNFPNResNet50.preset_params['coco'])
+        cls = FasterRCNNFPNResNet50
     elif args.model == 'faster_rcnn_fpn_resnet101':
         mode = 'bbox'
-        model = FasterRCNNFPNResNet101(
-            pretrained_model=args.pretrained_model,
-            **FasterRCNNFPNResNet101.preset_params['coco'])
+        cls = FasterRCNNFPNResNet101
     elif args.model == 'mask_rcnn_fpn_resnet50':
         mode = 'instance_segmentation'
-        model = MaskRCNNFPNResNet50(
-            pretrained_model=args.pretrained_model,
-            **MaskRCNNFPNResNet50.preset_params['coco'])
+        cls = MaskRCNNFPNResNet50
     elif args.model == 'mask_rcnn_fpn_resnet101':
         mode = 'instance_segmentation'
-        model = MaskRCNNFPNResNet101(
-            pretrained_model=args.pretrained_model,
-            **MaskRCNNFPNResNet101.preset_params['coco'])
+        cls = MaskRCNNFPNResNet101
+
+    if args.dataset == 'coco':
+        if args.pretrained_model is None:
+            args.pretrained_model = 'coco'
+        if mode == 'bbox':
+            label_names = coco_bbox_label_names
+        elif mode == 'instance_segmentation':
+            label_names = coco_instance_segmentation_label_names
+
+    model = cls(pretrained_model=args.pretrained_model,
+                **cls.preset_params[args.dataset])
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
@@ -60,15 +65,14 @@ def main():
         score = scores[0]
 
         vis_bbox(
-            img, bbox, label, score, label_names=coco_bbox_label_names)
+            img, bbox, label, score, label_names=label_names)
     elif mode == 'instance_segmentation':
         masks, labels, scores = model.predict([img])
         mask = masks[0]
         label = labels[0]
         score = scores[0]
         vis_instance_segmentation(
-            img, mask, label, score,
-            label_names=coco_instance_segmentation_label_names)
+            img, mask, label, score, label_names=label_names)
     plt.show()
 
 

@@ -16,13 +16,20 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--pretrained-model', default='camvid')
+    parser.add_argument('--pretrained-model')
+    parser.add_argument('--dataset', choices=('camvid'), default='camvid')
     parser.add_argument('image')
     args = parser.parse_args()
 
+    if args.dataset == 'camvid':
+        if args.pretrained_model is None:
+            args.pretrained_model = 'camvid'
+        label_names = camvid_label_names
+        colors = camvid_label_colors
+
     model = SegNetBasic(
         pretrained_model=args.pretrained_model,
-        **SegNetBasic.preset_params['camvid'])
+        **SegNetBasic.preset_params[args.dataset])
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
@@ -37,8 +44,7 @@ def main():
     vis_image(img, ax=ax1)
     ax2 = fig.add_subplot(1, 2, 2)
     # Do not overlay the label image on the color image
-    vis_semantic_segmentation(
-        None, label, camvid_label_names, camvid_label_colors, ax=ax2)
+    vis_semantic_segmentation(None, label, label_names, colors, ax=ax2)
     plt.show()
 
 
