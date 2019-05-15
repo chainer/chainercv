@@ -70,11 +70,11 @@ class TestPSPNetResNetPretrained(unittest.TestCase):
         params['n_class'] = self.n_class
 
         if self.pretrained_model == 'cityscapes':
-            valid = self.n_class in {None, 19}
+            valid = self.n_class == 19
         elif self.pretrained_model == 'ade20k':
-            valid = self.n_class in {None, 150}
+            valid = self.n_class == 150
         elif self.pretrained_model == 'imagenet':
-            valid = self.n_class is not None
+            valid = True
 
         if valid:
             self.model(pretrained_model=self.pretrained_model, **params)
