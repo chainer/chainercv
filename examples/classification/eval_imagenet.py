@@ -26,20 +26,15 @@ from chainercv.utils import ProgressHook
 models = {
     # model: (class, dataset -> pretrained_model, default batchsize,
     #         crop, resnet_arch)
-    'vgg16': (VGG16, {'imagenet': 'imagenet'}, 32, 'center', None),
-    'resnet50': (ResNet50, {'imagenet': 'imagenet'}, 32, 'center', 'fb'),
-    'resnet101': (ResNet101, {'imagenet': 'imagenet'}, 32, 'center', 'fb'),
-    'resnet152': (ResNet152, {'imagenet': 'imagenet'}, 32, 'center', 'fb'),
-    'se-resnet50':
-        (SEResNet50, {'imagenet': 'imagenet'}, 32, 'center', None),
-    'se-resnet101':
-        (SEResNet101, {'imagenet': 'imagenet'}, 32, 'center', None),
-    'se-resnet152':
-        (SEResNet152, {'imagenet': 'imagenet'}, 32, 'center', None),
-    'se-resnext50':
-        (SEResNeXt50, {'imagenet': 'imagenet'}, 32, 'center', None),
-    'se-resnext101':
-        (SEResNeXt101, {'imagenet': 'imagenet'}, 32, 'center', None),
+    'vgg16': (VGG16, {}, 32, 'center', None),
+    'resnet50': (ResNet50, {}, 32, 'center', 'fb'),
+    'resnet101': (ResNet101, {}, 32, 'center', 'fb'),
+    'resnet152': (ResNet152, {}, 32, 'center', 'fb'),
+    'se-resnet50': (SEResNet50, {}, 32, 'center', None),
+    'se-resnet101': (SEResNet101, {}, 32, 'center', None),
+    'se-resnet152': (SEResNet152, {}, 32, 'center', None),
+    'se-resnext50': (SEResNeXt50, {}, 32, 'center', None),
+    'se-resnext101': (SEResNeXt101, {}, 32, 'center', None),
 }
 
 
@@ -49,14 +44,14 @@ def setup(dataset, model, pretrained_model, batchsize, val, crop, resnet_arch):
         dataset = DirectoryParsingLabelDataset(val)
         label_names = directory_parsing_label_names(val)
 
-        def eval_(out_values, rest_values):
-            pred_probs, = out_values
-            gt_labels, = rest_values
+    def eval_(out_values, rest_values):
+        pred_probs, = out_values
+        gt_labels, = rest_values
 
-            accuracy = F.accuracy(
-                np.array(list(pred_probs)), np.array(list(gt_labels))).data
-            print()
-            print('Top 1 Error {}'.format(1. - accuracy))
+        accuracy = F.accuracy(
+            np.array(list(pred_probs)), np.array(list(gt_labels))).data
+        print()
+        print('Top 1 Error {}'.format(1. - accuracy))
 
     cls, pretrained_models, default_batchsize = models[model]
     if pretrained_model is None:
@@ -95,7 +90,7 @@ def main():
         model.to_gpu()
 
     iterator = iterators.MultiprocessIterator(
-        dataset, args.batchsize, repeat=False, shuffle=False,
+        dataset, batchsize, repeat=False, shuffle=False,
         n_processes=6, shared_mem=300000000)
 
     print('Model has been prepared. Evaluation starts.')
