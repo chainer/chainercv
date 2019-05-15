@@ -125,9 +125,9 @@ class TestFasterRCNNVGG16Pretrained(unittest.TestCase):
         params['n_fg_class'] = self.n_fg_class
 
         if self.pretrained_model == 'voc0712':
-            valid = self.n_fg_class in {None, 20}
+            valid = self.n_fg_class == 20
         elif self.pretrained_model == 'imagenet':
-            valid = self.n_fg_class is not None
+            valid = True
 
         if valid:
             FasterRCNNVGG16(pretrained_model=self.pretrained_model, **params)
