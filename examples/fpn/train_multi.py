@@ -20,12 +20,10 @@ from chainercv.chainer_experimental.training.extensions import make_shift
 from chainercv.links.model.fpn.misc import scale_img
 from chainercv import transforms
 
-from chainercv.datasets import coco_instance_segmentation_label_names
 from chainercv.datasets import COCOInstanceSegmentationDataset
 from chainercv.links import MaskRCNNFPNResNet101
 from chainercv.links import MaskRCNNFPNResNet50
 
-from chainercv.datasets import coco_bbox_label_names
 from chainercv.datasets import COCOBboxDataset
 from chainercv.links import FasterRCNNFPNResNet101
 from chainercv.links import FasterRCNNFPNResNet50
@@ -199,23 +197,23 @@ def main():
     if args.model == 'faster_rcnn_fpn_resnet50':
         mode = 'bbox'
         model = FasterRCNNFPNResNet50(
-            n_fg_class=len(coco_bbox_label_names),
-            pretrained_model='imagenet')
+            pretrained_model=args.pretrained_model,
+            **FasterRCNNFPNResNet50.preset_params['coco'])
     elif args.model == 'faster_rcnn_fpn_resnet101':
         mode = 'bbox'
         model = FasterRCNNFPNResNet101(
-            n_fg_class=len(coco_bbox_label_names),
-            pretrained_model='imagenet')
+            pretrained_model=args.pretrained_model,
+            **FasterRCNNFPNResNet101.preset_params['coco'])
     elif args.model == 'mask_rcnn_fpn_resnet50':
         mode = 'instance_segmentation'
         model = MaskRCNNFPNResNet50(
-            n_fg_class=len(coco_instance_segmentation_label_names),
-            pretrained_model='imagenet')
+            pretrained_model=args.pretrained_model,
+            **MaskRCNNFPNResNet50.preset_params['coco'])
     elif args.model == 'mask_rcnn_fpn_resnet101':
         mode = 'instance_segmentation'
         model = MaskRCNNFPNResNet101(
-            n_fg_class=len(coco_instance_segmentation_label_names),
-            pretrained_model='imagenet')
+            pretrained_model=args.pretrained_model,
+            **MaskRCNNFPNResNet101.preset_params['coco'])
 
     model.use_preset('evaluate')
     train_chain = TrainChain(model)
