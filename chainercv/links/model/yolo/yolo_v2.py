@@ -45,8 +45,7 @@ class YOLOv2Base(YOLOBase):
     def __init__(self, n_fg_class=None, pretrained_model=None):
         super(YOLOv2Base, self).__init__()
 
-        param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
+        param, path = utils.prepare_model_param(locals(), self._models)
 
         self.n_fg_class = param['n_fg_class']
         self.use_preset('visualize')
@@ -232,11 +231,14 @@ class YOLOv2(YOLOv2Base):
 
     """
 
+    preset_params = {
+        'voc': {'n_fg_class': 20},
+    }
     _extractor = Darknet19Extractor
 
     _models = {
         'voc0712': {
-            'param': {'n_fg_class': 20},
+            'param': preset_params['voc'],
             'url': 'https://chainercv-models.preferred.jp/'
             'yolo_v2_voc0712_converted_2018_05_03.npz',
             'cv2': True
