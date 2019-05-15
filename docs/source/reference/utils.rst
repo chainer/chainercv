@@ -71,9 +71,9 @@ unzip
 Link Utilities 
 --------------
 
-prepare_pretrained_model
-~~~~~~~~~~~~~~~~~~~~~~~~
-.. autofunction:: prepare_pretrained_model
+prepare_model_param
+~~~~~~~~~~~~~~~~~~~
+.. autofunction:: prepare_model_param
 
 
 Mask Utilities
