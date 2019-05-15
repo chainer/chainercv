@@ -32,8 +32,6 @@ class TestFasterRCNNVGG16(unittest.TestCase):
         proposal_creator_params['n_test_post_nms'] = self.n_test_post_nms
         self.link = FasterRCNNVGG16(pretrained_model=None, **params)
 
-        chainer.config.train = self.train
-
     def check_call(self):
         xp = self.link.xp
 
@@ -43,7 +41,8 @@ class TestFasterRCNNVGG16(unittest.TestCase):
                 low=-1., high=1.,
                 size=(self.B, 3, feat_size[0] * 16, feat_size[1] * 16)
             ).astype(np.float32))
-        roi_cls_locs, roi_scores, rois, roi_indices = self.link(x)
+        with chainer.using_config('train', self.train):
+            roi_cls_locs, roi_scores, rois, roi_indices = self.link(x)
         if self.train:
             n_roi = self.B * self.n_train_post_nms
         else:
