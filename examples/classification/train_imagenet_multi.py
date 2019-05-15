@@ -113,8 +113,11 @@ def main():
     label_names = directory_parsing_label_names(args.train)
 
     model_cfg = model_cfgs[args.model]
-    extractor = model_cfg['class'](
-        n_class=len(label_names), **model_cfg['kwargs'])
+    params = model_cfg['class'].preset_params['imagenet']
+    params['n_class'] = len(label_names)
+    params.update(model_cfg['kwargs'])
+
+    extractor = model_cfg['class'](**params)
     extractor.pick = model_cfg['score_layer_name']
     model = Classifier(extractor)
     # Following https://arxiv.org/pdf/1706.02677.pdf,
