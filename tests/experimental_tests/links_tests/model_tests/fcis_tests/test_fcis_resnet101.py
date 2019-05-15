@@ -50,7 +50,7 @@ class TestFCISResNet101(unittest.TestCase):
 
         n_roi = roi_ag_seg_scores.shape[0]
         if self.train:
-            self.assertGreaterEqual(self.B * self.n_train_post_nms, n_roi)
+            self.assertGreaterEqual(self.B * self.n_train_post_nms * 2, n_roi)
         else:
             self.assertGreaterEqual(self.B * self.n_test_post_nms * 2, n_roi)
 
