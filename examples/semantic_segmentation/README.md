@@ -24,7 +24,7 @@ You can reproduce these scores by the following command.
 ```
 $ python eval_semantic_segmentation.py --dataset cityscapes [--model pspnet_resnet50|pspnet_resnet101|deeplab_v3plus_xception65] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
 # with multiple GPUs
-$ mpiexec -n <#gpu> python eval_semantic_segmentation.py --dataset cityscapes [--model pspnet_resnet50|pspnet_resnet101|deeplab_v3plus_xception65] [--pretrained-model <model_path>] [--batchsize <batchsize>]
+$ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset cityscapes [--model pspnet_resnet50|pspnet_resnet101|deeplab_v3plus_xception65] [--pretrained-model <model_path>] [--batchsize <batchsize>]
 ```
 
 ### ADE20k
@@ -40,7 +40,7 @@ You can reproduce these scores by the following command.
 ```
 $ python eval_semantic_segmentation.py --dataset ade20k [--model pspnet_resnet50|pspnet_resnet101|deeplab_v3plus_xception65] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
 # with multiple GPUs
-$ mpiexec -n <#gpu> python eval_semantic_segmentation.py --dataset ade20k [--model pspnet_resnet50|pspnet_resnet101|deeplab_v3plus_xception65] [--pretrained-model <model_path>] [--batchsize <batchsize>]
+$ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset ade20k [--model pspnet_resnet50|pspnet_resnet101|deeplab_v3plus_xception65] [--pretrained-model <model_path>] [--batchsize <batchsize>]
 ```
 
 ### VOC2012 val 
@@ -54,7 +54,7 @@ You can reproduce these scores by the following command.
 ```
 $ python eval_semantic_segmentation.py --dataset voc [--model deeplab_v3plus_xception65] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
 # with multiple GPUs
-$ mpiexec -n <#gpu> python eval_semantic_segmentation.py --dataset voc [--model deeplab_v3plus_xception65] [--pretrained-model <model_path>] [--batchsize <batchsize>]
+$ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset voc [--model deeplab_v3plus_xception65] [--pretrained-model <model_path>] [--batchsize <batchsize>]
 ```
 
 ### CamVid
@@ -68,7 +68,7 @@ You can reproduce these scores by the following command.
 ```
 $ python eval_semantic_segmentation.py --dataset camvid [--model segnet] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
 # with multiple GPUs
-$ mpiexec -n <#gpu> python eval_semantic_segmentation.py --dataset camvid [--model segnet] [--pretrained-model <model_path>] [--batchsize <batchsize>]
+$ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset camvid [--model segnet] [--pretrained-model <model_path>] [--batchsize <batchsize>]
 ```
 
 

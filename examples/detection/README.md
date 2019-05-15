@@ -30,7 +30,7 @@ You can reproduce these scores by the following command.
 ```
 $ python eval_detection.py --dataset voc [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolo_v2_tiny|yolo_v3] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
 # with multiple GPUs
-$ mpiexec -n <#gpu> python eval_detection.py --dataset voc [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolo_v2_tiny|yolo_v3] [--pretrained-model <model_path>] [--batchsize <batchsize>]
+$ mpiexec -n <#gpu> python eval_detection_multi.py --dataset voc [--model faster_rcnn|ssd300|ssd512|yolo_v2|yolo_v2_tiny|yolo_v3] [--pretrained-model <model_path>] [--batchsize <batchsize>]
 
 ```
 
@@ -44,6 +44,8 @@ $ mpiexec -n <#gpu> python eval_detection.py --dataset voc [--model faster_rcnn|
 You can reproduce these scores by the following command.
 ```
 $ python eval_detection.py --dataset coco [--model faster_rcnn_fpn_resnet50|faster_rcnn_fpn_resnet101] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
+# with multiple GPUs
+$ mpiexec -n <#gpu> python eval_detection_multi.py --dataset coco [--model faster_rcnn_fpn_resnet50|faster_rcnn_fpn_resnet101] [--pretrained-model <model_path>] [--batchsize <batchsize>]
 ```
 
 ## Visualization of models
