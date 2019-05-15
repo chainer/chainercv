@@ -17,11 +17,9 @@ from chainercv.utils import ProgressHook
 
 models = {
     # model: (class, dataset -> pretrained_model, default batchsize)
-    'fcis_resnet101': (FCISResNet101, {'sbd': 'sbd', 'coco': 'coco'}, 1),
-    'mask_rcnn_fpn_resnet50': (MaskRCNNFPNResNet50,
-                               {}, 1),
-    'mask_rcnn_fpn_resnet101': (MaskRCNNFPNResNet101,
-                                {}, 1),
+    'fcis_resnet101': (FCISResNet101, {}, 1),
+    'mask_rcnn_fpn_resnet50': (MaskRCNNFPNResNet50, {}, 1),
+    'mask_rcnn_fpn_resnet101': (MaskRCNNFPNResNet101, {}, 1),
 }
 
 
@@ -37,8 +35,9 @@ def setup(dataset, model_name, pretrained_model, batchsize):
         dataset = SBDInstanceSegmentationDataset(split='val')
         label_names = sbd_instance_segmentation_label_names
 
-        param = cls.preset_param(dataset_name)
-        model = cls(pretrained_model=pretrained_model, **param)
+        params = cls.preset_params[dataset_name]
+        params['n_fg_class'] = len(label_names)
+        model = cls(pretrained_model=pretrained_model, **params)
         model.use_preset('evaluate')
 
         def eval_(out_values, rest_values):
@@ -63,8 +62,9 @@ def setup(dataset, model_name, pretrained_model, batchsize):
             use_crowded=True, return_crowded=True, return_area=True)
         label_names = coco_instance_segmentation_label_names
 
-        model = cls(pretrained_model=pretrained_model,
-                    **cls.preset_params[dataset_name])
+        params = cls.preset_params[dataset_name]
+        params['n_fg_class'] = len(label_names)
+        model = cls(pretrained_model=pretrained_model, **params)
         if model_name == 'fcis_resnet101':
             model.use_preset('coco_evaluate')
         else:
@@ -84,7 +84,7 @@ def setup(dataset, model_name, pretrained_model, batchsize):
                       result['map/iou=0.50:0.95/area={}/max_dets=100'.format(
                           area)])
 
-    return dataset, label_names, eval_, model, batchsize
+    return dataset, eval_, model, batchsize
 
 
 def main():
@@ -96,7 +96,7 @@ def main():
     parser.add_argument('--gpu', type=int, default=-1)
     args = parser.parse_args()
 
-    dataset, label_names, eval_, model, batchsize = setup(
+    dataset, eval_, model, batchsize = setup(
         args.dataset, args.model, args.pretrained_model, args.batchsize)
 
     if args.gpu >= 0:
