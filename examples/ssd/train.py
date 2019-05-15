@@ -120,13 +120,11 @@ def main():
     args = parser.parse_args()
 
     if args.model == 'ssd300':
-        model = SSD300(
-            pretrained_model='imagenet',
-            **SSD300.preset_params['voc'])
+        cls = SSD300
     elif args.model == 'ssd512':
-        model = SSD512(
-            pretrained_model='imagenet',
-            **SSD512.preset_params['voc'])
+        cls = SSD512
+    model = cls(pretrained_model='imagenet',
+                **cls.preset_params['voc'])
 
     model.use_preset('evaluate')
     train_chain = MultiboxTrainChain(model)
