@@ -19,7 +19,9 @@ For the details, please check the documents and examples of each model.
 You can reproduce these scores by the following command.
 
 ```bash
-$ python eval_sbd.py [--model fcis_resnet101] [--pretrained-model <model_path>] [--gpu <gpu>]
+$ python eval_instance_segmentation.py --dataset sbd [--model fcis_resnet101] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
+# with multiple GPUs
+$ mpiexec -n <#gpu> python eval_instance_segmentation.py --dataset sbd [--model fcis_resnet101] [--pretrained-model <model_path>] [--batchsize <batchsize>]
 ```
 
 ### COCO Test
@@ -33,7 +35,9 @@ $ python eval_sbd.py [--model fcis_resnet101] [--pretrained-model <model_path>] 
 You can reproduce these scores by the following command.
 
 ```bash
-$ python eval_coco.py [--model fcis_resnet101|mask_rcnn_fpn_resnet50|mask_rcnn_fpn_resnet101] [--pretrained-model <model_path>] [--gpu <gpu>]
+$ python eval_instance_segmentation.py --dataset coco [--model fcis_resnet101|mask_rcnn_fpn_resnet50|mask_rcnn_fpn_resnet101] [--pretrained-model <model_path>] [--batchsize <batchsize>] [--gpu <gpu>]
+# with multiple GPUs
+$ mpiexec -n <#gpu> python eval_instance_segmentation.py --dataset coco [--model fcis_resnet101|mask_rcnn_fpn_resnet50|mask_rcnn_fpn_resnet101] [--pretrained-model <model_path>] [--batchsize <batchsize>]
 ```
 
 ## Notes on writing your own evaluation code
