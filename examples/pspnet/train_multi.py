@@ -177,18 +177,6 @@ def main():
     parser.add_argument('--communicator', default='pure_nccl')
     args = parser.parse_args()
 
-    dataset_cfgs = {
-        'ade20k': {
-            'input_size': (473, 473),
-            'label_names': ade20k_semantic_segmentation_label_names,
-            'iteration': 150000},
-        'cityscapes': {
-            'input_size': (713, 713),
-            'label_names': cityscapes_semantic_segmentation_label_names,
-            'iteration': 90000}
-    }
-    dataset_cfg = dataset_cfgs[args.dataset]
-
     # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
     if hasattr(multiprocessing, 'set_start_method'):
         multiprocessing.set_start_method('forkserver')
@@ -199,25 +187,19 @@ def main():
     comm = chainermn.create_communicator(args.communicator)
     device = comm.intra_rank
 
-    n_class = len(dataset_cfg['label_names'])
     if args.model == 'pspnet_resnet101':
         model = PSPNetResNet101(
-            n_class, pretrained_model='imagenet',
-            input_size=dataset_cfg['input_size'])
+            pretrained_model='imagenet',
+            **PSPNetResNet101.preset_params[args.dataset])
     elif args.model == 'pspnet_resnet50':
         model = PSPNetResNet50(
-            n_class, pretrained_model='imagenet',
-            input_size=dataset_cfg['input_size'])
+            pretrained_model='imagenet',
+            **PSPNetResNet101.preset_params[args.dataset])
     train_chain = create_mnbn_model(TrainChain(model), comm)
     model = train_chain.model
     if device >= 0:
         chainer.cuda.get_device_from_id(device).use()
         train_chain.to_gpu()
-
-    if args.iteration is None:
-        n_iter = dataset_cfg['iteration']
-    else:
-        n_iter = args.iteration
 
     if args.dataset == 'ade20k':
         train = ADE20KSemanticSegmentationDataset(
@@ -226,6 +208,7 @@ def main():
             val = ADE20KSemanticSegmentationDataset(
                 data_dir=args.data_dir, split='val')
         label_names = ade20k_semantic_segmentation_label_names
+        n_iter = 150000 if args.iteration is None else args.iteration
     elif args.dataset == 'cityscapes':
         train = CityscapesSemanticSegmentationDataset(
             args.data_dir,
@@ -235,10 +218,11 @@ def main():
                 args.data_dir,
                 label_resolution='fine', split='val')
         label_names = cityscapes_semantic_segmentation_label_names
+        n_iter = 90000 if args.iteration is None else args.iteration
     train = TransformDataset(
         train,
         ('img', 'label'),
-        Transform(model.mean, dataset_cfg['input_size']))
+        Transform(model.mean, model.input_size))
 
     if comm.rank == 0:
         indices = np.arange(len(train))
