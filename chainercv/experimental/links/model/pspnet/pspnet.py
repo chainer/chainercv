@@ -52,6 +52,11 @@ class PyramidPoolingModule(chainer.ChainList):
 
 class DilatedResNet(PickableSequentialChain):
 
+    preset_params = {
+        'imagenet': {
+            'initialW': initializers.constant.Zero(),
+        }
+    }
     _blocks = {
         50: [3, 4, 6, 3],
         101: [3, 4, 23, 3],
@@ -60,6 +65,7 @@ class DilatedResNet(PickableSequentialChain):
     _models = {
         50: {
             'imagenet': {
+                'param': preset_params['imagenet'],
                 'url': 'https://chainercv-models.preferred.jp/'
                 'pspnet_resnet50_imagenet_trained_2018_11_26.npz',
                 'cv2': True
@@ -67,6 +73,7 @@ class DilatedResNet(PickableSequentialChain):
         },
         101: {
             'imagenet': {
+                'param': preset_params['imagenet'],
                 'url': 'https://chainercv-models.preferred.jp/'
                 'pspnet_resnet101_imagenet_trained_2018_11_26.npz',
                 'cv2': True
@@ -78,10 +85,9 @@ class DilatedResNet(PickableSequentialChain):
                  initialW=None):
         n_block = self._blocks[n_layer]
 
-        _, path = utils.prepare_pretrained_model(
-            {},
-            pretrained_model,
-            self._models[n_layer])
+        param, path = utils.prepare_model_param(
+            locals(), self._models[n_layer])
+        initialW = param['initialW']
 
         super(DilatedResNet, self).__init__()
         with self.init_scope():
@@ -156,23 +162,19 @@ class PSPNet(chainer.Chain):
         else:
             extractor_pretrained_model = None
 
-        param, path = utils.prepare_pretrained_model(
-            {'n_class': n_class, 'input_size': input_size},
-            pretrained_model, self._models,
-            default={'input_size': (713, 713)})
+        param, path = utils.prepare_model_param(locals(), self._models)
         n_class = param['n_class']
         input_size = param['input_size']
+        initialW = param['initialW']
         if not isinstance(input_size, (list, tuple)):
             input_size = (int(input_size), int(input_size))
         self.input_size = input_size
 
-        if initialW is None:
-            if pretrained_model:
-                initialW = initializers.constant.Zero()
-
         kwargs = self._extractor_kwargs
-        kwargs.update({'pretrained_model': extractor_pretrained_model,
-                       'initialW': initialW})
+        kwargs.update({'pretrained_model': extractor_pretrained_model})
+        if extractor_pretrained_model in self._extractor_cls.preset_params:
+            kwargs.update(
+                self._extractor_cls.preset_params[extractor_pretrained_model])
         extractor = self._extractor_cls(**kwargs)
         extractor.pick = self._extractor_pick
 
@@ -302,17 +304,29 @@ class PSPNetResNet101(PSPNet):
 
     """
 
+    preset_params = {
+        'cityscapes': {
+            'n_class': 19,
+            'input_size': (713, 713),
+            'initialW': initializers.constant.Zero(),
+        },
+        'ade20k': {
+            'n_class': 150,
+            'input_size': (473, 473),
+            'initialW': initializers.constant.Zero(),
+        },
+    }
     _extractor_cls = DilatedResNet
     _extractor_kwargs = {'n_layer': 101}
     _extractor_pick = ('res4', 'res5')
     _models = {
         'cityscapes': {
-            'param': {'n_class': 19, 'input_size': (713, 713)},
+            'param': preset_params['cityscapes'],
             'url': 'https://chainercv-models.preferred.jp/'
             'pspnet_resnet101_cityscapes_trained_2018_12_19.npz',
         },
         'ade20k': {
-            'param': {'n_class': 150, 'input_size': (473, 473)},
+            'param': preset_params['ade20k'],
             'url': 'https://chainercv-models.preferred.jp/'
             'pspnet_resnet101_ade20k_trained_2018_12_23.npz',
         },
@@ -328,17 +342,29 @@ class PSPNetResNet50(PSPNet):
 
     """
 
+    preset_params = {
+        'cityscapes': {
+            'n_class': 19,
+            'input_size': (713, 713),
+            'initialW': initializers.constant.Zero(),
+        },
+        'ade20k': {
+            'n_class': 150,
+            'input_size': (473, 473),
+            'initialW': initializers.constant.Zero(),
+        },
+    }
     _extractor_cls = DilatedResNet
     _extractor_kwargs = {'n_layer': 50}
     _extractor_pick = ('res4', 'res5')
     _models = {
         'cityscapes': {
-            'param': {'n_class': 19, 'input_size': (713, 713)},
+            'param': preset_params['cityscapes'],
             'url': 'https://chainercv-models.preferred.jp/'
             'pspnet_resnet50_cityscapes_trained_2018_12_19.npz',
         },
         'ade20k': {
-            'param': {'n_class': 150, 'input_size': (473, 473)},
+            'param': preset_params['ade20k'],
             'url': 'https://chainercv-models.preferred.jp/'
             'pspnet_resnet50_ade20k_trained_2018_12_23.npz',
         },
