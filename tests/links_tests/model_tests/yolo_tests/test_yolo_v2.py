@@ -14,7 +14,9 @@ from chainercv.links import YOLOv2
 class TestYOLOv2(unittest.TestCase):
 
     def setUp(self):
-        self.link = YOLOv2(n_fg_class=self.n_fg_class)
+        params = YOLOv2.preset_params['voc']
+        params['n_fg_class'] = self.n_fg_class
+        self.link = YOLOv2(**params)
         self.insize = 416
         self.n_bbox = 13 * 13 * 5
 
@@ -56,19 +58,17 @@ class TestYOLOv2Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        kwargs = {
-            'n_fg_class': self.n_fg_class,
-            'pretrained_model': self.pretrained_model,
-        }
+        params = YOLOv2.preset_params['voc']
+        params['n_fg_class'] = self.n_fg_class
 
         if self.pretrained_model == 'voc0712':
             valid = self.n_fg_class in {None, 20}
 
         if valid:
-            YOLOv2(**kwargs)
+            YOLOv2(pretrained_model=self.pretrained_model, **params)
         else:
             with self.assertRaises(ValueError):
-                YOLOv2(**kwargs)
+                YOLOv2(pretrained_model=self.pretrained_model, **params)
 
 
 testing.run_module(__name__, __file__)
