@@ -19,8 +19,10 @@ from chainercv.utils.testing import attr
 class TestFasterRCNNFPNResNet(unittest.TestCase):
 
     def setUp(self):
-        self.link = self.model(
-            n_fg_class=self.n_fg_class, min_size=66)
+        params = self.model.preset_params['coco']
+        params['n_fg_class'] = self.n_fg_class
+        params['min_size'] = 66
+        self.link = self.model(**params)
 
     def _check_call(self):
         imgs = [
@@ -53,10 +55,8 @@ class TestFasterRCNNFPNResNetPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        kwargs = {
-            'n_fg_class': self.n_fg_class,
-            'pretrained_model': self.pretrained_model,
-        }
+        params = self.model.preset_params['coco']
+        params['n_fg_class'] = self.n_fg_class
 
         if self.pretrained_model == 'coco':
             valid = self.n_fg_class in {None, 80}
@@ -64,10 +64,10 @@ class TestFasterRCNNFPNResNetPretrained(unittest.TestCase):
             valid = self.n_fg_class is not None
 
         if valid:
-            self.model(**kwargs)
+            self.model(pretrained_model=self.pretrained_model, **params)
         else:
             with self.assertRaises(ValueError):
-                self.model(**kwargs)
+                self.model(pretrained_model=self.pretrained_model, **params)
 
 
 testing.run_module(__name__, __file__)
