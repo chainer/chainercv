@@ -58,14 +58,14 @@ def setup(dataset, model, pretrained_model, batchsize, val, crop, resnet_arch):
         pretrained_model = pretrained_models.get(dataset_name, dataset_name)
     if crop is None:
         crop = models[model][3]
-    kwargs = {
-        'n_class': len(label_names),
-        'pretrained_model': pretrained_model,
-    }
+    kwargs = {'pretrained_model': pretrained_model}
     if model in ['resnet50', 'resnet101', 'resnet152']:
         if resnet_arch is None:
             resnet_arch = models[model][4]
-        kwargs.update({'arch': resnet_arch})
+        kwargs['arch'] = resnet_arch
+    params = cls.preset_params[dataset_name]
+    params['n_class'] = len(label_names)
+    kwargs.update(params)
     extractor = cls(**kwargs)
     model = FeaturePredictor(
         extractor, crop_size=224, scale_size=256, crop=crop)
