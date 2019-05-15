@@ -10,7 +10,7 @@ For the details, please check the documents and examples of each model.
 
 ## Performance
 
-### SBD Test
+### SBD Val 
 
 | Model | FPS | mAP@0.5 | mAP@0.7 |
 |:-:|:-:|:-:|:-:|
@@ -24,7 +24,7 @@ $ python eval_instance_segmentation.py --dataset sbd [--model fcis_resnet101] [-
 $ mpiexec -n <#gpu> python eval_instance_segmentation_multi.py --dataset sbd [--model fcis_resnet101] [--pretrained-model <model_path>] [--batchsize <batchsize>]
 ```
 
-### COCO Test
+### MS COCO2017 Val
 
 | Model | FPS | mAP/iou@[0.5:0.95] | mAP/iou@[0.5:0.95] \(small) | mAP/iou@[0.5:0.95] \(medium) | mAP/iou@[0.5:0.95] \(large) |
 |:-:|:-:|:-:|:-:|:-:|:-:|
