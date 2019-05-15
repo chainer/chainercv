@@ -29,23 +29,23 @@ def main():
     if args.model == 'faster_rcnn_fpn_resnet50':
         mode = 'bbox'
         model = FasterRCNNFPNResNet50(
-            n_fg_class=len(coco_bbox_label_names),
-            pretrained_model=args.pretrained_model)
+            pretrained_model=args.pretrained_model,
+            **FasterRCNNFPNResNet50.preset_params['coco'])
     elif args.model == 'faster_rcnn_fpn_resnet101':
         mode = 'bbox'
         model = FasterRCNNFPNResNet101(
-            n_fg_class=len(coco_bbox_label_names),
-            pretrained_model=args.pretrained_model)
+            pretrained_model=args.pretrained_model,
+            **FasterRCNNFPNResNet101.preset_params['coco'])
     elif args.model == 'mask_rcnn_fpn_resnet50':
         mode = 'instance_segmentation'
         model = MaskRCNNFPNResNet50(
-            n_fg_class=len(coco_instance_segmentation_label_names),
-            pretrained_model=args.pretrained_model)
+            pretrained_model=args.pretrained_model,
+            **MaskRCNNFPNResNet50.preset_params['coco'])
     elif args.model == 'mask_rcnn_fpn_resnet101':
         mode = 'instance_segmentation'
         model = MaskRCNNFPNResNet101(
-            n_fg_class=len(coco_instance_segmentation_label_names),
-            pretrained_model=args.pretrained_model)
+            pretrained_model=args.pretrained_model,
+            **MaskRCNNFPNResNet101.preset_params['coco'])
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
