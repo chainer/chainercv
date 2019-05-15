@@ -15,18 +15,24 @@ def main():
     parser.add_argument(
         '--model', choices=('ssd300', 'ssd512'), default='ssd300')
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--pretrained-model', default='voc0712')
+    parser.add_argument('--pretrained-model')
+    parser.add_argument(
+        '--dataset', choices=('voc'), default='voc')
     parser.add_argument('image')
     args = parser.parse_args()
 
     if args.model == 'ssd300':
-        model = SSD300(
-            pretrained_model=args.pretrained_model,
-            **SSD300.preset_params['voc'])
+        cls = SSD300
     elif args.model == 'ssd512':
-        model = SSD512(
-            pretrained_model=args.pretrained_model,
-            **SSD512.preset_params['voc'])
+        cls = SSD512
+
+    if args.dataset == 'voc':
+        if args.pretrained_model is None:
+            args.pretrained_model = 'voc0712'
+        label_names = voc_bbox_label_names
+
+    model = cls(pretrained_model=args.pretrained_model,
+                **cls.preset_params[args.dataset])
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
@@ -37,7 +43,7 @@ def main():
     bbox, label, score = bboxes[0], labels[0], scores[0]
 
     vis_bbox(
-        img, bbox, label, score, label_names=voc_bbox_label_names)
+        img, bbox, label, score, label_names=label_names)
     plt.show()
 
 
