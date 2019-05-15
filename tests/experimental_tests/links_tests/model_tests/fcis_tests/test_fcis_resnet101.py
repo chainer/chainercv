@@ -127,7 +127,7 @@ class TestFCISResNet101Loss(unittest.TestCase):
 
 
 @testing.parameterize(*testing.product({
-    'n_fg_class': [None, 10, 20, 80],
+    'n_fg_class': [10, 20, 80],
     'anchor_scales': [(8, 16, 32), (4, 8, 16, 32)],
     'pretrained_model': ['sbd', 'sbd_converted', 'coco', 'coco_converted'],
 }))
@@ -135,11 +135,12 @@ class TestFCISResNet101Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        kwargs = {
-            'n_fg_class': self.n_fg_class,
-            'anchor_scales': self.anchor_scales,
-            'pretrained_model': self.pretrained_model,
-        }
+        if self.pretrained_model.startswith('sbd'):
+            params = FCISResNet101.preset_params['sbd']
+        elif self.pretrained_model.startswith('coco'):
+            params = FCISResNet101.preset_params['coco']
+        params['n_fg_class'] = self.n_fg_class
+        params['anchor_scales'] = self.anchor_scales
 
         if self.pretrained_model.startswith('sbd'):
             valid = self.n_fg_class in [None, 20]
@@ -149,10 +150,10 @@ class TestFCISResNet101Pretrained(unittest.TestCase):
             valid = valid and self.anchor_scales == (4, 8, 16, 32)
 
         if valid:
-            FCISResNet101(**kwargs)
+            FCISResNet101(pretrained_model=self.pretrained_model, **params)
         else:
             with self.assertRaises(ValueError):
-                FCISResNet101(**kwargs)
+                FCISResNet101(pretrained_model=self.pretrained_model, **params)
 
 
 testing.run_module(__name__, __file__)
