@@ -48,7 +48,7 @@ class TestFasterRCNNFPNResNet(unittest.TestCase):
 @testing.parameterize(*testing.product({
     'model': [FasterRCNNFPNResNet50, FasterRCNNFPNResNet101,
               MaskRCNNFPNResNet50, MaskRCNNFPNResNet101],
-    'n_fg_class': [None, 10, 80],
+    'n_fg_class': [10, 80],
     'pretrained_model': ['coco', 'imagenet'],
 }))
 class TestFasterRCNNFPNResNetPretrained(unittest.TestCase):
