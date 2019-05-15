@@ -75,13 +75,11 @@ def main():
     device = comm.intra_rank
 
     if args.model == 'ssd300':
-        model = SSD300(
-            n_fg_class=len(voc_bbox_label_names),
-            pretrained_model='imagenet')
+        cls = SSD300
     elif args.model == 'ssd512':
-        model = SSD512(
-            n_fg_class=len(voc_bbox_label_names),
-            pretrained_model='imagenet')
+        cls = SSD512
+    model = cls(pretrained_model='imagenet',
+                **cls.preset_params['voc'])
 
     model.use_preset('evaluate')
     train_chain = MultiboxTrainChain(model)
