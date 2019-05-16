@@ -17,14 +17,14 @@ class TestSSDVGG16(unittest.TestCase):
 
     def setUp(self):
         if self.insize == 300:
-            param = SSD300.preset_params['voc'].copy()
-            param['n_fg_class'] = self.n_fg_class
-            self.link = SSD300(**param)
+            params = SSD300.preset_params['voc'].copy()
+            params['n_fg_class'] = self.n_fg_class
+            self.link = SSD300(**params)
             self.n_bbox = 8732
         elif self.insize == 512:
-            param = SSD300.preset_params['voc'].copy()
-            param['n_fg_class'] = self.n_fg_class
-            self.link = SSD512(**param)
+            params = SSD300.preset_params['voc'].copy()
+            params['n_fg_class'] = self.n_fg_class
+            self.link = SSD512(**params)
             self.n_bbox = 24564
 
     def _check_call(self):
@@ -61,8 +61,8 @@ class TestSSDVGG16Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        param = self.model.preset_params['voc'].copy()
-        param['n_fg_class'] = self.n_fg_class
+        params = self.model.preset_params['voc'].copy()
+        params['n_fg_class'] = self.n_fg_class
 
         if self.pretrained_model == 'voc0712':
             valid = self.n_fg_class == 20
@@ -70,10 +70,10 @@ class TestSSDVGG16Pretrained(unittest.TestCase):
             valid = True
 
         if valid:
-            self.model(pretrained_model=self.pretrained_model, **param)
+            self.model(pretrained_model=self.pretrained_model, **params)
         else:
             with self.assertRaises(ValueError):
-                self.model(pretrained_model=self.pretrained_model, **param)
+                self.model(pretrained_model=self.pretrained_model, **params)
 
 
 testing.run_module(__name__, __file__)
