@@ -138,7 +138,7 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
             return {}
 
         in_values, out_values, rest_values = apply_to_iterator(
-            target.predict, it, self.comm)
+            target.predict, it, comm=self.comm)
         # delete unused iterators explicitly
         del in_values
 
