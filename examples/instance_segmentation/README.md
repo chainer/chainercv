@@ -10,7 +10,7 @@ For the details, please check the documents and examples of each model.
 
 ## Performance
 
-### SBD Val 
+### SBD Val
 
 | Model | FPS | mAP@0.5 | mAP@0.7 |
 |:-:|:-:|:-:|:-:|
