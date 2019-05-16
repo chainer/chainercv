@@ -118,24 +118,26 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
                 'Please install pycocotools \n'
                 'pip install -e \'git+https://github.com/cocodataset/coco.git'
                 '#egg=pycocotools&subdirectory=PythonAPI\'')
+        if iterator is None:
+            iterator = {}
         super(DetectionCOCOEvaluator, self).__init__(
             iterator, target)
         self.label_names = label_names
         self.comm = comm
 
     def evaluate(self):
-        iterator = self._iterators['main']
         target = self._targets['main']
+        if self.comm is not None and self.comm.rank != 0:
+            apply_to_iterator(target.predict, None, comm=self.comm)
+            return {}
+
+        iterator = self._iterators['main']
 
         if hasattr(iterator, 'reset'):
             iterator.reset()
             it = iterator
         else:
             it = copy.copy(iterator)
-
-        if self.comm is not None and self.comm.rank != 0:
-            apply_to_iterator(target.predict, None, comm=self.comm)
-            return {}
 
         in_values, out_values, rest_values = apply_to_iterator(
             target.predict, it, comm=self.comm)
