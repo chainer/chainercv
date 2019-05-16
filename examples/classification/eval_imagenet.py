@@ -63,7 +63,7 @@ def setup(dataset, model, pretrained_model, batchsize, val, crop, resnet_arch):
         if resnet_arch is None:
             resnet_arch = models[model][4]
         kwargs['arch'] = resnet_arch
-    params = cls.preset_params[dataset_name]
+    params = cls.preset_params[dataset_name].copy()
     params['n_class'] = len(label_names)
     kwargs.update(params)
     extractor = cls(**kwargs)
