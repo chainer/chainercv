@@ -270,7 +270,8 @@ class SSD300(SSD):
         param, path = utils.prepare_model_param(locals(), self._models)
 
         super(SSD300, self).__init__(
-            extractor=VGG16Extractor300(),
+            extractor=VGG16Extractor300(
+                **VGG16Extractor300.preset_params['imagenet']),
             multibox=Multibox(
                 n_class=param['n_fg_class'] + 1,
                 aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))),
@@ -343,7 +344,8 @@ class SSD512(SSD):
         param, path = utils.prepare_model_param(locals(), self._models)
 
         super(SSD512, self).__init__(
-            extractor=VGG16Extractor512(),
+            extractor=VGG16Extractor512(
+                **VGG16Extractor512.preset_params['imagenet']),
             multibox=Multibox(
                 n_class=param['n_fg_class'] + 1,
                 aspect_ratios=(
