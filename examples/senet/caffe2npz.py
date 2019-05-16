@@ -154,23 +154,28 @@ def main():
 
     caffemodel = CaffeFunction(args.caffemodel)
     if args.model_name == 'se-resnet50':
-        model = SEResNet50(pretrained_model=None, n_class=1000)
+        model = SEResNet50(pretrained_model=None,
+                           **SEResNet50.preset_params['imagenet'])
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet50(caffemodel, model, _load_class_indices())
     elif args.model_name == 'se-resnet101':
-        model = SEResNet101(pretrained_model=None, n_class=1000)
+        model = SEResNet101(pretrained_model=None,
+                            **SEResNet101.preset_params['imagenet'])
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet101(caffemodel, model, _load_class_indices())
     elif args.model_name == 'se-resnet152':
-        model = SEResNet152(pretrained_model=None, n_class=1000)
+        model = SEResNet152(pretrained_model=None,
+                            **SEResNet152.preset_params['imagenet'])
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet152(caffemodel, model, _load_class_indices())
     elif args.model_name == 'se-resnext50':
-        model = SEResNeXt50(pretrained_model=None, n_class=1000)
+        model = SEResNeXt50(pretrained_model=None,
+                            **SEResNeXt50.preset_params['imagenet'])
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet50(caffemodel, model, _load_class_indices())
     elif args.model_name == 'se-resnext101':
-        model = SEResNeXt101(pretrained_model=None, n_class=1000)
+        model = SEResNeXt101(pretrained_model=None,
+                             **SEResNeXt101.preset_params['imagenet'])
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet101(caffemodel, model, _load_class_indices())
 

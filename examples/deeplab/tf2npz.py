@@ -39,11 +39,17 @@ def load_param(param, weight, transpose=None):
 
 
 def get_model(name, task):
-    n_class = _n_class[task]
-    model = _model_class[name](n_class, min_input_size=(513, 513),
-                               scales=(1.0,), flip=False,
-                               extractor_kwargs={},
-                               aspp_kwargs={}, decoder_kwargs={})
+    params = _model_class[name].preset_params[task]
+    params.update({
+        'n_class': _n_class[task],
+        'input_size': (513, 513),
+        'scales': (1.0, ),
+        'flip': False,
+        'extractor_kwargs': {},
+        'aspp_kwargs': {},
+        'decoder_kwargs': {},
+    })
+    model = _model_class[name](**params)
     return model
 
 

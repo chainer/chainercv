@@ -108,15 +108,18 @@ def main():
 
     caffemodel = CaffeFunction(args.caffemodel)
     if args.model_name == 'resnet50':
-        model = ResNet50(pretrained_model=None, n_class=1000, arch='he')
+        model = ResNet50(pretrained_model=None, arch='he',
+                         **ResNet50.preset_params['imagenet'])
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet50(caffemodel, model)
     elif args.model_name == 'resnet101':
-        model = ResNet101(pretrained_model=None, n_class=1000, arch='he')
+        model = ResNet101(pretrained_model=None, arch='he',
+                          **ResNet101.preset_params['imagenet'])
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet101(caffemodel, model)
     elif args.model_name == 'resnet152':
-        model = ResNet152(pretrained_model=None, n_class=1000, arch='he')
+        model = ResNet152(pretrained_model=None, arch='he',
+                          **ResNet152.preset_params['imagenet'])
         model(np.zeros((1, 3, 224, 224), dtype=np.float32))
         _transfer_resnet152(caffemodel, model)
 
