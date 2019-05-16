@@ -25,7 +25,7 @@ class TestFasterRCNNVGG16(unittest.TestCase):
     n_conv5_3_channel = 512
 
     def setUp(self):
-        params = FasterRCNNVGG16.preset_params['voc']
+        params = FasterRCNNVGG16.preset_params['voc'].copy()
         params['n_fg_class'] = self.n_fg_class
         proposal_creator_params = params['proposal_creator_params']
         proposal_creator_params['n_train_post_nms'] = self.n_train_post_nms
@@ -78,7 +78,7 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
     n_fg_class = 20
 
     def setUp(self):
-        params = FasterRCNNVGG16.preset_params['voc']
+        params = FasterRCNNVGG16.preset_params['voc'].copy()
         params['n_fg_class'] = self.n_fg_class
         faster_rcnn = FasterRCNNVGG16(pretrained_model=None, **params)
         self.link = FasterRCNNTrainChain(faster_rcnn)

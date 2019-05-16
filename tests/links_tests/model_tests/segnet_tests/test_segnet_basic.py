@@ -17,7 +17,7 @@ class TestSegNetBasic(unittest.TestCase):
 
     def setUp(self):
         self.n_class = 10
-        param = SegNetBasic.preset_params['camvid']
+        param = SegNetBasic.preset_params['camvid'].copy()
         param['n_class'] = self.n_class
         self.link = SegNetBasic(**param)
 
@@ -60,7 +60,7 @@ class TestSegNetPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        param = SegNetBasic.preset_params['camvid']
+        param = SegNetBasic.preset_params['camvid'].copy()
         param['n_class'] = self.n_class
 
         if self.pretrained_model == 'camvid':

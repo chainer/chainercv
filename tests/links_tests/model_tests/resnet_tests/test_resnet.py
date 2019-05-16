@@ -34,7 +34,7 @@ from chainercv.utils import testing
 class TestResNetCall(unittest.TestCase):
 
     def setUp(self):
-        params = self.model_class.preset_params['imagenet']
+        params = self.model_class.preset_params['imagenet'].copy()
         params['n_class'] = self.n_class
         self.link = self.model_class(
             pretrained_model=None, arch=self.arch, **params)
@@ -75,7 +75,7 @@ class TestResNetPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        params = self.model.preset_params[self.pretrained_model]
+        params = self.model.preset_params[self.pretrained_model].copy()
         params['n_class'] = self.n_class
         params['mean'] = self.mean
 
