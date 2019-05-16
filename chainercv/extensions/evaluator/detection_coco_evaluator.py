@@ -112,7 +112,7 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
 
     def __init__(
             self, iterator, target,
-            label_names=None):
+            label_names=None, comm=None):
         if not _available:
             raise ValueError(
                 'Please install pycocotools \n'
@@ -121,6 +121,7 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
         super(DetectionCOCOEvaluator, self).__init__(
             iterator, target)
         self.label_names = label_names
+        self.comm = comm
 
     def evaluate(self):
         iterator = self._iterators['main']
@@ -132,8 +133,12 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
         else:
             it = copy.copy(iterator)
 
+        if self.comm is not None and self.comm.rank != 0:
+            apply_to_iterator(target.predict, None, comm=self.comm)
+            return {}
+
         in_values, out_values, rest_values = apply_to_iterator(
-            target.predict, it)
+            target.predict, it, self.comm)
         # delete unused iterators explicitly
         del in_values
 
