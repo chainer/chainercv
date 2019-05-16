@@ -42,6 +42,9 @@ class _DetectionStubLink(chainer.Link):
 class TestDetectionCOCOEvaluator(unittest.TestCase):
 
     def _set_up(self, comm):
+        batchsize_per_process = 5
+        batchsize = (batchsize_per_process * comm.size
+                     if comm is not None else batchsize_per_process)
         if comm is None or comm.rank == 0:
             bboxes = [generate_random_bbox(5, (256, 324), 24, 120)
                       for _ in range(10)]
@@ -54,11 +57,11 @@ class TestDetectionCOCOEvaluator(unittest.TestCase):
                 bboxes, labels, areas, crowdeds)
             initial_count = 0
             iterator = SerialIterator(
-                dataset, 5 * comm.size, repeat=False, shuffle=False)
+                dataset, batchsize, repeat=False, shuffle=False)
         else:
             bboxes = None
             labels = None
-            initial_count = comm.rank * 5
+            initial_count = comm.rank * batchsize_per_process
             iterator = None
 
         if comm is not None:
