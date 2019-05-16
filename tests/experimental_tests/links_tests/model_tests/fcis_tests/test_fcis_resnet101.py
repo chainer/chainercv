@@ -143,10 +143,10 @@ class TestFCISResNet101Pretrained(unittest.TestCase):
         params['anchor_scales'] = self.anchor_scales
 
         if self.pretrained_model.startswith('sbd'):
-            valid = self.n_fg_class in [None, 20]
+            valid = self.n_fg_class == 20
             valid = valid and self.anchor_scales == (8, 16, 32)
         elif self.pretrained_model.startswith('coco'):
-            valid = self.n_fg_class in [None, 80]
+            valid = self.n_fg_class == 80
             valid = valid and self.anchor_scales == (4, 8, 16, 32)
 
         if valid:

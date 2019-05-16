@@ -59,9 +59,9 @@ class TestFasterRCNNFPNResNetPretrained(unittest.TestCase):
         params['n_fg_class'] = self.n_fg_class
 
         if self.pretrained_model == 'coco':
-            valid = self.n_fg_class in {None, 80}
+            valid = self.n_fg_class == 80
         elif self.pretrained_model == 'imagenet':
-            valid = self.n_fg_class is not None
+            valid = True
 
         if valid:
             self.model(pretrained_model=self.pretrained_model, **params)
