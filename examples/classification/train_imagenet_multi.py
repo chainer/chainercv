@@ -113,7 +113,7 @@ def main():
     label_names = directory_parsing_label_names(args.train)
 
     model_cfg = model_cfgs[args.model]
-    params = model_cfg['class'].preset_params['imagenet']
+    params = model_cfg['class'].preset_params['imagenet'].copy()
     params['n_class'] = len(label_names)
     params.update(model_cfg['kwargs'])
 
