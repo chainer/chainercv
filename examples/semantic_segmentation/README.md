@@ -43,7 +43,7 @@ $ python eval_semantic_segmentation.py --dataset ade20k [--model pspnet_resnet50
 $ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset ade20k [--model pspnet_resnet50|pspnet_resnet101|deeplab_v3plus_xception65] [--pretrained-model <model_path>] [--batchsize <batchsize>]
 ```
 
-### VOC2012 val 
+### VOC2012 val
 
 | Base model |  Reference | ChainerCV |
 |:-:|:-:|:-:|
