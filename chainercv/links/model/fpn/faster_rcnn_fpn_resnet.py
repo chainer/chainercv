@@ -51,7 +51,9 @@ class FasterRCNNFPNResNet(FasterRCNN):
                  min_size=800, max_size=1333):
         param, path = utils.prepare_model_param(locals(), self._models)
 
-        base = self._base(n_class=1, arch='he')
+        base_param = self._base.preset_params['imagenet'].copy()
+        base_param['n_class'] = 1
+        base = self._base(arch='he', **base_param)
         base.pick = ('res2', 'res3', 'res4', 'res5')
         base.pool1 = lambda x: F.max_pooling_2d(
             x, 3, stride=2, pad=1, cover_all=False)
