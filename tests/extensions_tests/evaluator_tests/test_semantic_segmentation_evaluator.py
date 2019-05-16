@@ -131,7 +131,7 @@ class TestSemanticSegmentationEvaluator(unittest.TestCase):
         comm = create_communicator('naive')
         self._check_call(comm)
 
-    def _check_evaluator_name(self, comm):
+    def _check_evaluator_name(self, comm=None):
         self._set_up(comm)
         self.evaluator.name = 'eval'
         eval_ = self.evaluator()
