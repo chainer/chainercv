@@ -95,7 +95,7 @@ def main():
         model.to_gpu()
 
     iterator = iterators.MultiprocessIterator(
-        dataset, args.batchsize, repeat=False, shuffle=False,
+        dataset, batchsize, repeat=False, shuffle=False,
         n_processes=6, shared_mem=300000000)
 
     print('Model has been prepared. Evaluation starts.')
