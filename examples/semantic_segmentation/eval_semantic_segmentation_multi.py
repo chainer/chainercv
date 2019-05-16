@@ -30,8 +30,6 @@ def main():
     chainer.cuda.get_device_from_id(device).use()
     model.to_gpu()
 
-    model.use_preset('evaluate')
-
     if not comm.rank == 0:
         apply_to_iterator(model.predict, None, comm=comm)
         return
