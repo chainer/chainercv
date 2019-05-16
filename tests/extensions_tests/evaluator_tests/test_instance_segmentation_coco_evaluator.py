@@ -41,20 +41,27 @@ class _InstanceSegmentationStubLink(chainer.Link):
 class TestInstanceSegmentationCOCOEvaluator(unittest.TestCase):
 
     def _set_up(self, comm):
+        batchsize_per_process = 5
+        batchsize = (batchsize_per_process * comm.size
+            if comm is not None else batchsize_per_process)
         if comm is None or comm.rank == 0:
-            masks = np.random.uniform(size=(10, 5, 32, 48)) > 0.5
-            labels = np.ones((10, 5), dtype=np.int32)
+            masks = [np.random.uniform(size=(5, 32, 48)) > 0.5 for _ in range(10)]
+            labels = [np.ones((5,), dtype=np.int32) for _ in range(10)]
             dataset = TupleDataset(
                 np.random.uniform(size=(10, 3, 32, 48)),
                 masks, labels)
             initial_count = 0
             iterator = SerialIterator(
-                dataset, 1, repeat=False, shuffle=False)
+                dataset, batchsize, repeat=False, shuffle=False)
         else:
             masks = None
             labels = None
-            initial_count = comm.rank * 5
+            initial_count = comm.rank * batchsize_per_process
             iterator = None
+
+        if comm is not None:
+            masks = comm.bcast_obj(masks)
+            labels = comm.bcast_obj(labels)
         self.link = _InstanceSegmentationStubLink(masks, labels, initial_count)
         self.evaluator = InstanceSegmentationCOCOEvaluator(
             iterator, self.link, label_names=('cls0', 'cls1', 'cls2'),
