@@ -43,9 +43,10 @@ class TestInstanceSegmentationCOCOEvaluator(unittest.TestCase):
     def _set_up(self, comm):
         batchsize_per_process = 5
         batchsize = (batchsize_per_process * comm.size
-            if comm is not None else batchsize_per_process)
+                     if comm is not None else batchsize_per_process)
         if comm is None or comm.rank == 0:
-            masks = [np.random.uniform(size=(5, 32, 48)) > 0.5 for _ in range(10)]
+            masks = [np.random.uniform(size=(5, 32, 48)) > 0.5
+                     for _ in range(10)]
             labels = [np.ones((5,), dtype=np.int32) for _ in range(10)]
             dataset = TupleDataset(
                 np.random.uniform(size=(10, 3, 32, 48)),
