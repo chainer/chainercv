@@ -64,7 +64,7 @@ class TestSegNetPretrained(unittest.TestCase):
         param['n_class'] = self.n_class
 
         if self.pretrained_model == 'camvid':
-            valid = self.n_class in {None, 11}
+            valid = self.n_class == 11
 
         if valid:
             SegNetBasic(pretrained_model=self.pretrained_model, **param)

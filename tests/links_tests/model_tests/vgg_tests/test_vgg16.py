@@ -64,7 +64,7 @@ class TestVGG16Pretrained(unittest.TestCase):
         params['mean'] = self.mean
 
         if self.pretrained_model == 'imagenet':
-            valid = self.n_class in {None, 1000}
+            valid = self.n_class == 1000
 
         if valid:
             VGG16(pretrained_model=self.pretrained_model, **params)
