@@ -51,7 +51,7 @@ class TestVGG16Call(unittest.TestCase):
 
 
 @testing.parameterize(*testing.product({
-    'n_class': [None, 500, 1000],
+    'n_class': [500, 1000],
     'pretrained_model': ['imagenet'],
     'mean': [None, np.random.uniform((3, 1, 1)).astype(np.float32)],
 }))
@@ -59,20 +59,18 @@ class TestVGG16Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        kwargs = {
-            'n_class': self.n_class,
-            'pretrained_model': self.pretrained_model,
-            'mean': self.mean,
-        }
+        params = VGG16.preset_params[self.pretrained_model]
+        params['n_class'] = self.n_class
+        params['mean'] = self.mean
 
         if self.pretrained_model == 'imagenet':
             valid = self.n_class in {None, 1000}
 
         if valid:
-            VGG16(**kwargs)
+            VGG16(pretrained_model=self.pretrained_model, **params)
         else:
             with self.assertRaises(ValueError):
-                VGG16(**kwargs)
+                VGG16(pretrained_model=self.pretrained_model, **params)
 
 
 testing.run_module(__name__, __file__)
