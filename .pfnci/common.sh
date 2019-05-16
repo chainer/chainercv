@@ -1,10 +1,8 @@
 #! /usr/bin/env sh
 set -eux
 
-STABLE=5.4.0
-# 6.0.0rc1 does not work
-# https://github.com/chainer/chainer/issues/6825
-LATEST=6.0.0b3
+STABLE=6.0.0
+LATEST=7.0.0a1
 
 systemctl stop docker.service
 mount -t tmpfs tmpfs /var/lib/docker/ -o size=100%
