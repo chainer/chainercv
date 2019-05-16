@@ -17,9 +17,9 @@ class TestSegNetBasic(unittest.TestCase):
 
     def setUp(self):
         self.n_class = 10
-        param = SegNetBasic.preset_params['camvid'].copy()
-        param['n_class'] = self.n_class
-        self.link = SegNetBasic(**param)
+        params = SegNetBasic.preset_params['camvid'].copy()
+        params['n_class'] = self.n_class
+        self.link = SegNetBasic(**params)
 
     def check_call(self):
         xp = self.link.xp
@@ -60,17 +60,17 @@ class TestSegNetPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        param = SegNetBasic.preset_params['camvid'].copy()
-        param['n_class'] = self.n_class
+        params = SegNetBasic.preset_params['camvid'].copy()
+        params['n_class'] = self.n_class
 
         if self.pretrained_model == 'camvid':
             valid = self.n_class == 11
 
         if valid:
-            SegNetBasic(pretrained_model=self.pretrained_model, **param)
+            SegNetBasic(pretrained_model=self.pretrained_model, **params)
         else:
             with self.assertRaises(ValueError):
-                SegNetBasic(pretrained_model=self.pretrained_model, **param)
+                SegNetBasic(pretrained_model=self.pretrained_model, **params)
 
 
 testing.run_module(__name__, __file__)
