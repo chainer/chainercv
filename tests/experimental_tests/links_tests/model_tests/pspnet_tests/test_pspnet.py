@@ -19,7 +19,7 @@ class TestPSPNetResNet(unittest.TestCase):
     def setUp(self):
         self.n_class = 10
         self.input_size = (120, 160)
-        params = self.model.preset_params['cityscapes']
+        params = self.model.preset_params['cityscapes'].copy()
         params['n_class'] = self.n_class
         params['input_size'] = self.input_size
         self.link = self.model(**params)
@@ -66,7 +66,7 @@ class TestPSPNetResNetPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        params = self.model.preset_params['cityscapes']
+        params = self.model.preset_params['cityscapes'].copy()
         params['n_class'] = self.n_class
 
         if self.pretrained_model == 'cityscapes':
