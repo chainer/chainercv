@@ -20,9 +20,10 @@ from chainercv.utils import testing
 class TestVGG16Call(unittest.TestCase):
 
     def setUp(self):
+        params = VGG16.preset_params['imagenet']
+        params['n_class'] = self.n_class
         self.link = VGG16(
-            n_class=self.n_class, pretrained_model=None,
-            initialW=Zero())
+            pretrained_model=None, initialW=Zero(), **params)
         self.link.pick = self.pick
 
     def check_call(self):
