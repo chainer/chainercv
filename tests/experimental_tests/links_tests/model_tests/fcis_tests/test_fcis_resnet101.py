@@ -28,7 +28,7 @@ class TestFCISResNet101(unittest.TestCase):
     n_test_post_nms = 8
 
     def setUp(self):
-        params = FCISResNet101.preset_params['sbd']
+        params = FCISResNet101.preset_params['sbd'].copy()
         params['n_fg_class'] = self.n_fg_class
         proposal_creator_params = params['proposal_creator_params']
         proposal_creator_params['n_train_post_nms'] = self.n_train_post_nms
@@ -94,7 +94,7 @@ class TestFCISResNet101Loss(unittest.TestCase):
     n_test_post_nms = 8
 
     def setUp(self):
-        params = FCISResNet101.preset_params['sbd']
+        params = FCISResNet101.preset_params['sbd'].copy()
         params['n_fg_class'] = self.n_fg_class
         proposal_creator_params = params['proposal_creator_params']
         proposal_creator_params['n_train_post_nms'] = self.n_train_post_nms
@@ -136,9 +136,9 @@ class TestFCISResNet101Pretrained(unittest.TestCase):
     @attr.slow
     def test_pretrained(self):
         if self.pretrained_model.startswith('sbd'):
-            params = FCISResNet101.preset_params['sbd']
+            params = FCISResNet101.preset_params['sbd'].copy()
         elif self.pretrained_model.startswith('coco'):
-            params = FCISResNet101.preset_params['coco']
+            params = FCISResNet101.preset_params['coco'].copy()
         params['n_fg_class'] = self.n_fg_class
         params['anchor_scales'] = self.anchor_scales
 

@@ -14,7 +14,7 @@ from chainercv.experimental.links import YOLOv2Tiny
 class TestYOLOv2Tiny(unittest.TestCase):
 
     def setUp(self):
-        params = YOLOv2Tiny.preset_params['voc']
+        params = YOLOv2Tiny.preset_params['voc'].copy()
         params['n_fg_class'] = self.n_fg_class
         self.link = YOLOv2Tiny(**params)
         self.insize = 416
@@ -58,7 +58,7 @@ class TestYOLOv2TinyPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        params = YOLOv2Tiny.preset_params['voc']
+        params = YOLOv2Tiny.preset_params['voc'].copy()
         params['n_fg_class'] = self.n_fg_class
 
         if self.pretrained_model == 'voc0712':
