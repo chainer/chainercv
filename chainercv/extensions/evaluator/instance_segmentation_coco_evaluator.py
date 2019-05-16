@@ -112,19 +112,26 @@ class InstanceSegmentationCOCOEvaluator(chainer.training.extensions.Evaluator):
 
     def __init__(
             self, iterator, target,
-            label_names=None):
+            label_names=None, comm=None):
         if not _available:
             raise ValueError(
                 'Please install pycocotools \n'
                 'pip install -e \'git+https://github.com/cocodataset/coco.git'
                 '#egg=pycocotools&subdirectory=PythonAPI\'')
+        if iterator is None:
+            iterator = {}
         super(InstanceSegmentationCOCOEvaluator, self).__init__(
             iterator, target)
         self.label_names = label_names
+        self.comm = comm
 
     def evaluate(self):
-        iterator = self._iterators['main']
         target = self._targets['main']
+        if self.comm is not None and self.comm.rank != 0:
+            apply_to_iterator(target.predict, None, comm=self.comm)
+            return {}
+
+        iterator = self._iterators['main']
 
         if hasattr(iterator, 'reset'):
             iterator.reset()
@@ -133,7 +140,7 @@ class InstanceSegmentationCOCOEvaluator(chainer.training.extensions.Evaluator):
             it = copy.copy(iterator)
 
         in_values, out_values, rest_values = apply_to_iterator(
-            target.predict, it)
+            target.predict, it, comm=self.comm)
         # delete unused iterators explicitly
         del in_values
 
