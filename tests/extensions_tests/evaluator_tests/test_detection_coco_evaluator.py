@@ -44,10 +44,10 @@ class TestDetectionCOCOEvaluator(unittest.TestCase):
     def _set_up(self, comm):
         if comm is None or comm.rank == 0:
             bboxes = [generate_random_bbox(5, (256, 324), 24, 120)
-                        for _ in range(10)]
+                      for _ in range(10)]
             labels = [2 * np.ones((5,), dtype=np.int32) for _ in range(10)]
             areas = [[np.array([(bb[2] - bb[0]) * bb[3] - bb[0]])
-                        for bb in bbox] for bbox in bboxes]
+                      for bb in bbox] for bbox in bboxes]
             crowdeds = [np.zeros((5,)) for _ in range(10)]
             dataset = TupleDataset(
                 np.random.uniform(size=(10, 3, 32, 48)),
