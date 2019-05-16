@@ -18,23 +18,7 @@ def main():
         '--out', '-o', type=str, default=None)
     args = parser.parse_args()
 
-    if args.dataset == 'sbd':
-        model = FCISResNet101(
-            n_fg_class=20,
-            pretrained_model=None)
-    elif args.dataset == 'coco':
-        model = FCISResNet101(
-            n_fg_class=80,
-            pretrained_model=None,
-            anchor_scales=[4, 8, 16, 32],
-            proposal_creator_params={
-                'nms_thresh': 0.7,
-                'n_train_pre_nms': 6000,
-                'n_train_post_nms': 300,
-                'n_test_pre_nms': 6000,
-                'n_test_post_nms': 300,
-                'force_cpu_nms': False,
-                'min_size': 2})
+    model = FCISResNet101(**FCISResNet101.preset_params[args.dataset])
     params = mx.nd.load(args.mxnet_param_file)
     print('mxnet param is loaded: {}'.format(args.mxnet_param_file))
     print('start conversion')
