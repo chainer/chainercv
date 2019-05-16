@@ -6,6 +6,7 @@ import numpy as np
 import PIL
 
 import chainer
+from chainer.datasets import TransformDataset
 import chainer.functions as F
 import chainer.links as L
 from chainer.optimizer_hooks import WeightDecay
@@ -15,18 +16,19 @@ from chainer.training import extensions
 
 import chainermn
 
-from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
 from chainercv.chainer_experimental.training.extensions import make_shift
 from chainercv.links.model.fpn.misc import scale_img
 from chainercv import transforms
 
 from chainercv.datasets import coco_instance_segmentation_label_names
 from chainercv.datasets import COCOInstanceSegmentationDataset
+from chainercv.extensions import InstanceSegmentationCOCOEvaluator
 from chainercv.links import MaskRCNNFPNResNet101
 from chainercv.links import MaskRCNNFPNResNet50
 
 from chainercv.datasets import coco_bbox_label_names
 from chainercv.datasets import COCOBboxDataset
+from chainercv.extensions import DetectionCOCOEvaluator
 from chainercv.links import FasterRCNNFPNResNet101
 from chainercv.links import FasterRCNNFPNResNet50
 
@@ -140,7 +142,7 @@ class Transform(object):
 
     def __call__(self, in_data):
         if len(in_data) == 4:
-            img, mask, label, bbox = in_data
+            img, bbox, label, mask = in_data
         else:
             img, bbox, label = in_data
         # Flipping
@@ -184,6 +186,8 @@ def main():
     parser.add_argument('--step', type=int, nargs='*', default=[60000, 80000])
     parser.add_argument('--out', default='result')
     parser.add_argument('--resume')
+    parser.add_argument('--val-interval', type=int, default=0,
+                        help='default is 0 for no evaluation.')
     args = parser.parse_args()
 
     # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
@@ -222,28 +226,42 @@ def main():
     chainer.cuda.get_device_from_id(device).use()
     train_chain.to_gpu()
 
-    if mode == 'bbox':
-        train = TransformDataset(
-            COCOBboxDataset(year='2017', split='train'),
-            ('img', 'bbox', 'label'),
-            Transform(800, 1333, model.extractor.mean))
-    elif mode == 'instance_segmentation':
-        train = TransformDataset(
-            COCOInstanceSegmentationDataset(split='train', return_bbox=True),
-            ('img', 'bbox', 'label', 'mask'),
-            Transform(800, 1333, model.extractor.mean))
-
+    train = None
+    if args.val_interval > 0:
+        val = None
     if comm.rank == 0:
-        indices = np.arange(len(train))
-    else:
-        indices = None
-    indices = chainermn.scatter_dataset(indices, comm, shuffle=True)
-    train = train.slice[indices]
+        if mode == 'bbox':
+            train = TransformDataset(
+                COCOBboxDataset(split='train')
+                .slice[:, ('img', 'bbox', 'label')],
+                Transform(800, 1333, model.extractor.mean))
+            if args.val_interval > 0:
+                val = COCOBboxDataset(split='val')\
+                    .slice[:, ('img', 'bbox', 'label')]
+        elif mode == 'instance_segmentation':
+            train = TransformDataset(
+                COCOInstanceSegmentationDataset(
+                    split='train', return_bbox=True)
+                .slice[:, ('img', 'bbox', 'label', 'mask')],
+                Transform(800, 1333, model.extractor.mean))
+            if args.val_interval > 0:
+                val = COCOInstanceSegmentationDataset(
+                    split='val', return_bbox=True)\
+                    .slice[:, ('img', 'mask', 'label')]
+    train = chainermn.scatter_dataset(train, comm, shuffle=True)
+    if args.val_interval > 0:
+        val = chainermn.scatter_dataset(val, comm, shuffle=False)
 
     train_iter = chainer.iterators.MultiprocessIterator(
         train, args.batchsize // comm.size,
         n_processes=args.batchsize // comm.size,
         shared_mem=100 * 1000 * 1000 * 4)
+    if args.val_interval > 0:
+        val_iter = chainer.iterators.MultiprocessIterator(
+            val, args.batchsize // comm.size,
+            n_processes=args.batchsize // comm.size,
+            shared_mem=100 * 1000 * 1000 * 4,
+            shuffle=False, repeat=False)
 
     optimizer = chainermn.create_multi_node_optimizer(
         chainer.optimizers.MomentumSGD(), comm)
@@ -282,20 +300,37 @@ def main():
 
     trainer.extend(lr_schedule)
 
+    if args.val_interval > 0:
+        val_interval = args.val_interval, 'iteration'
+        if mode == 'bbox':
+            evaluator = DetectionCOCOEvaluator(val_iter, model)
+        elif mode == 'instance_segmentation':
+            evaluator = InstanceSegmentationCOCOEvaluator(val_iter, model)
+        evaluator = chainermn.create_multi_node_evaluator(evaluator, comm)
+        trainer.extend(evaluator, trigger=val_interval)
+
     if comm.rank == 0:
         log_interval = 10, 'iteration'
         trainer.extend(extensions.LogReport(trigger=log_interval))
         trainer.extend(extensions.observe_lr(), trigger=log_interval)
-        trainer.extend(extensions.PrintReport(
-            ['epoch', 'iteration', 'lr', 'main/loss',
-             'main/loss/rpn/loc', 'main/loss/rpn/conf',
-             'main/loss/bbox_head/loc', 'main/loss/bbox_head/conf',
-             'main/loss/mask_head'
-             ]),
-            trigger=log_interval)
+        keys = ['epoch', 'iteration', 'lr', 'main/loss',
+                'main/loss/rpn/loc', 'main/loss/rpn/conf',
+                'main/loss/bbox_head/loc', 'main/loss/bbox_head/conf',
+                'main/loss/mask_head']
+        if args.val_interval > 0:
+            keys.append(
+                'validation/main/map/iou=0.50:0.95/area=all/max_dets=100')
+        trainer.extend(extensions.PrintReport(keys), trigger=log_interval)
         trainer.extend(extensions.ProgressBar(update_interval=10))
 
         trainer.extend(extensions.snapshot(), trigger=(10000, 'iteration'))
+        if args.val_interval > 0:
+            trainer.extend(
+                extensions.snapshot_object(
+                    model, 'model_iter_best'),
+                trigger=training.triggers.MaxValueTrigger(
+                    'validation/main/map/iou=0.50:0.95/area=all/max_dets=100',
+                    trigger=val_interval))
         trainer.extend(
             extensions.snapshot_object(
                 model, 'model_iter_{.updater.iteration}'),
