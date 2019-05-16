@@ -112,7 +112,8 @@ class FasterRCNNVGG16(FasterRCNN):
     ):
         param, path = utils.prepare_model_param(locals(), self._models)
 
-        extractor = VGG16(initialW=param['vgg_initialW'])
+        extractor = VGG16(initialW=param['vgg_initialW'],
+                          **VGG16.preset_params['imagenet'])
         extractor.pick = 'conv5_3'
         # Delete all layers after conv5_3.
         extractor.remove_unused()
