@@ -90,7 +90,7 @@ def setup(dataset, model_name, pretrained_model, batchsize):
                       result['map/iou=0.50:0.95/area={}/max_dets=100'.format(
                           area)])
 
-    return dataset, label_names, eval_, model, batchsize
+    return dataset, eval_, model, batchsize
 
 
 def main():
@@ -102,7 +102,7 @@ def main():
     parser.add_argument('--gpu', type=int, default=-1)
     args = parser.parse_args()
 
-    dataset, label_names, eval_, model, batchsize = setup(
+    dataset, eval_, model, batchsize = setup(
         args.dataset, args.model, args.pretrained_model, args.batchsize)
 
     if args.gpu >= 0:
