@@ -1,4 +1,5 @@
 import argparse
+import copy
 
 import chainer
 from chainer import iterators
@@ -66,7 +67,7 @@ def setup(dataset, model, pretrained_model, batchsize, input_size):
     kwargs = {
         'pretrained_model': pretrained_model,
     }
-    params = cls.preset_params[dataset_name].copy()
+    params = copy.deepcopy(cls.preset_params[dataset_name])
     params['n_class'] = len(label_names)
     if input_size is not None:
         if model in ['pspnet_resnet50', 'pspnet_resnet101']:

@@ -1,4 +1,5 @@
 import argparse
+import copy
 
 import chainer
 from chainer import iterators
@@ -37,7 +38,7 @@ def setup(dataset, model_name, pretrained_model, batchsize):
         dataset = SBDInstanceSegmentationDataset(split='val')
         label_names = sbd_instance_segmentation_label_names
 
-        params = cls.preset_params[dataset_name].copy()
+        params = copy.deepcopy(cls.preset_params[dataset_name])
         params['n_fg_class'] = len(label_names)
         model = cls(pretrained_model=pretrained_model, **params)
         model.use_preset('evaluate')
@@ -64,7 +65,7 @@ def setup(dataset, model_name, pretrained_model, batchsize):
             use_crowded=True, return_crowded=True, return_area=True)
         label_names = coco_instance_segmentation_label_names
 
-        params = cls.preset_params[dataset_name].copy()
+        params = copy.deepcopy(cls.preset_params[dataset_name])
         params['n_fg_class'] = len(label_names)
         model = cls(pretrained_model=pretrained_model, **params)
         if model_name == 'fcis_resnet101':

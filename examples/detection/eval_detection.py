@@ -1,4 +1,5 @@
 import argparse
+import copy
 
 import chainer
 from chainer import iterators
@@ -81,7 +82,7 @@ def setup(dataset, model, pretrained_model, batchsize):
     cls, pretrained_models, default_batchsize = models[model]
     if pretrained_model is None:
         pretrained_model = pretrained_models.get(dataset_name, dataset_name)
-    params = cls.preset_params[dataset_name].copy()
+    params = copy.deepcopy(cls.preset_params[dataset_name])
     params['n_fg_class'] = len(label_names)
     model = cls(pretrained_model=pretrained_model, **params)
 

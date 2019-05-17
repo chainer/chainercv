@@ -1,5 +1,7 @@
 from __future__ import division
+
 import argparse
+import copy
 import multiprocessing
 import numpy as np
 
@@ -113,7 +115,7 @@ def main():
     label_names = directory_parsing_label_names(args.train)
 
     model_cfg = model_cfgs[args.model]
-    params = model_cfg['class'].preset_params['imagenet'].copy()
+    params = copy.deepcopy(model_cfg['class'].preset_params['imagenet'])
     params['n_class'] = len(label_names)
     params.update(model_cfg['kwargs'])
 
