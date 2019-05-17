@@ -1,5 +1,7 @@
 from __future__ import division
 
+import copy
+
 import chainer
 import chainer.functions as F
 import chainer.links as L
@@ -51,7 +53,7 @@ class FasterRCNNFPNResNet(FasterRCNN):
                  min_size=800, max_size=1333):
         param, path = utils.prepare_model_param(locals(), self._models)
 
-        base_param = self._base.preset_params['imagenet'].copy()
+        base_param = copy.deepcopy(self._base.preset_params['imagenet'])
         base_param['n_class'] = 1
         base = self._base(arch='he', **base_param)
         base.pick = ('res2', 'res3', 'res4', 'res5')
