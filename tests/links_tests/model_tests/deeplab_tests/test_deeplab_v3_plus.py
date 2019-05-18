@@ -1,3 +1,4 @@
+import copy
 import unittest
 
 import chainer
@@ -17,7 +18,7 @@ class TestDeepLabV3plusXception65(unittest.TestCase):
 
     def setUp(self):
         self.n_class = 10
-        params = self.model.preset_params['voc'].copy()
+        params = copy.deepcopy(self.model.preset_params['voc'])
         params['n_class'] = self.n_class
         self.link = self.model(**params)
 
@@ -62,7 +63,7 @@ class TestDeepLabV3plusXception65Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        params = self.model.preset_params[self.pretrained_model].copy()
+        params = copy.deepcopy(self.model.preset_params[self.pretrained_model])
         params['n_class'] = self.n_class
 
         if self.pretrained_model == 'cityscapes':

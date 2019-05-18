@@ -1,5 +1,6 @@
 import unittest
 
+import copy
 import numpy as np
 
 from chainer.testing import attr
@@ -28,7 +29,7 @@ from chainercv.utils import testing
 class TestSEResNeXtCall(unittest.TestCase):
 
     def setUp(self):
-        params = self.model_class.preset_params['imagenet'].copy()
+        params = copy.deepcopy(self.model_class.preset_params['imagenet'])
         params['n_class'] = self.n_class
         self.link = self.model_class(
             pretrained_model=None, **params)
@@ -68,7 +69,7 @@ class TestSEResNeXtPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        params = self.model.preset_params[self.pretrained_model].copy()
+        params = copy.deepcopy(self.model.preset_params[self.pretrained_model])
         params['n_class'] = self.n_class
         params['mean'] = self.mean
 

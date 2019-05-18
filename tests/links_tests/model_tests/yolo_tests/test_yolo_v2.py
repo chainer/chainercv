@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import unittest
 
@@ -14,7 +15,7 @@ from chainercv.links import YOLOv2
 class TestYOLOv2(unittest.TestCase):
 
     def setUp(self):
-        params = YOLOv2.preset_params['voc'].copy()
+        params = copy.deepcopy(YOLOv2.preset_params['voc'])
         params['n_fg_class'] = self.n_fg_class
         self.link = YOLOv2(**params)
         self.insize = 416
@@ -58,7 +59,7 @@ class TestYOLOv2Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        params = YOLOv2.preset_params['voc'].copy()
+        params = copy.deepcopy(YOLOv2.preset_params['voc'])
         params['n_fg_class'] = self.n_fg_class
 
         if self.pretrained_model == 'voc0712':

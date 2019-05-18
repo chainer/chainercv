@@ -1,5 +1,6 @@
 import unittest
 
+import copy
 import numpy as np
 
 import chainer
@@ -20,7 +21,7 @@ from chainercv.utils import testing
 class TestVGG16Call(unittest.TestCase):
 
     def setUp(self):
-        params = VGG16.preset_params['imagenet'].copy()
+        params = copy.deepcopy(VGG16.preset_params['imagenet'])
         params['n_class'] = self.n_class
         self.link = VGG16(
             pretrained_model=None, initialW=Zero(), **params)
@@ -60,7 +61,7 @@ class TestVGG16Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        params = VGG16.preset_params[self.pretrained_model].copy()
+        params = copy.deepcopy(VGG16.preset_params[self.pretrained_model])
         params['n_class'] = self.n_class
         params['mean'] = self.mean
 

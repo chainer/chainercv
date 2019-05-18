@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import unittest
 
@@ -17,12 +18,12 @@ class TestSSDVGG16(unittest.TestCase):
 
     def setUp(self):
         if self.insize == 300:
-            params = SSD300.preset_params['voc'].copy()
+            params = copy.deepcopy(SSD300.preset_params['voc'])
             params['n_fg_class'] = self.n_fg_class
             self.link = SSD300(**params)
             self.n_bbox = 8732
         elif self.insize == 512:
-            params = SSD300.preset_params['voc'].copy()
+            params = copy.deepcopy(SSD300.preset_params['voc'])
             params['n_fg_class'] = self.n_fg_class
             self.link = SSD512(**params)
             self.n_bbox = 24564
@@ -61,7 +62,7 @@ class TestSSDVGG16Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        params = self.model.preset_params['voc'].copy()
+        params = copy.deepcopy(self.model.preset_params['voc'])
         params['n_fg_class'] = self.n_fg_class
 
         if self.pretrained_model == 'voc0712':

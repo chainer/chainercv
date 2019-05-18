@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import unittest
 
@@ -17,7 +18,7 @@ class TestSegNetBasic(unittest.TestCase):
 
     def setUp(self):
         self.n_class = 10
-        params = SegNetBasic.preset_params['camvid'].copy()
+        params = copy.deepcopy(SegNetBasic.preset_params['camvid'])
         params['n_class'] = self.n_class
         self.link = SegNetBasic(**params)
 
@@ -60,7 +61,7 @@ class TestSegNetPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        params = SegNetBasic.preset_params['camvid'].copy()
+        params = copy.deepcopy(SegNetBasic.preset_params['camvid'])
         params['n_class'] = self.n_class
 
         if self.pretrained_model == 'camvid':

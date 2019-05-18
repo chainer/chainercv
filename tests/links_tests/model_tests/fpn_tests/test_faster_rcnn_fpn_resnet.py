@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import unittest
 
@@ -19,7 +20,7 @@ from chainercv.utils.testing import attr
 class TestFasterRCNNFPNResNet(unittest.TestCase):
 
     def setUp(self):
-        params = self.model.preset_params['coco'].copy()
+        params = copy.deepcopy(self.model.preset_params['coco'])
         params['n_fg_class'] = self.n_fg_class
         params['min_size'] = 66
         self.link = self.model(**params)
@@ -55,7 +56,7 @@ class TestFasterRCNNFPNResNetPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        params = self.model.preset_params['coco'].copy()
+        params = copy.deepcopy(self.model.preset_params['coco'])
         params['n_fg_class'] = self.n_fg_class
 
         if self.pretrained_model == 'coco':
