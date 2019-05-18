@@ -203,14 +203,6 @@ class ResNet(PickableSequentialChain):
         if path:
             chainer.serializers.load_npz(path, self)
 
-    @classmethod
-    def preset_param(cls, preset_param):
-        if preset_param is None:
-            return None
-        param = cls._params[preset_param].copy()
-        param = dict(param, **cls._default_param)
-        return param
-
 
 class ResNet50(ResNet):
 
