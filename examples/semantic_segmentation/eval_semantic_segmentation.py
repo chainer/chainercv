@@ -104,7 +104,7 @@ def main():
         model.to_gpu()
 
     iterator = iterators.SerialIterator(
-        dataset, 1, repeat=False, shuffle=False)
+        dataset, batchsize, repeat=False, shuffle=False)
 
     in_values, out_values, rest_values = apply_to_iterator(
         model.predict, iterator, hook=ProgressHook(len(dataset)))
