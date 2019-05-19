@@ -37,7 +37,7 @@ def main():
         return
 
     it = iterators.MultithreadIterator(
-        dataset, comm.size, repeat=False, shuffle=False)
+        dataset, batchsize * comm.size, repeat=False, shuffle=False)
 
     in_values, out_values, rest_values = apply_to_iterator(
         model.predict, it, hook=ProgressHook(len(dataset)), comm=comm)
