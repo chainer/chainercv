@@ -125,7 +125,7 @@ class MobileNetV2(PickableSequentialChain):
                         'mean': _tf_mobilenetv2_mean,
                         'scale': _tf_mobilenetv2_scale,
                     },
-                    'overwritable': (),
+                    'overwritable': ('mean', 'scale'),
                     'url':
                     'https://chainercv-models.preferred.jp/mobilenet_v2_depth_multiplier_1.0_imagenet_converted_2019_05_13.npz',  # NOQA
                 }
@@ -137,7 +137,7 @@ class MobileNetV2(PickableSequentialChain):
                         'mean': _tf_mobilenetv2_mean,
                         'scale': _tf_mobilenetv2_scale,
                     },
-                    'overwritable': (),
+                    'overwritable': ('mean', 'scale'),
                     'url':
                     'https://chainercv-models.preferred.jp/mobilenet_v2_depth_multiplier_1.4_imagenet_converted_2019_05_13.npz',  # NOQA
                 }
