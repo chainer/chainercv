@@ -4,6 +4,7 @@
 ## Supported models
 - SegNet
 - PSPNet
+- DeepLab V3+
 
 For the details, please check the documents and examples of each model.
 
