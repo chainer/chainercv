@@ -79,6 +79,7 @@ RUN pip2 install --no-cache-dir \
     mpi4py \
     'git+https://github.com/cocodataset/coco.git#egg=pycocotools&subdirectory=PythonAPI' \
     pytest \
+    pytest-cov \
     scipy \
     && pip3 install --no-cache-dir \
     cython \
@@ -87,4 +88,5 @@ RUN pip2 install --no-cache-dir \
     mpi4py \
     'git+https://github.com/cocodataset/coco.git#egg=pycocotools&subdirectory=PythonAPI' \
     pytest \
+    pytest-cov \
     scipy

@@ -18,7 +18,9 @@ RUN pip2 install --no-cache-dir \
     cython \
     mock \
     pytest \
+    pytest-cov \
     && pip3 install --no-cache-dir \
     cython \
     mock \
-    pytest
+    pytest \
+    pytest-cov

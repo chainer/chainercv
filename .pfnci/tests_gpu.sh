@@ -11,10 +11,13 @@ docker run --runtime=nvidia --interactive --rm \
 . ./install.sh
 cd chainercv/
 python${PYTHON} -m pytest --color=no \
+                --cov=chainercv/ --cov-report= \
                 -m 'not pfnci_skip and gpu and not mpi' tests/
 if which mpiexec; then
     mpiexec -n 2 --allow-run-as-root \
             python${PYTHON} -m pytest --color=no \
+            --cov=chainercv/ --cov-report= --cov-append \
             -m 'not pfnci_skip and gpu and mpi' tests/
 fi
+coverage report --fail-under=90
 EOD
