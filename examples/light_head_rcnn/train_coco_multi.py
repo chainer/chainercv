@@ -94,7 +94,7 @@ def main():
     parser.add_argument('--out', '-o', default='result',
                         help='Output directory')
     parser.add_argument('--seed', '-s', type=int, default=1234)
-    parser.add_argument('--batch-size', '-b', type=int, default=8)
+    parser.add_argument('--batchsize', '-b', type=int, default=8)
     args = parser.parse_args()
 
     # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
@@ -141,7 +141,7 @@ def main():
     indices = chainermn.scatter_dataset(indices, comm, shuffle=True)
     train_dataset = train_dataset.slice[indices]
     train_iter = chainer.iterators.SerialIterator(
-        train_dataset, batch_size=args.batch_size // comm.size)
+        train_dataset, batch_size=args.batchsize // comm.size)
 
     if comm.rank == 0:
         test_dataset = COCOBboxDataset(
@@ -186,7 +186,7 @@ def main():
 
     @make_shift('lr')
     def lr_scheduler(trainer):
-        base_lr = 0.0005 * 1.25 * args.batch_size
+        base_lr = 0.0005 * 1.25 * args.batchsize
         warm_up_duration = 500
         warm_up_rate = 1 / 3
 
