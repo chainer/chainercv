@@ -154,12 +154,10 @@ class LightHeadRCNN(chainer.Chain):
         """
         if preset == 'visualize':
             self.nms_thresh = 0.5
-            self.score_thresh = 0.5
-            self.max_n_predict = 100
+            self.score_thresh = 0.7
         elif preset == 'evaluate':
             self.nms_thresh = 0.5
-            self.score_thresh = 0.0
-            self.max_n_predict = 100
+            self.score_thresh = 0.001
         else:
             raise ValueError('preset must be visualize or evaluate')
 
@@ -296,11 +294,6 @@ class LightHeadRCNN(chainer.Chain):
             bbox = bbox[indices]
             label = label[indices]
             prob = prob[indices]
-
-            if len(bbox) > self.max_n_predict:
-                bbox = bbox[:self.max_n_predict]
-                label = label[:self.max_n_predict]
-                prob = prob[:self.max_n_predict]
 
             bboxes.append(bbox)
             labels.append(label)
