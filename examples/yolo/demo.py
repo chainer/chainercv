@@ -26,9 +26,9 @@ def main():
     if args.model == 'yolo_v2':
         cls = YOLOv2
     elif args.model == 'yolo_v2_tiny':
-        model = YOLOv2Tiny
+        cls = YOLOv2Tiny
     elif args.model == 'yolo_v3':
-        model = YOLOv3
+        cls = YOLOv3
 
     if args.dataset == 'voc':
         if args.pretrained_model is None:
