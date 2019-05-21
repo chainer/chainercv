@@ -21,5 +21,5 @@ if which mpiexec; then
             --cov=chainercv/ --cov-report= --cov-append \
             -m 'not pfnci_skip and gpu and mpi' tests/
 fi
-coverage report --fail-under=90
+coveralls
 EOD
