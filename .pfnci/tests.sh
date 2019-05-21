@@ -8,6 +8,8 @@ gsutil -q cp gs://chainercv-pfn-public-ci/datasets-tiny.zip .
 unzip -q datasets-tiny.zip
 rm datasets-tiny.zip
 
+gsutil -q cp gs://chainercv-pfn-public-ci/.coveralls.yml .
+
 docker run --interactive --rm \
        --volume $(pwd):/root/ --workdir /root/ \
        --env MPLBACKEND=agg \

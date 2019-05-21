@@ -3,6 +3,8 @@ set -eux
 
 . $(dirname $0)/common.sh
 
+gsutil -q cp gs://chainercv-pfn-public-ci/.coveralls.yml .
+
 docker run --runtime=nvidia --interactive --rm \
        --volume $(pwd):/root/ --workdir /root/ \
        --env MPLBACKEND=agg \
