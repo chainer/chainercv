@@ -73,6 +73,7 @@ RUN cd $(mktemp -d) \
 RUN echo /usr/local/lib/ > /etc/ld.so.conf.d/local.conf && ldconfig
 
 RUN pip2 install --no-cache-dir \
+    coveralls \
     cython \
     matplotlib==2.1 \
     mock \
@@ -82,6 +83,7 @@ RUN pip2 install --no-cache-dir \
     pytest-cov \
     scipy \
     && pip3 install --no-cache-dir \
+    coveralls \
     cython \
     matplotlib \
     mock \

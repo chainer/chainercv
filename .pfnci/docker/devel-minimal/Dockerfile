@@ -15,11 +15,13 @@ RUN curl -LO https://bootstrap.pypa.io/get-pip.py \
     && rm get-pip.py
 
 RUN pip2 install --no-cache-dir \
+    coveralls \
     cython \
     mock \
     pytest \
     pytest-cov \
     && pip3 install --no-cache-dir \
+    coveralls \
     cython \
     mock \
     pytest \
