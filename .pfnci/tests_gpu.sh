@@ -3,7 +3,7 @@ set -eux
 
 . $(dirname $0)/common.sh
 
-gsutil -q cp gs://chainercv-pfn-public-ci/.coveralls.yml .
+gsutil -q cp gs://chainercv-pfn-public-ci/.coveralls.yml chainercv/
 
 docker run --runtime=nvidia --interactive --rm \
        --volume $(pwd):/root/ --workdir /root/ \
