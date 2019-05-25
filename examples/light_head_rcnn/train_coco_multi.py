@@ -12,14 +12,12 @@ from chainer.dataset.convert import _concat_arrays
 from chainer.dataset.convert import to_device
 import chainer.links as L
 from chainer.training import extensions
-from chainer.training.triggers import ManualScheduleTrigger
 
 from chainercv.chainer_experimental.datasets.sliceable \
     import TransformDataset
 from chainercv.chainer_experimental.training.extensions import make_shift
 from chainercv.datasets import coco_bbox_label_names
 from chainercv.datasets import COCOBboxDataset
-from chainercv.extensions import DetectionCOCOEvaluator
 from chainercv.links.model.light_head_rcnn import LightHeadRCNNResNet101
 from chainercv.links.model.light_head_rcnn import LightHeadRCNNTrainChain
 from chainercv.links.model.ssd import GradientScaling
@@ -245,11 +243,6 @@ def main():
                     file_name='loss.png', trigger=plot_interval),
                 trigger=plot_interval)
 
-        trainer.extend(
-            DetectionCOCOEvaluator(
-                test_iter, model.light_head_rcnn,
-                label_names=coco_bbox_label_names),
-            trigger=ManualScheduleTrigger([19, 25], 'epoch'))
         trainer.extend(extensions.dump_graph('main/loss'))
 
     trainer.run()
