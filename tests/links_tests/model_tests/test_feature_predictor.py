@@ -16,7 +16,7 @@ class DummyFeatureExtractor(chainer.Chain):
         self.shape_1 = shape_1
         self.mean = np.zeros(in_channels).reshape((in_channels, 1, 1))
 
-    def __call__(self, x):
+    def forward(self, x):
         shape = (x.shape[0],) + self.shape_0
         y0 = self.xp.random.rand(*shape).astype(np.float32)
 

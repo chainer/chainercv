@@ -16,7 +16,7 @@ Supported tasks:
 + Image Classification ([ResNet](examples/resnet), [SENet](examples/senet), [VGG](examples/vgg))
 + Object Detection ([tutorial](http://chainercv.readthedocs.io/en/latest/tutorial/detection.html), [Faster R-CNN](examples/faster_rcnn), [FPN](examples/fpn), [SSD](examples/ssd), [YOLO](examples/yolo))
 + Semantic Segmentation ([SegNet](examples/segnet), [PSPNet](examples/pspnet))
-+ Instance Segmentation ([FCIS](examples/fcis),)
++ Instance Segmentation ([FCIS](examples/fcis), [Mask R-CNN](examples/fpn))
 
 # Guiding Principles
 ChainerCV is developed under the following three guiding principles.
@@ -50,12 +50,13 @@ For additional features
 
 Environments under Python 2.7.12 and 3.6.0 are tested.
 
-+ The master branch is designed to work on Chainer v4 (the stable version) and v5 (the development version).
++ The master branch is designed to work on Chainer v6 (the stable version) and v7 (the development version).
 + The following branches are kept for the previous version of Chainer. Note that these branches are unmaintained.
     + `0.4.11` (for Chainer v1). It can be installed by `pip install chainercv==0.4.11`.
     + `0.7` (for Chainer v2). It can be installed by `pip install chainercv==0.7`.
     + `0.8` (for Chainer v3). It can be installed by `pip install chainercv==0.8`.
     + `0.10` (for Chainer v4). It can be installed by `pip install chainercv==0.10`.
+    + `0.12` (for Chainer v5). It can be installed by `pip install chainercv==0.12`.
 
 # Data Conventions
 

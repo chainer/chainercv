@@ -2,9 +2,8 @@ import numpy as np
 import six
 import unittest
 
-from chainer import testing
-
 from chainercv.chainer_experimental.datasets.sliceable import SliceableDataset
+from chainercv.utils import testing
 
 
 class SampleDataset(SliceableDataset):

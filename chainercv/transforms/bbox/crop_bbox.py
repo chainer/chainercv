@@ -13,16 +13,8 @@ def crop_bbox(
     If a bounding box does not overlap with the cropped area,
     this bounding box will be removed.
 
-    The bounding boxes are expected to be packed into a two dimensional
-    tensor of shape :math:`(R, 4)`, where :math:`R` is the number of
-    bounding boxes in the image. The second axis represents attributes of
-    the bounding box. They are :math:`(y_{min}, x_{min}, y_{max}, x_{max})`,
-    where the four attributes are coordinates of the top left and the
-    bottom right vertices.
-
     Args:
-        bbox (~numpy.ndarray): Bounding boxes to be transformed. The shape is
-            :math:`(R, 4)`. :math:`R` is the number of bounding boxes.
+        bbox (~numpy.ndarray): See the table below.
         y_slice (slice): The slice of y axis.
         x_slice (slice): The slice of x axis.
         allow_outside_center (bool): If this argument is :obj:`False`,
@@ -30,6 +22,12 @@ def crop_bbox(
             are removed. The default value is :obj:`True`.
         return_param (bool): If :obj:`True`, this function returns
             indices of kept bounding boxes.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`bbox`, ":math:`(R, 4)`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
 
     Returns:
         ~numpy.ndarray or (~numpy.ndarray, dict):

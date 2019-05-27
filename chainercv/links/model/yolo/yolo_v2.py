@@ -73,7 +73,7 @@ class YOLOv2Base(YOLOBase):
         super(YOLOv2Base, self).to_gpu(device)
         self._default_bbox = cuda.to_gpu(self._default_bbox, device)
 
-    def __call__(self, x):
+    def forward(self, x):
         """Compute localization, objectness, and classification from a batch of images.
 
         This method computes three variables, :obj:`locs`, :obj:`objs`,
@@ -176,7 +176,7 @@ class Darknet19Extractor(chainer.ChainList):
         self.append(Conv2DBNActiv(64, 1, activ=_leaky_relu))
         self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
 
-    def __call__(self, x):
+    def forward(self, x):
         """Compute a feature map from a batch of images.
 
         Args:

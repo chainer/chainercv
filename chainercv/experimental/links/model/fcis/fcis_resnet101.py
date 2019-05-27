@@ -6,7 +6,7 @@ import chainer.links as L
 import numpy as np
 
 from chainercv.experimental.links.model.fcis import FCIS
-from chainercv.functions import psroi_pooling_2d
+from chainercv.functions import ps_roi_average_pooling_2d
 from chainercv.links import Conv2DBNActiv
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
@@ -232,7 +232,7 @@ class ResNet101Extractor(chainer.Chain):
             self.res4 = ResBlock(23, 512, 256, 1024, 2, **kwargs)
             self.res5 = ResBlock(3, 1024, 512, 2048, 1, 2, **kwargs)
 
-    def __call__(self, x):
+    def forward(self, x):
         """Forward the chain.
 
         Args:
@@ -307,7 +307,7 @@ class FCISResNet101Head(chainer.Chain):
                 1024, group_size * group_size * 2 * 4,
                 1, 1, 0, initialW=initialW)
 
-    def __call__(self, x, rois, roi_indices, img_size, gt_roi_labels=None):
+    def forward(self, x, rois, roi_indices, img_size, gt_roi_labels=None):
         """Forward the chain.
 
         We assume that there are :math:`N` batches.
@@ -365,18 +365,18 @@ class FCISResNet101Head(chainer.Chain):
             self, h_cls_seg, h_ag_loc, rois, roi_indices, gt_roi_labels):
         # PSROI Pooling
         # shape: (n_roi, n_class, 2, roi_size, roi_size)
-        roi_cls_ag_seg_scores = psroi_pooling_2d(
+        roi_cls_ag_seg_scores = ps_roi_average_pooling_2d(
             h_cls_seg, rois, roi_indices,
-            self.n_class * 2, self.roi_size, self.roi_size,
+            (self.n_class * 2, self.roi_size, self.roi_size),
             self.spatial_scale, self.group_size)
         roi_cls_ag_seg_scores = F.reshape(
             roi_cls_ag_seg_scores,
             (-1, self.n_class, 2, self.roi_size, self.roi_size))
 
         # shape: (n_roi, 2*4, roi_size, roi_size)
-        roi_ag_loc_scores = psroi_pooling_2d(
+        roi_ag_loc_scores = ps_roi_average_pooling_2d(
             h_ag_loc, rois, roi_indices,
-            2 * 4, self.roi_size, self.roi_size,
+            (2 * 4, self.roi_size, self.roi_size),
             self.spatial_scale, self.group_size)
 
         # shape: (n_roi, n_class)

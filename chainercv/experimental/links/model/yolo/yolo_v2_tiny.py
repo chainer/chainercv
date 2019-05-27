@@ -28,7 +28,7 @@ class DarknetExtractor(chainer.ChainList):
         # additional link
         self.append(Conv2DBNActiv(1024, 3, pad=1, activ=_leaky_relu))
 
-    def __call__(self, x):
+    def forward(self, x):
         """Compute a feature map from a batch of images.
 
         Args:

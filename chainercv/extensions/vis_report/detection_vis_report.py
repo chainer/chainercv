@@ -137,7 +137,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
                     img, pred_bbox, pred_label, pred_score,
                     label_names=self.label_names, ax=ax_pred)
 
-                plt.savefig(out_file)
+                plt.savefig(out_file, bbox_inches='tight')
                 plt.close()
 
                 idx += 1
