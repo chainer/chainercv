@@ -32,13 +32,9 @@ def vis_semantic_segmentation(
         >>> plt.show()
 
     Args:
-        img (~numpy.ndarray): An array of shape :math:`(3, height, width)`.
-            This is in RGB format and the range of its value is
-            :math:`[0, 255]`. If this is :obj:`None`, no image is displayed.
-        label (~numpy.ndarray): An integer array of shape
-            :math:`(height, width)`.
-            The values correspond to id for label names stored in
-            :obj:`label_names`.
+        img (~numpy.ndarray): See the table below. If this is :obj:`None`,
+            no image is displayed.
+        label (~numpy.ndarray): See the table below.
         label_names (iterable of strings): Name of labels ordered according
             to label ids.
         label_colors: (iterable of tuple): An iterable of colors for regular
@@ -62,6 +58,14 @@ def vis_semantic_segmentation(
             The default value is :obj:`False`.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`label`, ":math:`(H, W)`", :obj:`int32`, \
+        ":math:`[-1, \#class - 1]`"
 
     Returns:
         matploblib.axes.Axes and list of matplotlib.patches.Patch:
