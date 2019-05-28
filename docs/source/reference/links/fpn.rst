@@ -18,6 +18,20 @@ FasterRCNNFPNResnet101
    :members:
 
 
+Instance Segmentation Links
+---------------------------
+
+MaskRCNNFPNResNet50
+~~~~~~~~~~~~~~~~~~~
+.. autoclass:: MaskRCNNFPNResNet50
+   :members:
+
+MaskRCNNFPNResNet101
+~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: MaskRCNNFPNResNet101
+   :members:
+
+
 Utility
 -------
 
@@ -26,14 +40,20 @@ FasterRCNN
 .. autoclass:: FasterRCNN
    :members:
 
+FasterRCNNFPNResNet
+~~~~~~~~~~~~~~~~~~~
+.. autoclass:: FasterRCNNFPNResNet
+   :members:
+
+
 FPN
 ~~~
 .. autoclass:: FPN
    :members:
 
-Head
-~~~~
-.. autoclass:: Head
+BboxHead
+~~~~~~~~
+.. autoclass:: BboxHead
    :members:
 
 RPN
@@ -41,17 +61,39 @@ RPN
 .. autoclass:: RPN
    :members:
 
+MaskHead
+~~~~~~~~
+.. autoclass:: MaskHead
+   :members:
+
+segm_to_mask
+~~~~~~~~~~~~
+.. autofunction:: segm_to_mask
+
+
 Train-only Utility
 ------------------
 
-head_loss_pre
-~~~~~~~~~~~~~
-.. autofunction:: head_loss_pre
+bbox_head_loss_pre
+~~~~~~~~~~~~~~~~~~
+.. autofunction:: bbox_head_loss_pre
 
-head_loss_post
-~~~~~~~~~~~~~~
-.. autofunction:: head_loss_post
+bbox_head_loss_post
+~~~~~~~~~~~~~~~~~~~
+.. autofunction:: bbox_head_loss_post
 
 rpn_loss
 ~~~~~~~~
 .. autofunction:: rpn_loss
+
+mask_head_loss_pre
+~~~~~~~~~~~~~~~~~~
+.. autofunction:: mask_head_loss_pre
+
+mask_head_loss_post
+~~~~~~~~~~~~~~~~~~~
+.. autofunction:: mask_head_loss_post
+
+mask_to_segm
+~~~~~~~~~~~~
+.. autofunction:: mask_to_segm

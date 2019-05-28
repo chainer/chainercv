@@ -1,4 +1,6 @@
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
+from chainercv.chainer_experimental.datasets.sliceable.sliceable_dataset \
+    import _is_iterable
 
 
 class TransformDataset(GetterDataset):
@@ -22,20 +24,35 @@ class TransformDataset(GetterDataset):
             This dataset should have :meth:`__len__` and :meth:`__getitem__`.
         keys (int or string or tuple of strings): The number or name(s) of
             data that the transform function returns.
+            If this parameter is omitted, :meth:`__init__` fetches a sample
+            from the underlying dataset to determine the number of data.
         transform (callable): A function that is called to transform values
             returned by the underlying dataset's :meth:`__getitem__`.
     """
 
-    def __init__(self, dataset, keys, transform):
+    def __init__(self, dataset, keys, transform=None):
+        if transform is None:
+            keys, transform = None, keys
+
         super(TransformDataset, self).__init__()
         self._dataset = dataset
         self._transform = transform
+
         if isinstance(keys, int):
             if keys == 1:
                 keys = None
             else:
                 keys = (None,) * keys
+        elif keys is None:
+            sample = self._get(0)
+            if isinstance(sample, tuple):
+                keys = (None,) * len(sample)
+            else:
+                keys = None
+
         self.add_getter(keys, self._get)
+        if not _is_iterable(keys):
+            self.keys = 0
 
     def __len__(self):
         return len(self._dataset)

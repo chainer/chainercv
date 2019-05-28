@@ -1,17 +1,15 @@
 #! /usr/bin/env sh
 set -eux
 
-. .pfnci/common.sh
-
-mkdir -p ${TEMP}/.chainer
+. $(dirname $0)/common.sh
 
 docker run --runtime=nvidia --interactive --rm \
-       --volume $(pwd):/chainercv/ --workdir /chainercv/ \
-       --volume ${TEMP}/.chainer/:/root/.chainer/ \
+       --volume $(pwd):/root/ --workdir /root/ \
        --env MPLBACKEND=agg \
        ${DOCKER_IMAGE} \
        sh -ex << EOD
-pip${PYTHON} install --user -e .
+. ./install.sh
+cd chainercv/
 python${PYTHON} -m pytest --color=no \
                 -m 'not pfnci_skip and gpu and not mpi' tests/
 if which mpiexec; then

@@ -39,10 +39,10 @@ class ConstantStubLink(chainer.Link):
         for output in self._outputs:
             output.to_cpu()
 
-    def to_gpu(self):
-        super(ConstantStubLink, self).to_gpu()
+    def to_gpu(self, device=None):
+        super(ConstantStubLink, self).to_gpu(device)
         for output in self._outputs:
-            output.to_gpu()
+            output.to_gpu(device)
 
     def forward(self, *_):
         """Returns value(s).
@@ -57,15 +57,6 @@ class ConstantStubLink(chainer.Link):
             a :obj:`chainer.Variable`. Otherwise, this returns a
             tuple of :obj:`chainer.Variable`.
         """
-
-        # TODO(Hakuyume): Remove this fix when 'to_device' APIs is refactored.
-        # Fix for Chainer 6.x.
-        # https://github.com/chainer/chainer/issues/6244
-        for output in self._outputs:
-            if self.xp is np:
-                output.to_cpu()
-            else:
-                output.to_gpu()
 
         if self._tuple:
             return self._outputs

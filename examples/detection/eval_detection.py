@@ -86,7 +86,7 @@ def setup(dataset, model, pretrained_model, batchsize):
     if batchsize is None:
         batchsize = default_batchsize
 
-    return dataset, label_names, eval_, model, batchsize
+    return dataset, eval_, model, batchsize
 
 
 def main():
@@ -98,7 +98,7 @@ def main():
     parser.add_argument('--gpu', type=int, default=-1)
     args = parser.parse_args()
 
-    dataset, label_names, eval_, model, batchsize = setup(
+    dataset, eval_, model, batchsize = setup(
         args.dataset, args.model, args.pretrained_model, args.batchsize)
 
     if args.gpu >= 0:

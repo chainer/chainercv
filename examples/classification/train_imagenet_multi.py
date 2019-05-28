@@ -81,13 +81,13 @@ def main():
                         '-m', choices=model_cfgs.keys(), default='resnet50',
                         help='Convnet models')
     parser.add_argument('--communicator', type=str,
-                        default='hierarchical', help='Type of communicator')
+                        default='pure_nccl', help='Type of communicator')
     parser.add_argument('--loaderjob', type=int, default=4)
     parser.add_argument('--batchsize', type=int, default=32,
                         help='Batch size for each worker')
     parser.add_argument('--lr', type=float)
     parser.add_argument('--momentum', type=float, default=0.9)
-    parser.add_argument('--weight_decay', type=float, default=0.0001)
+    parser.add_argument('--weight-decay', type=float, default=0.0001)
     parser.add_argument('--out', type=str, default='result')
     parser.add_argument('--epoch', type=int, default=90)
     args = parser.parse_args()
