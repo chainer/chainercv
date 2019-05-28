@@ -193,9 +193,9 @@ def main():
         if iteration < warm_up_duration:
             rate = warm_up_rate \
                 + (1 - warm_up_rate) * iteration / warm_up_duration
-        elif epoch < 19:
+        elif epoch < 20:
             rate = 1
-        elif epoch < 25:
+        elif epoch < 26:
             rate = 0.1
         else:
             rate = 0.01
