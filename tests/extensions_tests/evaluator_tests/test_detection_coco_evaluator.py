@@ -153,7 +153,7 @@ class TestDetectionCOCOEvaluatorMPI(unittest.TestCase):
             self.bboxes, self.labels, self.initial_count)
         multi_evaluator = DetectionCOCOEvaluator(
             self.single_iterator, multi_link,
-             label_names=('cls0', 'cls1', 'cls2'),
+            label_names=('cls0', 'cls1', 'cls2'),
             comm=self.comm)
 
         reporter = chainer.Reporter()
@@ -169,7 +169,7 @@ class TestDetectionCOCOEvaluatorMPI(unittest.TestCase):
             self.bboxes, self.labels)
         single_evaluator = DetectionCOCOEvaluator(
             self.single_iterator, single_link,
-             label_names=('cls0', 'cls1', 'cls2'))
+            label_names=('cls0', 'cls1', 'cls2'))
 
         reporter.add_observer('target', single_link)
         with reporter:
