@@ -117,42 +117,38 @@ class TestDetectionCOCOEvaluatorMPI(unittest.TestCase):
         batchsize_per_process = 5
         batchsize = (batchsize_per_process * comm.size
                      if comm is not None else batchsize_per_process)
-        if comm is None or comm.rank == 0:
+        if comm.rank == 0:
             bboxes = [generate_random_bbox(5, (256, 324), 24, 120)
                       for _ in range(10)]
             labels = [2 * np.ones((5,), dtype=np.int32) for _ in range(10)]
-            areas = [[np.array([(bb[2] - bb[0]) * bb[3] - bb[0]])
-                      for bb in bbox] for bbox in bboxes]
-            crowdeds = [np.zeros((5,)) for _ in range(10)]
-            dataset = TupleDataset(
-                np.random.uniform(size=(10, 3, 32, 48)),
-                bboxes, labels, areas, crowdeds)
             initial_count = 0
-            self.multi_iterator = SerialIterator(
-                dataset, batchsize, repeat=False, shuffle=False)
-            self.single_iterator = SerialIterator(
-                dataset, batchsize, repeat=False, shuffle=False)
         else:
             bboxes = None
             labels = None
             initial_count = comm.rank * batchsize_per_process
-            self.multi_iterator = None
-            self.single_iterator = None
 
-        if comm is not None:
-            bboxes = comm.bcast_obj(bboxes)
-            labels = comm.bcast_obj(labels)
-
+        bboxes = comm.bcast_obj(bboxes)
+        labels = comm.bcast_obj(labels)
         self.bboxes = bboxes
         self.labels = labels
+
+        areas = [[np.array([(bb[2] - bb[0]) * bb[3] - bb[0]])
+                  for bb in bbox] for bbox in bboxes]
+        crowdeds = [np.zeros((5,)) for _ in range(10)]
+        self.dataset = TupleDataset(
+            np.random.uniform(size=(10, 3, 32, 48)),
+            bboxes, labels, areas, crowdeds)
         self.initial_count = initial_count
+        self.batchsize = batchsize
 
     @attr.mpi
     def test_consistency(self):
+        multi_iterator = SerialIterator(
+            self.dataset, self.batchsize, repeat=False, shuffle=False)
         multi_link = _DetectionStubLink(
             self.bboxes, self.labels, self.initial_count)
         multi_evaluator = DetectionCOCOEvaluator(
-            self.single_iterator, multi_link,
+            multi_iterator, multi_link,
             label_names=('cls0', 'cls1', 'cls2'),
             comm=self.comm)
 
@@ -161,14 +157,16 @@ class TestDetectionCOCOEvaluatorMPI(unittest.TestCase):
         with reporter:
             multi_mean = multi_evaluator.evaluate()
 
-        if self.comm is not None and not self.comm.rank == 0:
+        if self.comm.rank == 0:
             self.assertEqual(multi_mean, {})
             return
 
+        single_iterator = SerialIterator(
+            self.dataset, self.batchsize, repeat=False, shuffle=False)
         single_link = _DetectionStubLink(
             self.bboxes, self.labels)
         single_evaluator = DetectionCOCOEvaluator(
-            self.single_iterator, single_link,
+            single_iterator, single_link,
             label_names=('cls0', 'cls1', 'cls2'))
 
         reporter.add_observer('target', single_link)
