@@ -101,7 +101,8 @@ class TestDetectionVOCEvaluatorMPI(unittest.TestCase):
         if comm.rank == 0:
             bboxes = [generate_random_bbox(5, (256, 324), 24, 120)
                       for _ in range(10)]
-            labels = [2 * np.ones((5,), dtype=np.int32) for _ in range(10)]
+            labels = [np.random.choice(np.arange(3, dtype=np.int32), size=(5,))
+                      for _ in range(10)]
         else:
             bboxes = None
             labels = None

@@ -114,7 +114,7 @@ class TestInstanceSegmentationCOCOEvaluatorMPI(unittest.TestCase):
         if comm.rank == 0:
             masks = [np.random.uniform(size=(5, 32, 48)) > 0.5
                      for _ in range(10)]
-            labels = [np.ones((5,), dtype=np.int32)
+            labels = [np.random.choice(np.arange(3, dtype=np.int32), size=(5,))
                       for _ in range(10)]
         else:
             masks = None
