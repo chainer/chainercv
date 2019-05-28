@@ -143,6 +143,8 @@ class TestDetectionCOCOEvaluatorMPI(unittest.TestCase):
 
     @attr.mpi
     def test_consistency(self):
+        reporter = chainer.Reporter()
+
         multi_iterator = SerialIterator(
             self.dataset, self.batchsize, repeat=False, shuffle=False)
         multi_link = _DetectionStubLink(
@@ -151,13 +153,11 @@ class TestDetectionCOCOEvaluatorMPI(unittest.TestCase):
             multi_iterator, multi_link,
             label_names=('cls0', 'cls1', 'cls2'),
             comm=self.comm)
-
-        reporter = chainer.Reporter()
         reporter.add_observer('target', multi_link)
         with reporter:
             multi_mean = multi_evaluator.evaluate()
 
-        if self.comm.rank == 0:
+        if self.comm.rank != 0:
             self.assertEqual(multi_mean, {})
             return
 
@@ -168,7 +168,6 @@ class TestDetectionCOCOEvaluatorMPI(unittest.TestCase):
         single_evaluator = DetectionCOCOEvaluator(
             single_iterator, single_link,
             label_names=('cls0', 'cls1', 'cls2'))
-
         reporter.add_observer('target', single_link)
         with reporter:
             single_mean = single_evaluator.evaluate()
