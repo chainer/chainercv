@@ -4,6 +4,7 @@ Usage:
     $ python gen_config.py > config.pbtxt
 """
 
+from __future__ import print_function
 from collections import OrderedDict
 import itertools
 
