@@ -103,6 +103,10 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
         label_names (iterable of strings): An iterable of names of classes.
             If this value is specified, average precision and average
             recalls for each class are reported.
+        comm (~chainermn.communicators.CommunicatorBase):
+            A ChainerMN communicator.
+            If it is specified, this extension scatters the iterator of
+            root worker and gathers the results to the root worker.
 
     """
 
