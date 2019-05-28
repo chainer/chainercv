@@ -106,12 +106,11 @@ class TestInstanceSegmentationCOCOEvaluator(unittest.TestCase):
 class TestInstanceSegmentationCOCOEvaluatorMPI(unittest.TestCase):
 
     def setUp(self):
-        comm = create_communicator('naive')
-        self.comm = comm
+        self.comm = create_communicator('naive')
 
         batchsize_per_process = 5
-        batchsize = batchsize_per_process * comm.size
-        if comm.rank == 0:
+        batchsize = batchsize_per_process * self.comm.size
+        if self.comm.rank == 0:
             masks = [np.random.uniform(size=(5, 32, 48)) > 0.5
                      for _ in range(10)]
             labels = [np.random.choice(np.arange(3, dtype=np.int32), size=(5,))
@@ -119,10 +118,10 @@ class TestInstanceSegmentationCOCOEvaluatorMPI(unittest.TestCase):
         else:
             masks = None
             labels = None
-        initial_count = comm.rank * batchsize_per_process
+        initial_count = self.comm.rank * batchsize_per_process
 
-        masks = comm.bcast_obj(masks)
-        labels = comm.bcast_obj(labels)
+        masks = self.comm.bcast_obj(masks)
+        labels = self.comm.bcast_obj(labels)
         self.masks = masks
         self.labels = labels
 

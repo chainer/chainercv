@@ -124,20 +124,19 @@ class TestSemanticSegmentationEvaluator(unittest.TestCase):
 class TestSemanticSegmentationEvaluatorMPI(unittest.TestCase):
 
     def setUp(self):
-        comm = create_communicator('naive')
-        self.comm = comm
+        self.comm = create_communicator('naive')
 
         batchsize_per_process = 5
-        batchsize = batchsize_per_process * comm.size
-        if comm.rank == 0:
+        batchsize = batchsize_per_process * self.comm.size
+        if self.comm.rank == 0:
             labels = [np.random.choice(
                 np.arange(3, dtype=np.int32), size=(32, 48))
                 for _ in range(10)]
         else:
             labels = None
-        initial_count = comm.rank * batchsize_per_process
+        initial_count = self.comm.rank * batchsize_per_process
 
-        labels = comm.bcast_obj(labels)
+        labels = self.comm.bcast_obj(labels)
         self.labels = labels
 
         self.dataset = TupleDataset(
