@@ -147,6 +147,7 @@ class TestDetectionCOCOEvaluatorMPI(unittest.TestCase):
         self.labels = labels
         self.initial_count = initial_count
 
+    @attr.mpi
     def test_consistency(self):
         multi_link = _DetectionStubLink(
             self.bboxes, self.labels, self.initial_count)
