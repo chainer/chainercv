@@ -115,17 +115,15 @@ class TestDetectionCOCOEvaluatorMPI(unittest.TestCase):
         self.comm = comm
 
         batchsize_per_process = 5
-        batchsize = (batchsize_per_process * comm.size
-                     if comm is not None else batchsize_per_process)
+        batchsize = batchsize_per_process * comm.size
         if comm.rank == 0:
             bboxes = [generate_random_bbox(5, (256, 324), 24, 120)
                       for _ in range(10)]
             labels = [2 * np.ones((5,), dtype=np.int32) for _ in range(10)]
-            initial_count = 0
         else:
             bboxes = None
             labels = None
-            initial_count = comm.rank * batchsize_per_process
+        initial_count = comm.rank * batchsize_per_process
 
         bboxes = comm.bcast_obj(bboxes)
         labels = comm.bcast_obj(labels)
@@ -145,8 +143,11 @@ class TestDetectionCOCOEvaluatorMPI(unittest.TestCase):
     def test_consistency(self):
         reporter = chainer.Reporter()
 
-        multi_iterator = SerialIterator(
-            self.dataset, self.batchsize, repeat=False, shuffle=False)
+        if self.comm.rank == 0:
+            multi_iterator = SerialIterator(
+                self.dataset, self.batchsize, repeat=False, shuffle=False)
+        else:
+            multi_iterator = None
         multi_link = _DetectionStubLink(
             self.bboxes, self.labels, self.initial_count)
         multi_evaluator = DetectionCOCOEvaluator(
