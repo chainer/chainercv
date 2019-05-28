@@ -30,7 +30,7 @@ $ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset citysca
 
 ### ADE20k
 
-| Base model |  Original | Ours |
+| Model |  Original | Ours |
 |:-:|:-:|:-:|
 | PSPNet w/ Dilated ResNet50 | 41.68 % [1] |  34.97 % |
 | PSPNet w/ Dilated ResNet101 |  | 36.55 % |
@@ -46,7 +46,7 @@ $ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset ade20k 
 
 ### VOC2012 val
 
-| Base model |  Reference | ChainerCV |
+| model |  Reference | ChainerCV |
 |:-:|:-:|:-:|
 | DeepLab V3+ w/ Xception65 | 82.36 % [4] | 82.36 % |
 
