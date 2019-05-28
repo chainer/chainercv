@@ -14,7 +14,7 @@ def main():
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--pretrained-model')
     parser.add_argument(
-        '--dataset', choices=('voc'), default='voc')
+        '--dataset', choices=('voc',), default='voc')
     parser.add_argument('image')
     args = parser.parse_args()
 
