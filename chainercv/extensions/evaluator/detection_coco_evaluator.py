@@ -103,6 +103,10 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
         label_names (iterable of strings): An iterable of names of classes.
             If this value is specified, average precision and average
             recalls for each class are reported.
+        comm (~chainermn.communicators.CommunicatorBase):
+            A ChainerMN communicator.
+            If it is specified, this extension scatters the iterator of
+            root worker and gathers the results to the root worker.
 
     """
 
@@ -112,19 +116,26 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
 
     def __init__(
             self, iterator, target,
-            label_names=None):
+            label_names=None, comm=None):
         if not _available:
             raise ValueError(
                 'Please install pycocotools \n'
                 'pip install -e \'git+https://github.com/cocodataset/coco.git'
                 '#egg=pycocotools&subdirectory=PythonAPI\'')
+        if iterator is None:
+            iterator = {}
         super(DetectionCOCOEvaluator, self).__init__(
             iterator, target)
         self.label_names = label_names
+        self.comm = comm
 
     def evaluate(self):
-        iterator = self._iterators['main']
         target = self._targets['main']
+        if self.comm is not None and self.comm.rank != 0:
+            apply_to_iterator(target.predict, None, comm=self.comm)
+            return {}
+
+        iterator = self._iterators['main']
 
         if hasattr(iterator, 'reset'):
             iterator.reset()
@@ -133,7 +144,7 @@ class DetectionCOCOEvaluator(chainer.training.extensions.Evaluator):
             it = copy.copy(iterator)
 
         in_values, out_values, rest_values = apply_to_iterator(
-            target.predict, it)
+            target.predict, it, comm=self.comm)
         # delete unused iterators explicitly
         del in_values
 
