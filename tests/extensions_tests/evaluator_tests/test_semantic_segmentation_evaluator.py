@@ -121,6 +121,7 @@ class TestSemanticSegmentationEvaluator(unittest.TestCase):
         np.testing.assert_equal(reporter.observation, eval_)
 
 
+@attr.mpi
 class TestSemanticSegmentationEvaluatorMPI(unittest.TestCase):
 
     def setUp(self):
@@ -145,7 +146,6 @@ class TestSemanticSegmentationEvaluatorMPI(unittest.TestCase):
         self.initial_count = initial_count
         self.batchsize = batchsize
 
-    @attr.mpi
     def test_consistency(self):
         reporter = chainer.Reporter()
 

@@ -86,6 +86,7 @@ class TestInstanceSegmentationVOCEvaluator(unittest.TestCase):
         self.assertEqual(reporter.observation, mean)
 
 
+@attr.mpi
 class TestInstanceSegmentationVOCEvaluatorMPI(unittest.TestCase):
 
     def setUp(self):
@@ -114,7 +115,6 @@ class TestInstanceSegmentationVOCEvaluatorMPI(unittest.TestCase):
         self.initial_count = initial_count
         self.batchsize = batchsize
 
-    @attr.mpi
     def test_consistency(self):
         reporter = chainer.Reporter()
 

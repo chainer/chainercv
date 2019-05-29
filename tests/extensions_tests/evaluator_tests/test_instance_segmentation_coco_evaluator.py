@@ -103,6 +103,7 @@ class TestInstanceSegmentationCOCOEvaluator(unittest.TestCase):
 
 
 @unittest.skipUnless(_available, 'pycocotools is not installed')
+@attr.mpi
 class TestInstanceSegmentationCOCOEvaluatorMPI(unittest.TestCase):
 
     def setUp(self):
@@ -131,7 +132,6 @@ class TestInstanceSegmentationCOCOEvaluatorMPI(unittest.TestCase):
         self.initial_count = initial_count
         self.batchsize = batchsize
 
-    @attr.mpi
     def test_consistency(self):
         reporter = chainer.Reporter()
 
