@@ -14,7 +14,7 @@ The scores are mIoU.
 
 ### Cityscapes
 
-| Model | Training Data | Reference | ChainerCV  |
+| Model | Training Data | Original | Ours  |
 |:-:|:-:|:-:|:-:|
 | PSPNet w/ Dilated ResNet50 | fine only (3K) | 76.9 % [2] |  73.99 % |
 | PSPNet w/ Dilated ResNet101 | fine only (3K) |  77.9 % [2] | 76.01 % |
@@ -30,7 +30,7 @@ $ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset citysca
 
 ### ADE20k
 
-| Base model |  Reference | ChainerCV |
+| Model |  Original | Ours |
 |:-:|:-:|:-:|
 | PSPNet w/ Dilated ResNet50 | 41.68 % [1] |  34.97 % |
 | PSPNet w/ Dilated ResNet101 |  | 36.55 % |
@@ -46,7 +46,7 @@ $ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset ade20k 
 
 ### VOC2012 val
 
-| Base model |  Reference | ChainerCV |
+| Model |  Reference | ChainerCV |
 |:-:|:-:|:-:|
 | DeepLab V3+ w/ Xception65 | 82.36 % [4] | 82.36 % |
 
@@ -60,7 +60,7 @@ $ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset voc [--
 
 ### CamVid
 
-| Model | Reference | ChainerCV |
+| Model | Original | Ours |
 |:-:|:-:|:-:|
 | SegNet | 46.3 % [3] | 49.4 % |
 
