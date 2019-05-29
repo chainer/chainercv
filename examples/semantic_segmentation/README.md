@@ -46,7 +46,7 @@ $ mpiexec -n <#gpu> python eval_semantic_segmentation_multi.py --dataset ade20k 
 
 ### VOC2012 val
 
-| model |  Reference | ChainerCV |
+| Model |  Reference | ChainerCV |
 |:-:|:-:|:-:|
 | DeepLab V3+ w/ Xception65 | 82.36 % [4] | 82.36 % |
 
