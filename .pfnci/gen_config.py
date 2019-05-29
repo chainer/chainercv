@@ -4,6 +4,7 @@ Usage:
     $ python gen_config.py > config.pbtxt
 """
 
+from __future__ import print_function
 from collections import OrderedDict
 import itertools
 
@@ -39,6 +40,8 @@ def test_config(python, chainer, optional, target):
         value['command'] = 'sh .pfnci/tests_gpu.sh'
     elif target == 'examples':
         key += '.examples'
+        value['requirement']['cpu'] = 6
+        value['requirement']['memory'] = 36
         value['requirement']['gpu'] = 2
         value['time_limit'] = {'seconds': 1800}
         value['command'] = 'sh .pfnci/examples_tests.sh'
