@@ -16,9 +16,9 @@ So we evaluated the pretrained graph using `eval_semantic_segmentation` in Chain
 Although we could generate a graph the biggest image can be input, it resulted 40.13% in official evaluation code.
 
 ## Demo
-This demo downloads Cityscapes pretrained model automatically if a pretrained model path is not given.
+This demo downloads a pretrained model automatically if a pretrained model path is not given.
 ```
-$ python demo.py [--gpu <gpu>] [--pretrained-model <model_path>] [--input-size <size>] <image>.jpg
+$ python demo.py [--dataset cityscapes|ade20k|voc] [--gpu <gpu>] [--pretrained-model <model_path>] [--min-input-size <size>] <image>.jpg
 ```
 
 

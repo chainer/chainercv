@@ -19,21 +19,21 @@ def main():
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--pretrained-model')
     parser.add_argument(
-        '--dataset', choices=('voc'), default='voc')
+        '--dataset', choices=('voc',), default='voc')
     parser.add_argument('image')
     args = parser.parse_args()
 
     if args.model == 'yolo_v2':
         cls = YOLOv2
     elif args.model == 'yolo_v2_tiny':
-        model = YOLOv2Tiny
+        cls = YOLOv2Tiny
     elif args.model == 'yolo_v3':
-        model = YOLOv3
+        cls = YOLOv3
 
     if args.dataset == 'voc':
         if args.pretrained_model is None:
             args.pretrained_model = 'voc0712'
-        label_names = voc_bbox_label_names
+        label_names = voc_bbox_label_name
 
     model = cls(pretrained_model=args.pretrained_model,
                 **cls.preset_params[args.dataset])

@@ -51,19 +51,11 @@ def vis_instance_segmentation(
         >>> plt.show()
 
     Args:
-        img (~numpy.ndarray): An array of shape :math:`(3, H, W)`.
-            This is in RGB format and the range of its value is
-            :math:`[0, 255]`. If this is :obj:`None`, no image is displayed.
-        mask (~numpy.ndarray): A bool array of shape
-            :math`(R, H, W)`.
-            If there is an object, the value of the pixel is :obj:`True`,
-            and otherwise, it is :obj:`False`.
-        label (~numpy.ndarray): An integer array of shape :math:`(R, )`.
-            The values correspond to id for label names stored in
-            :obj:`label_names`.
-        score (~numpy.ndarray): A float array of shape :math:`(R,)`.
-             Each value indicates how confident the prediction is.
-             This is optional.
+        img (~numpy.ndarray): See the table below. If this is :obj:`None`,
+            no image is displayed.
+        mask (~numpy.ndarray): See the table below.
+        label (~numpy.ndarray): See the table below. This is optional.
+        score (~numpy.ndarray): See the table below. This is optional.
         label_names (iterable of strings): Name of labels ordered according
             to label ids.
         instance_colors (iterable of tuple): List of colors.
@@ -81,6 +73,16 @@ def vis_instance_segmentation(
             are always visualized in front of instances with low scores.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`mask`, ":math:`(R, H, W)`", :obj:`bool`, --
+        :obj:`label`, ":math:`(R,)`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
+        :obj:`score`, ":math:`(R,)`", :obj:`float32`, --
 
     Returns:
         matploblib.axes.Axes: Returns :obj:`ax`.

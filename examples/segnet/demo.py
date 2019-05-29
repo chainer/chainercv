@@ -17,7 +17,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--pretrained-model')
-    parser.add_argument('--dataset', choices=('camvid'), default='camvid')
+    parser.add_argument('--dataset', choices=('camvid',), default='camvid')
     parser.add_argument('image')
     args = parser.parse_args()
 

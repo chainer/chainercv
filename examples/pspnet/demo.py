@@ -1,8 +1,9 @@
 import argparse
-
+import copy
 import matplotlib.pyplot as plt
 
 import chainer
+
 from chainercv.datasets import ade20k_semantic_segmentation_label_colors
 from chainercv.datasets import ade20k_semantic_segmentation_label_names
 from chainercv.datasets import cityscapes_semantic_segmentation_label_colors
@@ -17,6 +18,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', '-g', type=int, default=-1)
     parser.add_argument('--pretrained-model')
+    parser.add_argument('--input-size', type=int, default=713)
     parser.add_argument(
         '--dataset', choices=('cityscapes', 'ade20k'), default='cityscapes')
     parser.add_argument('image')
@@ -33,9 +35,11 @@ def main():
         label_names = ade20k_semantic_segmentation_label_names
         colors = ade20k_semantic_segmentation_label_colors
 
+    input_size = (args.input_size, args.input_size)
+    params = copy.deepcopy(PSPNetResNet101.preset_params[args.dataset])
+    params['input_size'] = input_size
     model = PSPNetResNet101(
-        pretrained_model=args.pretrained_model,
-        **PSPNetResNet101.preset_params[args.dataset])
+        pretrained_model=args.pretrained_model, **params)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()

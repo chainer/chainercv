@@ -1,5 +1,5 @@
 import argparse
-
+import copy
 import matplotlib.pyplot as plt
 
 import chainer
@@ -19,7 +19,8 @@ from chainercv.visualizations import vis_semantic_segmentation
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--pretrained-model', default=None)
+    parser.add_argument('--pretrained-model')
+    parser.add_argument('--min-input-size', type=int, default=None)
     parser.add_argument(
         '--dataset', choices=('cityscapes', 'ade20k', 'voc'),
         default='cityscapes')
@@ -42,9 +43,10 @@ def main():
         label_names = voc_semantic_segmentation_label_names
         colors = voc_semantic_segmentation_label_colors
 
+    params = copy.deepcopy(DeepLabV3plusXception65.preset_params[args.dataset])
+    params['min_input_size'] = args.min_input_size
     model = DeepLabV3plusXception65(
-        pretrained_model=args.pretrained_model,
-        **DeepLabV3plusXception65.preset_params[args.dataset])
+        pretrained_model=args.pretrained_model, **params)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
