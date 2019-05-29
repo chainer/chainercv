@@ -20,7 +20,7 @@
 Segment objects in an given image. This demo downloads SBD pretrained model automatically if a pretrained model path is not given.
 
 ```bash
-python demo.py [--gpu <gpu>] [--pretrained-model <model_path>] [--dataset <sbd, coco>] <image.jpg>
+python demo.py [--dataset sbd|coco] [--gpu <gpu>] [--pretrained-model <model_path>] <image.jpg>
 ```
 
 ## Evaluation

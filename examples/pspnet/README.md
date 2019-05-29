@@ -3,7 +3,7 @@
 ## Demo
 This demo downloads a pretrained model automatically if a pretrained model path is not given.
 ```
-$ python demo.py [--gpu <gpu>] [--pretrained-model <model_path>] [--input-size <size>] <image>.jpg
+$ python demo.py [--dataset cityscapes|ade20k] [--gpu <gpu>] [--pretrained-model <model_path>] [--input-size <size>] <image>.jpg
 ```
 
 ## Weight Covnersion
