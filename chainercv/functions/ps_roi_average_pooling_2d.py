@@ -26,6 +26,7 @@
 
 from __future__ import division
 
+import numbers
 import numpy as np
 import six
 
@@ -48,21 +49,28 @@ class PSROIAveragePooling2D(function.Function):
 
     def __init__(self, outsize, spatial_scale, group_size):
         out_c, out_h, out_w = _outsize(outsize)
-        if out_c is not None and not (isinstance(out_c, int) and out_c > 0):
+        if out_c is not None and \
+                not (isinstance(out_c, numbers.Integral) and out_c > 0):
             raise TypeError(
                 'outsize[0] must be positive integer: {}, {}'
                 .format(type(out_c), out_c))
-        if not (isinstance(out_h, int) and out_h > 0):
+        if not (isinstance(out_h, numbers.Integral) and out_h > 0):
             raise TypeError(
                 'outsize[1] must be positive integer: {}, {}'
                 .format(type(out_h), out_h))
-        if not (isinstance(out_w, int) and out_w > 0):
+        if not (isinstance(out_w, numbers.Integral) and out_w > 0):
             raise TypeError(
                 'outsize[2] must be positive integer: {}, {}'
                 .format(type(out_w), out_w))
-        if isinstance(spatial_scale, int):
+        if isinstance(spatial_scale, numbers.Integral):
             spatial_scale = float(spatial_scale)
-        if not (isinstance(group_size, int) and group_size > 0):
+        if not (isinstance(spatial_scale, numbers.Real)
+                and spatial_scale > 0):
+            raise TypeError(
+                'spatial_scale must be a positive float number: {}, {}'
+                .format(type(spatial_scale), spatial_scale))
+        if not (isinstance(group_size, numbers.Integral)
+                and group_size > 0):
             raise TypeError(
                 'group_size must be positive integer: {}, {}'
                 .format(type(group_size), group_size))
@@ -303,14 +311,14 @@ class PSROIAveragePooling2D(function.Function):
 
     def backward_gpu(self, inputs, gy):
         _, bottom_rois, bottom_roi_indices = inputs
-        channels, height, width = self._bottom_data_shape[1:]
+        channel, height, width = self._bottom_data_shape[1:]
         out_c, out_h, out_w = gy[0].shape[1:]
         bottom_diff = cuda.cupy.zeros(self._bottom_data_shape, np.float32)
         cuda.elementwise(
             '''
             raw T top_diff, raw T bottom_rois,
             raw int32 bottom_roi_indices,
-            T spatial_scale, int32 channels, int32 height, int32 width,
+            T spatial_scale, int32 channel, int32 height, int32 width,
             int32 pooled_dim, int32 pooled_height, int32 pooled_width,
             int32 group_size
             ''',
@@ -361,7 +369,7 @@ class PSROIAveragePooling2D(function.Function):
             gw = min(max(gw, 0), group_size - 1);
             int c = (ctop * group_size + gh) * group_size + gw;
 
-            int bottom_diff_offset = (roi_batch_ind * channels + c);
+            int bottom_diff_offset = (roi_batch_ind * channel + c);
             bottom_diff_offset = bottom_diff_offset * height * width;
             int top_offset =
                 (n * pooled_dim + ctop) * pooled_height * pooled_width;
@@ -378,7 +386,7 @@ class PSROIAveragePooling2D(function.Function):
             }
             ''', 'ps_roi_average_pooling_2d_bwd'
         )(gy[0], bottom_rois, bottom_roi_indices,
-          self.spatial_scale, channels, height, width,
+          self.spatial_scale, channel, height, width,
           out_c, out_h, out_w, self.group_size, bottom_diff,
           size=gy[0].size)
 

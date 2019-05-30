@@ -9,21 +9,15 @@ import unittest
 
 from chainercv import functions
 
-
-def _outsize(x):
-    if isinstance(x, chainer.utils.collections_abc.Iterable):
-        if len(x) == 2:
-            return (None, ) + x
-        else:
-            return x
-    return None, x, x
+from tests.functions_tests.test_ps_roi_average_pooling_2d import _outsize
 
 
 @testing.parameterize(*testing.product({
+    'sampling_ratio': [(np.int(1), np.int(2)), None, 1, 2, (None, 3), (1, 2)],
     'spatial_scale': [np.float(0.6), np.int(1), 0.6, 1.0, 2.0],
     'outsize': [(np.int(2), np.int(4), np.int(4)), (2, 4, 4), (4, 4), 4],
 }))
-class TestPSROIAveragePooling2D(unittest.TestCase):
+class TestPSROIAverageAlign2D(unittest.TestCase):
 
     def setUp(self):
         self.N = 3
@@ -47,6 +41,7 @@ class TestPSROIAveragePooling2D(unittest.TestCase):
         )
         self.roi_indices = np.array([0, 2, 1, 0], dtype=np.int32)
         self.n_roi = self.rois.shape[0]
+        self.out_h, self.out_w = 4, 4
         self.gy = np.random.uniform(
             -1, 1, (self.n_roi, self.out_c, self.out_h, self.out_w))
         self.gy = self.gy.astype(np.float32)
@@ -56,9 +51,10 @@ class TestPSROIAveragePooling2D(unittest.TestCase):
         x = chainer.Variable(x_data)
         rois = chainer.Variable(roi_data)
         roi_indices = chainer.Variable(roi_index_data)
-        y = functions.ps_roi_average_pooling_2d(
+        y = functions.ps_roi_average_align_2d(
             x, rois, roi_indices, self.outsize,
-            self.spatial_scale, self.group_size)
+            self.spatial_scale, self.group_size,
+            sampling_ratio=self.sampling_ratio)
         self.assertEqual(y.data.dtype, np.float32)
         y_data = cuda.to_cpu(y.data)
         self.assertEqual(
@@ -77,9 +73,10 @@ class TestPSROIAveragePooling2D(unittest.TestCase):
 
     def check_backward(self, x_data, roi_data, roi_index_data, y_grad_data):
         def f(x, rois, roi_indices):
-            return functions.ps_roi_average_pooling_2d(
+            return functions.ps_roi_average_align_2d(
                 x, rois, roi_indices, self.outsize,
-                self.spatial_scale, self.group_size)
+                self.spatial_scale, self.group_size,
+                sampling_ratio=self.sampling_ratio)
         gradient_check.check_backward(
             f, (x_data, roi_data, roi_index_data), y_grad_data,
             no_grads=[False, True, True], **self.check_backward_options)
@@ -99,9 +96,10 @@ class TestPSROIAveragePooling2D(unittest.TestCase):
         x = chainer.Variable(x_data)
         rois = chainer.Variable(roi_data)
         roi_indices = chainer.Variable(roi_index_data)
-        y = functions.ps_roi_average_pooling_2d(
+        y = functions.ps_roi_average_align_2d(
             x, rois, roi_indices, self.outsize,
-            self.spatial_scale, self.group_size)
+            self.spatial_scale, self.group_size,
+            sampling_ratio=self.sampling_ratio)
         x.cleargrad()
         y.grad = y_grad_data
         y.backward()
@@ -122,7 +120,7 @@ class TestPSROIAveragePooling2D(unittest.TestCase):
 @testing.parameterize(*testing.product({
     'outsize': [(2, 4, 4), (4, 4), 4]
 }))
-class TestPSROIAveragePooling2DFailure(unittest.TestCase):
+class TestPSROIAverageAlign2DFailure(unittest.TestCase):
 
     def setUp(self):
         self.N = 3
@@ -154,7 +152,7 @@ class TestPSROIAveragePooling2DFailure(unittest.TestCase):
         x = chainer.Variable(x_data)
         rois = chainer.Variable(roi_data)
         roi_indices = chainer.Variable(roi_index_data)
-        functions.ps_roi_average_pooling_2d(
+        functions.ps_roi_average_align_2d(
             x, rois, roi_indices, self.outsize,
             self.spatial_scale, self.group_size)
 
