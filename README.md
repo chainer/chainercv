@@ -15,7 +15,7 @@ Supported tasks:
 
 + Image Classification ([ResNet](examples/resnet), [SENet](examples/senet), [VGG](examples/vgg))
 + Object Detection ([tutorial](http://chainercv.readthedocs.io/en/latest/tutorial/detection.html), [Faster R-CNN](examples/faster_rcnn), [FPN](examples/fpn), [SSD](examples/ssd), [YOLO](examples/yolo))
-+ Semantic Segmentation ([SegNet](examples/segnet), [PSPNet](examples/pspnet))
++ Semantic Segmentation ([SegNet](examples/segnet), [PSPNet](examples/pspnet), [DeepLab v3](examples/deeplab))
 + Instance Segmentation ([FCIS](examples/fcis), [Mask R-CNN](examples/fpn))
 
 # Guiding Principles
@@ -57,6 +57,7 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
     + `0.8` (for Chainer v3). It can be installed by `pip install chainercv==0.8`.
     + `0.10` (for Chainer v4). It can be installed by `pip install chainercv==0.10`.
     + `0.12` (for Chainer v5). It can be installed by `pip install chainercv==0.12`.
+    + `0.13` (for Chainer v6). It can be installed by `pip install chainercv==0.13`.
 
 # Data Conventions
 
