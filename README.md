@@ -57,6 +57,7 @@ Environments under Python 2.7.12 and 3.6.0 are tested.
     + `0.8` (for Chainer v3). It can be installed by `pip install chainercv==0.8`.
     + `0.10` (for Chainer v4). It can be installed by `pip install chainercv==0.10`.
     + `0.12` (for Chainer v5). It can be installed by `pip install chainercv==0.12`.
+    + `0.13` (for Chainer v6). It can be installed by `pip install chainercv==0.13`.
 
 # Data Conventions
 
