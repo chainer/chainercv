@@ -84,7 +84,7 @@ def main():
             pretrained_model='imagenet')
 
     model.use_preset('evaluate')
-    train_chain = MultiboxTrainChain(model)
+    train_chain = MultiboxTrainChain(model, comm=comm)
     chainer.cuda.get_device_from_id(device).use()
     model.to_gpu()
 
