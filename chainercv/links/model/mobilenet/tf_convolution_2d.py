@@ -51,7 +51,7 @@ class TFConvolution2D(chainer.Chain):
     def __init__(self,
                  in_channels,
                  out_channels,
-                 ksize,
+                 ksize=None,
                  stride=1,
                  pad='SAME',
                  nobias=False,
@@ -59,16 +59,21 @@ class TFConvolution2D(chainer.Chain):
                  initial_bias=None,
                  **kwargs):
         super(TFConvolution2D, self).__init__()
+        if ksize is None:
+            out_channels, ksize, in_channels = in_channels, out_channels, None
 
         if pad in ('SAME', 'VALID'):  # TF compatible pad
             self.padding = lambda x: _tf_padding(x, _pair(self.conv.ksize),
                                                  _pair(self.conv.stride), pad)
+            conv_pad = 0
         else:
             self.padding = None
+            assert isinstance(pad, int)
+            conv_pad = pad
 
         with self.init_scope():
             self.conv = Convolution2D(in_channels, out_channels, ksize, stride,
-                                      0, nobias, initialW, initial_bias,
+                                      conv_pad, nobias, initialW, initial_bias,
                                       **kwargs)
 
     @property
