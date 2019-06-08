@@ -38,7 +38,7 @@ $ python eval_detection.py --dataset voc [--model faster_rcnn|ssd300|ssd512|yolo
 |:-:|:-:|:-:|:-:|
 | Faster R-CNN FPN ResNet50 | COCO2017 train | | 37.1 % |
 | Faster R-CNN FPN ResNet101 | COCO2017 train | | 39.5 % |
-| Light-head R-CNN ResNet101 | COCO2017 train | | 39.1 % |
+| Light-head R-CNN ResNet101 | COCO2017 train | | 39.4 % |
 
 You can reproduce these scores by the following command.
 ```
