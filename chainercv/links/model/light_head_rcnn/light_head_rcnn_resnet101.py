@@ -269,6 +269,10 @@ class LightHeadRCNNResNet101Head(chainer.Chain):
             (10, self.roi_size, self.roi_size),
             self.spatial_scale, self.roi_size,
             sampling_ratio=2)
+        pool = F.where(
+            self.xp.isinf(pool.array),
+            self.xp.zeros(pool.shape, dtype=pool.dtype), pool)
+
         # fc
         fc1 = F.relu(self.fc1(pool))
         roi_cls_locs = self.cls_loc(fc1)
