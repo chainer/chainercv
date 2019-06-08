@@ -202,11 +202,22 @@ def _ohem_loss(
     n_ohem_sample = min(n_ohem_sample, n_sample)
     # sort in CPU because of GPU memory
     roi_cls_loc_loss = cuda.to_cpu(roi_loc_loss.array + roi_cls_loss.array)
-    indices = roi_cls_loc_loss.argsort(axis=0)[::-1][:n_ohem_sample]
+    indices = roi_cls_loc_loss.argsort(axis=0)[::-1]
+    # filter nan
+    indices = np.array(
+        [i for i in indices if not np.isnan(roi_cls_loc_loss[i])],
+        dtype=np.int32)
+    indices = indices[:n_ohem_sample]
     if cuda.get_array_module(roi_loc_loss.array) != np:
         indices = cuda.to_gpu(indices)
-    roi_loc_loss = F.sum(roi_loc_loss[indices]) / len(indices)
-    roi_cls_loss = F.sum(roi_cls_loss[indices]) / len(indices)
+    if len(indices) > 0:
+        roi_loc_loss = F.sum(roi_loc_loss[indices]) / len(indices)
+        roi_cls_loss = F.sum(roi_cls_loss[indices]) / len(indices)
+    else:
+        roi_loc_loss = chainer.Variable(xp.array(0.0, dtype=xp.float32))
+        roi_cls_loss = chainer.Variable(xp.array(0.0, dtype=xp.float32))
+        roi_loc_loss.zerograd()
+        roi_cls_loss.zerograd()
 
     return roi_loc_loss, roi_cls_loss
 
