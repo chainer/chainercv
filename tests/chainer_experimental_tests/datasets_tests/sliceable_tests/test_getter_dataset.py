@@ -1,9 +1,8 @@
 import numpy as np
 import unittest
 
-from chainer import testing
-
 from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
+from chainercv.utils import testing
 
 
 class SampleDataset(GetterDataset):
@@ -12,7 +11,7 @@ class SampleDataset(GetterDataset):
 
         self.add_getter('item0', self.get_item0)
         self.add_getter(iterable(('item1', 'item2')), self.get_item1_item2)
-        self.add_getter(1, self.get_item3)
+        self.add_getter(('item3',), self.get_item3)
 
         self.count = 0
 
@@ -29,7 +28,7 @@ class SampleDataset(GetterDataset):
 
     def get_item3(self, i):
         self.count += 1
-        return 'item3({:d})'.format(i)
+        return ('item3({:d})'.format(i),)
 
 
 @testing.parameterize(
@@ -44,7 +43,7 @@ class TestGetterDataset(unittest.TestCase):
 
     def test_keys(self):
         self.assertEqual(
-            self.dataset.keys, ('item0', 'item1', 'item2', None))
+            self.dataset.keys, ('item0', 'item1', 'item2', 'item3'))
 
     def test_get_example_by_keys(self):
         example = self.dataset.get_example_by_keys(1, (1, 2, 3))

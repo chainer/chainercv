@@ -118,8 +118,8 @@ configs {
   key: "chainercv.py2.stable.examples"
   value {
     requirement {
-      cpu: 4
-      memory: 24
+      cpu: 6
+      memory: 36
       disk: 10
       gpu: 2
     }
@@ -245,8 +245,8 @@ configs {
   key: "chainercv.py2.latest.examples"
   value {
     requirement {
-      cpu: 4
-      memory: 24
+      cpu: 6
+      memory: 36
       disk: 10
       gpu: 2
     }
@@ -372,8 +372,8 @@ configs {
   key: "chainercv.py2.master.examples"
   value {
     requirement {
-      cpu: 4
-      memory: 24
+      cpu: 6
+      memory: 36
       disk: 10
       gpu: 2
     }
@@ -499,8 +499,8 @@ configs {
   key: "chainercv.py3.stable.examples"
   value {
     requirement {
-      cpu: 4
-      memory: 24
+      cpu: 6
+      memory: 36
       disk: 10
       gpu: 2
     }
@@ -626,8 +626,8 @@ configs {
   key: "chainercv.py3.latest.examples"
   value {
     requirement {
-      cpu: 4
-      memory: 24
+      cpu: 6
+      memory: 36
       disk: 10
       gpu: 2
     }
@@ -753,8 +753,8 @@ configs {
   key: "chainercv.py3.master.examples"
   value {
     requirement {
-      cpu: 4
-      memory: 24
+      cpu: 6
+      memory: 36
       disk: 10
       gpu: 2
     }

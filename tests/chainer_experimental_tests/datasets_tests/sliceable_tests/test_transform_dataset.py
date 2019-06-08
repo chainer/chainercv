@@ -1,9 +1,8 @@
 import unittest
 
-from chainer import testing
-
 from chainercv.chainer_experimental.datasets.sliceable import SliceableDataset
 from chainercv.chainer_experimental.datasets.sliceable import TransformDataset
+from chainercv.utils import testing
 
 
 class SampleDataset(SliceableDataset):
@@ -21,36 +20,58 @@ class SampleDataset(SliceableDataset):
             for key_index in key_indices)
 
 
-@testing.parameterize(*testing.product({'iterable': [tuple, list]}))
+@testing.parameterize(*testing.product_dict(
+    [
+        {'iterable': tuple},
+        {'iterable': list},
+    ],
+    [
+        {
+            'keys': 'item1',
+            'func': lambda in_data: 'transformed_' + in_data[1],
+            'expected_sample': 'transformed_item1(3)',
+        },
+        {
+            'keys': ('item1',),
+            'func': lambda in_data: ('transformed_' + in_data[1],),
+            'expected_sample': ('transformed_item1(3)',),
+        },
+        {
+            'keys': ('item0', 'item2'),
+            'func': lambda in_data: (
+                'transformed_' + in_data[0],
+                'transformed_' + in_data[2]),
+            'expected_sample':
+            ('transformed_item0(3)', 'transformed_item2(3)'),
+        },
+    ],
+))
 class TestTransformDataset(unittest.TestCase):
 
     def setUp(self):
         self.dataset = SampleDataset()
 
+    def _check(self, dataset, expected_keys):
+        self.assertIsInstance(dataset, SliceableDataset)
+        self.assertEqual(len(dataset), len(self.dataset))
+        self.assertEqual(dataset.keys, expected_keys)
+        self.assertEqual(dataset[3], self.expected_sample)
+
     def test_transform(self):
-        def func(in_data):
-            item0, item1, item2 = in_data
-            return 'transformed_' + item0, 'transformed_' + item2
+        if isinstance(self.keys, tuple):
+            keys = self.iterable(self.keys)
+        else:
+            keys = self.keys
+        dataset = TransformDataset(self.dataset, keys, self.func)
+        self._check(dataset, self.keys)
 
-        dataset = TransformDataset(
-            self.dataset, self.iterable(('item0', 'item2')), func)
-        self.assertIsInstance(dataset, SliceableDataset)
-        self.assertEqual(len(dataset), len(self.dataset))
-        self.assertEqual(dataset.keys, ('item0', 'item2'))
-        self.assertEqual(
-            dataset[3], ('transformed_item0(3)', 'transformed_item2(3)'))
-
-    def test_transform_without_keys(self):
-        def func(in_data):
-            item0, item1, item2 = in_data
-            return 'transformed_' + item0, 'transformed_' + item2
-
-        dataset = TransformDataset(self.dataset, 2, func)
-        self.assertIsInstance(dataset, SliceableDataset)
-        self.assertEqual(len(dataset), len(self.dataset))
-        self.assertEqual(dataset.keys, (None, None))
-        self.assertEqual(
-            dataset[3], ('transformed_item0(3)', 'transformed_item2(3)'))
+    def test_transform_compat(self):
+        if isinstance(self.keys, tuple):
+            expected_keys = (None,) * len(self.keys)
+        else:
+            expected_keys = None
+        dataset = TransformDataset(self.dataset, self.func)
+        self._check(dataset, expected_keys)
 
 
 testing.run_module(__name__, __file__)

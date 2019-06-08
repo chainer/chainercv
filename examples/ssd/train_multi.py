@@ -51,10 +51,6 @@ class MultiboxTrainChain(chainer.Chain):
 
         return loss
 
-    # https://github.com/chainer/chainer/issues/6759
-    def cleargrads(self):
-        self.zerograds()
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -88,7 +84,7 @@ def main():
             pretrained_model='imagenet')
 
     model.use_preset('evaluate')
-    train_chain = MultiboxTrainChain(model)
+    train_chain = MultiboxTrainChain(model, comm=comm)
     chainer.cuda.get_device_from_id(device).use()
     model.to_gpu()
 

@@ -50,6 +50,11 @@ class InstanceSegmentationVOCEvaluator(chainer.training.extensions.Evaluator):
         label_names (iterable of strings): An iterable of names of classes.
             If this value is specified, average precision for each class is
             also reported with the key :obj:`'ap/<label_names[l]>'`.
+        comm (~chainermn.communicators.CommunicatorBase):
+            A ChainerMN communicator.
+            If it is specified, this extension scatters the iterator of
+            root worker and gathers the results to the root worker.
+
     """
 
     trigger = 1, 'epoch'
@@ -58,17 +63,25 @@ class InstanceSegmentationVOCEvaluator(chainer.training.extensions.Evaluator):
 
     def __init__(
             self, iterator, target,
-            iou_thresh=0.5, use_07_metric=False, label_names=None
+            iou_thresh=0.5, use_07_metric=False, label_names=None,
+            comm=None,
     ):
+        if iterator is None:
+            iterator = {}
         super(InstanceSegmentationVOCEvaluator, self).__init__(
             iterator, target)
         self.iou_thresh = iou_thresh
         self.use_07_metric = use_07_metric
         self.label_names = label_names
+        self.comm = comm
 
     def evaluate(self):
-        iterator = self._iterators['main']
         target = self._targets['main']
+        if self.comm is not None and self.comm.rank != 0:
+            apply_to_iterator(target.predict, None, comm=self.comm)
+            return {}
+
+        iterator = self._iterators['main']
 
         if hasattr(iterator, 'reset'):
             iterator.reset()
@@ -77,7 +90,7 @@ class InstanceSegmentationVOCEvaluator(chainer.training.extensions.Evaluator):
             it = copy.copy(iterator)
 
         in_values, out_values, rest_values = apply_to_iterator(
-            target.predict, it)
+            target.predict, it, comm=self.comm)
         # delete unused iterators explicitly
         del in_values
 

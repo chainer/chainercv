@@ -60,7 +60,7 @@ def mask_to_segm(mask, bbox, segm_size, index=None):
         x_min = max(bb[1], 0)
         y_max = max(min(bb[2], H), 0)
         x_max = max(min(bb[3], W), 0)
-        if y_max - y_min == 0 or x_max - x_min == 0:
+        if y_max <= y_min or x_max <= x_min:
             segm.append(np.zeros((segm_size, segm_size), dtype=np.float32))
             continue
 

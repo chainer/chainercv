@@ -2,7 +2,7 @@
 
 ### Performance
 
-| Training Setting | Evaluation | Reference | ChainerCV |
+| Training Setting | Evaluation | Original | Ours |
 |:-:|:-:|:-:|:-:|
 | VOC2007 trainval | VOC2007 test | 69.9 mAP [1] | 70.6 mAP |
 | VOC2007\&2012 trainval | VOC2007 test | 73.2 mAP [1] | 74.7 mAP |
@@ -17,7 +17,7 @@ We compared `chainercv.links.FasterRCNN.forward` and [Caffe's equivalent functio
 We used [an image](https://github.com/rbgirshick/py-faster-rcnn/blob/master/data/demo/000456.jpg) from PASCAL VOC 2007 test split.
 Our experiment was conducted on Ubuntu 14.04.5 with Pascal Titan X.
 
-| Reference | ChainerCV |
+| Original | Ours |
 |:-:|:-:|
 |  15.9 FPS | 16.2 FPS |
 

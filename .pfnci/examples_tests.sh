@@ -4,9 +4,12 @@ set -eux
 . $(dirname $0)/common.sh
 
 apt-get install -y --no-install-recommends unzip
-gsutil -q cp gs://chainercv-pfn-public-ci/datasets-tiny.zip .
-unzip -q datasets-tiny.zip
-rm datasets-tiny.zip
+for ZIP in datasets-tiny.zip models.zip
+do
+    gsutil -q cp gs://chainercv-pfn-public-ci/${ZIP} .
+    unzip -q ${ZIP}
+    rm ${ZIP}
+done
 
 curl -L https://cloud.githubusercontent.com/assets/2062128/26187667/9cb236da-3bd5-11e7-8bcf-7dbd4302e2dc.jpg \
      -o sample.jpg
