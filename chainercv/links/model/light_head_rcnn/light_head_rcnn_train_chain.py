@@ -211,7 +211,7 @@ def _ohem_loss(
     if cuda.get_array_module(roi_loc_loss.array) != np:
         indices = cuda.to_gpu(indices)
     if len(indices) > 0:
-        roi_loc_loss = F.sum(roi_loc_loss[indices]) / len(indices)
+        roi_loc_loss = F.sum(roi_loc_loss[indices]) / n_ohem_sample
         roi_cls_loss = F.sum(roi_cls_loss[indices]) / len(indices)
     else:
         roi_loc_loss = chainer.Variable(xp.array(0.0, dtype=xp.float32))
