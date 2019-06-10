@@ -125,5 +125,4 @@ class TestFeaturePredictor(unittest.TestCase):
             np.testing.assert_equal(self.link.scale, self.scale)
 
 
-
 testing.run_module(__name__, __file__)

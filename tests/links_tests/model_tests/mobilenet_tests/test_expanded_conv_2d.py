@@ -81,7 +81,6 @@ class TestExpandedConv2D(unittest.TestCase):
                 decimal=4
             )
 
-
     def test_forward_cpu(self):
         self.check_forward(self.x)
 
