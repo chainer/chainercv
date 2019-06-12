@@ -57,7 +57,7 @@ def _as_key_indices(keys, key_names):
 class SliceableDataset(chainer.dataset.DatasetMixin):
     """An abstract dataset class that supports slicing.
 
-    This ia a dataset class that supports slicing.
+    This is a dataset class that supports slicing.
     A dataset class inheriting this class should implement
     three methods: :meth:`__len__`, :meth:`keys`, and
     :meth:`get_example_by_keys`.
