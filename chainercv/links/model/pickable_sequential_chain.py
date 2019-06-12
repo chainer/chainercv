@@ -1,4 +1,5 @@
 import copy
+import inspect
 
 import chainer
 
@@ -160,3 +161,24 @@ class PickableSequentialChain(chainer.Chain):
         copied._return_tuple = copy.copy(self._return_tuple)
 
         return copied
+
+    def __str__(self):
+        reps = []
+        for name in self.layer_names:
+            layer = self[name]
+            # Explore better representation by if-block.
+            if getattr(layer, '__name__', None) == '<lambda>':
+                rep = inspect.getsource(layer).strip().rstrip(',')
+            else:
+                rep = str(layer)
+            # Add indentation to each line.
+            rep = '({name}): {rep},'.format(name=name, rep=rep)
+            for line in rep.splitlines():
+                reps.append('  {line}\n'.format(line=line))
+        reps = ''.join(reps)
+        if reps:  # No newline with no layers.
+            reps = '\n' + reps
+
+        return '{cls}({layers})'.format(
+            cls=self.__class__.__name__, layers=reps,
+        )
