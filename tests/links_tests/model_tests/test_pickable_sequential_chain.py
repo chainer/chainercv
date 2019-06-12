@@ -129,6 +129,31 @@ class PickableSequentialChainTestBase(object):
         self.check_deletion()
 
 
+class TestPickableSequentialChainStr(unittest.TestCase):
+
+    def test_str(self):
+        self.l = PickableSequentialChain()
+        with self.l.init_scope():
+            for i in range(2):
+                setattr(
+                    self.l, 'l{}'.format(i),
+                    ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24))))
+                setattr(
+                    self.l, 'b{}'.format(i),
+                    ConstantStubLink(np.random.uniform(size=(1, 3, 24, 24))))
+        self.assertEqual(
+            str(self.l),
+            '''\
+PickableSequentialChain(
+  (l0): ConstantStubLink(),
+  (b0): ConstantStubLink(),
+  (l1): ConstantStubLink(),
+  (b1): ConstantStubLink(),
+)''',
+        )
+        print(str(self.l))
+
+
 @testing.parameterize(
     {'pick': None},
     {'pick': 'f2'},
