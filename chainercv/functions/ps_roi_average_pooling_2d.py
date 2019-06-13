@@ -109,7 +109,7 @@ class PSROIAveragePooling2D(function.Function):
         else:
             if channel != self.out_c * self.group_size * self.group_size:
                 raise ValueError(
-                    'input channel must be equal to'
+                    'input channel must be equal to '
                     'outsize[0] * group_size * group_size: {} != {}'
                     .format(channel,
                             self.out_c * self.group_size * self.group_size))
@@ -177,7 +177,7 @@ class PSROIAveragePooling2D(function.Function):
         else:
             if channel != self.out_c * self.group_size * self.group_size:
                 raise ValueError(
-                    'input channel must be equal to'
+                    'input channel must be equal to '
                     'outsize[0] * group_size * group_size: {} != {}'
                     .format(channel,
                             self.out_c * self.group_size * self.group_size))
