@@ -29,6 +29,8 @@ from chainercv.datasets import coco_bbox_label_names
 from chainercv.datasets import COCOBboxDataset
 from chainercv.links import FasterRCNNFPNResNet101
 from chainercv.links import FasterRCNNFPNResNet50
+from chainercv.links import LightHeadRCNNFPNResNet101
+from chainercv.links import LightHeadRCNNFPNResNet50
 
 from chainercv.links.model.fpn import bbox_head_loss_post
 from chainercv.links.model.fpn import bbox_head_loss_pre
@@ -177,7 +179,9 @@ def main():
     parser.add_argument(
         '--model',
         choices=('mask_rcnn_fpn_resnet50', 'mask_rcnn_fpn_resnet101',
-                 'faster_rcnn_fpn_resnet50', 'faster_rcnn_fpn_resnet101'),
+                 'faster_rcnn_fpn_resnet50', 'faster_rcnn_fpn_resnet101',
+                 'light_head_rcnn_fpn_resnet50',
+                 'light_head_rcnn_fpn_resnet101'),
         default='faster_rcnn_fpn_resnet50')
     parser.add_argument('--batchsize', type=int, default=16)
     parser.add_argument('--iteration', type=int, default=90000)
@@ -215,6 +219,16 @@ def main():
         mode = 'instance_segmentation'
         model = MaskRCNNFPNResNet101(
             n_fg_class=len(coco_instance_segmentation_label_names),
+            pretrained_model='imagenet')
+    elif args.model == 'light_head_rcnn_fpn_resnet50':
+        mode = 'bbox'
+        model = LightHeadRCNNFPNResNet50(
+            n_fg_class=len(coco_bbox_label_names),
+            pretrained_model='imagenet')
+    elif args.model == 'light_head_rcnn_fpn_resnet101':
+        mode = 'bbox'
+        model = LightHeadRCNNFPNResNet101(
+            n_fg_class=len(coco_bbox_label_names),
             pretrained_model='imagenet')
 
     model.use_preset('evaluate')
