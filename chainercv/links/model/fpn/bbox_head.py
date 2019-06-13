@@ -236,10 +236,10 @@ class LightBboxHead(BboxHeadBase):
 
         with self.init_scope():
             self.global_context_module = GlobalContextModule(
-                2048, 256, self._roi_size * self._roi_size * 10, 15,
+                256, 256, self._roi_size * self._roi_size * 10, 15,
                 initialW=chainer.initializers.Normal(0.01))
             self.fc1 = L.Linear(
-                2048, initialW=chainer.initializers.Normal(0.01))
+                1024, initialW=chainer.initializers.Normal(0.01))
             self.loc = L.Linear(
                 n_class * 4, initialW=initializers.Normal(0.001))
             self.conf = L.Linear(n_class, initialW=initializers.Normal(0.01))
@@ -276,7 +276,8 @@ class LightBboxHead(BboxHeadBase):
             h = ps_roi_max_align_2d(
                 h, rois[l], roi_indices[l],
                 (10, self._roi_size, self._roi_size),
-                self._scales[l], self._roi_sample_ratio)
+                self._scales[l], self._roi_size,
+                self._roi_sample_ratio)
             h = F.where(
                 self.xp.isinf(h.array),
                 self.xp.zeros(h.shape, dtype=h.dtype), h)
