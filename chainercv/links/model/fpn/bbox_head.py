@@ -18,85 +18,7 @@ from chainercv.links.model.light_head_rcnn.global_context_module import \
 from chainercv import utils
 
 
-class BboxHead(chainer.Chain):
-    """Bounding box head network of Feature Pyramid Networks.
-
-    Args:
-        n_class (int): The number of classes including background.
-        scales (tuple of floats): The scales of feature maps.
-
-    """
-    _canonical_level = 2
-    _canonical_scale = 224
-    _roi_size = 7
-    _roi_sample_ratio = 2
-    std = (0.1, 0.2)
-
-    def __init__(self, n_class, scales):
-        super(BboxHead, self).__init__()
-
-        fc_init = {
-            'initialW': Caffe2FCUniform(),
-            'initial_bias': Caffe2FCUniform(),
-        }
-        with self.init_scope():
-            self.fc1 = L.Linear(1024, **fc_init)
-            self.fc2 = L.Linear(1024, **fc_init)
-            self.loc = L.Linear(
-                n_class * 4, initialW=initializers.Normal(0.001))
-            self.conf = L.Linear(n_class, initialW=initializers.Normal(0.01))
-
-        self._n_class = n_class
-        self._scales = scales
-
-    def forward(self, hs, rois, roi_indices):
-        """Calculates RoIs.
-
-        Args:
-            hs (iterable of array): An iterable of feature maps.
-            rois (list of arrays): A list of arrays of shape: math: `(R_l, 4)`,
-                where: math: `R_l` is the number of RoIs in the: math: `l`- th
-                feature map.
-            roi_indices (list of arrays): A list of arrays of
-                shape :math:`(R_l,)`.
-
-        Returns:
-            tuple of two arrays:
-            :obj:`locs` and :obj:`confs`.
-
-            * **locs**: An arrays whose shape is \
-                :math:`(R, n\_class, 4)`, where :math:`R` is the total number \
-                of RoIs in the batch.
-            * **confs**: A list of array whose shape is :math:`(R, n\_class)`.
-        """
-
-        hs_ = []
-        for l, h in enumerate(hs):
-            if len(rois[l]) == 0:
-                continue
-            h = F.roi_average_align_2d(
-                h, rois[l], roi_indices[l], self._roi_size,
-                self._scales[l], self._roi_sample_ratio)
-            hs_.append(h)
-        hs = hs_
-
-        if len(hs) == 0:
-            locs = chainer.Variable(
-                self.xp.empty((0, self._n_class, 4), dtype=np.float32))
-            confs = chainer.Variable(
-                self.xp.empty((0, self._n_class), dtype=np.float32))
-            return locs, confs
-
-        h = F.concat(hs, axis=0)
-        h = F.reshape(h, (h.shape[0], -1))
-        h = F.relu(self.fc1(h))
-        h = F.relu(self.fc2(h))
-
-        locs = self.loc(h)
-        locs = F.reshape(locs, (locs.shape[0], -1, 4))
-        confs = self.conf(h)
-        return locs, confs
-
+class BboxHeadBase(chainer.Chain):
     def distribute(self, rois, roi_indices):
         """Assigns Rois to feature maps according to their size.
 
@@ -215,8 +137,8 @@ class BboxHead(chainer.Chain):
         return bboxes, labels, scores
 
 
-class LightBboxHead(chainer.Chain):
-    """Bounding box light head network of Feature Pyramid Networks.
+class BboxHead(BboxHeadBase):
+    """Bounding box head network of Feature Pyramid Networks.
 
     Args:
         n_class (int): The number of classes including background.
@@ -233,13 +155,91 @@ class LightBboxHead(chainer.Chain):
         super(BboxHead, self).__init__()
 
         fc_init = {
-            'initialW': chainer.initializers.Normal(0.01),
+            'initialW': Caffe2FCUniform(),
+            'initial_bias': Caffe2FCUniform(),
         }
+        with self.init_scope():
+            self.fc1 = L.Linear(1024, **fc_init)
+            self.fc2 = L.Linear(1024, **fc_init)
+            self.loc = L.Linear(
+                n_class * 4, initialW=initializers.Normal(0.001))
+            self.conf = L.Linear(n_class, initialW=initializers.Normal(0.01))
+
+        self._n_class = n_class
+        self._scales = scales
+
+    def forward(self, hs, rois, roi_indices):
+        """Calculates RoIs.
+
+        Args:
+            hs (iterable of array): An iterable of feature maps.
+            rois (list of arrays): A list of arrays of shape: math: `(R_l, 4)`,
+                where: math: `R_l` is the number of RoIs in the: math: `l`- th
+                feature map.
+            roi_indices (list of arrays): A list of arrays of
+                shape :math:`(R_l,)`.
+
+        Returns:
+            tuple of two arrays:
+            :obj:`locs` and :obj:`confs`.
+
+            * **locs**: An arrays whose shape is \
+                :math:`(R, n\_class, 4)`, where :math:`R` is the total number \
+                of RoIs in the batch.
+            * **confs**: A list of array whose shape is :math:`(R, n\_class)`.
+        """
+
+        hs_ = []
+        for l, h in enumerate(hs):
+            if len(rois[l]) == 0:
+                continue
+            h = F.roi_average_align_2d(
+                h, rois[l], roi_indices[l], self._roi_size,
+                self._scales[l], self._roi_sample_ratio)
+            hs_.append(h)
+        hs = hs_
+
+        if len(hs) == 0:
+            locs = chainer.Variable(
+                self.xp.empty((0, self._n_class, 4), dtype=np.float32))
+            confs = chainer.Variable(
+                self.xp.empty((0, self._n_class), dtype=np.float32))
+            return locs, confs
+
+        h = F.concat(hs, axis=0)
+        h = F.reshape(h, (h.shape[0], -1))
+        h = F.relu(self.fc1(h))
+        h = F.relu(self.fc2(h))
+
+        locs = self.loc(h)
+        locs = F.reshape(locs, (locs.shape[0], -1, 4))
+        confs = self.conf(h)
+        return locs, confs
+
+
+class LightBboxHead(BboxHeadBase):
+    """Bounding box light head network of Feature Pyramid Networks.
+
+    Args:
+        n_class (int): The number of classes including background.
+        scales (tuple of floats): The scales of feature maps.
+
+    """
+    _canonical_level = 2
+    _canonical_scale = 224
+    _roi_size = 7
+    _roi_sample_ratio = 2
+    std = (0.1, 0.2)
+
+    def __init__(self, n_class, scales):
+        super(LightBboxHead, self).__init__()
+
         with self.init_scope():
             self.global_context_module = GlobalContextModule(
                 2048, 256, self._roi_size * self._roi_size * 10, 15,
                 initialW=chainer.initializers.Normal(0.01))
-            self.fc1 = L.Linear(2048, **fc_init)
+            self.fc1 = L.Linear(
+                2048, initialW=chainer.initializers.Normal(0.01))
             self.loc = L.Linear(
                 n_class * 4, initialW=initializers.Normal(0.001))
             self.conf = L.Linear(n_class, initialW=initializers.Normal(0.01))
