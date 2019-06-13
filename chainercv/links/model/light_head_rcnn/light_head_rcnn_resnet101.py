@@ -81,7 +81,7 @@ class LightHeadRCNNResNet101(LightHeadRCNN):
         'coco': {
             'param': {'n_fg_class': 80},
             'url': 'https://chainercv-models.preferred.jp/'
-            'light_head_rcnn_resnet101_trained_2019_06_08.npz',
+            'light_head_rcnn_resnet101_trained_2019_06_13.npz',
             'cv2': True
         },
     }
