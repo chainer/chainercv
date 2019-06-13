@@ -8,10 +8,13 @@ import chainer.functions as F
 from chainer import initializers
 import chainer.links as L
 
+from chainercv.functions import ps_roi_max_align_2d
 from chainercv.links.model.fpn.misc import argsort
 from chainercv.links.model.fpn.misc import choice
 from chainercv.links.model.fpn.misc import exp_clip
 from chainercv.links.model.fpn.misc import smooth_l1
+from chainercv.links.model.light_head_rcnn.global_context_module import \
+    GlobalContextModule
 from chainercv import utils
 
 
@@ -210,6 +213,91 @@ class BboxHead(chainer.Chain):
             scores.append(score)
 
         return bboxes, labels, scores
+
+
+class LightBboxHead(chainer.Chain):
+    """Bounding box light head network of Feature Pyramid Networks.
+
+    Args:
+        n_class (int): The number of classes including background.
+        scales (tuple of floats): The scales of feature maps.
+
+    """
+    _canonical_level = 2
+    _canonical_scale = 224
+    _roi_size = 7
+    _roi_sample_ratio = 2
+    std = (0.1, 0.2)
+
+    def __init__(self, n_class, scales):
+        super(BboxHead, self).__init__()
+
+        fc_init = {
+            'initialW': chainer.initializers.Normal(0.01),
+        }
+        with self.init_scope():
+            self.global_context_module = GlobalContextModule(
+                2048, 256, self._roi_size * self._roi_size * 10, 15,
+                initialW=chainer.initializers.Normal(0.01))
+            self.fc1 = L.Linear(2048, **fc_init)
+            self.loc = L.Linear(
+                n_class * 4, initialW=initializers.Normal(0.001))
+            self.conf = L.Linear(n_class, initialW=initializers.Normal(0.01))
+
+        self._n_class = n_class
+        self._scales = scales
+
+    def forward(self, hs, rois, roi_indices):
+        """Calculates RoIs.
+
+        Args:
+            hs (iterable of array): An iterable of feature maps.
+            rois (list of arrays): A list of arrays of shape: math: `(R_l, 4)`,
+                where: math: `R_l` is the number of RoIs in the: math: `l`- th
+                feature map.
+            roi_indices (list of arrays): A list of arrays of
+                shape :math:`(R_l,)`.
+
+        Returns:
+            tuple of two arrays:
+            :obj:`locs` and :obj:`confs`.
+
+            * **locs**: An arrays whose shape is \
+                :math:`(R, n\_class, 4)`, where :math:`R` is the total number \
+                of RoIs in the batch.
+            * **confs**: A list of array whose shape is :math:`(R, n\_class)`.
+        """
+
+        hs_ = []
+        for l, h in enumerate(hs):
+            if len(rois[l]) == 0:
+                continue
+            h = self.global_context_module(h)
+            h = ps_roi_max_align_2d(
+                h, rois[l], roi_indices[l],
+                (10, self._roi_size, self._roi_size),
+                self._scales[l], self._roi_sample_ratio)
+            h = F.where(
+                self.xp.isinf(h.array),
+                self.xp.zeros(h.shape, dtype=h.dtype), h)
+            hs_.append(h)
+        hs = hs_
+
+        if len(hs) == 0:
+            locs = chainer.Variable(
+                self.xp.empty((0, self._n_class, 4), dtype=np.float32))
+            confs = chainer.Variable(
+                self.xp.empty((0, self._n_class), dtype=np.float32))
+            return locs, confs
+
+        h = F.concat(hs, axis=0)
+        h = F.reshape(h, (h.shape[0], -1))
+        h = F.relu(self.fc1(h))
+
+        locs = self.loc(h)
+        locs = F.reshape(locs, (locs.shape[0], -1, 4))
+        confs = self.conf(h)
+        return locs, confs
 
 
 def bbox_head_loss_pre(rois, roi_indices, std, bboxes, labels):

@@ -5,6 +5,7 @@ import chainer.functions as F
 import chainer.links as L
 
 from chainercv.links.model.fpn.bbox_head import BboxHead
+from chainercv.links.model.fpn.bbox_head import LightBboxHead
 from chainercv.links.model.fpn.faster_rcnn import FasterRCNN
 from chainercv.links.model.fpn.fpn import FPN
 from chainercv.links.model.fpn.mask_head import MaskHead
@@ -48,7 +49,8 @@ class FasterRCNNFPNResNet(FasterRCNN):
 
     def __init__(self, n_fg_class=None, pretrained_model=None,
                  return_values=['bboxes', 'labels', 'scores'],
-                 min_size=800, max_size=1333):
+                 min_size=800, max_size=1333,
+                 bbox_head_cls=BboxHead, mask_head_cls=MaskHead):
         param, path = utils.prepare_pretrained_model(
             {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
@@ -63,8 +65,8 @@ class FasterRCNNFPNResNet(FasterRCNN):
         super(FasterRCNNFPNResNet, self).__init__(
             extractor=extractor,
             rpn=RPN(extractor.scales),
-            bbox_head=BboxHead(param['n_fg_class'] + 1, extractor.scales),
-            mask_head=MaskHead(param['n_fg_class'] + 1, extractor.scales),
+            bbox_head=bbox_head_cls(param['n_fg_class'] + 1, extractor.scales),
+            mask_head=mask_head_cls(param['n_fg_class'] + 1, extractor.scales),
             return_values=return_values,
             min_size=min_size, max_size=max_size
         )
@@ -90,6 +92,21 @@ class MaskRCNNFPNResNet(FasterRCNNFPNResNet):
         super(MaskRCNNFPNResNet, self).__init__(
             n_fg_class, pretrained_model, return_values,
             min_size, max_size)
+
+
+class LightHeadRCNNFPNResNet(FasterRCNNFPNResNet):
+    """Light Head R-CNN with a ResNet backbone and FPN.
+
+    Please refer to :class:`~chainercv.links.model.fpn.FasterRCNNFPNResNet`.
+
+    """
+
+    def __init__(self, n_fg_class=None, pretrained_model=None,
+                 return_values=['bboxes', 'labels', 'scores'],
+                 min_size=800, max_size=1333):
+        super(LightHeadRCNNFPNResNet, self).__init__(
+            n_fg_class, pretrained_model, return_values,
+            min_size, max_size, LightBboxHead)
 
 
 class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
@@ -148,6 +165,42 @@ class MaskRCNNFPNResNet50(MaskRCNNFPNResNet):
 
 class MaskRCNNFPNResNet101(MaskRCNNFPNResNet):
     """Mask R-CNN with ResNet-101 and FPN.
+
+    Please refer to :class:`~chainercv.links.model.fpn.FasterRCNNFPNResNet`.
+
+    """
+
+    _base = ResNet101
+    _models = {
+        'coco': {
+            'param': {'n_fg_class': 80},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'mask_rcnn_fpn_resnet101_coco_trained_2019_03_15.npz',
+            'cv2': True
+        },
+    }
+
+
+class LightHeadRCNNFPNResNet50(LightHeadRCNNFPNResNet):
+    """Light Head R-CNN with ResNet-50 and FPN.
+
+    Please refer to :class:`~chainercv.links.model.fpn.FasterRCNNFPNResNet`.
+
+    """
+
+    _base = ResNet50
+    _models = {
+        'coco': {
+            'param': {'n_fg_class': 80},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'mask_rcnn_fpn_resnet50_coco_trained_2019_03_15.npz',
+            'cv2': True
+        },
+    }
+
+
+class LightHeadRCNNFPNResNet101(LightHeadRCNNFPNResNet):
+    """Light Head R-CNN with ResNet-101 and FPN.
 
     Please refer to :class:`~chainercv.links.model.fpn.FasterRCNNFPNResNet`.
 
