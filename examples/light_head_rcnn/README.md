@@ -5,7 +5,7 @@ MS COCO 2014 minival
 
 | Model | mAP@[0.5:0.95] (Original) |  mAP@[0.5:0.95] (ChainerCV) |
 |:-:|:-:|:-:|
-| Light-Head-RCNN ResNet101 | 39.6 % [1] / 40.0 % [2] | 39.4 % |
+| Light-Head-RCNN ResNet101 | 39.6 % [1] / 40.0 % [2] | 39.3 % |
 
 ## Demo
 Detect objects in an given image. This demo downloads MS COCO pretrained model automatically if a pretrained model path is not given.
