@@ -6,7 +6,7 @@ from chainercv.chainer_experimental.datasets.sliceable.sliceable_dataset \
 class TransformDataset(GetterDataset):
     """A sliceable version of :class:`chainer.datasets.TransformDataset`.
 
-    Note that it reuqires :obj:`keys` to determine the names of returned
+    Note that it requires :obj:`keys` to determine the names of returned
     values.
 
     Here is an example.
