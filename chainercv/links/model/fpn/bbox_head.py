@@ -239,7 +239,7 @@ class LightBboxHead(BboxHeadBase):
                 256, 256, self._roi_size * self._roi_size * 10, 15,
                 initialW=chainer.initializers.Normal(0.01))
             self.fc1 = L.Linear(
-                1024, initialW=chainer.initializers.Normal(0.01))
+                2048, initialW=chainer.initializers.Normal(0.01))
             self.loc = L.Linear(
                 n_class * 4, initialW=initializers.Normal(0.001))
             self.conf = L.Linear(n_class, initialW=initializers.Normal(0.01))
