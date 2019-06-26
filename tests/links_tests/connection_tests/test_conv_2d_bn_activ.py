@@ -20,6 +20,7 @@ def _add_one(x):
     'dilate': [1, 2],
     'args_style': ['explicit', 'None', 'omit'],
     'activ': ['relu', 'add_one', None],
+    'weight_standarization': [False, True]
 }))
 class TestConv2DBNActiv(unittest.TestCase):
 
@@ -51,17 +52,21 @@ class TestConv2DBNActiv(unittest.TestCase):
                 self.in_channels, self.out_channels, self.ksize,
                 self.stride, self.pad, self.dilate,
                 initialW=initialW, initial_bias=initial_bias,
+                weight_standarization=self.weight_standarization,
                 activ=activ, bn_kwargs=bn_kwargs)
         elif self.args_style == 'None':
             self.l = Conv2DBNActiv(
                 None, self.out_channels, self.ksize, self.stride, self.pad,
                 self.dilate, initialW=initialW, initial_bias=initial_bias,
+                weight_standarization=self.weight_standarization,
                 activ=activ, bn_kwargs=bn_kwargs)
         elif self.args_style == 'omit':
             self.l = Conv2DBNActiv(
                 self.out_channels, self.ksize, stride=self.stride,
                 pad=self.pad, dilate=self.dilate, initialW=initialW,
-                initial_bias=initial_bias, activ=activ, bn_kwargs=bn_kwargs)
+                initial_bias=initial_bias,
+                weight_standarization=self.weight_standarization,
+                activ=activ, bn_kwargs=bn_kwargs)
 
     def check_forward(self, x_data):
         x = chainer.Variable(x_data)
@@ -78,21 +83,23 @@ class TestConv2DBNActiv(unittest.TestCase):
             _x_data = x_data
         elif self.dilate == 2:
             _x_data = x_data[:, :, 1:-1, 1:-1]
-        if self.activ == 'relu':
-            np.testing.assert_almost_equal(
-                cuda.to_cpu(y.array), np.maximum(cuda.to_cpu(_x_data), 0),
-                decimal=4
-            )
-        elif self.activ == 'add_one':
-            np.testing.assert_almost_equal(
-                cuda.to_cpu(y.array), cuda.to_cpu(_x_data) + 1,
-                decimal=4
-            )
-        elif self.activ is None:
-            np.testing.assert_almost_equal(
-                cuda.to_cpu(y.array), cuda.to_cpu(_x_data),
-                decimal=4
-            )
+
+        if not self.weight_standarization:
+            if self.activ == 'relu':
+                np.testing.assert_almost_equal(
+                    cuda.to_cpu(y.array), np.maximum(cuda.to_cpu(_x_data), 0),
+                    decimal=4
+                )
+            elif self.activ == 'add_one':
+                np.testing.assert_almost_equal(
+                    cuda.to_cpu(y.array), cuda.to_cpu(_x_data) + 1,
+                    decimal=4
+                )
+            elif self.activ is None:
+                np.testing.assert_almost_equal(
+                    cuda.to_cpu(y.array), cuda.to_cpu(_x_data),
+                    decimal=4
+                )
 
     def test_forward_cpu(self):
         self.check_forward(self.x)

@@ -1,5 +1,8 @@
 import chainer
+from chainer.functions.connection import convolution_2d
+from chainer.functions import mean
 from chainer.functions import relu
+from chainer.functions import rsqrt
 from chainer.links import BatchNormalization
 from chainer.links import Convolution2D
 
@@ -7,6 +10,26 @@ try:
     from chainermn.links import MultiNodeBatchNormalization
 except ImportError:
     pass
+
+
+def rstd(x, axis, keepdims, eps):
+    return rsqrt(mean(x ** 2, axis=axis, keepdims=keepdims) + eps)
+
+
+class Convolution2DWS(Convolution2D):
+
+    def forward(self, x):
+        if self.W.array is None:
+            self._initialize_params(x.shape[1])
+
+        W_mean = mean(self.W, axis=(1, 2, 3), keepdims=True)
+        W_minus_mean = self.W - W_mean
+        W_rstd = rstd(W_minus_mean, axis=(1, 2, 3), keepdims=True, eps=1e-5)
+        W_norm = W_rstd * W_minus_mean
+
+        return convolution_2d.convolution_2d(
+            x, W_norm, self.b, self.stride, self.pad, dilate=self.dilate,
+            groups=self.groups)
 
 
 class Conv2DBNActiv(chainer.Chain):
@@ -83,16 +106,24 @@ class Conv2DBNActiv(chainer.Chain):
 
     def __init__(self, in_channels, out_channels, ksize=None,
                  stride=1, pad=0, dilate=1, groups=1, nobias=True,
-                 initialW=None, initial_bias=None, activ=relu, bn_kwargs={}):
+                 initialW=None, initial_bias=None,
+                 weight_standarization=False, activ=relu, bn_kwargs={}):
         if ksize is None:
             out_channels, ksize, in_channels = in_channels, out_channels, None
 
         self.activ = activ
         super(Conv2DBNActiv, self).__init__()
         with self.init_scope():
-            self.conv = Convolution2D(
-                in_channels, out_channels, ksize, stride, pad,
-                nobias, initialW, initial_bias, dilate=dilate, groups=groups)
+            if weight_standarization:
+                self.conv = Convolution2DWS(
+                    in_channels, out_channels, ksize, stride, pad,
+                    nobias, initialW, initial_bias, dilate=dilate,
+                    groups=groups)
+            else:
+                self.conv = Convolution2D(
+                    in_channels, out_channels, ksize, stride, pad,
+                    nobias, initialW, initial_bias, dilate=dilate,
+                    groups=groups)
             if 'comm' in bn_kwargs:
                 self.bn = MultiNodeBatchNormalization(
                     out_channels, **bn_kwargs)

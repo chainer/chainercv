@@ -28,6 +28,10 @@ from chainercv.utils import testing
         [
             {'arch': 'fb'},
             {'arch': 'he'}
+        ],
+        [
+            {'weight_standarization': False},
+            {'weight_standarization': True}
         ]
     )
 ))
@@ -35,7 +39,8 @@ class TestResNetCall(unittest.TestCase):
 
     def setUp(self):
         self.link = self.model_class(
-            n_class=self.n_class, pretrained_model=None, arch=self.arch)
+            n_class=self.n_class, pretrained_model=None, arch=self.arch,
+            weight_standarization=self.weight_standarization)
         self.link.pick = self.pick
 
     def check_call(self):
