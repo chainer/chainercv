@@ -37,8 +37,6 @@ class SEBlock(chainer.Chain):
         z = F.average(u, axis=(2, 3))
         x = F.relu(self.down(z))
         x = F.sigmoid(self.up(x))
-
-        x = F.broadcast_to(x, (H, W, B, C))
-        x = x.transpose((2, 3, 0, 1))
-
+        x = F.reshape(x, x.shape[:2] + (1, 1))
+        # Spatial axes of `x` will be broadcasted.
         return u * x
