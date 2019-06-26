@@ -120,11 +120,13 @@ class TestEvalInstanceSegmentationCOCO(unittest.TestCase):
         cls.dataset = np.load(request.urlretrieve(os.path.join(
             base_url,
             'eval_instance_segmentation_coco_dataset_2018_07_06.npz'))[0],
-            encoding='latin1')
+            encoding='latin1',
+            allow_pickle=True)
         cls.result = np.load(request.urlretrieve(os.path.join(
             base_url,
             'eval_instance_segmentation_coco_result_2019_02_12.npz'))[0],
-            encoding='latin1')
+            encoding='latin1',
+            allow_pickle=True)
 
     def test_eval_instance_segmentation_coco(self):
         pred_masks = self.result['masks']
