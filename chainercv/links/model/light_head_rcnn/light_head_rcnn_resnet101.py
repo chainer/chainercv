@@ -21,7 +21,7 @@ from chainercv import utils
 
 class LightHeadRCNNResNet101(LightHeadRCNN):
 
-    """LightHead RCNN based on ResNet101.
+    """Light Head RCNN based on ResNet101.
 
     When you specify the path of a pre-trained chainer model serialized as
     a :obj:`.npz` file in the constructor, this chain model automatically
