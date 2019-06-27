@@ -7,7 +7,7 @@ import chainer.functions as F
 from chainer import initializers
 import chainer.links as L
 
-from chainercv.links import Conv2DBNActiv
+from chainercv.links import Conv2DNormActiv
 from chainercv.links.model.resnet.resblock import ResBlock
 from chainercv.links import PickableSequentialChain
 from chainercv import utils
@@ -93,7 +93,8 @@ class ResNet(PickableSequentialChain):
             <https://arxiv.org/pdf/1512.03385.pdf>`_.
             This option changes where to apply strided convolution.
             The default value is :obj:`fb`.
-        bn_kwargs (dict)
+        norm_type
+        norm_groups
 
     """
 
@@ -165,7 +166,9 @@ class ResNet(PickableSequentialChain):
                  n_class=None,
                  pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}, arch='fb',
-                 weight_standardization=False):
+                 weight_standardization=False,
+                 norm_type='bn', norm_groups=32,
+                 ):
         if arch == 'fb':
             stride_first = False
             conv1_no_bias = True
@@ -192,14 +195,24 @@ class ResNet(PickableSequentialChain):
             # we employ a zero initializer for faster computation.
             initialW = initializers.constant.Zero()
             fc_kwargs['initialW'] = initializers.constant.Zero()
+        if norm_type == 'gn':
+            norm_kwargs = {'groups': norm_groups}
+        else:
+            norm_kwargs = {}
         kwargs = {'initialW': initialW, 'stride_first': stride_first,
-                  'weight_standardization': weight_standardization}
+                  'weight_standardization': weight_standardization,
+                  'norm_type': norm_type,
+                  'norm_kwargs': norm_kwargs,
+                  }
 
         super(ResNet, self).__init__()
         with self.init_scope():
-            self.conv1 = Conv2DBNActiv(None, 64, 7, 2, 3, nobias=conv1_no_bias,
-                                       initialW=initialW,
-                                       weight_standardization=weight_standardization)
+            self.conv1 = Conv2DNormActiv(
+                    None, 64, 7, 2, 3, nobias=conv1_no_bias,
+                    initialW=initialW,
+                    weight_standardization=weight_standardization,
+                    norm_type=norm_type, norm_kwargs=norm_kwargs
+                    )
             self.pool1 = lambda x: F.max_pooling_2d(x, ksize=3, stride=2)
             self.res2 = ResBlock(blocks[0], None, 64, 256, 1, **kwargs)
             self.res3 = ResBlock(blocks[1], None, 128, 512, 2, **kwargs)
@@ -226,7 +239,7 @@ class ResNet50(ResNet):
 
     def __init__(self, n_class=None, pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}, arch='fb',
-                 weight_standardization=False):
+                 weight_standardization=False, norm_type='bn'):
         super(ResNet50, self).__init__(
             50, n_class, pretrained_model,
             mean, initialW, fc_kwargs, arch, weight_standardization)
@@ -245,7 +258,7 @@ class ResNet101(ResNet):
 
     def __init__(self, n_class=None, pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}, arch='fb',
-                 weight_standardization=False):
+                 weight_standardization=False, norm_type='bn'):
         super(ResNet101, self).__init__(
             101, n_class, pretrained_model,
             mean, initialW, fc_kwargs, arch, weight_standardization)
@@ -264,7 +277,7 @@ class ResNet152(ResNet):
 
     def __init__(self, n_class=None, pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}, arch='fb',
-                 weight_standardization=False):
+                 weight_standardization=False, norm_type='bn'):
         super(ResNet152, self).__init__(
             152, n_class, pretrained_model,
             mean, initialW, fc_kwargs, arch, weight_standardization)

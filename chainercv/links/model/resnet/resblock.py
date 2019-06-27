@@ -1,7 +1,7 @@
 import chainer
 import chainer.functions as F
 
-from chainercv.links import Conv2DBNActiv
+from chainercv.links import Conv2DNormActiv
 from chainercv.links import PickableSequentialChain
 from chainercv.links import SEBlock
 
@@ -25,7 +25,7 @@ class ResBlock(PickableSequentialChain):
             grouped convolution is not used.
         initialW (callable): Initial weight value used in
             the convolutional layers.
-        bn_kwargs (dict): Keyword arguments passed to initialize
+        norm_kwargs (dict): Keyword arguments passed to initialize
             :class:`chainer.links.BatchNormalization`.
         stride_first (bool): This determines the behavior of the
             bottleneck with a shortcut. If :obj:`True`, apply strided
@@ -40,14 +40,16 @@ class ResBlock(PickableSequentialChain):
     def __init__(self, n_layer, in_channels, mid_channels,
                  out_channels, stride, dilate=1, groups=1, initialW=None,
                  weight_standardization=False,
-                 bn_kwargs={}, stride_first=False, add_seblock=False):
+                 norm_type='bn',
+                 norm_kwargs={}, stride_first=False, add_seblock=False):
         super(ResBlock, self).__init__()
         # Dilate option is applied to all bottlenecks.
         with self.init_scope():
             self.a = Bottleneck(
                 in_channels, mid_channels, out_channels, stride, dilate,
                 groups, initialW, weight_standardization=weight_standardization,
-                bn_kwargs=bn_kwargs, residual_conv=True,
+                norm_type=norm_type,
+                norm_kwargs=norm_kwargs, residual_conv=True,
                 stride_first=stride_first, add_seblock=add_seblock)
             for i in range(n_layer - 1):
                 name = 'b{}'.format(i + 1)
@@ -55,7 +57,8 @@ class ResBlock(PickableSequentialChain):
                     out_channels, mid_channels, out_channels, stride=1,
                     dilate=dilate, initialW=initialW,
                     weight_standardization=weight_standardization,
-                    bn_kwargs=bn_kwargs,
+                    norm_type=norm_type,
+                    norm_kwargs=norm_kwargs,
                     residual_conv=False, add_seblock=add_seblock,
                     groups=groups)
                 setattr(self, name, bottleneck)
@@ -77,7 +80,8 @@ class Bottleneck(chainer.Chain):
             not used.
         initialW (callable): Initial weight value used in
             the convolutional layers.
-        bn_kwargs (dict): Keyword arguments passed to initialize
+        norm_type
+        norm_kwargs (dict): Keyword arguments passed to initialize
             :class:`chainer.links.BatchNormalization`.
         residual_conv (bool): If :obj:`True`, apply a 1x1 convolution
             to the residual.
@@ -91,7 +95,8 @@ class Bottleneck(chainer.Chain):
 
     def __init__(self, in_channels, mid_channels, out_channels,
                  stride=1, dilate=1, groups=1, initialW=None,
-                 weight_standardization=False, bn_kwargs={},
+                 weight_standardization=False, norm_type='bn',
+                 norm_kwargs={},
                  residual_conv=False, stride_first=False, add_seblock=False):
         if stride_first:
             first_stride = stride
@@ -101,31 +106,34 @@ class Bottleneck(chainer.Chain):
             second_stride = stride
         super(Bottleneck, self).__init__()
         with self.init_scope():
-            self.conv1 = Conv2DBNActiv(
+            self.conv1 = Conv2DNormActiv(
                     in_channels, mid_channels,
                     1, first_stride, 0, nobias=True, initialW=initialW,
                     weight_standardization=weight_standardization,
-                    bn_kwargs=bn_kwargs)
+                    norm_type=norm_type,
+                    norm_kwargs=norm_kwargs)
             # pad = dilate
-            self.conv2 = Conv2DBNActiv(
+            self.conv2 = Conv2DNormActiv(
                     mid_channels, mid_channels,
                     3, second_stride, dilate, dilate,
                     groups, nobias=True, initialW=initialW,
                     weight_standardization=weight_standardization,
-                    bn_kwargs=bn_kwargs)
-            self.conv3 = Conv2DBNActiv(
+                    norm_type=norm_type,
+                    norm_kwargs=norm_kwargs)
+            self.conv3 = Conv2DNormActiv(
                     mid_channels, out_channels, 1, 1, 0,
                     nobias=True, initialW=initialW,
                     weight_standardization=weight_standardization,
-                    activ=None, bn_kwargs=bn_kwargs)
+                    activ=None, norm_type=norm_type,
+                    norm_kwargs=norm_kwargs)
             if add_seblock:
                 self.se = SEBlock(out_channels)
             if residual_conv:
-                self.residual_conv = Conv2DBNActiv(
+                self.residual_conv = Conv2DNormActiv(
                     in_channels, out_channels, 1, stride, 0,
                     nobias=True, initialW=initialW,
                     weight_standardization=weight_standardization,
-                    activ=None, bn_kwargs=bn_kwargs)
+                    activ=None, norm_type=norm_type, norm_kwargs=norm_kwargs)
 
     def forward(self, x):
         h = self.conv1(x)

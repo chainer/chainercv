@@ -32,6 +32,10 @@ from chainercv.utils import testing
         [
             {'weight_standardization': False},
             {'weight_standardization': True}
+        ],
+        [
+            {'norm_type': 'bn'},
+            {'norm_type': 'gn'}
         ]
     )
 ))
@@ -40,7 +44,9 @@ class TestResNetCall(unittest.TestCase):
     def setUp(self):
         self.link = self.model_class(
             n_class=self.n_class, pretrained_model=None, arch=self.arch,
-            weight_standardization=self.weight_standardization)
+            weight_standardization=self.weight_standardization,
+            norm_type=self.norm_type
+            )
         self.link.pick = self.pick
 
     def check_call(self):
