@@ -35,6 +35,7 @@ For more details, please read :func:`FasterRCNN.predict`.
    links/faster_rcnn
    links/ssd
    links/yolo
+   links/light_head_rcnn
 
 
 Semantic Segmentation
