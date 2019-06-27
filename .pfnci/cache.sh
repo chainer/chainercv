@@ -2,13 +2,17 @@
 set -eux
 
 systemctl stop docker.service
-mount -t tmpfs tmpfs /var/lib/docker/
-gsutil -q cp gs://tmp-pfn-public-ci/chainercv/docker.tar - | tar -xf - -C /var/lib/docker/ || true
+mount -t tmpfs tmpfs /var/lib/docker/ -o size=100%
 systemctl start docker.service
+gcloud auth configure-docker
 
-docker build -t devel .pfnci/docker/devel/
-docker build -t devel-minimal .pfnci/docker/devel-minimal/
-
-docker system prune --force
-systemctl stop docker.service
-tar -cf - -C /var/lib/docker/ -R . | gsutil -q cp - gs://tmp-pfn-public-ci/chainercv/docker.tar
+for DOCKER_TAG in devel devel-minimal
+do
+    DOCKER_IMAGE=asia.gcr.io/pfn-public-ci/chainercv:${DOCKER_TAG}
+    docker pull ${DOCKER_IMAGE} || true
+    docker build \
+       --cache-from ${DOCKER_IMAGE} \
+       --tag ${DOCKER_IMAGE} \
+       .pfnci/docker/${DOCKER_TAG}/
+    docker push ${DOCKER_IMAGE}
+done
