@@ -1,13 +1,13 @@
 #! /usr/bin/env sh
 set -eux
 
-STABLE=6.0.0
-LATEST=7.0.0a1
+STABLE=6.1.0
+LATEST=7.0.0b1
 
 systemctl stop docker.service
 mount -t tmpfs tmpfs /var/lib/docker/ -o size=100%
-gsutil -q cp gs://tmp-pfn-public-ci/chainercv/docker.tar - | tar -xf - -C /var/lib/docker/ || true
 systemctl start docker.service
+gcloud auth configure-docker
 
 TEMP=$(mktemp -d)
 mount -t tmpfs tmpfs ${TEMP}/ -o size=100%
@@ -70,8 +70,13 @@ esac
 echo pip${PYTHON} install -e chainercv/ >> install.sh
 
 if [ ${OPTIONAL_MODULES} -gt 0 ]; then
-    DOCKER_IMAGE=devel
+    DOCKER_TAG=devel
 else
-    DOCKER_IMAGE=devel-minimal
+    DOCKER_TAG=devel-minimal
 fi
-docker build -t ${DOCKER_IMAGE} chainercv/.pfnci/docker/${DOCKER_IMAGE}/
+DOCKER_IMAGE=asia.gcr.io/pfn-public-ci/chainercv:${DOCKER_TAG}
+docker pull ${DOCKER_IMAGE} || true
+docker build \
+       --cache-from ${DOCKER_IMAGE} \
+       --tag ${DOCKER_IMAGE} \
+       chainercv/.pfnci/docker/${DOCKER_TAG}/

@@ -1,8 +1,0 @@
-# Conda environment definition to build documentation on RTD
-
-name: chainercv-docs
-dependencies:
-  - python=3.6
-  - cmake
-  - numpy
-  - Cython

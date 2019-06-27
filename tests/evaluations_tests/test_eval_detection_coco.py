@@ -93,9 +93,11 @@ class TestEvalDetectionCOCO(unittest.TestCase):
         base_url = 'https://chainercv-models.preferred.jp/tests'
 
         cls.dataset = np.load(request.urlretrieve(os.path.join(
-            base_url, 'eval_detection_coco_dataset_2017_10_16.npz'))[0])
+            base_url, 'eval_detection_coco_dataset_2017_10_16.npz'))[0],
+            allow_pickle=True)
         cls.result = np.load(request.urlretrieve(os.path.join(
-            base_url, 'eval_detection_coco_result_2017_10_16.npz'))[0])
+            base_url, 'eval_detection_coco_result_2017_10_16.npz'))[0],
+            allow_pickle=True)
 
     def test_eval_detection_coco(self):
         pred_bboxes = self.result['bboxes']

@@ -3,10 +3,9 @@ set -eux
 
 . $(dirname $0)/common.sh
 
-apt-get install -y --no-install-recommends unzip
 for ZIP in datasets-tiny.zip models.zip
 do
-    gsutil -q cp gs://chainercv-pfn-public-ci/${ZIP} .
+    gsutil -q cp gs://chainercv-asia-pfn-public-ci/${ZIP} .
     unzip -q ${ZIP}
     rm ${ZIP}
 done
