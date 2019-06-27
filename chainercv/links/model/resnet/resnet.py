@@ -165,7 +165,7 @@ class ResNet(PickableSequentialChain):
                  n_class=None,
                  pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}, arch='fb',
-                 weight_standarization=False):
+                 weight_standardization=False):
         if arch == 'fb':
             stride_first = False
             conv1_no_bias = True
@@ -193,13 +193,13 @@ class ResNet(PickableSequentialChain):
             initialW = initializers.constant.Zero()
             fc_kwargs['initialW'] = initializers.constant.Zero()
         kwargs = {'initialW': initialW, 'stride_first': stride_first,
-                  'weight_standarization': weight_standarization}
+                  'weight_standardization': weight_standardization}
 
         super(ResNet, self).__init__()
         with self.init_scope():
             self.conv1 = Conv2DBNActiv(None, 64, 7, 2, 3, nobias=conv1_no_bias,
                                        initialW=initialW,
-                                       weight_standarization=weight_standarization)
+                                       weight_standardization=weight_standardization)
             self.pool1 = lambda x: F.max_pooling_2d(x, ksize=3, stride=2)
             self.res2 = ResBlock(blocks[0], None, 64, 256, 1, **kwargs)
             self.res3 = ResBlock(blocks[1], None, 128, 512, 2, **kwargs)
@@ -226,10 +226,10 @@ class ResNet50(ResNet):
 
     def __init__(self, n_class=None, pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}, arch='fb',
-                 weight_standarization=False):
+                 weight_standardization=False):
         super(ResNet50, self).__init__(
             50, n_class, pretrained_model,
-            mean, initialW, fc_kwargs, arch, weight_standarization)
+            mean, initialW, fc_kwargs, arch, weight_standardization)
 
 
 class ResNet101(ResNet):
@@ -245,10 +245,10 @@ class ResNet101(ResNet):
 
     def __init__(self, n_class=None, pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}, arch='fb',
-                 weight_standarization=False):
+                 weight_standardization=False):
         super(ResNet101, self).__init__(
             101, n_class, pretrained_model,
-            mean, initialW, fc_kwargs, arch, weight_standarization)
+            mean, initialW, fc_kwargs, arch, weight_standardization)
 
 
 class ResNet152(ResNet):
@@ -264,7 +264,7 @@ class ResNet152(ResNet):
 
     def __init__(self, n_class=None, pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}, arch='fb',
-                 weight_standarization=False):
+                 weight_standardization=False):
         super(ResNet152, self).__init__(
             152, n_class, pretrained_model,
-            mean, initialW, fc_kwargs, arch, weight_standarization)
+            mean, initialW, fc_kwargs, arch, weight_standardization)

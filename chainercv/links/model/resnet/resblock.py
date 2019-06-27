@@ -39,14 +39,14 @@ class ResBlock(PickableSequentialChain):
 
     def __init__(self, n_layer, in_channels, mid_channels,
                  out_channels, stride, dilate=1, groups=1, initialW=None,
-                 weight_standarization=False,
+                 weight_standardization=False,
                  bn_kwargs={}, stride_first=False, add_seblock=False):
         super(ResBlock, self).__init__()
         # Dilate option is applied to all bottlenecks.
         with self.init_scope():
             self.a = Bottleneck(
                 in_channels, mid_channels, out_channels, stride, dilate,
-                groups, initialW, weight_standarization=weight_standarization,
+                groups, initialW, weight_standardization=weight_standardization,
                 bn_kwargs=bn_kwargs, residual_conv=True,
                 stride_first=stride_first, add_seblock=add_seblock)
             for i in range(n_layer - 1):
@@ -54,7 +54,7 @@ class ResBlock(PickableSequentialChain):
                 bottleneck = Bottleneck(
                     out_channels, mid_channels, out_channels, stride=1,
                     dilate=dilate, initialW=initialW,
-                    weight_standarization=weight_standarization,
+                    weight_standardization=weight_standardization,
                     bn_kwargs=bn_kwargs,
                     residual_conv=False, add_seblock=add_seblock,
                     groups=groups)
@@ -91,7 +91,7 @@ class Bottleneck(chainer.Chain):
 
     def __init__(self, in_channels, mid_channels, out_channels,
                  stride=1, dilate=1, groups=1, initialW=None,
-                 weight_standarization=False, bn_kwargs={},
+                 weight_standardization=False, bn_kwargs={},
                  residual_conv=False, stride_first=False, add_seblock=False):
         if stride_first:
             first_stride = stride
@@ -104,19 +104,19 @@ class Bottleneck(chainer.Chain):
             self.conv1 = Conv2DBNActiv(
                     in_channels, mid_channels,
                     1, first_stride, 0, nobias=True, initialW=initialW,
-                    weight_standarization=weight_standarization,
+                    weight_standardization=weight_standardization,
                     bn_kwargs=bn_kwargs)
             # pad = dilate
             self.conv2 = Conv2DBNActiv(
                     mid_channels, mid_channels,
                     3, second_stride, dilate, dilate,
                     groups, nobias=True, initialW=initialW,
-                    weight_standarization=weight_standarization,
+                    weight_standardization=weight_standardization,
                     bn_kwargs=bn_kwargs)
             self.conv3 = Conv2DBNActiv(
                     mid_channels, out_channels, 1, 1, 0,
                     nobias=True, initialW=initialW,
-                    weight_standarization=weight_standarization,
+                    weight_standardization=weight_standardization,
                     activ=None, bn_kwargs=bn_kwargs)
             if add_seblock:
                 self.se = SEBlock(out_channels)
@@ -124,7 +124,7 @@ class Bottleneck(chainer.Chain):
                 self.residual_conv = Conv2DBNActiv(
                     in_channels, out_channels, 1, stride, 0,
                     nobias=True, initialW=initialW,
-                    weight_standarization=weight_standarization,
+                    weight_standardization=weight_standardization,
                     activ=None, bn_kwargs=bn_kwargs)
 
     def forward(self, x):

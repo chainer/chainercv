@@ -107,14 +107,14 @@ class Conv2DBNActiv(chainer.Chain):
     def __init__(self, in_channels, out_channels, ksize=None,
                  stride=1, pad=0, dilate=1, groups=1, nobias=True,
                  initialW=None, initial_bias=None,
-                 weight_standarization=False, activ=relu, bn_kwargs={}):
+                 weight_standardization=False, activ=relu, bn_kwargs={}):
         if ksize is None:
             out_channels, ksize, in_channels = in_channels, out_channels, None
 
         self.activ = activ
         super(Conv2DBNActiv, self).__init__()
         with self.init_scope():
-            if weight_standarization:
+            if weight_standardization:
                 self.conv = Convolution2DWS(
                     in_channels, out_channels, ksize, stride, pad,
                     nobias, initialW, initial_bias, dilate=dilate,
