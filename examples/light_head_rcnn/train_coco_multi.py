@@ -143,13 +143,6 @@ def main():
     train_iter = chainer.iterators.SerialIterator(
         train_dataset, batch_size=args.batchsize // comm.size)
 
-    if comm.rank == 0:
-        test_dataset = COCOBboxDataset(
-            year='2017', split='val', use_crowded=True,
-            return_crowded=True, return_area=True)
-        test_iter = chainer.iterators.SerialIterator(
-            test_dataset, batch_size=1, repeat=False, shuffle=False)
-
     optimizer = chainermn.create_multi_node_optimizer(
         chainer.optimizers.MomentumSGD(momentum=0.9), comm)
     optimizer.setup(model)
