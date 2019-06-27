@@ -93,6 +93,8 @@ def main():
                         help='Output directory')
     parser.add_argument('--seed', '-s', type=int, default=1234)
     parser.add_argument('--batchsize', '-b', type=int, default=8)
+    parser.add_argument('--epoch', type=int, default=30)
+    parser.add_argument('--step-epoch', type=int, nargs='*', default=[19, 25])
     args = parser.parse_args()
 
     # https://docs.chainer.org/en/stable/chainermn/tutorial/tips_faqs.html#using-multiprocessiterator
@@ -180,7 +182,7 @@ def main():
         train_iter, optimizer, converter=converter,
         device=device)
     trainer = chainer.training.Trainer(
-        updater, (30, 'epoch'), out=args.out)
+        updater, (args.epoch, 'epoch'), out=args.out)
 
     @make_shift('lr')
     def lr_scheduler(trainer):
@@ -193,12 +195,10 @@ def main():
         if iteration < warm_up_duration:
             rate = warm_up_rate \
                 + (1 - warm_up_rate) * iteration / warm_up_duration
-        elif epoch < 20:
-            rate = 1
-        elif epoch < 26:
-            rate = 0.1
         else:
-            rate = 0.01
+            for step in args.step_epoch:
+                if epoch > step:
+                    rate *= 0.1
         return rate * base_lr
 
     trainer.extend(lr_scheduler)
