@@ -103,6 +103,8 @@ def vis_instance_segmentation(
         score = score[order]
         if label is not None:
             label = label[order]
+        if instance_colors is not None:
+            instance_colors = instance_colors[order]
 
     bbox = mask_to_bbox(mask)
 
