@@ -1,9 +1,11 @@
 from __future__ import division
 
+import mock
 import numpy as np
 import unittest
 
 import chainer
+from chainer import backends
 from chainer import testing
 from chainer.testing import attr
 
@@ -44,6 +46,16 @@ class DummyFasterRCNN(FasterRCNN):
             return_values=return_values,
             min_size=min_size, max_size=max_size,
         )
+
+
+def dummy_roi_average_align_2d(
+        x, rois, roi_indices, outsize, spatial_scale, sampling_ratio=None):
+    if not isinstance(outsize, chainer.utils.collections_abc.Iterable):
+        outsize = outsize, outsize
+
+    xp = backends.cuda.get_array_module(x.array)
+    y = _random_array(xp, (len(rois), x.shape[1], outsize[0], outsize[1]))
+    return chainer.Variable(y)
 
 
 @testing.parameterize(*testing.product_dict(
@@ -122,7 +134,9 @@ class TestFasterRCNN(unittest.TestCase):
 
     @attr.slow
     def test_call_cpu(self):
-        self._check_call()
+        with mock.patch('chainer.functions.roi_average_align_2d',
+                        dummy_roi_average_align_2d):
+            self._check_call()
 
     @attr.gpu
     def test_call_gpu(self):
@@ -155,7 +169,9 @@ class TestFasterRCNN(unittest.TestCase):
 
     @attr.slow
     def test_predict_cpu(self):
-        self._check_predict()
+        with mock.patch('chainer.functions.roi_average_align_2d',
+                        dummy_roi_average_align_2d):
+            self._check_predict()
 
     @attr.gpu
     def test_predict_gpu(self):
