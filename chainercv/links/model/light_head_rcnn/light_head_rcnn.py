@@ -128,7 +128,7 @@ class LightHeadRCNN(chainer.Chain):
         img_size = x.shape[2:]
 
         rpn_features, roi_features = self.extractor(x)
-        rpn_locs, rpn_scores, rois, roi_indices, anchor = self.rpn(
+        _, _, rois, roi_indices, _ = self.rpn(
             rpn_features, img_size, scales)
         roi_cls_locs, roi_scores = self.head(
             roi_features, rois, roi_indices)
