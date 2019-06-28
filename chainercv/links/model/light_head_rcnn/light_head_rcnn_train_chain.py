@@ -116,8 +116,8 @@ class LightHeadRCNNTrainChain(chainer.Chain):
         rpn_features, roi_features = self.light_head_rcnn.extractor(imgs)
         rpn_locs, rpn_scores, rois, roi_indices, anchor = \
             self.light_head_rcnn.rpn(rpn_features, img_size, scales)
-        rpn_locs = F.concat(rpn_locs, axis=0)
-        rpn_scores = F.concat(rpn_scores, axis=0)
+        rpn_locs = rpn_locs.reshape((-1, rpn_locs.shape[2]))
+        rpn_scores = rpn_scores.reshape((-1, rpn_scores.shape[2]))
 
         gt_rpn_locs = []
         gt_rpn_labels = []
