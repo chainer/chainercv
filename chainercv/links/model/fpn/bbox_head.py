@@ -236,7 +236,7 @@ class LightBboxHead(BboxHeadBase):
 
         with self.init_scope():
             self.global_context_module = GlobalContextModule(
-                256, 256, self._roi_size * self._roi_size * 10, 15,
+                2048, 256, self._roi_size * self._roi_size * 10, 15,
                 initialW=chainer.initializers.Normal(0.01))
             self.fc1 = L.Linear(
                 2048, initialW=chainer.initializers.Normal(0.01))
