@@ -13,8 +13,6 @@ from chainercv.links.model.fpn.misc import argsort
 from chainercv.links.model.fpn.misc import choice
 from chainercv.links.model.fpn.misc import exp_clip
 from chainercv.links.model.fpn.misc import smooth_l1
-from chainercv.links.model.light_head_rcnn.global_context_module import \
-    GlobalContextModule
 from chainercv import utils
 
 
@@ -235,9 +233,6 @@ class LightBboxHead(BboxHeadBase):
         super(LightBboxHead, self).__init__()
 
         with self.init_scope():
-            self.global_context_module = GlobalContextModule(
-                2048, 256, self._roi_size * self._roi_size * 10, 15,
-                initialW=chainer.initializers.Normal(0.01))
             self.fc1 = L.Linear(
                 2048, initialW=chainer.initializers.Normal(0.01))
             self.loc = L.Linear(
@@ -272,7 +267,6 @@ class LightBboxHead(BboxHeadBase):
         for l, h in enumerate(hs):
             if len(rois[l]) == 0:
                 continue
-            h = self.global_context_module(h)
             h = ps_roi_max_align_2d(
                 h, rois[l], roi_indices[l],
                 (10, self._roi_size, self._roi_size),

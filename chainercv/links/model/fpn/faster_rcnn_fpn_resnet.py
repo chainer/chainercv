@@ -8,6 +8,7 @@ from chainercv.links.model.fpn.bbox_head import BboxHead
 from chainercv.links.model.fpn.bbox_head import LightBboxHead
 from chainercv.links.model.fpn.faster_rcnn import FasterRCNN
 from chainercv.links.model.fpn.fpn import FPN
+from chainercv.links.model.fpn.fpn import GlobalContextFPN
 from chainercv.links.model.fpn.mask_head import MaskHead
 from chainercv.links.model.fpn.rpn import RPN
 from chainercv.links.model.resnet import ResNet101
@@ -50,7 +51,7 @@ class FasterRCNNFPNResNet(FasterRCNN):
     def __init__(self, n_fg_class=None, pretrained_model=None,
                  return_values=['bboxes', 'labels', 'scores'],
                  min_size=800, max_size=1333,
-                 bbox_head_cls=BboxHead, mask_head_cls=MaskHead):
+                 bbox_head_cls=BboxHead, mask_head_cls=MaskHead, fpn_cls=FPN):
         param, path = utils.prepare_pretrained_model(
             {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
@@ -59,7 +60,7 @@ class FasterRCNNFPNResNet(FasterRCNN):
         base.pool1 = lambda x: F.max_pooling_2d(
             x, 3, stride=2, pad=1, cover_all=False)
         base.remove_unused()
-        extractor = FPN(
+        extractor = fpn_cls(
             base, len(base.pick), (1 / 4, 1 / 8, 1 / 16, 1 / 32, 1 / 64))
 
         super(FasterRCNNFPNResNet, self).__init__(
@@ -105,8 +106,8 @@ class LightHeadRCNNFPNResNet(FasterRCNNFPNResNet):
                  return_values=['bboxes', 'labels', 'scores'],
                  min_size=800, max_size=1333):
         super(LightHeadRCNNFPNResNet, self).__init__(
-            n_fg_class, pretrained_model, return_values,
-            min_size, max_size, LightBboxHead)
+            n_fg_class, pretrained_model, return_values, min_size, max_size,
+            bbox_head_cls=LightBboxHead, fpn_cls=GlobalContextFPN)
 
 
 class FasterRCNNFPNResNet50(FasterRCNNFPNResNet):
