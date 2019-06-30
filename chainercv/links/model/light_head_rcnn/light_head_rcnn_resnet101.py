@@ -21,7 +21,7 @@ from chainercv import utils
 
 class LightHeadRCNNResNet101(LightHeadRCNN):
 
-    """Light Head RCNN based on ResNet101.
+    """Light-Head R-CNN based on ResNet101.
 
     When you specify the path of a pre-trained chainer model serialized as
     a :obj:`.npz` file in the constructor, this chain model automatically
@@ -189,7 +189,7 @@ class LightHeadRCNNResNet101(LightHeadRCNN):
 
 class ResNet101Extractor(chainer.Chain):
 
-    """ResNet101 Extractor for LightHeadRCNN ResNet101 implementation.
+    """ResNet101 Extractor for Light-Head R-CNN ResNet101 implementation.
 
     This class is used as an extractor for LightHeadRCNNResNet101.
     This outputs feature maps.

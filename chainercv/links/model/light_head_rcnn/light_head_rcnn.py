@@ -14,10 +14,10 @@ from chainercv.utils.bbox.non_maximum_suppression import \
 
 class LightHeadRCNN(chainer.Chain):
 
-    """Base class for  Light Head R-CNN.
+    """Base class for  Light-Head R-CNN.
 
-    This is a base class for Light Head R-CNN links supporting object detection
-    API [#]_. The following three stages constitute Light Head R-CNN.
+    This is a base class for Light-Head R-CNN links supporting object detection
+    API [#]_. The following three stages constitute Light-Head R-CNN.
 
     1. **Feature extraction**: Images are taken and their \
         feature maps are calculated.
@@ -34,7 +34,7 @@ class LightHeadRCNN(chainer.Chain):
     object detection.
     :meth:`predict` takes images and returns bounding boxes that are converted
     to image coordinates. This will be useful for a scenario when
-    Light Head R-CNN is treated as a black box function, for instance.
+    Light-Head R-CNN is treated as a black box function, for instance.
     :meth:`__call__` is provided for a scnerario when intermediate outputs
     are needed, for instance, for training and debugging.
 
