@@ -49,10 +49,11 @@ class TestProposalTargetCreator(unittest.TestCase):
         gt_roi_label = cuda.to_cpu(gt_roi_label)
 
         # Test shapes
+        n_sample = len(sample_roi)
         if self.n_sample is None:
-            n_sample = self.n_roi + self.n_bbox
+            self.assertGreaterEqual(self.n_roi + self.n_bbox, n_sample)
         else:
-            n_sample = self.n_sample
+            self.assertGreaterEqual(self.n_sample, n_sample)
         self.assertEqual(sample_roi.shape, (n_sample, 4))
         self.assertEqual(gt_roi_loc.shape, (n_sample, 4))
         self.assertEqual(gt_roi_label.shape, (n_sample,))
