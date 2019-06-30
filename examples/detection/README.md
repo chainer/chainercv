@@ -4,7 +4,7 @@
 - Faster R-CNN
 - Faster R-CNN FPN ResNet50
 - Faster R-CNN FPN ResNet101
-- Light-head R-CNN ResNet101
+- Light-Head R-CNN ResNet101
 - SSD300
 - SSD512
 - YOLOv2
@@ -41,7 +41,7 @@ $ mpiexec -n <#gpu> python eval_detection_multi.py --dataset voc [--model faster
 |:-:|:-:|:-:|:-:|
 | Faster R-CNN FPN ResNet50 | COCO2017 train | | 37.1 % |
 | Faster R-CNN FPN ResNet101 | COCO2017 train | | 39.5 % |
-| Light-head R-CNN ResNet101 | COCO2017 train | | 39.3 % |
+| Light-Head R-CNN ResNet101 | COCO2017 train | | 39.3 % |
 
 You can reproduce these scores by the following command.
 ```

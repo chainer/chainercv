@@ -5,7 +5,7 @@ MS COCO 2014 minival
 
 | Model | mAP@[0.5:0.95] (Original) |  mAP@[0.5:0.95] (ChainerCV) |
 |:-:|:-:|:-:|
-| Light-Head-RCNN ResNet101 | 39.6 % [1] / 40.0 % [2] | 39.3 % |
+| Light-Head R-CNN ResNet101 | 39.6 % [1] / 40.0 % [2] | 39.3 % |
 
 ## Demo
 Detect objects in an given image. This demo downloads MS COCO pretrained model automatically if a pretrained model path is not given.
@@ -25,4 +25,4 @@ $ mpiexec -n <#gpu> python train_multi.py [--batch-size <batch_size>]
 
 ## References
 1. Zeming Li et al. "Light-Head R-CNN: In Defense of Two-Stage Object Detector" ArXiv 2017
-2. [Light-Head RCNN](https://github.com/zengarden/light_head_rcnn)
+2. [Light-Head R-CNN](https://github.com/zengarden/light_head_rcnn)
