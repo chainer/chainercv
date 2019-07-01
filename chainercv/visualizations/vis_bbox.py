@@ -88,7 +88,7 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
         if label is not None:
             label = label[order]
         if instance_colors is not None:
-            instance_colors = instance_colors[order]
+            instance_colors = np.array(instance_colors)[order]
 
     # Returns newly instantiated matplotlib.axes.Axes object if ax is None
     ax = vis_image(img, ax=ax)
