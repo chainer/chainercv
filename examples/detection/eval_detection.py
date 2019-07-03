@@ -13,6 +13,8 @@ from chainercv.experimental.links import YOLOv2Tiny
 from chainercv.links import FasterRCNNFPNResNet101
 from chainercv.links import FasterRCNNFPNResNet50
 from chainercv.links import FasterRCNNVGG16
+from chainercv.links import LightHeadRCNNFPNResNet101
+from chainercv.links import LightHeadRCNNFPNResNet50
 from chainercv.links import LightHeadRCNNResNet101
 from chainercv.links import SSD300
 from chainercv.links import SSD512
@@ -27,6 +29,8 @@ models = {
     'faster_rcnn_fpn_resnet50': (FasterRCNNFPNResNet50, {}, 1),
     'faster_rcnn_fpn_resnet101': (FasterRCNNFPNResNet101, {}, 1),
     'light_head_rcnn_resnet101': (LightHeadRCNNResNet101, {}, 1),
+    'light_head_rcnn_fpn_resnet50': (LightHeadRCNNFPNResNet50, {}, 1),
+    'light_head_rcnn_fpn_resnet101': (LightHeadRCNNFPNResNet101, {}, 1),
     'ssd300': (SSD300, {'voc': 'voc0712'}, 32),
     'ssd512': (SSD512, {'voc': 'voc0712'}, 16),
     'yolo_v2': (YOLOv2, {'voc': 'voc0712'}, 32),
