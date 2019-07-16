@@ -82,7 +82,7 @@ def main():
     parser.add_argument('val', help='Path to root of the validation dataset')
     parser.add_argument('--model', choices=sorted(models.keys()))
     parser.add_argument('--pretrained-model')
-    parser.add_argument('--dataset', choices=('imagenet'))
+    parser.add_argument('--dataset', choices=('imagenet',))
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--batchsize', type=int)
     parser.add_argument('--crop', choices=('center', '10'))
