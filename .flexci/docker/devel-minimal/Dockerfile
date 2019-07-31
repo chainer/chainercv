@@ -1,4 +1,4 @@
-FROM nvidia/cuda:9.2-cudnn7-devel-ubuntu18.04
+FROM asia.gcr.io/pfn-public-ci/nvidia-cuda:9.2-cudnn7-devel-ubuntu18.04
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ca-certificates \
