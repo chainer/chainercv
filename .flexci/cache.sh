@@ -13,6 +13,6 @@ do
     docker build \
        --cache-from ${DOCKER_IMAGE} \
        --tag ${DOCKER_IMAGE} \
-       .pfnci/docker/${DOCKER_TAG}/
+       .flexci/docker/${DOCKER_TAG}/
     docker push ${DOCKER_IMAGE}
 done

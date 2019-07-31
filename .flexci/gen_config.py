@@ -33,18 +33,18 @@ def test_config(python, chainer, optional, target):
         value['requirement']['cpu'] = 6
         value['requirement']['memory'] = 36
         value['time_limit'] = {'seconds': 3600}
-        value['command'] = 'sh .pfnci/tests.sh'
+        value['command'] = 'sh .flexci/tests.sh'
     elif target == 'gpu':
         key += '.gpu'
         value['requirement']['gpu'] = 1
-        value['command'] = 'sh .pfnci/tests_gpu.sh'
+        value['command'] = 'sh .flexci/tests_gpu.sh'
     elif target == 'examples':
         key += '.examples'
         value['requirement']['cpu'] = 6
         value['requirement']['memory'] = 36
         value['requirement']['gpu'] = 2
         value['time_limit'] = {'seconds': 1800}
-        value['command'] = 'sh .pfnci/examples_tests.sh'
+        value['command'] = 'sh .flexci/examples_tests.sh'
 
     return key, value
 
@@ -62,7 +62,7 @@ def main():
             ('time_limit', OrderedDict((
                 ('seconds', 1800),
             ))),
-            ('command', 'sh .pfnci/cache.sh'),
+            ('command', 'sh .flexci/cache.sh'),
         ))
     ))
 

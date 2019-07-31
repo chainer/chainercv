@@ -79,4 +79,4 @@ docker pull ${DOCKER_IMAGE} || true
 docker build \
        --cache-from ${DOCKER_IMAGE} \
        --tag ${DOCKER_IMAGE} \
-       chainercv/.pfnci/docker/${DOCKER_TAG}/
+       chainercv/.flexci/docker/${DOCKER_TAG}/

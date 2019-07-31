@@ -11,7 +11,7 @@ configs {
     time_limit {
       seconds: 1800
     }
-    command: "sh .pfnci/cache.sh"
+    command: "sh .flexci/cache.sh"
   }
 }
 configs {
@@ -25,7 +25,7 @@ configs {
     time_limit {
       seconds: 3600
     }
-    command: "sh .pfnci/tests.sh"
+    command: "sh .flexci/tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -49,7 +49,7 @@ configs {
       disk: 10
       gpu: 1
     }
-    command: "sh .pfnci/tests_gpu.sh"
+    command: "sh .flexci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -75,7 +75,7 @@ configs {
     time_limit {
       seconds: 3600
     }
-    command: "sh .pfnci/tests.sh"
+    command: "sh .flexci/tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -99,7 +99,7 @@ configs {
       disk: 10
       gpu: 1
     }
-    command: "sh .pfnci/tests_gpu.sh"
+    command: "sh .flexci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -126,7 +126,7 @@ configs {
     time_limit {
       seconds: 1800
     }
-    command: "sh .pfnci/examples_tests.sh"
+    command: "sh .flexci/examples_tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -152,7 +152,7 @@ configs {
     time_limit {
       seconds: 3600
     }
-    command: "sh .pfnci/tests.sh"
+    command: "sh .flexci/tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -176,7 +176,7 @@ configs {
       disk: 10
       gpu: 1
     }
-    command: "sh .pfnci/tests_gpu.sh"
+    command: "sh .flexci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -202,7 +202,7 @@ configs {
     time_limit {
       seconds: 3600
     }
-    command: "sh .pfnci/tests.sh"
+    command: "sh .flexci/tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -226,7 +226,7 @@ configs {
       disk: 10
       gpu: 1
     }
-    command: "sh .pfnci/tests_gpu.sh"
+    command: "sh .flexci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -253,7 +253,7 @@ configs {
     time_limit {
       seconds: 1800
     }
-    command: "sh .pfnci/examples_tests.sh"
+    command: "sh .flexci/examples_tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -279,7 +279,7 @@ configs {
     time_limit {
       seconds: 3600
     }
-    command: "sh .pfnci/tests.sh"
+    command: "sh .flexci/tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -303,7 +303,7 @@ configs {
       disk: 10
       gpu: 1
     }
-    command: "sh .pfnci/tests_gpu.sh"
+    command: "sh .flexci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -329,7 +329,7 @@ configs {
     time_limit {
       seconds: 3600
     }
-    command: "sh .pfnci/tests.sh"
+    command: "sh .flexci/tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -353,7 +353,7 @@ configs {
       disk: 10
       gpu: 1
     }
-    command: "sh .pfnci/tests_gpu.sh"
+    command: "sh .flexci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -380,7 +380,7 @@ configs {
     time_limit {
       seconds: 1800
     }
-    command: "sh .pfnci/examples_tests.sh"
+    command: "sh .flexci/examples_tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "2"
@@ -406,7 +406,7 @@ configs {
     time_limit {
       seconds: 3600
     }
-    command: "sh .pfnci/tests.sh"
+    command: "sh .flexci/tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -430,7 +430,7 @@ configs {
       disk: 10
       gpu: 1
     }
-    command: "sh .pfnci/tests_gpu.sh"
+    command: "sh .flexci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -456,7 +456,7 @@ configs {
     time_limit {
       seconds: 3600
     }
-    command: "sh .pfnci/tests.sh"
+    command: "sh .flexci/tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -480,7 +480,7 @@ configs {
       disk: 10
       gpu: 1
     }
-    command: "sh .pfnci/tests_gpu.sh"
+    command: "sh .flexci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -507,7 +507,7 @@ configs {
     time_limit {
       seconds: 1800
     }
-    command: "sh .pfnci/examples_tests.sh"
+    command: "sh .flexci/examples_tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -533,7 +533,7 @@ configs {
     time_limit {
       seconds: 3600
     }
-    command: "sh .pfnci/tests.sh"
+    command: "sh .flexci/tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -557,7 +557,7 @@ configs {
       disk: 10
       gpu: 1
     }
-    command: "sh .pfnci/tests_gpu.sh"
+    command: "sh .flexci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -583,7 +583,7 @@ configs {
     time_limit {
       seconds: 3600
     }
-    command: "sh .pfnci/tests.sh"
+    command: "sh .flexci/tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -607,7 +607,7 @@ configs {
       disk: 10
       gpu: 1
     }
-    command: "sh .pfnci/tests_gpu.sh"
+    command: "sh .flexci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -634,7 +634,7 @@ configs {
     time_limit {
       seconds: 1800
     }
-    command: "sh .pfnci/examples_tests.sh"
+    command: "sh .flexci/examples_tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -660,7 +660,7 @@ configs {
     time_limit {
       seconds: 3600
     }
-    command: "sh .pfnci/tests.sh"
+    command: "sh .flexci/tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -684,7 +684,7 @@ configs {
       disk: 10
       gpu: 1
     }
-    command: "sh .pfnci/tests_gpu.sh"
+    command: "sh .flexci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -710,7 +710,7 @@ configs {
     time_limit {
       seconds: 3600
     }
-    command: "sh .pfnci/tests.sh"
+    command: "sh .flexci/tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -734,7 +734,7 @@ configs {
       disk: 10
       gpu: 1
     }
-    command: "sh .pfnci/tests_gpu.sh"
+    command: "sh .flexci/tests_gpu.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"
@@ -761,7 +761,7 @@ configs {
     time_limit {
       seconds: 1800
     }
-    command: "sh .pfnci/examples_tests.sh"
+    command: "sh .flexci/examples_tests.sh"
     environment_variables {
       key: "PYTHON"
       value: "3"

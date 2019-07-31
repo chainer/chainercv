@@ -32,7 +32,7 @@ class TestFasterRCNNFPNResNet(unittest.TestCase):
             self.link(self.link.xp.array(x))
 
     @attr.slow
-    @attr.pfnci_skip
+    @attr.flexci_skip
     def test_call_cpu(self):
         self._check_call()
 

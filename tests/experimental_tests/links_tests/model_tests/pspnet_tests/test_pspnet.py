@@ -33,7 +33,7 @@ class TestPSPNetResNet(unittest.TestCase):
         self.assertEqual(y.shape, (2, self.n_class, 120, 160))
 
     @attr.slow
-    @attr.pfnci_skip
+    @attr.flexci_skip
     def test_call_cpu(self):
         self.check_call()
 
@@ -44,7 +44,7 @@ class TestPSPNetResNet(unittest.TestCase):
         self.check_call()
 
     @attr.slow
-    @attr.pfnci_skip
+    @attr.flexci_skip
     def test_predict_cpu(self):
         assert_is_semantic_segmentation_link(self.link, self.n_class)
 

@@ -19,10 +19,10 @@ docker run --interactive --rm \
 pip${PYTHON} install --user pytest-xdist
 cd chainercv/
 python${PYTHON} -m pytest --color=no -n $(nproc) \
-                -m 'not pfnci_skip and not gpu and not mpi' tests/
+                -m 'not flexci_skip and not gpu and not mpi' tests/
 if which mpiexec; then
     mpiexec -n 2 --allow-run-as-root \
             python${PYTHON} -m pytest --color=no \
-            -m 'not pfnci_skip and not gpu and mpi' tests/
+            -m 'not flexci_skip and not gpu and mpi' tests/
 fi
 EOD

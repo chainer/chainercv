@@ -20,7 +20,7 @@ docker run --runtime=nvidia --interactive --rm \
        --env MPIEXEC='mpiexec -n 2 --allow-run-as-root' \
        --env MPLBACKEND=agg \
        --env CHAINERCV_DOWNLOAD_REPORT=OFF \
-       --env PFNCI_SKIP='echo SKIP:' \
+       --env FLEXCI_SKIP='echo SKIP:' \
        ${DOCKER_IMAGE} \
        sh -ex << EOD
 . ./install.sh
