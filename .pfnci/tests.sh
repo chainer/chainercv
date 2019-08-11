@@ -10,6 +10,8 @@ do
     rm ${ZIP}
 done
 
+gsutil -q cp gs://chainercv-pfn-public-ci/.coveralls.yml chainercv/
+
 docker run --interactive --rm \
        --volume $(pwd):/root/ --workdir /root/ \
        --env MPLBACKEND=agg \
@@ -19,10 +21,13 @@ docker run --interactive --rm \
 pip${PYTHON} install --user pytest-xdist
 cd chainercv/
 python${PYTHON} -m pytest --color=no -n $(nproc) \
+                --cov=chainercv/ --cov-report= \
                 -m 'not pfnci_skip and not gpu and not mpi' tests/
 if which mpiexec; then
     mpiexec -n 2 --allow-run-as-root \
             python${PYTHON} -m pytest --color=no \
+            --cov=chainercv/ --cov-report= --cov-append \
             -m 'not pfnci_skip and not gpu and mpi' tests/
 fi
+coveralls
 EOD

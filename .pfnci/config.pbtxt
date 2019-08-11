@@ -38,6 +38,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "1"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -62,6 +63,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "1"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -88,6 +90,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "0"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -112,6 +115,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "0"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -165,6 +169,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "1"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -189,6 +194,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "1"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -215,6 +221,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "0"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -239,6 +246,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "0"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -292,6 +300,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "1"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -316,6 +325,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "1"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -342,6 +352,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "0"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -366,6 +377,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "0"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -419,6 +431,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "1"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -443,6 +456,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "1"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -469,6 +483,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "0"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -493,6 +508,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "0"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -546,6 +562,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "1"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -570,6 +587,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "1"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -596,6 +614,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "0"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -620,6 +639,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "0"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -673,6 +693,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "1"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -697,6 +718,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "1"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -723,6 +745,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "0"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {
@@ -747,6 +770,7 @@ configs {
       key: "OPTIONAL_MODULES"
       value: "0"
     }
+    quickfix_checkout_dot_git: true
   }
 }
 configs {

@@ -34,10 +34,12 @@ def test_config(python, chainer, optional, target):
         value['requirement']['memory'] = 36
         value['time_limit'] = {'seconds': 3600}
         value['command'] = 'sh .pfnci/tests.sh'
+        value['quickfix_checkout_dot_git'] = True
     elif target == 'gpu':
         key += '.gpu'
         value['requirement']['gpu'] = 1
         value['command'] = 'sh .pfnci/tests_gpu.sh'
+        value['quickfix_checkout_dot_git'] = True
     elif target == 'examples':
         key += '.examples'
         value['requirement']['cpu'] = 6
@@ -82,7 +84,9 @@ def main():
 
 def dump_pbtxt(key, value, level=0):
     indent = '  ' * level
-    if isinstance(value, int):
+    if isinstance(value, bool):
+        print('{}{}: {}'.format(indent, key, 'true' if value else 'false'))
+    elif isinstance(value, int):
         print('{}{}: {}'.format(indent, key, value))
     elif isinstance(value, str):
         print('{}{}: "{}"'.format(indent, key, value))
