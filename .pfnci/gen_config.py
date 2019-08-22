@@ -68,6 +68,8 @@ def main():
 
     for python, chainer in itertools.product(
             (2, 3), ('stable', 'latest', 'master')):
+        if python == 2 and chainer == 'master':
+            continue
         for optional in (True, False):
             configs.append(test_config(python, chainer, optional, 'cpu'))
             configs.append(test_config(python, chainer, optional, 'gpu'))
