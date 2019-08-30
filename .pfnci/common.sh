@@ -58,8 +58,8 @@ case ${CUPY} in
         echo pip${PYTHON} install cupy-cuda92==${LATEST} >> install.sh
         ;;
     master)
-        CUPY_MASTER=$(gsutil -q cp gs://tmp-pfn-public-ci/cupy/wheel/master -)
-        gsutil -q cp gs://tmp-pfn-public-ci/cupy/wheel/${CUPY_MASTER}/cuda9.2/*.whl .
+        CUPY_MASTER=$(gsutil -q cp gs://tmp-asia-pfn-public-ci/cupy/wheel/master -)
+        gsutil -q cp gs://tmp-asia-pfn-public-ci/cupy/wheel/${CUPY_MASTER}/cuda9.2/*.whl .
         echo pip${PYTHON} install cupy-*-cp${PYTHON}*-cp${PYTHON}*-linux_x86_64.whl >> install.sh
         ;;
     local)
