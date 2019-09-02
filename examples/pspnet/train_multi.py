@@ -170,7 +170,7 @@ def main():
                         choices=('ade20k', 'cityscapes'))
     parser.add_argument('--model',
                         choices=('pspnet_resnet101', 'pspnet_resnet50'))
-    parser.add_argument('--lr', default=1e-2)
+    parser.add_argument('--lr', default=1e-2, type=float)
     parser.add_argument('--batchsize', default=2, type=int)
     parser.add_argument('--out', default='result')
     parser.add_argument('--iteration', default=None, type=int)
