@@ -14,7 +14,7 @@ url = 'http://ftp.cs.stanford.edu/cs/cvgl/Stanford_Online_Products.zip'
 online_products_super_label_names = (
     'bicycle',
     'cabinet',
-    'chainer',
+    'chair',
     'coffe_maker',
     'fan',
     'kettle',
