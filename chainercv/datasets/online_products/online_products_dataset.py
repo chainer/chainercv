@@ -15,7 +15,7 @@ online_products_super_label_names = (
     'bicycle',
     'cabinet',
     'chair',
-    'coffe_maker',
+    'coffee_maker',
     'fan',
     'kettle',
     'lamp',
