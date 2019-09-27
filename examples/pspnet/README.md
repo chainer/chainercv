@@ -6,7 +6,7 @@ This demo downloads a pretrained model automatically if a pretrained model path 
 $ python demo.py [--dataset cityscapes|ade20k] [--gpu <gpu>] [--pretrained-model <model_path>] [--input-size <size>] <image>.jpg
 ```
 
-## Weight Covnersion
+## Weight Conversion
 
 Convert `*.caffemodel` to `*.npz`. Some layers are renamed to fit ChainerCV.
 ```
