@@ -45,6 +45,16 @@ class TestResize(unittest.TestCase):
             out = resize(img, size=(32, 64), interpolation=self.interpolation)
         self.assertEqual(out.shape, (0, 32, 64))
 
+    def test_resize_labels(self):
+        if self.backend == 'cv2' and not _cv2_available:
+            return
+        dtype = np.int32
+        labels = np.arange(2, dtype=dtype).reshape(2, 1)
+        with chainer.using_config('cv_resize_backend', self.backend):
+            out = resize(labels[None], size=(2, 4), interpolation=self.interpolation)
+        expected = np.vstack((np.zeros(4), np.ones(4))).astype(dtype).reshape(1, 2, 4)
+        self.assertTrue(np.array_equal(out, expected))
+
 
 @unittest.skipUnless(not _cv2_available, 'cv2 is installed')
 class TestResizeRaiseErrorWithCv2(unittest.TestCase):

@@ -34,7 +34,7 @@ def _resize_pil(img, size, interpolation):
     H, W = size
     out = np.empty((C, H, W), dtype=img.dtype)
     for ch, out_ch in zip(img, out):
-        ch = PIL.Image.fromarray(ch, mode='F')
+        ch = PIL.Image.fromarray(ch)
         out_ch[:] = ch.resize((W, H), resample=interpolation)
     return out
 
