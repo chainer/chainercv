@@ -49,10 +49,12 @@ class TestResize(unittest.TestCase):
         if self.backend == 'cv2' and not _cv2_available:
             return
         dtype = np.int32
-        labels = np.arange(2, dtype=dtype).reshape(2, 1)
+        labels = np.arange(2, dtype=dtype).reshape((2, 1))
         with chainer.using_config('cv_resize_backend', self.backend):
-            out = resize(labels[None], size=(2, 4), interpolation=self.interpolation)
-        expected = np.vstack((np.zeros(4), np.ones(4))).astype(dtype).reshape(1, 2, 4)
+            out = resize(
+                labels[None], size=(2, 4), interpolation=self.interpolation)
+        expected = np.vstack(
+            (np.zeros(4), np.ones(4))).astype(dtype).reshape((1, 2, 4))
         self.assertTrue(np.array_equal(out, expected))
 
 
