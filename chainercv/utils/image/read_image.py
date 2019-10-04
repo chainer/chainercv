@@ -87,7 +87,7 @@ def _read_image_pil(file, dtype, color, alpha):
         return img.transpose((2, 0, 1))
 
 
-def read_image(file, dtype=np.float32, color=True, alpha=None):
+def read_image(file, dtype=np.float32, color=True, alpha='blend_with_white'):
     """Read an image from a file.
 
     This function reads an image from given file. The image is CHW format and
