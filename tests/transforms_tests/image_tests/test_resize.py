@@ -46,6 +46,15 @@ class TestResize(unittest.TestCase):
         self.assertEqual(out.shape, (0, 32, 64))
 
 
+class TestResizeWithInvalidConfig(unittest.TestCase):
+
+    def test_invalid_backend(self):
+        img = np.random.uniform(size=(3, 24, 32))
+        with chainer.using_config('cv_resize_backend', 'PII'):
+            with self.assertRaises(ValueError):
+                resize(img, size=(32, 64))
+
+
 @unittest.skipUnless(not _cv2_available, 'cv2 is installed')
 class TestResizeRaiseErrorWithCv2(unittest.TestCase):
 

@@ -78,3 +78,6 @@ def resize(img, size, interpolation=PIL.Image.BILINEAR):
         return _resize_cv2(img, size, interpolation)
     elif chainer.config.cv_resize_backend == 'PIL':
         return _resize_pil(img, size, interpolation)
+    else:
+        raise ValueError('chainer.config.cv_resize_backend must be one of:'
+                         '[\'cv2\', \'PIL\']')
