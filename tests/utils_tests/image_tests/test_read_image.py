@@ -1,3 +1,5 @@
+import pathlib
+
 import numpy as np
 import tempfile
 import unittest
@@ -28,7 +30,7 @@ def _write_rgba_image(rgba, file, format):
 
 def _create_parameters():
     params = testing.product({
-        'file_obj': [False, True],
+        'file_type': ['str', 'pathlib.Path', 'obj'],
         'size': [(48, 32)],
         'dtype': [np.float32, np.uint8, bool]})
     no_color_params = testing.product({
@@ -56,7 +58,7 @@ def _create_parameters():
 class TestReadImage(unittest.TestCase):
 
     def setUp(self):
-        if self.file_obj:
+        if self.file_type == 'obj':
             self.f = tempfile.TemporaryFile()
             self.file = self.f
             format = self.format
@@ -67,6 +69,8 @@ class TestReadImage(unittest.TestCase):
                 suffix = '.' + self.format
             self.f = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
             self.file = self.f.name
+            if self.file_type == 'pathlib.Path':
+                self.file = pathlib.Path(self.file)
             format = None
 
         if self.alpha is None:
@@ -82,7 +86,7 @@ class TestReadImage(unittest.TestCase):
                 0, 255, size=(4,) + self.size, dtype=np.uint8)
             _write_rgba_image(self.img, self.file, format=format)
 
-        if self.file_obj:
+        if self.file_type == 'obj':
             self.file.seek(0)
 
     def test_read_image_as_color(self):
@@ -134,7 +138,7 @@ class TestReadImage(unittest.TestCase):
 class TestReadImageDifferentBackends(unittest.TestCase):
 
     def setUp(self):
-        if self.file_obj:
+        if self.file_type == 'obj':
             self.f = tempfile.TemporaryFile()
             self.file = self.f
             format = self.format
@@ -160,7 +164,7 @@ class TestReadImageDifferentBackends(unittest.TestCase):
                 0, 255, size=(4,) + self.size, dtype=np.uint8)
             _write_rgba_image(self.img, self.file, format=format)
 
-        if self.file_obj:
+        if self.file_type == 'obj':
             self.file.seek(0)
 
     @unittest.skipUnless(_cv2_available, 'cv2 is not installed')
