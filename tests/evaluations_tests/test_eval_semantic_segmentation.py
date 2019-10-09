@@ -5,6 +5,7 @@ import unittest
 import numpy as np
 
 from chainercv.evaluations import calc_semantic_segmentation_confusion
+from chainercv.evaluations import calc_semantic_segmentation_dice
 from chainercv.evaluations import calc_semantic_segmentation_iou
 from chainercv.evaluations import eval_semantic_segmentation
 from chainercv.utils import testing
@@ -67,6 +68,35 @@ class TestCalcSemanticSegmentationConfusion(unittest.TestCase):
 
         size = (np.max((pred_labels + 1, gt_labels + 1)))
         self.assertEqual(confusion.shape, (size, size))
+
+
+class TestCalcSemanticSegmentationDice(unittest.TestCase):
+
+    n_class = 2
+
+    def test_calc_semantic_segmentation_dice(self):
+        pred_labels = [
+            np.array([
+                [0, 0, 1],
+                [1, 0, 1],
+            ]), np.array([
+                [0, 0, 0],
+                [0, 0, 0],
+            ])]
+
+        gt_labels = [
+            np.array([
+                [0, 0, 1],
+                [1, 0, 1],
+            ]), np.array([
+                [0, -1, 0],
+                [-1, 0, -1],
+            ])]
+
+        dice = calc_semantic_segmentation_dice(pred_labels, gt_labels)
+        np.testing.assert_equal(dice[-1], (1.0 + 0.0) / 2)
+        np.testing.assert_equal(dice[0], (1.0 + 2.0 * 3 / 9) / 2)
+        np.testing.assert_equal(dice[1], (1.0 + 1.0) / 2)
 
 
 class TestCalcSemanticSegmentationIou(unittest.TestCase):

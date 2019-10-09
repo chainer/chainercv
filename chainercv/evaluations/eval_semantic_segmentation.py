@@ -1,5 +1,7 @@
 from __future__ import division
 
+import collections
+
 import numpy as np
 import six
 
@@ -60,6 +62,26 @@ def calc_semantic_segmentation_confusion(pred_labels, gt_labels):
         if next(iter_, None) is not None:
             raise ValueError('Length of input iterables need to be same')
     return confusion
+
+
+def calc_semantic_segmentation_dice(pred_labels, gt_labels):
+    klasses = np.unique(np.concatenate((pred_labels, gt_labels)))
+    scores = collections.defaultdict(int)
+    for pred_label, gt_label in six.moves.zip(pred_labels, gt_labels):
+        for klass in klasses:
+            p = pred_label == klass
+            g = gt_label == klass
+            numerator = 2 * np.sum(np.logical_and(p, g))
+            denominator = np.sum(p) + np.sum(g)
+            if denominator == 0:
+                scores[klass] += 1
+            else:
+                scores[klass] += numerator / denominator
+
+    n_labels = len(pred_labels)
+    for klass in scores:
+        scores[klass] /= n_labels
+    return scores
 
 
 def calc_semantic_segmentation_iou(confusion):
