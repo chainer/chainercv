@@ -1,8 +1,8 @@
 #! /usr/bin/env sh
 set -eux
 
-STABLE=6.3.0
-LATEST=7.0.0b3
+STABLE=6.4.0
+LATEST=7.0.0b4
 
 systemctl stop docker.service
 mount -t tmpfs tmpfs /var/lib/docker/ -o size=100%
