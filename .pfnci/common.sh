@@ -12,6 +12,9 @@ gcloud auth configure-docker
 TEMP=$(mktemp -d)
 mount -t tmpfs tmpfs ${TEMP}/ -o size=100%
 
+git merge-base --is-ancestor HEAD v6 && LOCAL_VERSION=stable
+git merge-base --is-ancestor HEAD master && LOCAL_VERSION=master
+
 REPOSITORY=${REPOSITORY:-chainercv}
 case ${REPOSITORY} in
     chainercv)
@@ -20,12 +23,12 @@ case ${REPOSITORY} in
         ;;
     chainer)
         CHAINER=local
-        CUPY=master
+        CUPY=${LOCAL_VERSION}
         cp -a . ${TEMP}/chainer
         mv ${TEMP}/chainer/chainercv/ ${TEMP}/
         ;;
     cupy)
-        CHAINER=master
+        CHAINER=${LOCAL_VERSION}
         CUPY=local
         cp -a . ${TEMP}/cupy
         mv ${TEMP}/cupy/chainercv/ ${TEMP}/
