@@ -12,7 +12,7 @@ gcloud auth configure-docker
 TEMP=$(mktemp -d)
 mount -t tmpfs tmpfs ${TEMP}/ -o size=100%
 
-function get_local_version() {
+get_local_version() {
     git merge-base --is-ancestor HEAD v6 && LOCAL_VERSION=stable 
     git merge-base --is-ancestor HEAD master && LOCAL_VERSION=master
 }
