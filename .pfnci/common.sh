@@ -13,8 +13,8 @@ TEMP=$(mktemp -d)
 mount -t tmpfs tmpfs ${TEMP}/ -o size=100%
 
 get_local_version() {
-    git merge-base --is-ancestor v6 HEAD && LOCAL_VERSION=stable 
-    git merge-base --is-ancestor master HEAD && LOCAL_VERSION=master
+    git merge-base --is-ancestor origin/v6 HEAD && LOCAL_VERSION=stable || true
+    git merge-base --is-ancestor master HEAD && LOCAL_VERSION=master || true
 }
 
 REPOSITORY=${REPOSITORY:-chainercv}
