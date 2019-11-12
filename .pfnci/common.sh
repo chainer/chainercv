@@ -1,8 +1,8 @@
 #! /usr/bin/env sh
 set -eux
 
-STABLE=6.3.0
-LATEST=7.0.0b3
+STABLE=6.4.0
+LATEST=7.0.0b4
 
 systemctl stop docker.service
 mount -t tmpfs tmpfs /var/lib/docker/ -o size=100%
@@ -12,6 +12,11 @@ gcloud auth configure-docker
 TEMP=$(mktemp -d)
 mount -t tmpfs tmpfs ${TEMP}/ -o size=100%
 
+get_local_version() {
+    git merge-base --is-ancestor v6 HEAD && LOCAL_VERSION=stable 
+    git merge-base --is-ancestor master HEAD && LOCAL_VERSION=master
+}
+
 REPOSITORY=${REPOSITORY:-chainercv}
 case ${REPOSITORY} in
     chainercv)
@@ -19,13 +24,15 @@ case ${REPOSITORY} in
         cp -a . ${TEMP}/chainercv
         ;;
     chainer)
+        get_local_version
         CHAINER=local
-        CUPY=master
+        CUPY=${LOCAL_VERSION}
         cp -a . ${TEMP}/chainer
         mv ${TEMP}/chainer/chainercv/ ${TEMP}/
         ;;
     cupy)
-        CHAINER=master
+        get_local_version
+        CHAINER=${LOCAL_VERSION}
         CUPY=local
         cp -a . ${TEMP}/cupy
         mv ${TEMP}/cupy/chainercv/ ${TEMP}/
