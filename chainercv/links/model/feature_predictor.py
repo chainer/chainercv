@@ -58,15 +58,12 @@ class FeaturePredictor(chainer.Chain):
         crop ({'center', '10'}): Determines the style of cropping.
         mean (numpy.ndarray): A mean value. If this is :obj:`None`,
             :obj:`extractor.mean` is used as the mean value.
-        scale (numpy.ndarray): A scale value. If this is :obj:`None`,
-            :obj:`extractor.scale` is used as the scale value when it exists.
-            If it does not exist, scaling is disabled.
 
     """
 
     def __init__(self, extractor,
                  crop_size, scale_size=None,
-                 crop='center', mean=None, scale=None):
+                 crop='center', mean=None):
         super(FeaturePredictor, self).__init__()
         self.scale_size = scale_size
         if isinstance(crop_size, int):
@@ -80,14 +77,6 @@ class FeaturePredictor(chainer.Chain):
             self.mean = self.extractor.mean
         else:
             self.mean = mean
-
-        if scale is None:
-            if hasattr(self.extractor, "scale"):
-                self.scale = self.extractor.scale
-            else:
-                self.scale = None
-        else:
-            self.scale = scale
 
     def _prepare(self, img):
         """Prepare an image for feeding it to a model.
@@ -123,8 +112,6 @@ class FeaturePredictor(chainer.Chain):
             imgs = center_crop(img, self.crop_size)[np.newaxis]
 
         imgs -= self.mean[np.newaxis]
-        if self.scale is not None:
-            imgs *= self.scale[np.newaxis]
 
         return imgs
 

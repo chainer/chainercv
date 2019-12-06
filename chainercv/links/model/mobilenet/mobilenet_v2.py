@@ -35,14 +35,10 @@ def _depth_multiplied_output_channels(base_out_channels,
 
 _tf_mobilenetv2_mean = np.asarray(
     [128] * 3, dtype=np.float)[:, np.newaxis, np.newaxis]
-_tf_mobilenetv2_scale = np.asarray(
-    [1 / 128.0] * 3, dtype=np.float)[:, np.newaxis, np.newaxis]
 
 # RGB order
 _imagenet_mean = np.array(
     [123.68, 116.779, 103.939], dtype=np.float32)[:, np.newaxis, np.newaxis]
-_imagenet_scale = np.array(
-    [1.0]*3, dtype=np.float32)[:, np.newaxis, np.newaxis]
 
 
 class MobileNetV2(PickableSequentialChain):
@@ -123,9 +119,8 @@ class MobileNetV2(PickableSequentialChain):
                     'param': {
                         'n_class': 1001,  # first element is background
                         'mean': _tf_mobilenetv2_mean,
-                        'scale': _tf_mobilenetv2_scale,
                     },
-                    'overwritable': ('mean', 'scale'),
+                    'overwritable': ('mean',),
                     'url':
                     'https://chainercv-models.preferred.jp/mobilenet_v2_depth_multiplier_1.0_imagenet_converted_2019_05_13.npz',  # NOQA
                 }
@@ -135,9 +130,8 @@ class MobileNetV2(PickableSequentialChain):
                     'param': {
                         'n_class': 1001,  # first element is background
                         'mean': _tf_mobilenetv2_mean,
-                        'scale': _tf_mobilenetv2_scale,
                     },
-                    'overwritable': ('mean', 'scale'),
+                    'overwritable': ('mean',),
                     'url':
                     'https://chainercv-models.preferred.jp/mobilenet_v2_depth_multiplier_1.4_imagenet_converted_2019_05_13.npz',  # NOQA
                 }
@@ -149,7 +143,6 @@ class MobileNetV2(PickableSequentialChain):
                  n_class=None,
                  pretrained_model=None,
                  mean=None,
-                 scale=None,
                  initialW=None,
                  initial_bias=None,
                  arch='tf',
@@ -162,14 +155,11 @@ class MobileNetV2(PickableSequentialChain):
         param, path = utils.prepare_pretrained_model({
             'n_class': n_class,
             'mean': mean,
-            'scale': scale
         }, pretrained_model, self._models[arch][depth_multiplier], {
             'n_class': 1000,
             'mean': _imagenet_mean,
-            'scale': _imagenet_scale
         })
         self.mean = param['mean']
-        self.scale = param['scale']
         self.n_class = param['n_class']
 
         super(MobileNetV2, self).__init__()

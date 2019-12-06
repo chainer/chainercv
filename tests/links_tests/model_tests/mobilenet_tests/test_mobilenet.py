@@ -62,7 +62,6 @@ class TestMobileNetCall(unittest.TestCase):
     'n_class': [None, 500, 1001],
     'pretrained_model': ['imagenet'],
     'mean': [None, np.random.uniform((3, 1, 1)).astype(np.float32)],
-    'scale': [None, np.random.uniform((3, 1, 1)).astype(np.float32)],
     'arch': ['tf'],
 }))
 class TestMobileNetPretrained(unittest.TestCase):
@@ -73,7 +72,6 @@ class TestMobileNetPretrained(unittest.TestCase):
             'n_class': self.n_class,
             'pretrained_model': self.pretrained_model,
             'mean': self.mean,
-            'scale': self.scale,
             'arch': self.arch,
         }
 

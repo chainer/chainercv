@@ -80,7 +80,6 @@ class TestFeaturePredictorPredict(unittest.TestCase):
     'scale_size': [None, 256, (256, 256)],
     'in_channels': [1, 3],
     'mean': [None, np.float32(1)],
-    'scale': [None, np.float32(1)]
 }))
 class TestFeaturePredictor(unittest.TestCase):
 
@@ -89,7 +88,7 @@ class TestFeaturePredictor(unittest.TestCase):
         self.link = FeaturePredictor(
             DummyFeatureExtractor(self.in_channels, (1,), None),
             crop_size=self.crop_size, scale_size=self.scale_size,
-            crop=self.crop, mean=self.mean, scale=self.scale)
+            crop=self.crop, mean=self.mean)
 
         if isinstance(self.crop_size, int):
             hw = (self.crop_size, self.crop_size)
@@ -117,12 +116,6 @@ class TestFeaturePredictor(unittest.TestCase):
             np.testing.assert_equal(self.link.mean, self.link.extractor.mean)
         else:
             np.testing.assert_equal(self.link.mean, self.mean)
-
-    def test_scale(self):
-        if self.scale is None:
-            np.testing.assert_equal(self.link.scale, None)
-        else:
-            np.testing.assert_equal(self.link.scale, self.scale)
 
 
 testing.run_module(__name__, __file__)
