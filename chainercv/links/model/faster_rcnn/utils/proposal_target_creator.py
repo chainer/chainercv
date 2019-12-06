@@ -98,8 +98,12 @@ class ProposalTargetCreator(object):
         n_bbox, _ = bbox.shape
 
         roi = np.concatenate((roi, bbox), axis=0)
+        if self.n_sample is None:
+            n_sample = len(roi)
+        else:
+            n_sample = self.n_sample
 
-        pos_roi_per_image = np.round(self.n_sample * self.pos_ratio)
+        pos_roi_per_image = np.round(n_sample * self.pos_ratio)
         iou = bbox_iou(roi, bbox)
         gt_assignment = iou.argmax(axis=1)
         max_iou = iou.max(axis=1)
@@ -118,7 +122,7 @@ class ProposalTargetCreator(object):
         # [neg_iou_thresh_lo, neg_iou_thresh_hi).
         neg_index = np.where((max_iou < self.neg_iou_thresh_hi) &
                              (max_iou >= self.neg_iou_thresh_lo))[0]
-        neg_roi_per_this_image = self.n_sample - pos_roi_per_this_image
+        neg_roi_per_this_image = n_sample - pos_roi_per_this_image
         neg_roi_per_this_image = int(min(neg_roi_per_this_image,
                                          neg_index.size))
         if neg_index.size > 0:
