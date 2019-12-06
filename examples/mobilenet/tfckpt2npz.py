@@ -179,6 +179,7 @@ def main():
                                                      args.depth_multiplier)
     else:
         output = args.output
+    model.conv.conv.W.array /= 255.0  # scaling [0, 255] -> [0, 1.0]
     chainer.serializers.save_npz(output, model)
     print("output: ", output)
 
