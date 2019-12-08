@@ -34,8 +34,8 @@ We used the completely same parameters for all settings.
 
 | Implementation | Optimizer   | Learning rage | Momentum | Weight decay | Model code |
 |:--------------:|:-----------:|:-------------:|:--------:|:------------:|:----------:|
-| ChainerCV      | MomentumSGD | 0.1           | 0.9      | 0.0005       | [segnet_basic.py](https://github.com/chainer/chainercv/tree/master/chainercv/links/model/segnet/segnet_basic.py) |
-| Official       | MomentumSGD | 0.1           | 0.9      | 0.0005       | [segnet_basic_train.prototxt](https://github.com/alexgkendall/SegNet-Tutorial/blob/master/Models/segnet_basic_train.prototxt) |
+| Ours      | MomentumSGD | 0.1           | 0.9      | 0.0005       | [segnet_basic.py](https://github.com/chainer/chainercv/tree/master/chainercv/links/model/segnet/segnet_basic.py) |
+| Original       | MomentumSGD | 0.1           | 0.9      | 0.0005       | [segnet_basic_train.prototxt](https://github.com/alexgkendall/SegNet-Tutorial/blob/master/Models/segnet_basic_train.prototxt) |
 
 # Quick Demo
 
@@ -50,8 +50,8 @@ $ python demo.py [--gpu <gpu>] [--pretrained-model <model_path>] 0001TP_008550.p
 
 | Implementation | Global accuracy | Class accuracy | mean IoU   |
 |:--------------:|:---------------:|:--------------:|:----------:|
-| ChainerCV      | 82.7 %          | **67.1 %**     | **49.4 %** |
-| Official       | **82.8 %**      | 62.3%          | 46.3 %     |
+| Ours      | 82.7 %          | **67.1 %**     | **49.4 %** |
+| Original       | **82.8 %**      | 62.3%          | 46.3 %     |
 
 The evaluation can be conducted using [`chainercv/examples/semantic_segmentation/eval_semantic_segmentation.py`](https://github.com/chainer/chainercv/blob/master/examples/semantic_segmentation).
 

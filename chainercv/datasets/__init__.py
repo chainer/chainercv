@@ -30,7 +30,6 @@ from chainercv.datasets.online_products.online_products_dataset import OnlinePro
 from chainercv.datasets.sbd.sbd_instance_segmentation_dataset import SBDInstanceSegmentationDataset  # NOQA
 from chainercv.datasets.sbd.sbd_utils import sbd_instance_segmentation_label_names  # NOQA
 from chainercv.datasets.siamese_dataset import SiameseDataset  # NOQA
-from chainercv.datasets.transform_dataset import TransformDataset  # NOQA
 from chainercv.datasets.voc.voc_bbox_dataset import VOCBboxDataset  # NOQA
 from chainercv.datasets.voc.voc_instance_segmentation_dataset import VOCInstanceSegmentationDataset  # NOQA
 from chainercv.datasets.voc.voc_semantic_segmentation_dataset import VOCSemanticSegmentationDataset  # NOQA

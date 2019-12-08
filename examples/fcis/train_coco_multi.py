@@ -44,7 +44,7 @@ def main():
     parser.add_argument(
         '--lr', '-l', type=float, default=None,
         help='Learning rate for multi GPUs')
-    parser.add_argument('--batch-size', type=int, default=8)
+    parser.add_argument('--batchsize', type=int, default=8)
     parser.add_argument('--epoch', '-e', type=int, default=18)
     parser.add_argument('--cooldown-epoch', '-ce', type=int, default=12)
     args = parser.parse_args()
@@ -57,7 +57,7 @@ def main():
         p.join()
 
     # chainermn
-    comm = chainermn.create_communicator()
+    comm = chainermn.create_communicator('pure_nccl')
     device = comm.intra_rank
 
     np.random.seed(args.seed)
@@ -108,7 +108,7 @@ def main():
     indices = chainermn.scatter_dataset(indices, comm, shuffle=True)
     train_dataset = train_dataset.slice[indices]
     train_iter = chainer.iterators.SerialIterator(
-        train_dataset, batch_size=args.batch_size // comm.size)
+        train_dataset, batch_size=args.batchsize // comm.size)
 
     # test dataset
     if comm.rank == 0:
@@ -147,7 +147,7 @@ def main():
     @make_shift('lr')
     def lr_scheduler(trainer):
         if args.lr is None:
-            base_lr = 0.0005 * args.batch_size
+            base_lr = 0.0005 * args.batchsize
         else:
             base_lr = args.lr
 

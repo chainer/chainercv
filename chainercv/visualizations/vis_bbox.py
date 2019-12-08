@@ -37,19 +37,11 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
         >>> plt.show()
 
     Args:
-        img (~numpy.ndarray): An array of shape :math:`(3, height, width)`.
-            This is in RGB format and the range of its value is
-            :math:`[0, 255]`. If this is :obj:`None`, no image is displayed.
-        bbox (~numpy.ndarray): An array of shape :math:`(R, 4)`, where
-            :math:`R` is the number of bounding boxes in the image.
-            Each element is organized
-            by :math:`(y_{min}, x_{min}, y_{max}, x_{max})` in the second axis.
-        label (~numpy.ndarray): An integer array of shape :math:`(R,)`.
-            The values correspond to id for label names stored in
-            :obj:`label_names`. This is optional.
-        score (~numpy.ndarray): A float array of shape :math:`(R,)`.
-             Each value indicates how confident the prediction is.
-             This is optional.
+        img (~numpy.ndarray): See the table below. If this is :obj:`None`,
+            no image is displayed.
+        bbox (~numpy.ndarray): See the table below.
+        label (~numpy.ndarray): See the table below. This is optional.
+        score (~numpy.ndarray): See the table below. This is optional.
         label_names (iterable of strings): Name of labels ordered according
             to label ids. If this is :obj:`None`, labels will be skipped.
         instance_colors (iterable of tuples): List of colors.
@@ -65,6 +57,17 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
             are always visualized in front of instances with low scores.
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`bbox`, ":math:`(R, 4)`", :obj:`float32`, \
+        ":math:`(y_{min}, x_{min}, y_{max}, x_{max})`"
+        :obj:`label`, ":math:`(R,)`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
+        :obj:`score`, ":math:`(R,)`", :obj:`float32`, --
 
     Returns:
         ~matploblib.axes.Axes:
@@ -84,6 +87,8 @@ def vis_bbox(img, bbox, label=None, score=None, label_names=None,
         score = score[order]
         if label is not None:
             label = label[order]
+        if instance_colors is not None:
+            instance_colors = np.array(instance_colors)[order]
 
     # Returns newly instantiated matplotlib.axes.Axes object if ax is None
     ax = vis_image(img, ax=ax)

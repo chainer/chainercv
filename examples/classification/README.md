@@ -6,7 +6,7 @@
 
 Single crop error rates of the models with the weights converted from Caffe weights.
 
-| Model | Top 1 | Reference Top 1 |
+| Model | Top 1 | Original Top 1 |
 |:-:|:-:|:-:|
 | VGG16 | 29.0 % | 28.5 % [1] |
 | ResNet50 (`arch=he`) | 24.8 % | 24.7 % [2] |
@@ -20,7 +20,7 @@ Single crop error rates of the models with the weights converted from Caffe weig
 
 Ten crop error rate.
 
-| Model | Top 1 | Reference Top 1 |
+| Model | Top 1 | Original Top 1 |
 |:-:|:-:|:-:|
 | VGG16 | 27.1 % |   |
 | ResNet50 (`arch=he`) | 23.0 % | 22.9 % [2] |
@@ -44,7 +44,7 @@ $ python eval_imagenet.py <path_to_val_dataset> [--model vgg16|resnet50|resnet10
 
 Single crop error rates of the models trained with the ChainerCV's training script.
 
-| Model | Top 1 | Reference Top 1 |
+| Model | Top 1 | Original Top 1 |
 |:-:|:-:|:-:|
 | ResNet50 (`arch=fb`) | 23.51 % | 23.60% [5] |
 | ResNet101 (`arch=fb`) | 22.07 % | 22.08% [5] |
@@ -60,9 +60,7 @@ $ mpiexec -n N python train_imagenet_multi.py <path_to_train_dataset> <path_to_v
 The training procedure carefully follows the "ResNet in 1 hour" paper [5].
 
 #### Performance tip
-When training over multiple nodes, set the communicator to `pure_nccl` (requires NCCL2).
-The default communicator (`hierarchical`) uses MPI to communicate between nodes, which is slower than the pure NCCL communicator.
-Also, cuDNN convolution functions can be optimized with extra commands (see https://docs.chainer.org/en/stable/performance.html#optimize-cudnn-convolution).
+cuDNN convolution functions can be optimized with extra commands (see https://docs.chainer.org/en/stable/performance.html#optimize-cudnn-convolution).
 
 #### Detailed training results
 

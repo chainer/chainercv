@@ -1,7 +1,6 @@
 from __future__ import division
 import numpy as np
 import PIL
-import warnings
 
 import chainer
 
@@ -71,6 +70,8 @@ def rotate(img, angle, expand=True, fill=0, interpolation=PIL.Image.BILINEAR):
     The backend used by :func:`rotate` is configured by
     :obj:`chainer.global_config.cv_rotate_backend`.
     Two backends are supported: "cv2" and "PIL".
+    If this is :obj:`None`, "cv2" is used whenever "cv2" is installed,
+    and "PIL" is used when "cv2" is not installed.
 
     Args:
         img (~numpy.ndarray): An arrays that get rotated. This is in
@@ -90,17 +91,16 @@ def rotate(img, angle, expand=True, fill=0, interpolation=PIL.Image.BILINEAR):
         returns an array :obj:`out_img` that is the result of rotation.
 
     """
-    if chainer.config.cv_rotate_backend == 'cv2':
+    if chainer.config.cv_rotate_backend is None:
         if _cv2_available:
             return _rotate_cv2(img, angle, expand, fill, interpolation)
         else:
-            warnings.warn(
-                'Although `chainer.config.cv_rotate_backend == "cv2"`, '
-                'cv2 is not found. As a fallback option, rotate uses '
-                'PIL. Either install cv2 or set '
-                '`chainer.global_config.cv_rotate_backend = "PIL"` to '
-                'suppress this warning.')
             return _rotate_pil(img, angle, expand, fill, interpolation)
+    elif chainer.config.cv_rotate_backend == 'cv2':
+        if not _cv2_available:
+            raise ValueError('cv2 is not installed even though '
+                             'chainer.config.cv_rotate_backend == \'cv2\'')
+        return _rotate_cv2(img, angle, expand, fill, interpolation)
     elif chainer.config.cv_rotate_backend == 'PIL':
         return _rotate_pil(img, angle, expand, fill, interpolation)
     else:

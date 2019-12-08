@@ -31,14 +31,14 @@ class VGG16(PickableSequentialChain):
     The network can choose output layers from set of all
     intermediate layers.
     The attribute :obj:`pick` is the names of the layers that are going
-    to be picked by :meth:`__call__`.
+    to be picked by :meth:`forward`.
     The attribute :obj:`layer_names` is the names of all layers
     that can be picked.
 
     Examples:
 
         >>> model = VGG16()
-        # By default, __call__ returns a probability score (after Softmax).
+        # By default, forward returns a probability score (after Softmax).
         >>> prob = model(imgs)
         >>> model.pick = 'conv5_3'
         # This is layer conv5_3 (after ReLU).

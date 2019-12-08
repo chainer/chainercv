@@ -3,7 +3,7 @@
 ## Performance
 PASCAL VOC2007 Test
 
-| Model | Original | ChainerCV (weight conversion) | ChainerCV (train) |
+| Model | Original | Ours (weight conversion) | Ours (train) |
 |:-:|:-:|:-:|:-:|
 | SSD300 | 77.5 % [2] | 77.8 % | 77.5 % / 77.6 % (4 GPUs) |
 | SSD512 | 79.5 % [2] | 79.7 % | 80.1 % * / 80.5 % (4 GPUs) |

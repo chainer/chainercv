@@ -14,8 +14,8 @@ except ImportError:
 
 
 @testing.parameterize(
-    {'mask': np.array([True, True, False])},
-    {'mask': None}
+    {'visible': np.array([[True, True, False]])},
+    {'visible': None}
 )
 @unittest.skipUnless(_available, 'Matplotlib is not installed')
 class TestVisPoint(unittest.TestCase):
@@ -23,8 +23,8 @@ class TestVisPoint(unittest.TestCase):
     def test_vis_point(self):
         img = np.random.randint(
             0, 255, size=(3, 32, 32)).astype(np.float32)
-        point = np.random.uniform(size=(3, 2)).astype(np.float32)
-        ax = vis_point(img, point, self.mask)
+        point = np.random.uniform(size=(1, 3, 2)).astype(np.float32)
+        ax = vis_point(img, point, self.visible)
 
         self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 

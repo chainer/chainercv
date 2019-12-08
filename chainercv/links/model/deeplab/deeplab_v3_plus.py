@@ -47,7 +47,7 @@ class Decoder(chainer.Chain):
             self.conv_logits = L.Convolution2D(
                 depth_channels, out_channels, 1, 1, 0)
 
-    def __call__(self, x, pool):
+    def forward(self, x, pool):
         x = self.feature_proj(x)
         pool = F.resize_images(pool, x.shape[2:])
         h = F.concat((pool, x), axis=1)
@@ -132,7 +132,7 @@ class DeepLabV3plus(chainer.Chain):
 
         return image
 
-    def __call__(self, x):
+    def forward(self, x):
         lowlevel, highlevel = self.feature_extractor(x)
         highlevel = self.aspp(highlevel)
         h = self.decoder(lowlevel, highlevel)
@@ -152,7 +152,7 @@ class DeepLabV3plus(chainer.Chain):
         img = self.prepare(img)
 
         x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
-        x = self.__call__(x)
+        x = self.forward(x)
         x = F.softmax(x, axis=1)
         score = F.resize_images(x, img.shape[1:])[0, :, :h, :w].array
         score = chainer.backends.cuda.to_cpu(score)
@@ -183,10 +183,10 @@ class DeepLabV3plus(chainer.Chain):
         with chainer.using_config('train', False), \
                 chainer.function.no_backprop_mode():
             labels = []
-            score = 0
             n_aug = len(self.scales) if self.flip else len(self.scales) * 2
 
             for img in imgs:
+                score = 0
                 for scale in self.scales:
                     score += self._get_proba(img, scale, False) / n_aug
                     if self.flip:
@@ -241,7 +241,7 @@ class DeepLabV3plusXception65(DeepLabV3plus):
         },
         'ade20k': {
             'param': {
-                'n_class': 151,
+                'n_class': 150,
                 'min_input_size': (513, 513),
                 'scales': (1.0,),
                 'flip': False,
@@ -257,7 +257,7 @@ class DeepLabV3plusXception65(DeepLabV3plus):
             },
             'overwritable': ('scales', 'flip'),
             'url': 'https://chainercv-models.preferred.jp/'
-            'deeplabv3plus_xception65_ade20k_converted_2019_02_15.npz',
+            'deeplabv3plus_xception65_ade20k_converted_2019_03_08.npz',
         }
     }
 
@@ -270,7 +270,11 @@ class DeepLabV3plusXception65(DeepLabV3plus):
              'extractor_kwargs': extractor_kwargs,
              'aspp_kwargs': aspp_kwargs, 'decoder_kwargs': decoder_kwargs},
             pretrained_model, self._models,
-            default={'min_input_size': (513, 513)})
+            default={
+                'min_input_size': (513, 513),
+                'scales': (1.0,), 'flip': False,
+                'extractor_kwargs': {},
+                'aspp_kwargs': {}, 'decoder_kwargs': {}})
 
         super(DeepLabV3plusXception65, self).__init__(
             Xception65(**param['extractor_kwargs']),

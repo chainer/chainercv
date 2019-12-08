@@ -3,7 +3,7 @@
 ## Performance
 PASCAL VOC2007 Test
 
-| Model | Original | ChainerCV (weight conversion) |
+| Model | Original | Ours (weight conversion) |
 |:-:|:-:|:-:|
 | YOLOv2 | 75.8 % * | 75.8 % |
 | YOLOv2 tiny | 54.0 % ** | 53.5 % |

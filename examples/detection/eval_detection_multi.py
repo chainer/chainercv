@@ -20,10 +20,10 @@ def main():
     parser.add_argument('--batchsize', type=int)
     args = parser.parse_args()
 
-    comm = chainermn.create_communicator()
+    comm = chainermn.create_communicator('pure_nccl')
     device = comm.intra_rank
 
-    dataset, label_names, eval_, model, batchsize = setup(
+    dataset, eval_, model, batchsize = setup(
         args.dataset, args.model, args.pretrained_model, args.batchsize)
 
     chainer.cuda.get_device_from_id(device).use()

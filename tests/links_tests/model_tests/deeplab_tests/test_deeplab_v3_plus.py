@@ -51,4 +51,32 @@ class TestDeepLabV3plusXception65(unittest.TestCase):
         assert_is_semantic_segmentation_link(self.link, self.n_class)
 
 
+@testing.parameterize(*testing.product({
+    'model': [DeepLabV3plusXception65],
+    'pretrained_model': ['cityscapes', 'ade20k', 'voc'],
+    'n_class': [None, 19, 150, 21],
+}))
+class TestDeepLabV3plusXception65Pretrained(unittest.TestCase):
+
+    @attr.slow
+    def test_pretrained(self):
+        kwargs = {
+            'n_class': self.n_class,
+            'pretrained_model': self.pretrained_model,
+        }
+
+        if self.pretrained_model == 'cityscapes':
+            valid = self.n_class in {None, 19}
+        elif self.pretrained_model == 'ade20k':
+            valid = self.n_class in {None, 150}
+        elif self.pretrained_model == 'voc':
+            valid = self.n_class in {None, 21}
+
+        if valid:
+            self.model(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                self.model(**kwargs)
+
+
 testing.run_module(__name__, __file__)

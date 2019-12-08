@@ -57,7 +57,7 @@ class CityscapesSemanticSegmentationDataset(GetterDataset):
             data_dir = download.get_dataset_directory(
                 'pfnet/chainercv/cityscapes')
         if label_resolution not in ['fine', 'coarse']:
-            raise ValueError('\'label_resolution\' argment should be eighter '
+            raise ValueError('\'label_resolution\' argment should be either '
                              '\'fine\' or \'coarse\'.')
 
         img_dir = os.path.join(data_dir, os.path.join('leftImg8bit', split))

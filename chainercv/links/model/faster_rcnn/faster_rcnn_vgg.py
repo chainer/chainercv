@@ -50,8 +50,8 @@ class FasterRCNNVGG16(FasterRCNN):
             where :obj:`$CHAINER_DATASET_ROOT` is set as
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
-        min_size (int): A preprocessing paramter for :meth:`prepare`.
-        max_size (int): A preprocessing paramter for :meth:`prepare`.
+        min_size (int): A preprocessing parameter for :meth:`prepare`.
+        max_size (int): A preprocessing parameter for :meth:`prepare`.
         ratios (list of floats): This is ratios of width to height of
             the anchors.
         anchor_scales (list of numbers): This is areas of anchors.
@@ -64,7 +64,7 @@ class FasterRCNNVGG16(FasterRCNN):
             layers.
         loc_initialW (callable): Initializer for the localization head.
         score_initialW (callable): Initializer for the score head.
-        proposal_creator_params (dict): Key valued paramters for
+        proposal_creator_params (dict): Key valued parameters for
             :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
 
     """
@@ -192,7 +192,7 @@ class VGG16RoIHead(chainer.Chain):
         self.roi_size = roi_size
         self.spatial_scale = spatial_scale
 
-    def __call__(self, x, rois, roi_indices):
+    def forward(self, x, rois, roi_indices):
         """Forward the chain.
 
         We assume that there are :math:`N` batches.

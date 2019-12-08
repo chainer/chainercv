@@ -60,7 +60,7 @@ class SeparableASPP(chainer.Chain):
         x = F.broadcast_to(x, (B, C, H, W))
         return x
 
-    def __call__(self, x):
+    def forward(self, x):
         h = []
         h.append(self.image_pooling(x))
         h.append(self.conv1x1(x))

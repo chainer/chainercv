@@ -31,14 +31,12 @@ class SEBlock(chainer.Chain):
             self.down = L.Linear(n_channel, reduction_size)
             self.up = L.Linear(reduction_size, n_channel)
 
-    def __call__(self, u):
+    def forward(self, u):
         B, C, H, W = u.shape
 
         z = F.average(u, axis=(2, 3))
         x = F.relu(self.down(z))
         x = F.sigmoid(self.up(x))
-
-        x = F.broadcast_to(x, (H, W, B, C))
-        x = x.transpose((2, 3, 0, 1))
-
+        x = F.reshape(x, x.shape[:2] + (1, 1))
+        # Spatial axes of `x` will be broadcasted.
         return u * x
