@@ -45,7 +45,7 @@ class TestCOCOKeypointDataset(unittest.TestCase):
             return_crowded=self.return_crowded)
 
     @attr.slow
-    def test_coco_bbox_dataset(self):
+    def test_coco_keypoint_dataset(self):
         human_id = 0
         assert_is_point_dataset(
             self.dataset, len(coco_keypoint_names[human_id]),
