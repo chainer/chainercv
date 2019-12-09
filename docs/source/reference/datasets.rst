@@ -73,10 +73,6 @@ COCOInstanceSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: COCOInstanceSegmentationDataset
 
-COCOKeypointDataset
-~~~~~~~~~~~~~~~~~~~
-.. autoclass:: COCOKeypointDataset
-
 COCOSemanticSegmentationDataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: COCOSemanticSegmentationDataset
