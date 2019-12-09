@@ -12,10 +12,6 @@ vis_image
 ~~~~~~~~~
 .. autofunction:: vis_image
 
-vis_keypoint_coco
-~~~~~~~~~~~~~~~~~
-.. autofunction:: vis_keypoint_coco
-
 vis_instance_segmentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: vis_instance_segmentation
