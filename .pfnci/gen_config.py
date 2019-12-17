@@ -68,7 +68,7 @@ def main():
 
     for python, chainer in itertools.product(
             (2, 3), ('stable', 'latest', 'master')):
-        if python == 2 and chainer == 'master':
+        if python == 2 and chainer in {'latest', 'master'}:
             continue
         for optional in (True, False):
             configs.append(test_config(python, chainer, optional, 'cpu'))
