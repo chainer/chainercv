@@ -1,7 +1,7 @@
 #! /usr/bin/env sh
 set -eux
 
-STABLE=6.4.0
+STABLE=6.6.0
 LATEST=7.0.0
 
 systemctl stop docker.service
