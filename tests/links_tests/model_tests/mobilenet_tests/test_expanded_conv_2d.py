@@ -70,13 +70,13 @@ class TestExpandedConv2D(unittest.TestCase):
         _x_data = x_data
         if self.expansion_size > self.in_channels:
             np.testing.assert_almost_equal(
-                cuda.to_cpu(y.array), _x_data+self.expansion_size *
+                cuda.to_cpu(y.array), cuda.to_cpu(_x_data)+self.expansion_size *
                 np.maximum(np.minimum(cuda.to_cpu(_x_data), 6), 0),
                 decimal=4
             )
         else:
             np.testing.assert_almost_equal(
-                cuda.to_cpu(y.array), _x_data +
+                cuda.to_cpu(y.array), cuda.to_cpu(_x_data) +
                 np.maximum(np.minimum(cuda.to_cpu(_x_data), 6), 0),
                 decimal=4
             )
