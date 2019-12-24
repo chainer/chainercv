@@ -79,7 +79,7 @@ class TestFeaturePredictorPredict(unittest.TestCase):
     'crop_size': [192, (192, 256), (256, 192)],
     'scale_size': [None, 256, (256, 256)],
     'in_channels': [1, 3],
-    'mean': [None, np.float32(1)]
+    'mean': [None, np.float32(1)],
 }))
 class TestFeaturePredictor(unittest.TestCase):
 

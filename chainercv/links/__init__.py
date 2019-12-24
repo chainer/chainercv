@@ -14,6 +14,7 @@ from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import FasterRCNNFPNResNet
 from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import MaskRCNNFPNResNet101  # NOQA
 from chainercv.links.model.fpn.faster_rcnn_fpn_resnet import MaskRCNNFPNResNet50  # NOQA
 from chainercv.links.model.light_head_rcnn.light_head_rcnn_resnet101 import LightHeadRCNNResNet101  # NOQA
+from chainercv.links.model.mobilenet import MobileNetV2  # NOQA
 from chainercv.links.model.resnet import ResNet101  # NOQA
 from chainercv.links.model.resnet import ResNet152  # NOQA
 from chainercv.links.model.resnet import ResNet50  # NOQA
