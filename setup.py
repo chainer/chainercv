@@ -24,7 +24,8 @@ Collection of Deep Learning Computer Vision Algorithms implemented in Chainer
 setup_requires = ['numpy']
 install_requires = [
     'chainer>=6.0',
-    'Pillow'
+    # https://github.com/matplotlib/matplotlib/issues/16083
+    'Pillow<7',
 ]
 
 ext_data = {
