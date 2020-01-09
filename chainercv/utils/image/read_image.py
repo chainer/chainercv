@@ -1,5 +1,7 @@
 from __future__ import division
 
+import pathlib
+
 import chainer
 import numpy as np
 from PIL import Image
@@ -87,6 +89,24 @@ def _read_image_pil(file, dtype, color, alpha):
         return img.transpose((2, 0, 1))
 
 
+def _determine_backend():
+    if chainer.config.cv_read_image_backend is None:
+        if _cv2_available:
+            return 'cv2'
+        else:
+            return 'PIL'
+    elif chainer.config.cv_read_image_backend == 'cv2':
+        if not _cv2_available:
+            raise ValueError('cv2 is not installed even though '
+                             'chainer.config.cv_read_image_backend == \'cv2\'')
+        return 'cv2'
+    elif chainer.config.cv_read_image_backend == 'PIL':
+        return 'PIL'
+    else:
+        raise ValueError('chainer.config.cv_read_image_backend should be '
+                         'either "cv2" or "PIL".')
+
+
 def read_image(file, dtype=np.float32, color=True, alpha=None):
     """Read an image from a file.
 
@@ -101,7 +121,7 @@ def read_image(file, dtype=np.float32, color=True, alpha=None):
     and "PIL" is used when "cv2" is not installed.
 
     Args:
-        file (string or file-like object): A path of image file or
+        file (string or pathlib.Path or file-like object): A path of image file or
             a file-like object of image.
         dtype: The type of array. The default value is :obj:`~numpy.float32`.
         color (bool): This option determines the number of channels.
@@ -121,18 +141,12 @@ def read_image(file, dtype=np.float32, color=True, alpha=None):
     Returns:
         ~numpy.ndarray: An image.
     """
-    if chainer.config.cv_read_image_backend is None:
-        if _cv2_available:
-            return _read_image_cv2(file, dtype, color, alpha)
-        else:
-            return _read_image_pil(file, dtype, color, alpha)
-    elif chainer.config.cv_read_image_backend == 'cv2':
-        if not _cv2_available:
-            raise ValueError('cv2 is not installed even though '
-                             'chainer.config.cv_read_image_backend == \'cv2\'')
+    backend = _determine_backend()
+    assert backend in ['cv2', 'PIL'], 'Encountered unexpected behavior'
+    if backend == 'cv2':
+        # opencv does not support pathlib.Path
+        if isinstance(file, pathlib.Path):
+            file = str(file)
         return _read_image_cv2(file, dtype, color, alpha)
-    elif chainer.config.cv_read_image_backend == 'PIL':
+    elif backend == 'PIL':
         return _read_image_pil(file, dtype, color, alpha)
-    else:
-        raise ValueError('chainer.config.cv_read_image_backend should be '
-                         'either "cv2" or "PIL".')
