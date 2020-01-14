@@ -124,10 +124,13 @@ class YOLOv3(YOLOBase):
             * :obj:`None`: Do not load weights.
 
     """
+    preset_params = {
+        'voc': {'n_fg_class': 20},
+    }
 
     _models = {
         'voc0712': {
-            'param': {'n_fg_class': 20},
+            'param': preset_params['voc'],
             'url': 'https://chainercv-models.preferred.jp/'
             'yolo_v3_voc0712_converted_2018_05_01.npz',
             'cv2': True
@@ -142,8 +145,7 @@ class YOLOv3(YOLOBase):
     def __init__(self, n_fg_class=None, pretrained_model=None):
         super(YOLOv3, self).__init__()
 
-        param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
+        param, path = utils.prepare_model_param(locals(), self._models)
 
         self.n_fg_class = param['n_fg_class']
         self.use_preset('visualize')

@@ -66,10 +66,6 @@ class FCISResNet101(FCIS):
             localization estimates.
         loc_normalize_std (tupler of four floats): Standard deviation
             of localization estimates.
-        iter2 (bool): if the value is set :obj:`True`, Position Sensitive
-            ROI pooling is executed twice. In the second time, Position
-            Sensitive ROI pooling uses improved ROIs by the localization
-            parameters calculated in the first time.
         resnet_initialW (callable): Initializer for the layers corresponding to
             the ResNet101 layers.
         rpn_initialW (callable): Initializer for Region Proposal Network
@@ -79,90 +75,112 @@ class FCISResNet101(FCIS):
             :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
 
     """
+    _common_param = {
+        'feat_stride': 16,
+        'min_size': 600,
+        'max_size': 1000,
+        'roi_size': 21,
+        'group_size': 7,
+        'ratios': [0.5, 1, 2],
+        'loc_normalize_mean': (0.0, 0.0, 0.0, 0.0),
+        'loc_normalize_std': (0.2, 0.2, 0.5, 0.5),
+        'rpn_initialW': chainer.initializers.Normal(0.01),
+        'resnet_initialW': chainer.initializers.constant.Zero(),
+        'head_initialW': chainer.initializers.Normal(0.01),
+    }
+    preset_params = {
+        'sbd': dict({
+            'n_fg_class': 20,
+            'anchor_scales': (8, 16, 32),
+            'proposal_creator_params': {
+                'nms_thresh': 0.7,
+                'n_train_pre_nms': 6000,
+                'n_train_post_nms': 300,
+                'n_test_pre_nms': 6000,
+                'n_test_post_nms': 300,
+                'force_cpu_nms': False,
+                'min_size': 16,
+            }},
+            **_common_param),
+        'coco': dict({
+            'n_fg_class': 80,
+            'anchor_scales': (4, 8, 16, 32),
+            'proposal_creator_params': {
+                'nms_thresh': 0.7,
+                'n_train_pre_nms': 6000,
+                'n_train_post_nms': 300,
+                'n_test_pre_nms': 6000,
+                'n_test_post_nms': 300,
+                'force_cpu_nms': False,
+                'min_size': 2,
+            }},
+            **_common_param),
+    }
 
     _models = {
         'sbd': {
-            'param': {'n_fg_class': 20},
+            'param': preset_params['sbd'],
             'url': 'https://chainercv-models.preferred.jp/'
-            'fcis_resnet101_sbd_trained_2018_06_22.npz',
-            'cv2': True
+                   'fcis_resnet101_sbd_trained_2018_06_22.npz',
+            'cv2': True,
         },
         'sbd_converted': {
-            'param': {'n_fg_class': 20},
+            'param': preset_params['sbd'],
             'url': 'https://chainercv-models.preferred.jp/'
-            'fcis_resnet101_sbd_converted_2018_07_02.npz',
-            'cv2': True
+                   'fcis_resnet101_sbd_converted_2018_07_02.npz',
+            'cv2': True,
         },
         'coco': {
-            'param': {'n_fg_class': 80},
+            'param': preset_params['coco'],
             'url': 'https://chainercv-models.preferred.jp/'
-            'fcis_resnet101_coco_trained_2019_01_30.npz',
-            'cv2': True
+                   'fcis_resnet101_coco_trained_2019_01_30.npz',
+            'cv2': True,
         },
         'coco_converted': {
-            'param': {'n_fg_class': 80},
+            'param': preset_params['coco'],
             'url': 'https://chainercv-models.preferred.jp/'
-            'fcis_resnet101_coco_converted_2019_01_30.npz',
-            'cv2': True
-        }
-    }
-    feat_stride = 16
-    proposal_creator_params = {
-        'nms_thresh': 0.7,
-        'n_train_pre_nms': 6000,
-        'n_train_post_nms': 300,
-        'n_test_pre_nms': 6000,
-        'n_test_post_nms': 300,
-        'force_cpu_nms': False,
-        'min_size': 16
+                   'fcis_resnet101_coco_converted_2019_01_30.npz',
+            'cv2': True,
+        },
     }
 
     def __init__(
             self,
             n_fg_class=None,
             pretrained_model=None,
-            min_size=600, max_size=1000,
-            roi_size=21, group_size=7,
-            ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
-            loc_normalize_mean=(0.0, 0.0, 0.0, 0.0),
-            loc_normalize_std=(0.2, 0.2, 0.5, 0.5),
-            iter2=True,
-            resnet_initialW=None, rpn_initialW=None, head_initialW=None,
-            proposal_creator_params=None):
-        param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
+            feat_stride=None,
+            min_size=None, max_size=None,
+            roi_size=None, group_size=None,
+            ratios=None, anchor_scales=None,
+            loc_normalize_mean=None, loc_normalize_std=None,
+            rpn_initialW=None, resnet_initialW=None, head_initialW=None,
+            proposal_creator_params=None,
+    ):
+        param, path = utils.prepare_model_param(locals(), self._models)
 
-        if rpn_initialW is None:
-            rpn_initialW = chainer.initializers.Normal(0.01)
-        if resnet_initialW is None and pretrained_model:
-            resnet_initialW = chainer.initializers.constant.Zero()
-        if proposal_creator_params is not None:
-            self.proposal_creator_params = proposal_creator_params
-
-        extractor = ResNet101Extractor(
-            initialW=resnet_initialW)
+        extractor = ResNet101Extractor(initialW=param['resnet_initialW'])
         rpn = RegionProposalNetwork(
             1024, 512,
-            ratios=ratios,
-            anchor_scales=anchor_scales,
-            feat_stride=self.feat_stride,
-            initialW=rpn_initialW,
-            proposal_creator_params=self.proposal_creator_params)
+            ratios=param['ratios'],
+            anchor_scales=param['anchor_scales'],
+            feat_stride=param['feat_stride'],
+            initialW=param['rpn_initialW'],
+            proposal_creator_params=param['proposal_creator_params'])
         head = FCISResNet101Head(
             param['n_fg_class'] + 1,
-            roi_size=roi_size, group_size=group_size,
-            spatial_scale=1. / self.feat_stride,
-            loc_normalize_mean=loc_normalize_mean,
-            loc_normalize_std=loc_normalize_std,
-            iter2=iter2, initialW=head_initialW)
+            roi_size=param['roi_size'], group_size=param['group_size'],
+            spatial_scale=1. / param['feat_stride'],
+            loc_normalize_mean=param['loc_normalize_mean'],
+            loc_normalize_std=param['loc_normalize_std'],
+            initialW=param['head_initialW'])
 
-        mean = np.array([123.15, 115.90, 103.06],
-                        dtype=np.float32)[:, None, None]
+        mean = np.array(
+            [123.15, 115.90, 103.06], dtype=np.float32)[:, None, None]
 
         super(FCISResNet101, self).__init__(
             extractor, rpn, head,
-            mean, min_size, max_size,
-            loc_normalize_mean, loc_normalize_std)
+            mean, param['min_size'], param['max_size'],
+            param['loc_normalize_mean'], param['loc_normalize_std'])
 
         if path == 'imagenet':
             self._copy_imagenet_pretrained_resnet()
@@ -269,10 +287,6 @@ class FCISResNet101Head(chainer.Chain):
             localization estimates.
         loc_normalize_std (tupler of four floats): Standard deviation
             of localization estimates.
-        iter2 (bool): if the value is set :obj:`True`, Position Sensitive
-            ROI pooling is executed twice. In the second time, Position
-            Sensitive ROI pooling uses improved ROIs by the localization
-            parameters calculated in the first time.
         initialW (callable): Initializer for the layers.
 
     """
@@ -282,7 +296,7 @@ class FCISResNet101Head(chainer.Chain):
             n_class,
             roi_size, group_size, spatial_scale,
             loc_normalize_mean, loc_normalize_std,
-            iter2, initialW=None
+            initialW=None
     ):
         super(FCISResNet101Head, self).__init__()
 
@@ -295,7 +309,6 @@ class FCISResNet101Head(chainer.Chain):
         self.roi_size = roi_size
         self.loc_normalize_mean = loc_normalize_mean
         self.loc_normalize_std = loc_normalize_std
-        self.iter2 = iter2
 
         with self.init_scope():
             self.conv1 = L.Convolution2D(
@@ -307,7 +320,8 @@ class FCISResNet101Head(chainer.Chain):
                 1024, group_size * group_size * 2 * 4,
                 1, 1, 0, initialW=initialW)
 
-    def forward(self, x, rois, roi_indices, img_size, gt_roi_labels=None):
+    def forward(self, x, rois, roi_indices, img_size,
+                gt_roi_labels=None, iter2=True):
         """Forward the chain.
 
         We assume that there are :math:`N` batches.
@@ -323,6 +337,10 @@ class FCISResNet101Head(chainer.Chain):
             roi_indices (array): An array containing indices of images to
                 which bounding boxes correspond to. Its shape is :math:`(R',)`.
             img_size (tuple of int): A tuple containing image size.
+            iter2 (bool): if the value is set :obj:`True`, Position Sensitive
+                ROI pooling is executed twice. In the second time, Position
+                Sensitive ROI pooling uses improved ROIs by the localization
+                parameters calculated in the first time.
 
         """
         h = F.relu(self.conv1(x))
@@ -332,7 +350,7 @@ class FCISResNet101Head(chainer.Chain):
         # PSROI pooling and regression
         roi_ag_seg_scores, roi_ag_locs, roi_cls_scores = self._pool(
             h_cls_seg, h_ag_loc, rois, roi_indices, gt_roi_labels)
-        if self.iter2:
+        if iter2:
             # 2nd Iteration
             # get rois2 for more precise prediction
             roi_ag_locs = roi_ag_locs.array

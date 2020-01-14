@@ -1,4 +1,5 @@
 import argparse
+import copy
 
 import chainer
 from chainer import iterators
@@ -37,8 +38,9 @@ def setup(dataset, model_name, pretrained_model, batchsize):
         dataset = SBDInstanceSegmentationDataset(split='val')
         label_names = sbd_instance_segmentation_label_names
 
-        model = cls(
-            n_fg_class=len(label_names), pretrained_model=pretrained_model)
+        params = copy.deepcopy(cls.preset_params[dataset_name])
+        params['n_fg_class'] = len(label_names)
+        model = cls(pretrained_model=pretrained_model, **params)
         model.use_preset('evaluate')
 
         def eval_(out_values, rest_values):
@@ -62,18 +64,13 @@ def setup(dataset, model_name, pretrained_model, batchsize):
             split='minival', year='2014',
             use_crowded=True, return_crowded=True, return_area=True)
         label_names = coco_instance_segmentation_label_names
+
+        params = copy.deepcopy(cls.preset_params[dataset_name])
+        params['n_fg_class'] = len(label_names)
+        model = cls(pretrained_model=pretrained_model, **params)
         if model_name == 'fcis_resnet101':
-            proposal_creator_params = cls.proposal_creator_params
-            proposal_creator_params['min_size'] = 2
-            model = cls(
-                n_fg_class=len(label_names),
-                anchor_scales=(4, 8, 16, 32),
-                pretrained_model=pretrained_model,
-                proposal_creator_params=proposal_creator_params)
             model.use_preset('coco_evaluate')
         else:
-            model = cls(
-                n_fg_class=len(label_names), pretrained_model=pretrained_model)
             model.use_preset('evaluate')
 
         def eval_(out_values, rest_values):

@@ -1,4 +1,5 @@
 import argparse
+import copy
 
 import chainer
 from chainer import iterators
@@ -63,19 +64,17 @@ def setup(dataset, model, pretrained_model, batchsize, input_size):
     cls, pretrained_models, default_batchsize = models[model]
     if pretrained_model is None:
         pretrained_model = pretrained_models.get(dataset_name, dataset_name)
-    if input_size is None:
-        input_size = None
-    else:
-        input_size = (input_size, input_size)
-
     kwargs = {
-        'n_class': len(label_names),
         'pretrained_model': pretrained_model,
     }
-    if model in ['pspnet_resnet50', 'pspnet_resnet101']:
-        kwargs.update({'input_size': input_size})
-    elif model == 'deeplab_v3plus_xception65':
-        kwargs.update({'min_input_size': input_size})
+    params = copy.deepcopy(cls.preset_params[dataset_name])
+    params['n_class'] = len(label_names)
+    if input_size is not None:
+        if model in ['pspnet_resnet50', 'pspnet_resnet101']:
+            params['input_size'] = (input_size, input_size)
+        elif model == 'deeplab_v3plus_xception65':
+            params['min_input_size'] = (input_size, input_size)
+    kwargs.update(params)
     model = cls(**kwargs)
 
     if batchsize is None:

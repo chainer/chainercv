@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import unittest
 
@@ -19,8 +20,10 @@ from chainercv.utils.testing import attr
 class TestFasterRCNNFPNResNet(unittest.TestCase):
 
     def setUp(self):
-        self.link = self.model(
-            n_fg_class=self.n_fg_class, min_size=66)
+        params = copy.deepcopy(self.model.preset_params['coco'])
+        params['n_fg_class'] = self.n_fg_class
+        params['min_size'] = 66
+        self.link = self.model(**params)
 
     def _check_call(self):
         imgs = [
@@ -46,28 +49,26 @@ class TestFasterRCNNFPNResNet(unittest.TestCase):
 @testing.parameterize(*testing.product({
     'model': [FasterRCNNFPNResNet50, FasterRCNNFPNResNet101,
               MaskRCNNFPNResNet50, MaskRCNNFPNResNet101],
-    'n_fg_class': [None, 10, 80],
+    'n_fg_class': [10, 80],
     'pretrained_model': ['coco', 'imagenet'],
 }))
 class TestFasterRCNNFPNResNetPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        kwargs = {
-            'n_fg_class': self.n_fg_class,
-            'pretrained_model': self.pretrained_model,
-        }
+        params = copy.deepcopy(self.model.preset_params['coco'])
+        params['n_fg_class'] = self.n_fg_class
 
         if self.pretrained_model == 'coco':
-            valid = self.n_fg_class in {None, 80}
+            valid = self.n_fg_class == 80
         elif self.pretrained_model == 'imagenet':
-            valid = self.n_fg_class is not None
+            valid = True
 
         if valid:
-            self.model(**kwargs)
+            self.model(pretrained_model=self.pretrained_model, **params)
         else:
             with self.assertRaises(ValueError):
-                self.model(**kwargs)
+                self.model(pretrained_model=self.pretrained_model, **params)
 
 
 testing.run_module(__name__, __file__)

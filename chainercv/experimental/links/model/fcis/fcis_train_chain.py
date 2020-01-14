@@ -141,7 +141,8 @@ class FCISTrainChain(chainer.Chain):
         sample_roi_index = self.xp.zeros(
             (len(sample_roi),), dtype=np.int32)
         roi_ag_seg_score, roi_ag_loc, roi_cls_score, _, _ = self.fcis.head(
-            roi_features, sample_roi, sample_roi_index, img_size, gt_roi_label)
+            roi_features, sample_roi, sample_roi_index, img_size,
+            gt_roi_label, iter2=False)
 
         # RPN losses
         gt_rpn_loc, gt_rpn_label = self.anchor_target_creator(

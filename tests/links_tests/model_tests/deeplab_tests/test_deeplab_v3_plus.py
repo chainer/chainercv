@@ -1,3 +1,4 @@
+import copy
 import unittest
 
 import chainer
@@ -17,7 +18,9 @@ class TestDeepLabV3plusXception65(unittest.TestCase):
 
     def setUp(self):
         self.n_class = 10
-        self.link = self.model(n_class=self.n_class)
+        params = copy.deepcopy(self.model.preset_params['voc'])
+        params['n_class'] = self.n_class
+        self.link = self.model(**params)
 
     def check_call(self):
         xp = self.link.xp
@@ -54,29 +57,27 @@ class TestDeepLabV3plusXception65(unittest.TestCase):
 @testing.parameterize(*testing.product({
     'model': [DeepLabV3plusXception65],
     'pretrained_model': ['cityscapes', 'ade20k', 'voc'],
-    'n_class': [None, 19, 150, 21],
+    'n_class': [19, 150, 21],
 }))
 class TestDeepLabV3plusXception65Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        kwargs = {
-            'n_class': self.n_class,
-            'pretrained_model': self.pretrained_model,
-        }
+        params = copy.deepcopy(self.model.preset_params[self.pretrained_model])
+        params['n_class'] = self.n_class
 
         if self.pretrained_model == 'cityscapes':
-            valid = self.n_class in {None, 19}
+            valid = self.n_class == 19
         elif self.pretrained_model == 'ade20k':
-            valid = self.n_class in {None, 150}
+            valid = self.n_class == 150
         elif self.pretrained_model == 'voc':
-            valid = self.n_class in {None, 21}
+            valid = self.n_class == 21
 
         if valid:
-            self.model(**kwargs)
+            self.model(pretrained_model=self.pretrained_model, **params)
         else:
             with self.assertRaises(ValueError):
-                self.model(**kwargs)
+                self.model(pretrained_model=self.pretrained_model, **params)
 
 
 testing.run_module(__name__, __file__)

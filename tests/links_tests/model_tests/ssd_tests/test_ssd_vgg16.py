@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import unittest
 
@@ -17,10 +18,14 @@ class TestSSDVGG16(unittest.TestCase):
 
     def setUp(self):
         if self.insize == 300:
-            self.link = SSD300(n_fg_class=self.n_fg_class)
+            params = copy.deepcopy(SSD300.preset_params['voc'])
+            params['n_fg_class'] = self.n_fg_class
+            self.link = SSD300(**params)
             self.n_bbox = 8732
         elif self.insize == 512:
-            self.link = SSD512(n_fg_class=self.n_fg_class)
+            params = copy.deepcopy(SSD300.preset_params['voc'])
+            params['n_fg_class'] = self.n_fg_class
+            self.link = SSD512(**params)
             self.n_bbox = 24564
 
     def _check_call(self):
@@ -50,28 +55,26 @@ class TestSSDVGG16(unittest.TestCase):
 
 @testing.parameterize(*testing.product({
     'model': [SSD300, SSD512],
-    'n_fg_class': [None, 10, 20],
+    'n_fg_class': [10, 20],
     'pretrained_model': ['voc0712', 'imagenet'],
 }))
 class TestSSDVGG16Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        kwargs = {
-            'n_fg_class': self.n_fg_class,
-            'pretrained_model': self.pretrained_model,
-        }
+        params = copy.deepcopy(self.model.preset_params['voc'])
+        params['n_fg_class'] = self.n_fg_class
 
         if self.pretrained_model == 'voc0712':
-            valid = self.n_fg_class in {None, 20}
+            valid = self.n_fg_class == 20
         elif self.pretrained_model == 'imagenet':
-            valid = self.n_fg_class is not None
+            valid = True
 
         if valid:
-            self.model(**kwargs)
+            self.model(pretrained_model=self.pretrained_model, **params)
         else:
             with self.assertRaises(ValueError):
-                self.model(**kwargs)
+                self.model(pretrained_model=self.pretrained_model, **params)
 
 
 testing.run_module(__name__, __file__)

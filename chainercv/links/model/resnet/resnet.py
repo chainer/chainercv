@@ -102,12 +102,13 @@ class ResNet(PickableSequentialChain):
         152: [3, 8, 36, 3]
     }
 
+    preset_params = {'imagenet': {'n_class': 1000, 'mean': _imagenet_mean}}
+
     _models = {
         'fb': {
             50: {
                 'imagenet': {
-                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
-                    'overwritable': {'mean'},
+                    'param': preset_params['imagenet'],
                     'url': 'https://chainercv-models.preferred.jp/'
                     'resnet50_imagenet_trained_2018_11_26.npz',
                     'cv2': True,
@@ -115,8 +116,7 @@ class ResNet(PickableSequentialChain):
             },
             101: {
                 'imagenet': {
-                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
-                    'overwritable': {'mean'},
+                    'param': preset_params['imagenet'],
                     'url': 'https://chainercv-models.preferred.jp/'
                     'resnet101_imagenet_trained_2018_11_26.npz',
                     'cv2': True,
@@ -124,8 +124,7 @@ class ResNet(PickableSequentialChain):
             },
             152: {
                 'imagenet': {
-                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
-                    'overwritable': {'mean'},
+                    'param': preset_params['imagenet'],
                     'url': 'https://chainercv-models.preferred.jp/'
                     'resnet152_imagenet_trained_2018_11_26.npz',
                     'cv2': True,
@@ -135,27 +134,24 @@ class ResNet(PickableSequentialChain):
         'he': {
             50: {
                 'imagenet': {
-                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
-                    'overwritable': {'mean'},
+                    'param': preset_params['imagenet'],
                     'url': 'https://chainercv-models.preferred.jp/'
-                    'resnet50_imagenet_converted_2018_03_07.npz'
+                    'resnet50_imagenet_converted_2018_03_07.npz',
                 },
             },
             101: {
                 'imagenet': {
-                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
-                    'overwritable': {'mean'},
+                    'param': preset_params['imagenet'],
                     'url': 'https://chainercv-models.preferred.jp/'
-                    'resnet101_imagenet_converted_2018_03_07.npz'
+                    'resnet101_imagenet_converted_2018_03_07.npz',
                 },
             },
             152: {
                 'imagenet': {
-                    'param': {'n_class': 1000, 'mean': _imagenet_mean},
-                    'overwritable': {'mean'},
+                    'param': preset_params['imagenet'],
                     'url': 'https://chainercv-models.preferred.jp/'
-                    'resnet152_imagenet_converted_2018_03_07.npz'
-                },
+                    'resnet152_imagenet_converted_2018_03_07.npz',
+                }
             }
         }
     }
@@ -164,6 +160,9 @@ class ResNet(PickableSequentialChain):
                  n_class=None,
                  pretrained_model=None,
                  mean=None, initialW=None, fc_kwargs={}, arch='fb'):
+        param, path = utils.prepare_model_param(
+            locals(), self._models[arch][n_layer])
+
         if arch == 'fb':
             stride_first = False
             conv1_no_bias = True
@@ -175,10 +174,6 @@ class ResNet(PickableSequentialChain):
             raise ValueError('arch is expected to be one of [\'he\', \'fb\']')
         blocks = self._blocks[n_layer]
 
-        param, path = utils.prepare_pretrained_model(
-            {'n_class': n_class, 'mean': mean},
-            pretrained_model, self._models[arch][n_layer],
-            {'n_class': 1000, 'mean': _imagenet_mean})
         self.mean = param['mean']
 
         if initialW is None:

@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import unittest
 
@@ -19,8 +20,10 @@ class TestPSPNetResNet(unittest.TestCase):
     def setUp(self):
         self.n_class = 10
         self.input_size = (120, 160)
-        self.link = self.model(
-            n_class=self.n_class, input_size=self.input_size)
+        params = copy.deepcopy(self.model.preset_params['cityscapes'])
+        params['n_class'] = self.n_class
+        params['input_size'] = self.input_size
+        self.link = self.model(**params)
 
     def check_call(self):
         xp = self.link.xp
@@ -58,29 +61,27 @@ class TestPSPNetResNet(unittest.TestCase):
 @testing.parameterize(*testing.product({
     'model': [PSPNetResNet50, PSPNetResNet101],
     'pretrained_model': ['cityscapes', 'ade20k', 'imagenet'],
-    'n_class': [None, 19, 150],
+    'n_class': [19, 150],
 }))
 class TestPSPNetResNetPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        kwargs = {
-            'n_class': self.n_class,
-            'pretrained_model': self.pretrained_model,
-        }
+        params = copy.deepcopy(self.model.preset_params['cityscapes'])
+        params['n_class'] = self.n_class
 
         if self.pretrained_model == 'cityscapes':
-            valid = self.n_class in {None, 19}
+            valid = self.n_class == 19
         elif self.pretrained_model == 'ade20k':
-            valid = self.n_class in {None, 150}
+            valid = self.n_class == 150
         elif self.pretrained_model == 'imagenet':
-            valid = self.n_class is not None
+            valid = True
 
         if valid:
-            self.model(**kwargs)
+            self.model(pretrained_model=self.pretrained_model, **params)
         else:
             with self.assertRaises(ValueError):
-                self.model(**kwargs)
+                self.model(pretrained_model=self.pretrained_model, **params)
 
 
 testing.run_module(__name__, __file__)

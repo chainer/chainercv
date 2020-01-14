@@ -63,13 +63,8 @@ def main():
     np.random.seed(args.seed)
 
     # model
-    proposal_creator_params = FCISResNet101.proposal_creator_params
-    proposal_creator_params['min_size'] = 2
     fcis = FCISResNet101(
-        n_fg_class=len(coco_instance_segmentation_label_names),
-        anchor_scales=(4, 8, 16, 32),
-        pretrained_model='imagenet', iter2=False,
-        proposal_creator_params=proposal_creator_params)
+        pretrained_model='imagenet', **FCISResNet101.preset_params['coco'])
     fcis.use_preset('coco_evaluate')
     proposal_target_creator = ProposalTargetCreator()
     proposal_target_creator.neg_iou_thresh_lo = 0.0

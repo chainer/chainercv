@@ -37,7 +37,8 @@ class DummyHead(chainer.Chain):
         self.n_class = n_class
         self.roi_size = roi_size
 
-    def forward(self, x, rois, roi_indices, img_size, gt_roi_label=None):
+    def forward(self, x, rois, roi_indices, img_size,
+                gt_roi_label=None, iter2=True):
         n_roi = len(rois)
         ag_locs = chainer.Variable(
             _random_array(self.xp, (n_roi, 2, 4)))

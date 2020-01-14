@@ -1,5 +1,6 @@
 import unittest
 
+import copy
 import numpy as np
 
 from chainer.testing import attr
@@ -28,8 +29,10 @@ from chainercv.utils import testing
 class TestSEResNeXtCall(unittest.TestCase):
 
     def setUp(self):
+        params = copy.deepcopy(self.model_class.preset_params['imagenet'])
+        params['n_class'] = self.n_class
         self.link = self.model_class(
-            n_class=self.n_class, pretrained_model=None)
+            pretrained_model=None, **params)
         self.link.pick = self.pick
 
     def check_call(self):
@@ -58,7 +61,7 @@ class TestSEResNeXtCall(unittest.TestCase):
 
 @testing.parameterize(*testing.product({
     'model': [SEResNeXt50, SEResNeXt101],
-    'n_class': [None, 500, 1000],
+    'n_class': [500, 1000],
     'pretrained_model': ['imagenet'],
     'mean': [None, np.random.uniform((3, 1, 1)).astype(np.float32)],
 }))
@@ -66,20 +69,18 @@ class TestSEResNeXtPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        kwargs = {
-            'n_class': self.n_class,
-            'pretrained_model': self.pretrained_model,
-            'mean': self.mean,
-        }
+        params = copy.deepcopy(self.model.preset_params[self.pretrained_model])
+        params['n_class'] = self.n_class
+        params['mean'] = self.mean
 
         if self.pretrained_model == 'imagenet':
-            valid = self.n_class in {None, 1000}
+            valid = self.n_class == 1000
 
         if valid:
-            self.model(**kwargs)
+            self.model(pretrained_model=self.pretrained_model, **params)
         else:
             with self.assertRaises(ValueError):
-                self.model(**kwargs)
+                self.model(pretrained_model=self.pretrained_model, **params)
 
 
 testing.run_module(__name__, __file__)

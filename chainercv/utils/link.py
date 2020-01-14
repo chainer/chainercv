@@ -11,48 +11,23 @@ except ImportError:
     _cv2_available = False
 
 
-def prepare_pretrained_model(param, pretrained_model, models, default={}):
-    """Select parameters based on the existence of pretrained model.
+def prepare_model_param(param, models):
+    """Select parameters and weights of model.
 
     Args:
-        param (dict): Map from the name of the parameter to values.
-        pretrained_model (string): Name of the pretrained weight,
-            path to the pretrained weight or :obj:`None`.
+        param (dict): A dict that contains all arguments.
         models (dict): Map from the name of the pretrained weight
             to :obj:`model`, which is a dictionary containing the
             configuration used by the selected weight.
 
-            :obj:`model` has four keys: :obj:`param`, :obj:`overwritable`,
-            :obj:`url` and :obj:`cv2`.
-
-            * **param** (*dict*): Parameters assigned to the pretrained \
-                weight.
-            * **overwritable** (*set*): Names of parameters that are \
-                overwritable (i.e., :obj:`param[key] != model['param'][key]` \
-                is accepted).
-            * **url** (*string*): Location of the pretrained weight.
-            * **cv2** (*bool*): If :obj:`True`, a warning is raised \
-                if :obj:`cv2` is not installed.
-
     """
+    pretrained_model = param.pop('pretrained_model', None)
     if pretrained_model in models:
         model = models[pretrained_model]
-        model_param = model.get('param', {})
-        overwritable = model.get('overwritable', set())
-
-        for key in param.keys():
-            if key not in model_param:
-                continue
-
-            if param[key] is None:
-                param[key] = model_param[key]
-            else:
-                if key not in overwritable \
-                   and not param[key] == model_param[key]:
-                    raise ValueError(
-                        '{} must be {}'.format(key, model_param[key]))
-
         path = download_model(model['url'])
+        if 'param' in model:
+            param = {k: v if v is not None else model['param'].get(k, None)
+                     for k, v in param.items()}
 
         if model.get('cv2', False):
             if not _cv2_available:
@@ -70,16 +45,7 @@ def prepare_pretrained_model(param, pretrained_model, models, default={}):
                     'different backends. To suppress this warning, set '
                     '`chainer.config.cv_resize_backend = "cv2".',
                     RuntimeWarning)
-    elif pretrained_model:
-        path = pretrained_model
     else:
-        path = None
-
-    for key in param.keys():
-        if param[key] is None:
-            if key in default:
-                param[key] = default[key]
-            else:
-                raise ValueError('{} must be specified'.format(key))
+        path = pretrained_model
 
     return param, path

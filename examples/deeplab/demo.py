@@ -1,5 +1,5 @@
 import argparse
-
+import copy
 import matplotlib.pyplot as plt
 
 import chainer
@@ -43,9 +43,10 @@ def main():
         label_names = voc_semantic_segmentation_label_names
         colors = voc_semantic_segmentation_label_colors
 
+    params = copy.deepcopy(DeepLabV3plusXception65.preset_params[args.dataset])
+    params['min_input_size'] = args.min_input_size
     model = DeepLabV3plusXception65(
-        pretrained_model=args.pretrained_model,
-        min_input_size=args.min_input_size)
+        pretrained_model=args.pretrained_model, **params)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()

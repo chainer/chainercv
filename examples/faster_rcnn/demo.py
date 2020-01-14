@@ -24,8 +24,8 @@ def main():
         label_names = voc_bbox_label_names
 
     model = FasterRCNNVGG16(
-        n_fg_class=len(label_names),
-        pretrained_model=args.pretrained_model)
+        pretrained_model=args.pretrained_model,
+        **FasterRCNNVGG16.preset_params[args.dataset])
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()

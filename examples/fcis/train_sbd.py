@@ -88,8 +88,7 @@ def main():
 
     # model
     fcis = FCISResNet101(
-        n_fg_class=len(sbd_instance_segmentation_label_names),
-        pretrained_model='imagenet', iter2=False)
+        pretrained_model='imagenet', **FCISResNet101.preset_params['sbd'])
     fcis.use_preset('evaluate')
     model = FCISTrainChain(fcis)
 

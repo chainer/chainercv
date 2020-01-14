@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import unittest
 
@@ -25,13 +26,12 @@ class TestFasterRCNNVGG16(unittest.TestCase):
     n_conv5_3_channel = 512
 
     def setUp(self):
-        proposal_creator_params = {
-            'n_train_post_nms': self.n_train_post_nms,
-            'n_test_post_nms': self.n_test_post_nms
-        }
-        self.link = FasterRCNNVGG16(
-            self.n_fg_class, pretrained_model=None,
-            proposal_creator_params=proposal_creator_params)
+        params = copy.deepcopy(FasterRCNNVGG16.preset_params['voc'])
+        params['n_fg_class'] = self.n_fg_class
+        proposal_creator_params = params['proposal_creator_params']
+        proposal_creator_params['n_train_post_nms'] = self.n_train_post_nms
+        proposal_creator_params['n_test_post_nms'] = self.n_test_post_nms
+        self.link = FasterRCNNVGG16(pretrained_model=None, **params)
 
     def check_call(self):
         xp = self.link.xp
@@ -79,8 +79,9 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
     n_fg_class = 20
 
     def setUp(self):
-        faster_rcnn = FasterRCNNVGG16(
-            n_fg_class=self.n_fg_class, pretrained_model=False)
+        params = copy.deepcopy(FasterRCNNVGG16.preset_params['voc'])
+        params['n_fg_class'] = self.n_fg_class
+        faster_rcnn = FasterRCNNVGG16(pretrained_model=None, **params)
         self.link = FasterRCNNTrainChain(faster_rcnn)
 
         self.n_bbox = 3
@@ -114,28 +115,27 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
 
 
 @testing.parameterize(*testing.product({
-    'n_fg_class': [None, 10, 20],
+    'n_fg_class': [10, 20],
     'pretrained_model': ['voc0712', 'imagenet'],
 }))
 class TestFasterRCNNVGG16Pretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        kwargs = {
-            'n_fg_class': self.n_fg_class,
-            'pretrained_model': self.pretrained_model,
-        }
+        params = FasterRCNNVGG16.preset_params['voc']
+        params['n_fg_class'] = self.n_fg_class
 
         if self.pretrained_model == 'voc0712':
-            valid = self.n_fg_class in {None, 20}
+            valid = self.n_fg_class == 20
         elif self.pretrained_model == 'imagenet':
-            valid = self.n_fg_class is not None
+            valid = True
 
         if valid:
-            FasterRCNNVGG16(**kwargs)
+            FasterRCNNVGG16(pretrained_model=self.pretrained_model, **params)
         else:
             with self.assertRaises(ValueError):
-                FasterRCNNVGG16(**kwargs)
+                FasterRCNNVGG16(
+                    pretrained_model=self.pretrained_model, **params)
 
 
 testing.run_module(__name__, __file__)

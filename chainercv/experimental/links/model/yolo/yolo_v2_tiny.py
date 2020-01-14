@@ -77,11 +77,14 @@ class YOLOv2Tiny(YOLOv2Base):
 
     """
 
+    preset_params = {
+        'voc': {'n_fg_class': 20},
+    }
     _extractor = DarknetExtractor
 
     _models = {
         'voc0712': {
-            'param': {'n_fg_class': 20},
+            'param': preset_params['voc'],
             'url': 'https://chainercv-models.preferred.jp/'
             'yolo_v2_tiny_voc0712_converted_2018_10_19.npz',
             'cv2': True

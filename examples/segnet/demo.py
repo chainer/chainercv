@@ -28,8 +28,8 @@ def main():
         colors = camvid_label_colors
 
     model = SegNetBasic(
-        n_class=len(label_names),
-        pretrained_model=args.pretrained_model)
+        pretrained_model=args.pretrained_model,
+        **SegNetBasic.preset_params[args.dataset])
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()

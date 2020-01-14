@@ -130,11 +130,9 @@ def main():
     args = parser.parse_args()
 
     proto_path = 'weights/pspnet101_cityscapes_713.prototxt'
-    n_class = 19
-    input_size = (713, 713)
 
-    model = PSPNetResNet101(
-        n_class, None, input_size)
+    model = PSPNetResNet101(**PSPNetResNet101.preset_params['cityscapes'])
+    input_size = PSPNetResNet101.preset_params['cityscapes']['input_size']
     model(np.random.uniform(size=(1, 3) + input_size).astype(np.float32))
 
     caffe_param = caffe_pb2.NetParameter()

@@ -31,8 +31,8 @@ def main():
             args.pretrained_model = 'voc0712'
         label_names = voc_bbox_label_names
 
-    model = cls(n_fg_class=len(label_names),
-                pretrained_model=args.pretrained_model)
+    model = cls(pretrained_model=args.pretrained_model,
+                **cls.preset_params[args.dataset])
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()

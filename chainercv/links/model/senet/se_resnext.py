@@ -78,10 +78,12 @@ class SEResNeXt(PickableSequentialChain):
         101: [3, 4, 23, 3],
     }
 
+    preset_params = {'imagenet': {'n_class': 1000, 'mean': _imagenet_mean}}
+
     _models = {
         50: {
             'imagenet': {
-                'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                'param': preset_params['imagenet'],
                 'overwritable': {'mean'},
                 'url': 'https://chainercv-models.preferred.jp/'
                 'se_resnext50_imagenet_converted_2018_06_28.npz'
@@ -89,7 +91,7 @@ class SEResNeXt(PickableSequentialChain):
         },
         101: {
             'imagenet': {
-                'param': {'n_class': 1000, 'mean': _imagenet_mean},
+                'param': preset_params['imagenet'],
                 'overwritable': {'mean'},
                 'url': 'https://chainercv-models.preferred.jp/'
                 'se_resnext101_imagenet_converted_2018_06_28.npz'
@@ -103,10 +105,8 @@ class SEResNeXt(PickableSequentialChain):
                  mean=None, initialW=None, fc_kwargs={}):
         blocks = self._blocks[n_layer]
 
-        param, path = utils.prepare_pretrained_model(
-            {'n_class': n_class, 'mean': mean},
-            pretrained_model, self._models[n_layer],
-            {'n_class': 1000, 'mean': _imagenet_mean})
+        param, path = utils.prepare_model_param(
+            locals(), self._models[n_layer])
         self.mean = param['mean']
 
         if initialW is None:

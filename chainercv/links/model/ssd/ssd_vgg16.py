@@ -245,14 +245,21 @@ class SSD300(SSD):
 
     """
 
+    preset_params = {
+        'voc': {
+            'n_fg_class': 20,
+        },
+    }
+
     _models = {
         'voc0712': {
-            'param': {'n_fg_class': 20},
+            'param': preset_params['voc'],
             'url': 'https://chainercv-models.preferred.jp/'
             'ssd300_voc0712_converted_2017_06_06.npz',
             'cv2': True
         },
         'imagenet': {
+            'param': {},
             'url': 'https://chainercv-models.preferred.jp/'
             'ssd_vgg16_imagenet_converted_2017_06_09.npz',
             'cv2': True
@@ -260,11 +267,11 @@ class SSD300(SSD):
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
+        param, path = utils.prepare_model_param(locals(), self._models)
 
         super(SSD300, self).__init__(
-            extractor=VGG16Extractor300(),
+            extractor=VGG16Extractor300(
+                **VGG16Extractor300.preset_params['imagenet']),
             multibox=Multibox(
                 n_class=param['n_fg_class'] + 1,
                 aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))),
@@ -312,14 +319,21 @@ class SSD512(SSD):
 
     """
 
+    preset_params = {
+        'voc': {
+            'n_fg_class': 20,
+        },
+    }
+
     _models = {
         'voc0712': {
-            'param': {'n_fg_class': 20},
+            'param': preset_params['voc'],
             'url': 'https://chainercv-models.preferred.jp/'
             'ssd512_voc0712_converted_2017_06_06.npz',
             'cv2': True
         },
         'imagenet': {
+            'param': {},
             'url': 'https://chainercv-models.preferred.jp/'
             'ssd_vgg16_imagenet_converted_2017_06_09.npz',
             'cv2': True
@@ -327,11 +341,11 @@ class SSD512(SSD):
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        param, path = utils.prepare_pretrained_model(
-            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
+        param, path = utils.prepare_model_param(locals(), self._models)
 
         super(SSD512, self).__init__(
-            extractor=VGG16Extractor512(),
+            extractor=VGG16Extractor512(
+                **VGG16Extractor512.preset_params['imagenet']),
             multibox=Multibox(
                 n_class=param['n_fg_class'] + 1,
                 aspect_ratios=(

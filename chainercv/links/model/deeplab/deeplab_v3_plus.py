@@ -198,64 +198,67 @@ class DeepLabV3plus(chainer.Chain):
 
 
 class DeepLabV3plusXception65(DeepLabV3plus):
+    preset_params = {
+        'voc': {
+            'n_class': 21,
+            'min_input_size': (513, 513),
+            'scales': (1.0,),
+            'flip': False,
+            'extractor_kwargs': {
+                'bn_kwargs': {'decay': 0.9997, 'eps': 1e-3},
+            },
+            'aspp_kwargs': {
+                'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
+            },
+            'decoder_kwargs': {
+                'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
+            },
+        },
+        'cityscapes': {
+            'n_class': 19,
+            'min_input_size': (1025, 2049),
+            'scales': (1.0,),
+            'flip': False,
+            'extractor_kwargs': {
+                'bn_kwargs': {'decay': 0.9997, 'eps': 1e-3},
+            },
+            'aspp_kwargs': {
+                'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
+            },
+            'decoder_kwargs': {
+                'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
+            },
+        },
+        'ade20k': {
+            'n_class': 150,
+            'min_input_size': (513, 513),
+            'scales': (1.0,),
+            'flip': False,
+            'extractor_kwargs': {
+                'bn_kwargs': {'decay': 0.9997, 'eps': 1e-3},
+            },
+            'aspp_kwargs': {
+                'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
+            },
+            'decoder_kwargs': {
+                'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
+            },
+
+        },
+    }
     _models = {
         'voc': {
-            'param': {
-                'n_class': 21,
-                'min_input_size': (513, 513),
-                'scales': (1.0,),
-                'flip': False,
-                'extractor_kwargs': {
-                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-3},
-                },
-                'aspp_kwargs': {
-                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
-                },
-                'decoder_kwargs': {
-                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
-                },
-            },
-            'overwritable': ('scales', 'flip'),
+            'param': preset_params['voc'],
             'url': 'https://chainercv-models.preferred.jp/'
             'deeplabv3plus_xception65_voc_converted_2019_02_15.npz',
         },
         'cityscapes': {
-            'param': {
-                'n_class': 19,
-                'min_input_size': (1025, 2049),
-                'scales': (1.0,),
-                'flip': False,
-                'extractor_kwargs': {
-                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-3},
-                },
-                'aspp_kwargs': {
-                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
-                },
-                'decoder_kwargs': {
-                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
-                },
-            },
-            'overwritable': ('scales', 'flip'),
+            'param': preset_params['cityscapes'],
             'url': 'https://chainercv-models.preferred.jp/'
             'deeplabv3plus_xception65_cityscapes_converted_2019_02_15.npz',
         },
         'ade20k': {
-            'param': {
-                'n_class': 150,
-                'min_input_size': (513, 513),
-                'scales': (1.0,),
-                'flip': False,
-                'extractor_kwargs': {
-                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-3},
-                },
-                'aspp_kwargs': {
-                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
-                },
-                'decoder_kwargs': {
-                    'bn_kwargs': {'decay': 0.9997, 'eps': 1e-5},
-                },
-            },
-            'overwritable': ('scales', 'flip'),
+            'param': preset_params['ade20k'],
             'url': 'https://chainercv-models.preferred.jp/'
             'deeplabv3plus_xception65_ade20k_converted_2019_03_08.npz',
         }
@@ -264,17 +267,7 @@ class DeepLabV3plusXception65(DeepLabV3plus):
     def __init__(self, n_class=None, pretrained_model=None,
                  min_input_size=None, scales=None, flip=None,
                  extractor_kwargs=None, aspp_kwargs=None, decoder_kwargs=None):
-        param, path = utils.prepare_pretrained_model(
-            {'n_class': n_class, 'min_input_size': min_input_size,
-             'scales': scales, 'flip': flip,
-             'extractor_kwargs': extractor_kwargs,
-             'aspp_kwargs': aspp_kwargs, 'decoder_kwargs': decoder_kwargs},
-            pretrained_model, self._models,
-            default={
-                'min_input_size': (513, 513),
-                'scales': (1.0,), 'flip': False,
-                'extractor_kwargs': {},
-                'aspp_kwargs': {}, 'decoder_kwargs': {}})
+        param, path = utils.prepare_model_param(locals(), self._models)
 
         super(DeepLabV3plusXception65, self).__init__(
             Xception65(**param['extractor_kwargs']),

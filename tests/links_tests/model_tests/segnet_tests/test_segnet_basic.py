@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import unittest
 
@@ -17,7 +18,9 @@ class TestSegNetBasic(unittest.TestCase):
 
     def setUp(self):
         self.n_class = 10
-        self.link = SegNetBasic(n_class=self.n_class)
+        params = copy.deepcopy(SegNetBasic.preset_params['camvid'])
+        params['n_class'] = self.n_class
+        self.link = SegNetBasic(**params)
 
     def check_call(self):
         xp = self.link.xp
@@ -51,26 +54,24 @@ class TestSegNetBasic(unittest.TestCase):
 
 
 @testing.parameterize(*testing.product({
-    'n_class': [None, 5, 11],
+    'n_class': [5, 11],
     'pretrained_model': ['camvid'],
 }))
 class TestSegNetPretrained(unittest.TestCase):
 
     @attr.slow
     def test_pretrained(self):
-        kwargs = {
-            'n_class': self.n_class,
-            'pretrained_model': self.pretrained_model,
-        }
+        params = copy.deepcopy(SegNetBasic.preset_params['camvid'])
+        params['n_class'] = self.n_class
 
         if self.pretrained_model == 'camvid':
-            valid = self.n_class in {None, 11}
+            valid = self.n_class == 11
 
         if valid:
-            SegNetBasic(**kwargs)
+            SegNetBasic(pretrained_model=self.pretrained_model, **params)
         else:
             with self.assertRaises(ValueError):
-                SegNetBasic(**kwargs)
+                SegNetBasic(pretrained_model=self.pretrained_model, **params)
 
 
 testing.run_module(__name__, __file__)

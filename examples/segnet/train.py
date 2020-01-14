@@ -84,7 +84,8 @@ def main():
 
     # Model
     class_weight = np.load(args.class_weight)
-    model = SegNetBasic(n_class=len(camvid_label_names))
+    model = SegNetBasic(
+        pretrained_model=None, **SegNetBasic.preset_params['camvid'])
     model = PixelwiseSoftmaxClassifier(
         model, class_weight=class_weight)
     if args.gpu >= 0:
