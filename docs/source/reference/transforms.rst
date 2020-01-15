@@ -23,6 +23,10 @@ random_crop
 ~~~~~~~~~~~
 .. autofunction:: random_crop
 
+random_erasing
+~~~~~~~~~~~~~
+.. autofunction:: random_erasing
+
 random_expand
 ~~~~~~~~~~~~~
 .. autofunction:: random_expand
