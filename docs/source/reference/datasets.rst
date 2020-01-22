@@ -62,6 +62,13 @@ CUBKeypointDataset
 ~~~~~~~~~~~~~~~~~~
 .. autoclass:: CUBKeypointDataset
 
+FLIC
+----
+
+FLICKeypointDataset
+~~~~~~~~~~~~~~~~~~~
+.. autoclass:: FLICKeypointDataset
+
 MS COCO
 -------
 
@@ -83,7 +90,6 @@ OnlineProducts
 OnlineProductsDataset
 ~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: OnlineProductsDataset
-
 
 PASCAL VOC
 ----------

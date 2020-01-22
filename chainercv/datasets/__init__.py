@@ -22,6 +22,8 @@ from chainercv.datasets.cub.cub_label_dataset import CUBLabelDataset  # NOQA
 from chainercv.datasets.cub.cub_utils import cub_label_names  # NOQA
 from chainercv.datasets.directory_parsing_label_dataset import directory_parsing_label_names  # NOQA
 from chainercv.datasets.directory_parsing_label_dataset import DirectoryParsingLabelDataset  # NOQA
+from chainercv.datasets.flic.flic_keypoint_dataset import FLICKeypointDataset  # NOQA
+from chainercv.datasets.flic.flic_utils import flic_joint_names  # NOQA
 from chainercv.datasets.mixup_soft_label_dataset import MixUpSoftLabelDataset  # NOQA
 from chainercv.datasets.online_products.online_products_dataset import online_products_super_label_names  # NOQA
 from chainercv.datasets.online_products.online_products_dataset import OnlineProductsDataset  # NOQA
