@@ -1,6 +1,7 @@
 import filelock
 import numpy as np
 import os
+import xml.etree.ElementTree as ET
 
 from chainer.dataset import download
 
@@ -41,6 +42,42 @@ def get_voc(year, split):
         ext = os.path.splitext(urls[key])[1]
         utils.extractall(download_file_path, data_root, ext)
     return base_path
+
+
+def parse_voc_bbox_annotation(anno_path, label_names,
+                              skip_names_not_in_label_names=False):
+    anno = ET.parse(anno_path)
+    bbox = []
+    label = []
+    difficult = []
+    obj = anno.find('size')
+    H = int(obj.find('height').text)
+    W = int(obj.find('width').text)
+    for obj in anno.findall('object'):
+        name = obj.find('name').text.lower().strip()
+        if skip_names_not_in_label_names and name not in label_names:
+            continue
+        label.append(label_names.index(name))
+        bndbox_anno = obj.find('bndbox')
+        # subtract 1 to make pixel indexes 0-based
+        bbox.append([
+            int(bndbox_anno.find(tag).text) - 1
+            for tag in ('ymin', 'xmin', 'ymax', 'xmax')])
+        if obj.find('difficult') is not None:
+            difficult.append(int(obj.find('difficult').text))
+
+    if len(bbox) > 0:
+        bbox = np.stack(bbox).astype(np.float32)
+        bbox[:, 0:2] = bbox[:, 0:2].clip(0)
+        bbox[:, 2] = bbox[:, 2].clip(0, H)
+        bbox[:, 3] = bbox[:, 3].clip(0, W)
+        label = np.stack(label).astype(np.int32)
+        difficult = np.array(difficult, dtype=np.bool)
+    else:
+        bbox = np.zeros((0, 4), dtype=np.float32)
+        label = np.zeros((0,), dtype=np.int32)
+        difficult = np.zeros((0,), dtype=np.bool)
+    return bbox, label, difficult
 
 
 def image_wise_to_instance_wise(label_img, inst_img):
