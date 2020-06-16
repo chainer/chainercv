@@ -144,6 +144,7 @@ class PickableSequentialChain(chainer.Chain):
         h = x
         for name in self.layer_names[:last_index + 1]:
             h = self[name](h)
+            h.name = name
             if name in pick:
                 layers[name] = h
 
