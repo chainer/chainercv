@@ -22,6 +22,15 @@ from chainercv.datasets.cub.cub_label_dataset import CUBLabelDataset  # NOQA
 from chainercv.datasets.cub.cub_utils import cub_label_names  # NOQA
 from chainercv.datasets.directory_parsing_label_dataset import directory_parsing_label_names  # NOQA
 from chainercv.datasets.directory_parsing_label_dataset import DirectoryParsingLabelDataset  # NOQA
+from chainercv.datasets.imagenet.imagenet_det_bbox_dataset import ImagenetDetBboxDataset  # NOQA
+from chainercv.datasets.imagenet.imagenet_full_bbox_dataset import ImagenetFullBboxDataset  # NOQA
+from chainercv.datasets.imagenet.imagenet_loc_bbox_dataset import ImagenetLocBboxDataset  # NOQA
+from chainercv.datasets.imagenet.imagenet_utils import get_imagenet_full_bbox_label_names  # NOQA
+from chainercv.datasets.imagenet.imagenet_utils import imagenet_det_bbox_label_names  # NOQA
+from chainercv.datasets.imagenet.imagenet_utils import imagenet_det_synset_ids  # NOQA
+from chainercv.datasets.imagenet.imagenet_utils import imagenet_full_bbox_synset_ids  # NOQA
+from chainercv.datasets.imagenet.imagenet_utils import imagenet_loc_bbox_label_names  # NOQA
+from chainercv.datasets.imagenet.imagenet_utils import imagenet_loc_synset_ids  # NOQA
 from chainercv.datasets.mixup_soft_label_dataset import MixUpSoftLabelDataset  # NOQA
 from chainercv.datasets.online_products.online_products_dataset import online_products_super_label_names  # NOQA
 from chainercv.datasets.online_products.online_products_dataset import OnlineProductsDataset  # NOQA

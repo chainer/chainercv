@@ -62,6 +62,21 @@ CUBKeypointDataset
 ~~~~~~~~~~~~~~~~~~
 .. autoclass:: CUBKeypointDataset
 
+Imagenet
+--------
+
+ImagenetDetBboxDataset
+~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: ImagenetDetBboxDataset
+
+ImagenetFullBboxDataset
+~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: ImagenetFullBboxDataset
+
+ImagenetLocBboxDataset
+~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: ImagenetLocBboxDataset
+
 MS COCO
 -------
 
