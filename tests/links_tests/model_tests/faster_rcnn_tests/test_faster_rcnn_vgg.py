@@ -33,8 +33,6 @@ class TestFasterRCNNVGG16(unittest.TestCase):
             self.n_fg_class, pretrained_model=None,
             proposal_creator_params=proposal_creator_params)
 
-        chainer.config.train = self.train
-
     def check_call(self):
         xp = self.link.xp
 
@@ -44,7 +42,8 @@ class TestFasterRCNNVGG16(unittest.TestCase):
                 low=-1., high=1.,
                 size=(self.B, 3, feat_size[0] * 16, feat_size[1] * 16)
             ).astype(np.float32))
-        roi_cls_locs, roi_scores, rois, roi_indices = self.link(x)
+        with chainer.using_config('train', self.train):
+            roi_cls_locs, roi_scores, rois, roi_indices = self.link(x)
         if self.train:
             n_roi = self.B * self.n_train_post_nms
         else:
@@ -93,7 +92,7 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
         _imgs = np.random.uniform(
             low=-122.5, high=122.5, size=(1, 3, 600, 800)).astype(np.float32)
         self.imgs = chainer.Variable(_imgs)
-        self.scale = chainer.Variable(np.array(1.))
+        self.scale = chainer.Variable(np.array([1.]))
 
     def check_call(self):
         loss = self.link(self.imgs, self.bboxes, self.labels, self.scale)
@@ -112,6 +111,31 @@ class TestFasterRCNNVGG16Loss(unittest.TestCase):
         self.imgs.to_gpu()
         self.scale.to_gpu()
         self.check_call()
+
+
+@testing.parameterize(*testing.product({
+    'n_fg_class': [None, 10, 20],
+    'pretrained_model': ['voc0712', 'imagenet'],
+}))
+class TestFasterRCNNVGG16Pretrained(unittest.TestCase):
+
+    @attr.slow
+    def test_pretrained(self):
+        kwargs = {
+            'n_fg_class': self.n_fg_class,
+            'pretrained_model': self.pretrained_model,
+        }
+
+        if self.pretrained_model == 'voc0712':
+            valid = self.n_fg_class in {None, 20}
+        elif self.pretrained_model == 'imagenet':
+            valid = self.n_fg_class is not None
+
+        if valid:
+            FasterRCNNVGG16(**kwargs)
+        else:
+            with self.assertRaises(ValueError):
+                FasterRCNNVGG16(**kwargs)
 
 
 testing.run_module(__name__, __file__)

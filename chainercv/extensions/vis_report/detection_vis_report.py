@@ -64,7 +64,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
     Args:
         iterator: Iterator object that produces images and ground truth.
         target: Link object used for detection.
-        label_names (iterable of str): Name of labels ordered according
+        label_names (iterable of strings): Name of labels ordered according
             to label ids. If this is :obj:`None`, labels will be skipped.
         filename (str): Basename for the saved image. It can contain two
             keywords, :obj:`'{iteration}'` and :obj:`'{index}'`. They are
@@ -92,7 +92,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
         if _available:
             # Dynamically import pyplot so that the backend of matplotlib
             # can be configured after importing chainercv.
-            import matplotlib.pyplot as plot
+            import matplotlib.pyplot as plt
         else:
             return
 
@@ -115,15 +115,15 @@ class DetectionVisReport(chainer.training.extension.Extension):
             for (img, gt_bbox, gt_label), pred_bbox, pred_label, pred_score \
                     in zip(batch, pred_bboxes, pred_labels, pred_scores):
 
-                pred_bbox = chainer.cuda.to_cpu(pred_bbox)
-                pred_label = chainer.cuda.to_cpu(pred_label)
-                pred_score = chainer.cuda.to_cpu(pred_score)
+                pred_bbox = chainer.backends.cuda.to_cpu(pred_bbox)
+                pred_label = chainer.backends.cuda.to_cpu(pred_label)
+                pred_score = chainer.backends.cuda.to_cpu(pred_score)
 
                 out_file = self.filename.format(
                     index=idx, iteration=trainer.updater.iteration)
                 out_file = os.path.join(trainer.out, out_file)
 
-                fig = plot.figure()
+                fig = plt.figure()
 
                 ax_gt = fig.add_subplot(2, 1, 1)
                 ax_gt.set_title('ground truth')
@@ -137,7 +137,7 @@ class DetectionVisReport(chainer.training.extension.Extension):
                     img, pred_bbox, pred_label, pred_score,
                     label_names=self.label_names, ax=ax_pred)
 
-                plot.savefig(out_file)
-                plot.close()
+                plt.savefig(out_file, bbox_inches='tight')
+                plt.close()
 
                 idx += 1

@@ -3,23 +3,17 @@ import unittest
 import numpy as np
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 from chainer.functions import relu
 from chainer import testing
-from chainer.testing import attr
+from chainermn import create_communicator
 
 from chainercv.links import Conv2DBNActiv
+from chainercv.utils.testing import attr
 
 
 def _add_one(x):
     return x + 1
-
-
-try:
-    from chainermn import create_communicator
-    _chainermn_available = True
-except ImportError:
-    _chainermn_available = False
 
 
 @testing.parameterize(*testing.product({
@@ -126,7 +120,7 @@ class TestConv2DBNActiv(unittest.TestCase):
         self.check_backward(cuda.to_gpu(self.x), cuda.to_gpu(self.gy))
 
 
-@unittest.skipIf(not _chainermn_available, 'ChainerMN is not installed')
+@attr.mpi
 class TestConv2DMultiNodeBNActiv(unittest.TestCase):
 
     in_channels = 1
@@ -169,11 +163,11 @@ class TestConv2DMultiNodeBNActiv(unittest.TestCase):
             decimal=4
         )
 
-    def test_multi_node_bach_normalization_forward_cpu(self):
+    def test_multi_node_batch_normalization_forward_cpu(self):
         self.check_forward(self.x)
 
     @attr.gpu
-    def test_multi_node_bach_normalization_forward_gpu(self):
+    def test_multi_node_batch_normalization_forward_gpu(self):
         self.l.to_gpu()
         self.check_forward(cuda.to_gpu(self.x))
 
@@ -183,11 +177,11 @@ class TestConv2DMultiNodeBNActiv(unittest.TestCase):
         y.grad = y_grad
         y.backward()
 
-    def test_multi_node_bach_normalization_backward_cpu(self):
+    def test_multi_node_batch_normalization_backward_cpu(self):
         self.check_backward(self.x, self.gy)
 
     @attr.gpu
-    def test_multi_node_bach_normalization_backward_gpu(self):
+    def test_multi_node_batch_normalization_backward_gpu(self):
         self.l.to_gpu()
         self.check_backward(cuda.to_gpu(self.x), cuda.to_gpu(self.gy))
 

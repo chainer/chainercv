@@ -1,18 +1,15 @@
 import numpy as np
 import os
 
-import chainer
-
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
+from chainercv.utils import read_label
 
 
-class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
+class VOCSemanticSegmentationDataset(GetterDataset):
 
     """Semantic segmentation dataset for PASCAL `VOC2012`_.
-
-    The class name of the label :math:`l` is :math:`l` th element of
-    :obj:`chainercv.datasets.voc_semantic_segmentation_label_names`.
 
     .. _`VOC2012`: http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
@@ -22,9 +19,20 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/voc`.
         split ({'train', 'val', 'trainval'}): Select a split of the dataset.
 
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`label`, ":math:`(H, W)`", :obj:`int32`, \
+        ":math:`[-1, \#class - 1]`"
     """
 
     def __init__(self, data_dir='auto', split='train'):
+        super(VOCSemanticSegmentationDataset, self).__init__()
+
         if split not in ['train', 'trainval', 'val']:
             raise ValueError(
                 'please pick split from \'train\', \'trainval\', \'val\'')
@@ -38,37 +46,22 @@ class VOCSemanticSegmentationDataset(chainer.dataset.DatasetMixin):
 
         self.data_dir = data_dir
 
+        self.add_getter('img', self._get_image)
+        self.add_getter('label', self._get_label)
+
     def __len__(self):
         return len(self.ids)
 
-    def get_example(self, i):
-        """Returns the i-th example.
-
-        Returns a color image and a label image. The color image is in CHW
-        format and the label image is in HW format.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            tuple of color image and label whose shapes are (3, H, W) and
-            (H, W) respectively. H and W are height and width of the
-            images. The dtype of the color image is :obj:`numpy.float32` and
-            the dtype of the label image is :obj:`numpy.int32`.
-
-        """
-        if i >= len(self):
-            raise IndexError('index is too large')
-        img_file = os.path.join(
+    def _get_image(self, i):
+        img_path = os.path.join(
             self.data_dir, 'JPEGImages', self.ids[i] + '.jpg')
-        img = read_image(img_file, color=True)
-        label = self._load_label(self.data_dir, self.ids[i])
-        return img, label
+        img = read_image(img_path, color=True)
+        return img
 
-    def _load_label(self, data_dir, id_):
-        label_file = os.path.join(
-            data_dir, 'SegmentationClass', id_ + '.png')
-        label = read_image(label_file, dtype=np.int32, color=False)
+    def _get_label(self, i):
+        label_path = os.path.join(
+            self.data_dir, 'SegmentationClass', self.ids[i] + '.png')
+        label = read_label(label_path, dtype=np.int32)
         label[label == 255] = -1
         # (1, H, W) -> (H, W)
-        return label[0]
+        return label

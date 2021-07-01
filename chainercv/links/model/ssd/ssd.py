@@ -20,7 +20,7 @@ class SSD(chainer.Chain):
     Args:
         extractor: A link which extracts feature maps.
             This link must have :obj:`insize`, :obj:`grids` and
-            :meth:`__call__`.
+            :meth:`forward`.
 
             * :obj:`insize`: An integer which indicates \
             the size of input images. Images are resized to this size before \
@@ -33,7 +33,7 @@ class SSD(chainer.Chain):
         multibox: A link which computes :obj:`mb_locs` and :obj:`mb_confs`
             from feature maps.
             This link must have :obj:`n_class`, :obj:`aspect_ratios` and
-            :meth:`__call__`.
+            :meth:`forward`.
 
             * :obj:`n_class`: An integer which indicates the number of \
             classes. \
@@ -42,7 +42,7 @@ class SSD(chainer.Chain):
             Each tuple indicates the aspect ratios of default bounding boxes \
             at each feature maps. This value is used by \
             :class:`~chainercv.links.model.ssd.MultiboxCoder`.
-            * :meth:`__call__`: A method which computes \
+            * :meth:`forward`: A method which computes \
             :obj:`mb_locs` and :obj:`mb_confs`. \
             It must take a batched feature maps and \
             return :obj:`mb_locs` and :obj:`mb_confs`.
@@ -53,7 +53,7 @@ class SSD(chainer.Chain):
             for each feature map. This value is used by
             :class:`~chainercv.links.model.ssd.MultiboxCoder`.
         variance (tuple of floats): Two coefficients for decoding
-            the locations of bounding boxe.
+            the locations of bounding boxes.
             This value is used by
             :class:`~chainercv.links.model.ssd.MultiboxCoder`.
             The default value is :obj:`(0.1, 0.2)`.
@@ -102,7 +102,7 @@ class SSD(chainer.Chain):
         super(SSD, self).to_gpu(device)
         self.coder.to_gpu(device=device)
 
-    def __call__(self, x):
+    def forward(self, x):
         """Compute localization and classification from a batch of images.
 
         This method computes two variables, :obj:`mb_locs` and :obj:`mb_confs`.
@@ -179,7 +179,7 @@ class SSD(chainer.Chain):
 
            * **bboxes**: A list of float arrays of shape :math:`(R, 4)`, \
                where :math:`R` is the number of bounding boxes in a image. \
-               Each bouding box is organized by \
+               Each bounding box is organized by \
                :math:`(y_{min}, x_{min}, y_{max}, x_{max})` \
                in the second axis.
            * **labels** : A list of integer arrays of shape :math:`(R,)`. \
@@ -202,7 +202,7 @@ class SSD(chainer.Chain):
         with chainer.using_config('train', False), \
                 chainer.function.no_backprop_mode():
             x = chainer.Variable(self.xp.stack(x))
-            mb_locs, mb_confs = self(x)
+            mb_locs, mb_confs = self.forward(x)
         mb_locs, mb_confs = mb_locs.array, mb_confs.array
 
         bboxes = []
@@ -213,8 +213,8 @@ class SSD(chainer.Chain):
                 mb_loc, mb_conf, self.nms_thresh, self.score_thresh)
             bbox = transforms.resize_bbox(
                 bbox, (self.insize, self.insize), size)
-            bboxes.append(chainer.cuda.to_cpu(bbox))
-            labels.append(chainer.cuda.to_cpu(label))
-            scores.append(chainer.cuda.to_cpu(score))
+            bboxes.append(chainer.backends.cuda.to_cpu(bbox))
+            labels.append(chainer.backends.cuda.to_cpu(label))
+            scores.append(chainer.backends.cuda.to_cpu(score))
 
         return bboxes, labels, scores

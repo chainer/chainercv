@@ -49,7 +49,7 @@ class TestConstantStubLink(unittest.TestCase):
             self.assertEqual(out.dtype, orig.dtype)
 
             self.assertEqual(
-                chainer.cuda.get_array_module(out.array), xp)
+                chainer.backends.cuda.get_array_module(out.array), xp)
             out.to_cpu()
             np.testing.assert_equal(out.array, orig)
 
@@ -59,7 +59,7 @@ class TestConstantStubLink(unittest.TestCase):
     @attr.gpu
     def test_gpu(self):
         self.link.to_gpu()
-        self._check(chainer.cuda.cupy)
+        self._check(chainer.backends.cuda.cupy)
 
     @attr.gpu
     def test_gpu_to_cpu(self):

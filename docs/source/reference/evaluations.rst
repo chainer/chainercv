@@ -4,6 +4,14 @@ Evaluations
 .. module:: chainercv.evaluations
 
 
+Detection COCO
+--------------
+
+eval_detection_coco
+~~~~~~~~~~~~~~~~~~~
+.. autofunction:: eval_detection_coco
+
+
 Detection VOC
 -------------
 
@@ -19,6 +27,23 @@ calc_detection_voc_prec_rec
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: calc_detection_voc_prec_rec
 
+Instance Segmentation COCO
+--------------------------
+
+eval_instance_segmentation_coco
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: eval_instance_segmentation_coco
+
+Instance Segmentation VOC
+-------------------------
+
+eval_instance_segmentation_voc
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: eval_instance_segmentation_voc
+
+calc_instance_segmentation_voc_prec_rec
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: calc_instance_segmentation_voc_prec_rec
 
 Semantic Segmentation IoU
 -------------------------

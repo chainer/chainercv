@@ -1,3 +1,4 @@
+import filelock
 import numpy as np
 import os
 
@@ -25,21 +26,24 @@ def get_voc(year, split):
     if split == 'test' and year == '2007':
         key = '2007_test'
 
-    data_root = download.get_dataset_directory(root)
-    base_path = os.path.join(data_root, 'VOCdevkit/VOC{}'.format(year))
-    split_file = os.path.join(base_path, 'ImageSets/Main/{}.txt'.format(split))
-    if os.path.exists(split_file):
-        # skip downloading
-        return base_path
+    # To support ChainerMN, the target directory should be locked.
+    with filelock.FileLock(os.path.join(download.get_dataset_directory(
+            'pfnet/chainercv/.lock'), 'voc.lock')):
+        data_root = download.get_dataset_directory(root)
+        base_path = os.path.join(data_root, 'VOCdevkit/VOC{}'.format(year))
+        split_file = os.path.join(
+            base_path, 'ImageSets/Main/{}.txt'.format(split))
+        if os.path.exists(split_file):
+            # skip downloading
+            return base_path
 
-    download_file_path = utils.cached_download(urls[key])
-    ext = os.path.splitext(urls[key])[1]
-    utils.extractall(download_file_path, data_root, ext)
+        download_file_path = utils.cached_download(urls[key])
+        ext = os.path.splitext(urls[key])[1]
+        utils.extractall(download_file_path, data_root, ext)
     return base_path
 
 
 def image_wise_to_instance_wise(label_img, inst_img):
-    bbox = []
     mask = []
     label = []
     inst_ids = np.unique(inst_img)
@@ -50,16 +54,11 @@ def image_wise_to_instance_wise(label_img, inst_img):
         assert inst_id != -1
         assert lbl != -1
 
-        where = np.argwhere(msk)
-        (y_min, x_min), (y_max, x_max) = where.min(0), where.max(0) + 1
-
-        bbox.append((y_min, x_min, y_max, x_max))
         mask.append(msk)
         label.append(lbl)
-    bbox = np.array(bbox).astype(np.float32)
     mask = np.array(mask).astype(np.bool)
     label = np.array(label).astype(np.int32)
-    return bbox, mask, label
+    return mask, label
 
 
 voc_bbox_label_names = (

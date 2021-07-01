@@ -1,3 +1,4 @@
+import filelock
 import os
 import six
 
@@ -29,20 +30,24 @@ def _generate_voc2012_txt(base_path):
 
 
 def get_sbd():
-    data_root = download.get_dataset_directory(root)
-    base_path = os.path.join(data_root, 'benchmark_RELEASE/dataset')
+    # To support ChainerMN, the target directory should be locked.
+    with filelock.FileLock(os.path.join(download.get_dataset_directory(
+            'pfnet/chainercv/.lock'), 'sbd.lock')):
+        data_root = download.get_dataset_directory(root)
+        base_path = os.path.join(data_root, 'benchmark_RELEASE/dataset')
 
-    train_voc2012_file = os.path.join(base_path, 'train_voc2012.txt')
-    if os.path.exists(train_voc2012_file):
-        # skip downloading
-        return base_path
+        train_voc2012_file = os.path.join(base_path, 'train_voc2012.txt')
+        if os.path.exists(train_voc2012_file):
+            # skip downloading
+            return base_path
 
-    download_file_path = utils.cached_download(url)
-    ext = os.path.splitext(url)[1]
-    utils.extractall(download_file_path, data_root, ext)
+        download_file_path = utils.cached_download(url)
+        ext = os.path.splitext(url)[1]
+        utils.extractall(download_file_path, data_root, ext)
 
-    six.moves.urllib.request.urlretrieve(train_voc2012_url, train_voc2012_file)
-    _generate_voc2012_txt(base_path)
+        six.moves.urllib.request.urlretrieve(
+            train_voc2012_url, train_voc2012_file)
+        _generate_voc2012_txt(base_path)
 
     return base_path
 

@@ -2,24 +2,12 @@ from __future__ import division
 
 import numpy as np
 
-
-def _default_cmap(label):
-    """Color map used in PASCAL VOC"""
-    r, g, b = 0, 0, 0
-    i = label
-    for j in range(8):
-        if i & (1 << 0):
-            r |= 1 << (7 - j)
-        if i & (1 << 1):
-            g |= 1 << (7 - j)
-        if i & (1 << 2):
-            b |= 1 << (7 - j)
-        i >>= 3
-    return r, g, b
+from chainercv.visualizations.colormap import voc_colormap
+from chainercv.visualizations import vis_image
 
 
 def vis_semantic_segmentation(
-        label, label_names=None,
+        img, label, label_names=None,
         label_colors=None, ignore_label_color=(0, 0, 0), alpha=1,
         all_label_names_in_legend=False, ax=None):
     """Visualize a semantic segmentation.
@@ -31,32 +19,29 @@ def vis_semantic_segmentation(
         ...     import voc_semantic_segmentation_label_colors
         >>> from chainercv.datasets \
         ...     import voc_semantic_segmentation_label_names
-        >>> from chainercv.visualizations import vis_image
         >>> from chainercv.visualizations import vis_semantic_segmentation
-        >>> import matplotlib.pyplot as plot
+        >>> import matplotlib.pyplot as plt
         >>> dataset = VOCSemanticSegmentationDataset()
         >>> img, label = dataset[60]
-        >>> ax = vis_image(img)
-        >>> _, legend_handles = vis_semantic_segmentation(
-        ...     label,
+        >>> ax, legend_handles = vis_semantic_segmentation(
+        ...     img, label,
         ...     label_names=voc_semantic_segmentation_label_names,
         ...     label_colors=voc_semantic_segmentation_label_colors,
-        ...     alpha=0.9, ax=ax)
+        ...     alpha=0.9)
         >>> ax.legend(handles=legend_handles, bbox_to_anchor=(1, 1), loc=2)
-        >>> plot.show()
+        >>> plt.show()
 
     Args:
-        label (~numpy.ndarray): An integer array of shape
-            :math:`(height, width)`.
-            The values correspond to id for label names stored in
-            :obj:`label_names`.
+        img (~numpy.ndarray): See the table below. If this is :obj:`None`,
+            no image is displayed.
+        label (~numpy.ndarray): See the table below.
         label_names (iterable of strings): Name of labels ordered according
             to label ids.
         label_colors: (iterable of tuple): An iterable of colors for regular
             labels.
             Each color is RGB format and the range of its values is
             :math:`[0, 255]`.
-            If :obj:`colors` is :obj:`None`, the default color map used.
+            If :obj:`colors` is :obj:`None`, the default color map is used.
         ignore_label_color (tuple): Color for ignored label.
             This is RGB format and the range of its values is :math:`[0, 255]`.
             The default value is :obj:`(0, 0, 0)`.
@@ -74,6 +59,14 @@ def vis_semantic_segmentation(
         ax (matplotlib.axes.Axis): The visualization is displayed on this
             axis. If this is :obj:`None` (default), a new axis is created.
 
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`label`, ":math:`(H, W)`", :obj:`int32`, \
+        ":math:`[-1, \#class - 1]`"
+
     Returns:
         matploblib.axes.Axes and list of matplotlib.patches.Patch:
         Returns :obj:`ax` and :obj:`legend_handles`.
@@ -85,7 +78,6 @@ def vis_semantic_segmentation(
     """
     import matplotlib
     from matplotlib.patches import Patch
-    from matplotlib import pyplot as plot
 
     if label_names is not None:
         n_class = len(label_names)
@@ -100,26 +92,25 @@ def vis_semantic_segmentation(
     if label.max() >= n_class:
         raise ValueError('The values of label exceed the number of classes')
 
+    # Returns newly instantiated matplotlib.axes.Axes object if ax is None
+    ax = vis_image(img, ax=ax)
+
     if label_names is None:
         label_names = [str(l) for l in range(label.max() + 1)]
 
     if label_colors is None:
-        label_colors = [_default_cmap(l) for l in range(n_class)]
+        label_colors = voc_colormap(list(range(n_class)))
     # [0, 255] -> [0, 1]
     label_colors = np.array(label_colors) / 255
     cmap = matplotlib.colors.ListedColormap(label_colors)
 
-    img = cmap(label / (n_class - 1), alpha=alpha)
+    canvas_img = cmap(label / (n_class - 1), alpha=alpha)
 
     # [0, 255] -> [0, 1]
     ignore_label_color = np.array(ignore_label_color) / 255,
-    img[label < 0, :3] = ignore_label_color
+    canvas_img[label < 0, :3] = ignore_label_color
 
-    if ax is None:
-        fig = plot.figure()
-        ax = fig.add_subplot(1, 1, 1)
-
-    ax.imshow(img)
+    ax.imshow(canvas_img)
 
     legend_handles = []
     if all_label_names_in_legend:

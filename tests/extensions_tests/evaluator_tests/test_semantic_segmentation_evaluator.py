@@ -9,13 +9,16 @@ from chainer.iterators import SerialIterator
 from chainer import testing
 
 from chainercv.extensions import SemanticSegmentationEvaluator
+from chainercv.utils.testing import attr
+
+from chainermn import create_communicator
 
 
 class _SemanticSegmentationStubLink(chainer.Link):
 
-    def __init__(self, labels):
+    def __init__(self, labels, initial_count=0):
         super(_SemanticSegmentationStubLink, self).__init__()
-        self.count = 0
+        self.count = initial_count
         self.labels = labels
 
     def predict(self, imgs):
@@ -116,6 +119,69 @@ class TestSemanticSegmentationEvaluator(unittest.TestCase):
             eval_ = self.evaluator()
         # The result is reported to the current reporter.
         np.testing.assert_equal(reporter.observation, eval_)
+
+
+@attr.mpi
+class TestSemanticSegmentationEvaluatorMPI(unittest.TestCase):
+
+    def setUp(self):
+        self.comm = create_communicator('naive')
+
+        batchsize_per_process = 5
+        batchsize = batchsize_per_process * self.comm.size
+        if self.comm.rank == 0:
+            labels = [np.random.choice(
+                np.arange(3, dtype=np.int32), size=(32, 48))
+                for _ in range(10)]
+        else:
+            labels = None
+        initial_count = self.comm.rank * batchsize_per_process
+
+        labels = self.comm.bcast_obj(labels)
+        self.labels = labels
+
+        self.dataset = TupleDataset(
+            np.random.uniform(size=(10, 3, 32, 48)),
+            labels)
+        self.initial_count = initial_count
+        self.batchsize = batchsize
+
+    def test_consistency(self):
+        reporter = chainer.Reporter()
+
+        if self.comm.rank == 0:
+            multi_iterator = SerialIterator(
+                self.dataset, self.batchsize, repeat=False, shuffle=False)
+        else:
+            multi_iterator = None
+        multi_link = _SemanticSegmentationStubLink(
+            self.labels, self.initial_count)
+        multi_evaluator = SemanticSegmentationEvaluator(
+            multi_iterator, multi_link,
+            label_names=('cls0', 'cls1', 'cls2'),
+            comm=self.comm)
+        reporter.add_observer('target', multi_link)
+        with reporter:
+            multi_mean = multi_evaluator.evaluate()
+
+        if self.comm.rank != 0:
+            self.assertEqual(multi_mean, {})
+            return
+
+        single_iterator = SerialIterator(
+            self.dataset, self.batchsize, repeat=False, shuffle=False)
+        single_link = _SemanticSegmentationStubLink(
+            self.labels)
+        single_evaluator = SemanticSegmentationEvaluator(
+            single_iterator, single_link,
+            label_names=('cls0', 'cls1', 'cls2'))
+        reporter.add_observer('target', single_link)
+        with reporter:
+            single_mean = single_evaluator.evaluate()
+
+        self.assertEqual(set(multi_mean.keys()), set(single_mean.keys()))
+        for key in multi_mean.keys():
+            np.testing.assert_equal(single_mean[key], multi_mean[key])
 
 
 testing.run_module(__name__, __file__)

@@ -5,7 +5,7 @@ import numpy as np
 import chainer
 from chainer.datasets import ConcatenatedDataset
 from chainer.datasets import TransformDataset
-from chainer.optimizer import WeightDecay
+from chainer.optimizer_hooks import WeightDecay
 from chainer import serializers
 from chainer import training
 from chainer.training import extensions
@@ -24,6 +24,10 @@ from chainercv.links.model.ssd import random_crop_with_bbox_constraints
 from chainercv.links.model.ssd import random_distort
 from chainercv.links.model.ssd import resize_with_random_interpolation
 
+# https://docs.chainer.org/en/stable/tips.html#my-training-process-gets-stuck-when-using-multiprocessiterator
+import cv2
+cv2.setNumThreads(0)
+
 
 class MultiboxTrainChain(chainer.Chain):
 
@@ -34,7 +38,7 @@ class MultiboxTrainChain(chainer.Chain):
         self.alpha = alpha
         self.k = k
 
-    def __call__(self, imgs, gt_mb_locs, gt_mb_labels):
+    def forward(self, imgs, gt_mb_locs, gt_mb_labels):
         mb_locs, mb_confs = self.model(imgs)
         loc_loss, conf_loss = multibox_loss(
             mb_locs, mb_confs, gt_mb_locs, gt_mb_labels, self.k)
@@ -108,6 +112,8 @@ def main():
     parser.add_argument(
         '--model', choices=('ssd300', 'ssd512'), default='ssd300')
     parser.add_argument('--batchsize', type=int, default=32)
+    parser.add_argument('--iteration', type=int, default=120000)
+    parser.add_argument('--step', type=int, nargs='*', default=[80000, 100000])
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--out', default='result')
     parser.add_argument('--resume')
@@ -151,17 +157,20 @@ def main():
         else:
             param.update_rule.add_hook(WeightDecay(0.0005))
 
-    updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
-    trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
+    updater = training.updaters.StandardUpdater(
+        train_iter, optimizer, device=args.gpu)
+    trainer = training.Trainer(
+        updater, (args.iteration, 'iteration'), args.out)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1, init=1e-3),
-        trigger=triggers.ManualScheduleTrigger([80000, 100000], 'iteration'))
+        trigger=triggers.ManualScheduleTrigger(args.step, 'iteration'))
 
     trainer.extend(
         DetectionVOCEvaluator(
             test_iter, model, use_07_metric=True,
             label_names=voc_bbox_label_names),
-        trigger=(10000, 'iteration'))
+        trigger=triggers.ManualScheduleTrigger(
+            args.step + [args.iteration], 'iteration'))
 
     log_interval = 10, 'iteration'
     trainer.extend(extensions.LogReport(trigger=log_interval))
@@ -173,10 +182,13 @@ def main():
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 
-    trainer.extend(extensions.snapshot(), trigger=(10000, 'iteration'))
+    trainer.extend(
+        extensions.snapshot(),
+        trigger=triggers.ManualScheduleTrigger(
+            args.step + [args.iteration], 'iteration'))
     trainer.extend(
         extensions.snapshot_object(model, 'model_iter_{.updater.iteration}'),
-        trigger=(120000, 'iteration'))
+        trigger=(args.iteration, 'iteration'))
 
     if args.resume:
         serializers.load_npz(args.resume, trainer)

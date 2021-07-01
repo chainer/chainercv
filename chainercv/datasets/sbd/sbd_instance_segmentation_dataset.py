@@ -2,8 +2,8 @@ import numpy as np
 import os
 import warnings
 
-import chainer
 
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv.datasets.sbd import sbd_utils
 from chainercv.datasets.voc import voc_utils
 from chainercv.utils import read_image
@@ -18,18 +18,15 @@ except ImportError:
 def _check_available():
     if not _available:
         warnings.warn(
-            'SciPy is not installed in your environment,',
+            'SciPy is not installed in your environment,'
             'so the dataset cannot be loaded.'
             'Please install SciPy to load dataset.\n\n'
             '$ pip install scipy')
 
 
-class SBDInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
+class SBDInstanceSegmentationDataset(GetterDataset):
 
     """Instance segmentation dataset for Semantic Boundaries Dataset `SBD`_.
-
-    The class name of the label :math:`l` is :math:`l` th element of
-    :obj:`chainercv.datasets.sbd_instance_segmentation_label_names`.
 
     .. _`SBD`: http://home.bharathh.info/pubs/codes/SBD/download.html
 
@@ -39,9 +36,22 @@ class SBDInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
             under :obj:`$CHAINER_DATASET_ROOT/pfnet/chainercv/sbd`.
         split ({'train', 'val', 'trainval'}): Select a split of the dataset.
 
+
+    This dataset returns the following data.
+
+    .. csv-table::
+        :header: name, shape, dtype, format
+
+        :obj:`img`, ":math:`(3, H, W)`", :obj:`float32`, \
+        "RGB, :math:`[0, 255]`"
+        :obj:`mask`, ":math:`(R, H, W)`", :obj:`bool`, --
+        :obj:`label`, ":math:`(R,)`", :obj:`int32`, \
+        ":math:`[0, \#fg\_class - 1]`"
     """
 
     def __init__(self, data_dir='auto', split='train'):
+        super(SBDInstanceSegmentationDataset, self).__init__()
+
         _check_available()
 
         if split not in ['train', 'trainval', 'val']:
@@ -57,37 +67,24 @@ class SBDInstanceSegmentationDataset(chainer.dataset.DatasetMixin):
 
         self.data_dir = data_dir
 
+        self.add_getter('img', self._get_image)
+        self.add_getter(('mask', 'label'), self._get_annotations)
+
     def __len__(self):
         return len(self.ids)
 
-    def get_example(self, i):
-        """Returns the i-th example.
-
-        Returns a color image, bounding boxes, masks and labels. The color
-        image is in CHW format.
-
-        Args:
-            i (int): The index of the example.
-
-        Returns:
-            A tuple of color image, bounding boxes, masks and labels whose
-            shapes are :math:`(3, H, W), (R, 4), (R, H, W), (R, )`
-            respectively.
-            :math:`H` and :math:`W` are height and width of the images,
-            and :math:`R` is the number of objects in the image.
-            The dtype of the color image and the bounding boxes are
-            :obj:`numpy.float32`, that of the masks is :obj: `numpy.bool`,
-            and that of the labels is :obj:`numpy.int32`.
-
-        """
+    def _get_image(self, i):
         data_id = self.ids[i]
         img_file = os.path.join(
             self.data_dir, 'img', data_id + '.jpg')
-        img = read_image(img_file, color=True)
+        return read_image(img_file, color=True)
+
+    def _get_annotations(self, i):
+        data_id = self.ids[i]
         label_img, inst_img = self._load_label_inst(data_id)
-        bbox, mask, label = voc_utils.image_wise_to_instance_wise(
+        mask, label = voc_utils.image_wise_to_instance_wise(
             label_img, inst_img)
-        return img, bbox, mask, label
+        return mask, label
 
     def _load_label_inst(self, data_id):
         label_file = os.path.join(

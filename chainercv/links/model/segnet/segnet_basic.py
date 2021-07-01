@@ -7,12 +7,7 @@ import chainer.functions as F
 import chainer.links as L
 
 from chainercv.transforms import resize
-from chainercv.utils import download_model
-
-
-def _pool_without_cudnn(p, x):
-    with chainer.using_config('use_cudnn', 'never'):
-        return p.apply((x,))[0]
+from chainercv import utils
 
 
 class SegNetBasic(chainer.Chain):
@@ -41,7 +36,7 @@ class SegNetBasic(chainer.Chain):
     Args:
         n_class (int): The number of classes. If :obj:`None`, it can
             be infered if :obj:`pretrained_model` is given.
-        pretrained_model (str): The destination of the pretrained
+        pretrained_model (string): The destination of the pretrained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
             above, it automatically loads weights stored under a directory
@@ -55,18 +50,16 @@ class SegNetBasic(chainer.Chain):
 
     _models = {
         'camvid': {
-            'n_class': 11,
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.2/segnet_camvid_2017_05_28.npz'
+            'param': {'n_class': 11},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'segnet_camvid_trained_2018_12_05.npz'
         }
     }
 
     def __init__(self, n_class=None, pretrained_model=None, initialW=None):
-        if n_class is None:
-            if pretrained_model not in self._models:
-                raise ValueError(
-                    'The n_class needs to be supplied as an argument.')
-            n_class = self._models[pretrained_model]['n_class']
+        param, path = utils.prepare_pretrained_model(
+            {'n_class': n_class}, pretrained_model, self._models)
+        self.n_class = param['n_class']
 
         if initialW is None:
             initialW = chainer.initializers.HeNormal()
@@ -98,28 +91,21 @@ class SegNetBasic(chainer.Chain):
                 64, 64, 7, 1, 3, nobias=True, initialW=initialW)
             self.conv_decode1_bn = L.BatchNormalization(64, initial_beta=0.001)
             self.conv_classifier = L.Convolution2D(
-                64, n_class, 1, 1, 0, initialW=initialW)
+                64, self.n_class, 1, 1, 0, initialW=initialW)
 
-        self.n_class = n_class
-
-        if pretrained_model in self._models:
-            path = download_model(self._models[pretrained_model]['url'])
+        if path:
             chainer.serializers.load_npz(path, self)
-        elif pretrained_model:
-            chainer.serializers.load_npz(pretrained_model, self)
 
-    def _upsampling_2d(self, x, pool):
-        if x.shape != pool.indexes.shape:
-            min_h = min(x.shape[2], pool.indexes.shape[2])
-            min_w = min(x.shape[3], pool.indexes.shape[3])
+    def _upsampling_2d(self, x, indices):
+        if x.shape != indices.shape:
+            min_h = min(x.shape[2], indices.shape[2])
+            min_w = min(x.shape[3], indices.shape[3])
             x = x[:, :, :min_h, :min_w]
-            pool.indexes = pool.indexes[:, :, :min_h, :min_w]
+            indices = indices[:, :, :min_h, :min_w]
         outsize = (x.shape[2] * 2, x.shape[3] * 2)
-        return F.upsampling_2d(
-            x, pool.indexes, ksize=(pool.kh, pool.kw),
-            stride=(pool.sy, pool.sx), pad=(pool.ph, pool.pw), outsize=outsize)
+        return F.upsampling_2d(x, indices, ksize=2, stride=2, outsize=outsize)
 
-    def __call__(self, x):
+    def forward(self, x):
         """Compute an image-wise score from a batch of images
 
         Args:
@@ -130,22 +116,22 @@ class SegNetBasic(chainer.Chain):
             An image-wise score. Its channel size is :obj:`self.n_class`.
 
         """
-        p1 = F.MaxPooling2D(2, 2)
-        p2 = F.MaxPooling2D(2, 2)
-        p3 = F.MaxPooling2D(2, 2)
-        p4 = F.MaxPooling2D(2, 2)
         h = F.local_response_normalization(x, 5, 1, 1e-4 / 5., 0.75)
-        h = _pool_without_cudnn(p1, F.relu(self.conv1_bn(self.conv1(h))))
-        h = _pool_without_cudnn(p2, F.relu(self.conv2_bn(self.conv2(h))))
-        h = _pool_without_cudnn(p3, F.relu(self.conv3_bn(self.conv3(h))))
-        h = _pool_without_cudnn(p4, F.relu(self.conv4_bn(self.conv4(h))))
-        h = self._upsampling_2d(h, p4)
+        h, indices1 = F.max_pooling_2d(
+            F.relu(self.conv1_bn(self.conv1(h))), 2, 2, return_indices=True)
+        h, indices2 = F.max_pooling_2d(
+            F.relu(self.conv2_bn(self.conv2(h))), 2, 2, return_indices=True)
+        h, indices3 = F.max_pooling_2d(
+            F.relu(self.conv3_bn(self.conv3(h))), 2, 2, return_indices=True)
+        h, indices4 = F.max_pooling_2d(
+            F.relu(self.conv4_bn(self.conv4(h))), 2, 2, return_indices=True)
+        h = self._upsampling_2d(h, indices4)
         h = self.conv_decode4_bn(self.conv_decode4(h))
-        h = self._upsampling_2d(h, p3)
+        h = self._upsampling_2d(h, indices3)
         h = self.conv_decode3_bn(self.conv_decode3(h))
-        h = self._upsampling_2d(h, p2)
+        h = self._upsampling_2d(h, indices2)
         h = self.conv_decode2_bn(self.conv_decode2(h))
-        h = self._upsampling_2d(h, p1)
+        h = self._upsampling_2d(h, indices1)
         h = self.conv_decode1_bn(self.conv_decode1(h))
         score = self.conv_classifier(h)
         return score
@@ -171,8 +157,8 @@ class SegNetBasic(chainer.Chain):
             with chainer.using_config('train', False), \
                     chainer.function.no_backprop_mode():
                 x = chainer.Variable(self.xp.asarray(img[np.newaxis]))
-                score = self.__call__(x)[0].data
-            score = chainer.cuda.to_cpu(score)
+                score = self.forward(x)[0].array
+            score = chainer.backends.cuda.to_cpu(score)
             if score.shape != (C, H, W):
                 dtype = score.dtype
                 score = resize(score, (H, W)).astype(dtype)

@@ -1,7 +1,6 @@
 from __future__ import division
 
 import numpy as np
-import warnings
 
 import chainer
 import chainer.functions as F
@@ -11,13 +10,7 @@ import chainer.links as L
 from chainercv.links.model.ssd import Multibox
 from chainercv.links.model.ssd import Normalize
 from chainercv.links.model.ssd import SSD
-from chainercv.utils import download_model
-
-try:
-    import cv2  # NOQA
-    _available = True
-except ImportError:
-    _available = False
+from chainercv import utils
 
 
 # RGB, (C, 1, 1) format
@@ -71,7 +64,7 @@ class VGG16(chainer.Chain):
             self.conv6 = L.DilatedConvolution2D(1024, 3, pad=6, dilate=6)
             self.conv7 = L.Convolution2D(1024, 1)
 
-    def __call__(self, x):
+    def forward(self, x):
         ys = []
 
         h = F.relu(self.conv1_1(x))
@@ -134,7 +127,7 @@ class VGG16Extractor300(VGG16):
             self.conv11_1 = L.Convolution2D(128, 1, **init)
             self.conv11_2 = L.Convolution2D(256, 3, **init)
 
-    def __call__(self, x):
+    def forward(self, x):
         """Compute feature maps from a batch of images.
 
         This method extracts feature maps from
@@ -150,7 +143,7 @@ class VGG16Extractor300(VGG16):
             Each variable contains a feature map.
         """
 
-        ys = super(VGG16Extractor300, self).__call__(x)
+        ys = super(VGG16Extractor300, self).forward(x)
         for i in range(8, 11 + 1):
             h = ys[-1]
             h = F.relu(self['conv{:d}_1'.format(i)](h))
@@ -191,7 +184,7 @@ class VGG16Extractor512(VGG16):
             self.conv12_1 = L.Convolution2D(128, 1, **init)
             self.conv12_2 = L.Convolution2D(256, 4, pad=1, **init)
 
-    def __call__(self, x):
+    def forward(self, x):
         """Compute feature maps from a batch of images.
 
         This method extracts feature maps from
@@ -207,48 +200,13 @@ class VGG16Extractor512(VGG16):
             Each variable contains a feature map.
         """
 
-        ys = super(VGG16Extractor512, self).__call__(x)
+        ys = super(VGG16Extractor512, self).forward(x)
         for i in range(8, 12 + 1):
             h = ys[-1]
             h = F.relu(self['conv{:d}_1'.format(i)](h))
             h = F.relu(self['conv{:d}_2'.format(i)](h))
             ys.append(h)
         return ys
-
-
-# to skip unsaved parameters, use strict option.
-def _load_npz(filename, obj):
-    with np.load(filename) as f:
-        d = chainer.serializers.NpzDeserializer(f, strict=False)
-        d.load(obj)
-
-
-def _check_pretrained_model(n_fg_class, pretrained_model, models):
-    if pretrained_model in models:
-        model = models[pretrained_model]
-        if n_fg_class:
-            if model['n_fg_class'] and not n_fg_class == model['n_fg_class']:
-                raise ValueError(
-                    'n_fg_class should be {:d}'.format(model['n_fg_class']))
-        else:
-            if not model['n_fg_class']:
-                raise ValueError('n_fg_class must be specified')
-            n_fg_class = model['n_fg_class']
-
-        path = download_model(model['url'])
-
-        if not _available:
-            warnings.warn(
-                'cv2 is not installed on your environment. '
-                'Pretrained models are trained with cv2. '
-                'The performace may change with Pillow backend.',
-                RuntimeWarning)
-    elif pretrained_model:
-        path = pretrained_model
-    else:
-        path = None
-
-    return n_fg_class, path
 
 
 class SSD300(SSD):
@@ -264,7 +222,7 @@ class SSD300(SSD):
 
     Args:
        n_fg_class (int): The number of classes excluding the background.
-       pretrained_model (str): The weight file to be loaded.
+       pretrained_model (string): The weight file to be loaded.
            This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
            The default value is :obj:`None`.
 
@@ -289,32 +247,33 @@ class SSD300(SSD):
 
     _models = {
         'voc0712': {
-            'n_fg_class': 20,
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/ssd300_voc0712_2017_06_06.npz'
+            'param': {'n_fg_class': 20},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'ssd300_voc0712_converted_2017_06_06.npz',
+            'cv2': True
         },
         'imagenet': {
-            'n_fg_class': None,
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/ssd_vgg16_imagenet_2017_06_09.npz'
+            'url': 'https://chainercv-models.preferred.jp/'
+            'ssd_vgg16_imagenet_converted_2017_06_09.npz',
+            'cv2': True
         },
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        n_fg_class, path = _check_pretrained_model(
-            n_fg_class, pretrained_model, self._models)
+        param, path = utils.prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         super(SSD300, self).__init__(
             extractor=VGG16Extractor300(),
             multibox=Multibox(
-                n_class=n_fg_class + 1,
+                n_class=param['n_fg_class'] + 1,
                 aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))),
             steps=(8, 16, 32, 64, 100, 300),
             sizes=(30, 60, 111, 162, 213, 264, 315),
             mean=_imagenet_mean)
 
         if path:
-            _load_npz(path, self)
+            chainer.serializers.load_npz(path, self, strict=False)
 
 
 class SSD512(SSD):
@@ -330,7 +289,7 @@ class SSD512(SSD):
 
     Args:
        n_fg_class (int): The number of classes excluding the background.
-       pretrained_model (str): The weight file to be loaded.
+       pretrained_model (string): The weight file to be loaded.
            This can take :obj:`'voc0712'`, `filepath` or :obj:`None`.
            The default value is :obj:`None`.
 
@@ -355,25 +314,26 @@ class SSD512(SSD):
 
     _models = {
         'voc0712': {
-            'n_fg_class': 20,
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/ssd512_voc0712_2017_06_06.npz'
+            'param': {'n_fg_class': 20},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'ssd512_voc0712_converted_2017_06_06.npz',
+            'cv2': True
         },
         'imagenet': {
-            'n_fg_class': None,
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.3/ssd_vgg16_imagenet_2017_06_09.npz'
+            'url': 'https://chainercv-models.preferred.jp/'
+            'ssd_vgg16_imagenet_converted_2017_06_09.npz',
+            'cv2': True
         },
     }
 
     def __init__(self, n_fg_class=None, pretrained_model=None):
-        n_fg_class, path = _check_pretrained_model(
-            n_fg_class, pretrained_model, self._models)
+        param, path = utils.prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         super(SSD512, self).__init__(
             extractor=VGG16Extractor512(),
             multibox=Multibox(
-                n_class=n_fg_class + 1,
+                n_class=param['n_fg_class'] + 1,
                 aspect_ratios=(
                     (2,), (2, 3), (2, 3), (2, 3), (2, 3), (2,), (2,))),
             steps=(8, 16, 32, 64, 128, 256, 512),
@@ -381,4 +341,4 @@ class SSD512(SSD):
             mean=_imagenet_mean)
 
         if path:
-            _load_npz(path, self)
+            chainer.serializers.load_npz(path, self, strict=False)

@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 from chainer import testing
 from chainer.testing import attr
 
@@ -36,16 +36,14 @@ class TestProposalCreator(unittest.TestCase):
             n_test_post_nms=self.n_test_post_nms,
             min_size=0)
 
-        chainer.config.train = self.train
-
     def check_proposal_creator(
             self, proposal_creator,
             bbox_d, score, anchor, img_size,
             scale=1.):
-        roi = self.proposal_creator(
-            bbox_d, score, anchor, img_size, scale)
+        with chainer.using_config('train', self.train):
+            roi = self.proposal_creator(bbox_d, score, anchor, img_size, scale)
 
-        if chainer.config.train:
+        if self.train:
             out_length = self.n_train_post_nms
         else:
             out_length = self.n_test_post_nms

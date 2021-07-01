@@ -8,7 +8,7 @@ from chainercv.links.model.faster_rcnn.faster_rcnn import FasterRCNN
 from chainercv.links.model.faster_rcnn.region_proposal_network import \
     RegionProposalNetwork
 from chainercv.links.model.vgg.vgg16 import VGG16
-from chainercv.utils import download_model
+from chainercv import utils
 
 
 class FasterRCNNVGG16(FasterRCNN):
@@ -42,7 +42,7 @@ class FasterRCNNVGG16(FasterRCNN):
 
     Args:
         n_fg_class (int): The number of classes excluding the background.
-        pretrained_model (str): The destination of the pre-trained
+        pretrained_model (string): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
             above, it automatically loads weights stored under a directory
@@ -50,8 +50,8 @@ class FasterRCNNVGG16(FasterRCNN):
             where :obj:`$CHAINER_DATASET_ROOT` is set as
             :obj:`$HOME/.chainer/dataset` unless you specify another value
             by modifying the environment variable.
-        min_size (int): A preprocessing paramter for :meth:`prepare`.
-        max_size (int): A preprocessing paramter for :meth:`prepare`.
+        min_size (int): A preprocessing parameter for :meth:`prepare`.
+        max_size (int): A preprocessing parameter for :meth:`prepare`.
         ratios (list of floats): This is ratios of width to height of
             the anchors.
         anchor_scales (list of numbers): This is areas of anchors.
@@ -64,22 +64,23 @@ class FasterRCNNVGG16(FasterRCNN):
             layers.
         loc_initialW (callable): Initializer for the localization head.
         score_initialW (callable): Initializer for the score head.
-        proposal_creator_params (dict): Key valued paramters for
+        proposal_creator_params (dict): Key valued parameters for
             :class:`~chainercv.links.model.faster_rcnn.ProposalCreator`.
 
     """
 
     _models = {
         'voc07': {
-            'n_fg_class': 20,
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.4/'
-            'faster_rcnn_vgg16_voc07_trained_2017_08_06.npz'
+            'param': {'n_fg_class': 20},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'faster_rcnn_vgg16_voc07_trained_2018_06_01.npz',
+            'cv2': True
         },
         'voc0712': {
-            'n_fg_class': 20,
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.4/faster_rcnn_vgg16_voc0712_trained_2017_07_21.npz'
+            'param': {'n_fg_class': 20},
+            'url': 'https://chainercv-models.preferred.jp/'
+            'faster_rcnn_vgg16_voc0712_trained_2017_07_21.npz',
+            'cv2': True
         },
     }
     feat_stride = 16
@@ -91,13 +92,9 @@ class FasterRCNNVGG16(FasterRCNN):
                  ratios=[0.5, 1, 2], anchor_scales=[8, 16, 32],
                  vgg_initialW=None, rpn_initialW=None,
                  loc_initialW=None, score_initialW=None,
-                 proposal_creator_params={}
-                 ):
-        if n_fg_class is None:
-            if pretrained_model not in self._models:
-                raise ValueError(
-                    'The n_fg_class needs to be supplied as an argument')
-            n_fg_class = self._models[pretrained_model]['n_fg_class']
+                 proposal_creator_params={}):
+        param, path = utils.prepare_pretrained_model(
+            {'n_fg_class': n_fg_class}, pretrained_model, self._models)
 
         if loc_initialW is None:
             loc_initialW = chainer.initializers.Normal(0.001)
@@ -121,7 +118,7 @@ class FasterRCNNVGG16(FasterRCNN):
             proposal_creator_params=proposal_creator_params,
         )
         head = VGG16RoIHead(
-            n_fg_class + 1,
+            param['n_fg_class'] + 1,
             roi_size=7, spatial_scale=1. / self.feat_stride,
             vgg_initialW=vgg_initialW,
             loc_initialW=loc_initialW,
@@ -138,13 +135,10 @@ class FasterRCNNVGG16(FasterRCNN):
             max_size=max_size
         )
 
-        if pretrained_model in self._models:
-            path = download_model(self._models[pretrained_model]['url'])
-            chainer.serializers.load_npz(path, self)
-        elif pretrained_model == 'imagenet':
+        if path == 'imagenet':
             self._copy_imagenet_pretrained_vgg16()
-        elif pretrained_model:
-            chainer.serializers.load_npz(pretrained_model, self)
+        elif path:
+            chainer.serializers.load_npz(path, self)
 
     def _copy_imagenet_pretrained_vgg16(self):
         pretrained_model = VGG16(pretrained_model='imagenet')
@@ -198,7 +192,7 @@ class VGG16RoIHead(chainer.Chain):
         self.roi_size = roi_size
         self.spatial_scale = spatial_scale
 
-    def __call__(self, x, rois, roi_indices):
+    def forward(self, x, rois, roi_indices):
         """Forward the chain.
 
         We assume that there are :math:`N` batches.

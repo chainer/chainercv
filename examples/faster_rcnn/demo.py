@@ -1,5 +1,5 @@
 import argparse
-import matplotlib.pyplot as plot
+import matplotlib.pyplot as plt
 
 import chainer
 
@@ -12,12 +12,19 @@ from chainercv.visualizations import vis_bbox
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--pretrained_model', default='voc07')
+    parser.add_argument('--pretrained-model')
+    parser.add_argument(
+        '--dataset', choices=('voc',), default='voc')
     parser.add_argument('image')
     args = parser.parse_args()
 
+    if args.dataset == 'voc':
+        if args.pretrained_model is None:
+            args.pretrained_model = 'voc07'
+        label_names = voc_bbox_label_names
+
     model = FasterRCNNVGG16(
-        n_fg_class=len(voc_bbox_label_names),
+        n_fg_class=len(label_names),
         pretrained_model=args.pretrained_model)
 
     if args.gpu >= 0:
@@ -29,8 +36,8 @@ def main():
     bbox, label, score = bboxes[0], labels[0], scores[0]
 
     vis_bbox(
-        img, bbox, label, score, label_names=voc_bbox_label_names)
-    plot.show()
+        img, bbox, label, score, label_names=label_names)
+    plt.show()
 
 
 if __name__ == '__main__':

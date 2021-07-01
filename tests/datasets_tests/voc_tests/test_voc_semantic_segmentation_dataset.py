@@ -1,10 +1,10 @@
 import unittest
 
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.datasets import voc_semantic_segmentation_label_names
 from chainercv.datasets import VOCSemanticSegmentationDataset
-from chainercv.testing import attr
 from chainercv.utils import assert_is_semantic_segmentation_dataset
 
 
@@ -19,7 +19,6 @@ class TestVOCSemanticSegmentationDataset(unittest.TestCase):
         self.dataset = VOCSemanticSegmentationDataset(split=self.split)
 
     @attr.slow
-    @attr.disk
     def test_voc_semantic_segmentation_dataset(self):
         assert_is_semantic_segmentation_dataset(
             self.dataset,

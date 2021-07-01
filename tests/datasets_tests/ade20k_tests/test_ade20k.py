@@ -2,11 +2,11 @@ import numpy as np
 import unittest
 
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.datasets import ade20k_semantic_segmentation_label_names
 from chainercv.datasets import ADE20KSemanticSegmentationDataset
 from chainercv.datasets import ADE20KTestImageDataset
-from chainercv.testing import attr
 from chainercv.utils import assert_is_semantic_segmentation_dataset
 from chainercv.utils.testing.assertions.assert_is_image import assert_is_image
 
@@ -21,7 +21,6 @@ class TestADE20KSemanticSegmentationDataset(unittest.TestCase):
         self.dataset = ADE20KSemanticSegmentationDataset(split=self.split)
 
     @attr.slow
-    @attr.disk
     def test_ade20k_dataset(self):
         assert_is_semantic_segmentation_dataset(
             self.dataset, len(ade20k_semantic_segmentation_label_names),
@@ -34,7 +33,6 @@ class TestADE20KTestImageDataset(unittest.TestCase):
         self.dataset = ADE20KTestImageDataset()
 
     @attr.slow
-    @attr.disk
     def test_ade20k_dataset(self):
         indices = np.random.permutation(np.arange(len(self.dataset)))
         for i in indices[:10]:

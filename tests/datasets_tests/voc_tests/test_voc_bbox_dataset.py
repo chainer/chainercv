@@ -3,11 +3,11 @@ import unittest
 import numpy as np
 
 from chainer import testing
+from chainer.testing import attr
 from chainer.testing import condition
 
 from chainercv.datasets import voc_bbox_label_names
 from chainercv.datasets import VOCBboxDataset
-from chainercv.testing import attr
 from chainercv.utils import assert_is_bbox_dataset
 
 
@@ -37,13 +37,11 @@ class TestVOCBboxDataset(unittest.TestCase):
         self.n_out = 4 if self.return_difficult else 3
 
     @attr.slow
-    @attr.disk
     def test_as_bbox_dataset(self):
         assert_is_bbox_dataset(
             self.dataset, len(voc_bbox_label_names), n_example=10)
 
     @attr.slow
-    @attr.disk
     @condition.repeat(10)
     def test_difficult(self):
         if not self.return_difficult:

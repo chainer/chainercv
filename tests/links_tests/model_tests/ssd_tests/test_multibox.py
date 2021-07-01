@@ -50,7 +50,7 @@ class TestMultibox(unittest.TestCase):
     @attr.gpu
     def test_forward_gpu(self):
         self.link.to_gpu()
-        self._check_forward(list(map(chainer.cuda.to_gpu, self.xs)))
+        self._check_forward(list(map(chainer.backends.cuda.to_gpu, self.xs)))
 
 
 testing.run_module(__name__, __file__)

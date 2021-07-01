@@ -1,58 +1,22 @@
-sudo: false
-dist: trusty
 language: python
 python:
-  - "2.7"
-  - "3.6"
-env:
-  - CHAINER_VERSION=">=3.2" OPTIONAL_MODULES=0
-  - CHAINER_VERSION=">=3.2" OPTIONAL_MODULES=1
-  - CHAINER_VERSION="==4.0.0b2" OPTIONAL_MODULES=0
-  - CHAINER_VERSION="==4.0.0b2" OPTIONAL_MODULES=1
+  - 3.6
 notifications:
   email: false
 
 install:
-  # We use the older version of conda because there is a bug in version 4.3.27.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-4.3.21-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-4.3.21-Linux-x86_64.sh -O miniconda.sh;
-    fi
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  # - conda update -q conda
-  # Useful for debugging any issues with conda
-  - conda info -a
-
-  - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
-      export LIBRARY_PATH="$HOME/miniconda/lib:$LIBRARY_PATH";
-      export LD_LIBRARY_PATH="$HOME/miniconda/envs/chainercv/lib:$LD_LIBRARY_PATH";
-      conda env create -f environment.yml;
-      source activate chainercv;
-    else
-      conda env create -f environment_minimum.yml;
-      source activate chainercv_minimum;
-    fi
+  - pip install cython
   - pip install -e .
-  - pip install "chainer$CHAINER_VERSION"
 
 script:
-  - pwd
-  - pip install flake8
-  - pip install hacking
-  - pip install autopep8
-  - pip install mock
-  - pip install nose
-  - pip install pytest
-  - flake8 .
+  - >-
+    pip install
+    autopep8
+    flake8
+    hacking==1.0.0
+    mock
+    pytest
   - autopep8 -r . | tee check_autopep8
   - test ! -s check_autopep8
-  - python style_checker.py .
-  - if [[ "$OPTIONAL_MODULES" == "1" ]]; then
-      MPLBACKEND="agg" mpiexec -n 2 nosetests -a '!gpu,!slow,!disk' tests;
-    else
-      MPLBACKEND="agg" nosetests -a '!gpu,!slow,!disk' tests;
-    fi
+  - python style_checker.py --exclude caffe_pb2.py -- .
+  - pytest -m 'not gpu and not slow' tests

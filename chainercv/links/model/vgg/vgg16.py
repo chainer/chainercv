@@ -12,11 +12,10 @@ from chainer.initializers import normal
 
 from chainer.links import Linear
 
-from chainercv.utils import download_model
-
 from chainercv.links.connection.conv_2d_activ import Conv2DActiv
 from chainercv.links.model.pickable_sequential_chain import \
     PickableSequentialChain
+from chainercv import utils
 
 
 # RGB order
@@ -32,14 +31,14 @@ class VGG16(PickableSequentialChain):
     The network can choose output layers from set of all
     intermediate layers.
     The attribute :obj:`pick` is the names of the layers that are going
-    to be picked by :meth:`__call__`.
+    to be picked by :meth:`forward`.
     The attribute :obj:`layer_names` is the names of all layers
     that can be picked.
 
     Examples:
 
         >>> model = VGG16()
-        # By default, __call__ returns a probability score (after Softmax).
+        # By default, forward returns a probability score (after Softmax).
         >>> prob = model(imgs)
         >>> model.pick = 'conv5_3'
         # This is layer conv5_3 (after ReLU).
@@ -69,7 +68,7 @@ class VGG16(PickableSequentialChain):
             the number of classes used to train the pretrained model
             is used. Otherwise, the number of classes in ILSVRC 2012 dataset
             is used.
-        pretrained_model (str): The destination of the pre-trained
+        pretrained_model (string): The destination of the pre-trained
             chainer model serialized as a :obj:`.npz` file.
             If this is one of the strings described
             above, it automatically loads weights stored under a directory
@@ -90,28 +89,21 @@ class VGG16(PickableSequentialChain):
 
     _models = {
         'imagenet': {
-            'n_class': 1000,
-            'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.4/vgg16_imagenet_convert_2017_07_18.npz',
-            'mean': _imagenet_mean
+            'param': {'n_class': 1000, 'mean': _imagenet_mean},
+            'overwritable': ('mean',),
+            'url': 'https://chainercv-models.preferred.jp/'
+            'vgg16_imagenet_converted_2017_07_18.npz'
         }
     }
 
     def __init__(self,
                  n_class=None, pretrained_model=None, mean=None,
                  initialW=None, initial_bias=None):
-        if n_class is None:
-            if pretrained_model in self._models:
-                n_class = self._models[pretrained_model]['n_class']
-            else:
-                n_class = 1000
-
-        if mean is None:
-            if pretrained_model in self._models:
-                mean = self._models[pretrained_model]['mean']
-            else:
-                mean = _imagenet_mean
-        self.mean = mean
+        param, path = utils.prepare_pretrained_model(
+            {'n_class': n_class, 'mean': mean},
+            pretrained_model, self._models,
+            {'n_class': 1000, 'mean': _imagenet_mean})
+        self.mean = param['mean']
 
         if initialW is None:
             # Employ default initializers used in the original paper.
@@ -148,14 +140,11 @@ class VGG16(PickableSequentialChain):
             self.fc7 = Linear(None, 4096, **kwargs)
             self.fc7_relu = relu
             self.fc7_dropout = dropout
-            self.fc8 = Linear(None, n_class, **kwargs)
+            self.fc8 = Linear(None, param['n_class'], **kwargs)
             self.prob = softmax
 
-        if pretrained_model in self._models:
-            path = download_model(self._models[pretrained_model]['url'])
+        if path:
             chainer.serializers.load_npz(path, self)
-        elif pretrained_model:
-            chainer.serializers.load_npz(pretrained_model, self)
 
 
 def _max_pooling_2d(x):

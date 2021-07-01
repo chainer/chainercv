@@ -1,9 +1,10 @@
+import filelock
 import numpy as np
 import os
 
-import chainer
 from chainer.dataset import download
 
+from chainercv.chainer_experimental.datasets.sliceable import GetterDataset
 from chainercv import utils
 
 
@@ -15,40 +16,47 @@ prob_map_url = 'http://www.vision.caltech.edu/visipedia-data/'\
 
 
 def get_cub():
-    data_root = download.get_dataset_directory(root)
-    base_path = os.path.join(data_root, 'CUB_200_2011')
-    if os.path.exists(base_path):
-        # skip downloading
-        return base_path
+    # To support ChainerMN, the target directory should be locked.
+    with filelock.FileLock(os.path.join(download.get_dataset_directory(
+            'pfnet/chainercv/.lock'), 'cub.lock')):
+        data_root = download.get_dataset_directory(root)
+        base_path = os.path.join(data_root, 'CUB_200_2011')
+        if os.path.exists(base_path):
+            # skip downloading
+            return base_path
 
-    download_file_path = utils.cached_download(url)
-    ext = os.path.splitext(url)[1]
-    utils.extractall(download_file_path, data_root, ext)
+        download_file_path = utils.cached_download(url)
+        ext = os.path.splitext(url)[1]
+        utils.extractall(download_file_path, data_root, ext)
     return base_path
 
 
 def get_cub_prob_map():
-    data_root = download.get_dataset_directory(root)
-    base_path = os.path.join(data_root, 'segmentations')
-    if os.path.exists(base_path):
-        # skip downloading
-        return base_path
+    # To support ChainerMN, the target directory should be locked.
+    with filelock.FileLock(os.path.join(download.get_dataset_directory(
+            'pfnet/chainercv/.lock'), 'cub.lock')):
+        data_root = download.get_dataset_directory(root)
+        base_path = os.path.join(data_root, 'segmentations')
+        if os.path.exists(base_path):
+            # skip downloading
+            return base_path
 
-    prob_map_download_file_path = utils.cached_download(prob_map_url)
-    prob_map_ext = os.path.splitext(prob_map_url)[1]
-    utils.extractall(
-        prob_map_download_file_path, data_root, prob_map_ext)
+        prob_map_download_file_path = utils.cached_download(prob_map_url)
+        prob_map_ext = os.path.splitext(prob_map_url)[1]
+        utils.extractall(
+            prob_map_download_file_path, data_root, prob_map_ext)
     return base_path
 
 
-class CUBDatasetBase(chainer.dataset.DatasetMixin):
+class CUBDatasetBase(GetterDataset):
 
     """Base class for CUB dataset.
 
     """
 
-    def __init__(self, data_dir='auto', return_bb=False,
-                 prob_map_dir='auto', return_prob_map=False):
+    def __init__(self, data_dir='auto', prob_map_dir='auto'):
+        super(CUBDatasetBase, self).__init__()
+
         if data_dir == 'auto':
             data_dir = get_cub()
         if prob_map_dir == 'auto':
@@ -76,11 +84,19 @@ class CUBDatasetBase(chainer.dataset.DatasetMixin):
             os.path.join(self.prob_map_dir, os.path.splitext(path)[0] + '.png')
             for path in self.paths]
 
-        self.return_bb = return_bb
-        self.return_prob_map = return_prob_map
+        self.add_getter('bbox', self._get_bbox)
+        self.add_getter('prob_map', self._get_prob_map)
 
     def __len__(self):
         return len(self.paths)
+
+    def _get_bbox(self, i):
+        return self.bbs[i][None]
+
+    def _get_prob_map(self, i):
+        prob_map = utils.read_label(self.prob_map_paths[i], dtype=np.uint8)
+        prob_map = prob_map.astype(np.float32) / 255  # [0, 255] -> [0, 1]
+        return prob_map
 
 
 cub_label_names = (

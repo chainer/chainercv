@@ -1,6 +1,6 @@
 import numpy as np
 
-from chainer import cuda
+from chainer.backends import cuda
 
 from chainercv.links.model.faster_rcnn.utils.bbox2loc import bbox2loc
 from chainercv.utils.bbox.bbox_iou import bbox_iou
@@ -25,7 +25,7 @@ class ProposalTargetCreator(object):
             foreground.
         neg_iou_thresh_hi (float): RoI is considered to be the background
             if IoU is in
-            [:obj:`neg_iou_thresh_hi`, :obj:`neg_iou_thresh_hi`).
+            [:obj:`neg_iou_thresh_lo`, :obj:`neg_iou_thresh_hi`).
         neg_iou_thresh_lo (float): See above.
 
     """
@@ -73,8 +73,8 @@ class ProposalTargetCreator(object):
                 is :math:`(R',)`. Its range is :math:`[0, L - 1]`, where
                 :math:`L` is the number of foreground classes.
             loc_normalize_mean (tuple of four floats): Mean values to normalize
-                coordinates of bouding boxes.
-            loc_normalize_std (tupler of four floats): Standard deviation of
+                coordinates of bounding boxes.
+            loc_normalize_std (tuple of four floats): Standard deviation of
                 the coordinates of bounding boxes.
 
         Returns:
@@ -98,8 +98,12 @@ class ProposalTargetCreator(object):
         n_bbox, _ = bbox.shape
 
         roi = np.concatenate((roi, bbox), axis=0)
+        if self.n_sample is None:
+            n_sample = len(roi)
+        else:
+            n_sample = self.n_sample
 
-        pos_roi_per_image = np.round(self.n_sample * self.pos_ratio)
+        pos_roi_per_image = np.round(n_sample * self.pos_ratio)
         iou = bbox_iou(roi, bbox)
         gt_assignment = iou.argmax(axis=1)
         max_iou = iou.max(axis=1)
@@ -118,7 +122,7 @@ class ProposalTargetCreator(object):
         # [neg_iou_thresh_lo, neg_iou_thresh_hi).
         neg_index = np.where((max_iou < self.neg_iou_thresh_hi) &
                              (max_iou >= self.neg_iou_thresh_lo))[0]
-        neg_roi_per_this_image = self.n_sample - pos_roi_per_this_image
+        neg_roi_per_this_image = n_sample - pos_roi_per_this_image
         neg_roi_per_this_image = int(min(neg_roi_per_this_image,
                                          neg_index.size))
         if neg_index.size > 0:

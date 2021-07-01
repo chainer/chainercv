@@ -1,6 +1,8 @@
 name: chainercv_minimum
 channels:
 - !!python/unicode
+  'anaconda'
+- !!python/unicode
   'defaults'
 dependencies:
   - Cython

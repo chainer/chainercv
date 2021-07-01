@@ -35,6 +35,10 @@ random_rotate
 ~~~~~~~~~~~~~
 .. autofunction:: random_rotate
 
+random_sized_crop
+~~~~~~~~~~~~~~~~~
+.. autofunction:: random_sized_crop
+
 resize
 ~~~~~~
 .. autofunction:: resize
@@ -42,6 +46,10 @@ resize
 resize_contain
 ~~~~~~~~~~~~~~
 .. autofunction:: resize_contain
+
+rotate
+~~~~~~
+.. autofunction:: rotate
 
 scale
 ~~~~~
@@ -66,6 +74,10 @@ flip_bbox
 resize_bbox
 ~~~~~~~~~~~
 .. autofunction:: resize_bbox
+
+rotate_bbox
+~~~~~~~~~~~
+.. autofunction:: rotate_bbox
 
 translate_bbox
 ~~~~~~~~~~~~~~

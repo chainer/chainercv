@@ -2,23 +2,27 @@ import numpy as np
 import unittest
 
 from chainer.dataset import DatasetMixin
-from chainer import testing
 
 from chainercv.utils import assert_is_bbox_dataset
 from chainercv.utils import generate_random_bbox
+from chainercv.utils import testing
 
 
 class BboxDataset(DatasetMixin):
 
-    def __init__(self, *options):
+    def __init__(self, options=(), empty_bbox=False):
         self.options = options
+        self.empty_bbox = empty_bbox
 
     def __len__(self):
         return 10
 
     def get_example(self, i):
         img = np.random.randint(0, 256, size=(3, 48, 64))
-        n_bbox = np.random.randint(10, 20)
+        if self.empty_bbox:
+            n_bbox = 0
+        else:
+            n_bbox = np.random.randint(10, 20)
         bbox = generate_random_bbox(n_bbox, (48, 64), 5, 20)
         label = np.random.randint(0, 20, size=n_bbox).astype(np.int32)
 
@@ -66,7 +70,8 @@ class MismatchLengthDataset(BboxDataset):
 
 @testing.parameterize(
     {'dataset': BboxDataset(), 'valid': True},
-    {'dataset': BboxDataset('option'), 'valid': True},
+    {'dataset': BboxDataset(empty_bbox=True), 'valid': True},
+    {'dataset': BboxDataset(('option',)), 'valid': True},
     {'dataset': InvalidSampleSizeDataset(), 'valid': False},
     {'dataset': InvalidImageDataset(), 'valid': False},
     {'dataset': InvalidBboxDataset(), 'valid': False},

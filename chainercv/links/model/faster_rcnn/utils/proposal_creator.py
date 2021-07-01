@@ -1,7 +1,7 @@
 import numpy as np
 
 import chainer
-from chainer import cuda
+from chainer.backends import cuda
 
 from chainercv.links.model.faster_rcnn.utils.loc2bbox import loc2bbox
 from chainercv.utils.bbox.non_maximum_suppression import \
@@ -133,7 +133,6 @@ class ProposalCreator(object):
         if n_pre_nms > 0:
             order = order[:n_pre_nms]
         roi = roi[order, :]
-        score = score[order]
 
         # Apply nms (e.g. threshold = 0.7).
         # Take after_nms_topN (e.g. 300).

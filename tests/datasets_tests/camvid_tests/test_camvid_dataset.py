@@ -1,10 +1,10 @@
 import unittest
 
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.datasets import camvid_label_names
 from chainercv.datasets import CamVidDataset
-from chainercv.testing import attr
 from chainercv.utils import assert_is_semantic_segmentation_dataset
 
 
@@ -19,7 +19,6 @@ class TestCamVidDataset(unittest.TestCase):
         self.dataset = CamVidDataset(split=self.split)
 
     @attr.slow
-    @attr.disk
     def test_camvid_dataset(self):
         assert_is_semantic_segmentation_dataset(
             self.dataset, len(camvid_label_names), n_example=10)

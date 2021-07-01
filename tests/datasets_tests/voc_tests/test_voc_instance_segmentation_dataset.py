@@ -1,10 +1,10 @@
 import unittest
 
 from chainer import testing
+from chainer.testing import attr
 
 from chainercv.datasets import voc_instance_segmentation_label_names
 from chainercv.datasets import VOCInstanceSegmentationDataset
-from chainercv.testing import attr
 from chainercv.utils import assert_is_instance_segmentation_dataset
 
 
@@ -19,7 +19,6 @@ class TestVOCInstanceSegmentationDataset(unittest.TestCase):
         self.dataset = VOCInstanceSegmentationDataset(split=self.split)
 
     @attr.slow
-    @attr.disk
     def test_voc_instance_segmentation_dataset(self):
         assert_is_instance_segmentation_dataset(
             self.dataset,

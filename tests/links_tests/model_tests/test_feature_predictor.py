@@ -16,7 +16,7 @@ class DummyFeatureExtractor(chainer.Chain):
         self.shape_1 = shape_1
         self.mean = np.zeros(in_channels).reshape((in_channels, 1, 1))
 
-    def __call__(self, x):
+    def forward(self, x):
         shape = (x.shape[0],) + self.shape_0
         y0 = self.xp.random.rand(*shape).astype(np.float32)
 
@@ -79,7 +79,7 @@ class TestFeaturePredictorPredict(unittest.TestCase):
     'crop_size': [192, (192, 256), (256, 192)],
     'scale_size': [None, 256, (256, 256)],
     'in_channels': [1, 3],
-    'mean': [None, np.float32(1)]
+    'mean': [None, np.float32(1)],
 }))
 class TestFeaturePredictor(unittest.TestCase):
 
@@ -104,6 +104,12 @@ class TestFeaturePredictor(unittest.TestCase):
             np.random.uniform(size=(self.in_channels, 286, 286)))
 
         self.assertEqual(out.shape, self.expected_shape)
+
+    def test_prepare_original_unaffected(self):
+        original = np.random.uniform(size=(self.in_channels, 286, 286))
+        input_ = original.copy()
+        self.link._prepare(input_)
+        np.testing.assert_equal(original, input_)
 
     def test_mean(self):
         if self.mean is None:

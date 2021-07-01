@@ -11,6 +11,8 @@ def flip(img, y_flip=False, x_flip=False, copy=False):
     Returns:
         Transformed :obj:`img` in CHW format.
     """
+
+    assert img.ndim == 3, 'The dimension of image must be 3'
     if y_flip:
         img = img[:, ::-1, :]
     if x_flip:

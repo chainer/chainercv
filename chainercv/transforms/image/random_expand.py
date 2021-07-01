@@ -42,7 +42,7 @@ def random_expand(img, max_ratio=4, fill=0, return_param=False):
         of the value.
 
         * **ratio** (*float*): The sampled value used to make the canvas.
-        * **y_offset** (*int*): The y coodinate of the top left corner of\
+        * **y_offset** (*int*): The y coordinate of the top left corner of\
             the image after placing on the canvas.
         * **x_offset** (*int*): The x coordinate of the top left corner\
             of the image after placing on the canvas.
