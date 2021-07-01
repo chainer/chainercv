@@ -17,7 +17,7 @@ If `faster_rcnn_*` is used as `--model`, the script conducts object detection.
 If `mask_rcnn_*` is used as `--model`, the script conducts instance segmentation instead.
 This demo downloads MS COCO pretrained model automatically if a pretrained model path is not given.
 ```
-$ python demo.py [--model faster_rcnn_fpn_resnet50|faster_rcnn_fpn_101|mask_rcnn_fpn_50|mask_rcnn_fpn_101] [--gpu <gpu>] [--pretrained-model <model_path>] <image>.jpg
+$ python demo.py [--model faster_rcnn_fpn_resnet50|faster_rcnn_fpn_resnet101|mask_rcnn_fpn_resnet50|mask_rcnn_fpn_resnet101] [--gpu <gpu>] [--pretrained-model <model_path>] <image>.jpg
 ```
 
 ## Evaluation
