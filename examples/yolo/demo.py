@@ -7,6 +7,11 @@ from chainercv.datasets import voc_bbox_label_names
 from chainercv.experimental.links import YOLOv2Tiny
 from chainercv.links import YOLOv2
 from chainercv.links import YOLOv3
+#
+from chainercv.links import FasterRCNNVGG16
+from chainercv.links import SSD300
+from chainercv.links import SSD512
+#
 from chainercv import utils
 from chainercv.visualizations import vis_bbox
 
@@ -14,7 +19,7 @@ from chainercv.visualizations import vis_bbox
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('yolo_v2', 'yolo_v2_tiny', 'yolo_v3'),
+        '--model', choices=('yolo_v2', 'yolo_v2_tiny', 'yolo_v3', 'SSD300', 'SSD512', 'Faster R-CNN'),
         default='yolo_v2')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--pretrained-model')
@@ -29,7 +34,15 @@ def main():
         cls = YOLOv2Tiny
     elif args.model == 'yolo_v3':
         cls = YOLOv3
+#
+    elif args.model == 'SSD300':
+        cls = SSD300
+    elif args.model == 'SSD512':
+        cls = SSD512
+    elif args.model == 'Faster R-CNN':
+        cls = FasterRCNNVGG16
 
+#
     if args.dataset == 'voc':
         if args.pretrained_model is None:
             args.pretrained_model = 'voc0712'

@@ -18,7 +18,7 @@ Similar issue is reported [here](https://github.com/AlexeyAB/darknet#how-to-calc
 ## Demo
 Detect objects in an given image. This demo downloads Pascal VOC pretrained model automatically if a pretrained model path is not given.
 ```
-$ python demo.py [--model yolo_v2|yolo_v2_tiny|yolo_v3] [--gpu <gpu>] [--pretrained-model <model_path>] <image>.jpg
+$ python demo.py [--model yolo_v2|yolo_v2_tiny|yolo_v3|SSD300|SSD512|Faster R-CNN] [--gpu <gpu>] [--pretrained-model <model_path>] <image>.jpg
 ```
 
 ## Convert Darknet model
